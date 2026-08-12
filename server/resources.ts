@@ -7704,7 +7704,8 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets)
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
 		// Count the ABANDONED sessions the heartbeat can never bucket.
 		//
@@ -7830,9 +7831,7 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length
-				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
-				: 0,
+			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -8211,7 +8210,10 @@ const HEALTH_MAX_ROWS = 4000;
 export class ServerHealth extends DashboardEndpoint {
 	async get(target?: any) {
 		const now = Date.now();
-		const mins = Math.min(Math.max(parseInt(queryOne(target, 'minutes'), 10) || 15, 1), 180);
+		// Default 60, not 15. The gauges (database-size, storage-volume,
+		// main-thread-utilization) are emitted sparsely, so a 15-minute window
+		// routinely landed between samples and reported them as absent.
+		const mins = Math.min(Math.max(parseInt(queryOne(target, 'minutes'), 10) || 60, 1), 1440);
 		const since = now - mins * 60_000;
 
 		let rows: any[] = [];
@@ -8235,25 +8237,52 @@ export class ServerHealth extends DashboardEndpoint {
 			readError = String(e?.message || e);
 		}
 
-		const pick = (metric: string) => rows.filter((r) => r.metric === metric);
+		/* Metric names are matched by SHAPE, not by an exact string.
+		 *
+		 * The first cut of this hard-coded 'main-thread-utilization', 'cpu-usage',
+		 * 'database-size' and friends, and on the real instance every one of them
+		 * missed: the response_* and duration metrics resolved, so the panel looked
+		 * alive while thread utilization, CPU, database size and replication lag all
+		 * rendered as em-dashes — the failure mode that looks exactly like a healthy
+		 * idle server. Harper's names vary by version and casing, so normalise both
+		 * sides to bare lowercase letters and match on that: mainThreadUtilization,
+		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
+		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
+		 * unrecognised name is visible on the page instead of silently absent. */
+		const norm = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+		const pick = (...names: string[]) => {
+			const want = names.map(norm);
+			return rows.filter((r) => want.includes(norm(r.metric)));
+		};
+		/* Which field carries the number also varies by metric — a gauge lands in
+		 * `total`, a rate in `ratio`, a timing in `mean`. Take the first that is
+		 * actually a number rather than assuming one. */
+		const valueOf = (r: any, prefer?: string) => {
+			for (const f of [prefer, 'total', 'value', 'ratio', 'mean', 'median'].filter(Boolean) as string[]) {
+				const n = Number(r?.[f]);
+				if (Number.isFinite(n)) return n;
+			}
+			return null;
+		};
 		// Harper writes one row per metric per minute per thread, so a point reading
 		// and a window average answer different questions — a utilization spike and a
 		// sustained ceiling are not the same problem and shouldn't collapse together.
-		const latestOf = (metric: string) => {
+		const latestOf = (...names: string[]) => {
 			let best: any = null;
-			for (const r of pick(metric)) if (!best || (r.time || 0) > (best.time || 0)) best = r;
+			for (const r of pick(...names)) if (!best || (r.time || 0) > (best.time || 0)) best = r;
 			return best;
 		};
 		// Raw, deliberately unrounded. Rounding here destroyed ratio metrics before
 		// they could be converted: round1(0.75) is 0.7, so a 75% window average came
 		// out as 70%. Each call site rounds in the unit it is actually reporting.
-		const avgOf = (metric: string, field = 'total') => {
-			const xs = pick(metric)
-				.map((r) => Number(r[field]))
-				.filter((n) => Number.isFinite(n));
+		const avgOfField = (field: string | undefined, names: string[]) => {
+			const xs = pick(...names)
+				.map((r) => valueOf(r, field))
+				.filter((n): n is number => n != null);
 			return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
 		};
-		const sumOf = (metric: string, field = 'total') => pick(metric).reduce((a, r) => a + (Number(r[field]) || 0), 0);
+		const avgOf = (...names: string[]) => avgOfField(undefined, names);
+		const sumOf = (...names: string[]) => pick(...names).reduce((a, r) => a + (valueOf(r) || 0), 0);
 
 		// HTTP outcomes arrive as one metric per status (response_200, response_404,
 		// response_409…). Counting by prefix means a status this code has never seen
@@ -8270,30 +8299,87 @@ export class ServerHealth extends DashboardEndpoint {
 			.filter(([code]) => code.startsWith('5'))
 			.reduce((a, [, n]) => a + n, 0);
 
-		// Slowest paths by p95 — a mean hides the tail players actually feel.
-		const slowest = pick('duration')
-			.filter((r) => r.path)
-			.map((r) => ({
-				path: String(r.path),
-				method: r.method || null,
-				p95: round1(Number(r.p95) || Number(r.mean) || 0),
-				median: round1(Number(r.median) || 0),
-				count: Number(r.count) || 0,
+		/* Slowest paths — GROUPED by path+method across the window.
+		 *
+		 * These used to be listed raw, one line per analytics record, which on the
+		 * real instance meant ten lines of `Metrics GET` each with count 1 and p95
+		 * equal to median: a list of the ten slowest individual REQUESTS wearing the
+		 * heading "slowest endpoints, by p95". A p95 over one sample is just that
+		 * sample. Group first, then report.
+		 *
+		 * Harper writes these per period, so a row's `count` may be 1 (a single
+		 * request) or many (a pre-aggregated period). Both are handled: counts sum,
+		 * and the typical figure is weighted by count so a busy period is not given
+		 * the same say as a lone slow request. A true window p95 cannot be recovered
+		 * from per-period summaries, so the tail is reported as the worst p95 seen
+		 * and named `worstMs` rather than dressed up as a percentile it is not. */
+		const groups = new Map<string, { path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }>();
+		for (const r of pick('duration', 'transfer', 'request')) {
+			if (!r.path) continue;
+			const method = r.method ? String(r.method) : null;
+			const key = `${r.path}\u0000${method || ''}`;
+			let g = groups.get(key);
+			if (!g) groups.set(key, (g = { path: String(r.path), method, calls: 0, worst: 0, wsum: 0, wn: 0 }));
+			const calls = Math.max(1, Number(r.count) || 0);
+			const tail = Number(r.p95);
+			const mid = Number(r.median);
+			const typical = Number.isFinite(mid) ? mid : Number(r.mean);
+			g.calls += calls;
+			if (Number.isFinite(tail)) g.worst = Math.max(g.worst, tail);
+			else if (Number.isFinite(typical)) g.worst = Math.max(g.worst, typical);
+			if (Number.isFinite(typical)) {
+				g.wsum += typical * calls;
+				g.wn += calls;
+			}
+		}
+		const slowest = [...groups.values()]
+			.map((g) => ({
+				path: g.path,
+				method: g.method,
+				// Worst single p95 observed in the window, not a window percentile.
+				worstMs: round1(g.worst),
+				// Count-weighted typical response, so volume carries the weight.
+				typicalMs: g.wn ? round1(g.wsum / g.wn) : null,
+				calls: g.calls,
 			}))
-			.sort((a, b) => b.p95 - a.p95)
+			.sort((a, b) => b.worstMs - a.worstMs)
 			.slice(0, 10);
 
-		const util = latestOf('main-thread-utilization') || latestOf('utilization');
+		const util = latestOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization');
 		// Utilization arrives as a 0-1 ratio from some sources and an already-scaled
 		// percent from others (cpu-usage reads 23, thread utilization reads 0.85).
 		// round1 on a ratio is destructive — 0.853 becomes 0.9, which is the
 		// difference between "comfortable" and "at the ceiling" — so normalise to a
 		// percent first and keep one decimal of real precision.
 		const asPct = (v: any): number | null => {
+			// null must survive as null. Number(null) is 0 and 0 is finite, so the
+			// obvious guard let a metric that was never found render as a confident
+			// "0%" — a missing gauge and an idle server displayed identically, which
+			// is exactly how this panel shipped looking healthy while reading nothing.
+			if (v == null || v === '') return null;
 			const n = Number(v);
 			if (!Number.isFinite(n)) return null;
 			return round1(n <= 1 ? n * 100 : n);
 		};
+
+		const REPL_LATENCY = ['replication-latency', 'replicationLatency', 'replication-lag', 'replicationLag'];
+		const seen = [...new Set(rows.map((r) => String(r.metric)))].sort();
+		// Anything this endpoint consumed, so the leftovers can be named.
+		const matched = new Set(
+			[
+				'main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization',
+				'cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization',
+				'memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss',
+				'database-size', 'databaseSize', 'db-size', 'storage-size',
+				'storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total',
+				'node-storage', 'nodeStorage',
+				'duration', 'transfer', 'request',
+				'bytes-sent', 'bytesSent', 'egress', 'transfer-out',
+				'bytes-received', 'bytesReceived', 'ingress', 'transfer-in',
+				...REPL_LATENCY,
+			].map(norm),
+		);
+		for (const m of seen) if (norm(m).startsWith('response')) matched.add(norm(m));
 
 		return {
 			generatedAt: now,
@@ -8305,15 +8391,15 @@ export class ServerHealth extends DashboardEndpoint {
 			// The capacity ceiling. This app is served by a small number of threads,
 			// so sustained utilization is the thing that runs out before anything else.
 			threads: {
-				utilizationPct: util ? asPct(util.total ?? util.ratio) : null,
-				windowAvgPct: asPct(avgOf('main-thread-utilization') ?? avgOf('utilization')),
-				cpuPct: asPct(avgOf('cpu-usage')),
-				memoryBytes: latestOf('memory')?.total ?? null,
+				utilizationPct: util ? asPct(valueOf(util)) : null,
+				windowAvgPct: asPct(avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization')),
+				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
+				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
 			},
 			storage: {
-				databaseBytes: latestOf('database-size')?.total ?? null,
-				volumeBytes: latestOf('storage-volume')?.total ?? null,
-				nodeStorageBytes: latestOf('node-storage')?.total ?? null,
+				databaseBytes: valueOf(latestOf('database-size', 'databaseSize', 'db-size', 'storage-size')),
+				volumeBytes: valueOf(latestOf('storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total')),
+				nodeStorageBytes: valueOf(latestOf('node-storage', 'nodeStorage')),
 			},
 			http: {
 				responses: totalResponses,
@@ -8326,16 +8412,20 @@ export class ServerHealth extends DashboardEndpoint {
 			// whether they are actually keeping up with each other.
 			replication: {
 				latencyMs: (() => {
-					const v = avgOf('replication-latency', 'mean') ?? avgOf('replication-latency');
+					const v = avgOfField('mean', REPL_LATENCY) ?? avgOf(...REPL_LATENCY);
 					return v == null ? null : round1(v);
 				})(),
-				samples: pick('replication-latency').length,
-				bytesSent: sumOf('bytes-sent'),
-				bytesReceived: sumOf('bytes-received'),
+				samples: pick(...REPL_LATENCY).length,
+				bytesSent: sumOf('bytes-sent', 'bytesSent', 'egress', 'transfer-out'),
+				bytesReceived: sumOf('bytes-received', 'bytesReceived', 'ingress', 'transfer-in'),
 			},
-			// Which metrics arrived at all, so "nothing to show" can be told apart
-			// from "that metric isn't recorded on this instance".
-			metricsSeen: [...new Set(rows.map((r) => String(r.metric)))].sort(),
+			/* Every metric name that arrived, and which of them this endpoint knows
+			 * what to do with. `unmatched` is the important one: it is the list that
+			 * would have told me the gauges were reading the wrong names, instead of
+			 * five em-dashes that look exactly like an idle server. It is rendered on
+			 * the page, so the panel diagnoses itself next time. */
+			metricsSeen: seen,
+			metricsUnmatched: seen.filter((m) => !matched.has(norm(m))),
 		};
 	}
 }
@@ -8382,14 +8472,8 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{
-				label: 'between [since, now]',
-				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
-			},
-			{
-				label: 'greater_than since',
-				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
-			},
+			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
+			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8463,8 +8547,7 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] =
-						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8520,14 +8603,8 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v))
-					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object')
-					return Object.fromEntries(
-						Object.entries(v)
-							.slice(0, 12)
-							.map(([k, x]) => [k, describe(x)]),
-					);
+				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -10031,6 +10108,87 @@ export class ReportClientError extends PublicEndpoint {
 }
 
 /**
+ * POST /ClearProblem/ {kind:"refusal"|"crash", ids:[...]} — delete telemetry rows.
+ *
+ * The only WRITE the dashboard sign-in can perform, and it is deliberately not a
+ * general one. `kind` selects between exactly two hard-coded table names and
+ * anything else is refused, so the id is never used to reach a table the caller
+ * named: the credential that can clear a stale crash counter still cannot touch
+ * a Player row, which is the one thing on this server that is irreplaceable.
+ *
+ * Scoped this way ON PURPOSE because the dashboard role can reach it. A
+ * read-only role that can also delete is not read-only, so the blast radius is
+ * moved into the endpoint instead: two tables of regenerable counters, nothing
+ * else. If a delete is ever wanted for saves, it belongs behind super-user and a
+ * separate endpoint, not behind another value of `kind`.
+ *
+ * Idempotent. Deleting an id that is already gone is reported in `missing`
+ * rather than failed — two clicks on the same row is a normal thing to do, and
+ * an error there would just teach you to ignore errors.
+ */
+/* A Map, not an object literal, and an explicit string check at the call site.
+ * An object literal answers to inherited keys — CLEARABLE['constructor'] returns
+ * a function rather than undefined — and String(['crash']) is 'crash', so an
+ * array argument coerced straight through the lookup. Neither could reach a
+ * table outside this pair, but "fails safe by accident" is not the property to
+ * rely on for the one endpoint that deletes. */
+const CLEARABLE = new Map<string, string>([
+	['refusal', 'Refusal'],
+	['crash', 'ClientError'],
+]);
+
+export class ClearProblem extends DashboardEndpoint {
+	// POST maps to create in Harper's permission model; the read gate is the gate.
+	allowCreate(user?: any) {
+		return (this as any).allowRead(user);
+	}
+
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const kind = body?.kind;
+		const table = typeof kind === 'string' ? CLEARABLE.get(kind) : undefined;
+		if (!table) return { ok: false, error: 'kind must be "refusal" or "crash"', deleted: 0 };
+
+		// Cap the batch: a "clear all" from a page showing thousands of rows should
+		// not turn into one unbounded delete loop inside a request.
+		const ids = (Array.isArray(body.ids) ? body.ids : [body.id])
+			.filter((x: any) => x != null && x !== '')
+			.map((x: any) => String(x))
+			.slice(0, 500);
+		if (!ids.length) return { ok: false, error: 'no ids given', deleted: 0 };
+
+		const t = (db() as any)[table];
+		if (!t) return { ok: false, error: `${table} table is not available`, deleted: 0 };
+
+		// Refusal counts sit in an in-memory buffer between flushes. Flushing BEFORE
+		// the delete means the row being removed includes everything counted so far,
+		// and anything that arrives after this point legitimately recreates it —
+		// which is the honest outcome. Dropping the buffer instead would silently
+		// discard refusals that happened while you were reading the page.
+		if (table === 'Refusal') await flushRefusals();
+
+		let deleted = 0;
+		const missing: string[] = [];
+		const failed: { id: string; error: string }[] = [];
+		for (const id of ids) {
+			try {
+				// Point-read first so "already gone" and "delete failed" stay distinct.
+				const row = await safeGet(t, id);
+				if (!row) {
+					missing.push(id);
+					continue;
+				}
+				await t.delete(id);
+				deleted++;
+			} catch (e: any) {
+				failed.push({ id, error: String(e?.message || e) });
+			}
+		}
+		return { ok: failed.length === 0, table, deleted, missing, failed };
+	}
+}
+
+/**
  * GET /GameplayHealth/ — what is going WRONG, as opposed to what players did.
  *
  * The rest of the metrics count successes: resources gathered, items crafted,
@@ -10098,8 +10256,12 @@ export class GameplayHealth extends DashboardEndpoint {
 			lastSeenAt: r.lastSeenAt || 0,
 		});
 
+		// `id` rides along so a row can be addressed for deletion. The code/message
+		// is what you READ, but it is not the key — two rows can share a message
+		// from different places, and deleting by message would take both.
 		const refusals = refusalRows
 			.map((r: any) => ({
+				id: String(r.id ?? r.code ?? ''),
 				code: String(r.code || r.id || '?'),
 				status: Number(r.status) || 0,
 				...shape(r),
@@ -10108,6 +10270,7 @@ export class GameplayHealth extends DashboardEndpoint {
 
 		const clientErrors = errorRows
 			.map((r: any) => ({
+				id: String(r.id ?? ''),
 				message: String(r.message || '?'),
 				where: String(r.where || ''),
 				stack: r.stack || null,
@@ -10122,7 +10285,8 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) =>
+			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 

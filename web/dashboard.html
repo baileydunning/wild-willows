@@ -907,6 +907,51 @@
 				font-size: 0.92em;
 			}
 
+			/* Row-level delete. Quiet until you are near it — a red × on every row of
+			   a table you are reading is an invitation to misclick. */
+			button.delbtn {
+				font: inherit;
+				font-size: 0.9rem;
+				line-height: 1;
+				cursor: pointer;
+				border: 1px solid transparent;
+				background: none;
+				color: var(--faint);
+				border-radius: 8px;
+				padding: 0.1rem 0.4rem;
+				transition:
+					color 0.12s,
+					background 0.12s,
+					border-color 0.12s;
+			}
+			tr:hover button.delbtn,
+			button.delbtn:focus-visible {
+				color: #a33f52;
+				border-color: #f0cdd5;
+				background: #fbeaee;
+			}
+			button.delbtn[disabled] {
+				opacity: 0.4;
+				cursor: default;
+			}
+			/* On touch there is no hover, so the affordance has to be visible. */
+			@media (hover: none) {
+				button.delbtn {
+					color: #a33f52;
+					border-color: #f0cdd5;
+				}
+			}
+			/* A header the screen reader gets and the eye does not — the column is a
+			   row of × buttons and a visible "Clear" label above them is noise. */
+			.vh {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				overflow: hidden;
+				clip: rect(0 0 0 0);
+				white-space: nowrap;
+			}
+
 			/* ---- editions: demo vs full ---- */
 			.vs {
 				display: flex;
@@ -1331,9 +1376,16 @@
 					     unreadable saves, never routine refusals), so a bad day still
 					     announces itself from the top of the page. -->
 					<span class="metabreak"></span>
-					<button class="refresh probs" id="problems" type="button" aria-expanded="false" hidden>
+					<button class="refresh probs" id="problems" type="button" aria-pressed="false" hidden>
 						<span id="problems-label">Problems</span>
 					</button>
+					<!-- How HARPER is doing, as opposed to how the players are. Its own
+					     view because it answers a different question from every other
+					     panel on this page and shares no filters with them. -->
+					<button class="refresh probs" id="serverbtn" type="button" aria-pressed="false" hidden>
+						<span id="serverbtn-label">Server</span>
+					</button>
+					<button class="refresh" id="backbtn" type="button" hidden>← Dashboard</button>
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
 				</div>
 			</header>
@@ -2051,6 +2103,28 @@
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
 			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload — Harper's own telemetry
+			/* How far back the server view looks, in minutes.
+			 *
+			 * Not fixed at 15 any more. Harper emits the gauges (database size,
+			 * storage volume, thread utilization) sparsely, so a short window
+			 * routinely lands BETWEEN samples and reports them as absent — which is
+			 * how this panel first shipped showing em-dashes on a healthy server. A
+			 * short window is still the right one for "what is happening right now",
+			 * so it is a choice rather than a constant. Remembered across reloads. */
+			const SERVER_WINDOWS = [
+				{ minutes: 15, label: '15m' },
+				{ minutes: 60, label: '1h' },
+				{ minutes: 360, label: '6h' },
+				{ minutes: 1440, label: '24h' },
+			];
+			const SERVER_WINDOW_KEY = 'ww-dashboard-server-window';
+			let SERVER_WINDOW = 60;
+			try {
+				const saved = parseInt(localStorage.getItem(SERVER_WINDOW_KEY), 10);
+				if (SERVER_WINDOWS.some((w) => w.minutes === saved)) SERVER_WINDOW = saved;
+			} catch {
+				/* private mode — the default stands */
+			}
 
 			/** How this caretaker has their settings — every option in Settings →
 			 *  Accessibility, plus audio. Sourced from the `prefs` block each solo
@@ -2319,15 +2393,32 @@
 				return p.length ? '?' + p.join('&') : '';
 			}
 
-			/* Whether the failure panels are on screen. Off by default, remembered
-			 * across reloads — if you opened them because you were chasing something,
-			 * a refresh mid-chase shouldn't close them again. */
-			const SHOW_PROBLEMS_KEY = 'ww-dashboard-show-problems';
-			let SHOW_PROBLEMS = false;
+			/* Which of the three views is on screen: the metrics, what is going
+			 * wrong, or how Harper itself is doing. Remembered across reloads — if you
+			 * opened one because you were chasing something, a refresh mid-chase
+			 * shouldn't drop you back to the front page.
+			 *
+			 * One variable, not a boolean per panel: the views are mutually exclusive,
+			 * and two independent flags can represent states that are not supposed to
+			 * exist (both on, both off after a partial write). */
+			const MODE_KEY = 'ww-dashboard-mode';
+			const MODES = ['dashboard', 'problems', 'server'];
+			let MODE = 'dashboard';
 			try {
-				SHOW_PROBLEMS = localStorage.getItem(SHOW_PROBLEMS_KEY) === '1';
+				const saved = localStorage.getItem(MODE_KEY);
+				if (MODES.includes(saved)) MODE = saved;
+				// Migrate the old boolean so an open Problems view survives the upgrade.
+				else if (localStorage.getItem('ww-dashboard-show-problems') === '1') MODE = 'problems';
 			} catch {
-				/* private mode — default to hidden */
+				/* private mode — default to the dashboard */
+			}
+			function setMode(next) {
+				MODE = MODES.includes(next) ? next : 'dashboard';
+				try {
+					localStorage.setItem(MODE_KEY, MODE);
+				} catch {
+					/* private mode — the switch still works for this session */
+				}
 			}
 
 			/* What the badge counts.
@@ -2346,31 +2437,65 @@
 				return { crashes: n(crashes), badSaves: n(badSaves), total: n(crashes) + n(badSaves) };
 			}
 
+			/* Is Harper itself in trouble? Separate from problemCount(), which counts
+			 * things PLAYERS hit. A server at its thread ceiling with a rising 5xx rate
+			 * is a different emergency from a crash in the journal panel, and collapsing
+			 * them into one badge would let either hide the other. */
+			function serverTrouble() {
+				const h = SERVERHEALTH;
+				if (!h) return null;
+				if (!h.readable) return 'telemetry unreadable';
+				const bits = [];
+				if (n(h.http && h.http.serverErrors) > 0) return `${fmt(h.http.serverErrors)} server errors`;
+				const u = h.threads && h.threads.utilizationPct;
+				if (u != null && u >= 85) bits.push(`threads at ${pct(u)}`);
+				const st = h.storage || {};
+				if (st.databaseBytes && st.volumeBytes && st.databaseBytes / st.volumeBytes >= 0.85)
+					bits.push('storage nearly full');
+				return bits.length ? bits.join(' · ') : null;
+			}
+
 			function syncProblemsButton() {
 				const btn = document.getElementById('problems');
 				const label = document.getElementById('problems-label');
-				if (!btn || !label) return;
-				// Nothing to show at all (endpoints unavailable) — hide the control rather
-				// than offer a button that opens an empty page.
-				const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
-				btn.hidden = !havePanels;
-				if (!havePanels) return;
-				const p = problemCount();
-				const bits = [];
-				if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
-				if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
-				// It swaps the whole page, so when it is on the button is a way BACK, not
-				// a "hide" — labelling a mode switch by what it conceals leaves you
-				// hunting for the way out.
-				label.innerHTML = SHOW_PROBLEMS
-					? '← Dashboard'
-					: 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
-				btn.title = p.total
-					? bits.join(' · ') + ' — plus every refusal the server has given'
-					: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
-				btn.classList.toggle('on', SHOW_PROBLEMS);
-				btn.classList.toggle('bad', p.total > 0);
-				btn.setAttribute('aria-expanded', SHOW_PROBLEMS ? 'true' : 'false');
+				if (btn && label) {
+					// Nothing to show at all (endpoints unavailable) — hide the control
+					// rather than offer a button that opens an empty page.
+					const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
+					btn.hidden = !havePanels;
+					if (havePanels) {
+						const p = problemCount();
+						const bits = [];
+						if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
+						if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
+						label.innerHTML = 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
+						btn.title = p.total
+							? bits.join(' · ') + ' — plus every refusal the server has given'
+							: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
+						btn.classList.toggle('on', MODE === 'problems');
+						btn.classList.toggle('bad', p.total > 0);
+						btn.setAttribute('aria-pressed', MODE === 'problems' ? 'true' : 'false');
+					}
+				}
+
+				const sbtn = document.getElementById('serverbtn');
+				const slabel = document.getElementById('serverbtn-label');
+				if (sbtn && slabel) {
+					sbtn.hidden = !SERVERHEALTH;
+					if (SERVERHEALTH) {
+						const trouble = serverTrouble();
+						slabel.innerHTML = 'Server' + (trouble ? `<span class="pbadge">!</span>` : '');
+						sbtn.title = trouble ? `Harper: ${trouble}` : "Harper's own telemetry — threads, storage, responses, replication.";
+						sbtn.classList.toggle('on', MODE === 'server');
+						sbtn.classList.toggle('bad', !!trouble);
+						sbtn.setAttribute('aria-pressed', MODE === 'server' ? 'true' : 'false');
+					}
+				}
+
+				// One way back, shown only when you are not already home. Labelling a
+				// mode switch by what it conceals leaves you hunting for the way out.
+				const back = document.getElementById('backbtn');
+				if (back) back.hidden = MODE === 'dashboard';
 			}
 
 			/* The last payload, kept so the date picker can redraw without refetching.
@@ -2456,12 +2581,26 @@
 							return `<span title="This row predates the per-day counters, so its history in this range is unknown.">—</span> <span class="alltime">${fmt(r.count)} all-time</span>`;
 						return `${fmt(r.windowCount)} <span class="alltime">${fmt(r.count)} all-time</span>`;
 					};
+					/* A row can be cleared from the database. Only these two tables are
+					 * clearable — see /ClearProblem/, which resolves `kind` against two
+					 * hard-coded names and never uses the id to pick a table. A refusal
+					 * that has been fixed, or a crash from a build nobody runs any more,
+					 * otherwise sits in the counter forever and slowly trains you to
+					 * stop reading the page. No confirmation on these: the rows are
+					 * regenerable counters, and a real one comes straight back. */
+					const del = (kind, id, what) =>
+						id
+							? `<td class="num"><button type="button" class="delbtn" data-del-kind="${kind}" data-del-id="${esc(id)}" ` +
+								`title="Delete this record from the database" aria-label="Delete ${esc(what)}">×</button></td>`
+							: `<td class="num"></td>`;
 					const refusalRows = (ref.top || [])
 						.map(
 							(r) =>
 								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${hits(r)}</td>` +
 								`<td class="num">${r.status || '—'}</td>` +
-								`<td class="num">${day(r.lastSeenAt)}</td></tr>`,
+								`<td class="num">${day(r.lastSeenAt)}</td>` +
+								del('refusal', r.id, shortCode(r.code)) +
+								`</tr>`,
 						)
 						.join('');
 					const crashRows = (cli.top || [])
@@ -2469,7 +2608,9 @@
 							(e) =>
 								`<tr><td>${esc(e.message)}</td><td><code>${esc(e.where || '?')}</code></td>` +
 								`<td class="num">${hits(e)}</td>` +
-								`<td class="num">${day(e.lastSeenAt)}</td></tr>`,
+								`<td class="num">${day(e.lastSeenAt)}</td>` +
+								del('crash', e.id, e.message) +
+								`</tr>`,
 						)
 						.join('');
 					const picker =
@@ -2510,11 +2651,11 @@
 								: '') +
 							(refusalRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>` +
-									`<table class="tbl"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
+									`<table class="tbl"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th><th class="num"><span class="vh">Clear</span></th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
 								: '') +
 							(crashRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Crashes<span class="tag">top 25 by count</span></h3>` +
-									`<table class="tbl"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${crashRows}</tbody></table></div>`
+									`<table class="tbl"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th><th class="num"><span class="vh">Clear</span></th></tr></thead><tbody>${crashRows}</tbody></table></div>`
 								: '') +
 							(!refusalRows && !crashRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Nothing recorded yet<span class="tag">the panel is live</span></h3>` +
@@ -3185,10 +3326,21 @@
 				 * one code path, so the two views can never disagree about the same
 				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
 				 * switching still resolves. */
-				if (SHOW_PROBLEMS) {
-					// Server first: if Harper itself is struggling, every refusal and
-					// crash below it is downstream of that and reads differently.
-					const panels = [serverHealthHTML(), healthSection, saveSection].filter(Boolean);
+				if (MODE === 'server') {
+					document.getElementById('root').innerHTML =
+						serverHealthHTML() ||
+						`<section><div class="sec-head"><h2>Server health</h2><span class="sub">no telemetry available</span></div>` +
+							card(
+								`<p class="emptynote"><code>/ServerHealth/</code> did not answer. On an instance that predates it, that is expected; ` +
+									`otherwise it is itself worth chasing, because an unreachable health endpoint and a healthy server look the same from here.</p>`,
+							) +
+							`</section>`;
+					fitDayCharts();
+					return;
+				}
+
+				if (MODE === 'problems') {
+					const panels = [healthSection, saveSection].filter(Boolean);
 					document.getElementById('root').innerHTML = panels.length
 						? panels.join('')
 						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
@@ -3441,8 +3593,8 @@
 						'telemetry unavailable',
 						card(
 							`<p class="emptynote">Could not read <code>system.hdb_analytics</code>: <b>${esc(h.readError || 'unknown')}</b>. ` +
-								`Harper's super-user role carries explicit read permission on the system tables and a read-only role may not — ` +
-								`if this works signed in as super-user but not as <code>metrics_reader</code>, that is the reason.</p>`,
+								`A component CAN read the system database as <code>metrics_reader</code> — that was verified against the live server — so this ` +
+								`is not the role. Something else is refusing the read, and the message above is the whole of what Harper said about it.</p>`,
 						),
 					);
 				}
@@ -3456,15 +3608,27 @@
 					.map(
 						(r) =>
 							`<tr><td><code>${esc(r.path)}</code></td><td>${esc(r.method || '—')}</td>` +
-							`<td class="num">${fmt(r.p95)}<small>ms</small></td><td class="num">${fmt(r.median)}<small>ms</small></td>` +
-							`<td class="num">${fmt(r.count)}</td></tr>`,
+							`<td class="num">${fmt(r.worstMs)}<small>ms</small></td>` +
+							`<td class="num">${r.typicalMs == null ? '—' : fmt(r.typicalMs) + '<small>ms</small>'}</td>` +
+							`<td class="num">${fmt(r.calls)}</td></tr>`,
 					)
 					.join('');
 				const statusRows = objToEntries(ht.byStatus).slice(0, 8);
+				// Window picker. Refetches, because the windowing happens server-side
+				// over a time-bounded read of the analytics table.
+				const picker =
+					`<div class="dpick">` +
+					SERVER_WINDOWS.map(
+						(w) =>
+							`<button type="button" class="dbtn${w.minutes === SERVER_WINDOW ? ' on' : ''}" data-swin="${w.minutes}">${w.label}</button>`,
+					).join('') +
+					`</div>`;
+				const win = SERVER_WINDOWS.find((w) => w.minutes === n(h.windowMinutes));
 				return sec(
 					'Server health',
-					`Harper's own telemetry · last ${fmt(h.windowMinutes)} min · ${fmt(h.samples)} samples`,
-					`<div class="grid kpis">${[
+					`Harper's own telemetry · last ${win ? win.label : fmt(h.windowMinutes) + ' min'} · ${fmt(h.samples)} samples`,
+					picker +
+						`<div class="grid kpis">${[
 						/* The capacity ceiling: a small number of threads serves this whole
 						 * app, so sustained utilization runs out before anything else. */
 						kpi(
@@ -3486,14 +3650,24 @@
 						),
 					].join('')}</div>` +
 						(slowRows
-							? `<div class="card" style="margin-top:.8rem"><h3>Slowest endpoints<span class="tag">by p95, not by call volume</span></h3>` +
-								`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">p95</th><th class="num">Median</th><th class="num">Calls</th></tr></thead><tbody>${slowRows}</tbody></table></div>`
+							? `<div class="card" style="margin-top:.8rem"><h3>Slowest endpoints<span class="tag">grouped by path · worst first</span></h3>` +
+								`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">Worst</th><th class="num">Typical</th><th class="num">Calls</th></tr></thead><tbody>${slowRows}</tbody></table></div>`
 							: '') +
 						(statusRows.length
 							? `<div class="card" style="margin-top:.8rem"><h3>Responses<span class="tag">by status</span></h3>${barRows(statusRows, { cls: 'sky' })}</div>`
 							: '') +
 						(h.cappedAtMaxRows
-							? `<p class="emptynote">Hit the read cap, so this window is partial — narrow it with <code>?minutes=</code>.</p>`
+							? `<p class="emptynote"><b>This window is partial.</b> The read stopped at its row cap, so everything above is computed from the ` +
+								`first ${fmt(h.samples)} records in the range rather than all of them — pick a shorter window for a complete picture.</p>`
+							: '') +
+						/* An em-dash where a number should be reads exactly like an idle
+						 * server. Naming the metrics that arrived and went unused is the
+						 * difference between "nothing is happening" and "this panel is
+						 * looking for the wrong name on this Harper version". */
+						((h.metricsUnmatched || []).length
+							? `<p class="emptynote">${fmt(h.metricsUnmatched.length)} metric${h.metricsUnmatched.length === 1 ? '' : 's'} arrived that this panel does not read: ` +
+								h.metricsUnmatched.map((m) => `<code>${esc(m)}</code>`).join(' ') +
+								`. A gauge showing <b>—</b> above is one of these under a name it is not looking for.</p>`
 							: ''),
 				);
 			}
@@ -3552,7 +3726,7 @@
 					// Harper's own telemetry, read in-process from system.hdb_analytics.
 					// Same best-effort contract: a failure hides the panel, it never
 					// breaks the page.
-					const serverReq = fetch('../ServerHealth/?minutes=15', req())
+					const serverReq = fetch(`../ServerHealth/?minutes=${SERVER_WINDOW}`, req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Aggregates first — they render the whole page except the caretaker
@@ -3605,22 +3779,40 @@
 
 			document.getElementById('refresh').addEventListener('click', load);
 
-			// Show/hide the failure panels. On opening, scroll to them — they render at
-			// the bottom of a long page, and a button that appears to do nothing is
-			// worse than no button.
-			document.getElementById('problems').addEventListener('click', () => {
-				SHOW_PROBLEMS = !SHOW_PROBLEMS;
-				try {
-					localStorage.setItem(SHOW_PROBLEMS_KEY, SHOW_PROBLEMS ? '1' : '0');
-				} catch {
-					/* private mode — the toggle still works for this session */
-				}
-				rerender();
-				syncProblemsButton();
-				// Either direction replaces the whole page, so start it at the top rather
-				// than dropping you mid-way down a document you have not seen.
-				window.scrollTo({ top: 0, behavior: 'smooth' });
-			});
+			// The three views. Clicking the view you are already in returns you to the
+			// dashboard, so every button is its own way out.
+			function wireMode(id, mode) {
+				const el = document.getElementById(id);
+				if (!el) return;
+				el.addEventListener('click', () => {
+					setMode(MODE === mode ? 'dashboard' : mode);
+					rerender();
+					syncProblemsButton();
+					// Each switch replaces the whole page, so start it at the top rather
+					// than dropping you mid-way down a document you have not seen.
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			}
+			wireMode('problems', 'problems');
+			wireMode('serverbtn', 'server');
+			wireMode('backbtn', 'dashboard');
+
+			/* Drop a deleted record from the cached payload, both from the visible
+			 * `top` list and from the totals it contributed to — otherwise the badge
+			 * keeps counting a crash that no longer exists. */
+			function forgetProblem(kind, id) {
+				const h = GAMEPLAYHEALTH;
+				if (!h) return;
+				const bucket = kind === 'refusal' ? h.refusals : h.clientErrors;
+				if (!bucket || !Array.isArray(bucket.top)) return;
+				const hit = bucket.top.find((r) => r.id === id);
+				if (!hit) return;
+				bucket.top = bucket.top.filter((r) => r.id !== id);
+				bucket.total = Math.max(0, n(bucket.total) - n(hit.count));
+				bucket.distinct = Math.max(0, n(bucket.distinct) - 1);
+				if (bucket.windowTotal != null && hit.windowCount != null)
+					bucket.windowTotal = Math.max(0, n(bucket.windowTotal) - n(hit.windowCount));
+			}
 			for (const cfg of FILTER_CFG) {
 				const sel = document.getElementById(cfg.el);
 				if (sel)
@@ -3648,6 +3840,74 @@
 			// Open a player's breakdown modal when their highlight card is clicked or
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
+
+			// Server-health window. Refetches — the window is applied server-side over
+			// a time-bounded read, so this is not a client-side filter of data already
+			// in the browser the way the day-chart picker is.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-swin]');
+				if (!btn) return;
+				const mins = parseInt(btn.getAttribute('data-swin'), 10);
+				if (!SERVER_WINDOWS.some((w) => w.minutes === mins)) return;
+				SERVER_WINDOW = mins;
+				try {
+					localStorage.setItem(SERVER_WINDOW_KEY, String(mins));
+				} catch {
+					/* private mode — the choice still holds for this session */
+				}
+				load();
+			});
+
+			/* Delete a telemetry record.
+			 *
+			 * Optimistic on the row, honest on failure: the button disables and the
+			 * row fades immediately so a click never feels ignored, but the row is
+			 * only REMOVED once the server confirms, and a failure puts it back with
+			 * the reason attached rather than leaving a gap that looks like success.
+			 * No confirm dialog — these are regenerable counters, and the type of
+			 * record that is expensive to lose (a player's save) is not reachable
+			 * from this endpoint at all. */
+			rootEl.addEventListener('click', async (e) => {
+				const btn = e.target.closest && e.target.closest('.delbtn[data-del-id]');
+				if (!btn || btn.disabled) return;
+				const kind = btn.getAttribute('data-del-kind');
+				const id = btn.getAttribute('data-del-id');
+				const row = btn.closest('tr');
+				btn.disabled = true;
+				if (row) row.style.opacity = '0.45';
+				try {
+					const res = await fetch('../ClearProblem/', {
+						...req(),
+						method: 'POST',
+						headers: { ...(req().headers || {}), 'content-type': 'application/json' },
+						body: JSON.stringify({ kind, ids: [id] }),
+					});
+					const out = res.ok ? await res.json().catch(() => null) : null;
+					if (!res.ok || !out || out.ok === false) {
+						const why =
+							(out && (out.error || (out.failed && out.failed[0] && out.failed[0].error))) ||
+							`server returned ${res.status}`;
+						throw new Error(why);
+					}
+					// Gone from the database, so drop it from the payload too — a
+					// rerender from the cached data would otherwise bring it back and
+					// read as the delete having silently failed.
+					forgetProblem(kind, id);
+					if (row) row.remove();
+					syncProblemsButton();
+				} catch (err) {
+					btn.disabled = false;
+					if (row) {
+						row.style.opacity = '';
+						row.title = `Could not delete: ${err.message || err}`;
+					}
+					btn.textContent = '!';
+					setTimeout(() => {
+						btn.textContent = '×';
+					}, 2500);
+				}
+			});
+
 			// Date-range presets for the per-day chart. Redraws from the payload already
 			// in hand — no refetch.
 			rootEl.addEventListener('click', (e) => {
