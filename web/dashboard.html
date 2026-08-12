@@ -134,6 +134,124 @@
 				box-shadow: var(--shadow);
 				transition: transform 0.1s;
 			}
+			/* The `hidden` attribute is only a UA style rule, so any element this page
+			   gives an explicit `display` to ignores it — which left the filter
+			   dropdowns sitting above the sign-in form, styled as if they worked.
+			   State this once, loudly, rather than tracking down each offender. */
+			[hidden] {
+				display: none !important;
+			}
+			/* Sign-in screen. Small, centred, and the only thing on the page — there is
+			   nothing else to look at until it is answered. */
+			.loginwrap {
+				display: flex;
+				justify-content: center;
+				padding: 3rem 1rem;
+			}
+			.card.login {
+				width: 100%;
+				max-width: 380px;
+				display: flex;
+				flex-direction: column;
+				gap: 0.7rem;
+			}
+			.card.login h2 {
+				margin: 0;
+				font-size: 1.15rem;
+			}
+			.card.login label {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+				font-size: 0.8rem;
+				color: var(--muted);
+			}
+			.card.login input {
+				font: inherit;
+				font-size: 0.92rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 10px;
+				background: #fff;
+				padding: 0.45rem 0.6rem;
+			}
+			.card.login input:focus {
+				outline: 2px solid var(--accent);
+				outline-offset: 1px;
+			}
+			.card.login button {
+				margin-top: 0.3rem;
+				align-self: flex-start;
+			}
+			.loginerr {
+				margin: 0;
+				font-size: 0.82rem;
+				color: #a33f52;
+				background: #fbeaee;
+				border: 1px solid #f0cdd5;
+				border-radius: 10px;
+				padding: 0.45rem 0.6rem;
+			}
+			#whoami {
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			#whoami .wrole {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-radius: 999px;
+				padding: 0.05rem 0.45rem;
+				font-size: 0.7rem;
+				font-weight: 700;
+			}
+			button.linkish {
+				font: inherit;
+				font-size: 0.78rem;
+				background: none;
+				border: 0;
+				padding: 0;
+				color: var(--accent-dark);
+				text-decoration: underline;
+				cursor: pointer;
+			}
+			/* The Problems toggle. Neutral until something is actually wrong, then it
+			   goes amber — so the button's colour carries the state without needing to
+			   be read. */
+			button.refresh.probs.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+			}
+			button.refresh.probs .pbadge {
+				display: inline-block;
+				margin-left: 0.35rem;
+				padding: 0 0.4rem;
+				border-radius: 999px;
+				background: #f6e8c9;
+				color: #a9781c;
+				font-weight: 700;
+				font-size: 0.74rem;
+				font-variant-numeric: tabular-nums;
+			}
+			button.refresh.probs.bad {
+				border-color: #e2c481;
+			}
+			/* Hide/show control in the Devices table. Deliberately quiet: it is a
+			   maintenance switch, not something to draw the eye on every load. */
+			button.devtoggle {
+				font: inherit;
+				font-size: 0.75rem;
+				cursor: pointer;
+				border: 1px solid var(--rule);
+				background: var(--card);
+				color: var(--muted);
+				padding: 0.15rem 0.6rem;
+				border-radius: 999px;
+			}
+			button.devtoggle:hover {
+				color: var(--accent-dark);
+				border-color: var(--accent);
+			}
 			.vfilter {
 				display: inline-flex;
 				align-items: center;
@@ -503,6 +621,14 @@
 				border-radius: 999px;
 				padding: 0.12rem 0.55rem;
 			}
+			/* Demo → full carry-over. Gold rather than the usual green: this is the
+			   milestone worth spotting from across the page, not another stat. */
+			.hltag.hlconv {
+				color: #7a5410;
+				background: linear-gradient(180deg, #f7e6bd, #f0d79b);
+				border: 1px solid #e2c481;
+				cursor: help;
+			}
 			.hledi {
 				font-size: 0.6rem;
 				font-weight: 700;
@@ -815,6 +941,154 @@
 				font-size: 0.82rem;
 				padding: 0.4rem 0;
 			}
+			/* Caveats that travel with the duration numbers. Readable, not shouty —
+			   they qualify the figures above rather than warn about them. */
+			.clocknote {
+				font-size: 0.84rem;
+				color: var(--muted);
+				line-height: 1.5;
+				padding: 0.5rem 0;
+			}
+			.clocknote + .clocknote {
+				border-top: 1px solid var(--rule);
+			}
+			.clocknote b {
+				color: var(--ink);
+			}
+			.clocknote .cnrule {
+				display: block;
+				margin-top: 0.15rem;
+				color: var(--faint);
+				font-size: 0.76rem;
+			}
+			/* Day-by-day bar chart + its range control. */
+			.dcolwrap {
+				position: relative;
+				padding-left: 2.2rem;
+			}
+			.dmax {
+				position: absolute;
+				left: 0;
+				top: 0;
+				font-size: 0.7rem;
+				color: var(--faint);
+				font-variant-numeric: tabular-nums;
+			}
+			.dcols {
+				display: flex;
+				align-items: flex-end;
+				gap: 2px;
+				height: 124px;
+			}
+			.dcol {
+				flex: 1 1 0;
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-end;
+				height: 100%;
+				gap: 0.3rem;
+			}
+			.dcol .dbar {
+				display: block;
+				width: 100%;
+				max-width: 22px;
+				border-radius: 3px 3px 0 0;
+				background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+				transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+			}
+			/* A day with nobody is drawn as a flat tick, not nothing — an absent bar
+			   and a missing day look identical otherwise. */
+			.dcol .dbar.zero {
+				height: 2px;
+				background: var(--rule);
+			}
+			.dcol .dl {
+				font-size: 0.62rem;
+				color: var(--faint);
+				white-space: nowrap;
+				height: 0.8rem;
+			}
+			.dpick {
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin-bottom: 0.7rem;
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			.dpick label {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.3rem;
+			}
+			.dpick .dsep {
+				width: 1px;
+				height: 1.1rem;
+				background: var(--rule);
+				margin: 0 0.3rem;
+			}
+			button.dbtn {
+				font: inherit;
+				font-size: 0.78rem;
+				cursor: pointer;
+				border: 1px solid var(--rule);
+				background: var(--card);
+				color: var(--muted);
+				padding: 0.2rem 0.7rem;
+				border-radius: 999px;
+			}
+			button.dbtn.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+				font-weight: 700;
+			}
+			/* The all-time figure kept beside a windowed count, so a filtered number
+			   is never mistaken for the whole story. */
+			.alltime {
+				color: var(--faint);
+				font-size: 0.72rem;
+				font-variant-numeric: tabular-nums;
+			}
+			.dinput {
+				font: inherit;
+				font-size: 0.76rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 8px;
+				background: var(--card);
+				padding: 0.15rem 0.4rem;
+			}
+			/* Appearance popularity: a colour choice has to be shown as the colour. */
+			.swgrid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+			}
+			.swchip {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				border: 1px solid var(--rule);
+				border-radius: 999px;
+				padding: 0.15rem 0.55rem 0.15rem 0.2rem;
+				font-size: 0.78rem;
+				color: var(--ink);
+				background: var(--card);
+				font-variant-numeric: tabular-nums;
+			}
+			.swchip .dot {
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+				border: 1px solid rgba(47, 58, 39, 0.18);
+			}
+			.swchip .cnt {
+				color: var(--muted);
+			}
 			footer {
 				margin-top: 3rem;
 				text-align: center;
@@ -880,6 +1154,7 @@
 				</div>
 				<div class="meta">
 					<div class="live"><span class="dot"></span> Live dashboard</div>
+					<div id="whoami" hidden></div>
 					<div id="generated">Loading…</div>
 					<label class="vfilter"
 						><span>Version</span>
@@ -913,6 +1188,15 @@
 							<option value="include">Counted</option>
 						</select>
 					</label>
+					<!-- Problems are hidden by default: on a normal day there is nothing to
+					     act on, and a wall of "not enough materials" refusals above the
+					     numbers you came for is noise. The BADGE is what makes hiding them
+					     safe — it counts the things that are actually wrong (crashes and
+					     unreadable saves, never routine refusals), so a bad day still
+					     announces itself from the top of the page. -->
+					<button class="refresh probs" id="problems" type="button" aria-expanded="false" hidden>
+						<span id="problems-label">Problems</span>
+					</button>
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
 				</div>
 			</header>
@@ -1397,6 +1681,226 @@
 				return r ? `${h}h ${r}m` : `${h}h`;
 			}
 
+			/* How long a session actually lasts.
+			 *
+			 * The server has computed this histogram all along and nothing has ever
+			 * drawn it. It is drawn here WITH its coverage stated, because the buckets
+			 * are a subset — only sessions a client recorded a length for land in them,
+			 * so the total can be a couple of dozen while Sessions above reads in the
+			 * hundreds. Shown as a share of the sessions it covers, not of all of them,
+			 * or the percentages would be quietly wrong. */
+			const SESSION_BUCKET_ORDER = ['<2m', '2-10m', '10-30m', '30m+'];
+			const SESSION_BUCKET_LABELS = {
+				'<2m': 'Under 2 min',
+				'2-10m': '2 – 10 min',
+				'10-30m': '10 – 30 min',
+				'30m+': 'Over 30 min',
+			};
+			function sessionShapeHTML(s) {
+				const sl = s.sessionLengths || (s.sessionLengthDistribution ? { buckets: s.sessionLengthDistribution } : null);
+				if (!sl) return '';
+				const buckets = sl.buckets || {};
+				const covered = sl.sessionsCovered != null ? sl.sessionsCovered : Object.values(buckets).reduce((a, v) => a + n(v), 0);
+				if (!covered) return '';
+				const entries = SESSION_BUCKET_ORDER.filter((k) => buckets[k] != null).map((k) => [k, n(buckets[k])]);
+				const total = n(sl.totalSessions);
+				// The caveat is the point of the panel, so it goes in the subtitle where
+				// it cannot be scrolled past, not in a footnote.
+				const tag =
+					total && covered < total
+						? `${fmt(covered)} of ${fmt(total)} sessions measured (${pct(sl.coveragePct)})`
+						: `${fmt(covered)} sessions measured`;
+				return `<div style="margin-top:.8rem">${cardTitled(
+					'How long a session lasts',
+					tag,
+					barRows(entries, { labelMap: SESSION_BUCKET_LABELS, cls: 'sky' }) +
+						(total && covered < total
+							? `<p class="emptynote">Only sessions a client recorded a length for reach these buckets — older builds report none. The shares above are of the ${fmt(covered)} measured, not of all ${fmt(total)}.</p>`
+							: ''),
+				)}</div>`;
+			}
+
+			/* New caretakers per day.
+			 *
+			 * The range control here scopes THIS CHART ONLY, and the subtitle says so.
+			 * It deliberately does not filter the rest of the page: almost every number
+			 * above is a lifetime total carried on a save (play time, actions, biome
+			 * health), not something attributable to a day, so a picker that appeared to
+			 * scope the whole report would be answering a question the data can't. */
+			const DAY_RANGE = { preset: '30', from: '', to: '' };
+
+			function visibleDays(daily) {
+				const days = (daily && daily.days) || [];
+				if (!days.length) return [];
+				if (DAY_RANGE.preset === 'custom') {
+					const from = DAY_RANGE.from || days[0].day;
+					const to = DAY_RANGE.to || days[days.length - 1].day;
+					return days.filter((d) => d.day >= from && d.day <= to);
+				}
+				if (DAY_RANGE.preset === 'all') return days;
+				return days.slice(-Number(DAY_RANGE.preset));
+			}
+
+			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
+			 * which puts a number and a label under every column — fine for four
+			 * tutorial steps, unreadable at ninety days. Here the count lives in the
+			 * tooltip and the axis is labelled at intervals. */
+			function dayCols(days, key) {
+				if (!days.length) return `<div class="emptynote">No days in this range.</div>`;
+				const max = Math.max(...days.map((d) => n(d[key])), 1);
+				const step = Math.ceil(days.length / 8);
+				const fmtDay = (iso) => {
+					const [y, m, dd] = iso.split('-');
+					return `${MONTHS[Number(m) - 1]} ${Number(dd)}`;
+				};
+				const bars = days
+					.map((d, i) => {
+						const v = n(d[key]);
+						const h = v ? Math.max(2, (v / max) * 96) : 0;
+						const lab = i % step === 0 || i === days.length - 1 ? fmtDay(d.day) : '';
+						return (
+							`<div class="dcol" title="${esc(fmtDay(d.day))} · ${fmt(v)}">` +
+							`<span class="dbar${v ? '' : ' zero'}" style="height:${h}px"></span>` +
+							`<span class="dl">${lab}</span></div>`
+						);
+					})
+					.join('');
+				return `<div class="dcolwrap"><div class="dmax">${fmt(max)}</div><div class="dcols">${bars}</div></div>`;
+			}
+
+			const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+			const DAY_PRESETS = [
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: '90', label: '90d' },
+				{ key: 'all', label: 'All' },
+			];
+
+			function dailyHTML(s) {
+				const daily = s.daily;
+				if (!daily || !daily.days || !daily.days.length) return '';
+				const shown = visibleDays(daily);
+				const totalNew = shown.reduce((a, d) => a + n(d.created), 0);
+				const busiest = shown.slice().sort((a, b) => n(b.created) - n(a.created))[0];
+				const picker =
+					`<div class="dpick">` +
+					DAY_PRESETS.map(
+						(p) =>
+							`<button type="button" class="dbtn${DAY_RANGE.preset === p.key ? ' on' : ''}" data-range="${p.key}">${p.label}</button>`,
+					).join('') +
+					`<span class="dsep"></span>` +
+					`<label>From <input type="date" class="dinput" data-range-from value="${esc(DAY_RANGE.from || daily.firstDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
+					`<label>To <input type="date" class="dinput" data-range-to value="${esc(DAY_RANGE.to || daily.lastDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
+					`</div>`;
+				const sub = shown.length
+					? `${fmt(totalNew)} new in ${fmt(shown.length)} ${shown.length === 1 ? 'day' : 'days'}` +
+						(busiest && busiest.created ? ` · busiest ${esc(busiest.day)} with ${fmt(busiest.created)}` : '')
+					: 'no days in this range';
+				// Saves created only. The payload also carries a per-day `lastSeen`, but
+				// it is the day each save was LAST active — not daily actives — and a
+				// second chart of it next to this one invited exactly the misreading it
+				// was captioned to prevent. Left in the API for anything that wants it.
+				return sec(
+					'New caretakers per day',
+					'this chart only — the rest of the page is all-time',
+					picker + cardTitled('Saves created', sub, dayCols(shown, 'created')),
+				);
+			}
+
+			/* What caretakers choose to look like.
+			 *
+			 * The server has tallied every appearance choice across every save this
+			 * whole time and nothing has ever rendered it. It is the one panel here
+			 * that answers an art question rather than a numbers one: which hats are
+			 * worth drawing more of, and which nobody has ever picked.
+			 *
+			 * Colour fields are shown AS the colour. A bar chart of '#6e4a33' vs
+			 * '#eec39a' is unreadable — the whole point of the choice is what it looks
+			 * like, so swatches, sorted by how often they were chosen. */
+			const APPEARANCE_FIELDS = [
+				{ key: 'hat', label: 'Hats', kind: 'name' },
+				{ key: 'hairstyle', label: 'Hairstyles', kind: 'name' },
+				{ key: 'body', label: 'Body', kind: 'name' },
+				{ key: 'beard', label: 'Beards', kind: 'name' },
+				{ key: 'skin', label: 'Skin tones', kind: 'color' },
+				{ key: 'hair', label: 'Hair colours', kind: 'color' },
+				{ key: 'outfit', label: 'Outfit colours', kind: 'color' },
+				{ key: 'hatColor', label: 'Hat colours', kind: 'color' },
+			];
+			function swatches(entries) {
+				return `<div class="swgrid">${entries
+					.map(
+						([v, c]) =>
+							`<span class="swchip" title="${esc(String(v))} · ${fmt(c)}"><span class="dot" style="background:${esc(
+								String(v),
+							)}"></span><span class="cnt">${fmt(c)}</span></span>`,
+					)
+					.join('')}</div>`;
+			}
+			function appearanceHTML(s) {
+				const ap = s.appearancePopularity || {};
+				const choices = ap.choices || {};
+				const cards = APPEARANCE_FIELDS.map((f) => {
+					const entries = objToEntries(choices[f.key]).filter((e) => e[0] && e[0] !== 'unknown');
+					if (!entries.length) return '';
+					// "none" is a real answer for a hat or a beard — how many people
+					// chose NOT to wear one is as interesting as which one they picked.
+					const TOP_N = 5;
+					const top = entries.slice(0, TOP_N);
+					// When the list is cut, the tag says so. "6 options chosen" above five
+					// bars reads as if six were on screen, and the missing one is always
+					// the least-picked — which is the one worth knowing about.
+					const tag =
+						entries.length > TOP_N
+							? `top ${TOP_N} of ${fmt(entries.length)} chosen`
+							: `${fmt(entries.length)} ${entries.length === 1 ? 'option' : 'options'} chosen`;
+					return cardTitled(f.label, tag, f.kind === 'color' ? swatches(top) : barRows(top, { cls: 'gold' }));
+				}).filter(Boolean);
+				if (!cards.length) return '';
+				return sec(
+					'What caretakers look like',
+					`the customization ${fmt(ap.savesWithAppearance)} people actually picked`,
+					`<div class="grid two">${cards.join('')}</div>`,
+				);
+			}
+
+			/* What the play-time numbers are NOT counting, and why.
+			 *
+			 * Two separate caveats ride on every duration on this page: windows left
+			 * open (excluded by default), and the fact that rev 1 clients counted
+			 * untouched windows as play while rev 2 does not. Both were reported in the
+			 * payload and shown nowhere, which is the worst of both — the numbers were
+			 * already qualified, the reader just couldn't see it. */
+			function clockNoteHTML(s) {
+				const a = s.anomalies;
+				if (!a) return '';
+				const clock = a.clock || {};
+				const revs = Object.entries(clock.byRev || {}).filter((e) => n(e[1]) > 0);
+				const mixed = revs.length > 1;
+				if (!a.idlePlayers && !mixed) return '';
+				const bits = [];
+				if (a.idlePlayers) {
+					bits.push(
+						`<div class="clocknote"><b>${fmt(a.idlePlayers)} ${a.idlePlayers === 1 ? 'save' : 'saves'} left a window open</b> — ` +
+							`${fmt(a.idleHours)} hours and ${fmt(a.idleActions)} actions of it. ` +
+							(a.excluded
+								? `Excluded from ${esc(a.affects)}; they still count everywhere else.`
+								: `<em>Currently included.</em> Switch “Idle windows” to Exclude to drop them from ${esc(a.affects)}.`) +
+							`<span class="cnrule">${esc(a.rule)}</span></div>`,
+					);
+				}
+				if (mixed) {
+					bits.push(
+						`<div class="clocknote"><b>Two play-time definitions in one total.</b> ${esc(clock.note || '')} — ` +
+							revs.map(([k, v]) => `${fmt(v)} on ${esc(k)}`).join(', ') +
+							`. Read any trend that crosses the change as two series, not one.` +
+							(clock.idleGateMinutes ? `<span class="cnrule">rev 2 stops the clock after ${n(clock.idleGateMinutes)} min untouched</span>` : '') +
+							`</div>`,
+					);
+				}
+				return `<div style="margin-top:.8rem">${cardTitled('About these durations', 'what the clock does and does not count', bits.join(''))}</div>`;
+			}
+
 			/* ------------------------------------------------------------------ *
 			 * Per-player modal — a full picture of one caretaker's playthrough
 			 * ------------------------------------------------------------------ */
@@ -1587,10 +2091,19 @@
 					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
 				);
 				const when = [joined, last].filter(Boolean).join(' · ');
+				/* Carried over from the demo. Spelled out here rather than left as a
+				 * chip: the modal is where you go to find out what actually happened,
+				 * and "1h 46m in the demo, then bought it" is the story. */
+				const mc = p.conversion || {};
+				const mconv = p.convertedFromDemo
+					? `<span class="hltag hlconv" title="${mc.exact ? 'Stamped when the save was exported' : 'Inferred from this save’s demo row — it predates the export stamp'}">demo → full${
+							mc.demoPlaySeconds ? ` · ${fmtDur(mc.demoPlaySeconds)} in the demo` : ''
+						}${mc.at ? ` · ${mc.exact ? '' : '~'}${new Date(mc.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}</span>`
+					: '';
 				return (
 					`<button class="modal-close" data-close aria-label="Close">×</button>` +
 					`<div class="modal-head"><div class="mav">${avatarSVG(p.appearance)}</div><div><h2>${esc(p.name || 'Unnamed')}</h2>` +
-					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
+					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${mconv}${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
@@ -1630,7 +2143,104 @@
 			/* ------------------------------------------------------------------ *
 			 * Main render
 			 * ------------------------------------------------------------------ */
+			/* The Problems range.
+			 *
+			 * Unlike the per-day chart's picker, this one goes to the SERVER, because
+			 * the filtering it does is impossible in the browser: a refusal row is a
+			 * running total with a single lastSeenAt, so "412 refusals" carries no
+			 * dates to slice. Only the server's per-day buckets can answer it, and
+			 * those only exist from the day they shipped — which is why every count
+			 * comes back in two forms and the panel shows both. */
+			const PROBLEM_RANGE = { preset: 'all', from: '', to: '' };
+			const PROBLEM_PRESETS = [
+				{ key: '1', label: '24h' },
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: 'all', label: 'All time' },
+			];
+			const isoDay = (d) => new Date(d).toISOString().slice(0, 10);
+			function problemsRange() {
+				if (PROBLEM_RANGE.preset === 'all') return null;
+				if (PROBLEM_RANGE.preset === 'custom') {
+					if (!PROBLEM_RANGE.from && !PROBLEM_RANGE.to) return null;
+					return { from: PROBLEM_RANGE.from, to: PROBLEM_RANGE.to };
+				}
+				const days = Number(PROBLEM_RANGE.preset);
+				return { from: isoDay(Date.now() - (days - 1) * 86400000), to: isoDay(Date.now()) };
+			}
+			function problemsQuery() {
+				const r = problemsRange();
+				if (!r) return '';
+				const p = [];
+				if (r.from) p.push('from=' + encodeURIComponent(r.from));
+				if (r.to) p.push('to=' + encodeURIComponent(r.to));
+				return p.length ? '?' + p.join('&') : '';
+			}
+
+			/* Whether the failure panels are on screen. Off by default, remembered
+			 * across reloads — if you opened them because you were chasing something,
+			 * a refresh mid-chase shouldn't close them again. */
+			const SHOW_PROBLEMS_KEY = 'ww-dashboard-show-problems';
+			let SHOW_PROBLEMS = false;
+			try {
+				SHOW_PROBLEMS = localStorage.getItem(SHOW_PROBLEMS_KEY) === '1';
+			} catch {
+				/* private mode — default to hidden */
+			}
+
+			/* What the badge counts.
+			 *
+			 * Deliberately NOT refusals. A refusal is the server saying "not enough
+			 * materials" — that is the game working, and every player generates them,
+			 * so a lifetime refusal count would sit in the thousands and mean nothing.
+			 * Badging it would train you to ignore the badge, which is the one failure
+			 * mode a hidden panel cannot survive.
+			 *
+			 * Crashes and records that will not decode are different: neither should
+			 * ever happen, so any number above zero is worth the walk. */
+			function problemCount() {
+				const crashes = (GAMEPLAYHEALTH && GAMEPLAYHEALTH.clientErrors && GAMEPLAYHEALTH.clientErrors.total) || 0;
+				const badSaves = (SAVEHEALTH && SAVEHEALTH.affected) || 0;
+				return { crashes: n(crashes), badSaves: n(badSaves), total: n(crashes) + n(badSaves) };
+			}
+
+			function syncProblemsButton() {
+				const btn = document.getElementById('problems');
+				const label = document.getElementById('problems-label');
+				if (!btn || !label) return;
+				// Nothing to show at all (endpoints unavailable) — hide the control rather
+				// than offer a button that opens an empty page.
+				const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
+				btn.hidden = !havePanels;
+				if (!havePanels) return;
+				const p = problemCount();
+				const bits = [];
+				if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
+				if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
+				// It swaps the whole page, so when it is on the button is a way BACK, not
+				// a "hide" — labelling a mode switch by what it conceals leaves you
+				// hunting for the way out.
+				label.innerHTML = SHOW_PROBLEMS
+					? '← Dashboard'
+					: 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
+				btn.title = p.total
+					? bits.join(' · ') + ' — plus every refusal the server has given'
+					: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
+				btn.classList.toggle('on', SHOW_PROBLEMS);
+				btn.classList.toggle('bad', p.total > 0);
+				btn.setAttribute('aria-expanded', SHOW_PROBLEMS ? 'true' : 'false');
+			}
+
+			/* The last payload, kept so the date picker can redraw without refetching.
+			 * The range only scopes a chart the server already sent in full, so a
+			 * round-trip per click would be latency for nothing. */
+			let LAST_DATA = null;
+			function rerender() {
+				if (LAST_DATA) render(LAST_DATA);
+			}
+
 			function render(data) {
+				LAST_DATA = data;
 				const s = (data && data.summary) || {};
 				const players = (data && data.players) || [];
 				const A = s.audience || {},
@@ -1661,6 +2271,12 @@
 					),
 				);
 
+				/* ---- New caretakers per day ----
+				 * Directly under Overview: same audience question with a time axis, and
+				 * the 24h / 7d tiles above are two points on this line. */
+				const dailySection = dailyHTML(s);
+				if (dailySection) out.push(dailySection);
+
 				/* ---- What is going wrong ----
 				 * Everything else on this page counts what players DID. That leaves a whole
 				 * class of problem invisible: a recipe gated on the wrong biome refuses
@@ -1685,34 +2301,71 @@
 					// The key's last segment reads well enough on its own ("notEnough",
 					// "recipeLocked") and the full path is noise in a bar chart.
 					const shortCode = (c) => String(c).split('.').pop();
+					const win = gh.window || null;
+					const day = (ms) =>
+						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+					/* In a window, the count column shows what happened IN it, with the
+					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * the per-day counters reads "—" rather than 0: there is no evidence
+					 * either way, and printing a zero would be inventing some. */
+					const hits = (r) => {
+						if (!win) return fmt(r.count);
+						if (r.windowCount === null || r.windowCount === undefined)
+							return `<span title="This row predates the per-day counters, so its history in this range is unknown.">—</span> <span class="alltime">${fmt(r.count)} all-time</span>`;
+						return `${fmt(r.windowCount)} <span class="alltime">${fmt(r.count)} all-time</span>`;
+					};
 					const refusalRows = (ref.top || [])
 						.map(
 							(r) =>
-								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${fmt(r.count)}</td>` +
+								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${hits(r)}</td>` +
 								`<td class="num">${r.status || '—'}</td>` +
-								`<td class="num">${r.lastSeenAt ? new Date(r.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+								`<td class="num">${day(r.lastSeenAt)}</td></tr>`,
 						)
 						.join('');
 					const crashRows = (cli.top || [])
 						.map(
 							(e) =>
 								`<tr><td>${esc(e.message)}</td><td><code>${esc(e.where || '?')}</code></td>` +
-								`<td class="num">${fmt(e.count)}</td>` +
-								`<td class="num">${e.lastSeenAt ? new Date(e.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+								`<td class="num">${hits(e)}</td>` +
+								`<td class="num">${day(e.lastSeenAt)}</td></tr>`,
 						)
 						.join('');
+					const picker =
+						`<div class="dpick">` +
+						PROBLEM_PRESETS.map(
+							(p) =>
+								`<button type="button" class="dbtn${PROBLEM_RANGE.preset === p.key ? ' on' : ''}" data-prange="${p.key}">${p.label}</button>`,
+						).join('') +
+						`<span class="dsep"></span>` +
+						`<label>From <input type="date" class="dinput" data-prange-from value="${esc(PROBLEM_RANGE.from)}"></label>` +
+						`<label>To <input type="date" class="dinput" data-prange-to value="${esc(PROBLEM_RANGE.to)}"></label>` +
+						`</div>`;
+					const kpiCrash = win && cli.windowTotal != null ? cli.windowTotal : cli.total;
+					const kpiRef = win && ref.windowTotal != null ? ref.windowTotal : ref.total;
 					healthSection = sec(
 						'What is going wrong',
-						'refusals and interface crashes — counts and message keys only',
-						`<div class="grid kpis">${[
-							kpi(
-								`<span class="accent">${fmt(cli.total)}</span>`,
-								'Interface crashes',
-								`${fmt(cli.distinct)} distinct`,
-							),
-							kpi(fmt(ref.total), 'Refusals', `${fmt(ref.distinct)} distinct reasons`),
-							kpi(fmt(ref.serverFaults), 'Server faults', '5xx — the game falling over, not saying no'),
-						].join('')}</div>` +
+						win
+							? `${esc(win.from || 'the beginning')} → ${esc(win.to || 'today')} · refusals and interface crashes`
+							: 'refusals and interface crashes — counts and message keys only',
+						picker +
+							`<div class="grid kpis">${[
+								kpi(
+									`<span class="accent">${fmt(kpiCrash)}</span>`,
+									'Interface crashes',
+									`${fmt(cli.distinct)} distinct${win ? ' in range' : ''}`,
+								),
+								kpi(fmt(kpiRef), 'Refusals', `${fmt(ref.distinct)} distinct reasons`),
+								kpi(fmt(ref.serverFaults), 'Server faults', '5xx — the game falling over, not saying no'),
+							].join('')}</div>` +
+							/* The counters only exist from the day they shipped, so a range
+							 * reaching further back covers less than it looks like it does.
+							 * Said on the page, because a quiet chart and a chart with no data
+							 * are indistinguishable otherwise. */
+							(win
+								? `<p class="emptynote">Per-day counting began ${win.earliestBucket ? `on ${esc(win.earliestBucket)}` : 'recently'} — ` +
+									`this range covers ${fmt(win.daysWithData)} ${win.daysWithData === 1 ? 'day' : 'days'} with data. ` +
+									`Rows older than that show <b>—</b> and keep only their all-time total. Server faults are always all-time.</p>`
+								: '') +
 							(refusalRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>` +
 									`<table class="vs"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
@@ -1864,7 +2517,7 @@
 								'Return rate',
 								`${fmt(R.returningPlayers)} came back`,
 							),
-						].join('')}</div>`,
+						].join('')}</div>` + sessionShapeHTML(s) + clockNoteHTML(s),
 					),
 				);
 
@@ -1915,7 +2568,21 @@
 				// clickable and opens a full breakdown modal (looked up by playerId).
 				PLAYERS_BY_ID = {};
 				for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
-				const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
+				/* Idle windows are excluded from this section outright.
+				 *
+				 * The 5-minute gate is a PLAY-TIME gate, and a window left open all
+				 * afternoon clears it without anybody touching the game — so the idle
+				 * saves were not just present here, they sorted to the TOP, and
+				 * "Most playtime" was being awarded to an abandoned tab. A section
+				 * called Player highlights should show players.
+				 *
+				 * They are only hidden from this wall, not dropped: they still count in
+				 * the head count, the funnel and every aggregate above, they are still in
+				 * PLAYERS_BY_ID so a modal opened for one still works, and the count of
+				 * what was left out is printed in the subtitle rather than left implied. */
+				const qualified = players.filter((p) => p && n(p.playSeconds) > 300);
+				const idleHidden = qualified.filter((p) => p.idle).length;
+				const engaged = qualified.filter((p) => !p.idle);
 				if (engaged.length) {
 					const top = [...engaged].sort(
 						(a, b) =>
@@ -1960,7 +2627,13 @@
 							// The green border is the ask, but colour alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? `<span class="hltag hllive">Active now</span>` : '';
-							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+							// The best thing a card can say about a player: they played the
+							// demo, bought the game, and carried this meadow across.
+							const cv = p.conversion || {};
+							const convTag = p.convertedFromDemo
+								? `<span class="hltag hlconv" title="Played the demo${cv.demoPlaySeconds ? ` for ${fmtDur(cv.demoPlaySeconds)}` : ''}, then bought the game and imported this save${cv.at ? ` · ${cv.exact ? '' : 'around '}${new Date(cv.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}">demo → full</span>`
+								: '';
+							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
@@ -1972,7 +2645,9 @@
 						.join('');
 					charSection = sec(
 						'Player highlights',
-						`everyone who played more than 5 min · ${top.length} caretakers · click a card for the full breakdown`,
+						`everyone who played more than 5 min · ${top.length} caretakers` +
+							(idleHidden ? ` · ${fmt(idleHidden)} idle ${idleHidden === 1 ? 'window' : 'windows'} hidden` : '') +
+							` · click a card for the full breakdown`,
 						`<div class="card"><div class="hlgrid">${cards}</div></div>`,
 					);
 				}
@@ -1989,7 +2664,17 @@
 						{ label: 'Created a character', value: acq.converted },
 					]) +
 						`<div class="grid three" style="margin-top:1rem">${[
-							kpi(fmt(acq.totalOpens), 'App opens'),
+							// Raw opens is the one number here a single machine can dominate:
+							// devices and conversion move by one device, this moves by every
+							// launch. The hint says what has been taken out of it, so the
+							// figure is never quietly smaller than the last time you looked.
+							kpi(
+								fmt(acq.totalOpens),
+								'App opens',
+								(acq.excludedDevices || {}).matched
+									? `excludes ${fmt(acq.excludedDevices.opens)} from ${fmt(acq.excludedDevices.matched)} hidden ${acq.excludedDevices.matched === 1 ? 'device' : 'devices'}`
+									: '',
+							),
 							kpi(`<span class="accent">${pct(acq.conversionPct)}</span>`, 'Conversion'),
 							kpi(pct(acq.bounceRatePct), 'Bounced'),
 						].join('')}</div>`,
@@ -2013,6 +2698,34 @@
 								].join('')}</div>`,
 						)
 					: '';
+
+				/* ---- Carried over from the demo ----
+				 * "Finished the demo" measures the demo. THIS measures whether the demo
+				 * sells the game: they bought it and brought their meadow across, which
+				 * is a stronger statement than either an install or a completion. Its
+				 * own card because burying it in a completion funnel undersells it. */
+				const cvs = s.conversions || {};
+				const convCard = cvs.demoToFull
+					? cardTitled(
+							'Carried over from the demo',
+							'bought the game and imported their save',
+							`<div class="grid three">${[
+								kpi(
+									`<span class="accent">${fmt(cvs.demoToFull)}</span>`,
+									cvs.demoToFull === 1 ? 'Caretaker' : 'Caretakers',
+									cvs.inferred
+										? `${fmt(cvs.inferred)} matched to their demo save${cvs.stamped ? `, ${fmt(cvs.stamped)} stamped at export` : ''}`
+										: 'stamped when the save was exported',
+								),
+								kpi(pct(cvs.ratePct), 'Of demo saves', `${fmt(cvs.demoSavesSeen)} demo saves reported in`),
+								kpi(
+									`${fmt(cvs.avgDemoMinutesBeforeBuying)}<small>m</small>`,
+									'Demo play first',
+									'average, before carrying over',
+								),
+							].join('')}</div>`,
+						)
+					: '';
 				// Every activation signal we have. "Created" is the entry point (always first
 				// and largest); the rest are sorted by count so the funnel always reads
 				// top-down. They're independent booleans, not strict prerequisites, so sorting
@@ -2032,12 +2745,52 @@
 					.filter((st) => st.value != null)
 					.sort((a, b) => n(b.value) - n(a.value));
 				const funSteps = funnel([{ label: 'Created character', value: fun.created }, ...funRest]);
+				/* ---- Devices (the control behind the acquisition numbers) ----
+				 * Rendered inside Funnels, right under the acquisition card it governs,
+				 * because a number and the switch that changes it belong together. It
+				 * lists the roster BEFORE the exclusion is applied and marks what is
+				 * hidden, so a device excluded by mistake can be put back. */
+				const roster = acq.deviceRoster || [];
+				const exd = acq.excludedDevices || {};
+				let deviceCard = '';
+				if (roster.length) {
+					const when = (ms) =>
+						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+					const rows = roster
+						.map((d) => {
+							const hidden = !!d.excluded;
+							const who = [d.platform, d.os, d.version].filter(Boolean).join(' · ') || 'unknown';
+							return (
+								`<tr${hidden ? ' style="opacity:.5"' : ''}><td><code>${esc(String(d.deviceId).slice(0, 12))}…</code></td>` +
+								`<td>${esc(who)}</td><td class="num">${fmt(d.opens)}</td><td class="num">${fmt(d.savesCreated)}</td>` +
+								`<td class="num">${when(d.firstOpenAt)}</td><td class="num">${when(d.lastOpenAt)}</td>` +
+								`<td class="num"><button type="button" class="devtoggle" data-did="${esc(d.deviceId)}">${hidden ? 'Show' : 'Hide'}</button></td></tr>`
+							);
+						})
+						.join('');
+					const note = exd.matched
+						? `hiding ${fmt(exd.matched)} ${exd.matched === 1 ? 'device' : 'devices'} · ${fmt(exd.opens)} opens and ${fmt(exd.charactersCreated)} characters excluded from the numbers above`
+						: 'busiest first — hide your own machines so development launches stop counting as app opens';
+					deviceCard = cardTitled(
+						'Devices',
+						note,
+						`<table class="vs"><thead><tr><th>Device</th><th>Build</th><th class="num">Opens</th><th class="num">Characters</th><th class="num">First</th><th class="num">Last</th><th class="num"></th></tr></thead><tbody>${rows}</tbody></table>`,
+					);
+				}
+
 				out.push(
 					sec(
 						'Funnels',
 						'from install to a thriving meadow',
 						`<div class="grid two">${acqCards}${cardTitled('Activation funnel', 'all caretakers', funSteps)}</div>` +
-							(demoCard ? `<div style="margin-top:.8rem">${demoCard}</div>` : ''),
+							(demoCard && convCard
+								? `<div class="grid two" style="margin-top:.8rem">${demoCard}${convCard}</div>`
+								: demoCard
+									? `<div style="margin-top:.8rem">${demoCard}</div>`
+									: convCard
+										? `<div style="margin-top:.8rem">${convCard}</div>`
+										: '') +
+							(deviceCard ? `<div style="margin-top:.8rem">${deviceCard}</div>` : ''),
 					),
 				);
 
@@ -2151,10 +2904,21 @@
 								`${fmt(cr.savesWithTiming)} timed`,
 							),
 							kpi(`${n(cr.medianCreationSeconds)}<small>s</small>`, 'Median creation time'),
+							/* The MEDIAN, not the mean. A save created and then left open
+							 * overnight before anyone touched it contributes a five-figure
+							 * number, and a handful of those had this tile reading 4924s —
+							 * 82 minutes — while real first actions land around 6-20s. The
+							 * mean is still in the payload as ttfa.avgSeconds; it just has
+							 * no business being the headline. */
 							kpi(
-								`${n(ttfa.avgSeconds)}<small>s</small>`,
+								`${n(ttfa.medianSeconds != null ? ttfa.medianSeconds : ttfa.avgSeconds)}<small>s</small>`,
 								'Time to first action',
-								`${fmt(ttfa.playersMeasured)} measured`,
+								ttfa.medianSeconds != null
+									? `median of ${fmt(ttfa.playersMeasured)}` +
+										(ttfa.outliersExcluded
+											? ` · mean ${n(ttfa.avgSeconds)}s incl. ${fmt(ttfa.outliersExcluded)} walked away`
+											: '')
+									: `${fmt(ttfa.playersMeasured)} measured`,
 							),
 							kpi(
 								`${n(acq.avgCharactersPerPerson)}`,
@@ -2294,15 +3058,43 @@
 					);
 				}
 
-				/* ---- Save health, directly above the player highlights ---- */
-				if (healthSection) out.push(healthSection);
-				if (saveSection) out.push(saveSection);
+				/* Save health and "What is going wrong" are NOT pushed into `out`.
+				 * Problems is a mode, not a section: when it is on the page shows those
+				 * two and nothing else (see the assembly at the end of render). */
 
-				/* ---- Player highlights — kept at the bottom ---- */
+				/* ---- What caretakers look like, then who they are ---- */
+				const appearanceSection = appearanceHTML(s);
+				if (appearanceSection) out.push(appearanceSection);
+
+				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
-				/* ---- Landing page — the very bottom (site traffic, not game numbers) ---- */
+				/* ---- Landing page (site traffic, not game numbers) ---- */
 				if (landingSection) out.push(landingSection);
+
+				/* ---- Problems mode ----
+				 * When it is on, the page IS the failure panels — everything above is
+				 * built but not shown. Two views of one dataset rather than a long page
+				 * with a tail: you are either reading how the game is going or chasing
+				 * something that broke, and the numbers are a distraction from the second.
+				 *
+				 * Everything above is still computed rather than skipped. It costs
+				 * nothing measurable (the data is already in the browser) and it keeps
+				 * one code path, so the two views can never disagree about the same
+				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
+				 * switching still resolves. */
+				if (SHOW_PROBLEMS) {
+					const panels = [healthSection, saveSection].filter(Boolean);
+					document.getElementById('root').innerHTML = panels.length
+						? panels.join('')
+						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
+							card(
+								`<p class="emptynote">Neither <code>/GameplayHealth/</code> nor <code>/SaveHealth/</code> answered, so there is nothing to show here — ` +
+									`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>`,
+							) +
+							`</section>`;
+					return;
+				}
 
 				document.getElementById('root').innerHTML = out.join('');
 			}
@@ -2314,6 +3106,42 @@
 			// `idle` defaults to 'exclude': an abandoned window is not play, so the numbers
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
+
+			/* Devices hidden from the acquisition funnel — your own machines.
+			 *
+			 * ?exclude=<name> drops your test SAVES, which is enough for the player
+			 * numbers. It never touched acquisition, because that funnel reads AppOpen
+			 * (one row per install, no save name on it) — so every launch during
+			 * development kept counting as an app open, and after a while the "App
+			 * opens" tile was mostly one person. Devices and the conversion rate barely
+			 * move (a dev machine is one device); the raw open and character-creation
+			 * totals move a lot, which is the harder distortion to notice.
+			 *
+			 * Kept in localStorage rather than hardcoded so the list is yours to edit
+			 * from the Devices panel without a redeploy, and it survives a reload. */
+			const EXCLUDED_DEVICES_KEY = 'ww-dashboard-excluded-devices';
+			let EXCLUDED_DEVICES = [];
+			try {
+				const raw = JSON.parse(localStorage.getItem(EXCLUDED_DEVICES_KEY) || '[]');
+				if (Array.isArray(raw)) EXCLUDED_DEVICES = raw.filter((d) => typeof d === 'string' && d);
+			} catch {
+				/* unreadable or absent — start with nothing hidden */
+			}
+			function setExcludedDevices(ids) {
+				EXCLUDED_DEVICES = [...new Set(ids)];
+				try {
+					localStorage.setItem(EXCLUDED_DEVICES_KEY, JSON.stringify(EXCLUDED_DEVICES));
+				} catch {
+					/* private mode / storage full — the filter still applies for this session */
+				}
+			}
+			function toggleDevice(id) {
+				setExcludedDevices(
+					EXCLUDED_DEVICES.includes(id) ? EXCLUDED_DEVICES.filter((d) => d !== id) : [...EXCLUDED_DEVICES, id],
+				);
+				load();
+			}
+			window.__toggleDevice = toggleDevice;
 
 			/** Grey out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
@@ -2361,59 +3189,290 @@
 				syncVersionMode();
 			}
 
+			/* ------------------------------------------------------------------ *
+			 * Credentials
+			 *
+			 * The page is public; every endpoint it reads is not. So this holds the
+			 * username and password you sign in with and attaches them as HTTP basic
+			 * auth to each request — which is what the browser's own password prompt
+			 * would have done, done by hand so the page does not depend on Harper
+			 * sending WWW-Authenticate.
+			 *
+			 * sessionStorage, not localStorage: it survives a refresh (you are not
+			 * retyping a password every time you hit Refresh mid-investigation) and
+			 * dies with the tab, so a shared or forgotten machine does not keep it.
+			 *
+			 * Sign in with a read-only Harper role, never the super-user account. A
+			 * password held in a browser tab should be one that can read these numbers
+			 * and do nothing else.
+			 * ------------------------------------------------------------------ */
+			const AUTH_KEY = 'ww-dashboard-auth';
+			let AUTH = null; // { header, username, role }
+
+			/* btoa() only accepts Latin-1 and throws on anything else, which would turn
+			 * a perfectly good password containing a non-ASCII character into an
+			 * unexplained crash at sign-in. Encode as UTF-8 bytes first, per RFC 7617. */
+			function basicHeader(username, password) {
+				const bytes = new TextEncoder().encode(`${username}:${password}`);
+				let bin = '';
+				for (const b of bytes) bin += String.fromCharCode(b);
+				return 'Basic ' + btoa(bin);
+			}
+
+			function loadAuth() {
+				try {
+					const raw = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+					if (raw && typeof raw.header === 'string') AUTH = raw;
+				} catch {
+					/* unreadable — treat as signed out */
+				}
+			}
+			function saveAuth(auth) {
+				AUTH = auth;
+				try {
+					sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+				} catch {
+					/* storage unavailable — stays in memory for this page view */
+				}
+			}
+			function signOut() {
+				AUTH = null;
+				try {
+					sessionStorage.removeItem(AUTH_KEY);
+				} catch {
+					/* nothing to clear */
+				}
+				showLogin();
+			}
+			window.__signOut = signOut;
+
+			/* Request options for every fetch on this page. A function, not a constant,
+			 * because the credentials arrive after the script does. */
+			function req() {
+				return {
+					headers: AUTH
+						? { accept: 'application/json', authorization: AUTH.header }
+						: { accept: 'application/json' },
+					credentials: 'same-origin',
+				};
+			}
+
+			/* The roll-up used to arrive as ONE response: aggregates with a record for
+			 * every player stapled to the end. At 310 saves that was ~1 MB, 98.6% of it
+			 * the player array, and there was no way to ask for the 6 KB of aggregates
+			 * on their own. It is two endpoints now — /MetricsSummary/ for the numbers,
+			 * /MetricsPlayers/ for the rows, paginated.
+			 *
+			 * This page still wants every row (the caretaker wall, the demo/full splits
+			 * and the per-player modal are all computed client-side over the full set),
+			 * so it pages through and reassembles the exact `{...summary, players:[…]}`
+			 * shape render() has always been handed. Nothing downstream of here changed,
+			 * and every save already in the database renders exactly as it did before. */
+			const PLAYER_PAGE = 500;
+			const PLAYER_CAP = 20000; // a stop, not a policy — see the warning below
+
+			async function fetchAllPlayers(qs) {
+				const out = [];
+				let cursor = '';
+				let total = null;
+				for (;;) {
+					const url = `../MetricsPlayers/?${qs}&limit=${PLAYER_PAGE}` + (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '');
+					const res = await fetch(url, req());
+					if (!res.ok) throw new Error(`MetricsPlayers returned ${res.status}`);
+					const page = await res.json();
+					total = page.total;
+					out.push(...(page.players || []));
+					if (!page.nextCursor || !(page.players || []).length || out.length >= PLAYER_CAP) break;
+					cursor = page.nextCursor;
+				}
+				/* If the cap ever bites, say so on the page. A silently truncated list
+				 * would quietly understate every client-side total on this dashboard. */
+				return { players: out, total, truncated: total != null && out.length < total };
+			}
+
+			/* ------------------------------------------------------------------ *
+			 * Sign in
+			 * ------------------------------------------------------------------ */
+			function showLogin(message) {
+				const gen = document.getElementById('generated');
+				if (gen) gen.textContent = '';
+				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
+				['refresh', 'problems'].forEach((id) => {
+					const el = document.getElementById(id);
+					if (el) el.hidden = true;
+				});
+				syncWhoami();
+				document.getElementById('root').innerHTML =
+					`<section class="loginwrap"><form class="card login" id="login-form">` +
+					`<h2>Sign in</h2>` +
+					`<label>Username<input type="text" id="login-user" autocomplete="username" required autofocus></label>` +
+					`<label>Password<input type="password" id="login-pass" autocomplete="current-password" required></label>` +
+					(message ? `<p class="loginerr" role="alert">${esc(message)}</p>` : '') +
+					`<button type="submit" class="refresh" id="login-go">Sign in</button>` +
+					`</form></section>`;
+				document.getElementById('login-form').addEventListener('submit', async (e) => {
+					e.preventDefault();
+					const btn = document.getElementById('login-go');
+					const username = document.getElementById('login-user').value.trim();
+					const password = document.getElementById('login-pass').value;
+					if (!username || !password) return;
+					btn.disabled = true;
+					btn.textContent = 'Checking…';
+					const header = basicHeader(username, password);
+					try {
+						// Checked against /DashboardAuth/, which reads nothing. Testing a
+						// password by rolling up every save would be an odd way to spend a
+						// database scan.
+						const res = await fetch('../DashboardAuth/', {
+							headers: { accept: 'application/json', authorization: header },
+							credentials: 'same-origin',
+						});
+						if (res.status === 401 || res.status === 403) {
+							// 401 and 403 are different failures and it is worth saying which:
+							// one means the password is wrong, the other means the account is
+							// real but not permitted — only one of those is worth retyping.
+							return showLogin(
+								res.status === 403
+									? 'That account signed in but is not allowed to read the dashboard. It needs the metrics_reader role, or super-user.'
+									: 'Wrong username or password.',
+							);
+						}
+						if (!res.ok) return showLogin(`The server answered ${res.status}. Try again in a moment.`);
+						const who = await res.json();
+						saveAuth({ header, username: who.username || username, role: who.role || null });
+						document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = false));
+						const rf = document.getElementById('refresh');
+						if (rf) rf.hidden = false;
+						syncWhoami();
+						load();
+					} catch (err) {
+						showLogin(`Could not reach the server — ${String((err && err.message) || err)}`);
+					} finally {
+						btn.disabled = false;
+						btn.textContent = 'Sign in';
+					}
+				});
+			}
+
+			/** Who is signed in, with a way out. */
+			function syncWhoami() {
+				const el = document.getElementById('whoami');
+				if (!el) return;
+				el.hidden = !AUTH;
+				if (AUTH)
+					el.innerHTML =
+						`${esc(AUTH.username)}${AUTH.role ? ` <span class="wrole">${esc(AUTH.role)}</span>` : ''} · ` +
+						`<button type="button" class="linkish" id="signout">Sign out</button>`;
+			}
+
 			async function load() {
+				// The page is public and the data is not, so every path in starts here.
+				if (!AUTH) return showLogin();
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
 				try {
 					// Exclude dev/test saves so they don't skew the numbers (matches the
 					// server's ?exclude filter). Optional version/edition/platform each scope
-					// the whole report server-side.
-					let url = '../Metrics/?exclude=bailey_test';
+					// the whole report server-side. The SAME query string goes to both
+					// endpoints, so the aggregates and the rows always describe one population.
+					let qs = 'exclude=bailey_test';
 					for (const cfg of FILTER_CFG) {
 						if (FILTERS[cfg.key] && FILTERS[cfg.key] !== 'all')
-							url += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
+							qs += `&${cfg.key}=` + encodeURIComponent(FILTERS[cfg.key]);
 					}
 					// A specific version can be widened to "this version & newer" (min mode);
 					// otherwise the report isolates the single selected version.
-					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
+					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') qs += '&versionMode=min';
 					// Windows left open are classified server-side and dropped from every
 					// aggregate when hidden, so the totals and the per-player list agree.
-					if (FILTERS.idle === 'exclude') url += '&idle=exclude';
+					if (FILTERS.idle === 'exclude') qs += '&idle=exclude';
+					// Your own machines, out of the acquisition funnel. Sent as one
+					// comma-separated value; the server also accepts the param repeated.
+					if (EXCLUDED_DEVICES.length) qs += '&excludeDevice=' + encodeURIComponent(EXCLUDED_DEVICES.join(','));
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
-					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
+					const landingReq = fetch('../LandingStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
 					// than breaking the page.
-					const saveReq = fetch('../SaveHealth/', { headers: { accept: 'application/json' } })
+					const saveReq = fetch('../SaveHealth/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Refusals + interface crashes. Same contract again: an instance that
 					// predates the endpoint hides the panel rather than breaking the page.
-					const healthReq = fetch('../GameplayHealth/', { headers: { accept: 'application/json' } })
+					// The Problems range is applied SERVER-side, over the per-day buckets —
+					// the browser can't do it, because a row's all-time count carries no
+					// dates to filter on.
+					const healthReq = fetch(`../GameplayHealth/${problemsQuery()}`, req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
-					const res = await fetch(url, { headers: { accept: 'application/json' } });
-					if (!res.ok) throw new Error(`Metrics endpoint returned ${res.status}`);
-					const data = await res.json();
+					// Aggregates first — they render the whole page except the caretaker
+					// wall, so they are the ones worth having in flight on their own.
+					const sumRes = await fetch(`../MetricsSummary/?${qs}`, req());
+					if (!sumRes.ok) throw new Error(`MetricsSummary returned ${sumRes.status}`);
+					const head = await sumRes.json();
+					const rows = await fetchAllPlayers(qs);
+					// Rebuild the shape render() has always received.
+					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
 					populateFilterOptions(data.filters);
 					render(data);
+					// After render: the badge reads the two health payloads, which only
+					// just resolved above.
+					syncProblemsButton();
+					if (rows.truncated) {
+						const warn = document.createElement('div');
+						warn.className = 'err';
+						warn.innerHTML = `<b>Showing ${fmt(rows.players.length)} of ${fmt(rows.total)} caretakers.</b> Per-player totals below are computed from the ones loaded.`;
+						root.prepend(warn);
+					}
 					if (data.generatedAt) {
 						const d = new Date(data.generatedAt);
 						gen.textContent = `Updated ${d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
 					}
 				} catch (err) {
-					root.innerHTML = `<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>`;
+					// A 401/403 mid-session means the credentials stopped working — the
+					// password changed, the role was revoked, the account was disabled.
+					// Drop them and ask again rather than leaving a dead session showing
+					// an error it cannot recover from.
+					if (/returned 40[13]/.test(String(err && err.message))) {
+						AUTH = null;
+						try {
+							sessionStorage.removeItem(AUTH_KEY);
+						} catch {
+							/* nothing to clear */
+						}
+						return showLogin('Your sign-in is no longer valid. Please sign in again.');
+					}
+					root.innerHTML =
+						`<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br>` +
+						`<span style="font-size:.8rem;opacity:.8">The dashboard reads from <code>/MetricsSummary/</code> and <code>/MetricsPlayers/</code> on this host.</span></div>`;
 					gen.textContent = '';
 				}
 			}
 
 			document.getElementById('refresh').addEventListener('click', load);
+
+			// Show/hide the failure panels. On opening, scroll to them — they render at
+			// the bottom of a long page, and a button that appears to do nothing is
+			// worse than no button.
+			document.getElementById('problems').addEventListener('click', () => {
+				SHOW_PROBLEMS = !SHOW_PROBLEMS;
+				try {
+					localStorage.setItem(SHOW_PROBLEMS_KEY, SHOW_PROBLEMS ? '1' : '0');
+				} catch {
+					/* private mode — the toggle still works for this session */
+				}
+				rerender();
+				syncProblemsButton();
+				// Either direction replaces the whole page, so start it at the top rather
+				// than dropping you mid-way down a document you have not seen.
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
 			for (const cfg of FILTER_CFG) {
 				const sel = document.getElementById(cfg.el);
 				if (sel)
@@ -2441,7 +3500,74 @@
 			// Open a player's breakdown modal when their highlight card is clicked or
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
+			// Date-range presets for the per-day chart. Redraws from the payload already
+			// in hand — no refetch.
 			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-range]');
+				if (!btn) return;
+				DAY_RANGE.preset = btn.getAttribute('data-range');
+				DAY_RANGE.from = '';
+				DAY_RANGE.to = '';
+				rerender();
+			});
+			// The Problems range. Unlike the chart's picker this one REFETCHES, because
+			// the windowing happens server-side over the per-day buckets.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-prange]');
+				if (!btn) return;
+				PROBLEM_RANGE.preset = btn.getAttribute('data-prange');
+				PROBLEM_RANGE.from = '';
+				PROBLEM_RANGE.to = '';
+				load();
+			});
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.hasAttribute) return;
+				if (!el.hasAttribute('data-prange-from') && !el.hasAttribute('data-prange-to')) return;
+				PROBLEM_RANGE.preset = 'custom';
+				if (el.hasAttribute('data-prange-from')) PROBLEM_RANGE.from = el.value;
+				if (el.hasAttribute('data-prange-to')) PROBLEM_RANGE.to = el.value;
+				if (PROBLEM_RANGE.from && PROBLEM_RANGE.to && PROBLEM_RANGE.from > PROBLEM_RANGE.to) {
+					const t = PROBLEM_RANGE.from;
+					PROBLEM_RANGE.from = PROBLEM_RANGE.to;
+					PROBLEM_RANGE.to = t;
+				}
+				load();
+			});
+			// Typing a date switches the control to a custom range. Handled on 'change'
+			// so a half-typed year doesn't blank the chart mid-keystroke.
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.classList || !el.classList.contains('dinput')) return;
+				const daily = (LAST_DATA && LAST_DATA.summary && LAST_DATA.summary.daily) || {};
+				if (DAY_RANGE.preset !== 'custom') {
+					// Seed the other end from what is on screen, so changing one date
+					// doesn't silently widen the range back to everything.
+					const shown = visibleDays(daily);
+					DAY_RANGE.from = shown.length ? shown[0].day : daily.firstDay || '';
+					DAY_RANGE.to = shown.length ? shown[shown.length - 1].day : daily.lastDay || '';
+					DAY_RANGE.preset = 'custom';
+				}
+				if (el.hasAttribute('data-range-from')) DAY_RANGE.from = el.value;
+				if (el.hasAttribute('data-range-to')) DAY_RANGE.to = el.value;
+				// An inverted range is a slip, not an instruction — swap rather than
+				// showing an empty chart.
+				if (DAY_RANGE.from && DAY_RANGE.to && DAY_RANGE.from > DAY_RANGE.to) {
+					const t = DAY_RANGE.from;
+					DAY_RANGE.from = DAY_RANGE.to;
+					DAY_RANGE.to = t;
+				}
+				rerender();
+			});
+
+			rootEl.addEventListener('click', (e) => {
+				// Hide/show a device from the acquisition funnel. Checked before the
+				// player card, since a button is never inside one.
+				const dev = e.target.closest && e.target.closest('.devtoggle[data-did]');
+				if (dev) {
+					toggleDevice(dev.getAttribute('data-did'));
+					return;
+				}
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
 				if (card) openPlayerModal(card.getAttribute('data-pid'));
 			});
@@ -2457,9 +3583,19 @@
 				if (e.key === 'Escape') closePlayerModal();
 			});
 
+			// Sign out from the header. Delegated, because syncWhoami() rebuilds the
+			// button whenever the signed-in identity changes.
+			document.querySelector('header').addEventListener('click', (e) => {
+				if (e.target && e.target.id === 'signout') signOut();
+			});
+
 			// expose for offline/unit rendering (jsdom smoke test)
 			window.__renderDashboard = render;
 			window.__openPlayerModal = openPlayerModal;
+			// Pick up an existing session before deciding what to show — a refresh
+			// mid-investigation should land back on the numbers, not on a login form.
+			loadAuth();
+			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();
 		</script>
 	</body>

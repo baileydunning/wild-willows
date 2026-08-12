@@ -236,22 +236,6 @@
 			button.refresh.probs.bad {
 				border-color: #e2c481;
 			}
-			/* Hide/show control in the Devices table. Deliberately quiet: it is a
-			   maintenance switch, not something to draw the eye on every load. */
-			button.devtoggle {
-				font: inherit;
-				font-size: 0.75rem;
-				cursor: pointer;
-				border: 1px solid var(--rule);
-				background: var(--card);
-				color: var(--muted);
-				padding: 0.15rem 0.6rem;
-				border-radius: 999px;
-			}
-			button.devtoggle:hover {
-				color: var(--accent-dark);
-				border-color: var(--accent);
-			}
 			.vfilter {
 				display: inline-flex;
 				align-items: center;
@@ -371,12 +355,19 @@
 				grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 			}
 
+			/* Title on the left, caveat on the right. A float dropped the caveat onto
+			   its own line at narrow widths and left it hanging over the content
+			   below it; as a flex row it wraps under the title, aligned with it. */
 			.card h3 {
 				margin: 0 0 0.9rem;
 				font-size: 0.96rem;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 0.15rem 0.8rem;
 			}
 			.card h3 .tag {
-				float: right;
 				font-size: 0.74rem;
 				font-weight: 600;
 				color: var(--faint);
@@ -435,53 +426,70 @@
 				background: linear-gradient(90deg, #e5a0af, var(--rose));
 			}
 
-			/* ---- funnel ---- */
+			/* ---- funnel ----
+			 * The numbers used to sit inside the bar, on top of the fill. Where the
+			 * fill reached them they were dark green on dark green — a 100% step read
+			 * as a blank bar — and where it did not they were dark on pale, so the
+			 * same label changed legibility with its own value. They now live in a
+			 * fixed column beside the bar, on the card, where the contrast is the same
+			 * for every row. Only the step name rides the fill, in white, which is
+			 * safe because the fill always starts at the left edge under it. */
 			.funnel {
 				display: flex;
 				flex-direction: column;
 				gap: 0.5rem;
 			}
 			.step {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto;
+				align-items: center;
+				gap: 0.5rem 0.8rem;
+			}
+			.step .strack {
 				position: relative;
 				background: var(--accent-soft);
 				border-radius: 12px;
 				overflow: hidden;
+				padding: 0.6rem 0.85rem;
+				min-width: 0;
 			}
 			.step .sfill {
 				background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-				height: 100%;
 				position: absolute;
-				inset: 0;
+				top: 0;
+				bottom: 0;
+				left: 0;
 				width: 0;
 				border-radius: 12px;
 				transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
-			.step .srow {
-				position: relative;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				padding: 0.6rem 0.85rem;
-				gap: 1rem;
-			}
 			.step .sname {
+				position: relative;
+				display: block;
 				font-weight: 600;
 				font-size: 0.86rem;
+				color: #fff;
+				text-shadow: 0 1px 2px rgba(28, 44, 24, 0.35);
+				overflow-wrap: anywhere;
+			}
+			/* A step at or near zero has no fill under its name, so white on pale
+			   green would vanish. Set by funnel() from the value, not guessed here. */
+			.step.empty .sname {
+				color: var(--muted);
+				text-shadow: none;
 			}
 			.step .sval {
 				font-variant-numeric: tabular-nums;
 				font-size: 0.84rem;
 				display: flex;
-				gap: 0.55rem;
+				gap: 0.5rem;
 				align-items: baseline;
+				justify-content: flex-end;
+				white-space: nowrap;
 			}
 			.step .spct {
 				color: var(--accent-dark);
 				font-weight: 700;
-			}
-			.step.lite .sname,
-			.step.lite .sval {
-				color: var(--ink);
 			}
 			.step .drop {
 				color: var(--rose);
@@ -875,6 +883,61 @@
 				text-align: center;
 			}
 
+			/* ---- data tables (problems + server health) ----
+			 * These were originally given class="vs", which collides with the
+			 * demo-vs-full flex container below and turned every <table> into a
+			 * flex column: headers ran together and columns never lined up. */
+			.tbl {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 0.55rem;
+				font-size: 0.86rem;
+			}
+			.tbl th {
+				text-align: left;
+				font-size: 0.72rem;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				color: var(--faint);
+				padding: 0 0.7rem 0.4rem 0;
+				border-bottom: 1px solid var(--rule);
+				white-space: nowrap;
+			}
+			.tbl td {
+				padding: 0.42rem 0.7rem 0.42rem 0;
+				border-bottom: 1px solid var(--rule);
+				color: var(--ink);
+				vertical-align: baseline;
+			}
+			.tbl tr:last-child td {
+				border-bottom: 0;
+			}
+			/* Numbers right-align and share a column width so they compare by eye. */
+			.tbl th.num,
+			.tbl td.num {
+				text-align: right;
+				padding-right: 0;
+				padding-left: 0.9rem;
+				white-space: nowrap;
+				font-variant-numeric: tabular-nums;
+				width: 1%;
+			}
+			.tbl td small {
+				color: var(--faint);
+				font-size: 0.78em;
+				margin-left: 1px;
+			}
+			/* The first column carries the long identifier, so it takes the slack
+			 * and wraps instead of shoving the numbers off the edge. */
+			.tbl td:first-child {
+				width: 99%;
+				word-break: break-word;
+			}
+			.tbl td code {
+				font-size: 0.92em;
+			}
+
 			/* ---- editions: demo vs full ---- */
 			.vs {
 				display: flex;
@@ -974,14 +1037,37 @@
 				color: var(--faint);
 				font-variant-numeric: tabular-nums;
 			}
+			/* Below ~440px this flex row was computing a shrink-to-fit width and
+			   collapsing to the sum of its gaps — 36px of the 289px available, with
+			   every bar a sub-pixel hairline. Stating the width explicitly is what
+			   actually holds it open. */
+			.dscroll {
+				overflow-x: auto;
+				overflow-y: hidden;
+				scrollbar-width: thin;
+			}
 			.dcols {
 				display: flex;
 				align-items: flex-end;
 				gap: 2px;
-				height: 124px;
+				width: 100%;
+				min-width: 100%;
+				/* 96 for the tallest bar, plus the count above and the date below. */
+				height: 150px;
 			}
+			.dcol .dn {
+				font-size: 0.66rem;
+				color: var(--muted);
+				font-variant-numeric: tabular-nums;
+				line-height: 1;
+				height: 0.7rem;
+				white-space: nowrap;
+			}
+			/* A floor on the column width, not an equal share of whatever is left:
+			   90 days across a phone is 3px a bar, which is a texture rather than a
+			   chart. Past the floor the strip scrolls sideways instead of shrinking. */
 			.dcol {
-				flex: 1 1 0;
+				flex: 1 0 var(--dcolw, 6px);
 				min-width: 0;
 				display: flex;
 				flex-direction: column;
@@ -989,6 +1075,31 @@
 				justify-content: flex-end;
 				height: 100%;
 				gap: 0.3rem;
+			}
+			/* Hidden, not removed — the row keeps its height so every bar in the
+			   chart still sits on the same baseline. */
+			.dcol.nolab .dl,
+			.dcol.nonum .dn {
+				visibility: hidden;
+			}
+			/* A date is wider than its column and overhangs both sides. In the middle
+			   of the strip that is fine; at the ends it hangs past the chart and gets
+			   clipped, so the outermost dates align to their edge instead of centring
+			   on it — the last day is exactly the one you most want to read. */
+			.dcol:first-child .dl {
+				align-self: flex-start;
+			}
+			.dcol:last-child .dl {
+				align-self: flex-end;
+			}
+			.dhint {
+				display: none;
+				margin: 0.4rem 0 0;
+				font-size: 0.7rem;
+				color: var(--faint);
+			}
+			.dscroll.canscroll + .dhint {
+				display: block;
 			}
 			.dcol .dbar {
 				display: block;
@@ -1062,33 +1173,6 @@
 				background: var(--card);
 				padding: 0.15rem 0.4rem;
 			}
-			/* Appearance popularity: a colour choice has to be shown as the colour. */
-			.swgrid {
-				display: flex;
-				flex-wrap: wrap;
-				gap: 0.4rem;
-			}
-			.swchip {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.35rem;
-				border: 1px solid var(--rule);
-				border-radius: 999px;
-				padding: 0.15rem 0.55rem 0.15rem 0.2rem;
-				font-size: 0.78rem;
-				color: var(--ink);
-				background: var(--card);
-				font-variant-numeric: tabular-nums;
-			}
-			.swchip .dot {
-				width: 16px;
-				height: 16px;
-				border-radius: 50%;
-				border: 1px solid rgba(47, 58, 39, 0.18);
-			}
-			.swchip .cnt {
-				color: var(--muted);
-			}
 			footer {
 				margin-top: 3rem;
 				text-align: center;
@@ -1113,17 +1197,112 @@
 				padding: 1rem 1.2rem;
 			}
 
+			/* ---- phones ----
+			 * Everything below is a width problem, not a phone problem: a section
+			 * heading beside its subtitle, a bar label beside its bar, a five-column
+			 * table. Each one is given back its own line rather than squeezed. */
+			@media (max-width: 640px) {
+				/* A heading and its subtitle side by side leaves each about half a
+				   phone, so both wrap and interleave. Stack them. */
+				.sec-head {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 0.1rem;
+				}
+				.sec-head .sub {
+					line-height: 1.35;
+				}
+				/* Same story one level down, inside a card. */
+				.card h3 {
+					gap: 0.1rem;
+				}
+				.card h3 .tag {
+					flex: 1 0 100%;
+				}
+				/* Wider bars, and labels that wrap instead of becoming "Under …". */
+				.bar {
+					grid-template-columns: minmax(0, 42%) 1fr auto;
+					gap: 0.5rem;
+				}
+				.bar .lab {
+					white-space: normal;
+					overflow: visible;
+					line-height: 1.25;
+				}
+				.chargrid {
+					grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+				}
+				/* The step name and its numbers each get a full line. */
+				.step {
+					grid-template-columns: minmax(0, 1fr);
+				}
+				.step .sval {
+					justify-content: flex-start;
+					padding-left: 0.1rem;
+				}
+				/* Five columns on a phone: shrink the type and let long ids break
+				   rather than shove the numbers off the right edge. */
+				.tbl {
+					font-size: 0.8rem;
+				}
+				.tbl th {
+					font-size: 0.64rem;
+					letter-spacing: 0.02em;
+				}
+				.tbl th.num,
+				.tbl td.num {
+					padding-left: 0.5rem;
+				}
+				.tbl td:first-child {
+					overflow-wrap: anywhere;
+				}
+				/* A vertical rule between the presets and the date inputs only reads as
+				   a divider while they share a line. Wrapped, it is a stray tick. */
+				.dpick .dsep {
+					display: none;
+				}
+				.dpick {
+					gap: 0.35rem 0.4rem;
+				}
+				.dcolwrap {
+					padding-left: 1.7rem;
+				}
+				/* A wider floor on a phone: 90 days across 300px is a 3px bar, which is
+				   a texture, not a chart. Past this the strip scrolls instead. */
+				.dcols {
+					--dcolw: 8px;
+				}
+			}
+			/* Zero-height, full-width flex item: forces the two action buttons onto a
+			   line of their own below the filters. Inert in the desktop block layout. */
+			.metabreak {
+				display: block;
+				height: 0;
+			}
 			@media (max-width: 560px) {
 				.meta {
 					margin-left: 0;
 					text-align: left;
 					width: 100%;
+					/* Wrapping inline controls landed the Problems toggle mid-row between
+					   two dropdowns, reading as a third filter. Laid out as a flex row
+					   the filters group together and the buttons get their own line. */
+					display: flex;
+					flex-wrap: wrap;
+					align-items: center;
+					gap: 0.45rem 0.6rem;
 				}
-				.bar {
-					grid-template-columns: minmax(56px, 40%) 1fr auto;
+				.meta .live,
+				.meta > #whoami,
+				.meta > #generated {
+					flex: 1 0 100%;
 				}
-				.chargrid {
-					grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+				.metabreak {
+					flex: 1 0 100%;
+				}
+				.meta .vfilter,
+				.meta button.refresh {
+					margin-top: 0;
 				}
 			}
 		</style>
@@ -1194,6 +1373,7 @@
 					     safe — it counts the things that are actually wrong (crashes and
 					     unreadable saves, never routine refusals), so a bad day still
 					     announces itself from the top of the page. -->
+					<span class="metabreak"></span>
 					<button class="refresh probs" id="problems" type="button" aria-expanded="false" hidden>
 						<span id="problems-label">Problems</span>
 					</button>
@@ -1309,6 +1489,16 @@
 			const n = (x) => (x == null || isNaN(x) ? 0 : x);
 			const fmt = (x) => n(x).toLocaleString('en-US');
 			const pct = (x) => `${Math.round(n(x))}%`;
+			/* A rate that is small but not zero must not render as "0%" — for a 5xx
+			 * rate that is the difference between "nothing is broken" and "ten
+			 * requests failed". Below 1% keep a decimal; below 0.1% say so. */
+			const ratePct = (x) => {
+				const v = n(x);
+				if (v === 0) return '0%';
+				if (v < 0.1) return '&lt;0.1%';
+				if (v < 1) return `${v.toFixed(1)}%`;
+				return `${Math.round(v)}%`;
+			};
 
 			/* ------------------------------------------------------------------ *
 			 * Avatar — ported from CharacterPreview (src/ui/icons.tsx). Returns an
@@ -1541,11 +1731,15 @@
 					.map((st, i) => {
 						const w = Math.max(3, (n(st.value) / top) * 100);
 						const drop = i > 0 && steps[i - 1].value ? Math.round((1 - n(st.value) / n(steps[i - 1].value)) * 100) : 0;
+						// Under ~18% the fill no longer reaches the end of the step name, so
+						// the name goes back to dark-on-pale rather than white on nothing.
+						const bare = (n(st.value) / top) * 100 < 18;
 						return (
-							`<div class="step"><span class="sfill" style="width:${w}%"></span><div class="srow">` +
-							`<span class="sname">${esc(st.label)}</span>` +
+							`<div class="step${bare ? ' empty' : ''}">` +
+							`<div class="strack"><span class="sfill" style="width:${w}%"></span>` +
+							`<span class="sname">${esc(st.label)}</span></div>` +
 							`<span class="sval"><span class="spct">${pct((st.value / top) * 100)}</span><span>${fmt(st.value)}</span>` +
-							`${i > 0 && drop > 0 ? `<span class="drop">−${drop}%</span>` : ''}</span></div></div>`
+							`${i > 0 && drop > 0 ? `<span class="drop">−${drop}%</span>` : ''}</span></div>`
 						);
 					})
 					.join('')}</div>`;
@@ -1704,18 +1898,24 @@
 				if (!covered) return '';
 				const entries = SESSION_BUCKET_ORDER.filter((k) => buckets[k] != null).map((k) => [k, n(buckets[k])]);
 				const total = n(sl.totalSessions);
-				// The caveat is the point of the panel, so it goes in the subtitle where
-				// it cannot be scrolled past, not in a footnote.
-				const tag =
-					total && covered < total
-						? `${fmt(covered)} of ${fmt(total)} sessions measured (${pct(sl.coveragePct)})`
-						: `${fmt(covered)} sessions measured`;
+				/* Measured against what CAN be measured, not against every session.
+				 * A session is bucketed only when the next one starts, so each save's
+				 * current session is permanently unbucketed — dividing by totalSessions
+				 * reported 4% and read like a broken counter, when it was really saying
+				 * "most people have played once so far". */
+				const measurable = sl.sessionsMeasurable != null ? n(sl.sessionsMeasurable) : total;
+				const inProgress = n(sl.sessionsInProgress);
+				const tag = measurable
+					? `${fmt(covered)} of ${fmt(measurable)} finished sessions (${pct(sl.coveragePct)})`
+					: `${fmt(covered)} sessions measured`;
 				return `<div style="margin-top:.8rem">${cardTitled(
 					'How long a session lasts',
 					tag,
 					barRows(entries, { labelMap: SESSION_BUCKET_LABELS, cls: 'sky' }) +
-						(total && covered < total
-							? `<p class="emptynote">Only sessions a client recorded a length for reach these buckets — older builds report none. The shares above are of the ${fmt(covered)} measured, not of all ${fmt(total)}.</p>`
+						(inProgress
+							? `<p class="emptynote">A session is measured only once the next one begins, so every caretaker's most recent session is still open — ` +
+								`<b>${fmt(inProgress)}</b> of the ${fmt(total)} total are in progress and can't be bucketed yet. ` +
+								`Older builds that never recorded lengths are missing too. The shares above are of the ${fmt(covered)} finished sessions on record.</p>`
 							: ''),
 				)}</div>`;
 			}
@@ -1748,25 +1948,69 @@
 			function dayCols(days, key) {
 				if (!days.length) return `<div class="emptynote">No days in this range.</div>`;
 				const max = Math.max(...days.map((d) => n(d[key])), 1);
-				const step = Math.ceil(days.length / 8);
+				/* Every column ships its count and its date; which of them survive is
+				 * decided by fitDayCharts() from the width the columns actually got.
+				 * Deriving that from the day count alone was wrong at every width but
+				 * the one it was tuned on — on a phone it produced a grey smear.
+				 * Zeros stay blank: the flat tick already says nothing happened, and a
+				 * row of 0s over empty days is noise competing with the real numbers. */
 				const fmtDay = (iso) => {
 					const [y, m, dd] = iso.split('-');
 					return `${MONTHS[Number(m) - 1]} ${Number(dd)}`;
 				};
 				const bars = days
-					.map((d, i) => {
+					.map((d) => {
 						const v = n(d[key]);
 						const h = v ? Math.max(2, (v / max) * 96) : 0;
-						const lab = i % step === 0 || i === days.length - 1 ? fmtDay(d.day) : '';
 						return (
 							`<div class="dcol" title="${esc(fmtDay(d.day))} · ${fmt(v)}">` +
+							`<span class="dn">${v ? fmt(v) : ''}</span>` +
 							`<span class="dbar${v ? '' : ' zero'}" style="height:${h}px"></span>` +
-							`<span class="dl">${lab}</span></div>`
+							`<span class="dl">${esc(fmtDay(d.day))}</span></div>`
 						);
 					})
 					.join('');
-				return `<div class="dcolwrap"><div class="dmax">${fmt(max)}</div><div class="dcols">${bars}</div></div>`;
+				return (
+					`<div class="dcolwrap"><div class="dmax">${fmt(max)}</div>` +
+					`<div class="dscroll"><div class="dcols">${bars}</div></div>` +
+					`<p class="dhint">Scroll sideways for the rest of the range.</p></div>`
+				);
 			}
+
+			/* Fit every day chart to the width it was actually given.
+			 *
+			 * Column width is not knowable when the markup is built — it depends on the
+			 * card, the viewport, and whether the strip ended up scrolling — so labels
+			 * and counts are dropped here, after layout, and again on resize. A date
+			 * needs roughly 34px to sit under its bar without touching its neighbour;
+			 * a two-digit count needs about 17px. Labels are spaced backwards from the
+			 * last column so the most recent day is always the one that keeps its date. */
+			function fitDayCharts() {
+				for (const strip of document.querySelectorAll('.dcols')) {
+					const cols = strip.children;
+					if (!cols.length) continue;
+					const w = cols[0].getBoundingClientRect().width;
+					if (!w) continue; // not laid out yet (hidden tab, mid-render)
+					const step = Math.max(1, Math.ceil(34 / w));
+					const anchor = (cols.length - 1) % step;
+					// Room for the widest count in THIS chart, not for a hypothetical
+					// four-digit one: a column of single digits fits where "1,204" cannot.
+					let widest = 0;
+					for (const c of cols) widest = Math.max(widest, (c.firstElementChild.textContent || '').length);
+					const showCounts = widest > 0 && w >= 6.5 * widest + 5;
+					for (let i = 0; i < cols.length; i++) {
+						cols[i].classList.toggle('nolab', i % step !== anchor);
+						cols[i].classList.toggle('nonum', !showCounts);
+					}
+					// Measure the span of the columns themselves. scrollWidth is inflated
+					// by the dates, which overhang the strip at both ends by design, and
+					// would report a chart that fits exactly as scrollable.
+					const box = strip.parentElement;
+					const span = cols[cols.length - 1].getBoundingClientRect().right - cols[0].getBoundingClientRect().left;
+					if (box) box.classList.toggle('canscroll', span - box.clientWidth > 2);
+				}
+			}
+			addEventListener('resize', fitDayCharts);
 
 			const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 			const DAY_PRESETS = [
@@ -1804,63 +2048,6 @@
 					'New caretakers per day',
 					'this chart only — the rest of the page is all-time',
 					picker + cardTitled('Saves created', sub, dayCols(shown, 'created')),
-				);
-			}
-
-			/* What caretakers choose to look like.
-			 *
-			 * The server has tallied every appearance choice across every save this
-			 * whole time and nothing has ever rendered it. It is the one panel here
-			 * that answers an art question rather than a numbers one: which hats are
-			 * worth drawing more of, and which nobody has ever picked.
-			 *
-			 * Colour fields are shown AS the colour. A bar chart of '#6e4a33' vs
-			 * '#eec39a' is unreadable — the whole point of the choice is what it looks
-			 * like, so swatches, sorted by how often they were chosen. */
-			const APPEARANCE_FIELDS = [
-				{ key: 'hat', label: 'Hats', kind: 'name' },
-				{ key: 'hairstyle', label: 'Hairstyles', kind: 'name' },
-				{ key: 'body', label: 'Body', kind: 'name' },
-				{ key: 'beard', label: 'Beards', kind: 'name' },
-				{ key: 'skin', label: 'Skin tones', kind: 'color' },
-				{ key: 'hair', label: 'Hair colours', kind: 'color' },
-				{ key: 'outfit', label: 'Outfit colours', kind: 'color' },
-				{ key: 'hatColor', label: 'Hat colours', kind: 'color' },
-			];
-			function swatches(entries) {
-				return `<div class="swgrid">${entries
-					.map(
-						([v, c]) =>
-							`<span class="swchip" title="${esc(String(v))} · ${fmt(c)}"><span class="dot" style="background:${esc(
-								String(v),
-							)}"></span><span class="cnt">${fmt(c)}</span></span>`,
-					)
-					.join('')}</div>`;
-			}
-			function appearanceHTML(s) {
-				const ap = s.appearancePopularity || {};
-				const choices = ap.choices || {};
-				const cards = APPEARANCE_FIELDS.map((f) => {
-					const entries = objToEntries(choices[f.key]).filter((e) => e[0] && e[0] !== 'unknown');
-					if (!entries.length) return '';
-					// "none" is a real answer for a hat or a beard — how many people
-					// chose NOT to wear one is as interesting as which one they picked.
-					const TOP_N = 5;
-					const top = entries.slice(0, TOP_N);
-					// When the list is cut, the tag says so. "6 options chosen" above five
-					// bars reads as if six were on screen, and the missing one is always
-					// the least-picked — which is the one worth knowing about.
-					const tag =
-						entries.length > TOP_N
-							? `top ${TOP_N} of ${fmt(entries.length)} chosen`
-							: `${fmt(entries.length)} ${entries.length === 1 ? 'option' : 'options'} chosen`;
-					return cardTitled(f.label, tag, f.kind === 'color' ? swatches(top) : barRows(top, { cls: 'gold' }));
-				}).filter(Boolean);
-				if (!cards.length) return '';
-				return sec(
-					'What caretakers look like',
-					`the customization ${fmt(ap.savesWithAppearance)} people actually picked`,
-					`<div class="grid two">${cards.join('')}</div>`,
 				);
 			}
 
@@ -1909,6 +2096,7 @@
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
+			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload — Harper's own telemetry
 
 			/** How this caretaker has their settings — every option in Settings →
 			 *  Accessibility, plus audio. Sourced from the `prefs` block each solo
@@ -2368,11 +2556,11 @@
 								: '') +
 							(refusalRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>` +
-									`<table class="vs"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
+									`<table class="tbl"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
 								: '') +
 							(crashRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Crashes<span class="tag">top 25 by count</span></h3>` +
-									`<table class="vs"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${crashRows}</tbody></table></div>`
+									`<table class="tbl"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${crashRows}</tbody></table></div>`
 								: '') +
 							(!refusalRows && !crashRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Nothing recorded yet<span class="tag">the panel is live</span></h3>` +
@@ -2421,7 +2609,7 @@
 							`</div>` +
 							(rows
 								? `<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>` +
-									`<table class="vs"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${rows}</tbody></table></div>`
+									`<table class="tbl"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${rows}</tbody></table></div>`
 								: ''),
 					);
 				}
@@ -2663,20 +2851,18 @@
 						{ label: 'Opened the app', value: acq.devices },
 						{ label: 'Created a character', value: acq.converted },
 					]) +
-						`<div class="grid three" style="margin-top:1rem">${[
-							// Raw opens is the one number here a single machine can dominate:
-							// devices and conversion move by one device, this moves by every
-							// launch. The hint says what has been taken out of it, so the
-							// figure is never quietly smaller than the last time you looked.
+						`<div class="grid kpis" style="margin-top:1rem">${[
+							// Raw app opens used to sit here, and it was the one number a single
+							// machine could dominate: every launch counted, so weeks of development
+							// launches swamped it. Conversion and bounce are per-DEVICE, so one
+							// developer moves them by one device out of hundreds. Dropping the tile
+							// removes the distortion at its source instead of filtering around it.
 							kpi(
-								fmt(acq.totalOpens),
-								'App opens',
-								(acq.excludedDevices || {}).matched
-									? `excludes ${fmt(acq.excludedDevices.opens)} from ${fmt(acq.excludedDevices.matched)} hidden ${acq.excludedDevices.matched === 1 ? 'device' : 'devices'}`
-									: '',
+								`<span class="accent">${pct(acq.conversionPct)}</span>`,
+								'Conversion',
+								`${fmt(acq.converted)} of ${fmt(acq.devices)} devices`,
 							),
-							kpi(`<span class="accent">${pct(acq.conversionPct)}</span>`, 'Conversion'),
-							kpi(pct(acq.bounceRatePct), 'Bounced'),
+							kpi(pct(acq.bounceRatePct), 'Bounced', `${fmt(acq.bounced)} never made a character`),
 						].join('')}</div>`,
 				);
 				const demoCard = dc.demoInstalls
@@ -2745,39 +2931,6 @@
 					.filter((st) => st.value != null)
 					.sort((a, b) => n(b.value) - n(a.value));
 				const funSteps = funnel([{ label: 'Created character', value: fun.created }, ...funRest]);
-				/* ---- Devices (the control behind the acquisition numbers) ----
-				 * Rendered inside Funnels, right under the acquisition card it governs,
-				 * because a number and the switch that changes it belong together. It
-				 * lists the roster BEFORE the exclusion is applied and marks what is
-				 * hidden, so a device excluded by mistake can be put back. */
-				const roster = acq.deviceRoster || [];
-				const exd = acq.excludedDevices || {};
-				let deviceCard = '';
-				if (roster.length) {
-					const when = (ms) =>
-						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
-					const rows = roster
-						.map((d) => {
-							const hidden = !!d.excluded;
-							const who = [d.platform, d.os, d.version].filter(Boolean).join(' · ') || 'unknown';
-							return (
-								`<tr${hidden ? ' style="opacity:.5"' : ''}><td><code>${esc(String(d.deviceId).slice(0, 12))}…</code></td>` +
-								`<td>${esc(who)}</td><td class="num">${fmt(d.opens)}</td><td class="num">${fmt(d.savesCreated)}</td>` +
-								`<td class="num">${when(d.firstOpenAt)}</td><td class="num">${when(d.lastOpenAt)}</td>` +
-								`<td class="num"><button type="button" class="devtoggle" data-did="${esc(d.deviceId)}">${hidden ? 'Show' : 'Hide'}</button></td></tr>`
-							);
-						})
-						.join('');
-					const note = exd.matched
-						? `hiding ${fmt(exd.matched)} ${exd.matched === 1 ? 'device' : 'devices'} · ${fmt(exd.opens)} opens and ${fmt(exd.charactersCreated)} characters excluded from the numbers above`
-						: 'busiest first — hide your own machines so development launches stop counting as app opens';
-					deviceCard = cardTitled(
-						'Devices',
-						note,
-						`<table class="vs"><thead><tr><th>Device</th><th>Build</th><th class="num">Opens</th><th class="num">Characters</th><th class="num">First</th><th class="num">Last</th><th class="num"></th></tr></thead><tbody>${rows}</tbody></table>`,
-					);
-				}
-
 				out.push(
 					sec(
 						'Funnels',
@@ -2789,8 +2942,7 @@
 									? `<div style="margin-top:.8rem">${demoCard}</div>`
 									: convCard
 										? `<div style="margin-top:.8rem">${convCard}</div>`
-										: '') +
-							(deviceCard ? `<div style="margin-top:.8rem">${deviceCard}</div>` : ''),
+										: ''),
 					),
 				);
 
@@ -3062,10 +3214,6 @@
 				 * Problems is a mode, not a section: when it is on the page shows those
 				 * two and nothing else (see the assembly at the end of render). */
 
-				/* ---- What caretakers look like, then who they are ---- */
-				const appearanceSection = appearanceHTML(s);
-				if (appearanceSection) out.push(appearanceSection);
-
 				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
@@ -3084,7 +3232,9 @@
 				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
 				 * switching still resolves. */
 				if (SHOW_PROBLEMS) {
-					const panels = [healthSection, saveSection].filter(Boolean);
+					// Server first: if Harper itself is struggling, every refusal and
+					// crash below it is downstream of that and reads differently.
+					const panels = [serverHealthHTML(), healthSection, saveSection].filter(Boolean);
 					document.getElementById('root').innerHTML = panels.length
 						? panels.join('')
 						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
@@ -3093,10 +3243,13 @@
 									`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>`,
 							) +
 							`</section>`;
+					fitDayCharts();
 					return;
 				}
 
 				document.getElementById('root').innerHTML = out.join('');
+				// Charts can only be fitted once they are in the document and measurable.
+				fitDayCharts();
 			}
 
 			/* ------------------------------------------------------------------ *
@@ -3106,42 +3259,6 @@
 			// `idle` defaults to 'exclude': an abandoned window is not play, so the numbers
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
-
-			/* Devices hidden from the acquisition funnel — your own machines.
-			 *
-			 * ?exclude=<name> drops your test SAVES, which is enough for the player
-			 * numbers. It never touched acquisition, because that funnel reads AppOpen
-			 * (one row per install, no save name on it) — so every launch during
-			 * development kept counting as an app open, and after a while the "App
-			 * opens" tile was mostly one person. Devices and the conversion rate barely
-			 * move (a dev machine is one device); the raw open and character-creation
-			 * totals move a lot, which is the harder distortion to notice.
-			 *
-			 * Kept in localStorage rather than hardcoded so the list is yours to edit
-			 * from the Devices panel without a redeploy, and it survives a reload. */
-			const EXCLUDED_DEVICES_KEY = 'ww-dashboard-excluded-devices';
-			let EXCLUDED_DEVICES = [];
-			try {
-				const raw = JSON.parse(localStorage.getItem(EXCLUDED_DEVICES_KEY) || '[]');
-				if (Array.isArray(raw)) EXCLUDED_DEVICES = raw.filter((d) => typeof d === 'string' && d);
-			} catch {
-				/* unreadable or absent — start with nothing hidden */
-			}
-			function setExcludedDevices(ids) {
-				EXCLUDED_DEVICES = [...new Set(ids)];
-				try {
-					localStorage.setItem(EXCLUDED_DEVICES_KEY, JSON.stringify(EXCLUDED_DEVICES));
-				} catch {
-					/* private mode / storage full — the filter still applies for this session */
-				}
-			}
-			function toggleDevice(id) {
-				setExcludedDevices(
-					EXCLUDED_DEVICES.includes(id) ? EXCLUDED_DEVICES.filter((d) => d !== id) : [...EXCLUDED_DEVICES, id],
-				);
-				load();
-			}
-			window.__toggleDevice = toggleDevice;
 
 			/** Grey out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
@@ -3354,6 +3471,79 @@
 				});
 			}
 
+			/* Harper's own telemetry, rendered in Problems mode.
+			 *
+			 * Everything else on that page is the GAME going wrong. This is the SERVER
+			 * going wrong, which produces no gameplay events at all — a saturated
+			 * thread or a replication stall looks like silence from every other panel. */
+			function serverHealthHTML() {
+				const h = SERVERHEALTH;
+				if (!h) return '';
+				if (!h.readable) {
+					// Say WHICH failure it is. "Can't read the telemetry" and "the server
+					// is fine" must never render the same.
+					return sec(
+						'Server health',
+						'telemetry unavailable',
+						card(
+							`<p class="emptynote">Could not read <code>system.hdb_analytics</code>: <b>${esc(h.readError || 'unknown')}</b>. ` +
+								`Harper's super-user role carries explicit read permission on the system tables and a read-only role may not — ` +
+								`if this works signed in as super-user but not as <code>metrics_reader</code>, that is the reason.</p>`,
+						),
+					);
+				}
+				const t = h.threads || {},
+					st = h.storage || {},
+					ht = h.http || {},
+					rep = h.replication || {};
+				const gb = (b) => (b == null ? '—' : `${(b / 1e9).toFixed(2)}<small>GB</small>`);
+				const quota = st.volumeBytes && st.databaseBytes ? Math.round((st.databaseBytes / st.volumeBytes) * 100) : null;
+				const slowRows = (ht.slowest || [])
+					.map(
+						(r) =>
+							`<tr><td><code>${esc(r.path)}</code></td><td>${esc(r.method || '—')}</td>` +
+							`<td class="num">${fmt(r.p95)}<small>ms</small></td><td class="num">${fmt(r.median)}<small>ms</small></td>` +
+							`<td class="num">${fmt(r.count)}</td></tr>`,
+					)
+					.join('');
+				const statusRows = objToEntries(ht.byStatus).slice(0, 8);
+				return sec(
+					'Server health',
+					`Harper's own telemetry · last ${fmt(h.windowMinutes)} min · ${fmt(h.samples)} samples`,
+					`<div class="grid kpis">${[
+						/* The capacity ceiling: a small number of threads serves this whole
+						 * app, so sustained utilization runs out before anything else. */
+						kpi(
+							`<span class="accent">${t.utilizationPct == null ? '—' : pct(t.utilizationPct)}</span>`,
+							'Thread utilization',
+							t.windowAvgPct == null ? 'right now' : `${pct(t.windowAvgPct)} average over the window`,
+						),
+						kpi(t.cpuPct == null ? '—' : pct(t.cpuPct), 'CPU'),
+						kpi(gb(st.databaseBytes), 'Database size', quota == null ? '' : `${pct(quota)} of the volume`),
+						kpi(
+							ht.serverErrors ? `<span class="accent">${ratePct(ht.errorRatePct)}</span>` : pct(0),
+							'5xx rate',
+							`${fmt(ht.serverErrors)} of ${fmt(ht.responses)} responses`,
+						),
+						kpi(
+							rep.latencyMs == null ? '—' : `${fmt(rep.latencyMs)}<small>ms</small>`,
+							'Replication lag',
+							rep.samples ? `${fmt(rep.samples)} samples between nodes` : 'no samples in this window',
+						),
+					].join('')}</div>` +
+						(slowRows
+							? `<div class="card" style="margin-top:.8rem"><h3>Slowest endpoints<span class="tag">by p95, not by call volume</span></h3>` +
+								`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">p95</th><th class="num">Median</th><th class="num">Calls</th></tr></thead><tbody>${slowRows}</tbody></table></div>`
+							: '') +
+						(statusRows.length
+							? `<div class="card" style="margin-top:.8rem"><h3>Responses<span class="tag">by status</span></h3>${barRows(statusRows, { cls: 'sky' })}</div>`
+							: '') +
+						(h.cappedAtMaxRows
+							? `<p class="emptynote">Hit the read cap, so this window is partial — narrow it with <code>?minutes=</code>.</p>`
+							: ''),
+				);
+			}
+
 			/** Who is signed in, with a way out. */
 			function syncWhoami() {
 				const el = document.getElementById('whoami');
@@ -3387,9 +3577,6 @@
 					// Windows left open are classified server-side and dropped from every
 					// aggregate when hidden, so the totals and the per-player list agree.
 					if (FILTERS.idle === 'exclude') qs += '&idle=exclude';
-					// Your own machines, out of the acquisition funnel. Sent as one
-					// comma-separated value; the server also accepts the param repeated.
-					if (EXCLUDED_DEVICES.length) qs += '&excludeDevice=' + encodeURIComponent(EXCLUDED_DEVICES.join(','));
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', req())
@@ -3408,6 +3595,12 @@
 					const healthReq = fetch(`../GameplayHealth/${problemsQuery()}`, req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
+					// Harper's own telemetry, read in-process from system.hdb_analytics.
+					// Same best-effort contract: a failure hides the panel, it never
+					// breaks the page.
+					const serverReq = fetch('../ServerHealth/?minutes=15', req())
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
 					// Aggregates first — they render the whole page except the caretaker
 					// wall, so they are the ones worth having in flight on their own.
 					const sumRes = await fetch(`../MetricsSummary/?${qs}`, req());
@@ -3419,6 +3612,7 @@
 					LANDING = await landingReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
+					SERVERHEALTH = await serverReq;
 					populateFilterOptions(data.filters);
 					render(data);
 					// After render: the badge reads the two health payloads, which only
@@ -3561,13 +3755,6 @@
 			});
 
 			rootEl.addEventListener('click', (e) => {
-				// Hide/show a device from the acquisition funnel. Checked before the
-				// player card, since a button is never inside one.
-				const dev = e.target.closest && e.target.closest('.devtoggle[data-did]');
-				if (dev) {
-					toggleDevice(dev.getAttribute('data-did'));
-					return;
-				}
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
 				if (card) openPlayerModal(card.getAttribute('data-pid'));
 			});

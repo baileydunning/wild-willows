@@ -2268,6 +2268,13 @@ function metricsView(player: any) {
 		mostTimeArea,
 		// session-length distribution (finished sessions bucketed)
 		sessionLengths: m.sessionLengths || {},
+		// The in-progress session's accrued seconds. Surfaced because "in progress"
+		// is only true until the player closes the game — after that this IS the
+		// length of a finished session, and the heartbeat will never bucket it
+		// (bucketing happens when the NEXT session starts, which for someone who
+		// doesn't come back is never). The roll-up reads it together with lastSeenAt
+		// to count abandoned sessions instead of losing them.
+		curSessionSeconds: Math.round(m.curSessionSeconds || 0),
 		// onboarding
 		timeToFirstActionSeconds,
 		// character creation: how long it took + the customization they chose
@@ -7697,17 +7704,62 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets)
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+		}
+		// Count the ABANDONED sessions the heartbeat can never bucket.
+		//
+		// A session's length is only written when the NEXT one begins. For a player
+		// who closes the game and doesn't come back, that moment never arrives — so
+		// their session sits marked "in progress" forever and never reaches the
+		// histogram. Since most players do exactly that, the histogram was covering
+		// about 4% of sessions and looked broken.
+		//
+		// But nothing about that session is unknown. `curSessionSeconds` holds its
+		// accrued length, and once `lastSeenAt` is older than the session gap the
+		// player has demonstrably gone. That is a FINISHED session with a known
+		// duration, so bucket it here rather than pretending it is still running.
+		//
+		// No double counting: when a player does return, the heartbeat buckets that
+		// session itself and resets `curSessionSeconds`, so the same session can never
+		// be counted from both sides.
+		const abandonedBuckets: Record<string, number> = {};
+		let abandonedCount = 0;
+		let stillLive = 0;
+		for (const v of timed) {
+			const open = Math.round(v.curSessionSeconds || 0);
+			if (open <= 0) continue;
+			const quietFor = v.lastSeenAt ? now - v.lastSeenAt : Infinity;
+			if (quietFor > SESSION_GAP_MS) {
+				const b = sessionBucket(open);
+				abandonedBuckets[b] = (abandonedBuckets[b] || 0) + 1;
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + 1;
+				abandonedCount++;
+			} else {
+				stillLive++; // genuinely mid-session right now
+			}
 		}
 		const sessionsCovered = Object.values(sessionLengthDistribution).reduce((a, b) => a + b, 0);
+		// Only sessions happening RIGHT NOW are unmeasurable. Everything else either
+		// ended cleanly or was abandoned, and both are counted above.
+		const sessionsMeasurable = Math.max(0, totalSessions - stillLive);
 		const sessionLengths = {
 			buckets: sessionLengthDistribution,
 			sessionsCovered,
+			// Where the coverage came from, kept apart so the inference is auditable.
+			fromClient: sessionsCovered - abandonedCount,
+			fromAbandoned: abandonedCount,
+			sessionsMeasurable,
+			sessionsLiveNow: stillLive,
 			totalSessions,
 			savesReporting: sessionLengthSaves,
 			savesMeasured: timed.length,
-			coveragePct: totalSessions ? Math.round((sessionsCovered / totalSessions) * 100) : 0,
-			note: 'buckets cover only sessions a client recorded a length for — not every session in engagement.totalSessions',
+			// Saves too old to report curSessionSeconds still can't contribute their
+			// abandoned session — said plainly so a gap has a name.
+			savesMissingOpenSession: timed.filter((v) => v.curSessionSeconds == null).length,
+			abandonedBuckets,
+			coveragePct: sessionsMeasurable ? Math.round((sessionsCovered / sessionsMeasurable) * 100) : 0,
+			note: 'a session the client never closed is bucketed here once the player has been quiet longer than the session gap — only sessions live right now are unmeasurable',
 		};
 
 		// Character creation: how long people spend in the creator (across saves).
@@ -7779,9 +7831,7 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length
-				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
-				: 0,
+			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -7868,26 +7918,6 @@ async function metricsRollup(target?: any): Promise<{
 			openRows = openRows.filter((o) => (o.platform || 'unknown') === platformFilter);
 
 		const deviceIdOf = (o: any) => String(o?.deviceId || String(o?.id || '').replace(/^dev:/, ''));
-		// The roster is built BEFORE the exclusion is applied, and each entry says
-		// whether it is currently excluded. The dashboard's Devices panel is a
-		// control, not a report: it has to be able to show you what it is hiding, or
-		// there is no way to un-hide a device you excluded by mistake.
-		const deviceRoster = [...openRows]
-			.sort((a, b) => (b.opens || 0) - (a.opens || 0) || (b.savesCreated || 0) - (a.savesCreated || 0))
-			.slice(0, 30)
-			.map((o) => ({
-				deviceId: deviceIdOf(o),
-				opens: o.opens || 0,
-				savesCreated: o.savesCreated || 0,
-				converted: !!o.converted,
-				platform: o.platform || null,
-				os: o.os || null,
-				version: o.version || null,
-				edition: o.edition === 'demo' ? 'demo' : 'full',
-				firstOpenAt: o.firstOpenAt || 0,
-				lastOpenAt: o.lastOpenAt || 0,
-				excluded: excludedDevices.has(deviceIdOf(o)),
-			}));
 
 		const excludedRows = excludedDevices.size ? openRows.filter((o) => excludedDevices.has(deviceIdOf(o))) : [];
 		if (excludedDevices.size) openRows = openRows.filter((o) => !excludedDevices.has(deviceIdOf(o)));
@@ -7942,9 +7972,10 @@ async function metricsRollup(target?: any): Promise<{
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
 			editions: editionSplit,
-			// The roster + what the ?excludeDevice= filter took out. Both are here so
-			// the dashboard can offer the control and account for its effect.
-			deviceRoster,
+			// What the ?excludeDevice= filter took out. The dashboard no longer offers
+			// a device picker — raw app opens came off the page entirely, which removes
+			// the distortion rather than filtering around it — but the query parameter
+			// stays for anyone reading this endpoint directly.
 			excludedDevices: excludedDeviceStats,
 		};
 
@@ -8150,6 +8181,165 @@ async function takeFrom(iterable: any, max: number): Promise<any[]> {
 	return out;
 }
 
+/**
+ * GET /ServerHealth/ — how the SERVER is doing, as opposed to the players.
+ *
+ * Reads Harper's own telemetry out of `system.hdb_analytics` in-process, which
+ * SystemProbe confirmed a component can do. That is the whole reason this exists
+ * in this shape: no super-user password stored in the app, no proxying the
+ * operations API on :9925, no second credential to leak. Same DashboardEndpoint
+ * gate as the metrics feeds, so the read-only role reaches it.
+ *
+ * ONE UNVERIFIED THING, stated because it decides whether this works for you: the
+ * probe ran as HDB_ADMIN, so it proved a SUPER-USER can read the system database
+ * from a component. Whether a `metrics_reader` request can do the same is NOT
+ * established — Harper's super_user role carries explicit
+ * `permission.system.tables.hdb_analytics.read`, and a role without it may be
+ * refused. So the read is caught and reported as `readable: false` with the error
+ * attached rather than thrown. If this reads fine as super-user and not as
+ * metrics_reader, that IS the answer, and it says so on the page instead of
+ * turning into a 500.
+ *
+ * Record shape: { id: [timeMs, nodeId], period, metric, path, method, type,
+ * total, count, ratio, mean, median, p95, p99, time }. `id` is a COMPOSITE array,
+ * so it is used for range filtering as a whole and the numeric timestamp is read
+ * from `time` — never by coercing `id`, which yields NaN.
+ */
+const HEALTH_MAX_ROWS = 4000;
+
+export class ServerHealth extends DashboardEndpoint {
+	async get(target?: any) {
+		const now = Date.now();
+		const mins = Math.min(Math.max(parseInt(queryOne(target, 'minutes'), 10) || 15, 1), 180);
+		const since = now - mins * 60_000;
+
+		let rows: any[] = [];
+		let readable = true;
+		let readError: string | null = null;
+		try {
+			const t: any = (globalThis as any).databases?.system?.hdb_analytics;
+			if (!t || typeof t.search !== 'function') {
+				readable = false;
+				readError = 'system.hdb_analytics is not visible to this component';
+			} else {
+				// Cap enforced in the loop, not trusted to the query: per-minute
+				// telemetry across every metric and thread adds up fast.
+				rows = await takeFrom(
+					t.search({ conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] }),
+					HEALTH_MAX_ROWS,
+				);
+			}
+		} catch (e: any) {
+			readable = false;
+			readError = String(e?.message || e);
+		}
+
+		const pick = (metric: string) => rows.filter((r) => r.metric === metric);
+		// Harper writes one row per metric per minute per thread, so a point reading
+		// and a window average answer different questions — a utilization spike and a
+		// sustained ceiling are not the same problem and shouldn't collapse together.
+		const latestOf = (metric: string) => {
+			let best: any = null;
+			for (const r of pick(metric)) if (!best || (r.time || 0) > (best.time || 0)) best = r;
+			return best;
+		};
+		// Raw, deliberately unrounded. Rounding here destroyed ratio metrics before
+		// they could be converted: round1(0.75) is 0.7, so a 75% window average came
+		// out as 70%. Each call site rounds in the unit it is actually reporting.
+		const avgOf = (metric: string, field = 'total') => {
+			const xs = pick(metric)
+				.map((r) => Number(r[field]))
+				.filter((n) => Number.isFinite(n));
+			return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+		};
+		const sumOf = (metric: string, field = 'total') =>
+			pick(metric).reduce((a, r) => a + (Number(r[field]) || 0), 0);
+
+		// HTTP outcomes arrive as one metric per status (response_200, response_404,
+		// response_409…). Counting by prefix means a status this code has never seen
+		// still lands somewhere instead of being dropped.
+		const byStatus: Record<string, number> = {};
+		for (const r of rows) {
+			const m = String(r.metric || '');
+			if (!m.startsWith('response_')) continue;
+			const code = m.slice('response_'.length);
+			byStatus[code] = (byStatus[code] || 0) + (Number(r.count) || 0);
+		}
+		const totalResponses = Object.values(byStatus).reduce((a, b) => a + b, 0);
+		const serverErrors = Object.entries(byStatus)
+			.filter(([code]) => code.startsWith('5'))
+			.reduce((a, [, n]) => a + n, 0);
+
+		// Slowest paths by p95 — a mean hides the tail players actually feel.
+		const slowest = pick('duration')
+			.filter((r) => r.path)
+			.map((r) => ({
+				path: String(r.path),
+				method: r.method || null,
+				p95: round1(Number(r.p95) || Number(r.mean) || 0),
+				median: round1(Number(r.median) || 0),
+				count: Number(r.count) || 0,
+			}))
+			.sort((a, b) => b.p95 - a.p95)
+			.slice(0, 10);
+
+		const util = latestOf('main-thread-utilization') || latestOf('utilization');
+		// Utilization arrives as a 0-1 ratio from some sources and an already-scaled
+		// percent from others (cpu-usage reads 23, thread utilization reads 0.85).
+		// round1 on a ratio is destructive — 0.853 becomes 0.9, which is the
+		// difference between "comfortable" and "at the ceiling" — so normalise to a
+		// percent first and keep one decimal of real precision.
+		const asPct = (v: any): number | null => {
+			const n = Number(v);
+			if (!Number.isFinite(n)) return null;
+			return round1(n <= 1 ? n * 100 : n);
+		};
+
+		return {
+			generatedAt: now,
+			windowMinutes: mins,
+			readable,
+			readError,
+			samples: rows.length,
+			cappedAtMaxRows: rows.length >= HEALTH_MAX_ROWS,
+			// The capacity ceiling. This app is served by a small number of threads,
+			// so sustained utilization is the thing that runs out before anything else.
+			threads: {
+				utilizationPct: util ? asPct(util.total ?? util.ratio) : null,
+				windowAvgPct: asPct(avgOf('main-thread-utilization') ?? avgOf('utilization')),
+				cpuPct: asPct(avgOf('cpu-usage')),
+				memoryBytes: latestOf('memory')?.total ?? null,
+			},
+			storage: {
+				databaseBytes: latestOf('database-size')?.total ?? null,
+				volumeBytes: latestOf('storage-volume')?.total ?? null,
+				nodeStorageBytes: latestOf('node-storage')?.total ?? null,
+			},
+			http: {
+				responses: totalResponses,
+				byStatus,
+				serverErrors,
+				errorRatePct: totalResponses ? round1((serverErrors / totalResponses) * 100) : 0,
+				slowest,
+			},
+			// Two nodes replicate behind this, so latency between them is what says
+			// whether they are actually keeping up with each other.
+			replication: {
+				latencyMs: (() => {
+					const v = avgOf('replication-latency', 'mean') ?? avgOf('replication-latency');
+					return v == null ? null : round1(v);
+				})(),
+				samples: pick('replication-latency').length,
+				bytesSent: sumOf('bytes-sent'),
+				bytesReceived: sumOf('bytes-received'),
+			},
+			// Which metrics arrived at all, so "nothing to show" can be told apart
+			// from "that metric isn't recorded on this instance".
+			metricsSeen: [...new Set(rows.map((r) => String(r.metric)))].sort(),
+		};
+	}
+}
+
 export class SystemProbe extends Resource {
 	async get() {
 		const now = Date.now();
@@ -8192,14 +8382,8 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{
-				label: 'between [since, now]',
-				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
-			},
-			{
-				label: 'greater_than since',
-				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
-			},
+			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
+			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8273,8 +8457,7 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] =
-						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8330,14 +8513,8 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v))
-					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object')
-					return Object.fromEntries(
-						Object.entries(v)
-							.slice(0, 12)
-							.map(([k, x]) => [k, describe(x)]),
-					);
+				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -9932,7 +10109,8 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) =>
+			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 
