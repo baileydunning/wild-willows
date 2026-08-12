@@ -720,11 +720,11 @@
 								""
 							]
 						},
-						"description": "Solo & desktop saves uplink a full metrics snapshot here, keyed by the save-slot UUID in `clientId` (upserted, so the same slot always updates one row). The global `GET /Metrics/` dashboard reads ONLY these SoloMetrics rows. The `snapshot` payload mirrors the `player` object returned by `GET /Metrics/{playerId}`."
+						"description": "Solo & desktop saves uplink a full metrics snapshot here, keyed by the save-slot UUID in `clientId` (upserted, so the same slot always updates one row). The global roll-up (`GET /MetricsSummary/` + `GET /MetricsPlayers/`, both super-user only) reads ONLY these SoloMetrics rows. The `snapshot` payload mirrors the `player` object returned by `GET /Metrics/{playerId}`."
 					}
 				},
 				{
-					"name": "Metrics (global summary)",
+					"name": "Metrics roll-up — aggregates (admin)",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -734,12 +734,12 @@
 							}
 						],
 						"url": {
-							"raw": "{{baseUrl}}/Metrics/?exclude={{name}}",
+							"raw": "{{baseUrl}}/MetricsSummary/?exclude={{name}}",
 							"host": [
 								"{{baseUrl}}"
 							],
 							"path": [
-								"Metrics",
+								"MetricsSummary",
 								""
 							],
 							"query": [
@@ -751,11 +751,50 @@
 								}
 							]
 						},
-						"description": "Aggregate analytics dashboard. Reads EXCLUSIVELY from the SoloMetrics table (populated by POST /SyncMetrics/) — hosted web/co-op players are intentionally out of scope. Returns `source: 'solo-metrics'`, a `summary` (audience, languages, platforms, operatingSystems, versions, engagement, retention, funnel, progression + tutorialStepHistogram, actionTotals, achievements) and a `players` list of per-save snapshots.\n\nOptional query param `exclude` omits saves by display name (case-insensitive), so you can drop your own test data and not skew the numbers. It is repeatable and/or comma-separated: `/Metrics/?exclude=Bailey`, `/Metrics/?exclude=Bailey&exclude=QA`, or `/Metrics/?exclude=Bailey,QA`. The names actually dropped are echoed back in `summary.excludedNames`."
+						"description": "Aggregate analytics (SUPER-USER ONLY — send Harper admin basic auth). Reads EXCLUSIVELY from the SoloMetrics table (populated by POST /SyncMetrics/); hosted web/co-op players are intentionally out of scope. Returns `source: 'solo-metrics'`, `filters`, a `summary` (audience, languages, platforms, operatingSystems, versions, engagement, retention, funnel, progression + tutorialStepHistogram, areaDwell, sessionLengths, creation, appearancePopularity, timeToFirstAction, acquisition, demoCompletion, settings, actionTotals, achievements) and a `players` PAGING HINT — `{total, endpoint, maxLimit}`, not the rows themselves. The rows live on GET /MetricsPlayers/.\n\nThis replaces the old public `GET /Metrics/`, which returned the aggregates AND a record for every player (names, activity timestamps, OS, accessibility preferences, behaviour) to anyone who asked. That URL now answers 404 with a pointer here.\n\nFilters (all optional, all also accepted by /MetricsPlayers/): `exclude` omits saves by display name, case-insensitive, repeatable and/or comma-separated (`?exclude=Bailey&exclude=QA` or `?exclude=Bailey,QA`); the names actually dropped are echoed in `summary.excludedNames`. `version` plus `versionMode=min` scopes to a build (or that build and newer). `edition=demo|full`, `platform=web|desktop`. `idle=exclude` drops windows left open rather than played, from the time-based aggregates only.\n\n`excludeDevice=<deviceId>` (repeatable and/or comma-separated) drops devices from the ACQUISITION funnel only — `exclude=` filters saves, and the funnel reads AppOpen rows, which carry no save name. Use it to keep your own development launches out of `totalOpens` / `totalCharactersCreated`. `summary.acquisition.deviceRoster` lists the busiest devices (pre-exclusion, each flagged `excluded`) so you can find yours; `summary.acquisition.excludedDevices` reports what was removed."
 					}
 				},
 				{
-					"name": "Metrics (single player)",
+					"name": "Metrics roll-up — player rows (admin)",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{baseUrl}}/MetricsPlayers/?limit=50",
+							"host": [
+								"{{baseUrl}}"
+							],
+							"path": [
+								"MetricsPlayers",
+								""
+							],
+							"query": [
+								{
+									"key": "limit",
+									"value": "50"
+								},
+								{
+									"key": "cursor",
+									"value": "",
+									"disabled": true
+								},
+								{
+									"key": "fields",
+									"value": "list",
+									"disabled": true
+								}
+							]
+						},
+						"description": "Per-player rows (SUPER-USER ONLY), newest-active first, paginated. `limit` defaults to 100 and is capped at 500; pass the `nextCursor` from the previous response as `cursor` to continue. `nextCursor` is null on the last page, and `total` is the full filtered row count.\n\nTakes the SAME filters as /MetricsSummary/, so the two halves always describe one population.\n\n`GET /MetricsPlayers/{playerId}` returns one full row. `?fields=list` returns a lean per-row shape for table views.\n\nA full row is byte-for-byte what the old `GET /Metrics/` response carried in `players[]` — nothing renamed, nothing dropped — so existing dashboards keep rendering every save already in the database.\n\n`excludeDevice=<deviceId>` (repeatable and/or comma-separated) drops devices from the ACQUISITION funnel only — `exclude=` filters saves, and the funnel reads AppOpen rows, which carry no save name. Use it to keep your own development launches out of `totalOpens` / `totalCharactersCreated`. `summary.acquisition.deviceRoster` lists the busiest devices (pre-exclusion, each flagged `excluded`) so you can find yours; `summary.acquisition.excludedDevices` reports what was removed."
+					}
+				},
+				{
+					"name": "Metrics — one player (public)",
 					"request": {
 						"method": "GET",
 						"header": [
@@ -774,7 +813,7 @@
 								"{{playerId}}"
 							]
 						},
-						"description": "Live per-player metrics view, computed on the fly from the player's own game state (playtime, sessions, action counts, activation, achievements, biome health). This is exactly the view a solo client derives and uploads via POST /SyncMetrics/, so it must always read live game tables — not SoloMetrics."
+						"description": "Live per-player metrics view, computed on the fly from the player's own game state (playtime, sessions, action counts, activation, achievements, biome health). This is exactly the view a solo client derives and uploads via POST /SyncMetrics/, so it must always read live game tables — not SoloMetrics.\n\nStill PUBLIC: the game client reads its own view through it, and knowing the save's UUID is the capability, the same as /GameState/{playerId}."
 					}
 				},
 				{

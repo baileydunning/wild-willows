@@ -452,14 +452,37 @@ function post<T>(path: string, body: object): Promise<T> {
 	return request<T>(path, { method: 'POST', body: JSON.stringify(body) });
 }
 
-const pid = () => {
-	if (!currentPlayerId) throw new Error(t('app.error.notLoggedIn'));
-	return currentPlayerId;
-};
+/**
+ * Run a call that needs a signed-in save, resolving the player id first.
+ *
+ * This replaced a `pid()` helper that THREW when there was no session, and the
+ * difference matters more than it looks. Every method below builds its request
+ * body eagerly, so `api.heartbeat().catch(() => undefined)` evaluated `pid()`
+ * while assembling the argument object — before `post()` was called, before a
+ * promise existed, and so before `.catch` was ever attached. A missing session
+ * escaped every error handler in the app. It was not swallowed by the
+ * `.catch(() => undefined)` sitting on the same line; it unwound out of the
+ * React effect that called it and took the whole app down through the top-level
+ * ErrorBoundary — which is how a dropped heartbeat became a "Not logged in"
+ * crash screen for three players.
+ *
+ * Moving the check inside a callback makes it a REJECTION, which is what all
+ * those existing handlers were already written to catch. `err.noSession` marks
+ * it so a caller can tell "you are signed out" apart from "the network is down".
+ */
+function session<T>(run: (playerId: string) => Promise<T>): Promise<T> {
+	if (!currentPlayerId) {
+		const err: any = new Error(t('app.error.notLoggedIn'));
+		err.noSession = true;
+		return Promise.reject(err);
+	}
+	return run(currentPlayerId);
+}
 
 export const api = {
 	gameData: () => request<GameData>('/GameData/'),
-	gameState: (playerId?: string) => request<GameState>(`/GameState/${playerId ?? pid()}`),
+	gameState: (playerId?: string) =>
+		playerId ? request<GameState>(`/GameState/${playerId}`) : session((id) => request<GameState>(`/GameState/${id}`)),
 	createPlayer: (name: string, passcode: string, appearance: Appearance, creationMs = 0) =>
 		post<{ ok: boolean; playerId: string; state: GameState }>('/CreatePlayer/', {
 			name,
@@ -479,39 +502,41 @@ export const api = {
 	deletePlayer: (name: string, passcode: string) =>
 		post<{ ok: boolean; deleted: string }>('/DeletePlayer/', { name, passcode }),
 	changePasscode: (currentPasscode: string, newPasscode: string) =>
-		post<{ ok: boolean }>('/ChangePasscode/', { playerId: pid(), currentPasscode, newPasscode }),
+		session((playerId) => post<{ ok: boolean }>('/ChangePasscode/', { playerId, currentPasscode, newPasscode })),
 	updateAppearance: (appearance: Appearance) =>
-		post<{ ok: boolean; appearance: Appearance }>('/UpdateAppearance/', { playerId: pid(), appearance }),
+		session((playerId) =>
+			post<{ ok: boolean; appearance: Appearance }>('/UpdateAppearance/', { playerId, appearance }),
+		),
 	collect: (biomeId: string, nodeId: string, resourceId: string) =>
-		post<any>('/CollectResource/', { playerId: pid(), biomeId, nodeId, resourceId }),
+		session((playerId) => post<any>('/CollectResource/', { playerId, biomeId, nodeId, resourceId })),
 	chestTransfer: (chestId: string, resourceId: string, qty: number, direction: 'deposit' | 'withdraw') =>
-		post<any>('/ChestTransfer/', { playerId: pid(), chestId, resourceId, qty, direction }),
-	craft: (recipeId: string) => post<any>('/CraftItem/', { playerId: pid(), recipeId }),
+		session((playerId) => post<any>('/ChestTransfer/', { playerId, chestId, resourceId, qty, direction })),
+	craft: (recipeId: string) => session((playerId) => post<any>('/CraftItem/', { playerId, recipeId })),
 	discard: (kind: 'material' | 'crafted', id: string, qty: number) =>
-		post<any>('/DiscardItem/', { playerId: pid(), kind, id, qty }),
+		session((playerId) => post<any>('/DiscardItem/', { playerId, kind, id, qty })),
 	place: (objectId: string, area: string, x: number, y: number, rotation = 0) =>
-		post<any>('/PlaceObject/', { playerId: pid(), objectId, area, x, y, rotation }),
-	remove: (placementId: string) => post<any>('/RemoveObject/', { playerId: pid(), placementId }),
+		session((playerId) => post<any>('/PlaceObject/', { playerId, objectId, area, x, y, rotation })),
+	remove: (placementId: string) => session((playerId) => post<any>('/RemoveObject/', { playerId, placementId })),
 	move: (placementId: string, x: number, y: number, rotation?: number) =>
-		post<any>('/MoveObject/', { playerId: pid(), placementId, x, y, rotation }),
-	upgradeTool: (toolId: string) => post<any>('/UpgradeTool/', { playerId: pid(), toolId }),
-	upgradeHome: (track: string) => post<any>('/UpgradeHome/', { playerId: pid(), track }),
-	setHomeStyle: (style: string) => post<any>('/SetHomeStyle/', { playerId: pid(), style }),
-	rest: () => post<any>('/Rest/', { playerId: pid() }),
+		session((playerId) => post<any>('/MoveObject/', { playerId, placementId, x, y, rotation })),
+	upgradeTool: (toolId: string) => session((playerId) => post<any>('/UpgradeTool/', { playerId, toolId })),
+	upgradeHome: (track: string) => session((playerId) => post<any>('/UpgradeHome/', { playerId, track })),
+	setHomeStyle: (style: string) => session((playerId) => post<any>('/SetHomeStyle/', { playerId, style })),
+	rest: () => session((playerId) => post<any>('/Rest/', { playerId })),
 	setHomeColors: (colors: { floor?: string; wall?: string; accent?: string; rug?: string }) =>
-		post<any>('/SetHomeColors/', { playerId: pid(), colors }),
+		session((playerId) => post<any>('/SetHomeColors/', { playerId, colors })),
 	setPlacementColor: (placementId: string, color: string) =>
-		post<any>('/SetPlacementColor/', { playerId: pid(), placementId, color }),
-	observe: (animalId: string) => post<any>('/ObserveAnimal/', { playerId: pid(), animalId }),
-	claimTask: (taskId: string) => post<any>('/ClaimTask/', { playerId: pid(), taskId }),
-	setGoals: (goals: any[]) => post<any>('/SetGoals/', { playerId: pid(), goals }),
+		session((playerId) => post<any>('/SetPlacementColor/', { playerId, placementId, color })),
+	observe: (animalId: string) => session((playerId) => post<any>('/ObserveAnimal/', { playerId, animalId })),
+	claimTask: (taskId: string) => session((playerId) => post<any>('/ClaimTask/', { playerId, taskId })),
+	setGoals: (goals: any[]) => session((playerId) => post<any>('/SetGoals/', { playerId, goals })),
 	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
-		post<any>('/Terraform/', { playerId: pid(), area, x, y, action }),
+		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action })),
 	plant: (area: string, x: number, y: number, plantId: string) =>
-		post<any>('/Plant/', { playerId: pid(), area, x, y, plantId }),
-	harvest: (placementId: string) => post<any>('/HarvestPlacement/', { playerId: pid(), placementId }),
+		session((playerId) => post<any>('/Plant/', { playerId, area, x, y, plantId })),
+	harvest: (placementId: string) => session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
-		post<any>('/SyncPlayer/', { playerId: pid(), x, y, area, tutorialStep }),
+		session((playerId) => post<any>('/SyncPlayer/', { playerId, x, y, area, tutorialStep })),
 	// language + edition ride on the heartbeat so metrics can report interface
 	// language and split demo vs paid players
 	// `idleGateMs` reports the client's input-idle window (see HEARTBEAT_IDLE_MS in
@@ -519,14 +544,17 @@ export const api = {
 	// tell which definition of "play time" a row was recorded under, instead of
 	// silently averaging two of them together.
 	heartbeat: (idleGateMs?: number) =>
-		post<any>('/Heartbeat/', { playerId: pid(), language: getLocale(), edition: EDITION, idleGateMs }),
+		session((playerId) => post<any>('/Heartbeat/', { playerId, language: getLocale(), edition: EDITION, idleGateMs })),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
-		post<any>('/AppendFeed/', { playerId: pid(), entries }),
-	recalc: (biomeId: string) => post<any>('/RecalcBiome/', { playerId: pid(), biomeId }),
+		session((playerId) => post<any>('/AppendFeed/', { playerId, entries })),
+	recalc: (biomeId: string) => session((playerId) => post<any>('/RecalcBiome/', { playerId, biomeId })),
 	dev: (action: string, args: Record<string, any> = {}) =>
-		post<any>('/DevTools/', { playerId: pid(), action, ...args }),
+		session((playerId) => post<any>('/DevTools/', { playerId, action, ...args })),
 	// Per-player metrics view (drives Steam Stats/Achievements on desktop).
-	metrics: (playerId?: string) => request<{ player: any }>(`/Metrics/${playerId ?? pid()}`),
+	metrics: (playerId?: string) =>
+		playerId
+			? request<{ player: any }>(`/Metrics/${playerId}`)
+			: session((id) => request<{ player: any }>(`/Metrics/${id}`)),
 };
 
 // ---------------------------------------------------------------- solo saves

@@ -23687,42 +23687,11 @@ var dashboardHtml = `<!doctype html>
 				margin: 0;
 				letter-spacing: -0.02em;
 			}
-			.brand p {
-				margin: 0.1rem 0 0;
-				color: var(--muted);
-				font-size: 0.92rem;
-			}
 			.meta {
 				margin-left: auto;
 				text-align: right;
 				color: var(--muted);
 				font-size: 0.82rem;
-			}
-			.meta .live {
-				display: inline-flex;
-				align-items: center;
-				gap: 0.4rem;
-				font-weight: 600;
-				color: var(--accent-dark);
-			}
-			.dot {
-				width: 9px;
-				height: 9px;
-				border-radius: 50%;
-				background: var(--accent);
-				box-shadow: 0 0 0 0 rgba(74, 124, 70, 0.5);
-				animation: pulse 2s infinite;
-			}
-			@keyframes pulse {
-				0% {
-					box-shadow: 0 0 0 0 rgba(74, 124, 70, 0.45);
-				}
-				70% {
-					box-shadow: 0 0 0 8px rgba(74, 124, 70, 0);
-				}
-				100% {
-					box-shadow: 0 0 0 0 rgba(74, 124, 70, 0);
-				}
 			}
 			button.refresh {
 				margin-top: 0.4rem;
@@ -23736,6 +23705,108 @@ var dashboardHtml = `<!doctype html>
 				border-radius: 999px;
 				box-shadow: var(--shadow);
 				transition: transform 0.1s;
+			}
+			/* The \`hidden\` attribute is only a UA style rule, so any element this page
+			   gives an explicit \`display\` to ignores it \u2014 which left the filter
+			   dropdowns sitting above the sign-in form, styled as if they worked.
+			   State this once, loudly, rather than tracking down each offender. */
+			[hidden] {
+				display: none !important;
+			}
+			/* Sign-in screen. Small, centred, and the only thing on the page \u2014 there is
+			   nothing else to look at until it is answered. */
+			.loginwrap {
+				display: flex;
+				justify-content: center;
+				padding: 3rem 1rem;
+			}
+			.card.login {
+				width: 100%;
+				max-width: 380px;
+				display: flex;
+				flex-direction: column;
+				gap: 0.7rem;
+			}
+			.card.login h2 {
+				margin: 0;
+				font-size: 1.15rem;
+			}
+			.card.login label {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+				font-size: 0.8rem;
+				color: var(--muted);
+			}
+			.card.login input {
+				font: inherit;
+				font-size: 0.92rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 10px;
+				background: #fff;
+				padding: 0.45rem 0.6rem;
+			}
+			.card.login input:focus {
+				outline: 2px solid var(--accent);
+				outline-offset: 1px;
+			}
+			.card.login button {
+				margin-top: 0.3rem;
+				align-self: flex-start;
+			}
+			.loginerr {
+				margin: 0;
+				font-size: 0.82rem;
+				color: #a33f52;
+				background: #fbeaee;
+				border: 1px solid #f0cdd5;
+				border-radius: 10px;
+				padding: 0.45rem 0.6rem;
+			}
+			#whoami {
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			#whoami .wrole {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-radius: 999px;
+				padding: 0.05rem 0.45rem;
+				font-size: 0.7rem;
+				font-weight: 700;
+			}
+			button.linkish {
+				font: inherit;
+				font-size: 0.78rem;
+				background: none;
+				border: 0;
+				padding: 0;
+				color: var(--accent-dark);
+				text-decoration: underline;
+				cursor: pointer;
+			}
+			/* The Problems toggle. Neutral until something is actually wrong, then it
+			   goes amber \u2014 so the button's colour carries the state without needing to
+			   be read. */
+			button.refresh.probs.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+			}
+			button.refresh.probs .pbadge {
+				display: inline-block;
+				margin-left: 0.35rem;
+				padding: 0 0.4rem;
+				border-radius: 999px;
+				background: #f6e8c9;
+				color: #a9781c;
+				font-weight: 700;
+				font-size: 0.74rem;
+				font-variant-numeric: tabular-nums;
+			}
+			button.refresh.probs.bad {
+				border-color: #e2c481;
 			}
 			.vfilter {
 				display: inline-flex;
@@ -23829,6 +23900,11 @@ var dashboardHtml = `<!doctype html>
 				letter-spacing: -0.02em;
 				line-height: 1.05;
 			}
+			/* A value shown because it is what the server said, not because this page
+			   understood it \u2014 visibly quieter than a number it can vouch for. */
+			.kpi .muted {
+				color: var(--faint);
+			}
 			.kpi .k {
 				color: var(--muted);
 				font-size: 0.8rem;
@@ -23856,12 +23932,19 @@ var dashboardHtml = `<!doctype html>
 				grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
 			}
 
+			/* Title on the left, caveat on the right. A float dropped the caveat onto
+			   its own line at narrow widths and left it hanging over the content
+			   below it; as a flex row it wraps under the title, aligned with it. */
 			.card h3 {
 				margin: 0 0 0.9rem;
 				font-size: 0.96rem;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 0.15rem 0.8rem;
 			}
 			.card h3 .tag {
-				float: right;
 				font-size: 0.74rem;
 				font-weight: 600;
 				color: var(--faint);
@@ -23920,53 +24003,70 @@ var dashboardHtml = `<!doctype html>
 				background: linear-gradient(90deg, #e5a0af, var(--rose));
 			}
 
-			/* ---- funnel ---- */
+			/* ---- funnel ----
+			 * The numbers used to sit inside the bar, on top of the fill. Where the
+			 * fill reached them they were dark green on dark green \u2014 a 100% step read
+			 * as a blank bar \u2014 and where it did not they were dark on pale, so the
+			 * same label changed legibility with its own value. They now live in a
+			 * fixed column beside the bar, on the card, where the contrast is the same
+			 * for every row. Only the step name rides the fill, in white, which is
+			 * safe because the fill always starts at the left edge under it. */
 			.funnel {
 				display: flex;
 				flex-direction: column;
 				gap: 0.5rem;
 			}
 			.step {
+				display: grid;
+				grid-template-columns: minmax(0, 1fr) auto;
+				align-items: center;
+				gap: 0.5rem 0.8rem;
+			}
+			.step .strack {
 				position: relative;
 				background: var(--accent-soft);
 				border-radius: 12px;
 				overflow: hidden;
+				padding: 0.6rem 0.85rem;
+				min-width: 0;
 			}
 			.step .sfill {
 				background: linear-gradient(90deg, var(--accent), var(--accent-dark));
-				height: 100%;
 				position: absolute;
-				inset: 0;
+				top: 0;
+				bottom: 0;
+				left: 0;
 				width: 0;
 				border-radius: 12px;
 				transition: width 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
-			.step .srow {
-				position: relative;
-				display: flex;
-				justify-content: space-between;
-				align-items: center;
-				padding: 0.6rem 0.85rem;
-				gap: 1rem;
-			}
 			.step .sname {
+				position: relative;
+				display: block;
 				font-weight: 600;
 				font-size: 0.86rem;
+				color: #fff;
+				text-shadow: 0 1px 2px rgba(28, 44, 24, 0.35);
+				overflow-wrap: anywhere;
+			}
+			/* A step at or near zero has no fill under its name, so white on pale
+			   green would vanish. Set by funnel() from the value, not guessed here. */
+			.step.empty .sname {
+				color: var(--muted);
+				text-shadow: none;
 			}
 			.step .sval {
 				font-variant-numeric: tabular-nums;
 				font-size: 0.84rem;
 				display: flex;
-				gap: 0.55rem;
+				gap: 0.5rem;
 				align-items: baseline;
+				justify-content: flex-end;
+				white-space: nowrap;
 			}
 			.step .spct {
 				color: var(--accent-dark);
 				font-weight: 700;
-			}
-			.step.lite .sname,
-			.step.lite .sval {
-				color: var(--ink);
 			}
 			.step .drop {
 				color: var(--rose);
@@ -24105,6 +24205,14 @@ var dashboardHtml = `<!doctype html>
 				background: var(--accent-soft);
 				border-radius: 999px;
 				padding: 0.12rem 0.55rem;
+			}
+			/* Demo \u2192 full carry-over. Gold rather than the usual green: this is the
+			   milestone worth spotting from across the page, not another stat. */
+			.hltag.hlconv {
+				color: #7a5410;
+				background: linear-gradient(180deg, #f7e6bd, #f0d79b);
+				border: 1px solid #e2c481;
+				cursor: help;
 			}
 			.hledi {
 				font-size: 0.6rem;
@@ -24352,6 +24460,132 @@ var dashboardHtml = `<!doctype html>
 				text-align: center;
 			}
 
+			/* ---- data tables (problems + server health) ----
+			 * These were originally given class="vs", which collides with the
+			 * demo-vs-full flex container below and turned every <table> into a
+			 * flex column: headers ran together and columns never lined up. */
+			.tbl {
+				width: 100%;
+				border-collapse: collapse;
+				margin-top: 0.55rem;
+				font-size: 0.86rem;
+			}
+			.tbl th {
+				text-align: left;
+				font-size: 0.72rem;
+				font-weight: 700;
+				letter-spacing: 0.04em;
+				text-transform: uppercase;
+				color: var(--faint);
+				padding: 0 0.7rem 0.4rem 0;
+				border-bottom: 1px solid var(--rule);
+				white-space: nowrap;
+			}
+			.tbl td {
+				padding: 0.42rem 0.7rem 0.42rem 0;
+				border-bottom: 1px solid var(--rule);
+				color: var(--ink);
+				vertical-align: baseline;
+			}
+			.tbl tr:last-child td {
+				border-bottom: 0;
+			}
+			/* Numbers right-align and share a column width so they compare by eye. */
+			.tbl th.num,
+			.tbl td.num {
+				text-align: right;
+				padding-right: 0;
+				padding-left: 0.9rem;
+				white-space: nowrap;
+				font-variant-numeric: tabular-nums;
+				width: 1%;
+			}
+			.tbl td small {
+				color: var(--faint);
+				font-size: 0.78em;
+				margin-left: 1px;
+			}
+			/* The first column carries the long identifier, so it takes the slack
+			 * and wraps instead of shoving the numbers off the edge. */
+			.tbl td:first-child {
+				width: 99%;
+				word-break: break-word;
+			}
+			.tbl td code {
+				font-size: 0.92em;
+			}
+
+			/* A card you can fold away. Used for raw reference data that is worth
+			   having on the page but not worth reading every time. */
+			details.card > summary {
+				cursor: pointer;
+				font-size: 0.96rem;
+				list-style: none;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 0.15rem 0.8rem;
+			}
+			details.card > summary::-webkit-details-marker {
+				display: none;
+			}
+			details.card > summary b::before {
+				content: '\u25B8 ';
+				color: var(--faint);
+			}
+			details.card[open] > summary b::before {
+				content: '\u25BE ';
+			}
+			details.card[open] > summary {
+				margin-bottom: 0.9rem;
+			}
+
+			/* Row-level delete. Quiet until you are near it \u2014 a red \xD7 on every row of
+			   a table you are reading is an invitation to misclick. */
+			button.delbtn {
+				font: inherit;
+				font-size: 0.9rem;
+				line-height: 1;
+				cursor: pointer;
+				border: 1px solid transparent;
+				background: none;
+				color: var(--faint);
+				border-radius: 8px;
+				padding: 0.1rem 0.4rem;
+				transition:
+					color 0.12s,
+					background 0.12s,
+					border-color 0.12s;
+			}
+			tr:hover button.delbtn,
+			button.delbtn:focus-visible {
+				color: #a33f52;
+				border-color: #f0cdd5;
+				background: #fbeaee;
+			}
+			button.delbtn[disabled] {
+				opacity: 0.4;
+				cursor: default;
+			}
+			/* On touch there is no hover, so the affordance has to be visible. */
+			@media (hover: none) {
+				button.delbtn {
+					color: #a33f52;
+					border-color: #f0cdd5;
+				}
+			}
+			/* A header the screen reader gets and the eye does not \u2014 the column is a
+			   row of \xD7 buttons and a visible "Clear" label above them is noise. */
+			.vh {
+				position: absolute;
+				width: 1px;
+				height: 1px;
+				overflow: hidden;
+				clip: rect(0 0 0 0);
+				white-space: nowrap;
+			}
+
 			/* ---- editions: demo vs full ---- */
 			.vs {
 				display: flex;
@@ -24418,16 +24652,175 @@ var dashboardHtml = `<!doctype html>
 				font-size: 0.82rem;
 				padding: 0.4rem 0;
 			}
-			footer {
-				margin-top: 3rem;
-				text-align: center;
+			/* Caveats that travel with the duration numbers. Readable, not shouty \u2014
+			   they qualify the figures above rather than warn about them. */
+			.clocknote {
+				font-size: 0.84rem;
+				color: var(--muted);
+				line-height: 1.5;
+				padding: 0.5rem 0;
+			}
+			.clocknote + .clocknote {
+				border-top: 1px solid var(--rule);
+			}
+			.clocknote b {
+				color: var(--ink);
+			}
+			.clocknote .cnrule {
+				display: block;
+				margin-top: 0.15rem;
 				color: var(--faint);
 				font-size: 0.76rem;
 			}
-			footer a {
-				color: var(--accent-dark);
+			/* Day-by-day bar chart + its range control. */
+			.dcolwrap {
+				position: relative;
+				padding-left: 2.2rem;
 			}
-
+			.dmax {
+				position: absolute;
+				left: 0;
+				top: 0;
+				font-size: 0.7rem;
+				color: var(--faint);
+				font-variant-numeric: tabular-nums;
+			}
+			/* Below ~440px this flex row was computing a shrink-to-fit width and
+			   collapsing to the sum of its gaps \u2014 36px of the 289px available, with
+			   every bar a sub-pixel hairline. Stating the width explicitly is what
+			   actually holds it open. */
+			.dscroll {
+				overflow-x: auto;
+				overflow-y: hidden;
+				scrollbar-width: thin;
+			}
+			.dcols {
+				display: flex;
+				align-items: flex-end;
+				gap: 2px;
+				width: 100%;
+				min-width: 100%;
+				/* 96 for the tallest bar, plus the count above and the date below. */
+				height: 150px;
+			}
+			.dcol .dn {
+				font-size: 0.66rem;
+				color: var(--muted);
+				font-variant-numeric: tabular-nums;
+				line-height: 1;
+				height: 0.7rem;
+				white-space: nowrap;
+			}
+			/* A floor on the column width, not an equal share of whatever is left:
+			   90 days across a phone is 3px a bar, which is a texture rather than a
+			   chart. Past the floor the strip scrolls sideways instead of shrinking. */
+			.dcol {
+				flex: 1 0 var(--dcolw, 6px);
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-end;
+				height: 100%;
+				gap: 0.3rem;
+			}
+			/* Hidden, not removed \u2014 the row keeps its height so every bar in the
+			   chart still sits on the same baseline. */
+			.dcol.nolab .dl,
+			.dcol.nonum .dn {
+				visibility: hidden;
+			}
+			/* A date is wider than its column and overhangs both sides. In the middle
+			   of the strip that is fine; at the ends it hangs past the chart and gets
+			   clipped, so the outermost dates align to their edge instead of centring
+			   on it \u2014 the last day is exactly the one you most want to read. */
+			.dcol:first-child .dl {
+				align-self: flex-start;
+			}
+			.dcol:last-child .dl {
+				align-self: flex-end;
+			}
+			.dhint {
+				display: none;
+				margin: 0.4rem 0 0;
+				font-size: 0.7rem;
+				color: var(--faint);
+			}
+			.dscroll.canscroll + .dhint {
+				display: block;
+			}
+			.dcol .dbar {
+				display: block;
+				width: 100%;
+				max-width: 22px;
+				border-radius: 3px 3px 0 0;
+				background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+				transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+			}
+			/* A day with nobody is drawn as a flat tick, not nothing \u2014 an absent bar
+			   and a missing day look identical otherwise. */
+			.dcol .dbar.zero {
+				height: 2px;
+				background: var(--rule);
+			}
+			.dcol .dl {
+				font-size: 0.62rem;
+				color: var(--faint);
+				white-space: nowrap;
+				height: 0.8rem;
+			}
+			.dpick {
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin-bottom: 0.7rem;
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			.dpick label {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.3rem;
+			}
+			.dpick .dsep {
+				width: 1px;
+				height: 1.1rem;
+				background: var(--rule);
+				margin: 0 0.3rem;
+			}
+			button.dbtn {
+				font: inherit;
+				font-size: 0.78rem;
+				cursor: pointer;
+				border: 1px solid var(--rule);
+				background: var(--card);
+				color: var(--muted);
+				padding: 0.2rem 0.7rem;
+				border-radius: 999px;
+			}
+			button.dbtn.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+				font-weight: 700;
+			}
+			/* The all-time figure kept beside a windowed count, so a filtered number
+			   is never mistaken for the whole story. */
+			.alltime {
+				color: var(--faint);
+				font-size: 0.72rem;
+				font-variant-numeric: tabular-nums;
+			}
+			.dinput {
+				font: inherit;
+				font-size: 0.76rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 8px;
+				background: var(--card);
+				padding: 0.15rem 0.4rem;
+			}
 			.skeleton {
 				color: var(--faint);
 				text-align: center;
@@ -24442,17 +24835,112 @@ var dashboardHtml = `<!doctype html>
 				padding: 1rem 1.2rem;
 			}
 
+			/* ---- phones ----
+			 * Everything below is a width problem, not a phone problem: a section
+			 * heading beside its subtitle, a bar label beside its bar, a five-column
+			 * table. Each one is given back its own line rather than squeezed. */
+			@media (max-width: 640px) {
+				/* A heading and its subtitle side by side leaves each about half a
+				   phone, so both wrap and interleave. Stack them. */
+				.sec-head {
+					flex-direction: column;
+					align-items: flex-start;
+					gap: 0.1rem;
+				}
+				.sec-head .sub {
+					line-height: 1.35;
+				}
+				/* Same story one level down, inside a card. */
+				.card h3 {
+					gap: 0.1rem;
+				}
+				.card h3 .tag {
+					flex: 1 0 100%;
+				}
+				/* Wider bars, and labels that wrap instead of becoming "Under \u2026". */
+				.bar {
+					grid-template-columns: minmax(0, 42%) 1fr auto;
+					gap: 0.5rem;
+				}
+				.bar .lab {
+					white-space: normal;
+					overflow: visible;
+					line-height: 1.25;
+				}
+				.chargrid {
+					grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+				}
+				/* The step name and its numbers each get a full line. */
+				.step {
+					grid-template-columns: minmax(0, 1fr);
+				}
+				.step .sval {
+					justify-content: flex-start;
+					padding-left: 0.1rem;
+				}
+				/* Five columns on a phone: shrink the type and let long ids break
+				   rather than shove the numbers off the right edge. */
+				.tbl {
+					font-size: 0.8rem;
+				}
+				.tbl th {
+					font-size: 0.64rem;
+					letter-spacing: 0.02em;
+				}
+				.tbl th.num,
+				.tbl td.num {
+					padding-left: 0.5rem;
+				}
+				.tbl td:first-child {
+					overflow-wrap: anywhere;
+				}
+				/* A vertical rule between the presets and the date inputs only reads as
+				   a divider while they share a line. Wrapped, it is a stray tick. */
+				.dpick .dsep {
+					display: none;
+				}
+				.dpick {
+					gap: 0.35rem 0.4rem;
+				}
+				.dcolwrap {
+					padding-left: 1.7rem;
+				}
+				/* A wider floor on a phone: 90 days across 300px is a 3px bar, which is
+				   a texture, not a chart. Past this the strip scrolls instead. */
+				.dcols {
+					--dcolw: 8px;
+				}
+			}
+			/* Zero-height, full-width flex item: forces the two action buttons onto a
+			   line of their own below the filters. Inert in the desktop block layout. */
+			.metabreak {
+				display: block;
+				height: 0;
+			}
 			@media (max-width: 560px) {
 				.meta {
 					margin-left: 0;
 					text-align: left;
 					width: 100%;
+					/* Wrapping inline controls landed the Problems toggle mid-row between
+					   two dropdowns, reading as a third filter. Laid out as a flex row
+					   the filters group together and the buttons get their own line. */
+					display: flex;
+					flex-wrap: wrap;
+					align-items: center;
+					gap: 0.45rem 0.6rem;
 				}
-				.bar {
-					grid-template-columns: minmax(56px, 40%) 1fr auto;
+				.meta .live,
+				.meta > #whoami,
+				.meta > #generated {
+					flex: 1 0 100%;
 				}
-				.chargrid {
-					grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+				.metabreak {
+					flex: 1 0 100%;
+				}
+				.meta .vfilter,
+				.meta button.refresh {
+					margin-top: 0;
 				}
 			}
 		</style>
@@ -24478,11 +24966,10 @@ var dashboardHtml = `<!doctype html>
 					</div>
 					<div>
 						<h1>Wild Willows Metrics</h1>
-						<p>Anonymous gameplay analytics</p>
 					</div>
 				</div>
 				<div class="meta">
-					<div class="live"><span class="dot"></span> Live dashboard</div>
+					<div id="whoami" hidden></div>
 					<div id="generated">Loading\u2026</div>
 					<label class="vfilter"
 						><span>Version</span>
@@ -24516,6 +25003,23 @@ var dashboardHtml = `<!doctype html>
 							<option value="include">Counted</option>
 						</select>
 					</label>
+					<!-- Problems are hidden by default: on a normal day there is nothing to
+					     act on, and a wall of "not enough materials" refusals above the
+					     numbers you came for is noise. The BADGE is what makes hiding them
+					     safe \u2014 it counts the things that are actually wrong (crashes and
+					     unreadable saves, never routine refusals), so a bad day still
+					     announces itself from the top of the page. -->
+					<span class="metabreak"></span>
+					<button class="refresh probs" id="problems" type="button" aria-pressed="false" hidden>
+						<span id="problems-label">Problems</span>
+					</button>
+					<!-- How HARPER is doing, as opposed to how the players are. Its own
+					     view because it answers a different question from every other
+					     panel on this page and shares no filters with them. -->
+					<button class="refresh probs" id="serverbtn" type="button" aria-pressed="false" hidden>
+						<span id="serverbtn-label">Server</span>
+					</button>
+					<button class="refresh" id="backbtn" type="button" hidden>\u2190 Dashboard</button>
 					<button class="refresh" id="refresh" type="button">\u21BB Refresh</button>
 				</div>
 			</header>
@@ -24526,9 +25030,6 @@ var dashboardHtml = `<!doctype html>
 				</div>
 			</div>
 
-			<footer>
-				Wild Willows \xB7 a cozy nature-restoration life sim, backed by Harper \xB7 metrics are aggregated and anonymous.
-			</footer>
 		</div>
 
 		<script>
@@ -24628,6 +25129,16 @@ var dashboardHtml = `<!doctype html>
 			const n = (x) => (x == null || isNaN(x) ? 0 : x);
 			const fmt = (x) => n(x).toLocaleString('en-US');
 			const pct = (x) => \`\${Math.round(n(x))}%\`;
+			/* A rate that is small but not zero must not render as "0%" \u2014 for a 5xx
+			 * rate that is the difference between "nothing is broken" and "ten
+			 * requests failed". Below 1% keep a decimal; below 0.1% say so. */
+			const ratePct = (x) => {
+				const v = n(x);
+				if (v === 0) return '0%';
+				if (v < 0.1) return '&lt;0.1%';
+				if (v < 1) return \`\${v.toFixed(1)}%\`;
+				return \`\${Math.round(v)}%\`;
+			};
 
 			/* ------------------------------------------------------------------ *
 			 * Avatar \u2014 ported from CharacterPreview (src/ui/icons.tsx). Returns an
@@ -24860,11 +25371,15 @@ var dashboardHtml = `<!doctype html>
 					.map((st, i) => {
 						const w = Math.max(3, (n(st.value) / top) * 100);
 						const drop = i > 0 && steps[i - 1].value ? Math.round((1 - n(st.value) / n(steps[i - 1].value)) * 100) : 0;
+						// Under ~18% the fill no longer reaches the end of the step name, so
+						// the name goes back to dark-on-pale rather than white on nothing.
+						const bare = (n(st.value) / top) * 100 < 18;
 						return (
-							\`<div class="step"><span class="sfill" style="width:\${w}%"></span><div class="srow">\` +
-							\`<span class="sname">\${esc(st.label)}</span>\` +
+							\`<div class="step\${bare ? ' empty' : ''}">\` +
+							\`<div class="strack"><span class="sfill" style="width:\${w}%"></span>\` +
+							\`<span class="sname">\${esc(st.label)}</span></div>\` +
 							\`<span class="sval"><span class="spct">\${pct((st.value / top) * 100)}</span><span>\${fmt(st.value)}</span>\` +
-							\`\${i > 0 && drop > 0 ? \`<span class="drop">\u2212\${drop}%</span>\` : ''}</span></div></div>\`
+							\`\${i > 0 && drop > 0 ? \`<span class="drop">\u2212\${drop}%</span>\` : ''}</span></div>\`
 						);
 					})
 					.join('')}</div>\`;
@@ -25000,6 +25515,231 @@ var dashboardHtml = `<!doctype html>
 				return r ? \`\${h}h \${r}m\` : \`\${h}h\`;
 			}
 
+			/* How long a session actually lasts.
+			 *
+			 * The server has computed this histogram all along and nothing has ever
+			 * drawn it. It is drawn here WITH its coverage stated, because the buckets
+			 * are a subset \u2014 only sessions a client recorded a length for land in them,
+			 * so the total can be a couple of dozen while Sessions above reads in the
+			 * hundreds. Shown as a share of the sessions it covers, not of all of them,
+			 * or the percentages would be quietly wrong. */
+			const SESSION_BUCKET_ORDER = ['<2m', '2-10m', '10-30m', '30m+'];
+			const SESSION_BUCKET_LABELS = {
+				'<2m': 'Under 2 min',
+				'2-10m': '2 \u2013 10 min',
+				'10-30m': '10 \u2013 30 min',
+				'30m+': 'Over 30 min',
+			};
+			function sessionShapeHTML(s) {
+				const sl = s.sessionLengths || (s.sessionLengthDistribution ? { buckets: s.sessionLengthDistribution } : null);
+				if (!sl) return '';
+				const buckets = sl.buckets || {};
+				const covered = sl.sessionsCovered != null ? sl.sessionsCovered : Object.values(buckets).reduce((a, v) => a + n(v), 0);
+				if (!covered) return '';
+				const entries = SESSION_BUCKET_ORDER.filter((k) => buckets[k] != null).map((k) => [k, n(buckets[k])]);
+				const total = n(sl.totalSessions);
+				/* Measured against what CAN be measured, not against every session.
+				 * A session is bucketed only when the next one starts, so each save's
+				 * current session is permanently unbucketed \u2014 dividing by totalSessions
+				 * reported 4% and read like a broken counter, when it was really saying
+				 * "most people have played once so far". */
+				const measurable = sl.sessionsMeasurable != null ? n(sl.sessionsMeasurable) : total;
+				const inProgress = n(sl.sessionsInProgress);
+				const tag = measurable
+					? \`\${fmt(covered)} of \${fmt(measurable)} finished sessions (\${pct(sl.coveragePct)})\`
+					: \`\${fmt(covered)} sessions measured\`;
+				return \`<div style="margin-top:.8rem">\${cardTitled(
+					'How long a session lasts',
+					tag,
+					barRows(entries, { labelMap: SESSION_BUCKET_LABELS, cls: 'sky' }) +
+						(inProgress
+							? \`<p class="emptynote">A session is measured only once the next one begins, so every caretaker's most recent session is still open \u2014 \` +
+								\`<b>\${fmt(inProgress)}</b> of the \${fmt(total)} total are in progress and can't be bucketed yet. \` +
+								\`Older builds that never recorded lengths are missing too. The shares above are of the \${fmt(covered)} finished sessions on record.</p>\`
+							: ''),
+				)}</div>\`;
+			}
+
+			/* New caretakers per day.
+			 *
+			 * The range control here scopes THIS CHART ONLY, and the subtitle says so.
+			 * It deliberately does not filter the rest of the page: almost every number
+			 * above is a lifetime total carried on a save (play time, actions, biome
+			 * health), not something attributable to a day, so a picker that appeared to
+			 * scope the whole report would be answering a question the data can't. */
+			const DAY_RANGE = { preset: '30', from: '', to: '' };
+
+			function visibleDays(daily) {
+				const days = (daily && daily.days) || [];
+				if (!days.length) return [];
+				if (DAY_RANGE.preset === 'custom') {
+					const from = DAY_RANGE.from || days[0].day;
+					const to = DAY_RANGE.to || days[days.length - 1].day;
+					return days.filter((d) => d.day >= from && d.day <= to);
+				}
+				if (DAY_RANGE.preset === 'all') return days;
+				return days.slice(-Number(DAY_RANGE.preset));
+			}
+
+			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
+			 * which puts a number and a label under every column \u2014 fine for four
+			 * tutorial steps, unreadable at ninety days. Here the count lives in the
+			 * tooltip and the axis is labelled at intervals. */
+			function dayCols(days, key) {
+				if (!days.length) return \`<div class="emptynote">No days in this range.</div>\`;
+				const max = Math.max(...days.map((d) => n(d[key])), 1);
+				/* Every column ships its count and its date; which of them survive is
+				 * decided by fitDayCharts() from the width the columns actually got.
+				 * Deriving that from the day count alone was wrong at every width but
+				 * the one it was tuned on \u2014 on a phone it produced a grey smear.
+				 * Zeros stay blank: the flat tick already says nothing happened, and a
+				 * row of 0s over empty days is noise competing with the real numbers. */
+				const fmtDay = (iso) => {
+					const [y, m, dd] = iso.split('-');
+					return \`\${MONTHS[Number(m) - 1]} \${Number(dd)}\`;
+				};
+				const bars = days
+					.map((d) => {
+						const v = n(d[key]);
+						const h = v ? Math.max(2, (v / max) * 96) : 0;
+						return (
+							\`<div class="dcol" title="\${esc(fmtDay(d.day))} \xB7 \${fmt(v)}">\` +
+							\`<span class="dn">\${v ? fmt(v) : ''}</span>\` +
+							\`<span class="dbar\${v ? '' : ' zero'}" style="height:\${h}px"></span>\` +
+							\`<span class="dl">\${esc(fmtDay(d.day))}</span></div>\`
+						);
+					})
+					.join('');
+				return (
+					\`<div class="dcolwrap"><div class="dmax">\${fmt(max)}</div>\` +
+					\`<div class="dscroll"><div class="dcols">\${bars}</div></div>\` +
+					\`<p class="dhint">Scroll sideways for the rest of the range.</p></div>\`
+				);
+			}
+
+			/* Fit every day chart to the width it was actually given.
+			 *
+			 * Column width is not knowable when the markup is built \u2014 it depends on the
+			 * card, the viewport, and whether the strip ended up scrolling \u2014 so labels
+			 * and counts are dropped here, after layout, and again on resize. A date
+			 * needs roughly 34px to sit under its bar without touching its neighbour;
+			 * a two-digit count needs about 17px. Labels are spaced backwards from the
+			 * last column so the most recent day is always the one that keeps its date. */
+			function fitDayCharts() {
+				for (const strip of document.querySelectorAll('.dcols')) {
+					const cols = strip.children;
+					if (!cols.length) continue;
+					const w = cols[0].getBoundingClientRect().width;
+					if (!w) continue; // not laid out yet (hidden tab, mid-render)
+					const step = Math.max(1, Math.ceil(34 / w));
+					const anchor = (cols.length - 1) % step;
+					// Room for the widest count in THIS chart, not for a hypothetical
+					// four-digit one: a column of single digits fits where "1,204" cannot.
+					let widest = 0;
+					for (const c of cols) widest = Math.max(widest, (c.firstElementChild.textContent || '').length);
+					const showCounts = widest > 0 && w >= 6.5 * widest + 5;
+					for (let i = 0; i < cols.length; i++) {
+						cols[i].classList.toggle('nolab', i % step !== anchor);
+						cols[i].classList.toggle('nonum', !showCounts);
+					}
+					// Measure the span of the columns themselves. scrollWidth is inflated
+					// by the dates, which overhang the strip at both ends by design, and
+					// would report a chart that fits exactly as scrollable.
+					const box = strip.parentElement;
+					const span = cols[cols.length - 1].getBoundingClientRect().right - cols[0].getBoundingClientRect().left;
+					if (box) box.classList.toggle('canscroll', span - box.clientWidth > 2);
+				}
+			}
+			addEventListener('resize', fitDayCharts);
+
+			const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+			const DAY_PRESETS = [
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: '90', label: '90d' },
+				{ key: 'all', label: 'All' },
+			];
+
+			function dailyHTML(s) {
+				const daily = s.daily;
+				if (!daily || !daily.days || !daily.days.length) return '';
+				const shown = visibleDays(daily);
+				const totalNew = shown.reduce((a, d) => a + n(d.created), 0);
+				const busiest = shown.slice().sort((a, b) => n(b.created) - n(a.created))[0];
+				/* The date inputs show the window that is ACTUALLY on screen, whichever
+				 * way it was chosen. They used to fall back to the whole dataset's
+				 * first and last day whenever a preset was active, so clicking "7d"
+				 * drew seven columns above two dates three months apart \u2014 and on a
+				 * fresh instance, where firstDay/lastDay are absent, they showed
+				 * nothing at all. Reading the bounds off the rendered days means the
+				 * pickers and the chart cannot disagree, and picking a preset then
+				 * nudging one date starts from where you were rather than from the
+				 * beginning of time. */
+				const firstShown = (shown[0] && shown[0].day) || daily.firstDay || '';
+				const lastShown = (shown[shown.length - 1] && shown[shown.length - 1].day) || daily.lastDay || '';
+				const bounds = \`min="\${esc(daily.firstDay || firstShown)}" max="\${esc(daily.lastDay || lastShown)}"\`;
+				const picker =
+					\`<div class="dpick">\` +
+					DAY_PRESETS.map(
+						(p) =>
+							\`<button type="button" class="dbtn\${DAY_RANGE.preset === p.key ? ' on' : ''}" data-range="\${p.key}">\${p.label}</button>\`,
+					).join('') +
+					\`<span class="dsep"></span>\` +
+					\`<label>From <input type="date" class="dinput" data-range-from value="\${esc(firstShown)}" \${bounds}></label>\` +
+					\`<label>To <input type="date" class="dinput" data-range-to value="\${esc(lastShown)}" \${bounds}></label>\` +
+					\`</div>\`;
+				const sub = shown.length
+					? \`\${fmt(totalNew)} new in \${fmt(shown.length)} \${shown.length === 1 ? 'day' : 'days'}\` +
+						(busiest && busiest.created ? \` \xB7 busiest \${esc(busiest.day)} with \${fmt(busiest.created)}\` : '')
+					: 'no days in this range';
+				// Saves created only. The payload also carries a per-day \`lastSeen\`, but
+				// it is the day each save was LAST active \u2014 not daily actives \u2014 and a
+				// second chart of it next to this one invited exactly the misreading it
+				// was captioned to prevent. Left in the API for anything that wants it.
+				return sec(
+					'New caretakers per day',
+					'this chart only \u2014 the rest of the page is all-time',
+					picker + cardTitled('Saves created', sub, dayCols(shown, 'created')),
+				);
+			}
+
+			/* What the play-time numbers are NOT counting, and why.
+			 *
+			 * Two separate caveats ride on every duration on this page: windows left
+			 * open (excluded by default), and the fact that rev 1 clients counted
+			 * untouched windows as play while rev 2 does not. Both were reported in the
+			 * payload and shown nowhere, which is the worst of both \u2014 the numbers were
+			 * already qualified, the reader just couldn't see it. */
+			function clockNoteHTML(s) {
+				const a = s.anomalies;
+				if (!a) return '';
+				const clock = a.clock || {};
+				const revs = Object.entries(clock.byRev || {}).filter((e) => n(e[1]) > 0);
+				const mixed = revs.length > 1;
+				if (!a.idlePlayers && !mixed) return '';
+				const bits = [];
+				if (a.idlePlayers) {
+					bits.push(
+						\`<div class="clocknote"><b>\${fmt(a.idlePlayers)} \${a.idlePlayers === 1 ? 'save' : 'saves'} left a window open</b> \u2014 \` +
+							\`\${fmt(a.idleHours)} hours and \${fmt(a.idleActions)} actions of it. \` +
+							(a.excluded
+								? \`Excluded from \${esc(a.affects)}; they still count everywhere else.\`
+								: \`<em>Currently included.</em> Switch \u201CIdle windows\u201D to Exclude to drop them from \${esc(a.affects)}.\`) +
+							\`<span class="cnrule">\${esc(a.rule)}</span></div>\`,
+					);
+				}
+				if (mixed) {
+					bits.push(
+						\`<div class="clocknote"><b>Two play-time definitions in one total.</b> \${esc(clock.note || '')} \u2014 \` +
+							revs.map(([k, v]) => \`\${fmt(v)} on \${esc(k)}\`).join(', ') +
+							\`. Read any trend that crosses the change as two series, not one.\` +
+							(clock.idleGateMinutes ? \`<span class="cnrule">rev 2 stops the clock after \${n(clock.idleGateMinutes)} min untouched</span>\` : '') +
+							\`</div>\`,
+					);
+				}
+				return \`<div style="margin-top:.8rem">\${cardTitled('About these durations', 'what the clock does and does not count', bits.join(''))}</div>\`;
+			}
+
 			/* ------------------------------------------------------------------ *
 			 * Per-player modal \u2014 a full picture of one caretaker's playthrough
 			 * ------------------------------------------------------------------ */
@@ -25008,6 +25748,17 @@ var dashboardHtml = `<!doctype html>
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload \u2014 records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload \u2014 refusals + interface crashes
+			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload \u2014 Harper's own telemetry
+			/* How far back the server view looks, in minutes.
+			 *
+			 * One hour, fixed. Not 15: Harper emits the gauges (database size,
+			 * storage volume, thread utilization) sparsely, and a short window lands
+			 * BETWEEN samples and reports them as absent \u2014 which is how this panel
+			 * first shipped showing em-dashes on a healthy server. Not adjustable in
+			 * the UI either: a 24h window makes ServerHealth read to its 4,000-row
+			 * cap and it became the slowest endpoint on the instance. The endpoint
+			 * still honours ?minutes= for anyone reading it directly. */
+			const SERVER_WINDOW = 60;
 
 			/** How this caretaker has their settings \u2014 every option in Settings \u2192
 			 *  Accessibility, plus audio. Sourced from the \`prefs\` block each solo
@@ -25190,10 +25941,19 @@ var dashboardHtml = `<!doctype html>
 					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' \xB7 '),
 				);
 				const when = [joined, last].filter(Boolean).join(' \xB7 ');
+				/* Carried over from the demo. Spelled out here rather than left as a
+				 * chip: the modal is where you go to find out what actually happened,
+				 * and "1h 46m in the demo, then bought it" is the story. */
+				const mc = p.conversion || {};
+				const mconv = p.convertedFromDemo
+					? \`<span class="hltag hlconv" title="\${mc.exact ? 'Stamped when the save was exported' : 'Inferred from this save\u2019s demo row \u2014 it predates the export stamp'}">demo \u2192 full\${
+							mc.demoPlaySeconds ? \` \xB7 \${fmtDur(mc.demoPlaySeconds)} in the demo\` : ''
+						}\${mc.at ? \` \xB7 \${mc.exact ? '' : '~'}\${new Date(mc.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}\` : ''}</span>\`
+					: '';
 				return (
 					\`<button class="modal-close" data-close aria-label="Close">\xD7</button>\` +
 					\`<div class="modal-head"><div class="mav">\${avatarSVG(p.appearance)}</div><div><h2>\${esc(p.name || 'Unnamed')}</h2>\` +
-					\`<div class="msub"><span class="hledi \${edi}">\${edi}</span>\${p.idle ? \`<span class="hlidle" title="Over \${n(p.playMinutes)} minutes at \${n(p.actionsPerMinute)} actions/min \u2014 counted as a window left open, not play">idle window</span>\` : ''}\${meta ? \`<span>\${meta}</span>\` : ''}\${when ? \`<span>\${when}</span>\` : ''}</div></div></div>\` +
+					\`<div class="msub"><span class="hledi \${edi}">\${edi}</span>\${mconv}\${p.idle ? \`<span class="hlidle" title="Over \${n(p.playMinutes)} minutes at \${n(p.actionsPerMinute)} actions/min \u2014 counted as a window left open, not play">idle window</span>\` : ''}\${meta ? \`<span>\${meta}</span>\` : ''}\${when ? \`<span>\${when}</span>\` : ''}</div></div></div>\` +
 					kpis +
 					\`<div class="grid two" style="margin-top:.8rem">\${progress}\${checklist}</div>\` +
 					\`<div style="margin-top:.8rem">\${actionsCard}</div>\` +
@@ -25233,7 +25993,155 @@ var dashboardHtml = `<!doctype html>
 			/* ------------------------------------------------------------------ *
 			 * Main render
 			 * ------------------------------------------------------------------ */
+			/* The Problems range.
+			 *
+			 * Unlike the per-day chart's picker, this one goes to the SERVER, because
+			 * the filtering it does is impossible in the browser: a refusal row is a
+			 * running total with a single lastSeenAt, so "412 refusals" carries no
+			 * dates to slice. Only the server's per-day buckets can answer it, and
+			 * those only exist from the day they shipped \u2014 which is why every count
+			 * comes back in two forms and the panel shows both. */
+			const PROBLEM_RANGE = { preset: 'all', from: '', to: '' };
+			const PROBLEM_PRESETS = [
+				{ key: '1', label: '24h' },
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: 'all', label: 'All time' },
+			];
+			const isoDay = (d) => new Date(d).toISOString().slice(0, 10);
+			function problemsRange() {
+				if (PROBLEM_RANGE.preset === 'all') return null;
+				if (PROBLEM_RANGE.preset === 'custom') {
+					if (!PROBLEM_RANGE.from && !PROBLEM_RANGE.to) return null;
+					return { from: PROBLEM_RANGE.from, to: PROBLEM_RANGE.to };
+				}
+				const days = Number(PROBLEM_RANGE.preset);
+				return { from: isoDay(Date.now() - (days - 1) * 86400000), to: isoDay(Date.now()) };
+			}
+			function problemsQuery() {
+				const r = problemsRange();
+				if (!r) return '';
+				const p = [];
+				if (r.from) p.push('from=' + encodeURIComponent(r.from));
+				if (r.to) p.push('to=' + encodeURIComponent(r.to));
+				return p.length ? '?' + p.join('&') : '';
+			}
+
+			/* Which of the three views is on screen: the metrics, what is going
+			 * wrong, or how Harper itself is doing. Remembered across reloads \u2014 if you
+			 * opened one because you were chasing something, a refresh mid-chase
+			 * shouldn't drop you back to the front page.
+			 *
+			 * One variable, not a boolean per panel: the views are mutually exclusive,
+			 * and two independent flags can represent states that are not supposed to
+			 * exist (both on, both off after a partial write). */
+			const MODE_KEY = 'ww-dashboard-mode';
+			const MODES = ['dashboard', 'problems', 'server'];
+			let MODE = 'dashboard';
+			try {
+				const saved = localStorage.getItem(MODE_KEY);
+				if (MODES.includes(saved)) MODE = saved;
+				// Migrate the old boolean so an open Problems view survives the upgrade.
+				else if (localStorage.getItem('ww-dashboard-show-problems') === '1') MODE = 'problems';
+			} catch {
+				/* private mode \u2014 default to the dashboard */
+			}
+			function setMode(next) {
+				MODE = MODES.includes(next) ? next : 'dashboard';
+				try {
+					localStorage.setItem(MODE_KEY, MODE);
+				} catch {
+					/* private mode \u2014 the switch still works for this session */
+				}
+			}
+
+			/* What the badge counts.
+			 *
+			 * Deliberately NOT refusals. A refusal is the server saying "not enough
+			 * materials" \u2014 that is the game working, and every player generates them,
+			 * so a lifetime refusal count would sit in the thousands and mean nothing.
+			 * Badging it would train you to ignore the badge, which is the one failure
+			 * mode a hidden panel cannot survive.
+			 *
+			 * Crashes and records that will not decode are different: neither should
+			 * ever happen, so any number above zero is worth the walk. */
+			function problemCount() {
+				const crashes = (GAMEPLAYHEALTH && GAMEPLAYHEALTH.clientErrors && GAMEPLAYHEALTH.clientErrors.total) || 0;
+				const badSaves = (SAVEHEALTH && SAVEHEALTH.affected) || 0;
+				return { crashes: n(crashes), badSaves: n(badSaves), total: n(crashes) + n(badSaves) };
+			}
+
+			/* Is Harper itself in trouble? Separate from problemCount(), which counts
+			 * things PLAYERS hit. A server at its thread ceiling with a rising 5xx rate
+			 * is a different emergency from a crash in the journal panel, and collapsing
+			 * them into one badge would let either hide the other. */
+			function serverTrouble() {
+				const h = SERVERHEALTH;
+				if (!h) return null;
+				if (!h.readable) return 'telemetry unreadable';
+				const bits = [];
+				if (n(h.http && h.http.serverErrors) > 0) return \`\${fmt(h.http.serverErrors)} server errors\`;
+				const u = h.threads && h.threads.utilizationPct;
+				if (u != null && u >= 85) bits.push(\`threads at \${pct(u)}\`);
+				const st = h.storage || {};
+				if (st.databaseBytes && st.volumeBytes && st.databaseBytes / st.volumeBytes >= 0.85)
+					bits.push('storage nearly full');
+				return bits.length ? bits.join(' \xB7 ') : null;
+			}
+
+			function syncProblemsButton() {
+				const btn = document.getElementById('problems');
+				const label = document.getElementById('problems-label');
+				if (btn && label) {
+					// Nothing to show at all (endpoints unavailable) \u2014 hide the control
+					// rather than offer a button that opens an empty page.
+					const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
+					btn.hidden = !havePanels;
+					if (havePanels) {
+						const p = problemCount();
+						const bits = [];
+						if (p.crashes) bits.push(\`\${fmt(p.crashes)} \${p.crashes === 1 ? 'crash' : 'crashes'}\`);
+						if (p.badSaves) bits.push(\`\${fmt(p.badSaves)} unreadable \${p.badSaves === 1 ? 'save' : 'saves'}\`);
+						label.innerHTML = 'Problems' + (p.total ? \`<span class="pbadge">\${fmt(p.total)}</span>\` : '');
+						btn.title = p.total
+							? bits.join(' \xB7 ') + ' \u2014 plus every refusal the server has given'
+							: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
+						btn.classList.toggle('on', MODE === 'problems');
+						btn.classList.toggle('bad', p.total > 0);
+						btn.setAttribute('aria-pressed', MODE === 'problems' ? 'true' : 'false');
+					}
+				}
+
+				const sbtn = document.getElementById('serverbtn');
+				const slabel = document.getElementById('serverbtn-label');
+				if (sbtn && slabel) {
+					sbtn.hidden = !SERVERHEALTH;
+					if (SERVERHEALTH) {
+						const trouble = serverTrouble();
+						slabel.innerHTML = 'Server' + (trouble ? \`<span class="pbadge">!</span>\` : '');
+						sbtn.title = trouble ? \`Harper: \${trouble}\` : "Harper's own telemetry \u2014 threads, storage, responses, replication.";
+						sbtn.classList.toggle('on', MODE === 'server');
+						sbtn.classList.toggle('bad', !!trouble);
+						sbtn.setAttribute('aria-pressed', MODE === 'server' ? 'true' : 'false');
+					}
+				}
+
+				// One way back, shown only when you are not already home. Labelling a
+				// mode switch by what it conceals leaves you hunting for the way out.
+				const back = document.getElementById('backbtn');
+				if (back) back.hidden = MODE === 'dashboard';
+			}
+
+			/* The last payload, kept so the date picker can redraw without refetching.
+			 * The range only scopes a chart the server already sent in full, so a
+			 * round-trip per click would be latency for nothing. */
+			let LAST_DATA = null;
+			function rerender() {
+				if (LAST_DATA) render(LAST_DATA);
+			}
+
 			function render(data) {
+				LAST_DATA = data;
 				const s = (data && data.summary) || {};
 				const players = (data && data.players) || [];
 				const A = s.audience || {},
@@ -25264,6 +26172,12 @@ var dashboardHtml = `<!doctype html>
 					),
 				);
 
+				/* ---- New caretakers per day ----
+				 * Directly under Overview: same audience question with a time axis, and
+				 * the 24h / 7d tiles above are two points on this line. */
+				const dailySection = dailyHTML(s);
+				if (dailySection) out.push(dailySection);
+
 				/* ---- What is going wrong ----
 				 * Everything else on this page counts what players DID. That leaves a whole
 				 * class of problem invisible: a recipe gated on the wrong biome refuses
@@ -25288,41 +26202,94 @@ var dashboardHtml = `<!doctype html>
 					// The key's last segment reads well enough on its own ("notEnough",
 					// "recipeLocked") and the full path is noise in a bar chart.
 					const shortCode = (c) => String(c).split('.').pop();
+					const win = gh.window || null;
+					const day = (ms) =>
+						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '\u2014';
+					/* In a window, the count column shows what happened IN it, with the
+					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * the per-day counters reads "\u2014" rather than 0: there is no evidence
+					 * either way, and printing a zero would be inventing some. */
+					const hits = (r) => {
+						if (!win) return fmt(r.count);
+						if (r.windowCount === null || r.windowCount === undefined)
+							return \`<span title="This row predates the per-day counters, so its history in this range is unknown.">\u2014</span> <span class="alltime">\${fmt(r.count)} all-time</span>\`;
+						return \`\${fmt(r.windowCount)} <span class="alltime">\${fmt(r.count)} all-time</span>\`;
+					};
+					/* A row can be cleared from the database. Only these two tables are
+					 * clearable \u2014 see /ClearProblem/, which resolves \`kind\` against two
+					 * hard-coded names and never uses the id to pick a table. A refusal
+					 * that has been fixed, or a crash from a build nobody runs any more,
+					 * otherwise sits in the counter forever and slowly trains you to
+					 * stop reading the page. No confirmation on these: the rows are
+					 * regenerable counters, and a real one comes straight back. */
+					const del = (kind, id, what) =>
+						id
+							? \`<td class="num"><button type="button" class="delbtn" data-del-kind="\${kind}" data-del-id="\${esc(id)}" \` +
+								\`title="Delete this record from the database" aria-label="Delete \${esc(what)}">\xD7</button></td>\`
+							: \`<td class="num"></td>\`;
 					const refusalRows = (ref.top || [])
 						.map(
 							(r) =>
-								\`<tr><td><code>\${esc(shortCode(r.code))}</code></td><td class="num">\${fmt(r.count)}</td>\` +
+								\`<tr><td><code>\${esc(shortCode(r.code))}</code></td><td class="num">\${hits(r)}</td>\` +
 								\`<td class="num">\${r.status || '\u2014'}</td>\` +
-								\`<td class="num">\${r.lastSeenAt ? new Date(r.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '\u2014'}</td></tr>\`,
+								\`<td class="num">\${day(r.lastSeenAt)}</td>\` +
+								del('refusal', r.id, shortCode(r.code)) +
+								\`</tr>\`,
 						)
 						.join('');
 					const crashRows = (cli.top || [])
 						.map(
 							(e) =>
 								\`<tr><td>\${esc(e.message)}</td><td><code>\${esc(e.where || '?')}</code></td>\` +
-								\`<td class="num">\${fmt(e.count)}</td>\` +
-								\`<td class="num">\${e.lastSeenAt ? new Date(e.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '\u2014'}</td></tr>\`,
+								\`<td class="num">\${hits(e)}</td>\` +
+								\`<td class="num">\${day(e.lastSeenAt)}</td>\` +
+								del('crash', e.id, e.message) +
+								\`</tr>\`,
 						)
 						.join('');
+					const picker =
+						\`<div class="dpick">\` +
+						PROBLEM_PRESETS.map(
+							(p) =>
+								\`<button type="button" class="dbtn\${PROBLEM_RANGE.preset === p.key ? ' on' : ''}" data-prange="\${p.key}">\${p.label}</button>\`,
+						).join('') +
+						\`<span class="dsep"></span>\` +
+						\`<label>From <input type="date" class="dinput" data-prange-from value="\${esc(PROBLEM_RANGE.from)}"></label>\` +
+						\`<label>To <input type="date" class="dinput" data-prange-to value="\${esc(PROBLEM_RANGE.to)}"></label>\` +
+						\`</div>\`;
+					const kpiCrash = win && cli.windowTotal != null ? cli.windowTotal : cli.total;
+					const kpiRef = win && ref.windowTotal != null ? ref.windowTotal : ref.total;
 					healthSection = sec(
 						'What is going wrong',
-						'refusals and interface crashes \u2014 counts and message keys only',
-						\`<div class="grid kpis">\${[
-							kpi(
-								\`<span class="accent">\${fmt(cli.total)}</span>\`,
-								'Interface crashes',
-								\`\${fmt(cli.distinct)} distinct\`,
-							),
-							kpi(fmt(ref.total), 'Refusals', \`\${fmt(ref.distinct)} distinct reasons\`),
-							kpi(fmt(ref.serverFaults), 'Server faults', '5xx \u2014 the game falling over, not saying no'),
-						].join('')}</div>\` +
+						win
+							? \`\${esc(win.from || 'the beginning')} \u2192 \${esc(win.to || 'today')} \xB7 refusals and interface crashes\`
+							: 'refusals and interface crashes \u2014 counts and message keys only',
+						picker +
+							\`<div class="grid kpis">\${[
+								kpi(
+									\`<span class="accent">\${fmt(kpiCrash)}</span>\`,
+									'Interface crashes',
+									\`\${fmt(cli.distinct)} distinct\${win ? ' in range' : ''}\`,
+								),
+								kpi(fmt(kpiRef), 'Refusals', \`\${fmt(ref.distinct)} distinct reasons\`),
+								kpi(fmt(ref.serverFaults), 'Server faults', '5xx \u2014 the game falling over, not saying no'),
+							].join('')}</div>\` +
+							/* The counters only exist from the day they shipped, so a range
+							 * reaching further back covers less than it looks like it does.
+							 * Said on the page, because a quiet chart and a chart with no data
+							 * are indistinguishable otherwise. */
+							(win
+								? \`<p class="emptynote">Per-day counting began \${win.earliestBucket ? \`on \${esc(win.earliestBucket)}\` : 'recently'} \u2014 \` +
+									\`this range covers \${fmt(win.daysWithData)} \${win.daysWithData === 1 ? 'day' : 'days'} with data. \` +
+									\`Rows older than that show <b>\u2014</b> and keep only their all-time total. Server faults are always all-time.</p>\`
+								: '') +
 							(refusalRows
 								? \`<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>\` +
-									\`<table class="vs"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>\${refusalRows}</tbody></table></div>\`
+									\`<table class="tbl"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th><th class="num"><span class="vh">Clear</span></th></tr></thead><tbody>\${refusalRows}</tbody></table></div>\`
 								: '') +
 							(crashRows
 								? \`<div class="card" style="margin-top:.8rem"><h3>Crashes<span class="tag">top 25 by count</span></h3>\` +
-									\`<table class="vs"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>\${crashRows}</tbody></table></div>\`
+									\`<table class="tbl"><thead><tr><th>Message</th><th>Where</th><th class="num">Hits</th><th class="num">Last seen</th><th class="num"><span class="vh">Clear</span></th></tr></thead><tbody>\${crashRows}</tbody></table></div>\`
 								: '') +
 							(!refusalRows && !crashRows
 								? \`<div class="card" style="margin-top:.8rem"><h3>Nothing recorded yet<span class="tag">the panel is live</span></h3>\` +
@@ -25371,7 +26338,7 @@ var dashboardHtml = `<!doctype html>
 							\`</div>\` +
 							(rows
 								? \`<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>\` +
-									\`<table class="vs"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>\${rows}</tbody></table></div>\`
+									\`<table class="tbl"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>\${rows}</tbody></table></div>\`
 								: ''),
 					);
 				}
@@ -25451,7 +26418,54 @@ var dashboardHtml = `<!doctype html>
 					);
 				}
 
-				/* ---- Engagement KPIs ---- */
+				/* The five achievements the most caretakers have, and how long each took
+			 * from the moment the save was created.
+			 *
+			 * Median leads and the mean sits beside it: one person who left the game
+			 * open overnight before finishing the tutorial moves a mean by hours and
+			 * the median not at all, and with a few dozen saves that is the common
+			 * case rather than the exception. The spread is shown for the same
+			 * reason \u2014 "median 4m, fastest 40s, slowest 3h" is a different fact from
+			 * "median 4m" and the second one on its own invites the wrong plan. */
+			function topAchievementsHTML(s) {
+				const a = (s && s.achievements) || {};
+				const top = a.topAchievements || [];
+				if (!top.length) return '';
+				const cov = a.timingCoverage || {};
+				// fmtDur rounds to whole minutes, which turns "earned it in 40 seconds"
+				// into "1m" and "in 8 seconds" into "0m" \u2014 the fast end is the
+				// interesting end for a first milestone, so keep seconds below a minute.
+				const dur = (sec) => (n(sec) < 60 ? \`\${Math.round(n(sec))}s\` : fmtDur(sec));
+				const rows = top
+					.map((t) => {
+						const spread =
+							t.timed > 1 && t.fastestSeconds != null
+								? \`<span class="alltime">\${dur(t.fastestSeconds)}\u2013\${dur(t.slowestSeconds)}</span>\`
+								: '';
+						return (
+							\`<tr><td>\${esc(t.name)}</td>\` +
+							\`<td class="num">\${fmt(t.players)}</td>\` +
+							\`<td class="num">\${t.medianSecondsToEarn == null ? '\u2014' : dur(t.medianSecondsToEarn)}</td>\` +
+							\`<td class="num">\${t.avgSecondsToEarn == null ? '\u2014' : dur(t.avgSecondsToEarn)}</td>\` +
+							\`<td class="num">\${spread || '\u2014'}</td></tr>\`
+						);
+					})
+					.join('');
+				// A top five drawn from four saves is not a top five. Say the base.
+				const missing = n(cov.savesWithAchievements) - n(cov.savesWithTimestamps);
+				return (
+					\`<div class="card" style="margin-top:.8rem"><h3>First five milestones<span class="tag">most earned \xB7 time from starting the save</span></h3>\` +
+					\`<table class="tbl"><thead><tr><th>Achievement</th><th class="num">Caretakers</th><th class="num">Median</th>\` +
+					\`<th class="num">Mean</th><th class="num">Range</th></tr></thead><tbody>\${rows}</tbody></table>\` +
+					(missing > 0
+						? \`<p class="emptynote">Based on \${fmt(cov.savesWithTimestamps)} of \${fmt(cov.savesWithAchievements)} saves. \` +
+							\`The other \${fmt(missing)} last reported before per-achievement timestamps existed, so they count for nothing here until they next sync.</p>\`
+						: '') +
+					\`</div>\`
+				);
+			}
+
+			/* ---- Engagement KPIs ---- */
 				out.push(
 					sec(
 						'Engagement',
@@ -25467,7 +26481,7 @@ var dashboardHtml = `<!doctype html>
 								'Return rate',
 								\`\${fmt(R.returningPlayers)} came back\`,
 							),
-						].join('')}</div>\`,
+						].join('')}</div>\` + sessionShapeHTML(s) + topAchievementsHTML(s) + clockNoteHTML(s),
 					),
 				);
 
@@ -25518,7 +26532,21 @@ var dashboardHtml = `<!doctype html>
 				// clickable and opens a full breakdown modal (looked up by playerId).
 				PLAYERS_BY_ID = {};
 				for (const p of players) if (p && p.playerId) PLAYERS_BY_ID[p.playerId] = p;
-				const engaged = players.filter((p) => p && n(p.playSeconds) > 300);
+				/* Idle windows are excluded from this section outright.
+				 *
+				 * The 5-minute gate is a PLAY-TIME gate, and a window left open all
+				 * afternoon clears it without anybody touching the game \u2014 so the idle
+				 * saves were not just present here, they sorted to the TOP, and
+				 * "Most playtime" was being awarded to an abandoned tab. A section
+				 * called Player highlights should show players.
+				 *
+				 * They are only hidden from this wall, not dropped: they still count in
+				 * the head count, the funnel and every aggregate above, they are still in
+				 * PLAYERS_BY_ID so a modal opened for one still works, and the count of
+				 * what was left out is printed in the subtitle rather than left implied. */
+				const qualified = players.filter((p) => p && n(p.playSeconds) > 300);
+				const idleHidden = qualified.filter((p) => p.idle).length;
+				const engaged = qualified.filter((p) => !p.idle);
 				if (engaged.length) {
 					const top = [...engaged].sort(
 						(a, b) =>
@@ -25563,7 +26591,13 @@ var dashboardHtml = `<!doctype html>
 							// The green border is the ask, but colour alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? \`<span class="hltag hllive">Active now</span>\` : '';
-							return \`<div class="hlcard\${live ? ' active-now' : ''}" data-pid="\${esc(p.playerId || '')}" role="button" tabindex="0" title="\${live ? 'Active now \xB7 c' : 'C'}lick for full breakdown"\${live ? ' aria-label="Active now"' : ''}><div class="hlav">\${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">\${liveTag}\${tags}<span class="hledi \${edi}">\${edi}</span></div><div class="hlstats">\${[
+							// The best thing a card can say about a player: they played the
+							// demo, bought the game, and carried this meadow across.
+							const cv = p.conversion || {};
+							const convTag = p.convertedFromDemo
+								? \`<span class="hltag hlconv" title="Played the demo\${cv.demoPlaySeconds ? \` for \${fmtDur(cv.demoPlaySeconds)}\` : ''}, then bought the game and imported this save\${cv.at ? \` \xB7 \${cv.exact ? '' : 'around '}\${new Date(cv.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}\` : ''}">demo \u2192 full</span>\`
+								: '';
+							return \`<div class="hlcard\${live ? ' active-now' : ''}" data-pid="\${esc(p.playerId || '')}" role="button" tabindex="0" title="\${live ? 'Active now \xB7 c' : 'C'}lick for full breakdown"\${live ? ' aria-label="Active now"' : ''}><div class="hlav">\${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">\${liveTag}\${convTag}\${tags}<span class="hledi \${edi}">\${edi}</span></div><div class="hlstats">\${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
@@ -25575,7 +26609,9 @@ var dashboardHtml = `<!doctype html>
 						.join('');
 					charSection = sec(
 						'Player highlights',
-						\`everyone who played more than 5 min \xB7 \${top.length} caretakers \xB7 click a card for the full breakdown\`,
+						\`everyone who played more than 5 min \xB7 \${top.length} caretakers\` +
+							(idleHidden ? \` \xB7 \${fmt(idleHidden)} idle \${idleHidden === 1 ? 'window' : 'windows'} hidden\` : '') +
+							\` \xB7 click a card for the full breakdown\`,
 						\`<div class="card"><div class="hlgrid">\${cards}</div></div>\`,
 					);
 				}
@@ -25591,10 +26627,18 @@ var dashboardHtml = `<!doctype html>
 						{ label: 'Opened the app', value: acq.devices },
 						{ label: 'Created a character', value: acq.converted },
 					]) +
-						\`<div class="grid three" style="margin-top:1rem">\${[
-							kpi(fmt(acq.totalOpens), 'App opens'),
-							kpi(\`<span class="accent">\${pct(acq.conversionPct)}</span>\`, 'Conversion'),
-							kpi(pct(acq.bounceRatePct), 'Bounced'),
+						\`<div class="grid kpis" style="margin-top:1rem">\${[
+							// Raw app opens used to sit here, and it was the one number a single
+							// machine could dominate: every launch counted, so weeks of development
+							// launches swamped it. Conversion and bounce are per-DEVICE, so one
+							// developer moves them by one device out of hundreds. Dropping the tile
+							// removes the distortion at its source instead of filtering around it.
+							kpi(
+								\`<span class="accent">\${pct(acq.conversionPct)}</span>\`,
+								'Conversion',
+								\`\${fmt(acq.converted)} of \${fmt(acq.devices)} devices\`,
+							),
+							kpi(pct(acq.bounceRatePct), 'Bounced', \`\${fmt(acq.bounced)} never made a character\`),
 						].join('')}</div>\`,
 				);
 				const demoCard = dc.demoInstalls
@@ -25614,6 +26658,34 @@ var dashboardHtml = `<!doctype html>
 									),
 									kpi(fmt(dc.reachedGoal), 'Finished'),
 								].join('')}</div>\`,
+						)
+					: '';
+
+				/* ---- Carried over from the demo ----
+				 * "Finished the demo" measures the demo. THIS measures whether the demo
+				 * sells the game: they bought it and brought their meadow across, which
+				 * is a stronger statement than either an install or a completion. Its
+				 * own card because burying it in a completion funnel undersells it. */
+				const cvs = s.conversions || {};
+				const convCard = cvs.demoToFull
+					? cardTitled(
+							'Carried over from the demo',
+							'bought the game and imported their save',
+							\`<div class="grid three">\${[
+								kpi(
+									\`<span class="accent">\${fmt(cvs.demoToFull)}</span>\`,
+									cvs.demoToFull === 1 ? 'Caretaker' : 'Caretakers',
+									cvs.inferred
+										? \`\${fmt(cvs.inferred)} matched to their demo save\${cvs.stamped ? \`, \${fmt(cvs.stamped)} stamped at export\` : ''}\`
+										: 'stamped when the save was exported',
+								),
+								kpi(pct(cvs.ratePct), 'Of demo saves', \`\${fmt(cvs.demoSavesSeen)} demo saves reported in\`),
+								kpi(
+									\`\${fmt(cvs.avgDemoMinutesBeforeBuying)}<small>m</small>\`,
+									'Demo play first',
+									'average, before carrying over',
+								),
+							].join('')}</div>\`,
 						)
 					: '';
 				// Every activation signal we have. "Created" is the entry point (always first
@@ -25640,7 +26712,13 @@ var dashboardHtml = `<!doctype html>
 						'Funnels',
 						'from install to a thriving meadow',
 						\`<div class="grid two">\${acqCards}\${cardTitled('Activation funnel', 'all caretakers', funSteps)}</div>\` +
-							(demoCard ? \`<div style="margin-top:.8rem">\${demoCard}</div>\` : ''),
+							(demoCard && convCard
+								? \`<div class="grid two" style="margin-top:.8rem">\${demoCard}\${convCard}</div>\`
+								: demoCard
+									? \`<div style="margin-top:.8rem">\${demoCard}</div>\`
+									: convCard
+										? \`<div style="margin-top:.8rem">\${convCard}</div>\`
+										: ''),
 					),
 				);
 
@@ -25754,10 +26832,21 @@ var dashboardHtml = `<!doctype html>
 								\`\${fmt(cr.savesWithTiming)} timed\`,
 							),
 							kpi(\`\${n(cr.medianCreationSeconds)}<small>s</small>\`, 'Median creation time'),
+							/* The MEDIAN, not the mean. A save created and then left open
+							 * overnight before anyone touched it contributes a five-figure
+							 * number, and a handful of those had this tile reading 4924s \u2014
+							 * 82 minutes \u2014 while real first actions land around 6-20s. The
+							 * mean is still in the payload as ttfa.avgSeconds; it just has
+							 * no business being the headline. */
 							kpi(
-								\`\${n(ttfa.avgSeconds)}<small>s</small>\`,
+								\`\${n(ttfa.medianSeconds != null ? ttfa.medianSeconds : ttfa.avgSeconds)}<small>s</small>\`,
 								'Time to first action',
-								\`\${fmt(ttfa.playersMeasured)} measured\`,
+								ttfa.medianSeconds != null
+									? \`median of \${fmt(ttfa.playersMeasured)}\` +
+										(ttfa.outliersExcluded
+											? \` \xB7 mean \${n(ttfa.avgSeconds)}s incl. \${fmt(ttfa.outliersExcluded)} walked away\`
+											: '')
+									: \`\${fmt(ttfa.playersMeasured)} measured\`,
 							),
 							kpi(
 								\`\${n(acq.avgCharactersPerPerson)}\`,
@@ -25897,17 +26986,57 @@ var dashboardHtml = `<!doctype html>
 					);
 				}
 
-				/* ---- Save health, directly above the player highlights ---- */
-				if (healthSection) out.push(healthSection);
-				if (saveSection) out.push(saveSection);
+				/* Save health and "What is going wrong" are NOT pushed into \`out\`.
+				 * Problems is a mode, not a section: when it is on the page shows those
+				 * two and nothing else (see the assembly at the end of render). */
 
-				/* ---- Player highlights \u2014 kept at the bottom ---- */
+				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
-				/* ---- Landing page \u2014 the very bottom (site traffic, not game numbers) ---- */
+				/* ---- Landing page (site traffic, not game numbers) ---- */
 				if (landingSection) out.push(landingSection);
 
+				/* ---- Problems mode ----
+				 * When it is on, the page IS the failure panels \u2014 everything above is
+				 * built but not shown. Two views of one dataset rather than a long page
+				 * with a tail: you are either reading how the game is going or chasing
+				 * something that broke, and the numbers are a distraction from the second.
+				 *
+				 * Everything above is still computed rather than skipped. It costs
+				 * nothing measurable (the data is already in the browser) and it keeps
+				 * one code path, so the two views can never disagree about the same
+				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
+				 * switching still resolves. */
+				if (MODE === 'server') {
+					document.getElementById('root').innerHTML =
+						serverHealthHTML() ||
+						\`<section><div class="sec-head"><h2>Server health</h2><span class="sub">no telemetry available</span></div>\` +
+							card(
+								\`<p class="emptynote"><code>/ServerHealth/</code> did not answer. On an instance that predates it, that is expected; \` +
+									\`otherwise it is itself worth chasing, because an unreachable health endpoint and a healthy server look the same from here.</p>\`,
+							) +
+							\`</section>\`;
+					fitDayCharts();
+					return;
+				}
+
+				if (MODE === 'problems') {
+					const panels = [healthSection, saveSection].filter(Boolean);
+					document.getElementById('root').innerHTML = panels.length
+						? panels.join('')
+						: \`<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>\` +
+							card(
+								\`<p class="emptynote">Neither <code>/GameplayHealth/</code> nor <code>/SaveHealth/</code> answered, so there is nothing to show here \u2014 \` +
+									\`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>\`,
+							) +
+							\`</section>\`;
+					fitDayCharts();
+					return;
+				}
+
 				document.getElementById('root').innerHTML = out.join('');
+				// Charts can only be fitted once they are in the document and measurable.
+				fitDayCharts();
 			}
 
 			/* ------------------------------------------------------------------ *
@@ -25964,59 +27093,517 @@ var dashboardHtml = `<!doctype html>
 				syncVersionMode();
 			}
 
+			/* ------------------------------------------------------------------ *
+			 * Credentials
+			 *
+			 * The page is public; every endpoint it reads is not. So this holds the
+			 * username and password you sign in with and attaches them as HTTP basic
+			 * auth to each request \u2014 which is what the browser's own password prompt
+			 * would have done, done by hand so the page does not depend on Harper
+			 * sending WWW-Authenticate.
+			 *
+			 * sessionStorage, not localStorage: it survives a refresh (you are not
+			 * retyping a password every time you hit Refresh mid-investigation) and
+			 * dies with the tab, so a shared or forgotten machine does not keep it.
+			 *
+			 * Sign in with a read-only Harper role, never the super-user account. A
+			 * password held in a browser tab should be one that can read these numbers
+			 * and do nothing else.
+			 * ------------------------------------------------------------------ */
+			const AUTH_KEY = 'ww-dashboard-auth';
+			let AUTH = null; // { header, username, role }
+
+			/* btoa() only accepts Latin-1 and throws on anything else, which would turn
+			 * a perfectly good password containing a non-ASCII character into an
+			 * unexplained crash at sign-in. Encode as UTF-8 bytes first, per RFC 7617. */
+			function basicHeader(username, password) {
+				const bytes = new TextEncoder().encode(\`\${username}:\${password}\`);
+				let bin = '';
+				for (const b of bytes) bin += String.fromCharCode(b);
+				return 'Basic ' + btoa(bin);
+			}
+
+			function loadAuth() {
+				try {
+					const raw = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+					if (raw && typeof raw.header === 'string') AUTH = raw;
+				} catch {
+					/* unreadable \u2014 treat as signed out */
+				}
+			}
+			function saveAuth(auth) {
+				AUTH = auth;
+				try {
+					sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+				} catch {
+					/* storage unavailable \u2014 stays in memory for this page view */
+				}
+			}
+			function signOut() {
+				AUTH = null;
+				try {
+					sessionStorage.removeItem(AUTH_KEY);
+				} catch {
+					/* nothing to clear */
+				}
+				showLogin();
+			}
+			window.__signOut = signOut;
+
+			/* Request options for every fetch on this page. A function, not a constant,
+			 * because the credentials arrive after the script does. */
+			function req() {
+				return {
+					headers: AUTH
+						? { accept: 'application/json', authorization: AUTH.header }
+						: { accept: 'application/json' },
+					credentials: 'same-origin',
+				};
+			}
+
+			/* The roll-up used to arrive as ONE response: aggregates with a record for
+			 * every player stapled to the end. At 310 saves that was ~1 MB, 98.6% of it
+			 * the player array, and there was no way to ask for the 6 KB of aggregates
+			 * on their own. It is two endpoints now \u2014 /MetricsSummary/ for the numbers,
+			 * /MetricsPlayers/ for the rows, paginated.
+			 *
+			 * This page still wants every row (the caretaker wall, the demo/full splits
+			 * and the per-player modal are all computed client-side over the full set),
+			 * so it pages through and reassembles the exact \`{...summary, players:[\u2026]}\`
+			 * shape render() has always been handed. Nothing downstream of here changed,
+			 * and every save already in the database renders exactly as it did before. */
+			const PLAYER_PAGE = 500;
+			const PLAYER_CAP = 20000; // a stop, not a policy \u2014 see the warning below
+
+			async function fetchAllPlayers(qs) {
+				const out = [];
+				let cursor = '';
+				let total = null;
+				for (;;) {
+					const url = \`../MetricsPlayers/?\${qs}&limit=\${PLAYER_PAGE}\` + (cursor ? \`&cursor=\${encodeURIComponent(cursor)}\` : '');
+					const res = await fetch(url, req());
+					if (!res.ok) throw new Error(\`MetricsPlayers returned \${res.status}\`);
+					const page = await res.json();
+					total = page.total;
+					out.push(...(page.players || []));
+					if (!page.nextCursor || !(page.players || []).length || out.length >= PLAYER_CAP) break;
+					cursor = page.nextCursor;
+				}
+				/* If the cap ever bites, say so on the page. A silently truncated list
+				 * would quietly understate every client-side total on this dashboard. */
+				return { players: out, total, truncated: total != null && out.length < total };
+			}
+
+			/* ------------------------------------------------------------------ *
+			 * Sign in
+			 * ------------------------------------------------------------------ */
+			function showLogin(message) {
+				const gen = document.getElementById('generated');
+				if (gen) gen.textContent = '';
+				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
+				['refresh', 'problems'].forEach((id) => {
+					const el = document.getElementById(id);
+					if (el) el.hidden = true;
+				});
+				syncWhoami();
+				document.getElementById('root').innerHTML =
+					\`<section class="loginwrap"><form class="card login" id="login-form">\` +
+					\`<h2>Sign in</h2>\` +
+					\`<label>Username<input type="text" id="login-user" autocomplete="username" required autofocus></label>\` +
+					\`<label>Password<input type="password" id="login-pass" autocomplete="current-password" required></label>\` +
+					(message ? \`<p class="loginerr" role="alert">\${esc(message)}</p>\` : '') +
+					\`<button type="submit" class="refresh" id="login-go">Sign in</button>\` +
+					\`</form></section>\`;
+				document.getElementById('login-form').addEventListener('submit', async (e) => {
+					e.preventDefault();
+					const btn = document.getElementById('login-go');
+					const username = document.getElementById('login-user').value.trim();
+					const password = document.getElementById('login-pass').value;
+					if (!username || !password) return;
+					btn.disabled = true;
+					btn.textContent = 'Checking\u2026';
+					const header = basicHeader(username, password);
+					try {
+						// Checked against /DashboardAuth/, which reads nothing. Testing a
+						// password by rolling up every save would be an odd way to spend a
+						// database scan.
+						const res = await fetch('../DashboardAuth/', {
+							headers: { accept: 'application/json', authorization: header },
+							credentials: 'same-origin',
+						});
+						if (res.status === 401 || res.status === 403) {
+							// 401 and 403 are different failures and it is worth saying which:
+							// one means the password is wrong, the other means the account is
+							// real but not permitted \u2014 only one of those is worth retyping.
+							return showLogin(
+								res.status === 403
+									? 'That account signed in but is not allowed to read the dashboard. It needs the metrics_reader role, or super-user.'
+									: 'Wrong username or password.',
+							);
+						}
+						if (!res.ok) return showLogin(\`The server answered \${res.status}. Try again in a moment.\`);
+						const who = await res.json();
+						saveAuth({ header, username: who.username || username, role: who.role || null });
+						document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = false));
+						const rf = document.getElementById('refresh');
+						if (rf) rf.hidden = false;
+						syncWhoami();
+						load();
+					} catch (err) {
+						showLogin(\`Could not reach the server \u2014 \${String((err && err.message) || err)}\`);
+					} finally {
+						btn.disabled = false;
+						btn.textContent = 'Sign in';
+					}
+				});
+			}
+
+			/* Harper's own telemetry, rendered in Problems mode.
+			 *
+			 * Everything else on that page is the GAME going wrong. This is the SERVER
+			 * going wrong, which produces no gameplay events at all \u2014 a saturated
+			 * thread or a replication stall looks like silence from every other panel. */
+			/* Who the traffic actually was. A load-balancer probe every couple of
+			 * seconds outnumbers real players on a small game, and until it is named
+			 * it silently pads every request total on this page. */
+			function trafficHTML(ht) {
+				const rq = ht && ht.requests;
+				if (!rq || (!rq.app && !rq.infrastructure)) return '';
+				const total = n(rq.gameplay != null ? rq.gameplay : rq.app) + n(rq.infrastructure);
+				const rows = [
+					['Gameplay', n(rq.gameplay != null ? rq.gameplay : rq.app)],
+					['This dashboard', n(rq.dashboard)],
+					['Health probes', n(rq.probes)],
+					['Console & admin', n(rq.operations)],
+				].filter((r) => r[1] > 0);
+				const list = (xs) => (xs || []).map((p) => \`<code>\${esc(p)}</code>\`).join(' ');
+				return (
+					\`<div class="card" style="margin-top:.8rem"><h3>Who called<span class="tag">requests in this window</span></h3>\` +
+					barRows(rows, { cls: 'sky' }) +
+					(n(rq.infrastructure)
+						? \`<p class="emptynote">\${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of requests are not players \u2014 the platform \` +
+							\`health-checking your nodes (\${list(rq.probePaths)}) and Harper's console (\${list(rq.operationPaths)}). \` +
+							\`That is why the 5xx rate is taken over gameplay only.</p>\`
+						: '') +
+					(rq.reconcilesWithResponses === false
+						? \`<p class="emptynote">These request records and the response counters <b>disagree</b> by more than 5%, so the 5xx rate above \` +
+							\`is left over all traffic rather than being adjusted by a number that does not add up.</p>\`
+						: '') +
+					\`</div>\`
+				);
+			}
+
+			/* Everything Harper reported, with no opinion about it. The gauges above
+			 * are a reading of seven or eight of these; this is all of them, so a
+			 * metric this dashboard has never heard of is still something you can
+			 * look at rather than a name in a footnote. */
+			function allMetricsHTML(h) {
+				const all = h.allMetrics || [];
+				if (!all.length) return '';
+				const num = (v) => (v == null ? '\u2014' : fmt(v));
+				const rows = all
+					.map(
+						(m) =>
+							\`<tr><td><code>\${esc(m.metric)}</code>\${m.read ? '' : ' <span class="alltime">not charted</span>'}</td>\` +
+							\`<td class="num">\${fmt(m.samples)}</td>\` +
+							\`<td class="num">\${num(m.latest)}</td>\` +
+							\`<td class="num">\${num(m.mean)}</td>\` +
+							\`<td class="num">\${num(m.min)}</td>\` +
+							\`<td class="num">\${num(m.max)}</td>\` +
+							\`<td class="num">\${m.paths ? fmt(m.paths) : '\u2014'}</td></tr>\`,
+					)
+					.join('');
+				/* Collapsed by default. This is the raw telemetry, and it is genuinely
+				 * useful when a gauge above looks wrong \u2014 but twenty-one rows of
+				 * rocksdb counters as the last thing on the page buried the four
+				 * numbers the page exists to show. Open it when you want it. */
+				return (
+					\`<details class="card" style="margin-top:.8rem"><summary><b>Everything Harper reported</b> <span class="tag">\${fmt(all.length)} metrics \xB7 raw</span></summary>\` +
+					\`<table class="tbl"><thead><tr><th>Metric</th><th class="num">Samples</th><th class="num">Latest</th>\` +
+					\`<th class="num">Mean</th><th class="num">Min</th><th class="num">Max</th><th class="num">Routes</th></tr></thead>\` +
+					\`<tbody>\${rows}</tbody></table>\` +
+					\`<p class="emptynote">Counters (bytes, responses) read as <b>Mean</b> per sample; gauges (sizes, utilization) as <b>Latest</b>. \` +
+					\`<b>Routes</b> is how many distinct paths a metric was broken down by \u2014 0 means instance-wide. \` +
+					\`To see a metric's records verbatim, including the unit: <code>/ServerHealth/?raw=&lt;metric&gt;</code>.</p></details>\`
+				);
+			}
+
+			function serverHealthHTML() {
+				const h = SERVERHEALTH;
+				if (!h) return '';
+				if (!h.readable) {
+					// Say WHICH failure it is. "Can't read the telemetry" and "the server
+					// is fine" must never render the same.
+					return sec(
+						'Server health',
+						'telemetry unavailable',
+						card(
+							\`<p class="emptynote">Could not read <code>system.hdb_analytics</code>: <b>\${esc(h.readError || 'unknown')}</b>.</p>\` +
+								// The successful read that "proved" this works was taken while the
+								// account was temporarily super-user, so it proved nothing about the
+								// read-only role. Say what is actually known.
+								\`<p class="emptynote">The read HAS worked from this component as a super-user. Whether a plain <code>metrics_reader</code> \` +
+								\`can do the same is still unestablished \u2014 Harper's super-user role carries explicit read permission on the system tables and a \` +
+								\`read-only role may not. If this panel fills in as super-user and not otherwise, that is the answer.</p>\`,
+						),
+					);
+				}
+				const t = h.threads || {},
+					st = h.storage || {},
+					ht = h.http || {},
+					rep = h.replication || {};
+				/* Scale the unit to the number. A 4MB database rendered as "0.00GB",
+				   which is indistinguishable from having read nothing at all. */
+				const gb = (b) => {
+					if (b == null) return '\u2014';
+					const v = n(b);
+					if (v >= 1e9) return \`\${(v / 1e9).toFixed(2)}<small>GB</small>\`;
+					if (v >= 1e6) return \`\${(v / 1e6).toFixed(1)}<small>MB</small>\`;
+					if (v >= 1e3) return \`\${(v / 1e3).toFixed(1)}<small>KB</small>\`;
+					return \`\${fmt(v)}<small>B</small>\`;
+				};
+				const round1v = (x) => Math.round(n(x) * 10) / 10;
+				const gt = ht.gameplayTiming;
+				// Colour only past the point where it is worth looking at. Under a
+				// second a slow call is a curiosity; past that a player feels it.
+				const slowTone = (ms) => (n(ms) >= 1000 ? '<span class="accent">' : '<span>');
+				// Not rounded to a whole percent: 4MB in a 286GB volume is 0.0014%, and
+				// Math.round makes that a flat 0 \u2014 which reads as "no data", not "tiny".
+				const quota = st.volumeBytes && st.databaseBytes ? (st.databaseBytes / st.volumeBytes) * 100 : null;
+				const endpointTable = (list, title, tag, note) => {
+					if (!list || !list.length) return '';
+					const rows = list
+						.map(
+							(r) =>
+								\`<tr><td><code>\${esc(r.path)}</code></td><td>\${esc(r.method || '\u2014')}</td>\` +
+								\`<td class="num">\${fmt(r.worstMs)}<small>ms</small></td>\` +
+								\`<td class="num">\${r.typicalMs == null ? '\u2014' : fmt(r.typicalMs) + '<small>ms</small>'}</td>\` +
+								\`<td class="num">\${fmt(r.calls)}</td></tr>\`,
+						)
+						.join('');
+					return (
+						\`<div class="card" style="margin-top:.8rem"><h3>\${esc(title)}<span class="tag">\${esc(tag)}</span></h3>\` +
+						\`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">Worst</th>\` +
+						\`<th class="num">Typical</th><th class="num">Calls</th></tr></thead><tbody>\${rows}</tbody></table>\` +
+						(note ? \`<p class="emptynote">\${note}</p>\` : '') +
+						\`</div>\`
+					);
+				};
+				const statusRows = objToEntries(ht.byStatus).slice(0, 8);
+				return sec(
+					'Server health',
+					\`Harper's own telemetry \xB7 last \${fmt(h.windowMinutes)} min \xB7 \${fmt(h.samples)} samples\`,
+					\`<div class="grid kpis">\${[
+						/* The capacity ceiling: a small number of threads serves this whole
+						 * app, so sustained utilization runs out before anything else. */
+						kpi(t.cpuPct == null ? '\u2014' : pct(t.cpuPct), 'CPU'),
+						kpi(t.memoryPct == null ? '\u2014' : pct(t.memoryPct), 'Memory'),
+						kpi(
+							gb(st.databaseBytes),
+							'Database size',
+							// Summed across databases, and it says so \u2014 otherwise a total
+							// that is bigger than any single figure in the table below
+							// looks like a mistake.
+							(st.databaseParts > 1 ? \`\${fmt(st.databaseParts)} databases \xB7 \` : '') +
+								(quota == null ? '' : \`\${ratePct(quota)} of the volume\`),
+						),
+						/* How long gameplay takes, next to how often it fails. A perfect
+						 * error rate on a server that answers every call in two seconds is
+						 * a game nobody plays, so the timing sits beside the 5xx rate
+						 * rather than being buried in the table below it. */
+						...(gt
+							? [
+									kpi(
+										gt.typicalMs == null ? '\u2014' : \`\${fmt(gt.typicalMs)}<small>ms</small>\`,
+										'Gameplay response',
+										\`typical across \${fmt(gt.calls)} request\${gt.calls === 1 ? '' : 's'}\`,
+									),
+									kpi(
+										gt.worstMs == null ? '\u2014' : \`\${slowTone(gt.worstMs)}\${fmt(gt.worstMs)}<small>ms</small></span>\`,
+										'Slowest gameplay call',
+										// A worst-case with no name attached is not something you
+										// can go and fix.
+										gt.worstPath ? \`<code>\${esc(gt.worstPath)}</code>\${gt.worstMethod ? ' ' + esc(gt.worstMethod) : ''}\` : 'no path recorded',
+									),
+								]
+							: []),
+						kpi(
+							ht.serverErrors ? \`<span class="accent">\${ratePct(ht.errorRatePct)}</span>\` : pct(0),
+							'5xx rate',
+							// Never just "of N responses". Which N it is over is the whole
+							// difference between a rate about players and a rate diluted by
+							// a load balancer polling every couple of seconds.
+							ht.errorRateBasis === 'app'
+								? \`\${fmt(ht.serverErrors)} of \${fmt(ht.errorRateOf)} gameplay requests\`
+								: \`\${fmt(ht.serverErrors)} of \${fmt(ht.responses)} responses \u2014 <b>all traffic</b>\`,
+						),
+						kpi(
+							rep.latencyMs == null ? '\u2014' : \`\${fmt(rep.latencyMs)}<small>ms</small>\`,
+							'Replication lag',
+							rep.samples ? \`\${fmt(rep.samples)} samples between nodes\` : 'no samples in this window',
+						),
+					].join('')}</div>\` +
+						// Gameplay first: this is what players actually wait for. The
+						// dashboard's own endpoints follow, because a slow metrics query is
+						// a different problem from a slow Collect and reading them in one
+						// list makes the game look worse than it is.
+						endpointTable(ht.slowest, 'Gameplay endpoints', 'what players wait for \xB7 worst first',
+							'Grouped by path across the window. <b>Worst</b> is the slowest p95 seen, not a window percentile \u2014 that cannot be recovered from per-period summaries. <b>Typical</b> is weighted by call volume.') +
+						endpointTable(ht.slowestDashboard, 'Dashboard endpoints', 'what this page costs \xB7 worst first',
+							'This page reading itself. Not player traffic, and excluded from the 5xx rate above.') +
+						(statusRows.length
+							? \`<div class="card" style="margin-top:.8rem"><h3>Responses<span class="tag">by status</span></h3>\${barRows(statusRows, { cls: 'sky' })}</div>\`
+							: '') +
+						(h.cappedAtMaxRows
+							? \`<p class="emptynote"><b>This window is partial.</b> The read stopped at its row cap, so everything above is computed from the \` +
+								\`first \${fmt(h.samples)} records in the range rather than all of them \u2014 pick a shorter window for a complete picture.</p>\`
+							: '') +
+						trafficHTML(ht) +
+						allMetricsHTML(h),
+				);
+			}
+
+			/** Who is signed in, with a way out. */
+			function syncWhoami() {
+				const el = document.getElementById('whoami');
+				if (!el) return;
+				el.hidden = !AUTH;
+				if (AUTH)
+					el.innerHTML =
+						\`\${esc(AUTH.username)}\${AUTH.role ? \` <span class="wrole">\${esc(AUTH.role)}</span>\` : ''} \xB7 \` +
+						\`<button type="button" class="linkish" id="signout">Sign out</button>\`;
+			}
+
 			async function load() {
+				// The page is public and the data is not, so every path in starts here.
+				if (!AUTH) return showLogin();
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = \`<div class="skeleton">Gathering the meadow\u2019s numbers\u2026</div>\`;
 				try {
 					// Exclude dev/test saves so they don't skew the numbers (matches the
 					// server's ?exclude filter). Optional version/edition/platform each scope
-					// the whole report server-side.
-					let url = '../Metrics/?exclude=bailey_test';
+					// the whole report server-side. The SAME query string goes to both
+					// endpoints, so the aggregates and the rows always describe one population.
+					let qs = 'exclude=bailey_test';
 					for (const cfg of FILTER_CFG) {
 						if (FILTERS[cfg.key] && FILTERS[cfg.key] !== 'all')
-							url += \`&\${cfg.key}=\` + encodeURIComponent(FILTERS[cfg.key]);
+							qs += \`&\${cfg.key}=\` + encodeURIComponent(FILTERS[cfg.key]);
 					}
 					// A specific version can be widened to "this version & newer" (min mode);
 					// otherwise the report isolates the single selected version.
-					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') url += '&versionMode=min';
+					if (FILTERS.version !== 'all' && FILTERS.versionMode === 'min') qs += '&versionMode=min';
 					// Windows left open are classified server-side and dropped from every
 					// aggregate when hidden, so the totals and the per-player list agree.
-					if (FILTERS.idle === 'exclude') url += '&idle=exclude';
+					if (FILTERS.idle === 'exclude') qs += '&idle=exclude';
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
-					const landingReq = fetch('../LandingStats/', { headers: { accept: 'application/json' } })
+					const landingReq = fetch('../LandingStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
 					// than breaking the page.
-					const saveReq = fetch('../SaveHealth/', { headers: { accept: 'application/json' } })
+					const saveReq = fetch('../SaveHealth/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Refusals + interface crashes. Same contract again: an instance that
 					// predates the endpoint hides the panel rather than breaking the page.
-					const healthReq = fetch('../GameplayHealth/', { headers: { accept: 'application/json' } })
+					// The Problems range is applied SERVER-side, over the per-day buckets \u2014
+					// the browser can't do it, because a row's all-time count carries no
+					// dates to filter on.
+					const healthReq = fetch(\`../GameplayHealth/\${problemsQuery()}\`, req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
-					const res = await fetch(url, { headers: { accept: 'application/json' } });
-					if (!res.ok) throw new Error(\`Metrics endpoint returned \${res.status}\`);
-					const data = await res.json();
+					// Harper's own telemetry, read in-process from system.hdb_analytics.
+					// Same best-effort contract: a failure hides the panel, it never
+					// breaks the page.
+					const serverReq = fetch(\`../ServerHealth/?minutes=\${SERVER_WINDOW}\`, req())
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
+					// Aggregates first \u2014 they render the whole page except the caretaker
+					// wall, so they are the ones worth having in flight on their own.
+					const sumRes = await fetch(\`../MetricsSummary/?\${qs}\`, req());
+					if (!sumRes.ok) throw new Error(\`MetricsSummary returned \${sumRes.status}\`);
+					const head = await sumRes.json();
+					const rows = await fetchAllPlayers(qs);
+					// Rebuild the shape render() has always received.
+					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
+					SERVERHEALTH = await serverReq;
 					populateFilterOptions(data.filters);
 					render(data);
+					// After render: the badge reads the two health payloads, which only
+					// just resolved above.
+					syncProblemsButton();
+					if (rows.truncated) {
+						const warn = document.createElement('div');
+						warn.className = 'err';
+						warn.innerHTML = \`<b>Showing \${fmt(rows.players.length)} of \${fmt(rows.total)} caretakers.</b> Per-player totals below are computed from the ones loaded.\`;
+						root.prepend(warn);
+					}
 					if (data.generatedAt) {
 						const d = new Date(data.generatedAt);
 						gen.textContent = \`Updated \${d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}\`;
 					}
 				} catch (err) {
-					root.innerHTML = \`<div class="err"><b>Couldn\u2019t load metrics.</b><br>\${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">The dashboard reads from the <code>/Metrics/</code> endpoint on this host.</span></div>\`;
+					// A 401/403 mid-session means the credentials stopped working \u2014 the
+					// password changed, the role was revoked, the account was disabled.
+					// Drop them and ask again rather than leaving a dead session showing
+					// an error it cannot recover from.
+					if (/returned 40[13]/.test(String(err && err.message))) {
+						AUTH = null;
+						try {
+							sessionStorage.removeItem(AUTH_KEY);
+						} catch {
+							/* nothing to clear */
+						}
+						return showLogin('Your sign-in is no longer valid. Please sign in again.');
+					}
+					root.innerHTML =
+						\`<div class="err"><b>Couldn\u2019t load metrics.</b><br>\${esc(err.message || err)}<br>\` +
+						\`<span style="font-size:.8rem;opacity:.8">The dashboard reads from <code>/MetricsSummary/</code> and <code>/MetricsPlayers/</code> on this host.</span></div>\`;
 					gen.textContent = '';
 				}
 			}
 
 			document.getElementById('refresh').addEventListener('click', load);
+
+			// The three views. Clicking the view you are already in returns you to the
+			// dashboard, so every button is its own way out.
+			function wireMode(id, mode) {
+				const el = document.getElementById(id);
+				if (!el) return;
+				el.addEventListener('click', () => {
+					setMode(MODE === mode ? 'dashboard' : mode);
+					rerender();
+					syncProblemsButton();
+					// Each switch replaces the whole page, so start it at the top rather
+					// than dropping you mid-way down a document you have not seen.
+					window.scrollTo({ top: 0, behavior: 'smooth' });
+				});
+			}
+			wireMode('problems', 'problems');
+			wireMode('serverbtn', 'server');
+			wireMode('backbtn', 'dashboard');
+
+			/* Drop a deleted record from the cached payload, both from the visible
+			 * \`top\` list and from the totals it contributed to \u2014 otherwise the badge
+			 * keeps counting a crash that no longer exists. */
+			function forgetProblem(kind, id) {
+				const h = GAMEPLAYHEALTH;
+				if (!h) return;
+				const bucket = kind === 'refusal' ? h.refusals : h.clientErrors;
+				if (!bucket || !Array.isArray(bucket.top)) return;
+				const hit = bucket.top.find((r) => r.id === id);
+				if (!hit) return;
+				bucket.top = bucket.top.filter((r) => r.id !== id);
+				bucket.total = Math.max(0, n(bucket.total) - n(hit.count));
+				bucket.distinct = Math.max(0, n(bucket.distinct) - 1);
+				if (bucket.windowTotal != null && hit.windowCount != null)
+					bucket.windowTotal = Math.max(0, n(bucket.windowTotal) - n(hit.windowCount));
+			}
 			for (const cfg of FILTER_CFG) {
 				const sel = document.getElementById(cfg.el);
 				if (sel)
@@ -26044,6 +27631,117 @@ var dashboardHtml = `<!doctype html>
 			// Open a player's breakdown modal when their highlight card is clicked or
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
+
+			/* Delete a telemetry record.
+			 *
+			 * Optimistic on the row, honest on failure: the button disables and the
+			 * row fades immediately so a click never feels ignored, but the row is
+			 * only REMOVED once the server confirms, and a failure puts it back with
+			 * the reason attached rather than leaving a gap that looks like success.
+			 * No confirm dialog \u2014 these are regenerable counters, and the type of
+			 * record that is expensive to lose (a player's save) is not reachable
+			 * from this endpoint at all. */
+			rootEl.addEventListener('click', async (e) => {
+				const btn = e.target.closest && e.target.closest('.delbtn[data-del-id]');
+				if (!btn || btn.disabled) return;
+				const kind = btn.getAttribute('data-del-kind');
+				const id = btn.getAttribute('data-del-id');
+				const row = btn.closest('tr');
+				btn.disabled = true;
+				if (row) row.style.opacity = '0.45';
+				try {
+					const res = await fetch('../ClearProblem/', {
+						...req(),
+						method: 'POST',
+						headers: { ...(req().headers || {}), 'content-type': 'application/json' },
+						body: JSON.stringify({ kind, ids: [id] }),
+					});
+					const out = res.ok ? await res.json().catch(() => null) : null;
+					if (!res.ok || !out || out.ok === false) {
+						const why =
+							(out && (out.error || (out.failed && out.failed[0] && out.failed[0].error))) ||
+							\`server returned \${res.status}\`;
+						throw new Error(why);
+					}
+					// Gone from the database, so drop it from the payload too \u2014 a
+					// rerender from the cached data would otherwise bring it back and
+					// read as the delete having silently failed.
+					forgetProblem(kind, id);
+					if (row) row.remove();
+					syncProblemsButton();
+				} catch (err) {
+					btn.disabled = false;
+					if (row) {
+						row.style.opacity = '';
+						row.title = \`Could not delete: \${err.message || err}\`;
+					}
+					btn.textContent = '!';
+					setTimeout(() => {
+						btn.textContent = '\xD7';
+					}, 2500);
+				}
+			});
+
+			// Date-range presets for the per-day chart. Redraws from the payload already
+			// in hand \u2014 no refetch.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-range]');
+				if (!btn) return;
+				DAY_RANGE.preset = btn.getAttribute('data-range');
+				DAY_RANGE.from = '';
+				DAY_RANGE.to = '';
+				rerender();
+			});
+			// The Problems range. Unlike the chart's picker this one REFETCHES, because
+			// the windowing happens server-side over the per-day buckets.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-prange]');
+				if (!btn) return;
+				PROBLEM_RANGE.preset = btn.getAttribute('data-prange');
+				PROBLEM_RANGE.from = '';
+				PROBLEM_RANGE.to = '';
+				load();
+			});
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.hasAttribute) return;
+				if (!el.hasAttribute('data-prange-from') && !el.hasAttribute('data-prange-to')) return;
+				PROBLEM_RANGE.preset = 'custom';
+				if (el.hasAttribute('data-prange-from')) PROBLEM_RANGE.from = el.value;
+				if (el.hasAttribute('data-prange-to')) PROBLEM_RANGE.to = el.value;
+				if (PROBLEM_RANGE.from && PROBLEM_RANGE.to && PROBLEM_RANGE.from > PROBLEM_RANGE.to) {
+					const t = PROBLEM_RANGE.from;
+					PROBLEM_RANGE.from = PROBLEM_RANGE.to;
+					PROBLEM_RANGE.to = t;
+				}
+				load();
+			});
+			// Typing a date switches the control to a custom range. Handled on 'change'
+			// so a half-typed year doesn't blank the chart mid-keystroke.
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.classList || !el.classList.contains('dinput')) return;
+				const daily = (LAST_DATA && LAST_DATA.summary && LAST_DATA.summary.daily) || {};
+				if (DAY_RANGE.preset !== 'custom') {
+					// Seed the other end from what is on screen, so changing one date
+					// doesn't silently widen the range back to everything.
+					const shown = visibleDays(daily);
+					DAY_RANGE.from = shown.length ? shown[0].day : daily.firstDay || '';
+					DAY_RANGE.to = shown.length ? shown[shown.length - 1].day : daily.lastDay || '';
+					DAY_RANGE.preset = 'custom';
+				}
+				if (el.hasAttribute('data-range-from')) DAY_RANGE.from = el.value;
+				if (el.hasAttribute('data-range-to')) DAY_RANGE.to = el.value;
+				// An inverted range is a slip, not an instruction \u2014 swap rather than
+				// showing an empty chart.
+				if (DAY_RANGE.from && DAY_RANGE.to && DAY_RANGE.from > DAY_RANGE.to) {
+					const t = DAY_RANGE.from;
+					DAY_RANGE.from = DAY_RANGE.to;
+					DAY_RANGE.to = t;
+				}
+				rerender();
+			});
+
 			rootEl.addEventListener('click', (e) => {
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
 				if (card) openPlayerModal(card.getAttribute('data-pid'));
@@ -26060,9 +27758,19 @@ var dashboardHtml = `<!doctype html>
 				if (e.key === 'Escape') closePlayerModal();
 			});
 
+			// Sign out from the header. Delegated, because syncWhoami() rebuilds the
+			// button whenever the signed-in identity changes.
+			document.querySelector('header').addEventListener('click', (e) => {
+				if (e.target && e.target.id === 'signout') signOut();
+			});
+
 			// expose for offline/unit rendering (jsdom smoke test)
 			window.__renderDashboard = render;
 			window.__openPlayerModal = openPlayerModal;
+			// Pick up an existing session before deciding what to show \u2014 a refresh
+			// mid-investigation should land back on the numbers, not on a login form.
+			loadAuth();
+			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();
 		</script>
 	</body>
@@ -26852,7 +28560,7 @@ body.lb-open{overflow:hidden}
 </html>
 `;
 var ogImageB64 = "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";
-var buildStamp = "0.3.0+2026-08-11T04:18:48.357Z";
+var buildStamp = "0.3.1+2026-08-12T05:55:56.574Z";
 
 // server/resources.ts
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
@@ -26876,6 +28584,18 @@ var GameError = class extends Error {
 var refusalBuffer = /* @__PURE__ */ new Map();
 var refusalFlushTimer = null;
 var REFUSAL_FLUSH_MS = 15e3;
+var dayKeyUTC = (ms) => new Date(ms).toISOString().slice(0, 10);
+var PROBLEM_HISTORY_DAYS = 60;
+function bumpDay(prev, at, by) {
+  const cutoff = dayKeyUTC(at - PROBLEM_HISTORY_DAYS * 864e5);
+  const out = {};
+  for (const [day, n] of Object.entries(prev || {})) {
+    if (day >= cutoff && Number.isFinite(Number(n))) out[day] = Number(n);
+  }
+  const today = dayKeyUTC(at);
+  out[today] = (out[today] || 0) + by;
+  return out;
+}
 async function flushRefusals() {
   refusalFlushTimer = null;
   if (!refusalBuffer.size) return;
@@ -26897,7 +28617,8 @@ async function flushRefusals() {
         ...row,
         status: r.status,
         lastSeenAt: now,
-        count: (row.count || 0) + r.count
+        count: (row.count || 0) + r.count,
+        byDay: bumpDay(row.byDay, now, r.count)
       });
     }
   } catch (e) {
@@ -28037,13 +29758,31 @@ function metricsView(player) {
     mostTimeArea,
     // session-length distribution (finished sessions bucketed)
     sessionLengths: m.sessionLengths || {},
+    // The in-progress session's accrued seconds. Surfaced because "in progress"
+    // is only true until the player closes the game — after that this IS the
+    // length of a finished session, and the heartbeat will never bucket it
+    // (bucketing happens when the NEXT session starts, which for someone who
+    // doesn't come back is never). The roll-up reads it together with lastSeenAt
+    // to count abandoned sessions instead of losing them.
+    curSessionSeconds: Math.round(m.curSessionSeconds || 0),
     // onboarding
     timeToFirstActionSeconds,
     // character creation: how long it took + the customization they chose
     creationMs,
     creationSeconds: creationMs ? round1(creationMs / 1e3) : null,
     appearance: player.appearance || null,
-    counts
+    counts,
+    // Demo → full carry-over. Stamped by ExportDemoSave onto the copy the player
+    // downloads, so a save that was bought and imported can say so about itself
+    // for the rest of its life. Null on saves that started in the full game (and
+    // on demo saves that have not been exported yet).
+    convertedFromDemoAt: m.convertedFromDemoAt || null,
+    // What they had done in the demo at the moment they carried it over — the
+    // interesting half of the milestone. Frozen at export; the live counters keep
+    // climbing past these.
+    demoPlaySeconds: m.demoPlaySeconds ?? null,
+    demoSessions: m.demoSessions ?? null,
+    demoActions: m.demoActions ?? null
   };
 }
 function activationFlags(view, biomeSummary, player) {
@@ -29406,13 +31145,16 @@ async function achievementMetrics(playerId) {
     name: d.achievement.get(r.achievementId)?.name || r.achievementId,
     earnedAt: r.earnedAt
   }));
+  const earnedAt = {};
+  for (const r of rows) if (r.achievementId && r.earnedAt) earnedAt[String(r.achievementId)] = Number(r.earnedAt);
   return {
     earned: rows.length,
     total: d.achievements.length,
     points,
     completion: round1(rows.length / total),
     byCategory,
-    recent
+    recent,
+    earnedAt
   };
 }
 async function awardAchievements(playerId, opts = {}) {
@@ -29503,6 +31245,42 @@ var PublicEndpoint = class extends Resource {
   }
   allowDelete() {
     return false;
+  }
+};
+var DASHBOARD_ROLES = /* @__PURE__ */ new Set(["super_user", "metrics_reader"]);
+function roleNameOf(user) {
+  const r = user?.role;
+  if (typeof r === "string") return r;
+  if (r && typeof r === "object") return String(r.role || r.role_name || r.name || "");
+  return "";
+}
+function isSuperUser(user) {
+  return !!(user?.role?.permission?.super_user || user?.role?.super_user || roleNameOf(user) === "super_user");
+}
+var DashboardEndpoint = class extends Resource {
+  allowRead(user) {
+    if (!user) return false;
+    return isSuperUser(user) || DASHBOARD_ROLES.has(roleNameOf(user));
+  }
+  allowCreate() {
+    return false;
+  }
+  allowUpdate() {
+    return false;
+  }
+  allowDelete() {
+    return false;
+  }
+};
+var DashboardAuth = class extends DashboardEndpoint {
+  async get() {
+    const user = this.getContext?.()?.user;
+    return {
+      ok: true,
+      username: user?.username || user?.name || null,
+      role: roleNameOf(user) || null,
+      superUser: isSuperUser(user)
+    };
   }
 };
 var Version = class extends PublicEndpoint {
@@ -29746,7 +31524,19 @@ var ExportDemoSave = class extends PublicEndpoint {
     if (readMetrics(player)?.edition !== "demo")
       throw new GameError(t("server.err.notDemoSave"), 403, "server.err.notDemoSave");
     const wid = worldOf(player);
-    const exportedPlayer = { ...player, metrics: encodeMetrics({ ...readMetrics(player) || {}, edition: "full" }) };
+    const prevMetrics = readMetrics(player) || {};
+    const atExport = metricsView(player);
+    const exportedPlayer = {
+      ...player,
+      metrics: encodeMetrics({
+        ...prevMetrics,
+        edition: "full",
+        convertedFromDemoAt: Date.now(),
+        demoPlaySeconds: atExport.playSeconds,
+        demoSessions: atExport.sessions,
+        demoActions: atExport.totalActions
+      })
+    };
     const save = {
       meta: {
         playerId: id,
@@ -31084,7 +32874,7 @@ async function buildDashboardRows() {
     soloRows = await allOf(t2.SoloMetrics);
   } catch {
   }
-  return soloRows.map((r) => {
+  const rows = soloRows.map((r) => {
     let s = {};
     if (r.snapshot) {
       try {
@@ -31108,6 +32898,13 @@ async function buildDashboardRows() {
       ...s,
       playerId: r.id,
       // slot-scoped id — solo name slugs can collide across machines
+      // The SAVE's own id (`<name-slug>-<random6>`, minted once by
+      // CreatePlayer and carried through an export/import unchanged), kept
+      // under its own name because `playerId` above deliberately overwrites
+      // it with the slot-scoped one. This is the only thing that survives a
+      // demo save being carried into the full game, so it is what links the
+      // two rows together below.
+      savePlayerId: s.playerId || null,
       name: r.name || s.name || null,
       solo: true,
       platform: r.platform || null,
@@ -31156,6 +32953,47 @@ async function buildDashboardRows() {
       idleGateMs: s.idleGateMs ?? null
     };
   }).sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+  return markDemoConversions(rows);
+}
+function markDemoConversions(rows) {
+  const editionOf = (r) => r.edition === "demo" ? "demo" : "full";
+  const demoBySave = /* @__PURE__ */ new Map();
+  for (const r of rows) {
+    if (editionOf(r) !== "demo" || !r.savePlayerId) continue;
+    const prev = demoBySave.get(r.savePlayerId);
+    if (!prev || (r.lastSeenAt || 0) > (prev.lastSeenAt || 0)) demoBySave.set(r.savePlayerId, r);
+  }
+  const convertedSaveIds = /* @__PURE__ */ new Set();
+  for (const r of rows) {
+    if (editionOf(r) !== "full" || !r.savePlayerId) continue;
+    if (r.convertedFromDemoAt || demoBySave.has(r.savePlayerId)) convertedSaveIds.add(r.savePlayerId);
+  }
+  return rows.map((r) => {
+    if (editionOf(r) === "demo") {
+      const superseded = !!(r.savePlayerId && convertedSaveIds.has(r.savePlayerId));
+      return { ...r, convertedFromDemo: false, supersededByFull: superseded };
+    }
+    const twin = r.savePlayerId ? demoBySave.get(r.savePlayerId) : null;
+    if (!r.convertedFromDemoAt && !twin) return { ...r, convertedFromDemo: false, supersededByFull: false };
+    return {
+      ...r,
+      convertedFromDemo: true,
+      supersededByFull: false,
+      conversion: {
+        // The stamp is exact. Without it, the demo row's last sighting is the
+        // closest honest answer, so it is labelled as an estimate rather than
+        // dressed up as a timestamp.
+        at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
+        exact: !!r.convertedFromDemoAt,
+        source: r.convertedFromDemoAt ? "stamped-at-export" : "paired-demo-save",
+        // How far they got in the demo before buying. Prefers the frozen stamp;
+        // falls back to whatever the demo row last reported.
+        demoPlaySeconds: r.demoPlaySeconds ?? twin?.playSeconds ?? null,
+        demoSessions: r.demoSessions ?? twin?.sessions ?? null,
+        demoActions: r.demoActions ?? twin?.totalActions ?? null
+      }
+    };
+  });
 }
 var dashboardCache = new RollupCache(DASHBOARD_CACHE_MS, buildDashboardRows);
 function versionSegments(s) {
@@ -31179,21 +33017,35 @@ var Metrics = class extends PublicEndpoint {
   async get(target) {
     const t2 = db();
     const id = String(this.getId?.() || target?.id || "").trim();
-    if (id) {
-      const player = await safeGet(t2.Player, id);
-      if (!player) throw new GameError(t("server.err.noSaveWithId"), 404, "server.err.noSaveWithId");
-      const bm = await biomeMetrics(id);
-      const view = metricsView(player);
-      return {
-        player: {
-          ...view,
-          biomeSummary: bm.summary,
-          activation: activationFlags(view, bm.summary, player),
-          achievements: await achievementMetrics(id),
-          biomes: bm.biomes
-        }
-      };
-    }
+    if (!id) return metricsRollupMoved();
+    const player = await safeGet(t2.Player, id);
+    if (!player) throw new GameError(t("server.err.noSaveWithId"), 404, "server.err.noSaveWithId");
+    const bm = await biomeMetrics(id);
+    const view = metricsView(player);
+    return {
+      player: {
+        ...view,
+        biomeSummary: bm.summary,
+        activation: activationFlags(view, bm.summary, player),
+        achievements: await achievementMetrics(id),
+        biomes: bm.biomes
+      }
+    };
+  }
+};
+function metricsRollupMoved() {
+  return {
+    status: 404,
+    headers: { "content-type": "application/json; charset=utf-8", "cache-control": "no-store" },
+    body: JSON.stringify({
+      title: "The /Metrics/ roll-up moved",
+      detail: "Aggregates: GET /MetricsSummary/ \xB7 per-player rows: GET /MetricsPlayers/ \xB7 one row: GET /MetricsPlayers/<playerId>. All three require Harper admin auth. GET /Metrics/<playerId> is unchanged."
+    })
+  };
+}
+async function metricsRollup(target) {
+  {
+    const t2 = db();
     const now = Date.now();
     let all = await dashboardCache.get(now);
     const versionCounts = {};
@@ -31221,6 +33073,15 @@ var Metrics = class extends PublicEndpoint {
           String(v.name || "").trim().toLowerCase()
         )
       );
+    const excludedDevices = /* @__PURE__ */ new Set();
+    try {
+      const raw = typeof target?.getAll === "function" ? [...target.getAll("excludeDevice"), ...target.getAll("excludeDeviceId")] : [];
+      for (const part of raw.flatMap((s) => String(s).split(","))) {
+        const d = part.trim();
+        if (d) excludedDevices.add(d);
+      }
+    } catch {
+    }
     let versionFilter = "";
     try {
       const raw = typeof target?.getAll === "function" ? target.getAll("version") : [];
@@ -31306,6 +33167,39 @@ var Metrics = class extends PublicEndpoint {
       newLast24h: all.filter((v) => now - v.createdAt <= DAY_MS2).length,
       newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS2).length
     };
+    const dayKeyOf = (ms) => new Date(ms).toISOString().slice(0, 10);
+    const createdByDay = {};
+    const lastSeenByDay = {};
+    let firstMs = 0;
+    let lastMs = 0;
+    for (const v of all) {
+      if (v.createdAt) {
+        const k = dayKeyOf(v.createdAt);
+        createdByDay[k] = (createdByDay[k] || 0) + 1;
+        if (!firstMs || v.createdAt < firstMs) firstMs = v.createdAt;
+        if (v.createdAt > lastMs) lastMs = v.createdAt;
+      }
+      if (v.lastSeenAt) {
+        const k = dayKeyOf(v.lastSeenAt);
+        lastSeenByDay[k] = (lastSeenByDay[k] || 0) + 1;
+        if (v.lastSeenAt > lastMs) lastMs = v.lastSeenAt;
+      }
+    }
+    const days = [];
+    if (firstMs) {
+      const startDay = Math.floor(firstMs / DAY_MS2);
+      const endDay = Math.floor((lastMs || firstMs) / DAY_MS2);
+      for (let d = startDay; d <= endDay && days.length < 1200; d++) {
+        const key = dayKeyOf(d * DAY_MS2);
+        days.push({ day: key, created: createdByDay[key] || 0, lastSeen: lastSeenByDay[key] || 0 });
+      }
+    }
+    const daily = {
+      days,
+      firstDay: days.length ? days[0].day : null,
+      lastDay: days.length ? days[days.length - 1].day : null,
+      note: "created is exact; lastSeen is the day of each save\u2019s most recent activity, not daily active players"
+    };
     const tally = (pick) => {
       const out = {};
       for (const v of all) {
@@ -31320,6 +33214,25 @@ var Metrics = class extends PublicEndpoint {
     const versions = tally((v) => v.version);
     const editions = tally((v) => v.edition || "full");
     const returningPlayers = all.filter((v) => v.sessions >= 2).length;
+    const convertedSaves = all.filter((v) => v.convertedFromDemo);
+    const supersededDemoSaves = all.filter((v) => v.supersededByFull).length;
+    const demoSavesSeen = all.filter((v) => (v.edition === "demo" ? "demo" : "full") === "demo").length;
+    const demoPopulation = demoSavesSeen - supersededDemoSaves + convertedSaves.length;
+    const carriedSeconds = convertedSaves.reduce((a, v) => a + (v.conversion?.demoPlaySeconds || 0), 0);
+    const conversions = {
+      demoToFull: convertedSaves.length,
+      // How many of those we know exactly (stamped at export) vs inferred from a
+      // paired demo save. Conversions that predate the stamp are the inferred ones.
+      stamped: convertedSaves.filter((v) => v.conversion?.exact).length,
+      inferred: convertedSaves.filter((v) => v.conversion && !v.conversion.exact).length,
+      demoSavesSeen: demoPopulation,
+      ratePct: demoPopulation ? Math.round(convertedSaves.length / demoPopulation * 100) : 0,
+      avgDemoMinutesBeforeBuying: convertedSaves.length ? Math.round(carriedSeconds / 60 / convertedSaves.length) : 0,
+      // A converted player has TWO rows (the demo original and the imported
+      // save), so `players` above counts them twice. Said out loud rather than
+      // silently reconciled — both rows are real uplinks.
+      supersededDemoSaves
+    };
     const did = (v, key) => v.counts && (v.counts[key] || 0) > 0;
     const funnel = {
       created: all.length,
@@ -31372,6 +33285,38 @@ var Metrics = class extends PublicEndpoint {
       const bucket = e === 0 ? "0" : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
       completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
     }
+    const achEarnedBy = /* @__PURE__ */ new Map();
+    for (const v of withAch) {
+      const map = v.achievements.earnedAt;
+      if (!map || typeof map !== "object") continue;
+      for (const [id, at] of Object.entries(map)) {
+        let e = achEarnedBy.get(id);
+        if (!e) achEarnedBy.set(id, e = { players: 0, times: [] });
+        e.players++;
+        const ms = Number(at) - Number(v.createdAt || 0);
+        if (v.createdAt && Number.isFinite(ms) && ms >= 0 && ms <= 365 * DAY_MS2) e.times.push(ms / 1e3);
+      }
+    }
+    const achDefs = await defs().catch(() => null);
+    const topAchievements = [...achEarnedBy.entries()].sort((a, b) => b[1].players - a[1].players || a[0].localeCompare(b[0])).slice(0, 5).map(([id, e]) => {
+      const sorted = [...e.times].sort((a, b) => a - b);
+      const mid = sorted.length ? sorted.length % 2 ? sorted[(sorted.length - 1) / 2] : (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2 : null;
+      return {
+        id,
+        name: achDefs?.achievement?.get?.(id)?.name || id,
+        players: e.players,
+        // How many of those players had a usable duration behind them.
+        timed: sorted.length,
+        medianSecondsToEarn: mid == null ? null : round1(mid),
+        avgSecondsToEarn: sorted.length ? round1(sorted.reduce((a, b) => a + b, 0) / sorted.length) : null,
+        fastestSeconds: sorted.length ? round1(sorted[0]) : null,
+        slowestSeconds: sorted.length ? round1(sorted[sorted.length - 1]) : null
+      };
+    });
+    const achTimingCoverage = {
+      savesWithAchievements: withAch.length,
+      savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length).length
+    };
     const achievementsSummary = {
       totalDefined: withAch.reduce((m, v) => Math.max(m, v.achievements.total || 0), 0),
       totalEarned,
@@ -31380,7 +33325,9 @@ var Metrics = class extends PublicEndpoint {
       avgPoints: round1(withAch.reduce((a, v) => a + (v.achievements.points || 0), 0) / (withAch.length || 1)),
       byCategory,
       recentDistribution,
-      completionHistogram
+      completionHistogram,
+      topAchievements,
+      timingCoverage: achTimingCoverage
     };
     const areaSecondsTotals = {};
     for (const v of timed) {
@@ -31397,10 +33344,48 @@ var Metrics = class extends PublicEndpoint {
       mostTimeArea: Object.entries(areaSecondsTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null
     };
     const sessionLengthDistribution = { "<2m": 0, "2-10m": 0, "10-30m": 0, "30m+": 0 };
+    let sessionLengthSaves = 0;
     for (const v of timed) {
-      for (const [b, n] of Object.entries(v.sessionLengths || {}))
-        sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + n;
+      const buckets = Object.entries(v.sessionLengths || {});
+      if (buckets.length) sessionLengthSaves++;
+      for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + n;
     }
+    const abandonedBuckets = {};
+    let abandonedCount = 0;
+    let stillLive = 0;
+    for (const v of timed) {
+      const open = Math.round(v.curSessionSeconds || 0);
+      if (open <= 0) continue;
+      const quietFor = v.lastSeenAt ? now - v.lastSeenAt : Infinity;
+      if (quietFor > SESSION_GAP_MS) {
+        const b = sessionBucket(open);
+        abandonedBuckets[b] = (abandonedBuckets[b] || 0) + 1;
+        sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + 1;
+        abandonedCount++;
+      } else {
+        stillLive++;
+      }
+    }
+    const sessionsCovered = Object.values(sessionLengthDistribution).reduce((a, b) => a + b, 0);
+    const sessionsMeasurable = Math.max(0, totalSessions - stillLive);
+    const sessionLengths = {
+      buckets: sessionLengthDistribution,
+      sessionsCovered,
+      // Where the coverage came from, kept apart so the inference is auditable.
+      fromClient: sessionsCovered - abandonedCount,
+      fromAbandoned: abandonedCount,
+      sessionsMeasurable,
+      sessionsLiveNow: stillLive,
+      totalSessions,
+      savesReporting: sessionLengthSaves,
+      savesMeasured: timed.length,
+      // Saves too old to report curSessionSeconds still can't contribute their
+      // abandoned session — said plainly so a gap has a name.
+      savesMissingOpenSession: timed.filter((v) => v.curSessionSeconds == null).length,
+      abandonedBuckets,
+      coveragePct: sessionsMeasurable ? Math.round(sessionsCovered / sessionsMeasurable * 100) : 0,
+      note: "a session the client never closed is bucketed here once the player has been quiet longer than the session gap \u2014 only sessions live right now are unmeasurable"
+    };
     const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
     const creation = {
       savesWithTiming: withCreation.length,
@@ -31428,10 +33413,30 @@ var Metrics = class extends PublicEndpoint {
       bump("body", a.body);
     }
     const appearancePopularity = { savesWithAppearance: all.filter((v) => v.appearance).length, choices: appTally };
-    const withTTFA = all.filter((v) => v.timeToFirstActionSeconds != null);
+    const TTFA_OUTLIER_SECONDS = 30 * 60;
+    const ttfaAll = all.filter((v) => v.timeToFirstActionSeconds != null).map((v) => v.timeToFirstActionSeconds);
+    const ttfaSorted = [...ttfaAll].sort((a, b) => a - b);
+    const ttfaKept = ttfaSorted.filter((s) => s <= TTFA_OUTLIER_SECONDS);
+    const median = (xs) => {
+      if (!xs.length) return 0;
+      const mid = xs.length >> 1;
+      return round1(xs.length % 2 ? xs[mid] : (xs[mid - 1] + xs[mid]) / 2);
+    };
+    const mean = (xs) => xs.length ? round1(xs.reduce((a, b) => a + b, 0) / xs.length) : 0;
     const timeToFirstAction = {
-      playersMeasured: withTTFA.length,
-      avgSeconds: withTTFA.length ? round1(withTTFA.reduce((a, v) => a + v.timeToFirstActionSeconds, 0) / withTTFA.length) : 0
+      playersMeasured: ttfaAll.length,
+      // Unchanged meaning, kept for continuity. Skewed by design — see below.
+      avgSeconds: mean(ttfaAll),
+      // The number to actually quote. Immune to the walked-away tail.
+      medianSeconds: median(ttfaSorted),
+      // Mean over everyone who acted within the plausible window.
+      trimmedAvgSeconds: mean(ttfaKept),
+      trimmedMedianSeconds: median(ttfaKept),
+      p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
+      // Said out loud rather than silently dropped, so the exclusion is auditable.
+      outliersExcluded: ttfaAll.length - ttfaKept.length,
+      outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
+      note: "avgSeconds includes saves left open before the first action; medianSeconds and trimmedAvgSeconds do not"
     };
     const withPrefs = all.filter((v) => v.prefs && typeof v.prefs === "object");
     const prefN = withPrefs.length || 1;
@@ -31496,6 +33501,15 @@ var Metrics = class extends PublicEndpoint {
       openRows = openRows.filter((o) => (o.edition === "demo" ? "demo" : "full") === editionFilter);
     if (platformFilter && platformFilter.toLowerCase() !== "all")
       openRows = openRows.filter((o) => (o.platform || "unknown") === platformFilter);
+    const deviceIdOf = (o) => String(o?.deviceId || String(o?.id || "").replace(/^dev:/, ""));
+    const excludedRows = excludedDevices.size ? openRows.filter((o) => excludedDevices.has(deviceIdOf(o))) : [];
+    if (excludedDevices.size) openRows = openRows.filter((o) => !excludedDevices.has(deviceIdOf(o)));
+    const excludedDeviceStats = {
+      ids: [...excludedDevices],
+      matched: excludedRows.length,
+      opens: excludedRows.reduce((a, o) => a + (o.opens || 0), 0),
+      charactersCreated: excludedRows.reduce((a, o) => a + (o.savesCreated || 0), 0)
+    };
     const devices = openRows.length;
     const convertedDevices = openRows.filter((o) => o.converted).length;
     const demoDevices = openRows.filter((o) => o.edition === "demo");
@@ -31532,11 +33546,15 @@ var Metrics = class extends PublicEndpoint {
       avgCharactersPerPerson: devices ? round1(totalCharacters / devices) : 0,
       avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
       charactersPerPersonHistogram: savesPerPersonHistogram,
-      editions: editionSplit
+      editions: editionSplit,
+      // What the ?excludeDevice= filter took out. The dashboard no longer offers
+      // a device picker — raw app opens came off the page entirely, which removes
+      // the distortion rather than filtering around it — but the query parameter
+      // stays for anyone reading this endpoint directly.
+      excludedDevices: excludedDeviceStats
     };
     return {
       generatedAt: now,
-      source: "solo-metrics",
       filters: {
         availableVersions,
         availableEditions,
@@ -31545,14 +33563,17 @@ var Metrics = class extends PublicEndpoint {
         versionMode: versionActive ? versionMode : null,
         edition: editionFilter && editionFilter.toLowerCase() !== "all" ? editionFilter : null,
         platform: platformFilter && platformFilter.toLowerCase() !== "all" ? platformFilter : null,
-        idle: idleExcluded ? "exclude" : null
+        idle: idleExcluded ? "exclude" : null,
+        excludedDevices: [...excludedDevices]
       },
       summary: {
         players: all.length,
         soloPlayers: all.length,
         excludedNames: [...excludedNames],
+        excludedDevices: [...excludedDevices],
         anomalies,
         audience,
+        daily,
         languages,
         platforms,
         operatingSystems,
@@ -31573,6 +33594,7 @@ var Metrics = class extends PublicEndpoint {
           returningPlayers,
           returningRatePct: pct(returningPlayers)
         },
+        conversions,
         progression: {
           avgBiomeHealth,
           biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary?.biomesFullyRestored || 0), 0),
@@ -31581,7 +33603,11 @@ var Metrics = class extends PublicEndpoint {
           tutorialStepHistogram: tutorialTally
         },
         areaDwell,
+        // Kept verbatim so existing readers (this repo's dashboard included)
+        // don't break; `sessionLengths` is the same buckets plus the coverage
+        // they were always missing.
         sessionLengthDistribution,
+        sessionLengths,
         creation,
         appearancePopularity,
         timeToFirstAction,
@@ -31593,10 +33619,684 @@ var Metrics = class extends PublicEndpoint {
         actionTotals,
         achievements: achievementsSummary
       },
-      players: all
+      rows: all
+    };
+  }
+}
+var METRICS_PAGE_MAX = 500;
+var METRICS_PAGE_DEFAULT = 100;
+function queryOne(target, key) {
+  try {
+    const raw = typeof target?.getAll === "function" ? target.getAll(key) : [];
+    return String(raw && raw[0] || "").trim();
+  } catch {
+    return "";
+  }
+}
+var MetricsSummary = class extends DashboardEndpoint {
+  async get(target) {
+    const { generatedAt, filters, summary, rows } = await metricsRollup(target);
+    return {
+      generatedAt,
+      source: "solo-metrics",
+      filters,
+      summary,
+      // So a caller can size its paging without a second request.
+      players: { total: rows.length, endpoint: "/MetricsPlayers/", maxLimit: METRICS_PAGE_MAX }
     };
   }
 };
+var MetricsPlayers = class extends DashboardEndpoint {
+  async get(target) {
+    const id = String(this.getId?.() || target?.id || "").trim();
+    const { generatedAt, filters, rows } = await metricsRollup(target);
+    if (id) {
+      const row = rows.find((r) => r.playerId === id);
+      if (!row) throw new GameError(t("server.err.noSaveWithId"), 404, "server.err.noSaveWithId");
+      return { generatedAt, player: row };
+    }
+    const asked = parseInt(queryOne(target, "limit"), 10) || METRICS_PAGE_DEFAULT;
+    const limit = Math.min(Math.max(asked, 1), METRICS_PAGE_MAX);
+    const cursor = queryOne(target, "cursor");
+    let start = 0;
+    let cursorStale = false;
+    if (cursor) {
+      const after = decodeMetricsCursor(cursor);
+      const at = after ? rows.findIndex((r) => r.playerId === after) : -1;
+      if (at >= 0) start = at + 1;
+      else cursorStale = true;
+    }
+    const page = rows.slice(start, start + limit);
+    const last = page[page.length - 1];
+    const more = start + page.length < rows.length;
+    const lean = queryOne(target, "fields").toLowerCase() === "list";
+    return {
+      generatedAt,
+      filters,
+      total: rows.length,
+      offset: start,
+      limit,
+      returned: page.length,
+      nextCursor: more && last ? encodeMetricsCursor(last.playerId) : null,
+      ...cursorStale ? { cursorStale: true } : {},
+      players: lean ? page.map(metricsListRow) : page
+    };
+  }
+};
+async function takeFrom(iterable, max) {
+  const out = [];
+  for await (const item of iterable) {
+    if (item != null) out.push(item);
+    if (out.length >= max) break;
+  }
+  return out;
+}
+var HEALTH_MAX_ROWS = 4e3;
+var ServerHealth = class extends DashboardEndpoint {
+  async get(target) {
+    const now = Date.now();
+    const mins = Math.min(Math.max(parseInt(queryOne(target, "minutes"), 10) || 60, 1), 1440);
+    const since = now - mins * 6e4;
+    const rawMetric = queryOne(target, "raw");
+    let rows = [];
+    let readable = true;
+    let readError = null;
+    try {
+      const t2 = globalThis.databases?.system?.hdb_analytics;
+      if (!t2 || typeof t2.search !== "function") {
+        readable = false;
+        readError = "system.hdb_analytics is not visible to this component";
+      } else {
+        rows = await takeFrom(
+          t2.search({ conditions: [{ attribute: "id", comparator: "between", value: [since, now] }] }),
+          HEALTH_MAX_ROWS
+        );
+      }
+    } catch (e) {
+      readable = false;
+      readError = String(e?.message || e);
+    }
+    const norm = (s) => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const pick = (...names) => {
+      const want = names.map(norm);
+      return rows.filter((r) => want.includes(norm(r.metric)));
+    };
+    const NON_VALUE = /* @__PURE__ */ new Set(["time", "period", "id", "nodeid", "node", "count", "timestamp", "starttime", "endtime"]);
+    const valueOf = (r, prefer) => {
+      for (const f of [prefer, "total", "value", "ratio", "mean", "median"].filter(Boolean)) {
+        const n = Number(r?.[f]);
+        if (Number.isFinite(n)) return n;
+      }
+      if (r && typeof r === "object") {
+        for (const [k, v] of Object.entries(r)) {
+          if (NON_VALUE.has(k.toLowerCase())) continue;
+          if (typeof v !== "number" || !Number.isFinite(v)) continue;
+          return v;
+        }
+      }
+      return null;
+    };
+    const numericFields = (r, depth = 0) => {
+      if (!r || typeof r !== "object") return [];
+      const out = [];
+      for (const [k, v] of Object.entries(r)) {
+        if (k === "id" || k === "metric" || k === "path" || k === "method" || k === "type") continue;
+        if (v && typeof v === "object" && !Array.isArray(v) && depth < 1) {
+          for (const sub of numericFields(v, depth + 1)) out.push(`${k}.${sub}`);
+        } else if (typeof v === "number" && Number.isFinite(v)) out.push(k);
+      }
+      return out;
+    };
+    const timeOf = (r) => {
+      const t2 = Number(r?.time);
+      if (Number.isFinite(t2) && t2 > 0) return t2;
+      const id = r?.id;
+      if (Array.isArray(id)) {
+        const t0 = Number(id[0]);
+        if (Number.isFinite(t0) && t0 > 0) return t0;
+      }
+      return 0;
+    };
+    const latestGroup = (...names) => {
+      const rs = pick(...names);
+      if (!rs.length) return [];
+      const newest = rs.reduce((m, r) => Math.max(m, timeOf(r)), 0);
+      if (!newest) return rs.slice(-1);
+      return rs.filter((r) => timeOf(r) === newest);
+    };
+    const latestSum = (...names) => {
+      const vs = latestGroup(...names).map((r) => valueOf(r)).filter((v) => v != null);
+      return vs.length ? vs.reduce((a, b) => a + b, 0) : null;
+    };
+    const latestParts = (...names) => latestGroup(...names).length || null;
+    const latestOf = (...names) => {
+      let best = null;
+      for (const r of pick(...names)) if (!best || timeOf(r) > timeOf(best)) best = r;
+      return best;
+    };
+    const avgOfField = (field, names) => {
+      const xs = pick(...names).map((r) => valueOf(r, field)).filter((n) => n != null);
+      return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+    };
+    const avgOf = (...names) => avgOfField(void 0, names);
+    const sumOf = (...names) => pick(...names).reduce((a, r) => a + (valueOf(r) || 0), 0);
+    const byStatus = {};
+    for (const r of rows) {
+      const m = String(r.metric || "");
+      if (!m.startsWith("response_")) continue;
+      const code = m.slice("response_".length);
+      byStatus[code] = (byStatus[code] || 0) + (Number(r.count) || 0);
+    }
+    const totalResponses = Object.values(byStatus).reduce((a, b) => a + b, 0);
+    const serverErrors = Object.entries(byStatus).filter(([code]) => code.startsWith("5")).reduce((a, [, n]) => a + n, 0);
+    const PROBE_PATHS = /* @__PURE__ */ new Set(["status", "getstatus", "health", "healthz", "healthcheck", "ping"]);
+    const DASHBOARD_PATHS = new Set(
+      [
+        "MetricsSummary",
+        "MetricsPlayers",
+        "GameplayHealth",
+        "SaveHealth",
+        "ServerHealth",
+        "LandingStats",
+        "ClearProblem",
+        "DashboardAuth",
+        "DashboardPage",
+        "dashboard",
+        "ListFeedback",
+        "ListMailingList",
+        "SystemProbe"
+      ].map(norm)
+    );
+    const classify = (path, method) => {
+      const p = String(path || "");
+      if (PROBE_PATHS.has(norm(p))) return "probe";
+      if (!method && /^[a-z][a-z0-9_]*$/.test(p)) return "operation";
+      return DASHBOARD_PATHS.has(norm(p)) ? "dashboard" : "gameplay";
+    };
+    let appCalls = 0;
+    let dashCalls = 0;
+    let probeCalls = 0;
+    let opCalls = 0;
+    const probesSeen = /* @__PURE__ */ new Set();
+    const opsSeen = /* @__PURE__ */ new Set();
+    const groups = /* @__PURE__ */ new Map();
+    for (const r of pick("duration", "transfer", "request")) {
+      if (!r.path) continue;
+      const calls0 = Math.max(1, Number(r.count) || 0);
+      const kind = classify(r.path, r.method);
+      if (kind === "probe") {
+        probeCalls += calls0;
+        probesSeen.add(String(r.path));
+        continue;
+      }
+      if (kind === "operation") {
+        opCalls += calls0;
+        opsSeen.add(String(r.path));
+        continue;
+      }
+      if (kind === "dashboard") dashCalls += calls0;
+      else appCalls += calls0;
+      const method = r.method ? String(r.method) : null;
+      const key = `${kind}\0${r.path}\0${method || ""}`;
+      let g = groups.get(key);
+      if (!g) groups.set(key, g = { kind, path: String(r.path), method, calls: 0, worst: 0, wsum: 0, wn: 0 });
+      const calls = Math.max(1, Number(r.count) || 0);
+      const tail = Number(r.p95);
+      const mid = Number(r.median);
+      const typical = Number.isFinite(mid) ? mid : Number(r.mean);
+      g.calls += calls;
+      if (Number.isFinite(tail)) g.worst = Math.max(g.worst, tail);
+      else if (Number.isFinite(typical)) g.worst = Math.max(g.worst, typical);
+      if (Number.isFinite(typical)) {
+        g.wsum += typical * calls;
+        g.wn += calls;
+      }
+    }
+    const rank = (g) => ({
+      kind: g.kind,
+      path: g.path,
+      method: g.method,
+      // Worst single p95 observed in the window, not a window percentile.
+      worstMs: round1(g.worst),
+      // Count-weighted typical response, so volume carries the weight.
+      typicalMs: g.wn ? round1(g.wsum / g.wn) : null,
+      calls: g.calls
+    });
+    const byWorst = (a, b) => b.worstMs - a.worstMs;
+    const slowest = [...groups.values()].filter((g) => g.kind === "gameplay").map(rank).sort(byWorst).slice(0, 10);
+    const slowestDashboard = [...groups.values()].filter((g) => g.kind === "dashboard").map(rank).sort(byWorst).slice(0, 10);
+    const util = latestOf("main-thread-utilization", "mainThreadUtilization", "thread-utilization", "utilization");
+    const asPct = (v) => {
+      if (v == null || v === "") return null;
+      const n = Number(v);
+      if (!Number.isFinite(n) || n < 0) return null;
+      if (n > 100) return null;
+      return round1(n <= 1 ? n * 100 : n);
+    };
+    if (rawMetric) {
+      const want = norm(rawMetric);
+      const sample = rows.filter((r) => norm(r.metric) === want).sort((a, b) => timeOf(b) - timeOf(a)).slice(0, 12);
+      return {
+        generatedAt: now,
+        windowMinutes: mins,
+        readable,
+        readError,
+        raw: rawMetric,
+        matched: sample.length,
+        // Verbatim, so units and per-record breakdowns are visible as they are.
+        records: sample
+      };
+    }
+    const REPL_LATENCY = ["replication-latency", "replicationLatency", "replication-lag", "replicationLag"];
+    const seen = [...new Set(rows.map((r) => String(r.metric)))].sort();
+    const matched = new Set(
+      [
+        "main-thread-utilization",
+        "mainThreadUtilization",
+        "thread-utilization",
+        "utilization",
+        "cpu-usage",
+        "cpuUsage",
+        "cpu",
+        "process-cpu",
+        "cpu-utilization",
+        "memory",
+        "memory-usage",
+        "memoryUsage",
+        "heap-used",
+        "rss",
+        "database-size",
+        "databaseSize",
+        "db-size",
+        "storage-size",
+        "storage-volume",
+        "storageVolume",
+        "volume-size",
+        "disk-size",
+        "disk-total",
+        "node-storage",
+        "nodeStorage",
+        "duration",
+        "transfer",
+        "request",
+        "bytes-sent",
+        "bytesSent",
+        "egress",
+        "transfer-out",
+        "bytes-received",
+        "bytesReceived",
+        "ingress",
+        "transfer-in",
+        ...REPL_LATENCY
+      ].map(norm)
+    );
+    for (const m of seen) if (norm(m).startsWith("response")) matched.add(norm(m));
+    return {
+      generatedAt: now,
+      windowMinutes: mins,
+      readable,
+      readError,
+      samples: rows.length,
+      cappedAtMaxRows: rows.length >= HEALTH_MAX_ROWS,
+      // The capacity ceiling. This app is served by a small number of threads,
+      // so sustained utilization is the thing that runs out before anything else.
+      threads: {
+        utilizationPct: util ? asPct(valueOf(util)) : null,
+        /* What the metric actually said, and whether it could be read as a
+         * percentage at all. A gauge that is present but unintelligible is a
+         * different fact from a gauge that is missing, and the panel says which
+         * instead of showing the same em-dash for both. */
+        utilizationRaw: util ? valueOf(util) : null,
+        utilizationUnitKnown: util ? asPct(valueOf(util)) != null : null,
+        windowAvgPct: asPct(
+          avgOf("main-thread-utilization", "mainThreadUtilization", "thread-utilization", "utilization")
+        ),
+        cpuPct: asPct(avgOf("cpu-usage", "cpuUsage", "cpu", "process-cpu", "cpu-utilization")),
+        /* `memory` reports 33 with a max of 84 on the live instance — that is a
+         * percentage, not a byte count, and calling the field memoryBytes was
+         * wrong even though nothing rendered it. Report it as what it is, and
+         * only when it is in a range a percentage can occupy. */
+        memoryPct: asPct(valueOf(latestOf("memory", "memory-usage", "memoryUsage")))
+      },
+      storage: {
+        /* Sum the newest sample, not one of them.
+         *
+         * database-size arrives once per DATABASE per interval, so latestOf
+         * returned whichever record happened to land last — 4MB on an instance
+         * whose records range to 437MB, displayed as "0.00GB". Taking every
+         * record sharing the newest timestamp gives the total across
+         * databases, which is what "database size" means on a tile. */
+        databaseBytes: latestSum("database-size", "databaseSize", "db-size", "storage-size"),
+        databaseParts: latestParts("database-size", "databaseSize", "db-size", "storage-size"),
+        volumeBytes: valueOf(latestOf("storage-volume", "storageVolume", "volume-size", "disk-size", "disk-total")),
+        nodeStorageBytes: valueOf(latestOf("node-storage", "nodeStorage"))
+      },
+      http: (() => {
+        const infraCalls = probeCalls + opCalls + dashCalls;
+        const totalCalls = appCalls + infraCalls;
+        const reconciles = totalResponses > 0 && totalCalls > 0 && Math.abs(totalCalls - totalResponses) / totalResponses <= 0.05;
+        const appResponses = reconciles ? Math.max(0, totalResponses - infraCalls) : null;
+        const basis = appResponses && appResponses > 0 ? "app" : "all";
+        const denom = basis === "app" ? appResponses : totalResponses;
+        return {
+          responses: totalResponses,
+          byStatus,
+          serverErrors,
+          // Over player traffic where that is defensible, over everything where
+          // it is not — and `errorRateBasis` always says which.
+          errorRatePct: denom ? round1(serverErrors / denom * 100) : 0,
+          errorRateBasis: basis,
+          errorRateOf: denom,
+          requests: {
+            app: appCalls,
+            gameplay: appCalls,
+            // This page looking at itself.
+            dashboard: dashCalls,
+            // The platform asking whether this node is alive.
+            probes: probeCalls,
+            probePaths: [...probesSeen].sort(),
+            // A human in the Harper console, or a tool acting like one.
+            operations: opCalls,
+            operationPaths: [...opsSeen].sort(),
+            infrastructure: infraCalls,
+            infrastructurePaths: [...probesSeen, ...opsSeen].sort(),
+            // Whether the request records and the response counters agree. When
+            // they don't, something is being counted by one and not the other,
+            // and that is worth seeing rather than smoothing over.
+            reconcilesWithResponses: reconciles
+          },
+          slowest,
+          slowestDashboard,
+          /* How long gameplay actually takes, as a headline rather than
+           * something to be reconstructed from the table below. The 5xx rate
+           * only reports requests that FAILED; a server that answers every
+           * call successfully in two seconds has a perfect error rate and a
+           * game nobody wants to play. Count-weighted so the endpoints players
+           * hit constantly carry the number, and the worst path is named
+           * because "worst 1.4s" without a name is not actionable. */
+          gameplayTiming: (() => {
+            const gs = [...groups.values()].filter((g) => g.kind === "gameplay");
+            if (!gs.length) return null;
+            const calls = gs.reduce((a, g) => a + g.calls, 0);
+            const wsum = gs.reduce((a, g) => a + g.wsum, 0);
+            const wn = gs.reduce((a, g) => a + g.wn, 0);
+            const worstG = gs.reduce((m, g) => g.worst > (m?.worst ?? -1) ? g : m, null);
+            return {
+              calls,
+              typicalMs: wn ? round1(wsum / wn) : null,
+              worstMs: worstG ? round1(worstG.worst) : null,
+              worstPath: worstG ? worstG.path : null,
+              worstMethod: worstG ? worstG.method : null,
+              // How many distinct gameplay routes were exercised at all.
+              paths: gs.length
+            };
+          })()
+        };
+      })(),
+      // Two nodes replicate behind this, so latency between them is what says
+      // whether they are actually keeping up with each other.
+      replication: {
+        latencyMs: (() => {
+          const v = avgOfField("mean", REPL_LATENCY) ?? avgOf(...REPL_LATENCY);
+          return v == null ? null : round1(v);
+        })(),
+        samples: pick(...REPL_LATENCY).length,
+        bytesSent: sumOf("bytes-sent", "bytesSent", "egress", "transfer-out"),
+        bytesReceived: sumOf("bytes-received", "bytesReceived", "ingress", "transfer-in")
+      },
+      /* Every metric name that arrived, and which of them this endpoint knows
+       * what to do with. `unmatched` is the important one: it is the list that
+       * would have told me the gauges were reading the wrong names, instead of
+       * five em-dashes that look exactly like an idle server. It is rendered on
+       * the page, so the panel diagnoses itself next time. */
+      metricsSeen: seen,
+      metricsUnmatched: seen.filter((m) => !matched.has(norm(m))),
+      /* Every metric in the window, aggregated the same way regardless of what
+       * it is. The named gauges above are an opinionated reading of a handful
+       * of these; this is the rest of the telemetry without an opinion, so a
+       * metric this endpoint has never heard of is still legible instead of
+       * being a name in an apology at the bottom of the page. */
+      allMetrics: seen.map((name) => {
+        const rs = pick(name);
+        const vals = rs.map((r) => valueOf(r)).filter((v) => v != null);
+        let latest = null;
+        for (const r of rs) if (!latest || timeOf(r) > timeOf(latest)) latest = r;
+        const sum = vals.reduce((a, b) => a + b, 0);
+        return {
+          metric: name,
+          samples: rs.length,
+          // Counters are worth summing, gauges are worth reading latest. Both
+          // are given rather than guessing which kind this metric is.
+          latest: latest ? valueOf(latest) : null,
+          total: vals.length ? round1(sum) : null,
+          mean: vals.length ? round1(sum / vals.length) : null,
+          min: vals.length ? round1(Math.min(...vals)) : null,
+          max: vals.length ? round1(Math.max(...vals)) : null,
+          // A metric with paths is per-route; one without is instance-wide.
+          paths: [
+            ...new Set(
+              rs.map((r) => r.path).filter(Boolean).map(String)
+            )
+          ].length,
+          read: matched.has(norm(name)),
+          // Where this metric's numbers actually live. When a gauge above
+          // shows an em-dash, this is the field list that explains why.
+          fields: [...new Set(rs.flatMap((r) => numericFields(r)))].sort()
+        };
+      }).sort((a, b) => b.samples - a.samples)
+    };
+  }
+};
+var SystemProbe = class extends Resource {
+  async get() {
+    const now = Date.now();
+    const steps = [];
+    const step = async (name, fn) => {
+      try {
+        steps.push({ step: name, ok: true, ...await fn() || {} });
+      } catch (e) {
+        steps.push({ step: name, ok: false, error: String(e?.message || e) });
+      }
+    };
+    const dbs = globalThis.databases;
+    await step("databases global", async () => ({
+      present: !!dbs,
+      names: dbs ? Object.keys(dbs) : []
+    }));
+    await step("system database", async () => {
+      const sys = dbs?.system;
+      return { present: !!sys, tables: sys ? Object.keys(sys) : [] };
+    });
+    for (const tableName2 of ["hdb_analytics", "hdb_raw_analytics"]) {
+      await step(`${tableName2} \xB7 shape`, async () => {
+        const t2 = dbs?.system?.[tableName2];
+        if (!t2) return { present: false };
+        return {
+          present: true,
+          hasSearch: typeof t2.search === "function",
+          hasGet: typeof t2.get === "function"
+        };
+      });
+    }
+    const since = now - 36e5;
+    const shapes = [
+      {
+        label: "between [since, now]",
+        query: { conditions: [{ attribute: "id", comparator: "between", value: [since, now] }] }
+      },
+      {
+        label: "greater_than since",
+        query: { conditions: [{ attribute: "id", comparator: "greater_than", value: since }] }
+      },
+      { label: "gt since", query: { conditions: [{ attribute: "id", comparator: "gt", value: since }] } },
+      { label: "no conditions, limit 50", query: { limit: 50 } }
+    ];
+    for (const shape of shapes) {
+      await step(`hdb_analytics \xB7 ${shape.label}`, async () => {
+        const t2 = dbs?.system?.hdb_analytics;
+        if (!t2 || typeof t2.search !== "function") return { skipped: "table not readable" };
+        const rows = await takeFrom(t2.search(shape.query), 200);
+        const metrics = {};
+        const types = {};
+        let oldest = 0;
+        let newest = 0;
+        for (const r of rows) {
+          const m = String(r?.metric || "?");
+          metrics[m] = (metrics[m] || 0) + 1;
+          const ty = String(r?.type || "?");
+          types[ty] = (types[ty] || 0) + 1;
+          const id = Number(r?.id) || 0;
+          if (id && (!oldest || id < oldest)) oldest = id;
+          if (id > newest) newest = id;
+        }
+        return {
+          returned: rows.length,
+          cappedAt200: rows.length >= 200,
+          metrics,
+          types,
+          oldest: oldest ? new Date(oldest).toISOString() : null,
+          newest: newest ? new Date(newest).toISOString() : null,
+          sampleKeys: rows[0] ? Object.keys(rows[0]) : [],
+          sample: rows[0] || null
+        };
+      });
+    }
+    await step("hdb_analytics \xB7 replication metrics", async () => {
+      const t2 = dbs?.system?.hdb_analytics;
+      if (!t2 || typeof t2.search !== "function") return { skipped: "table not readable" };
+      const rows = await takeFrom(
+        t2.search({ conditions: [{ attribute: "id", comparator: "between", value: [now - 36e5, now] }] }),
+        500
+      );
+      const wanted = /* @__PURE__ */ new Set(["replication-latency", "bytes-sent", "bytes-received"]);
+      const hits = rows.filter((r) => wanted.has(String(r?.metric)));
+      return {
+        scanned: rows.length,
+        replicationRows: hits.length,
+        byMetric: hits.reduce((acc, r) => {
+          acc[r.metric] = (acc[r.metric] || 0) + 1;
+          return acc;
+        }, {}),
+        sample: hits[0] || null
+      };
+    });
+    await step("server global", async () => {
+      const s = globalThis.server;
+      if (!s) return { present: false };
+      const keys = Object.keys(s);
+      const clusterish = keys.filter((k) => /cluster|repl|node|peer|leader|member/i.test(k));
+      const detail = {};
+      for (const k of clusterish) {
+        try {
+          const v = s[k];
+          detail[k] = typeof v === "function" ? "function" : v && typeof v === "object" ? Object.keys(v).slice(0, 20) : v;
+        } catch (e) {
+          detail[k] = `threw: ${e?.message || e}`;
+        }
+      }
+      return { present: true, keys: keys.slice(0, 40), clusterish, detail };
+    });
+    await step("node build skew", async () => {
+      const peers = ["https://wild.willows.harperfabric.com", "https://wild.willows.harperfabric.com:9926"];
+      const results = await Promise.all(
+        peers.map(async (base) => {
+          try {
+            const res = await fetch(`${base}/Version/`, {
+              headers: { accept: "application/json" },
+              signal: AbortSignal.timeout(3e3)
+            });
+            if (!res.ok) return { node: base, ok: false, status: res.status };
+            const body = await res.json();
+            return { node: base, ok: true, build: body?.build || null };
+          } catch (e) {
+            return { node: base, ok: false, error: String(e?.message || e) };
+          }
+        })
+      );
+      const builds = [...new Set(results.filter((r) => r.ok).map((r) => r.build))];
+      return {
+        expected: buildStamp,
+        results,
+        inSync: builds.length === 1 && builds[0] === buildStamp,
+        distinctBuilds: builds.length
+      };
+    });
+    await step("authenticated user shape", async () => {
+      const ctx = this.getContext?.();
+      const user = ctx?.user;
+      if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
+      const describe = (v) => {
+        if (v === null) return "null";
+        if (Array.isArray(v))
+          return `array[${v.length}]${v.length && typeof v[0] === "string" ? ": " + v.slice(0, 8).join(",") : ""}`;
+        if (typeof v === "object")
+          return Object.fromEntries(
+            Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)])
+          );
+        if (typeof v === "string") {
+          return /pass|hash|salt|secret|token|key/i.test(v) ? `string(${v.length})` : v;
+        }
+        return typeof v;
+      };
+      const safe = {};
+      for (const [k, v] of Object.entries(user)) {
+        safe[k] = /pass|hash|salt|secret|token|key/i.test(k) ? `\xABredacted ${typeof v}\xBB` : describe(v);
+      }
+      return {
+        present: true,
+        keys: Object.keys(user),
+        shape: safe,
+        // The two candidate paths for a role check, resolved against reality.
+        "user.role": describe(user.role),
+        "user.role?.role": typeof user.role === "object" ? describe(user.role?.role) : void 0
+      };
+    });
+    await step("logger global", async () => {
+      const l = globalThis.logger;
+      return { present: !!l, methods: l ? Object.keys(l).slice(0, 20) : [] };
+    });
+    return {
+      checkedAt: now,
+      note: "Throwaway reconnaissance for the Problems page \u2014 delete once the answer is known.",
+      verdict: steps.find((s) => s.step?.startsWith("hdb_analytics \xB7") && s.returned > 0) ? "hdb_analytics IS readable in-process \u2014 the dashboard can show real server health with no stored credentials." : dbs?.system ? "system database is visible but no analytics rows came back \u2014 check the condition shapes above." : "system database is NOT visible to this component \u2014 server health would need the operations API on :9925.",
+      steps
+    };
+  }
+};
+function encodeMetricsCursor(playerId) {
+  return nodeBuffer.from(String(playerId), "utf8").toString("base64url");
+}
+function decodeMetricsCursor(cursor) {
+  try {
+    const out = nodeBuffer.from(String(cursor), "base64url").toString("utf8");
+    return out || null;
+  } catch {
+    return null;
+  }
+}
+function metricsListRow(r) {
+  return {
+    playerId: r.playerId,
+    name: r.name,
+    edition: r.edition || "full",
+    platform: r.platform,
+    os: r.os,
+    version: r.version,
+    language: r.language,
+    status: r.status,
+    idle: r.idle,
+    createdAt: r.createdAt,
+    lastSeenAt: r.lastSeenAt,
+    playSeconds: r.playSeconds,
+    sessions: r.sessions,
+    totalActions: r.totalActions,
+    unlockedBiomes: r.unlockedBiomes,
+    tutorialStep: r.tutorialStep,
+    achievementsEarned: r.achievements?.earned ?? null,
+    avgHealth: r.biomeSummary?.avgHealth ?? null,
+    appearance: r.appearance
+  };
+}
 var BiomeSnapshot = class extends PublicEndpoint {
   async get() {
     const id = String(this.getId?.() || "").trim();
@@ -32591,6 +35291,7 @@ var ReportClientError = class extends PublicEndpoint {
         stack: stack || row.stack || null,
         lastSeenAt: now,
         count: (row.count || 0) + 1,
+        byDay: bumpDay(row.byDay, now, 1),
         platform: String(body.platform || "").slice(0, 16) || row.platform || null,
         version: String(body.version || "").slice(0, 32) || row.version || null,
         build: String(body.build || "").slice(0, 64) || row.build || null
@@ -32601,8 +35302,46 @@ var ReportClientError = class extends PublicEndpoint {
     return { ok: true };
   }
 };
-var GameplayHealth = class extends PublicEndpoint {
-  async get() {
+var CLEARABLE = /* @__PURE__ */ new Map([
+  ["refusal", "Refusal"],
+  ["crash", "ClientError"]
+]);
+var ClearProblem = class extends DashboardEndpoint {
+  // POST maps to create in Harper's permission model; the read gate is the gate.
+  allowCreate(user) {
+    return this.allowRead(user);
+  }
+  async post(data) {
+    const body = await bodyOf(data);
+    const kind = body?.kind;
+    const table = typeof kind === "string" ? CLEARABLE.get(kind) : void 0;
+    if (!table) return { ok: false, error: 'kind must be "refusal" or "crash"', deleted: 0 };
+    const ids = (Array.isArray(body.ids) ? body.ids : [body.id]).filter((x) => x != null && x !== "").map((x) => String(x)).slice(0, 500);
+    if (!ids.length) return { ok: false, error: "no ids given", deleted: 0 };
+    const t2 = db()[table];
+    if (!t2) return { ok: false, error: `${table} table is not available`, deleted: 0 };
+    if (table === "Refusal") await flushRefusals();
+    let deleted = 0;
+    const missing = [];
+    const failed = [];
+    for (const id of ids) {
+      try {
+        const row = await safeGet(t2, id);
+        if (!row) {
+          missing.push(id);
+          continue;
+        }
+        await t2.delete(id);
+        deleted++;
+      } catch (e) {
+        failed.push({ id, error: String(e?.message || e) });
+      }
+    }
+    return { ok: failed.length === 0, table, deleted, missing, failed };
+  }
+};
+var GameplayHealth = class extends DashboardEndpoint {
+  async get(target) {
     await flushRefusals();
     const t2 = db();
     const read = async (name) => {
@@ -32613,41 +35352,77 @@ var GameplayHealth = class extends PublicEndpoint {
       }
     };
     const [refusalRows, errorRows] = await Promise.all([read("Refusal"), read("ClientError")]);
-    const refusals = refusalRows.map((r) => ({
-      code: String(r.code || r.id || "?"),
-      status: Number(r.status) || 0,
+    const from = queryOne(target, "from");
+    const to = queryOne(target, "to");
+    const windowed = !!(from || to);
+    const inWindow = (day) => (!from || day >= from) && (!to || day <= to);
+    const windowCountOf = (byDay) => {
+      if (!byDay || typeof byDay !== "object") return null;
+      const days = Object.entries(byDay);
+      if (!days.length) return null;
+      let n = 0;
+      for (const [day, c] of days) if (inWindow(day)) n += Number(c) || 0;
+      return n;
+    };
+    const daysCovered = /* @__PURE__ */ new Set();
+    for (const r of [...refusalRows, ...errorRows])
+      for (const day of Object.keys(r?.byDay || {})) if (inWindow(day)) daysCovered.add(day);
+    const shape = (r) => ({
       count: Number(r.count) || 0,
+      windowCount: windowCountOf(r.byDay),
+      byDay: r.byDay && typeof r.byDay === "object" ? r.byDay : null,
       firstSeenAt: r.firstSeenAt || 0,
       lastSeenAt: r.lastSeenAt || 0
+    });
+    const refusals = refusalRows.map((r) => ({
+      id: String(r.id ?? r.code ?? ""),
+      code: String(r.code || r.id || "?"),
+      status: Number(r.status) || 0,
+      ...shape(r)
     })).sort((a, b) => b.count - a.count);
     const clientErrors = errorRows.map((r) => ({
+      id: String(r.id ?? ""),
       message: String(r.message || "?"),
       where: String(r.where || ""),
       stack: r.stack || null,
-      count: Number(r.count) || 0,
       platform: r.platform || null,
       version: r.version || null,
-      firstSeenAt: r.firstSeenAt || 0,
-      lastSeenAt: r.lastSeenAt || 0
+      ...shape(r)
     })).sort((a, b) => b.count - a.count);
+    const inRange = (r) => !windowed || r.windowCount === null || r.windowCount > 0;
+    const sumWindow = (rows) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+    const shownRefusals = refusals.filter(inRange);
+    const shownErrors = clientErrors.filter(inRange);
     return {
       generatedAt: Date.now(),
+      // What the ?from/?to window actually managed to cover, so the page can
+      // say "these counters only start on the 12th" instead of implying the
+      // game was quiet before then.
+      window: windowed ? {
+        from: from || null,
+        to: to || null,
+        daysWithData: daysCovered.size,
+        earliestBucket: [...daysCovered].sort()[0] || null,
+        note: "per-day counters begin when this feature shipped; anything older has an all-time count only"
+      } : null,
       refusals: {
-        distinct: refusals.length,
+        distinct: shownRefusals.length,
         total: refusals.reduce((n, r) => n + r.count, 0),
+        windowTotal: windowed ? sumWindow(shownRefusals) : null,
         // 4xx is the game saying no on purpose; 5xx is the game falling over.
         serverFaults: refusals.filter((r) => r.status >= 500).reduce((n, r) => n + r.count, 0),
-        top: refusals.slice(0, 25)
+        top: shownRefusals.slice(0, 25)
       },
       clientErrors: {
-        distinct: clientErrors.length,
+        distinct: shownErrors.length,
         total: clientErrors.reduce((n, e) => n + e.count, 0),
-        top: clientErrors.slice(0, 25)
+        windowTotal: windowed ? sumWindow(shownErrors) : null,
+        top: shownErrors.slice(0, 25)
       }
     };
   }
 };
-var SaveHealth = class extends PublicEndpoint {
+var SaveHealth = class extends DashboardEndpoint {
   async get() {
     const t2 = db();
     let rows = [];
@@ -32685,7 +35460,7 @@ var SaveHealth = class extends PublicEndpoint {
     };
   }
 };
-var LandingStats = class extends PublicEndpoint {
+var LandingStats = class extends DashboardEndpoint {
   async get() {
     return landingStatsCache.get(Date.now());
   }
@@ -32706,11 +35481,14 @@ function compressedPage(key, html, enc) {
   if (!entry.gzip) entry.gzip = gzipSync(nodeBuffer.from(html, "utf8"), { level: 6 });
   return entry.gzip;
 }
-function htmlPage(res, key, html) {
+function htmlPage(res, key, html, opts = {}) {
   const etag = `W/"${key}-${buildStamp}"`;
   const headers = {
     "content-type": "text/html; charset=utf-8",
-    "cache-control": "public, max-age=3600",
+    // `private` for anything behind admin auth: a shared cache or proxy that
+    // stored a `public` copy would serve the authed page to whoever asked next,
+    // which would hand back the very thing the auth is there to stop.
+    "cache-control": opts.private ? "private, no-store" : "public, max-age=3600",
     etag,
     vary: "Accept-Encoding"
   };
@@ -32747,7 +35525,7 @@ var SupportPage = class extends PublicEndpoint {
 };
 var DashboardPage = class extends PublicEndpoint {
   async get() {
-    return htmlPage(this, "dashboard", dashboardHtml);
+    return htmlPage(this, "dashboard", dashboardHtml, { private: true });
   }
 };
 var LandingPage = class extends PublicEndpoint {
@@ -32839,9 +35617,11 @@ export {
   ChangePasscode,
   ChestTransfer,
   ClaimTask,
+  ClearProblem,
   CollectResource,
   CraftItem,
   CreatePlayer,
+  DashboardAuth,
   DeleteDemoSave,
   DeletePlayer,
   DevTools,
@@ -32859,6 +35639,8 @@ export {
   ListMailingList,
   LoginPlayer,
   Metrics,
+  MetricsPlayers,
+  MetricsSummary,
   MoveObject,
   MyWorlds,
   ObserveAnimal,
@@ -32870,6 +35652,7 @@ export {
   ReportSaveIncident,
   Rest,
   SaveHealth,
+  ServerHealth,
   SetGoals,
   SetHomeColors,
   SetHomeStyle,
@@ -32877,6 +35660,7 @@ export {
   SubmitFeedback,
   SyncMetrics,
   SyncPlayer,
+  SystemProbe,
   Terraform,
   UpdateAppearance,
   UpgradeHome,

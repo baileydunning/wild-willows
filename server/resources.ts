@@ -127,6 +127,42 @@ const refusalBuffer = new Map<string, { code: string; status: number; count: num
 let refusalFlushTimer: any = null;
 const REFUSAL_FLUSH_MS = 15_000;
 
+/** UTC day key, `YYYY-MM-DD`. The bucket label for the per-day counters below. */
+const dayKeyUTC = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+/**
+ * How many days of per-code history to keep. Bounded on purpose: `byDay` lives
+ * inside the row, so without a cap a code seen every day would grow its own
+ * record forever. Sixty days is the same window LandingStat keeps, and it is far
+ * longer than anyone looks back at a refusal.
+ */
+const PROBLEM_HISTORY_DAYS = 60;
+
+/**
+ * Fold today's count into a row's per-day map and drop anything past the window.
+ *
+ * These tables were pure running totals — one row per code with a `count` that
+ * only ever went up. That answers "has this ever happened" and nothing else: a
+ * refusal code sitting at 380 could be 380 yesterday or 380 spread over two
+ * months, and there was no way to tell which from the stored data. Any date
+ * filter built on top could only ever sort rows by `lastSeenAt` while showing
+ * all-time numbers beside them.
+ *
+ * Bucketing by day makes the question answerable. No backfill is possible — the
+ * history that was never recorded cannot be recovered — so `byDay` starts empty
+ * on existing rows and fills from the day this ships.
+ */
+function bumpDay(prev: Record<string, number> | undefined, at: number, by: number): Record<string, number> {
+	const cutoff = dayKeyUTC(at - PROBLEM_HISTORY_DAYS * 86_400_000);
+	const out: Record<string, number> = {};
+	for (const [day, n] of Object.entries(prev || {})) {
+		// String compare is safe and cheap on YYYY-MM-DD, which sorts lexically.
+		if (day >= cutoff && Number.isFinite(Number(n))) out[day] = Number(n);
+	}
+	const today = dayKeyUTC(at);
+	out[today] = (out[today] || 0) + by;
+	return out;
+}
+
 async function flushRefusals(): Promise<void> {
 	refusalFlushTimer = null;
 	if (!refusalBuffer.size) return;
@@ -149,6 +185,7 @@ async function flushRefusals(): Promise<void> {
 				status: r.status,
 				lastSeenAt: now,
 				count: (row.count || 0) + r.count,
+				byDay: bumpDay(row.byDay, now, r.count),
 			});
 		}
 	} catch (e: any) {
@@ -2231,6 +2268,13 @@ function metricsView(player: any) {
 		mostTimeArea,
 		// session-length distribution (finished sessions bucketed)
 		sessionLengths: m.sessionLengths || {},
+		// The in-progress session's accrued seconds. Surfaced because "in progress"
+		// is only true until the player closes the game — after that this IS the
+		// length of a finished session, and the heartbeat will never bucket it
+		// (bucketing happens when the NEXT session starts, which for someone who
+		// doesn't come back is never). The roll-up reads it together with lastSeenAt
+		// to count abandoned sessions instead of losing them.
+		curSessionSeconds: Math.round(m.curSessionSeconds || 0),
 		// onboarding
 		timeToFirstActionSeconds,
 		// character creation: how long it took + the customization they chose
@@ -2238,6 +2282,17 @@ function metricsView(player: any) {
 		creationSeconds: creationMs ? round1(creationMs / 1000) : null,
 		appearance: player.appearance || null,
 		counts,
+		// Demo → full carry-over. Stamped by ExportDemoSave onto the copy the player
+		// downloads, so a save that was bought and imported can say so about itself
+		// for the rest of its life. Null on saves that started in the full game (and
+		// on demo saves that have not been exported yet).
+		convertedFromDemoAt: m.convertedFromDemoAt || null,
+		// What they had done in the demo at the moment they carried it over — the
+		// interesting half of the milestone. Frozen at export; the live counters keep
+		// climbing past these.
+		demoPlaySeconds: m.demoPlaySeconds ?? null,
+		demoSessions: m.demoSessions ?? null,
+		demoActions: m.demoActions ?? null,
 	};
 }
 
@@ -4537,6 +4592,16 @@ async function achievementMetrics(playerId: string) {
 			name: d.achievement.get(r.achievementId)?.name || r.achievementId,
 			earnedAt: r.earnedAt,
 		}));
+	/* When each achievement was earned, for ALL of them — not just the five in
+	 * `recent`. Time-to-earn is only interesting for the achievements everybody
+	 * gets, and those are the EARLY ones, which is exactly what a most-recent-five
+	 * list leaves out: a player with twenty achievements reports nothing about the
+	 * first one they ever earned. A flat id -> timestamp map is a few hundred
+	 * bytes and makes both popularity and pacing computable from the rollup.
+	 * `recent` stays as it is; something may still be reading it. */
+	const earnedAt: Record<string, number> = {};
+	for (const r of rows) if (r.achievementId && r.earnedAt) earnedAt[String(r.achievementId)] = Number(r.earnedAt);
+
 	return {
 		earned: rows.length,
 		total: d.achievements.length,
@@ -4544,6 +4609,7 @@ async function achievementMetrics(playerId: string) {
 		completion: round1(rows.length / total),
 		byCategory,
 		recent,
+		earnedAt,
 	};
 }
 
@@ -4686,6 +4752,83 @@ class PublicEndpoint extends Resource {
 	}
 	allowDelete() {
 		return false;
+	}
+}
+
+/**
+ * Roles allowed to read the dashboard's data feeds. `super_user` is Harper's
+ * own; `metrics_reader` is a role you create with no write permission, so the
+ * credential the dashboard holds in a browser tab can read these numbers and do
+ * nothing else. That matters because the page keeps the password it logged in
+ * with in order to authenticate its own requests — a super-user password sitting
+ * in sessionStorage is the keys to the database; a read-only one is a leak worth
+ * rotating and nothing worse.
+ */
+const DASHBOARD_ROLES = new Set(['super_user', 'metrics_reader']);
+
+/** The role name off Harper's user object, tolerating either shape it might take.
+ *  Probed rather than assumed — see SystemProbe's 'authenticated user shape'. */
+function roleNameOf(user: any): string {
+	const r = user?.role;
+	if (typeof r === 'string') return r;
+	if (r && typeof r === 'object') return String(r.role || r.role_name || r.name || '');
+	return '';
+}
+
+/** True for Harper's own super-user flag, whichever way it is expressed. */
+function isSuperUser(user: any): boolean {
+	return !!(user?.role?.permission?.super_user || user?.role?.super_user || roleNameOf(user) === 'super_user');
+}
+
+/**
+ * Base class for the endpoints the metrics dashboard reads.
+ *
+ * Authentication is still entirely Harper's — this only decides WHICH
+ * authenticated users get through, and it fails closed: no user object, no
+ * access. It deliberately does not fall back to "allow if we can't tell", which
+ * is the shape that turns an unrecognised user object into an open endpoint.
+ *
+ * Endpoints carrying more than gameplay numbers do NOT use this. ListFeedback
+ * holds players' reply emails and SystemProbe reports server internals; both stay
+ * on the raw Resource, so they need the real super-user key.
+ */
+class DashboardEndpoint extends Resource {
+	allowRead(user?: any) {
+		if (!user) return false;
+		return isSuperUser(user) || DASHBOARD_ROLES.has(roleNameOf(user));
+	}
+	allowCreate() {
+		return false;
+	}
+	allowUpdate() {
+		return false;
+	}
+	allowDelete() {
+		return false;
+	}
+}
+
+/**
+ * GET /DashboardAuth/ — "are these credentials good, and who am I?"
+ *
+ * The login form needs something cheap to test a username and password against.
+ * Without this it would have to call /MetricsSummary/, which scans and rolls up
+ * every save just to find out whether a password was typed correctly. This reads
+ * nothing.
+ *
+ * It returns the username and role name so the page can show who is signed in —
+ * and so a credential that authenticates but lacks the role gets a clear "your
+ * account cannot read this" instead of a bare 401 it can't explain.
+ */
+export class DashboardAuth extends DashboardEndpoint {
+	async get() {
+		const user: any = (this as any).getContext?.()?.user;
+		return {
+			ok: true,
+			username: user?.username || user?.name || null,
+			role: roleNameOf(user) || null,
+			superUser: isSuperUser(user),
+		};
 	}
 }
 
@@ -5082,7 +5225,27 @@ export class ExportDemoSave extends PublicEndpoint {
 		// Reset edition to 'full' on the exported copy: the player is carrying this
 		// into the paid game, so it should report as a full-game save (Heartbeat
 		// keeps 'demo' sticky otherwise).
-		const exportedPlayer = { ...player, metrics: encodeMetrics({ ...(readMetrics(player) || {}), edition: 'full' }) };
+		//
+		// Flipping that flag used to be ALL this did, which erased the most
+		// interesting thing that had ever happened to the save: after import it was
+		// indistinguishable from one that started in the full game, so "played the
+		// demo, liked it, bought it, carried their meadow across" — the single
+		// clearest signal the demo is doing its job — left no trace anywhere. Stamp
+		// the milestone and freeze how far they had got, so the save can report it
+		// about itself from then on.
+		const prevMetrics = readMetrics(player) || {};
+		const atExport = metricsView(player);
+		const exportedPlayer = {
+			...player,
+			metrics: encodeMetrics({
+				...prevMetrics,
+				edition: 'full',
+				convertedFromDemoAt: Date.now(),
+				demoPlaySeconds: atExport.playSeconds,
+				demoSessions: atExport.sessions,
+				demoActions: atExport.totalActions,
+			}),
+		};
 
 		const save = {
 			meta: {
@@ -5202,7 +5365,7 @@ export class GameState extends PublicEndpoint {
  *
  * So it stays, answering the only shape the client reads: one solo world, which
  * is the player themselves. Remove in Phase 4, together with the client calls —
- * gated on /Metrics/ showing no clients below 0.3.0 for 30 days.
+ * gated on /MetricsSummary/ showing no clients below 0.3.0 for 30 days.
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
@@ -6854,7 +7017,7 @@ async function buildDashboardRows(): Promise<any[]> {
 		/* SoloMetrics table not created yet — empty dashboard */
 	}
 
-	return soloRows
+	const rows = soloRows
 		.map((r: any) => {
 			// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
 			// legacy object rows too.
@@ -6887,6 +7050,13 @@ async function buildDashboardRows(): Promise<any[]> {
 			return {
 				...s,
 				playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
+				// The SAVE's own id (`<name-slug>-<random6>`, minted once by
+				// CreatePlayer and carried through an export/import unchanged), kept
+				// under its own name because `playerId` above deliberately overwrites
+				// it with the slot-scoped one. This is the only thing that survives a
+				// demo save being carried into the full game, so it is what links the
+				// two rows together below.
+				savePlayerId: s.playerId || null,
 				name: r.name || s.name || null,
 				solo: true,
 				platform: r.platform || null,
@@ -6936,6 +7106,74 @@ async function buildDashboardRows(): Promise<any[]> {
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+
+	return markDemoConversions(rows);
+}
+
+/**
+ * Flag the saves that came over from the demo — the "played the demo, bought the
+ * game, brought their meadow with them" milestone.
+ *
+ * Two ways a row can prove it, because one of them only works going forward:
+ *
+ *  1. `convertedFromDemoAt` — stamped by ExportDemoSave onto the copy the player
+ *     downloads. Authoritative, and it survives everything: the demo row could be
+ *     deleted tomorrow and the save would still know its own history.
+ *
+ *  2. A DEMO row sharing this row's `savePlayerId`. Importing a save mints a new
+ *     slot id, so the carried-over save uplinks as a NEW SoloMetrics row while the
+ *     demo's original row stays put — two rows, same save id, different editions.
+ *     That pairing is what makes conversions that already happened visible, before
+ *     the stamp existed. Save ids are `<name-slug>-<random6>` and minted once per
+ *     save, so this is a real identity match, not a name collision.
+ *
+ * The demo half of a pair is marked `supersededByFull` rather than dropped. Both
+ * rows are real uplinks and quietly deleting one would make the player count move
+ * for reasons nothing in the response explained; the aggregate below counts the
+ * pair once and says how many rows are doubled up.
+ */
+function markDemoConversions(rows: any[]): any[] {
+	const editionOf = (r: any) => (r.edition === 'demo' ? 'demo' : 'full');
+	// Newest demo row per save id — a save could have uplinked from more than one
+	// demo session before it was carried over.
+	const demoBySave = new Map<string, any>();
+	for (const r of rows) {
+		if (editionOf(r) !== 'demo' || !r.savePlayerId) continue;
+		const prev = demoBySave.get(r.savePlayerId);
+		if (!prev || (r.lastSeenAt || 0) > (prev.lastSeenAt || 0)) demoBySave.set(r.savePlayerId, r);
+	}
+	const convertedSaveIds = new Set<string>();
+	for (const r of rows) {
+		if (editionOf(r) !== 'full' || !r.savePlayerId) continue;
+		if (r.convertedFromDemoAt || demoBySave.has(r.savePlayerId)) convertedSaveIds.add(r.savePlayerId);
+	}
+
+	return rows.map((r) => {
+		if (editionOf(r) === 'demo') {
+			const superseded = !!(r.savePlayerId && convertedSaveIds.has(r.savePlayerId));
+			return { ...r, convertedFromDemo: false, supersededByFull: superseded };
+		}
+		const twin = r.savePlayerId ? demoBySave.get(r.savePlayerId) : null;
+		if (!r.convertedFromDemoAt && !twin) return { ...r, convertedFromDemo: false, supersededByFull: false };
+		return {
+			...r,
+			convertedFromDemo: true,
+			supersededByFull: false,
+			conversion: {
+				// The stamp is exact. Without it, the demo row's last sighting is the
+				// closest honest answer, so it is labelled as an estimate rather than
+				// dressed up as a timestamp.
+				at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
+				exact: !!r.convertedFromDemoAt,
+				source: r.convertedFromDemoAt ? 'stamped-at-export' : 'paired-demo-save',
+				// How far they got in the demo before buying. Prefers the frozen stamp;
+				// falls back to whatever the demo row last reported.
+				demoPlaySeconds: r.demoPlaySeconds ?? twin?.playSeconds ?? null,
+				demoSessions: r.demoSessions ?? twin?.sessions ?? null,
+				demoActions: r.demoActions ?? twin?.totalActions ?? null,
+			},
+		};
+	});
 }
 
 const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows);
@@ -6969,9 +7207,23 @@ function compareVersions(a: string, b: string): number {
 }
 
 /**
- * GET /Metrics/        — global summary plus a per-player leaderboard.
- * GET /Metrics/<id>    — one player's metrics.
- * Read-only analytics view, safe to point a dashboard or cron at.
+ * GET /Metrics/<id> — ONE player's own metrics, computed live from that player's
+ * game state. Stays public because the game client reads its own view through it
+ * (src/api.ts `metrics()` → metricsUplink.ts / steamSync.ts): knowing the save's
+ * UUID is the capability, exactly as it is for /GameState/<id> and every other
+ * game endpoint under the MVP auth model.
+ *
+ * GET /Metrics/ (no id) used to return the whole analytics roll-up — the global
+ * aggregates AND a row per player carrying names, first/last activity timestamps,
+ * OS, accessibility preferences and behaviour — to anyone who asked for it. That
+ * was the leak. The roll-up now lives behind Harper admin auth, split in two:
+ *
+ *   GET /MetricsSummary/            — the aggregates (~6 KB): what a dashboard or cron wants
+ *   GET /MetricsPlayers/            — per-player rows, paginated
+ *   GET /MetricsPlayers/<playerId>  — one player's full row
+ *
+ * The no-id branch is kept as an explicit 404 rather than deleted, so an old
+ * bookmark, script or cron is told where the data went.
  */
 export class Metrics extends PublicEndpoint {
 	async get(target?: any) {
@@ -6980,32 +7232,72 @@ export class Metrics extends PublicEndpoint {
 		// the path id and any ?query parameters.
 		const id = String((this as any).getId?.() || target?.id || '').trim();
 
-		if (id) {
-			const player = await safeGet(t.Player, id);
-			if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
-			// Per-player lookup includes full biome health numbers (no rendered
-			// area snapshots — those were removed).
-			const bm = await biomeMetrics(id);
-			const view = metricsView(player);
-			return {
-				player: {
-					...view,
-					biomeSummary: bm.summary,
-					activation: activationFlags(view, bm.summary, player),
-					achievements: await achievementMetrics(id),
-					biomes: bm.biomes,
-				},
-			};
-		}
+		if (!id) return metricsRollupMoved();
 
-		// Dashboard view — sourced ENTIRELY from the SoloMetrics table, which is now
-		// the single client-metrics stream: desktop solo play, the browser demo (both
-		// Harper mode and its offline fallback), and any offline solo all uplink a
-		// full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
-		// endpoint rolls up every reporting player — split by `edition` (demo/full)
-		// and `platform` (web/desktop) below — without touching the live
-		// Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
-		// server-side and would stay out of this rollup.)
+		const player = await safeGet(t.Player, id);
+		if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
+		// Per-player lookup includes full biome health numbers (no rendered
+		// area snapshots — those were removed).
+		const bm = await biomeMetrics(id);
+		const view = metricsView(player);
+		return {
+			player: {
+				...view,
+				biomeSummary: bm.summary,
+				activation: activationFlags(view, bm.summary, player),
+				achievements: await achievementMetrics(id),
+				biomes: bm.biomes,
+			},
+		};
+	}
+}
+
+/**
+ * The signpost left at the old public roll-up URL. Deliberately NOT a GameError:
+ * a crawler following a stale link is not a gameplay refusal and has no business
+ * showing up in the dashboard's refusal counters.
+ */
+function metricsRollupMoved() {
+	return {
+		status: 404,
+		headers: { 'content-type': 'application/json; charset=utf-8', 'cache-control': 'no-store' },
+		body: JSON.stringify({
+			title: 'The /Metrics/ roll-up moved',
+			detail:
+				'Aggregates: GET /MetricsSummary/ · per-player rows: GET /MetricsPlayers/ · one row: GET /MetricsPlayers/<playerId>. All three require Harper admin auth. GET /Metrics/<playerId> is unchanged.',
+		}),
+	};
+}
+
+/**
+ * Build the analytics roll-up: apply the ?query filters, aggregate, and hand back
+ * BOTH halves — `summary` (the aggregates) and `rows` (one record per reporting
+ * save). The two admin endpoints below each return one half, which is the whole
+ * point of the split: reading the dashboard summary no longer serializes every
+ * player record on the way out.
+ *
+ * Sourced ENTIRELY from the SoloMetrics table, which is now
+ * the single client-metrics stream: desktop solo play, the browser demo (both
+ * Harper mode and its offline fallback), and any offline solo all uplink a
+ * full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
+ * rolls up every reporting player — split by `edition` (demo/full)
+ * and `platform` (web/desktop) below — without touching the live
+ * Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+ * server-side and would stay out of this rollup.)
+ */
+async function metricsRollup(target?: any): Promise<{
+	generatedAt: number;
+	filters: any;
+	summary: any;
+	rows: any[];
+}> {
+	// The body below is verbatim from the old Metrics.get() roll-up branch, kept in
+	// its original block so the move reads as a move in review rather than a rewrite.
+	// Nothing about how a row is derived changed, so every snapshot already in
+	// SoloMetrics — including the legacy ones buildDashboardRows back-fills — rolls
+	// up exactly as it did before.
+	{
+		const t = db();
 		const now = Date.now();
 		// `all` is the SHARED cached rollup — the ?filter branches below rebind it to
 		// new arrays via .filter() and never mutate the rows, so the cache stays intact.
@@ -7049,6 +7341,36 @@ export class Metrics extends PublicEndpoint {
 							.toLowerCase(),
 					),
 			);
+
+		// Optional `?excludeDevice=<deviceId>` filter (repeatable and/or comma-
+		// separated), the acquisition-side twin of `?exclude=<name>`.
+		//
+		// `?exclude=` drops SAVES by display name, which is enough for the player
+		// numbers — but the acquisition funnel doesn't read saves, it reads AppOpen,
+		// one row per install. So a developer's own machine kept counting: every
+		// launch during development is a real `open`, and after a few weeks of that
+		// the "App opens" figure is mostly one person. (Devices and the conversion
+		// rate barely move — a dev machine is one device — so the distortion is
+		// concentrated in the raw open and character-creation totals, which is
+		// exactly where it is least obvious.)
+		//
+		// Excluding by device id rather than guessing: an unusually busy device could
+		// equally be somebody who loves the game, and there is no honest way to tell
+		// those apart from the row. The dashboard's Devices panel lists the roster so
+		// you can identify your own machine and name it explicitly.
+		const excludedDevices = new Set<string>();
+		try {
+			const raw: string[] =
+				typeof target?.getAll === 'function'
+					? [...target.getAll('excludeDevice'), ...target.getAll('excludeDeviceId')]
+					: [];
+			for (const part of raw.flatMap((s: string) => String(s).split(','))) {
+				const d = part.trim();
+				if (d) excludedDevices.add(d);
+			}
+		} catch {
+			/* no query params on this target */
+		}
 
 		// Optional `?version=<build>` filter — scopes the whole report (including the
 		// acquisition funnel below) to a game version. `?versionMode=min` widens it to
@@ -7177,6 +7499,57 @@ export class Metrics extends PublicEndpoint {
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
 		};
 
+		// Daily series, built from the two timestamps every row already carries.
+		//
+		// Read `created` as the real one: a save is created once, on a known day, so
+		// summing them per day is exact and complete.
+		//
+		// `lastSeen` needs its label read carefully — it is "saves whose MOST RECENT
+		// activity was this day", NOT daily active players. Each row holds a single
+		// lastSeenAt, so somebody who played every day for a week appears once, on the
+		// last of those days, and every earlier day they played is unrecoverable.
+		// Charting it as "active per day" would understate every day but the newest.
+		// True DAU would need a per-day record the uplink does not keep; this is the
+		// honest thing derivable from what is stored, and it is named for what it is.
+		//
+		// The range is DENSE — every day from the first to the last, zeros included.
+		// A bar chart that silently omits empty days shows a busier game than exists.
+		const dayKeyOf = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+		const createdByDay: Record<string, number> = {};
+		const lastSeenByDay: Record<string, number> = {};
+		let firstMs = 0;
+		let lastMs = 0;
+		for (const v of all) {
+			if (v.createdAt) {
+				const k = dayKeyOf(v.createdAt);
+				createdByDay[k] = (createdByDay[k] || 0) + 1;
+				if (!firstMs || v.createdAt < firstMs) firstMs = v.createdAt;
+				if (v.createdAt > lastMs) lastMs = v.createdAt;
+			}
+			if (v.lastSeenAt) {
+				const k = dayKeyOf(v.lastSeenAt);
+				lastSeenByDay[k] = (lastSeenByDay[k] || 0) + 1;
+				if (v.lastSeenAt > lastMs) lastMs = v.lastSeenAt;
+			}
+		}
+		const days: Array<{ day: string; created: number; lastSeen: number }> = [];
+		if (firstMs) {
+			// Walk by UTC day index rather than adding 86_400_000 to a timestamp, so a
+			// leap second or a DST-adjacent value can't skip or repeat a day.
+			const startDay = Math.floor(firstMs / DAY_MS);
+			const endDay = Math.floor((lastMs || firstMs) / DAY_MS);
+			for (let d = startDay; d <= endDay && days.length < 1200; d++) {
+				const key = dayKeyOf(d * DAY_MS);
+				days.push({ day: key, created: createdByDay[key] || 0, lastSeen: lastSeenByDay[key] || 0 });
+			}
+		}
+		const daily = {
+			days,
+			firstDay: days.length ? days[0].day : null,
+			lastDay: days.length ? days[days.length - 1].day : null,
+			note: 'created is exact; lastSeen is the day of each save’s most recent activity, not daily active players',
+		};
+
 		// Composition breakdowns straight off the uplink envelope.
 		const tally = (pick: (v: any) => string | null) => {
 			const out: Record<string, number> = {};
@@ -7195,6 +7568,30 @@ export class Metrics extends PublicEndpoint {
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
+
+		// Demo → full carry-overs (see markDemoConversions). The strongest signal the
+		// demo is earning its keep: not "they finished it", but "they bought the game
+		// and brought their meadow with them".
+		const convertedSaves = all.filter((v) => v.convertedFromDemo);
+		const supersededDemoSaves = all.filter((v) => v.supersededByFull).length;
+		// Denominator: demo saves that ever reported, counting a converted pair once.
+		const demoSavesSeen = all.filter((v) => (v.edition === 'demo' ? 'demo' : 'full') === 'demo').length;
+		const demoPopulation = demoSavesSeen - supersededDemoSaves + convertedSaves.length;
+		const carriedSeconds = convertedSaves.reduce((a, v) => a + (v.conversion?.demoPlaySeconds || 0), 0);
+		const conversions = {
+			demoToFull: convertedSaves.length,
+			// How many of those we know exactly (stamped at export) vs inferred from a
+			// paired demo save. Conversions that predate the stamp are the inferred ones.
+			stamped: convertedSaves.filter((v) => v.conversion?.exact).length,
+			inferred: convertedSaves.filter((v) => v.conversion && !v.conversion.exact).length,
+			demoSavesSeen: demoPopulation,
+			ratePct: demoPopulation ? Math.round((convertedSaves.length / demoPopulation) * 100) : 0,
+			avgDemoMinutesBeforeBuying: convertedSaves.length ? Math.round(carriedSeconds / 60 / convertedSaves.length) : 0,
+			// A converted player has TWO rows (the demo original and the imported
+			// save), so `players` above counts them twice. Said out loud rather than
+			// silently reconciled — both rows are real uplinks.
+			supersededDemoSaves,
+		};
 
 		// Activation funnel — how far players get from first launch. Each flag is
 		// read from the snapshot's activation block when present, falling back to the
@@ -7268,6 +7665,66 @@ export class Metrics extends PublicEndpoint {
 			const bucket = e === 0 ? '0' : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
 			completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
 		}
+		/* The five achievements the most people have, and how long each took.
+		 *
+		 * Popularity is counted from `earnedAt`, which lists every achievement a
+		 * save holds — NOT from `recentDistribution`, which only sees each player's
+		 * last five and therefore systematically under-counts the early
+		 * achievements that are the popular ones.
+		 *
+		 * "Time to earn" is measured from the save's creation, and is reported as a
+		 * MEDIAN alongside the mean: one player who left the game open for a week
+		 * before finishing the tutorial drags a mean badly, and with a handful of
+		 * saves it is a mean of almost nothing. `players` and `timed` are both
+		 * reported because they differ — a save whose snapshot predates this field
+		 * counts for neither, and one with no usable creation time counts for
+		 * popularity but not for pacing. */
+		const achEarnedBy = new Map<string, { players: number; times: number[] }>();
+		for (const v of withAch) {
+			const map = v.achievements.earnedAt;
+			if (!map || typeof map !== 'object') continue;
+			for (const [id, at] of Object.entries(map)) {
+				let e = achEarnedBy.get(id);
+				if (!e) achEarnedBy.set(id, (e = { players: 0, times: [] }));
+				e.players++;
+				const ms = Number(at) - Number(v.createdAt || 0);
+				// Guard both ends: a missing createdAt yields an absurd age, and clock
+				// skew on a client-stamped timestamp can put an achievement before the
+				// save existed. Neither is a real duration.
+				if (v.createdAt && Number.isFinite(ms) && ms >= 0 && ms <= 365 * DAY_MS) e.times.push(ms / 1000);
+			}
+		}
+		const achDefs = await defs().catch(() => null);
+		const topAchievements = [...achEarnedBy.entries()]
+			.sort((a, b) => b[1].players - a[1].players || a[0].localeCompare(b[0]))
+			.slice(0, 5)
+			.map(([id, e]) => {
+				const sorted = [...e.times].sort((a, b) => a - b);
+				const mid = sorted.length
+					? sorted.length % 2
+						? sorted[(sorted.length - 1) / 2]
+						: (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+					: null;
+				return {
+					id,
+					name: (achDefs as any)?.achievement?.get?.(id)?.name || id,
+					players: e.players,
+					// How many of those players had a usable duration behind them.
+					timed: sorted.length,
+					medianSecondsToEarn: mid == null ? null : round1(mid),
+					avgSecondsToEarn: sorted.length ? round1(sorted.reduce((a, b) => a + b, 0) / sorted.length) : null,
+					fastestSeconds: sorted.length ? round1(sorted[0]) : null,
+					slowestSeconds: sorted.length ? round1(sorted[sorted.length - 1]) : null,
+				};
+			});
+		// Saves whose snapshot predates the per-achievement timestamps contribute
+		// nothing here, and a top-five drawn from four saves is not a top five.
+		const achTimingCoverage = {
+			savesWithAchievements: withAch.length,
+			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length)
+				.length,
+		};
+
 		const achievementsSummary = {
 			totalDefined: withAch.reduce((m, v) => Math.max(m, v.achievements.total || 0), 0),
 			totalEarned,
@@ -7279,6 +7736,8 @@ export class Metrics extends PublicEndpoint {
 			byCategory,
 			recentDistribution,
 			completionHistogram,
+			topAchievements,
+			timingCoverage: achTimingCoverage,
 		};
 
 		// Time-per-area: sum every save's dwell time, so you can see where players
@@ -7299,11 +7758,81 @@ export class Metrics extends PublicEndpoint {
 		};
 
 		// Session-length distribution: sum each save's finished-session histogram.
+		//
+		// This is a SUBSET and the name hides it. A save only contributes buckets for
+		// sessions that ended cleanly enough to be measured, and only clients new
+		// enough to record `sessionLengths` contribute at all — so the histogram has
+		// been totalling a couple of dozen sessions while `engagement.totalSessions`
+		// reported hundreds, with nothing in the response admitting the gap. Reading
+		// it as "the shape of all sessions" is then just wrong, and there is no way to
+		// tell from the payload.
+		//
+		// Fixed by reporting the coverage next to the buckets instead of renaming the
+		// field (which would break every existing consumer, this dashboard included):
+		// `sessionsCovered` is what the buckets actually add up to, `totalSessions` is
+		// the population it is drawn from, and `coveragePct` is the ratio to caveat
+		// the chart with.
 		const sessionLengthDistribution: Record<string, number> = { '<2m': 0, '2-10m': 0, '10-30m': 0, '30m+': 0 };
+		let sessionLengthSaves = 0;
 		for (const v of timed) {
-			for (const [b, n] of Object.entries(v.sessionLengths || {}))
-				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			const buckets = Object.entries(v.sessionLengths || {});
+			if (buckets.length) sessionLengthSaves++;
+			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
+		// Count the ABANDONED sessions the heartbeat can never bucket.
+		//
+		// A session's length is only written when the NEXT one begins. For a player
+		// who closes the game and doesn't come back, that moment never arrives — so
+		// their session sits marked "in progress" forever and never reaches the
+		// histogram. Since most players do exactly that, the histogram was covering
+		// about 4% of sessions and looked broken.
+		//
+		// But nothing about that session is unknown. `curSessionSeconds` holds its
+		// accrued length, and once `lastSeenAt` is older than the session gap the
+		// player has demonstrably gone. That is a FINISHED session with a known
+		// duration, so bucket it here rather than pretending it is still running.
+		//
+		// No double counting: when a player does return, the heartbeat buckets that
+		// session itself and resets `curSessionSeconds`, so the same session can never
+		// be counted from both sides.
+		const abandonedBuckets: Record<string, number> = {};
+		let abandonedCount = 0;
+		let stillLive = 0;
+		for (const v of timed) {
+			const open = Math.round(v.curSessionSeconds || 0);
+			if (open <= 0) continue;
+			const quietFor = v.lastSeenAt ? now - v.lastSeenAt : Infinity;
+			if (quietFor > SESSION_GAP_MS) {
+				const b = sessionBucket(open);
+				abandonedBuckets[b] = (abandonedBuckets[b] || 0) + 1;
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + 1;
+				abandonedCount++;
+			} else {
+				stillLive++; // genuinely mid-session right now
+			}
+		}
+		const sessionsCovered = Object.values(sessionLengthDistribution).reduce((a, b) => a + b, 0);
+		// Only sessions happening RIGHT NOW are unmeasurable. Everything else either
+		// ended cleanly or was abandoned, and both are counted above.
+		const sessionsMeasurable = Math.max(0, totalSessions - stillLive);
+		const sessionLengths = {
+			buckets: sessionLengthDistribution,
+			sessionsCovered,
+			// Where the coverage came from, kept apart so the inference is auditable.
+			fromClient: sessionsCovered - abandonedCount,
+			fromAbandoned: abandonedCount,
+			sessionsMeasurable,
+			sessionsLiveNow: stillLive,
+			totalSessions,
+			savesReporting: sessionLengthSaves,
+			savesMeasured: timed.length,
+			// Saves too old to report curSessionSeconds still can't contribute their
+			// abandoned session — said plainly so a gap has a name.
+			savesMissingOpenSession: timed.filter((v) => v.curSessionSeconds == null).length,
+			abandonedBuckets,
+			coveragePct: sessionsMeasurable ? Math.round((sessionsCovered / sessionsMeasurable) * 100) : 0,
+			note: 'a session the client never closed is bucketed here once the player has been quiet longer than the session gap — only sessions live right now are unmeasurable',
+		};
 
 		// Character creation: how long people spend in the creator (across saves).
 		const withCreation = all.filter((v) => (v.creationMs || 0) > 0);
@@ -7342,12 +7871,45 @@ export class Metrics extends PublicEndpoint {
 		const appearancePopularity = { savesWithAppearance: all.filter((v) => v.appearance).length, choices: appTally };
 
 		// Onboarding friction: how long from creating a save to the first action.
-		const withTTFA = all.filter((v) => v.timeToFirstActionSeconds != null);
+		//
+		// The plain mean is unusable here and was being read as if it weren't. Real
+		// first actions land in the seconds — 5.9s, 14.1s, 19.7s — but a save that was
+		// created and then left open overnight before anyone touched it contributes a
+		// five-figure number, and a handful of those dragged the reported average past
+		// 80 minutes. Nobody's onboarding takes 80 minutes; the statistic was measuring
+		// abandonment, not friction.
+		//
+		// So: report the MEDIAN (which the outliers cannot move), keep the raw mean for
+		// continuity, and add a trimmed mean over the plausible window. `avgSeconds`
+		// deliberately keeps its old meaning rather than being quietly redefined — an
+		// existing consumer reading it gets the same number it got yesterday, and the
+		// honest numbers sit next to it under new names.
+		const TTFA_OUTLIER_SECONDS = 30 * 60; // half an hour to press one button = walked away
+		const ttfaAll = all.filter((v) => v.timeToFirstActionSeconds != null).map((v) => v.timeToFirstActionSeconds);
+		const ttfaSorted = [...ttfaAll].sort((a, b) => a - b);
+		const ttfaKept = ttfaSorted.filter((s) => s <= TTFA_OUTLIER_SECONDS);
+		const median = (xs: number[]): number => {
+			if (!xs.length) return 0;
+			const mid = xs.length >> 1;
+			return round1(xs.length % 2 ? xs[mid] : (xs[mid - 1] + xs[mid]) / 2);
+		};
+		const mean = (xs: number[]): number => (xs.length ? round1(xs.reduce((a, b) => a + b, 0) / xs.length) : 0);
 		const timeToFirstAction = {
-			playersMeasured: withTTFA.length,
-			avgSeconds: withTTFA.length
-				? round1(withTTFA.reduce((a, v) => a + v.timeToFirstActionSeconds, 0) / withTTFA.length)
+			playersMeasured: ttfaAll.length,
+			// Unchanged meaning, kept for continuity. Skewed by design — see below.
+			avgSeconds: mean(ttfaAll),
+			// The number to actually quote. Immune to the walked-away tail.
+			medianSeconds: median(ttfaSorted),
+			// Mean over everyone who acted within the plausible window.
+			trimmedAvgSeconds: mean(ttfaKept),
+			trimmedMedianSeconds: median(ttfaKept),
+			p90Seconds: ttfaKept.length
+				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
 				: 0,
+			// Said out loud rather than silently dropped, so the exclusion is auditable.
+			outliersExcluded: ttfaAll.length - ttfaKept.length,
+			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
+			note: 'avgSeconds includes saves left open before the first action; medianSeconds and trimmedAvgSeconds do not',
 		};
 
 		// Settings & accessibility usage — audio mute rate plus which accessibility
@@ -7414,7 +7976,8 @@ export class Metrics extends PublicEndpoint {
 
 		// Acquisition funnel — from the per-device AppOpen table, so it counts
 		// people who opened the app but never made a character (bounced), and how
-		// many characters each person creates. Independent of ?exclude (device-scoped).
+		// many characters each person creates. `?exclude=<name>` does not reach here
+		// (that filters saves, and these rows are devices); `?excludeDevice=` does.
 		let openRows: any[] = [];
 		try {
 			openRows = await allOf(t.AppOpen);
@@ -7427,6 +7990,20 @@ export class Metrics extends PublicEndpoint {
 			openRows = openRows.filter((o) => (o.edition === 'demo' ? 'demo' : 'full') === editionFilter);
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			openRows = openRows.filter((o) => (o.platform || 'unknown') === platformFilter);
+
+		const deviceIdOf = (o: any) => String(o?.deviceId || String(o?.id || '').replace(/^dev:/, ''));
+
+		const excludedRows = excludedDevices.size ? openRows.filter((o) => excludedDevices.has(deviceIdOf(o))) : [];
+		if (excludedDevices.size) openRows = openRows.filter((o) => !excludedDevices.has(deviceIdOf(o)));
+		// What the exclusion actually removed, stated rather than left to be inferred
+		// from a number that quietly got smaller.
+		const excludedDeviceStats = {
+			ids: [...excludedDevices],
+			matched: excludedRows.length,
+			opens: excludedRows.reduce((a, o) => a + (o.opens || 0), 0),
+			charactersCreated: excludedRows.reduce((a, o) => a + (o.savesCreated || 0), 0),
+		};
+
 		const devices = openRows.length;
 		const convertedDevices = openRows.filter((o) => o.converted).length;
 		// Demo completion: of the demo installs that made a character, how many
@@ -7469,11 +8046,15 @@ export class Metrics extends PublicEndpoint {
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
 			editions: editionSplit,
+			// What the ?excludeDevice= filter took out. The dashboard no longer offers
+			// a device picker — raw app opens came off the page entirely, which removes
+			// the distortion rather than filtering around it — but the query parameter
+			// stays for anyone reading this endpoint directly.
+			excludedDevices: excludedDeviceStats,
 		};
 
 		return {
 			generatedAt: now,
-			source: 'solo-metrics',
 			filters: {
 				availableVersions,
 				availableEditions,
@@ -7483,13 +8064,16 @@ export class Metrics extends PublicEndpoint {
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
 				idle: idleExcluded ? 'exclude' : null,
+				excludedDevices: [...excludedDevices],
 			},
 			summary: {
 				players: all.length,
 				soloPlayers: all.length,
 				excludedNames: [...excludedNames],
+				excludedDevices: [...excludedDevices],
 				anomalies,
 				audience,
+				daily,
 				languages,
 				platforms,
 				operatingSystems,
@@ -7510,6 +8094,7 @@ export class Metrics extends PublicEndpoint {
 					returningPlayers,
 					returningRatePct: pct(returningPlayers),
 				},
+				conversions,
 				progression: {
 					avgBiomeHealth,
 					biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary?.biomesFullyRestored || 0), 0),
@@ -7518,7 +8103,11 @@ export class Metrics extends PublicEndpoint {
 					tutorialStepHistogram: tutorialTally,
 				},
 				areaDwell,
+				// Kept verbatim so existing readers (this repo's dashboard included)
+				// don't break; `sessionLengths` is the same buckets plus the coverage
+				// they were always missing.
 				sessionLengthDistribution,
+				sessionLengths,
 				creation,
 				appearancePopularity,
 				timeToFirstAction,
@@ -7530,9 +8119,1013 @@ export class Metrics extends PublicEndpoint {
 				actionTotals,
 				achievements: achievementsSummary,
 			},
-			players: all,
+			rows: all,
 		};
 	}
+}
+
+/** Largest page /MetricsPlayers/ will hand out in one response. */
+const METRICS_PAGE_MAX = 500;
+/** Page size when the caller doesn't ask for one. */
+const METRICS_PAGE_DEFAULT = 100;
+
+/** Read a single ?key=value off Harper's RequestTarget, '' when absent. */
+function queryOne(target: any, key: string): string {
+	try {
+		const raw = typeof target?.getAll === 'function' ? target.getAll(key) : [];
+		return String((raw && raw[0]) || '').trim();
+	} catch {
+		return '';
+	}
+}
+
+/**
+ * GET /MetricsSummary/ — the analytics aggregates, and ONLY the aggregates.
+ *
+ * Extends the raw Resource (NOT PublicEndpoint), so Harper's default permissions
+ * apply and only an authenticated super user can read it — the same treatment
+ * ListFeedback gets, and for the same reason:
+ *   curl -u HDB_ADMIN 'https://wild.willows.harperfabric.com/MetricsSummary/'
+ *
+ * This is the response a dashboard, a cron job or a capacity report actually
+ * wants. It used to arrive with ~500 KB of per-player records stapled to it;
+ * those now live on /MetricsPlayers/ and are fetched only when something needs
+ * them. Every ?filter the old endpoint took still works here unchanged.
+ */
+export class MetricsSummary extends DashboardEndpoint {
+	async get(target?: any) {
+		const { generatedAt, filters, summary, rows } = await metricsRollup(target);
+		return {
+			generatedAt,
+			source: 'solo-metrics',
+			filters,
+			summary,
+			// So a caller can size its paging without a second request.
+			players: { total: rows.length, endpoint: '/MetricsPlayers/', maxLimit: METRICS_PAGE_MAX },
+		};
+	}
+}
+
+/**
+ * GET /MetricsPlayers/                — per-player rows, newest-active first, paginated.
+ * GET /MetricsPlayers/<playerId>      — one player's full row.
+ *
+ * Admin-only for the same reason as MetricsSummary — these rows are the sensitive
+ * half: display names, exact first/last activity, OS, accessibility preferences,
+ * appearance and behaviour.
+ *
+ * Paging: `?limit=` (default 100, max 500) and `?cursor=`, where the cursor is the
+ * opaque token handed back as `nextCursor`. Rows are sorted deterministically
+ * (last seen desc, then play time desc) by buildDashboardRows, so the cursor names
+ * the last row of the previous page and paging resumes just after it. If that row
+ * has vanished between pages — a re-uplink can reorder it — paging restarts from
+ * the top rather than silently skipping records, and `cursorStale: true` says so.
+ *
+ * BACKWARDS COMPATIBILITY: a row here is byte-for-byte the row that used to appear
+ * in the old `players` array, derived fields and all. Nothing was renamed, nothing
+ * dropped. `?fields=list` is opt-in, for callers that only want to draw a table.
+ */
+export class MetricsPlayers extends DashboardEndpoint {
+	async get(target?: any) {
+		const id = String((this as any).getId?.() || target?.id || '').trim();
+		const { generatedAt, filters, rows } = await metricsRollup(target);
+
+		if (id) {
+			const row = rows.find((r: any) => r.playerId === id);
+			if (!row) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
+			return { generatedAt, player: row };
+		}
+
+		const asked = parseInt(queryOne(target, 'limit'), 10) || METRICS_PAGE_DEFAULT;
+		const limit = Math.min(Math.max(asked, 1), METRICS_PAGE_MAX);
+		const cursor = queryOne(target, 'cursor');
+		let start = 0;
+		let cursorStale = false;
+		if (cursor) {
+			const after = decodeMetricsCursor(cursor);
+			const at = after ? rows.findIndex((r: any) => r.playerId === after) : -1;
+			if (at >= 0) start = at + 1;
+			else cursorStale = true;
+		}
+
+		const page = rows.slice(start, start + limit);
+		const last = page[page.length - 1];
+		const more = start + page.length < rows.length;
+		const lean = queryOne(target, 'fields').toLowerCase() === 'list';
+
+		return {
+			generatedAt,
+			filters,
+			total: rows.length,
+			offset: start,
+			limit,
+			returned: page.length,
+			nextCursor: more && last ? encodeMetricsCursor(last.playerId) : null,
+			...(cursorStale ? { cursorStale: true } : {}),
+			players: lean ? page.map(metricsListRow) : page,
+		};
+	}
+}
+
+// ---------------------------------------------------------------- system probe
+// Harper records its own telemetry into two tables in the `system` database —
+// hdb_analytics (aggregated once a minute) and hdb_raw_analytics (per second,
+// per thread). If a component can read those in-process, the dashboard can show
+// real server health (thread utilisation, database size, HTTP error rate) with
+// no credentials stored anywhere and no call out to the operations API on :9925.
+//
+// Whether a component CAN read them is not documented either way, and the answer
+// decides the whole design — so this endpoint finds out instead of guessing. It
+// is a throwaway: once we know, it either turns into a real health endpoint or
+// gets deleted. Every step is independently caught, so one failure still leaves a
+// useful report rather than a stack trace.
+//
+//   curl -u HDB_ADMIN https://wild.willows.harperfabric.com/SystemProbe/
+
+/** Read at most `max` records from a search, whatever the query did.
+ *  The cap is enforced HERE, not in the query: if a condition is ignored or
+ *  unsupported, an unbounded scan of a per-minute telemetry table would be
+ *  enormous, and the point of a probe is to not take the server down. */
+async function takeFrom(iterable: any, max: number): Promise<any[]> {
+	const out: any[] = [];
+	for await (const item of iterable) {
+		if (item != null) out.push(item);
+		if (out.length >= max) break;
+	}
+	return out;
+}
+
+/**
+ * GET /ServerHealth/ — how the SERVER is doing, as opposed to the players.
+ *
+ * Reads Harper's own telemetry out of `system.hdb_analytics` in-process, which
+ * SystemProbe confirmed a component can do. That is the whole reason this exists
+ * in this shape: no super-user password stored in the app, no proxying the
+ * operations API on :9925, no second credential to leak. Same DashboardEndpoint
+ * gate as the metrics feeds, so the read-only role reaches it.
+ *
+ * ONE UNVERIFIED THING, stated because it decides whether this works for you: the
+ * probe ran as HDB_ADMIN, so it proved a SUPER-USER can read the system database
+ * from a component. Whether a `metrics_reader` request can do the same is NOT
+ * established — Harper's super_user role carries explicit
+ * `permission.system.tables.hdb_analytics.read`, and a role without it may be
+ * refused. So the read is caught and reported as `readable: false` with the error
+ * attached rather than thrown. If this reads fine as super-user and not as
+ * metrics_reader, that IS the answer, and it says so on the page instead of
+ * turning into a 500.
+ *
+ * Record shape: { id: [timeMs, nodeId], period, metric, path, method, type,
+ * total, count, ratio, mean, median, p95, p99, time }. `id` is a COMPOSITE array,
+ * so it is used for range filtering as a whole and the numeric timestamp is read
+ * from `time` — never by coercing `id`, which yields NaN.
+ */
+const HEALTH_MAX_ROWS = 4000;
+
+export class ServerHealth extends DashboardEndpoint {
+	async get(target?: any) {
+		const now = Date.now();
+		// Default 60, not 15. The gauges (database-size, storage-volume,
+		// main-thread-utilization) are emitted sparsely, so a 15-minute window
+		// routinely landed between samples and reported them as absent.
+		const mins = Math.min(Math.max(parseInt(queryOne(target, 'minutes'), 10) || 60, 1), 1440);
+		const since = now - mins * 60_000;
+
+		/* ?raw=<metric> dumps a few records verbatim.
+		 *
+		 * Everything above this line is an interpretation of these records, and the
+		 * interpretations have been wrong twice — first about the metric names, then
+		 * about the units. This exists so the next question is settled by looking
+		 * rather than by another guess. Same auth gate as the rest. */
+		const rawMetric = queryOne(target, 'raw');
+
+		let rows: any[] = [];
+		let readable = true;
+		let readError: string | null = null;
+		try {
+			const t: any = (globalThis as any).databases?.system?.hdb_analytics;
+			if (!t || typeof t.search !== 'function') {
+				readable = false;
+				readError = 'system.hdb_analytics is not visible to this component';
+			} else {
+				// Cap enforced in the loop, not trusted to the query: per-minute
+				// telemetry across every metric and thread adds up fast.
+				rows = await takeFrom(
+					t.search({ conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] }),
+					HEALTH_MAX_ROWS,
+				);
+			}
+		} catch (e: any) {
+			readable = false;
+			readError = String(e?.message || e);
+		}
+
+		/* Metric names are matched by SHAPE, not by an exact string.
+		 *
+		 * The first cut of this hard-coded 'main-thread-utilization', 'cpu-usage',
+		 * 'database-size' and friends, and on the real instance every one of them
+		 * missed: the response_* and duration metrics resolved, so the panel looked
+		 * alive while thread utilization, CPU, database size and replication lag all
+		 * rendered as em-dashes — the failure mode that looks exactly like a healthy
+		 * idle server. Harper's names vary by version and casing, so normalise both
+		 * sides to bare lowercase letters and match on that: mainThreadUtilization,
+		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
+		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
+		 * unrecognised name is visible on the page instead of silently absent. */
+		const norm = (s: any) =>
+			String(s || '')
+				.toLowerCase()
+				.replace(/[^a-z0-9]/g, '');
+		const pick = (...names: string[]) => {
+			const want = names.map(norm);
+			return rows.filter((r) => want.includes(norm(r.metric)));
+		};
+		/* Which field carries the number also varies by metric — a gauge lands in
+		 * `total`, a rate in `ratio`, a timing in `mean`. Take the first that is
+		 * actually a number rather than assuming one. */
+		// Bookkeeping, not measurements: numbers present on every record, none of
+		// which is the thing the metric is actually reporting.
+		const NON_VALUE = new Set(['time', 'period', 'id', 'nodeid', 'node', 'count', 'timestamp', 'starttime', 'endtime']);
+		const valueOf = (r: any, prefer?: string) => {
+			for (const f of [prefer, 'total', 'value', 'ratio', 'mean', 'median'].filter(Boolean) as string[]) {
+				const n = Number(r?.[f]);
+				if (Number.isFinite(n)) return n;
+			}
+			/* Last resort: the first numeric field that is not bookkeeping.
+			 *
+			 * Hard-coding the field list turned out to be the same mistake as
+			 * hard-coding the metric names. database-size and main-thread-utilization
+			 * both arrive on the live instance and both still rendered as em-dashes,
+			 * because their number is not in `total`. A gauge whose value sits under a
+			 * name nothing predicted is still a gauge, and reading it beats reporting
+			 * nothing — with `allMetrics[].fields` publishing what was actually there,
+			 * so this stays checkable rather than magic. */
+			if (r && typeof r === 'object') {
+				for (const [k, v] of Object.entries(r)) {
+					if (NON_VALUE.has(k.toLowerCase())) continue;
+					if (typeof v !== 'number' || !Number.isFinite(v)) continue;
+					return v;
+				}
+			}
+			return null;
+		};
+		/* Every numeric leaf on a record, one level into nested objects, as dotted
+		 * paths. This is the diagnostic that ends the guessing: when a gauge reads
+		 * em-dash, this says what its records actually carry. */
+		const numericFields = (r: any, depth = 0): string[] => {
+			if (!r || typeof r !== 'object') return [];
+			const out: string[] = [];
+			for (const [k, v] of Object.entries(r)) {
+				if (k === 'id' || k === 'metric' || k === 'path' || k === 'method' || k === 'type') continue;
+				if (v && typeof v === 'object' && !Array.isArray(v) && depth < 1) {
+					for (const sub of numericFields(v, depth + 1)) out.push(`${k}.${sub}`);
+				} else if (typeof v === 'number' && Number.isFinite(v)) out.push(k);
+			}
+			return out;
+		};
+		// Harper writes one row per metric per minute per thread, so a point reading
+		// and a window average answer different questions — a utilization spike and a
+		// sustained ceiling are not the same problem and shouldn't collapse together.
+		/* When a record was written.
+		 *
+		 * NOT simply `r.time`. The primary key is a composite [timeMs, nodeId], and
+		 * on the live instance `time` is frequently absent — so `Number(r.time) || 0`
+		 * silently became 0 for every row. Everything built on "the newest sample"
+		 * then broke in ways that looked like data rather than like a bug: latestOf
+		 * returned the FIRST row it scanned instead of the newest, and grouping by
+		 * newest timestamp matched all 80 records in the window at once, which is how
+		 * a 4MB database was reported as "17.66GB across 80 databases". Read the
+		 * composite id when the field is missing. */
+		const timeOf = (r: any): number => {
+			const t = Number(r?.time);
+			if (Number.isFinite(t) && t > 0) return t;
+			const id = r?.id;
+			if (Array.isArray(id)) {
+				const t0 = Number(id[0]);
+				if (Number.isFinite(t0) && t0 > 0) return t0;
+			}
+			return 0;
+		};
+		/* Every record sharing the newest timestamp for a metric. Metrics that are
+		 * emitted per-database (or per-thread) produce several records an interval,
+		 * and picking one of them is arbitrary in a way that is invisible on screen. */
+		const latestGroup = (...names: string[]) => {
+			const rs = pick(...names);
+			if (!rs.length) return [];
+			const newest = rs.reduce((m, r) => Math.max(m, timeOf(r)), 0);
+			// A metric with no usable timestamp anywhere: one record is all that can
+			// honestly be claimed, rather than the whole window summed together.
+			if (!newest) return rs.slice(-1);
+			return rs.filter((r) => timeOf(r) === newest);
+		};
+		const latestSum = (...names: string[]) => {
+			const vs = latestGroup(...names)
+				.map((r) => valueOf(r))
+				.filter((v): v is number => v != null);
+			return vs.length ? vs.reduce((a, b) => a + b, 0) : null;
+		};
+		const latestParts = (...names: string[]) => latestGroup(...names).length || null;
+		const latestOf = (...names: string[]) => {
+			let best: any = null;
+			for (const r of pick(...names)) if (!best || timeOf(r) > timeOf(best)) best = r;
+			return best;
+		};
+		// Raw, deliberately unrounded. Rounding here destroyed ratio metrics before
+		// they could be converted: round1(0.75) is 0.7, so a 75% window average came
+		// out as 70%. Each call site rounds in the unit it is actually reporting.
+		const avgOfField = (field: string | undefined, names: string[]) => {
+			const xs = pick(...names)
+				.map((r) => valueOf(r, field))
+				.filter((n): n is number => n != null);
+			return xs.length ? xs.reduce((a, b) => a + b, 0) / xs.length : null;
+		};
+		const avgOf = (...names: string[]) => avgOfField(undefined, names);
+		const sumOf = (...names: string[]) => pick(...names).reduce((a, r) => a + (valueOf(r) || 0), 0);
+
+		// HTTP outcomes arrive as one metric per status (response_200, response_404,
+		// response_409…). Counting by prefix means a status this code has never seen
+		// still lands somewhere instead of being dropped.
+		const byStatus: Record<string, number> = {};
+		for (const r of rows) {
+			const m = String(r.metric || '');
+			if (!m.startsWith('response_')) continue;
+			const code = m.slice('response_'.length);
+			byStatus[code] = (byStatus[code] || 0) + (Number(r.count) || 0);
+		}
+		const totalResponses = Object.values(byStatus).reduce((a, b) => a + b, 0);
+		const serverErrors = Object.entries(byStatus)
+			.filter(([code]) => code.startsWith('5'))
+			.reduce((a, [, n]) => a + n, 0);
+
+		/* Slowest paths — GROUPED by path+method across the window.
+		 *
+		 * These used to be listed raw, one line per analytics record, which on the
+		 * real instance meant ten lines of `Metrics GET` each with count 1 and p95
+		 * equal to median: a list of the ten slowest individual REQUESTS wearing the
+		 * heading "slowest endpoints, by p95". A p95 over one sample is just that
+		 * sample. Group first, then report.
+		 *
+		 * Harper writes these per period, so a row's `count` may be 1 (a single
+		 * request) or many (a pre-aggregated period). Both are handled: counts sum,
+		 * and the typical figure is weighted by count so a busy period is not given
+		 * the same say as a lone slow request. A true window p95 cannot be recovered
+		 * from per-period summaries, so the tail is reported as the worst p95 seen
+		 * and named `worstMs` rather than dressed up as a percentile it is not. */
+		/* Infrastructure traffic is not players, and mixing them makes both numbers
+		 * lie. `status` is Harper Fabric's load-balancer probe — @harperdb/status-check,
+		 * installed by the platform, not by this app — and on a two-node instance it
+		 * runs often enough to dominate the request count. Harper's own operations
+		 * (get_usage_licenses and friends) arrive as snake_case names with no HTTP
+		 * method, which is what separates them from this app's PascalCase resources.
+		 * Neither belongs in "slowest endpoints" or in the denominator of an error
+		 * rate that is supposed to describe what players experienced. */
+		const PROBE_PATHS = new Set(['status', 'getstatus', 'health', 'healthz', 'healthcheck', 'ping']);
+		/* Two different things, kept apart because they mean different things.
+		 *
+		 * A PROBE is automatic and constant — the platform asking "is this node up"
+		 * every few seconds forever. An OPERATION is a person: opening the Harper
+		 * console lists your users, describes your tables and reads your components,
+		 * and alter_user is somebody changing a password. Calling both "the health
+		 * probe" was wrong, and it mattered — a spike in operations is you, and a
+		 * spike in probes is the platform deciding something is unwell. */
+		/* This dashboard's own endpoints. Listed explicitly rather than pattern-
+		 * matched, because the line is about WHO CALLS them, not what they are
+		 * named: /Metrics/ looks like tooling and is not — the game client fetches
+		 * it on every uplink — while /MetricsSummary/ and /MetricsPlayers/ are only
+		 * ever reached by this page. Getting that backwards would move real player
+		 * traffic into the tooling bucket and quietly shrink the numbers that
+		 * matter. Anything not named here is gameplay. */
+		const DASHBOARD_PATHS = new Set(
+			[
+				'MetricsSummary',
+				'MetricsPlayers',
+				'GameplayHealth',
+				'SaveHealth',
+				'ServerHealth',
+				'LandingStats',
+				'ClearProblem',
+				'DashboardAuth',
+				'DashboardPage',
+				'dashboard',
+				'ListFeedback',
+				'ListMailingList',
+				'SystemProbe',
+			].map(norm),
+		);
+		const classify = (path: any, method: any): 'gameplay' | 'dashboard' | 'probe' | 'operation' => {
+			const p = String(path || '');
+			if (PROBE_PATHS.has(norm(p))) return 'probe';
+			// A Harper operation: no HTTP method and a snake_case/lowercase name.
+			// This app's resources are PascalCase and always arrive with a method.
+			if (!method && /^[a-z][a-z0-9_]*$/.test(p)) return 'operation';
+			return DASHBOARD_PATHS.has(norm(p)) ? 'dashboard' : 'gameplay';
+		};
+
+		let appCalls = 0;
+		let dashCalls = 0;
+		let probeCalls = 0;
+		let opCalls = 0;
+		const probesSeen = new Set<string>();
+		const opsSeen = new Set<string>();
+		const groups = new Map<
+			string,
+			{ kind: string; path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }
+		>();
+		for (const r of pick('duration', 'transfer', 'request')) {
+			if (!r.path) continue;
+			const calls0 = Math.max(1, Number(r.count) || 0);
+			const kind = classify(r.path, r.method);
+			if (kind === 'probe') {
+				probeCalls += calls0;
+				probesSeen.add(String(r.path));
+				continue;
+			}
+			if (kind === 'operation') {
+				opCalls += calls0;
+				opsSeen.add(String(r.path));
+				continue;
+			}
+			if (kind === 'dashboard') dashCalls += calls0;
+			else appCalls += calls0;
+			const method = r.method ? String(r.method) : null;
+			const key = `${kind}\u0000${r.path}\u0000${method || ''}`;
+			let g = groups.get(key);
+			if (!g) groups.set(key, (g = { kind, path: String(r.path), method, calls: 0, worst: 0, wsum: 0, wn: 0 }));
+			const calls = Math.max(1, Number(r.count) || 0);
+			const tail = Number(r.p95);
+			const mid = Number(r.median);
+			const typical = Number.isFinite(mid) ? mid : Number(r.mean);
+			g.calls += calls;
+			if (Number.isFinite(tail)) g.worst = Math.max(g.worst, tail);
+			else if (Number.isFinite(typical)) g.worst = Math.max(g.worst, typical);
+			if (Number.isFinite(typical)) {
+				g.wsum += typical * calls;
+				g.wn += calls;
+			}
+		}
+		const rank = (g: any) => ({
+			kind: g.kind,
+			path: g.path,
+			method: g.method,
+			// Worst single p95 observed in the window, not a window percentile.
+			worstMs: round1(g.worst),
+			// Count-weighted typical response, so volume carries the weight.
+			typicalMs: g.wn ? round1(g.wsum / g.wn) : null,
+			calls: g.calls,
+		});
+		const byWorst = (a: any, b: any) => b.worstMs - a.worstMs;
+		// Two lists, because they answer different questions: one is what players
+		// wait for, the other is what this page costs to look at.
+		const slowest = [...groups.values()]
+			.filter((g) => g.kind === 'gameplay')
+			.map(rank)
+			.sort(byWorst)
+			.slice(0, 10);
+		const slowestDashboard = [...groups.values()]
+			.filter((g) => g.kind === 'dashboard')
+			.map(rank)
+			.sort(byWorst)
+			.slice(0, 10);
+
+		const util = latestOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization');
+		// Utilization arrives as a 0-1 ratio from some sources and an already-scaled
+		// percent from others (cpu-usage reads 23, thread utilization reads 0.85).
+		// round1 on a ratio is destructive — 0.853 becomes 0.9, which is the
+		// difference between "comfortable" and "at the ceiling" — so normalise to a
+		// percent first and keep one decimal of real precision.
+		const asPct = (v: any): number | null => {
+			// null must survive as null. Number(null) is 0 and 0 is finite, so the
+			// obvious guard let a metric that was never found render as a confident
+			// "0%" — a missing gauge and an idle server displayed identically, which
+			// is exactly how this panel shipped looking healthy while reading nothing.
+			if (v == null || v === '') return null;
+			const n = Number(v);
+			if (!Number.isFinite(n) || n < 0) return null;
+			/* Anything above 100 is not a percentage.
+			 *
+			 * The old rule was "<= 1 means a ratio, otherwise it is already a
+			 * percent", which held for cpu-usage and then met main-thread-utilization
+			 * reporting 89,876 — rendered, with total confidence, as "89876%". Some
+			 * unit is being used here that this code does not know (microseconds of
+			 * busy time, most likely), and the correct response to an unrecognised
+			 * unit is to decline rather than to print it with a % sign on the end.
+			 * The raw value is published on the metric so it stays diagnosable. */
+			if (n > 100) return null;
+			return round1(n <= 1 ? n * 100 : n);
+		};
+
+		if (rawMetric) {
+			const want = norm(rawMetric);
+			// Newest first — when you are chasing a unit, the most recent record is
+			// the one you want at the top rather than wherever the scan happened to
+			// put it.
+			const sample = rows
+				.filter((r) => norm(r.metric) === want)
+				.sort((a, b) => timeOf(b) - timeOf(a))
+				.slice(0, 12);
+			return {
+				generatedAt: now,
+				windowMinutes: mins,
+				readable,
+				readError,
+				raw: rawMetric,
+				matched: sample.length,
+				// Verbatim, so units and per-record breakdowns are visible as they are.
+				records: sample,
+			};
+		}
+
+		const REPL_LATENCY = ['replication-latency', 'replicationLatency', 'replication-lag', 'replicationLag'];
+		const seen = [...new Set(rows.map((r) => String(r.metric)))].sort();
+		// Anything this endpoint consumed, so the leftovers can be named.
+		const matched = new Set(
+			[
+				'main-thread-utilization',
+				'mainThreadUtilization',
+				'thread-utilization',
+				'utilization',
+				'cpu-usage',
+				'cpuUsage',
+				'cpu',
+				'process-cpu',
+				'cpu-utilization',
+				'memory',
+				'memory-usage',
+				'memoryUsage',
+				'heap-used',
+				'rss',
+				'database-size',
+				'databaseSize',
+				'db-size',
+				'storage-size',
+				'storage-volume',
+				'storageVolume',
+				'volume-size',
+				'disk-size',
+				'disk-total',
+				'node-storage',
+				'nodeStorage',
+				'duration',
+				'transfer',
+				'request',
+				'bytes-sent',
+				'bytesSent',
+				'egress',
+				'transfer-out',
+				'bytes-received',
+				'bytesReceived',
+				'ingress',
+				'transfer-in',
+				...REPL_LATENCY,
+			].map(norm),
+		);
+		for (const m of seen) if (norm(m).startsWith('response')) matched.add(norm(m));
+
+		return {
+			generatedAt: now,
+			windowMinutes: mins,
+			readable,
+			readError,
+			samples: rows.length,
+			cappedAtMaxRows: rows.length >= HEALTH_MAX_ROWS,
+			// The capacity ceiling. This app is served by a small number of threads,
+			// so sustained utilization is the thing that runs out before anything else.
+			threads: {
+				utilizationPct: util ? asPct(valueOf(util)) : null,
+				/* What the metric actually said, and whether it could be read as a
+				 * percentage at all. A gauge that is present but unintelligible is a
+				 * different fact from a gauge that is missing, and the panel says which
+				 * instead of showing the same em-dash for both. */
+				utilizationRaw: util ? valueOf(util) : null,
+				utilizationUnitKnown: util ? asPct(valueOf(util)) != null : null,
+				windowAvgPct: asPct(
+					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
+				),
+				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
+				/* `memory` reports 33 with a max of 84 on the live instance — that is a
+				 * percentage, not a byte count, and calling the field memoryBytes was
+				 * wrong even though nothing rendered it. Report it as what it is, and
+				 * only when it is in a range a percentage can occupy. */
+				memoryPct: asPct(valueOf(latestOf('memory', 'memory-usage', 'memoryUsage'))),
+			},
+			storage: {
+				/* Sum the newest sample, not one of them.
+				 *
+				 * database-size arrives once per DATABASE per interval, so latestOf
+				 * returned whichever record happened to land last — 4MB on an instance
+				 * whose records range to 437MB, displayed as "0.00GB". Taking every
+				 * record sharing the newest timestamp gives the total across
+				 * databases, which is what "database size" means on a tile. */
+				databaseBytes: latestSum('database-size', 'databaseSize', 'db-size', 'storage-size'),
+				databaseParts: latestParts('database-size', 'databaseSize', 'db-size', 'storage-size'),
+				volumeBytes: valueOf(latestOf('storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total')),
+				nodeStorageBytes: valueOf(latestOf('node-storage', 'nodeStorage')),
+			},
+			http: (() => {
+				/* The 5xx rate should describe what PLAYERS hit, but the response_*
+				 * counters carry no path — they are global per status — so 5xx cannot
+				 * be attributed to a route directly. The duration records DO carry
+				 * paths, which gives an exact infrastructure request count.
+				 *
+				 * Subtracting one from the other is only sound if the two families are
+				 * counting the same events. They are checked against each other rather
+				 * than assumed: if the totals do not reconcile within 5%, the app-only
+				 * rate is NOT reported, because scaling a denominator by a ratio that
+				 * does not hold is a guess wearing a percentage sign. `basis` says
+				 * which of the two you are looking at, every time. */
+				// The dashboard's own traffic is not player traffic either. Counting it
+				// as such put six requests per page view into the denominator of a
+				// rate that is supposed to describe the game.
+				const infraCalls = probeCalls + opCalls + dashCalls;
+				const totalCalls = appCalls + infraCalls;
+				const reconciles =
+					totalResponses > 0 && totalCalls > 0 && Math.abs(totalCalls - totalResponses) / totalResponses <= 0.05;
+				const appResponses = reconciles ? Math.max(0, totalResponses - infraCalls) : null;
+				const basis = appResponses && appResponses > 0 ? 'app' : 'all';
+				const denom = basis === 'app' ? (appResponses as number) : totalResponses;
+				return {
+					responses: totalResponses,
+					byStatus,
+					serverErrors,
+					// Over player traffic where that is defensible, over everything where
+					// it is not — and `errorRateBasis` always says which.
+					errorRatePct: denom ? round1((serverErrors / denom) * 100) : 0,
+					errorRateBasis: basis,
+					errorRateOf: denom,
+					requests: {
+						app: appCalls,
+						gameplay: appCalls,
+						// This page looking at itself.
+						dashboard: dashCalls,
+						// The platform asking whether this node is alive.
+						probes: probeCalls,
+						probePaths: [...probesSeen].sort(),
+						// A human in the Harper console, or a tool acting like one.
+						operations: opCalls,
+						operationPaths: [...opsSeen].sort(),
+						infrastructure: infraCalls,
+						infrastructurePaths: [...probesSeen, ...opsSeen].sort(),
+						// Whether the request records and the response counters agree. When
+						// they don't, something is being counted by one and not the other,
+						// and that is worth seeing rather than smoothing over.
+						reconcilesWithResponses: reconciles,
+					},
+					slowest,
+					slowestDashboard,
+					/* How long gameplay actually takes, as a headline rather than
+					 * something to be reconstructed from the table below. The 5xx rate
+					 * only reports requests that FAILED; a server that answers every
+					 * call successfully in two seconds has a perfect error rate and a
+					 * game nobody wants to play. Count-weighted so the endpoints players
+					 * hit constantly carry the number, and the worst path is named
+					 * because "worst 1.4s" without a name is not actionable. */
+					gameplayTiming: (() => {
+						const gs = [...groups.values()].filter((g) => g.kind === 'gameplay');
+						if (!gs.length) return null;
+						const calls = gs.reduce((a, g) => a + g.calls, 0);
+						const wsum = gs.reduce((a, g) => a + g.wsum, 0);
+						const wn = gs.reduce((a, g) => a + g.wn, 0);
+						const worstG = gs.reduce((m, g) => (g.worst > (m?.worst ?? -1) ? g : m), null as any);
+						return {
+							calls,
+							typicalMs: wn ? round1(wsum / wn) : null,
+							worstMs: worstG ? round1(worstG.worst) : null,
+							worstPath: worstG ? worstG.path : null,
+							worstMethod: worstG ? worstG.method : null,
+							// How many distinct gameplay routes were exercised at all.
+							paths: gs.length,
+						};
+					})(),
+				};
+			})(),
+			// Two nodes replicate behind this, so latency between them is what says
+			// whether they are actually keeping up with each other.
+			replication: {
+				latencyMs: (() => {
+					const v = avgOfField('mean', REPL_LATENCY) ?? avgOf(...REPL_LATENCY);
+					return v == null ? null : round1(v);
+				})(),
+				samples: pick(...REPL_LATENCY).length,
+				bytesSent: sumOf('bytes-sent', 'bytesSent', 'egress', 'transfer-out'),
+				bytesReceived: sumOf('bytes-received', 'bytesReceived', 'ingress', 'transfer-in'),
+			},
+			/* Every metric name that arrived, and which of them this endpoint knows
+			 * what to do with. `unmatched` is the important one: it is the list that
+			 * would have told me the gauges were reading the wrong names, instead of
+			 * five em-dashes that look exactly like an idle server. It is rendered on
+			 * the page, so the panel diagnoses itself next time. */
+			metricsSeen: seen,
+			metricsUnmatched: seen.filter((m) => !matched.has(norm(m))),
+			/* Every metric in the window, aggregated the same way regardless of what
+			 * it is. The named gauges above are an opinionated reading of a handful
+			 * of these; this is the rest of the telemetry without an opinion, so a
+			 * metric this endpoint has never heard of is still legible instead of
+			 * being a name in an apology at the bottom of the page. */
+			allMetrics: seen
+				.map((name) => {
+					const rs = pick(name);
+					const vals = rs.map((r) => valueOf(r)).filter((v): v is number => v != null);
+					let latest: any = null;
+					for (const r of rs) if (!latest || timeOf(r) > timeOf(latest)) latest = r;
+					const sum = vals.reduce((a, b) => a + b, 0);
+					return {
+						metric: name,
+						samples: rs.length,
+						// Counters are worth summing, gauges are worth reading latest. Both
+						// are given rather than guessing which kind this metric is.
+						latest: latest ? valueOf(latest) : null,
+						total: vals.length ? round1(sum) : null,
+						mean: vals.length ? round1(sum / vals.length) : null,
+						min: vals.length ? round1(Math.min(...vals)) : null,
+						max: vals.length ? round1(Math.max(...vals)) : null,
+						// A metric with paths is per-route; one without is instance-wide.
+						paths: [
+							...new Set(
+								rs
+									.map((r) => r.path)
+									.filter(Boolean)
+									.map(String),
+							),
+						].length,
+						read: matched.has(norm(name)),
+						// Where this metric's numbers actually live. When a gauge above
+						// shows an em-dash, this is the field list that explains why.
+						fields: [...new Set(rs.flatMap((r) => numericFields(r)))].sort(),
+					};
+				})
+				.sort((a, b) => b.samples - a.samples),
+		};
+	}
+}
+
+export class SystemProbe extends Resource {
+	async get() {
+		const now = Date.now();
+		const steps: any[] = [];
+		const step = async (name: string, fn: () => Promise<any>) => {
+			try {
+				steps.push({ step: name, ok: true, ...((await fn()) || {}) });
+			} catch (e: any) {
+				steps.push({ step: name, ok: false, error: String(e?.message || e) });
+			}
+		};
+
+		const dbs: any = (globalThis as any).databases;
+
+		await step('databases global', async () => ({
+			present: !!dbs,
+			names: dbs ? Object.keys(dbs) : [],
+		}));
+
+		await step('system database', async () => {
+			const sys = dbs?.system;
+			return { present: !!sys, tables: sys ? Object.keys(sys) : [] };
+		});
+
+		// The two tables we actually care about, and what they look like.
+		for (const tableName of ['hdb_analytics', 'hdb_raw_analytics']) {
+			await step(`${tableName} · shape`, async () => {
+				const t = dbs?.system?.[tableName];
+				if (!t) return { present: false };
+				return {
+					present: true,
+					hasSearch: typeof t.search === 'function',
+					hasGet: typeof t.get === 'function',
+				};
+			});
+		}
+
+		// Try to actually read the last hour. Several condition shapes, because the
+		// in-process search API and the operations API do not obviously take the
+		// same one — whichever returns rows is the answer.
+		const since = now - 3_600_000;
+		const shapes: Array<{ label: string; query: any }> = [
+			{
+				label: 'between [since, now]',
+				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
+			},
+			{
+				label: 'greater_than since',
+				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
+			},
+			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
+			{ label: 'no conditions, limit 50', query: { limit: 50 } },
+		];
+		for (const shape of shapes) {
+			await step(`hdb_analytics · ${shape.label}`, async () => {
+				const t = dbs?.system?.hdb_analytics;
+				if (!t || typeof t.search !== 'function') return { skipped: 'table not readable' };
+				const rows = await takeFrom(t.search(shape.query), 200);
+				// Report the SHAPE of what came back, not the rows themselves — this is
+				// reconnaissance, and a telemetry dump is not something to page through.
+				const metrics: Record<string, number> = {};
+				const types: Record<string, number> = {};
+				let oldest = 0;
+				let newest = 0;
+				for (const r of rows) {
+					const m = String(r?.metric || '?');
+					metrics[m] = (metrics[m] || 0) + 1;
+					const ty = String(r?.type || '?');
+					types[ty] = (types[ty] || 0) + 1;
+					const id = Number(r?.id) || 0;
+					if (id && (!oldest || id < oldest)) oldest = id;
+					if (id > newest) newest = id;
+				}
+				return {
+					returned: rows.length,
+					cappedAt200: rows.length >= 200,
+					metrics,
+					types,
+					oldest: oldest ? new Date(oldest).toISOString() : null,
+					newest: newest ? new Date(newest).toISOString() : null,
+					sampleKeys: rows[0] ? Object.keys(rows[0]) : [],
+					sample: rows[0] || null,
+				};
+			});
+		}
+
+		// Replication, specifically. There are two nodes behind this, so
+		// replication-latency / bytes-sent / bytes-received are the metrics that
+		// actually matter — a Problems page for a two-node setup that cannot say
+		// whether the nodes are in sync is missing its main job.
+		await step('hdb_analytics · replication metrics', async () => {
+			const t = dbs?.system?.hdb_analytics;
+			if (!t || typeof t.search !== 'function') return { skipped: 'table not readable' };
+			const rows = await takeFrom(
+				t.search({ conditions: [{ attribute: 'id', comparator: 'between', value: [now - 3_600_000, now] }] }),
+				500,
+			);
+			const wanted = new Set(['replication-latency', 'bytes-sent', 'bytes-received']);
+			const hits = rows.filter((r: any) => wanted.has(String(r?.metric)));
+			return {
+				scanned: rows.length,
+				replicationRows: hits.length,
+				byMetric: hits.reduce((acc: Record<string, number>, r: any) => {
+					acc[r.metric] = (acc[r.metric] || 0) + 1;
+					return acc;
+				}, {}),
+				sample: hits[0] || null,
+			};
+		});
+
+		// `server` carries cluster information per the component docs. With two nodes
+		// replicating, whatever is on here may answer "are both nodes up and caught
+		// up" without touching the operations API at all.
+		await step('server global', async () => {
+			const s: any = (globalThis as any).server;
+			if (!s) return { present: false };
+			const keys = Object.keys(s);
+			// Anything that looks like it knows about the other node.
+			const clusterish = keys.filter((k) => /cluster|repl|node|peer|leader|member/i.test(k));
+			const detail: Record<string, any> = {};
+			for (const k of clusterish) {
+				try {
+					const v = s[k];
+					detail[k] =
+						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+				} catch (e: any) {
+					detail[k] = `threw: ${e?.message || e}`;
+				}
+			}
+			return { present: true, keys: keys.slice(0, 40), clusterish, detail };
+		});
+
+		// Node skew, checked the way deploy-coop.sh already checks it: ask both
+		// public entry points what build they are serving. This needs no credentials
+		// and no operations API — GET /Version/ is public and already exists — and a
+		// mismatch is exactly what deploy-coop.sh calls "a stale component or broken
+		// replication". Done server-side so there is no cross-origin problem, with a
+		// short timeout so a wedged peer cannot hang this request.
+		await step('node build skew', async () => {
+			const peers = ['https://wild.willows.harperfabric.com', 'https://wild.willows.harperfabric.com:9926'];
+			const results = await Promise.all(
+				peers.map(async (base) => {
+					try {
+						const res = await fetch(`${base}/Version/`, {
+							headers: { accept: 'application/json' },
+							signal: AbortSignal.timeout(3000),
+						});
+						if (!res.ok) return { node: base, ok: false, status: res.status };
+						const body: any = await res.json();
+						return { node: base, ok: true, build: body?.build || null };
+					} catch (e: any) {
+						return { node: base, ok: false, error: String(e?.message || e) };
+					}
+				}),
+			);
+			const builds = [...new Set(results.filter((r: any) => r.ok).map((r: any) => r.build))];
+			return {
+				expected: buildStamp,
+				results,
+				inSync: builds.length === 1 && builds[0] === buildStamp,
+				distinctBuilds: builds.length,
+			};
+		});
+
+		// The authenticated user, as Harper hands it to an endpoint.
+		//
+		// This decides how role-based access gets written. `allowRead(user)` is the
+		// hook, but the shape of `user` is not documented, and auth code written
+		// against a guessed shape fails in exactly two ways: it denies everybody, or
+		// it lets everybody in. Neither is discoverable by reading the code. So read
+		// the real object off the real server first.
+		//
+		// Values are described, never echoed — this response is a diagnostic, and a
+		// diagnostic that prints password hashes is a new vulnerability.
+		await step('authenticated user shape', async () => {
+			const ctx: any = (this as any).getContext?.();
+			const user: any = ctx?.user;
+			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
+			const describe = (v: any): any => {
+				if (v === null) return 'null';
+				if (Array.isArray(v))
+					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object')
+					return Object.fromEntries(
+						Object.entries(v)
+							.slice(0, 12)
+							.map(([k, x]) => [k, describe(x)]),
+					);
+				if (typeof v === 'string') {
+					// Names and role labels are the whole point of this probe; anything
+					// that smells like a secret is reported as present, not printed.
+					return /pass|hash|salt|secret|token|key/i.test(v) ? `string(${v.length})` : v;
+				}
+				return typeof v;
+			};
+			const safe: Record<string, any> = {};
+			for (const [k, v] of Object.entries(user)) {
+				safe[k] = /pass|hash|salt|secret|token|key/i.test(k) ? `«redacted ${typeof v}»` : describe(v);
+			}
+			return {
+				present: true,
+				keys: Object.keys(user),
+				shape: safe,
+				// The two candidate paths for a role check, resolved against reality.
+				'user.role': describe(user.role),
+				'user.role?.role': typeof user.role === 'object' ? describe((user.role as any)?.role) : undefined,
+			};
+		});
+
+		await step('logger global', async () => {
+			const l: any = (globalThis as any).logger;
+			return { present: !!l, methods: l ? Object.keys(l).slice(0, 20) : [] };
+		});
+
+		return {
+			checkedAt: now,
+			note: 'Throwaway reconnaissance for the Problems page — delete once the answer is known.',
+			verdict: steps.find((s) => s.step?.startsWith('hdb_analytics ·') && s.returned > 0)
+				? 'hdb_analytics IS readable in-process — the dashboard can show real server health with no stored credentials.'
+				: dbs?.system
+					? 'system database is visible but no analytics rows came back — check the condition shapes above.'
+					: 'system database is NOT visible to this component — server health would need the operations API on :9925.',
+			steps,
+		};
+	}
+}
+
+/** Cursor codec. Base64url of the row's playerId — opaque to callers, and it
+ *  carries no data a caller could not already read off the row it came from. */
+function encodeMetricsCursor(playerId: string): string {
+	return nodeBuffer.from(String(playerId), 'utf8').toString('base64url');
+}
+function decodeMetricsCursor(cursor: string): string | null {
+	try {
+		const out = nodeBuffer.from(String(cursor), 'base64url').toString('utf8');
+		return out || null;
+	} catch {
+		return null;
+	}
+}
+
+/**
+ * The `?fields=list` shape — enough to draw a table row or a caretaker card and
+ * nothing else, for callers that don't need the full record. The dashboard does
+ * not use this (it wants everything, so its existing rendering keeps working
+ * untouched); it exists so a future list view doesn't have to pull 1.6 KB a head.
+ */
+function metricsListRow(r: any) {
+	return {
+		playerId: r.playerId,
+		name: r.name,
+		edition: r.edition || 'full',
+		platform: r.platform,
+		os: r.os,
+		version: r.version,
+		language: r.language,
+		status: r.status,
+		idle: r.idle,
+		createdAt: r.createdAt,
+		lastSeenAt: r.lastSeenAt,
+		playSeconds: r.playSeconds,
+		sessions: r.sessions,
+		totalActions: r.totalActions,
+		unlockedBiomes: r.unlockedBiomes,
+		tutorialStep: r.tutorialStep,
+		achievementsEarned: r.achievements?.earned ?? null,
+		avgHealth: r.biomeSummary?.avgHealth ?? null,
+		appearance: r.appearance,
+	};
 }
 
 /**
@@ -8472,8 +10065,8 @@ export class ListFeedback extends Resource {
 // appear in the hosted Player table. The client periodically POSTs the local
 // save's derived metrics view here (see src/solo/metricsUplink.ts) — best
 // effort, whenever a connection exists — and the row is upserted per save
-// slot. The global /Metrics/ view then reports solo players alongside the
-// hosted (web/co-op) ones.
+// slot. The global roll-up (/MetricsSummary/ + /MetricsPlayers/) then reports
+// solo players alongside the hosted (web/co-op) ones.
 
 const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
 
@@ -8495,7 +10088,7 @@ export class SyncMetrics extends PublicEndpoint {
 		// Store the metrics view as a JSON STRING, not a nested map: this table is
 		// typed (positional structon encoding), which cannot safely hold a nested
 		// object — a scalar string round-trips cleanly. Read back with JSON.parse
-		// in the /Metrics/ dashboard.
+		// in the /MetricsSummary/ roll-up.
 		const snapshotJson = JSON.stringify(snapshot);
 		if (snapshotJson.length > METRICS_SNAPSHOT_MAX_BYTES)
 			throw new GameError(tr('server.err.snapshotTooLarge'), 400, 'server.err.snapshotTooLarge');
@@ -8528,7 +10121,7 @@ export class SyncMetrics extends PublicEndpoint {
 // ---------------------------------------------------------------- app-open funnel
 // Acquisition tracking that does NOT need a save to exist: the client pings this
 // the moment the app opens (phase "open") and again once a character is created
-// (phase "created"). Rows are keyed per install/device, so /Metrics/ can report
+// (phase "created"). Rows are keyed per install/device, so /MetricsSummary/ can report
 // how many people opened the app, how many created a character (vs bounced), the
 // average time spent in the creator, and how many characters each person makes.
 
@@ -8942,6 +10535,7 @@ export class ReportClientError extends PublicEndpoint {
 				stack: stack || row.stack || null,
 				lastSeenAt: now,
 				count: (row.count || 0) + 1,
+				byDay: bumpDay(row.byDay, now, 1),
 				platform: String(body.platform || '').slice(0, 16) || row.platform || null,
 				version: String(body.version || '').slice(0, 32) || row.version || null,
 				build: String(body.build || '').slice(0, 64) || row.build || null,
@@ -8950,6 +10544,87 @@ export class ReportClientError extends PublicEndpoint {
 			console.error('client error report failed —', e?.message || e);
 		}
 		return { ok: true };
+	}
+}
+
+/**
+ * POST /ClearProblem/ {kind:"refusal"|"crash", ids:[...]} — delete telemetry rows.
+ *
+ * The only WRITE the dashboard sign-in can perform, and it is deliberately not a
+ * general one. `kind` selects between exactly two hard-coded table names and
+ * anything else is refused, so the id is never used to reach a table the caller
+ * named: the credential that can clear a stale crash counter still cannot touch
+ * a Player row, which is the one thing on this server that is irreplaceable.
+ *
+ * Scoped this way ON PURPOSE because the dashboard role can reach it. A
+ * read-only role that can also delete is not read-only, so the blast radius is
+ * moved into the endpoint instead: two tables of regenerable counters, nothing
+ * else. If a delete is ever wanted for saves, it belongs behind super-user and a
+ * separate endpoint, not behind another value of `kind`.
+ *
+ * Idempotent. Deleting an id that is already gone is reported in `missing`
+ * rather than failed — two clicks on the same row is a normal thing to do, and
+ * an error there would just teach you to ignore errors.
+ */
+/* A Map, not an object literal, and an explicit string check at the call site.
+ * An object literal answers to inherited keys — CLEARABLE['constructor'] returns
+ * a function rather than undefined — and String(['crash']) is 'crash', so an
+ * array argument coerced straight through the lookup. Neither could reach a
+ * table outside this pair, but "fails safe by accident" is not the property to
+ * rely on for the one endpoint that deletes. */
+const CLEARABLE = new Map<string, string>([
+	['refusal', 'Refusal'],
+	['crash', 'ClientError'],
+]);
+
+export class ClearProblem extends DashboardEndpoint {
+	// POST maps to create in Harper's permission model; the read gate is the gate.
+	allowCreate(user?: any) {
+		return (this as any).allowRead(user);
+	}
+
+	async post(data: any) {
+		const body = await bodyOf(data);
+		const kind = body?.kind;
+		const table = typeof kind === 'string' ? CLEARABLE.get(kind) : undefined;
+		if (!table) return { ok: false, error: 'kind must be "refusal" or "crash"', deleted: 0 };
+
+		// Cap the batch: a "clear all" from a page showing thousands of rows should
+		// not turn into one unbounded delete loop inside a request.
+		const ids = (Array.isArray(body.ids) ? body.ids : [body.id])
+			.filter((x: any) => x != null && x !== '')
+			.map((x: any) => String(x))
+			.slice(0, 500);
+		if (!ids.length) return { ok: false, error: 'no ids given', deleted: 0 };
+
+		const t = (db() as any)[table];
+		if (!t) return { ok: false, error: `${table} table is not available`, deleted: 0 };
+
+		// Refusal counts sit in an in-memory buffer between flushes. Flushing BEFORE
+		// the delete means the row being removed includes everything counted so far,
+		// and anything that arrives after this point legitimately recreates it —
+		// which is the honest outcome. Dropping the buffer instead would silently
+		// discard refusals that happened while you were reading the page.
+		if (table === 'Refusal') await flushRefusals();
+
+		let deleted = 0;
+		const missing: string[] = [];
+		const failed: { id: string; error: string }[] = [];
+		for (const id of ids) {
+			try {
+				// Point-read first so "already gone" and "delete failed" stay distinct.
+				const row = await safeGet(t, id);
+				if (!row) {
+					missing.push(id);
+					continue;
+				}
+				await t.delete(id);
+				deleted++;
+			} catch (e: any) {
+				failed.push({ id, error: String(e?.message || e) });
+			}
+		}
+		return { ok: failed.length === 0, table, deleted, missing, failed };
 	}
 }
 
@@ -8965,9 +10640,14 @@ export class ReportClientError extends PublicEndpoint {
  * Two tables, side by side, both counts-only:
  *   refusals — every "no" the server gave, by message key
  *   clientErrors — crashes the interface reported
+ *
+ * ADMIN ONLY, like the rest of the dashboard's feeds. Its only reader is
+ * /dashboard, and crash reports carry whatever text the client threw — which is
+ * not something to publish just because nothing sensitive happens to be in it
+ * today.
  */
-export class GameplayHealth extends PublicEndpoint {
-	async get() {
+export class GameplayHealth extends DashboardEndpoint {
+	async get(target?: any) {
 		// Fold anything still buffered in memory in first, so a quiet server does
 		// not look healthier than it is just because the flush timer hasn't fired.
 		await flushRefusals();
@@ -8981,42 +10661,101 @@ export class GameplayHealth extends PublicEndpoint {
 		};
 		const [refusalRows, errorRows] = await Promise.all([read('Refusal'), read('ClientError')]);
 
+		// Optional `?from=YYYY-MM-DD&to=YYYY-MM-DD`, inclusive, over the per-day
+		// buckets. Every row keeps its all-time `count` untouched alongside a
+		// `windowCount`, because those answer different questions and conflating
+		// them is how a filtered view starts quietly lying: "380 refusals" filtered
+		// to one day still means 380 all-time, and the reader has no way to know
+		// which they are looking at unless both are on the page.
+		//
+		// `covered` is the honest part. `byDay` only exists from the day it shipped,
+		// so a window that reaches back further covers less than it appears to. A
+		// row with no buckets at all reports windowCount: null — not zero, which
+		// would read as "this never happened in your range".
+		const from = queryOne(target, 'from');
+		const to = queryOne(target, 'to');
+		const windowed = !!(from || to);
+		const inWindow = (day: string) => (!from || day >= from) && (!to || day <= to);
+		const windowCountOf = (byDay: any): number | null => {
+			if (!byDay || typeof byDay !== 'object') return null;
+			const days = Object.entries(byDay);
+			if (!days.length) return null;
+			let n = 0;
+			for (const [day, c] of days) if (inWindow(day)) n += Number(c) || 0;
+			return n;
+		};
+		const daysCovered = new Set<string>();
+		for (const r of [...refusalRows, ...errorRows])
+			for (const day of Object.keys(r?.byDay || {})) if (inWindow(day)) daysCovered.add(day);
+
+		const shape = (r: any) => ({
+			count: Number(r.count) || 0,
+			windowCount: windowCountOf(r.byDay),
+			byDay: r.byDay && typeof r.byDay === 'object' ? r.byDay : null,
+			firstSeenAt: r.firstSeenAt || 0,
+			lastSeenAt: r.lastSeenAt || 0,
+		});
+
+		// `id` rides along so a row can be addressed for deletion. The code/message
+		// is what you READ, but it is not the key — two rows can share a message
+		// from different places, and deleting by message would take both.
 		const refusals = refusalRows
 			.map((r: any) => ({
+				id: String(r.id ?? r.code ?? ''),
 				code: String(r.code || r.id || '?'),
 				status: Number(r.status) || 0,
-				count: Number(r.count) || 0,
-				firstSeenAt: r.firstSeenAt || 0,
-				lastSeenAt: r.lastSeenAt || 0,
+				...shape(r),
 			}))
 			.sort((a, b) => b.count - a.count);
 
 		const clientErrors = errorRows
 			.map((r: any) => ({
+				id: String(r.id ?? ''),
 				message: String(r.message || '?'),
 				where: String(r.where || ''),
 				stack: r.stack || null,
-				count: Number(r.count) || 0,
 				platform: r.platform || null,
 				version: r.version || null,
-				firstSeenAt: r.firstSeenAt || 0,
-				lastSeenAt: r.lastSeenAt || 0,
+				...shape(r),
 			}))
 			.sort((a, b) => b.count - a.count);
 
+		// Rows with nothing in the window are dropped from `top` when a window is
+		// active — but only rows that HAVE buckets. A row that predates the per-day
+		// counters has no evidence either way, and hiding it would be asserting
+		// something the data cannot support.
+		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
+		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const shownRefusals = refusals.filter(inRange);
+		const shownErrors = clientErrors.filter(inRange);
+
 		return {
 			generatedAt: Date.now(),
+			// What the ?from/?to window actually managed to cover, so the page can
+			// say "these counters only start on the 12th" instead of implying the
+			// game was quiet before then.
+			window: windowed
+				? {
+						from: from || null,
+						to: to || null,
+						daysWithData: daysCovered.size,
+						earliestBucket: [...daysCovered].sort()[0] || null,
+						note: 'per-day counters begin when this feature shipped; anything older has an all-time count only',
+					}
+				: null,
 			refusals: {
-				distinct: refusals.length,
+				distinct: shownRefusals.length,
 				total: refusals.reduce((n, r) => n + r.count, 0),
+				windowTotal: windowed ? sumWindow(shownRefusals) : null,
 				// 4xx is the game saying no on purpose; 5xx is the game falling over.
 				serverFaults: refusals.filter((r) => r.status >= 500).reduce((n, r) => n + r.count, 0),
-				top: refusals.slice(0, 25),
+				top: shownRefusals.slice(0, 25),
 			},
 			clientErrors: {
-				distinct: clientErrors.length,
+				distinct: shownErrors.length,
 				total: clientErrors.reduce((n, e) => n + e.count, 0),
-				top: clientErrors.slice(0, 25),
+				windowTotal: windowed ? sumWindow(shownErrors) : null,
+				top: shownErrors.slice(0, 25),
 			},
 		};
 	}
@@ -9027,8 +10766,16 @@ export class GameplayHealth extends PublicEndpoint {
  * SaveIncident table. Salvage failures used to live only in server logs, so a
  * save that would not open was invisible until the player wrote in; this is the
  * same information on /dashboard. Ids and counts only — never save contents.
+ *
+ * ADMIN ONLY, and this one is not merely tidiness. `recent[].recordId` is a real
+ * primary key, and for the Player table that is a save's UUID — the exact secret
+ * that GET /Metrics/<playerId>, /GameState/<playerId> and every other capability
+ * endpoint treats as proof you own the save. Published anonymously, this endpoint
+ * handed out working ids for those, which is the one thing the MVP auth model
+ * depends on not happening. Its only reader is /dashboard, which is now
+ * authenticated too.
  */
-export class SaveHealth extends PublicEndpoint {
+export class SaveHealth extends DashboardEndpoint {
 	async get() {
 		const t = db() as any;
 		let rows: any[] = [];
@@ -9072,14 +10819,20 @@ export class SaveHealth extends PublicEndpoint {
 }
 
 /**
- * GET /LandingStats/ — public, aggregate-only rollup of the landing page's
- * daily counters, consumed by the /dashboard "Landing page" section. Returns
- * per-day rows (last 60 days) plus lifetime totals. The signup total is the
- * REAL deduped row count from MailingListSignup (the per-day counter is also
- * summed, but the table is the source of truth if they ever drift). No emails
- * or any other PII ever leave through this endpoint.
+ * GET /LandingStats/ — aggregate-only rollup of the landing page's daily
+ * counters, consumed by the /dashboard "Landing page" section. Returns per-day
+ * rows (last 60 days) plus lifetime totals. The signup total is the REAL deduped
+ * row count from MailingListSignup (the per-day counter is also summed, but the
+ * table is the source of truth if they ever drift). No emails or any other PII
+ * ever leave through this endpoint.
+ *
+ * ADMIN ONLY. Nothing here is sensitive — it is counts, and it stayed harmless
+ * when it was public. It moves behind auth because its only reader is /dashboard
+ * and a business metric (visits, signups, conversion) is not something to hand
+ * to anyone who asks. POST /LandingEvent/ stays public: the landing page has to
+ * be able to write to it.
  */
-export class LandingStats extends PublicEndpoint {
+export class LandingStats extends DashboardEndpoint {
 	async get() {
 		return landingStatsCache.get(Date.now());
 	}
@@ -9144,11 +10897,14 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
  * the compression does, since the landing page's weight is images that don't
  * shrink but do cache.
  */
-function htmlPage(res: any, key: string, html: string) {
+function htmlPage(res: any, key: string, html: string, opts: { private?: boolean } = {}) {
 	const etag = `W/"${key}-${buildStamp}"`;
 	const headers: Record<string, string> = {
 		'content-type': 'text/html; charset=utf-8',
-		'cache-control': 'public, max-age=3600',
+		// `private` for anything behind admin auth: a shared cache or proxy that
+		// stored a `public` copy would serve the authed page to whoever asked next,
+		// which would hand back the very thing the auth is there to stop.
+		'cache-control': opts.private ? 'private, no-store' : 'public, max-age=3600',
 		etag,
 		vary: 'Accept-Encoding',
 	};
@@ -9195,16 +10951,32 @@ class SupportPage extends PublicEndpoint {
 }
 
 /**
- * GET /dashboard — the anonymous gameplay-metrics dashboard. A static,
- * self-contained page (inline CSS/JS, no external deps) that fetches the
- * public GET /Metrics/ rollup at runtime and renders it: audience, engagement,
- * funnels, progression, action totals, achievements, and the caretakers'
- * customized characters (drawn from appearance data — no player names shown).
- * Cached briefly like the other pages; the live numbers come from /Metrics/.
+ * GET /dashboard — the internal gameplay-metrics dashboard. A static,
+ * self-contained page (inline CSS/JS, no external deps) that fetches the roll-up
+ * at runtime and renders it: audience, engagement, funnels, progression, action
+ * totals, achievements, and the caretakers' customized characters.
+ *
+ * The PAGE is public; everything it reads is not. That split is deliberate and it
+ * is the only arrangement a login form can work under — a form cannot live behind
+ * the thing it logs you into. What ships here is an empty shell: inline CSS and
+ * JS, not one number baked in. Serving it to a stranger reveals nothing, and
+ * every fetch it makes is refused without credentials.
+ *
+ * So the security boundary is entirely on the endpoints — /DashboardAuth/,
+ * /MetricsSummary/, /MetricsPlayers/, /SaveHealth/, /GameplayHealth/ and
+ * /LandingStats/, all DashboardEndpoint — and never on the URL of this page.
+ * Which is the fix for how it started: public AND unlisted, which is not a
+ * control. It renders player display names, exact activity timestamps, OS and
+ * accessibility preferences, and it fetched all of that from the reader's
+ * browser, so anyone with the URL had the lot. (The README used to claim "no
+ * player names"; the player modal has always shown them.)
+ *
+ * `no-store` all the same: a shell whose whole job is to ask for a password is
+ * not worth caching, and it means a redeploy shows up on the next reload.
  */
 class DashboardPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(this, 'dashboard', dashboardHtml);
+		return htmlPage(this, 'dashboard', dashboardHtml, { private: true });
 	}
 }
 

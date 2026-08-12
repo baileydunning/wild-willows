@@ -79,13 +79,17 @@ describe('SyncMetrics', () => {
 			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now(), activation: { collected: true } }),
 		});
 
-		const out = await w.get('Metrics');
+		// The roll-up is two admin endpoints now: aggregates and rows. Same filters,
+		// same population — asserted on both halves here.
+		const out = await w.get('MetricsSummary');
 		expect(out.source).toBe('solo-metrics');
 		// only the uplinked solo save is counted; Hosted Holly is ignored
 		expect(out.summary.players).toBe(1);
 		expect(out.summary.soloPlayers).toBe(1);
-		expect(out.players).toHaveLength(1);
-		const sam = out.players[0];
+		expect(out.players.total).toBe(1); // paging hint, not the rows
+		const rows = await w.get('MetricsPlayers');
+		expect(rows.players).toHaveLength(1);
+		const sam = rows.players[0];
 		expect(sam.solo).toBe(true);
 		expect(sam.name).toBe('Solo Sam');
 		expect(sam.playMinutes).toBe(20);
@@ -116,8 +120,8 @@ describe('SyncMetrics', () => {
 			snapshot: snapshot({ name: 'Solo Sam', lastSeenAt: Date.now() }),
 		});
 
-		const out = await w.get('Metrics');
-		const solo = out.players.find((p: any) => p.solo);
+		const out = await w.get('MetricsSummary');
+		const solo = (await w.get('MetricsPlayers')).players.find((p: any) => p.solo);
 		expect(solo.language).toBe('en');
 		// solo-only dashboard: the hosted player's 'es' is not counted here, only
 		// the uplinked solo save. (Per-player /Metrics/<id> above still sees 'es'.)
@@ -139,19 +143,24 @@ describe('SyncMetrics', () => {
 		});
 
 		// unfiltered: both saves present
-		const all = await w.get('Metrics');
+		const all = await w.get('MetricsSummary');
 		expect(all.summary.players).toBe(2);
 
 		// exclude my own save by name (case-insensitive)
-		const filtered = await w.get('Metrics', undefined, { exclude: 'bailey' });
+		const filtered = await w.get('MetricsSummary', undefined, { exclude: 'bailey' });
 		expect(filtered.summary.players).toBe(1);
 		expect(filtered.summary.excludedNames).toEqual(['bailey']);
-		expect(filtered.players.map((p: any) => p.name)).toEqual(['Real Player']);
 		// aggregates reflect only the remaining save
 		expect(filtered.summary.engagement.totalPlaySeconds).toBe(600);
 
+		// the rows endpoint honours the SAME filter, or the dashboard's two halves
+		// would describe different populations
+		const filteredRows = await w.get('MetricsPlayers', undefined, { exclude: 'bailey' });
+		expect(filteredRows.players.map((p: any) => p.name)).toEqual(['Real Player']);
+		expect(filteredRows.total).toBe(1);
+
 		// comma-separated and repeatable both work
-		const multi = await w.get('Metrics', undefined, { exclude: ['Bailey,Real Player'] });
+		const multi = await w.get('MetricsSummary', undefined, { exclude: ['Bailey,Real Player'] });
 		expect(multi.summary.players).toBe(0);
 	});
 

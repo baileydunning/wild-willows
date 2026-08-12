@@ -160,7 +160,7 @@ describe('rollup caches', () => {
 		await w.post('SyncMetrics', { clientId: 'slot-1', name: 'Solo One', snapshot: snapshot({ name: 'Solo One' }) });
 		const scans = countScans('SoloMetrics');
 
-		const [a, b, c] = await Promise.all([w.get('Metrics'), w.get('Metrics'), w.get('Metrics')]);
+		const [a, b, c] = await Promise.all([w.get('MetricsPlayers'), w.get('MetricsPlayers'), w.get('MetricsPlayers')]);
 		expect(scans.n).toBe(1);
 		expect(a.players).toHaveLength(1);
 		expect(b.players).toHaveLength(1);
@@ -169,20 +169,20 @@ describe('rollup caches', () => {
 
 	it('serves a repeat dashboard read from cache', async () => {
 		await w.post('SyncMetrics', { clientId: 'slot-1', name: 'Solo One', snapshot: snapshot({ name: 'Solo One' }) });
-		await w.get('Metrics');
+		await w.get('MetricsPlayers');
 		const scans = countScans('SoloMetrics');
-		await w.get('Metrics');
+		await w.get('MetricsPlayers');
 		expect(scans.n).toBe(0);
 	});
 
 	it('still shows a write on the very next read', async () => {
 		await w.post('SyncMetrics', { clientId: 'slot-1', name: 'Solo One', snapshot: snapshot({ name: 'Solo One' }) });
-		expect((await w.get('Metrics')).players).toHaveLength(1);
+		expect((await w.get('MetricsPlayers')).players).toHaveLength(1);
 
 		// The cache is marked stale rather than dropped — but read-your-own-write
 		// must survive that, or a player's uplink silently misses the dashboard.
 		await w.post('SyncMetrics', { clientId: 'slot-2', name: 'Solo Two', snapshot: snapshot({ name: 'Solo Two' }) });
-		const out = await w.get('Metrics');
+		const out = await w.get('MetricsPlayers');
 		expect(out.players.map((p: any) => p.name).sort()).toEqual(['Solo One', 'Solo Two']);
 	});
 

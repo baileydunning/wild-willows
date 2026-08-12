@@ -108,7 +108,7 @@ describe('dashboard rollups from solo snapshots', () => {
 		await w.post('SyncMetrics', { clientId: 'slot-1', name: 'Solo One', snapshot: snap({ name: 'Solo One' }) });
 		await w.post('SyncMetrics', { clientId: 'slot-2', name: 'Solo Two', snapshot: snap({ name: 'Solo Two' }) });
 
-		const out = await w.get('Metrics');
+		const out = await w.get('MetricsSummary');
 		const s = out.summary;
 		// active right now (both seen just now)
 		expect(s.audience.activeNow).toBe(2);
@@ -141,7 +141,7 @@ describe('acquisition funnel (AppOpen)', () => {
 		await w.post('AppOpen', { deviceId: 'dev-b', phase: 'created', creationMs: 5000 });
 		await w.post('AppOpen', { deviceId: 'dev-b', phase: 'created', creationMs: 7000 });
 
-		const a = (await w.get('Metrics')).summary.acquisition;
+		const a = (await w.get('MetricsSummary')).summary.acquisition;
 		expect(a.devices).toBe(2);
 		expect(a.totalOpens).toBe(2); // 'created' pings don't inflate opens
 		expect(a.converted).toBe(1);

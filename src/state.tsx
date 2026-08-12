@@ -645,7 +645,23 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				adoptState(await api.gameState());
 				rememberSave(last.playerId, last.name, 'solo');
 			} catch (e) {
+				// Drop BOTH halves of the session, not just one.
+				//
+				// A session lives in two places: `currentPlayerId` inside api.ts, and
+				// the React state that `sessionPlayerId` is derived from. This used to
+				// clear only the first. If anything threw AFTER adoptState() had already
+				// set the second — adoptState ends with a synchronous bridge.emit(), so
+				// any subscriber that throws lands here — React went on believing a save
+				// was open while the API layer knew there wasn't one.
+				//
+				// The next render then armed the heartbeat effect (it keys off
+				// sessionPlayerId) and called beat() straight away, which asked for a
+				// player id that no longer existed. That is the "Not logged in" crash:
+				// not a login failure, a login that half-succeeded and left the two
+				// halves disagreeing.
 				setPlayerId(null);
+				setState(null);
+				bridge.shared.state = null;
 				// Only drop the remembered save when the server actually said it's gone
 				// (404). Anything else — offline, CORS, a 503 while Harper boots, or a
 				// demo session that fell back to the offline backend and can't see a
