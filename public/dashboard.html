@@ -1046,6 +1046,13 @@
 				border-color: var(--accent);
 				font-weight: 700;
 			}
+			/* The all-time figure kept beside a windowed count, so a filtered number
+			   is never mistaken for the whole story. */
+			.alltime {
+				color: var(--faint);
+				font-size: 0.72rem;
+				font-variant-numeric: tabular-nums;
+			}
 			.dinput {
 				font: inherit;
 				font-size: 0.76rem;
@@ -2136,6 +2143,40 @@
 			/* ------------------------------------------------------------------ *
 			 * Main render
 			 * ------------------------------------------------------------------ */
+			/* The Problems range.
+			 *
+			 * Unlike the per-day chart's picker, this one goes to the SERVER, because
+			 * the filtering it does is impossible in the browser: a refusal row is a
+			 * running total with a single lastSeenAt, so "412 refusals" carries no
+			 * dates to slice. Only the server's per-day buckets can answer it, and
+			 * those only exist from the day they shipped — which is why every count
+			 * comes back in two forms and the panel shows both. */
+			const PROBLEM_RANGE = { preset: 'all', from: '', to: '' };
+			const PROBLEM_PRESETS = [
+				{ key: '1', label: '24h' },
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: 'all', label: 'All time' },
+			];
+			const isoDay = (d) => new Date(d).toISOString().slice(0, 10);
+			function problemsRange() {
+				if (PROBLEM_RANGE.preset === 'all') return null;
+				if (PROBLEM_RANGE.preset === 'custom') {
+					if (!PROBLEM_RANGE.from && !PROBLEM_RANGE.to) return null;
+					return { from: PROBLEM_RANGE.from, to: PROBLEM_RANGE.to };
+				}
+				const days = Number(PROBLEM_RANGE.preset);
+				return { from: isoDay(Date.now() - (days - 1) * 86400000), to: isoDay(Date.now()) };
+			}
+			function problemsQuery() {
+				const r = problemsRange();
+				if (!r) return '';
+				const p = [];
+				if (r.from) p.push('from=' + encodeURIComponent(r.from));
+				if (r.to) p.push('to=' + encodeURIComponent(r.to));
+				return p.length ? '?' + p.join('&') : '';
+			}
+
 			/* Whether the failure panels are on screen. Off by default, remembered
 			 * across reloads — if you opened them because you were chasing something,
 			 * a refresh mid-chase shouldn't close them again. */
@@ -2260,34 +2301,71 @@
 					// The key's last segment reads well enough on its own ("notEnough",
 					// "recipeLocked") and the full path is noise in a bar chart.
 					const shortCode = (c) => String(c).split('.').pop();
+					const win = gh.window || null;
+					const day = (ms) =>
+						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+					/* In a window, the count column shows what happened IN it, with the
+					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * the per-day counters reads "—" rather than 0: there is no evidence
+					 * either way, and printing a zero would be inventing some. */
+					const hits = (r) => {
+						if (!win) return fmt(r.count);
+						if (r.windowCount === null || r.windowCount === undefined)
+							return `<span title="This row predates the per-day counters, so its history in this range is unknown.">—</span> <span class="alltime">${fmt(r.count)} all-time</span>`;
+						return `${fmt(r.windowCount)} <span class="alltime">${fmt(r.count)} all-time</span>`;
+					};
 					const refusalRows = (ref.top || [])
 						.map(
 							(r) =>
-								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${fmt(r.count)}</td>` +
+								`<tr><td><code>${esc(shortCode(r.code))}</code></td><td class="num">${hits(r)}</td>` +
 								`<td class="num">${r.status || '—'}</td>` +
-								`<td class="num">${r.lastSeenAt ? new Date(r.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+								`<td class="num">${day(r.lastSeenAt)}</td></tr>`,
 						)
 						.join('');
 					const crashRows = (cli.top || [])
 						.map(
 							(e) =>
 								`<tr><td>${esc(e.message)}</td><td><code>${esc(e.where || '?')}</code></td>` +
-								`<td class="num">${fmt(e.count)}</td>` +
-								`<td class="num">${e.lastSeenAt ? new Date(e.lastSeenAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—'}</td></tr>`,
+								`<td class="num">${hits(e)}</td>` +
+								`<td class="num">${day(e.lastSeenAt)}</td></tr>`,
 						)
 						.join('');
+					const picker =
+						`<div class="dpick">` +
+						PROBLEM_PRESETS.map(
+							(p) =>
+								`<button type="button" class="dbtn${PROBLEM_RANGE.preset === p.key ? ' on' : ''}" data-prange="${p.key}">${p.label}</button>`,
+						).join('') +
+						`<span class="dsep"></span>` +
+						`<label>From <input type="date" class="dinput" data-prange-from value="${esc(PROBLEM_RANGE.from)}"></label>` +
+						`<label>To <input type="date" class="dinput" data-prange-to value="${esc(PROBLEM_RANGE.to)}"></label>` +
+						`</div>`;
+					const kpiCrash = win && cli.windowTotal != null ? cli.windowTotal : cli.total;
+					const kpiRef = win && ref.windowTotal != null ? ref.windowTotal : ref.total;
 					healthSection = sec(
 						'What is going wrong',
-						'refusals and interface crashes — counts and message keys only',
-						`<div class="grid kpis">${[
-							kpi(
-								`<span class="accent">${fmt(cli.total)}</span>`,
-								'Interface crashes',
-								`${fmt(cli.distinct)} distinct`,
-							),
-							kpi(fmt(ref.total), 'Refusals', `${fmt(ref.distinct)} distinct reasons`),
-							kpi(fmt(ref.serverFaults), 'Server faults', '5xx — the game falling over, not saying no'),
-						].join('')}</div>` +
+						win
+							? `${esc(win.from || 'the beginning')} → ${esc(win.to || 'today')} · refusals and interface crashes`
+							: 'refusals and interface crashes — counts and message keys only',
+						picker +
+							`<div class="grid kpis">${[
+								kpi(
+									`<span class="accent">${fmt(kpiCrash)}</span>`,
+									'Interface crashes',
+									`${fmt(cli.distinct)} distinct${win ? ' in range' : ''}`,
+								),
+								kpi(fmt(kpiRef), 'Refusals', `${fmt(ref.distinct)} distinct reasons`),
+								kpi(fmt(ref.serverFaults), 'Server faults', '5xx — the game falling over, not saying no'),
+							].join('')}</div>` +
+							/* The counters only exist from the day they shipped, so a range
+							 * reaching further back covers less than it looks like it does.
+							 * Said on the page, because a quiet chart and a chart with no data
+							 * are indistinguishable otherwise. */
+							(win
+								? `<p class="emptynote">Per-day counting began ${win.earliestBucket ? `on ${esc(win.earliestBucket)}` : 'recently'} — ` +
+									`this range covers ${fmt(win.daysWithData)} ${win.daysWithData === 1 ? 'day' : 'days'} with data. ` +
+									`Rows older than that show <b>—</b> and keep only their all-time total. Server faults are always all-time.</p>`
+								: '') +
 							(refusalRows
 								? `<div class="card" style="margin-top:.8rem"><h3>Most refused<span class="tag">what players are being turned away from</span></h3>` +
 									`<table class="vs"><thead><tr><th>Reason</th><th class="num">Hits</th><th class="num">Status</th><th class="num">Last seen</th></tr></thead><tbody>${refusalRows}</tbody></table></div>`
@@ -3326,7 +3404,10 @@
 						.catch(() => null);
 					// Refusals + interface crashes. Same contract again: an instance that
 					// predates the endpoint hides the panel rather than breaking the page.
-					const healthReq = fetch('../GameplayHealth/', req())
+					// The Problems range is applied SERVER-side, over the per-day buckets —
+					// the browser can't do it, because a row's all-time count carries no
+					// dates to filter on.
+					const healthReq = fetch(`../GameplayHealth/${problemsQuery()}`, req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Aggregates first — they render the whole page except the caretaker
@@ -3430,6 +3511,30 @@
 				DAY_RANGE.from = '';
 				DAY_RANGE.to = '';
 				rerender();
+			});
+			// The Problems range. Unlike the chart's picker this one REFETCHES, because
+			// the windowing happens server-side over the per-day buckets.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-prange]');
+				if (!btn) return;
+				PROBLEM_RANGE.preset = btn.getAttribute('data-prange');
+				PROBLEM_RANGE.from = '';
+				PROBLEM_RANGE.to = '';
+				load();
+			});
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.hasAttribute) return;
+				if (!el.hasAttribute('data-prange-from') && !el.hasAttribute('data-prange-to')) return;
+				PROBLEM_RANGE.preset = 'custom';
+				if (el.hasAttribute('data-prange-from')) PROBLEM_RANGE.from = el.value;
+				if (el.hasAttribute('data-prange-to')) PROBLEM_RANGE.to = el.value;
+				if (PROBLEM_RANGE.from && PROBLEM_RANGE.to && PROBLEM_RANGE.from > PROBLEM_RANGE.to) {
+					const t = PROBLEM_RANGE.from;
+					PROBLEM_RANGE.from = PROBLEM_RANGE.to;
+					PROBLEM_RANGE.to = t;
+				}
+				load();
 			});
 			// Typing a date switches the control to a custom range. Handled on 'change'
 			// so a half-typed year doesn't blank the chart mid-keystroke.

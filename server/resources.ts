@@ -127,6 +127,42 @@ const refusalBuffer = new Map<string, { code: string; status: number; count: num
 let refusalFlushTimer: any = null;
 const REFUSAL_FLUSH_MS = 15_000;
 
+/** UTC day key, `YYYY-MM-DD`. The bucket label for the per-day counters below. */
+const dayKeyUTC = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+/**
+ * How many days of per-code history to keep. Bounded on purpose: `byDay` lives
+ * inside the row, so without a cap a code seen every day would grow its own
+ * record forever. Sixty days is the same window LandingStat keeps, and it is far
+ * longer than anyone looks back at a refusal.
+ */
+const PROBLEM_HISTORY_DAYS = 60;
+
+/**
+ * Fold today's count into a row's per-day map and drop anything past the window.
+ *
+ * These tables were pure running totals — one row per code with a `count` that
+ * only ever went up. That answers "has this ever happened" and nothing else: a
+ * refusal code sitting at 380 could be 380 yesterday or 380 spread over two
+ * months, and there was no way to tell which from the stored data. Any date
+ * filter built on top could only ever sort rows by `lastSeenAt` while showing
+ * all-time numbers beside them.
+ *
+ * Bucketing by day makes the question answerable. No backfill is possible — the
+ * history that was never recorded cannot be recovered — so `byDay` starts empty
+ * on existing rows and fills from the day this ships.
+ */
+function bumpDay(prev: Record<string, number> | undefined, at: number, by: number): Record<string, number> {
+	const cutoff = dayKeyUTC(at - PROBLEM_HISTORY_DAYS * 86_400_000);
+	const out: Record<string, number> = {};
+	for (const [day, n] of Object.entries(prev || {})) {
+		// String compare is safe and cheap on YYYY-MM-DD, which sorts lexically.
+		if (day >= cutoff && Number.isFinite(Number(n))) out[day] = Number(n);
+	}
+	const today = dayKeyUTC(at);
+	out[today] = (out[today] || 0) + by;
+	return out;
+}
+
 async function flushRefusals(): Promise<void> {
 	refusalFlushTimer = null;
 	if (!refusalBuffer.size) return;
@@ -149,6 +185,7 @@ async function flushRefusals(): Promise<void> {
 				status: r.status,
 				lastSeenAt: now,
 				count: (row.count || 0) + r.count,
+				byDay: bumpDay(row.byDay, now, r.count),
 			});
 		}
 	} catch (e: any) {
@@ -9777,6 +9814,7 @@ export class ReportClientError extends PublicEndpoint {
 				stack: stack || row.stack || null,
 				lastSeenAt: now,
 				count: (row.count || 0) + 1,
+				byDay: bumpDay(row.byDay, now, 1),
 				platform: String(body.platform || '').slice(0, 16) || row.platform || null,
 				version: String(body.version || '').slice(0, 32) || row.version || null,
 				build: String(body.build || '').slice(0, 64) || row.build || null,
@@ -9807,7 +9845,7 @@ export class ReportClientError extends PublicEndpoint {
  * today.
  */
 export class GameplayHealth extends DashboardEndpoint {
-	async get() {
+	async get(target?: any) {
 		// Fold anything still buffered in memory in first, so a quiet server does
 		// not look healthier than it is just because the flush timer hasn't fired.
 		await flushRefusals();
@@ -9821,13 +9859,46 @@ export class GameplayHealth extends DashboardEndpoint {
 		};
 		const [refusalRows, errorRows] = await Promise.all([read('Refusal'), read('ClientError')]);
 
+		// Optional `?from=YYYY-MM-DD&to=YYYY-MM-DD`, inclusive, over the per-day
+		// buckets. Every row keeps its all-time `count` untouched alongside a
+		// `windowCount`, because those answer different questions and conflating
+		// them is how a filtered view starts quietly lying: "380 refusals" filtered
+		// to one day still means 380 all-time, and the reader has no way to know
+		// which they are looking at unless both are on the page.
+		//
+		// `covered` is the honest part. `byDay` only exists from the day it shipped,
+		// so a window that reaches back further covers less than it appears to. A
+		// row with no buckets at all reports windowCount: null — not zero, which
+		// would read as "this never happened in your range".
+		const from = queryOne(target, 'from');
+		const to = queryOne(target, 'to');
+		const windowed = !!(from || to);
+		const inWindow = (day: string) => (!from || day >= from) && (!to || day <= to);
+		const windowCountOf = (byDay: any): number | null => {
+			if (!byDay || typeof byDay !== 'object') return null;
+			const days = Object.entries(byDay);
+			if (!days.length) return null;
+			let n = 0;
+			for (const [day, c] of days) if (inWindow(day)) n += Number(c) || 0;
+			return n;
+		};
+		const daysCovered = new Set<string>();
+		for (const r of [...refusalRows, ...errorRows])
+			for (const day of Object.keys(r?.byDay || {})) if (inWindow(day)) daysCovered.add(day);
+
+		const shape = (r: any) => ({
+			count: Number(r.count) || 0,
+			windowCount: windowCountOf(r.byDay),
+			byDay: r.byDay && typeof r.byDay === 'object' ? r.byDay : null,
+			firstSeenAt: r.firstSeenAt || 0,
+			lastSeenAt: r.lastSeenAt || 0,
+		});
+
 		const refusals = refusalRows
 			.map((r: any) => ({
 				code: String(r.code || r.id || '?'),
 				status: Number(r.status) || 0,
-				count: Number(r.count) || 0,
-				firstSeenAt: r.firstSeenAt || 0,
-				lastSeenAt: r.lastSeenAt || 0,
+				...shape(r),
 			}))
 			.sort((a, b) => b.count - a.count);
 
@@ -9836,27 +9907,49 @@ export class GameplayHealth extends DashboardEndpoint {
 				message: String(r.message || '?'),
 				where: String(r.where || ''),
 				stack: r.stack || null,
-				count: Number(r.count) || 0,
 				platform: r.platform || null,
 				version: r.version || null,
-				firstSeenAt: r.firstSeenAt || 0,
-				lastSeenAt: r.lastSeenAt || 0,
+				...shape(r),
 			}))
 			.sort((a, b) => b.count - a.count);
 
+		// Rows with nothing in the window are dropped from `top` when a window is
+		// active — but only rows that HAVE buckets. A row that predates the per-day
+		// counters has no evidence either way, and hiding it would be asserting
+		// something the data cannot support.
+		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
+		const sumWindow = (rows: any[]) =>
+			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const shownRefusals = refusals.filter(inRange);
+		const shownErrors = clientErrors.filter(inRange);
+
 		return {
 			generatedAt: Date.now(),
+			// What the ?from/?to window actually managed to cover, so the page can
+			// say "these counters only start on the 12th" instead of implying the
+			// game was quiet before then.
+			window: windowed
+				? {
+						from: from || null,
+						to: to || null,
+						daysWithData: daysCovered.size,
+						earliestBucket: [...daysCovered].sort()[0] || null,
+						note: 'per-day counters begin when this feature shipped; anything older has an all-time count only',
+					}
+				: null,
 			refusals: {
-				distinct: refusals.length,
+				distinct: shownRefusals.length,
 				total: refusals.reduce((n, r) => n + r.count, 0),
+				windowTotal: windowed ? sumWindow(shownRefusals) : null,
 				// 4xx is the game saying no on purpose; 5xx is the game falling over.
 				serverFaults: refusals.filter((r) => r.status >= 500).reduce((n, r) => n + r.count, 0),
-				top: refusals.slice(0, 25),
+				top: shownRefusals.slice(0, 25),
 			},
 			clientErrors: {
-				distinct: clientErrors.length,
+				distinct: shownErrors.length,
 				total: clientErrors.reduce((n, e) => n + e.count, 0),
-				top: clientErrors.slice(0, 25),
+				windowTotal: windowed ? sumWindow(shownErrors) : null,
+				top: shownErrors.slice(0, 25),
 			},
 		};
 	}
