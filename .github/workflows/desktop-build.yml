@@ -1,4 +1,4 @@
-name: Desktop build & publish
+name: Desktop build & publish to itch
 
 # Builds the solo-only desktop app for Windows, macOS, and Linux on native
 # runners. On an itch-v* OR plain v* tag push it then publishes each build to
@@ -58,6 +58,18 @@ jobs:
 
       - name: Build web client + server bundle
         run: npm run build
+        env:
+          # These artifacts are the itch.io downloads. A desktop build carries no
+          # runtime evidence of which storefront it came from — process.mas covers
+          # the Mac App Store and nothing else does — so the channel gets stamped
+          # in at build time here. See detectChannel() in src/platform.ts.
+          #
+          # Deliberately NOT set in itch-demo.yml: that one artifact is served from
+          # BOTH itch and wildwillows.app/play, and its own hostname tells them
+          # apart at runtime. Stamping it would make it lie on one of the two.
+          # The MAS workflows stamp 'mas' as a fallback, but process.mas already
+          # answers it there at runtime and that verdict wins.
+          WW_CHANNEL: itch
 
       # macOS: signed + notarized. Kept separate from the other OSes so CSC_LINK
       # is NEVER defined on a non-mac runner — Windows reads CSC_LINK as its own

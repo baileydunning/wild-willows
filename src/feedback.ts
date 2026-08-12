@@ -10,7 +10,7 @@
 
 import { hostedBase, IS_DESKTOP, getTransport } from './api';
 import { t } from './i18n';
-import { APP_VERSION, BUILD_TIME, detectOS } from './platform';
+import { APP_VERSION, BUILD_TIME, CHANNEL, detectOS } from './platform';
 import type { GameState } from './types';
 
 const QUEUE_KEY = 'wild-willows:feedback-queue';
@@ -62,6 +62,7 @@ export function gatherFeedbackMetrics(state: GameState | null): Record<string, a
 		version: APP_VERSION,
 		build: BUILD_TIME,
 		platform: IS_DESKTOP ? 'desktop' : 'web',
+		channel: CHANNEL, // itch / mas / direct / dev — which storefront it came from
 		os: detectOS(), // mac / windows / linux / …
 		mode: getTransport(), // solo | coop | web
 		userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',

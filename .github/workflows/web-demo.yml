@@ -50,6 +50,12 @@ jobs:
 
       # DEMO=true bakes in the browser-demo behaviour (Harper-first backend, the
       # 5-animal hard-stop, the tutorial demo note, edition:'demo' metrics).
+      # NO WW_CHANNEL here, deliberately. This exact artifact is served from BOTH
+      # itch (the html5 channel below) and wildwillows.app/play, so the channel
+      # cannot be a build-time fact — detectChannel() (src/platform.ts) reads the
+      # page's own hostname instead and gets it right in both places. Stamping a
+      # channel here would make the bundle lie on whichever site it wasn't
+      # stamped for, and the lie would be invisible.
       - name: Build browser demo
         run: DEMO=true npm run build:web
 

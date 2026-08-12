@@ -7317,6 +7317,7 @@ async function metricsRollup(target?: any): Promise<{
 		// lists computed before filtering, so the dropdowns are always complete.
 		const availableEditions = [...new Set(all.map((v) => (v.edition === 'demo' ? 'demo' : 'full')))].sort();
 		const availablePlatforms = [...new Set(all.map((v) => v.platform || 'unknown'))].sort();
+		const availableChannels = [...new Set(all.map((v) => v.channel || 'unknown'))].sort();
 
 		// Optional `?exclude=<name>` filter (repeatable and/or comma-separated) so you
 		// can drop your own test saves and not skew the numbers. Case-insensitive match
@@ -7417,10 +7418,13 @@ async function metricsRollup(target?: any): Promise<{
 		};
 		const editionFilter = oneParam('edition');
 		const platformFilter = oneParam('platform');
+		const channelFilter = oneParam('channel');
 		if (editionFilter && editionFilter.toLowerCase() !== 'all')
 			all = all.filter((v) => (v.edition === 'demo' ? 'demo' : 'full') === editionFilter);
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			all = all.filter((v) => (v.platform || 'unknown') === platformFilter);
+		if (channelFilter && channelFilter.toLowerCase() !== 'all')
+			all = all.filter((v) => (v.channel || 'unknown') === channelFilter);
 
 		// `?idle=exclude` drops windows that were left open rather than played
 		// (see isIdleAnomaly). Counted BEFORE the filter runs, so the dashboard can
@@ -7565,6 +7569,12 @@ async function metricsRollup(target?: any): Promise<{
 		const versions = tally((v) => v.version);
 		// demo vs paid split (rides inside each solo snapshot; defaults to full).
 		const editions = tally((v) => v.edition || 'full');
+		// Which storefront each save came from. Also rides inside the snapshot (see
+		// metricsUplink), so it needs no column and lands on the row via the spread
+		// above. Saves written before this shipped have none — they read 'unknown'
+		// rather than being folded into a real channel, so the backfill gap stays
+		// visible instead of quietly padding whichever store you look at first.
+		const channels = tally((v) => v.channel);
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
@@ -7990,6 +8000,8 @@ async function metricsRollup(target?: any): Promise<{
 			openRows = openRows.filter((o) => (o.edition === 'demo' ? 'demo' : 'full') === editionFilter);
 		if (platformFilter && platformFilter.toLowerCase() !== 'all')
 			openRows = openRows.filter((o) => (o.platform || 'unknown') === platformFilter);
+		if (channelFilter && channelFilter.toLowerCase() !== 'all')
+			openRows = openRows.filter((o) => (o.channel || 'unknown') === channelFilter);
 
 		const deviceIdOf = (o: any) => String(o?.deviceId || String(o?.id || '').replace(/^dev:/, ''));
 
@@ -8024,6 +8036,32 @@ async function metricsRollup(target?: any): Promise<{
 			const k = o.edition === 'demo' ? 'demo' : 'full';
 			editionSplit[k] = (editionSplit[k] || 0) + 1;
 		}
+		/* Per-STOREFRONT funnel: how many devices each channel brought, and how
+		 * many of them went on to make a character.
+		 *
+		 * Deliberately not a bare count. Raw device counts across channels are not
+		 * comparable — inside itch's game iframe the device id lives in THIRD-PARTY
+		 * storage, which browsers partition or clear on their own, so one itch
+		 * player can show up as several devices while a wildwillows.app player
+		 * (first-party) shows up as one. Conversion RATE survives that; totals do
+		 * not. Both are returned, but the rate is the one to compare on.
+		 *
+		 * 'unknown' is its own bucket: every device that opened the game before
+		 * this shipped has no channel, and folding those into a real storefront
+		 * would silently inflate whichever one you happened to look at.
+		 */
+		const channelSplit: Record<string, any> = {};
+		for (const o of openRows) {
+			const k = String(o.channel || 'unknown');
+			const c = (channelSplit[k] ||= { devices: 0, opens: 0, converted: 0, charactersCreated: 0, conversionPct: 0 });
+			c.devices++;
+			c.opens += o.opens || 0;
+			c.charactersCreated += o.savesCreated || 0;
+			if (o.converted) c.converted++;
+		}
+		for (const c of Object.values<any>(channelSplit))
+			c.conversionPct = c.devices ? Math.round((c.converted / c.devices) * 100) : 0;
+
 		const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
 		const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
 		const savesPerPersonHistogram: Record<string, number> = {};
@@ -8046,6 +8084,8 @@ async function metricsRollup(target?: any): Promise<{
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
 			editions: editionSplit,
+			// Per-storefront funnel (itch | mas | direct | dev) — see channelSplit.
+			channels: channelSplit,
 			// What the ?excludeDevice= filter took out. The dashboard no longer offers
 			// a device picker — raw app opens came off the page entirely, which removes
 			// the distortion rather than filtering around it — but the query parameter
@@ -8059,10 +8099,12 @@ async function metricsRollup(target?: any): Promise<{
 				availableVersions,
 				availableEditions,
 				availablePlatforms,
+				availableChannels,
 				version: versionActive ? versionFilter : null,
 				versionMode: versionActive ? versionMode : null,
 				edition: editionFilter && editionFilter.toLowerCase() !== 'all' ? editionFilter : null,
 				platform: platformFilter && platformFilter.toLowerCase() !== 'all' ? platformFilter : null,
+				channel: channelFilter && channelFilter.toLowerCase() !== 'all' ? channelFilter : null,
 				idle: idleExcluded ? 'exclude' : null,
 				excludedDevices: [...excludedDevices],
 			},
@@ -8079,6 +8121,7 @@ async function metricsRollup(target?: any): Promise<{
 				operatingSystems,
 				versions,
 				editions,
+				channels,
 				engagement: {
 					totalPlayHours: round1(totalPlaySeconds / 3600),
 					totalPlaySeconds,
@@ -10151,6 +10194,25 @@ export class AppOpen extends PublicEndpoint {
 			id,
 			deviceId,
 			platform: String(body.platform || '').slice(0, 20) || existing?.platform || null,
+			// Which storefront handed this device its copy (itch | mas | direct |
+			// dev). Orthogonal to `platform`, because itch ships both a download and
+			// the browser demo.
+			//
+			// FIRST-WINS, unlike platform/os/version. Those describe the device as it
+			// is right now and should follow it; a channel describes where the copy
+			// was ACQUIRED, and that never changes for a given install. Last-wins
+			// would let one player who later opens the browser demo silently re-file
+			// their original itch download, which is how an acquisition number quietly
+			// stops meaning acquisition. Safe to add here at all only because AppOpen
+			// is a dynamic table — see the schema note before adding fields to a typed
+			// one like SoloMetrics.
+			channel:
+				existing?.channel ||
+				String(body.channel || '')
+					.trim()
+					.toLowerCase()
+					.slice(0, 16) ||
+				null,
 			os: String(body.os || '').slice(0, 20) || existing?.os || null,
 			version: String(body.version || '').slice(0, 24) || existing?.version || null,
 			// demo | full — which product this install opened; 'demo' is sticky.
