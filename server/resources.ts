@@ -8290,6 +8290,14 @@ export class ServerHealth extends DashboardEndpoint {
 		const mins = Math.min(Math.max(parseInt(queryOne(target, 'minutes'), 10) || 60, 1), 1440);
 		const since = now - mins * 60_000;
 
+		/* ?raw=<metric> dumps a few records verbatim.
+		 *
+		 * Everything above this line is an interpretation of these records, and the
+		 * interpretations have been wrong twice — first about the metric names, then
+		 * about the units. This exists so the next question is settled by looking
+		 * rather than by another guess. Same auth gate as the rest. */
+		const rawMetric = queryOne(target, 'raw');
+
 		let rows: any[] = [];
 		let readable = true;
 		let readError: string | null = null;
@@ -8377,6 +8385,22 @@ export class ServerHealth extends DashboardEndpoint {
 		// Harper writes one row per metric per minute per thread, so a point reading
 		// and a window average answer different questions — a utilization spike and a
 		// sustained ceiling are not the same problem and shouldn't collapse together.
+		/* Every record sharing the newest timestamp for a metric. Metrics that are
+		 * emitted per-database (or per-thread) produce several records an interval,
+		 * and picking one of them is arbitrary in a way that is invisible on screen. */
+		const latestGroup = (...names: string[]) => {
+			const rs = pick(...names);
+			if (!rs.length) return [];
+			const newest = rs.reduce((m, r) => Math.max(m, Number(r.time) || 0), 0);
+			return rs.filter((r) => (Number(r.time) || 0) === newest);
+		};
+		const latestSum = (...names: string[]) => {
+			const vs = latestGroup(...names)
+				.map((r) => valueOf(r))
+				.filter((v): v is number => v != null);
+			return vs.length ? vs.reduce((a, b) => a + b, 0) : null;
+		};
+		const latestParts = (...names: string[]) => latestGroup(...names).length || null;
 		const latestOf = (...names: string[]) => {
 			let best: any = null;
 			for (const r of pick(...names)) if (!best || (r.time || 0) > (best.time || 0)) best = r;
@@ -8552,9 +8576,40 @@ export class ServerHealth extends DashboardEndpoint {
 			// is exactly how this panel shipped looking healthy while reading nothing.
 			if (v == null || v === '') return null;
 			const n = Number(v);
-			if (!Number.isFinite(n)) return null;
+			if (!Number.isFinite(n) || n < 0) return null;
+			/* Anything above 100 is not a percentage.
+			 *
+			 * The old rule was "<= 1 means a ratio, otherwise it is already a
+			 * percent", which held for cpu-usage and then met main-thread-utilization
+			 * reporting 89,876 — rendered, with total confidence, as "89876%". Some
+			 * unit is being used here that this code does not know (microseconds of
+			 * busy time, most likely), and the correct response to an unrecognised
+			 * unit is to decline rather than to print it with a % sign on the end.
+			 * The raw value is published on the metric so it stays diagnosable. */
+			if (n > 100) return null;
 			return round1(n <= 1 ? n * 100 : n);
 		};
+
+		if (rawMetric) {
+			const want = norm(rawMetric);
+			// Newest first — when you are chasing a unit, the most recent record is
+			// the one you want at the top rather than wherever the scan happened to
+			// put it.
+			const sample = rows
+				.filter((r) => norm(r.metric) === want)
+				.sort((a, b) => (Number(b.time) || 0) - (Number(a.time) || 0))
+				.slice(0, 12);
+			return {
+				generatedAt: now,
+				windowMinutes: mins,
+				readable,
+				readError,
+				raw: rawMetric,
+				matched: sample.length,
+				// Verbatim, so units and per-record breakdowns are visible as they are.
+				records: sample,
+			};
+		}
 
 		const REPL_LATENCY = ['replication-latency', 'replicationLatency', 'replication-lag', 'replicationLag'];
 		const seen = [...new Set(rows.map((r) => String(r.metric)))].sort();
@@ -8613,6 +8668,12 @@ export class ServerHealth extends DashboardEndpoint {
 			// so sustained utilization is the thing that runs out before anything else.
 			threads: {
 				utilizationPct: util ? asPct(valueOf(util)) : null,
+				/* What the metric actually said, and whether it could be read as a
+				 * percentage at all. A gauge that is present but unintelligible is a
+				 * different fact from a gauge that is missing, and the panel says which
+				 * instead of showing the same em-dash for both. */
+				utilizationRaw: util ? valueOf(util) : null,
+				utilizationUnitKnown: util ? asPct(valueOf(util)) != null : null,
 				windowAvgPct: asPct(
 					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
 				),
@@ -8620,7 +8681,15 @@ export class ServerHealth extends DashboardEndpoint {
 				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
 			},
 			storage: {
-				databaseBytes: valueOf(latestOf('database-size', 'databaseSize', 'db-size', 'storage-size')),
+				/* Sum the newest sample, not one of them.
+				 *
+				 * database-size arrives once per DATABASE per interval, so latestOf
+				 * returned whichever record happened to land last — 4MB on an instance
+				 * whose records range to 437MB, displayed as "0.00GB". Taking every
+				 * record sharing the newest timestamp gives the total across
+				 * databases, which is what "database size" means on a tile. */
+				databaseBytes: latestSum('database-size', 'databaseSize', 'db-size', 'storage-size'),
+				databaseParts: latestParts('database-size', 'databaseSize', 'db-size', 'storage-size'),
 				volumeBytes: valueOf(latestOf('storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total')),
 				nodeStorageBytes: valueOf(latestOf('node-storage', 'nodeStorage')),
 			},
