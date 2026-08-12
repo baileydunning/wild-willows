@@ -7704,8 +7704,7 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets)
-				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
 		// Count the ABANDONED sessions the heartbeat can never bucket.
 		//
@@ -7831,7 +7830,9 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
+			p90Seconds: ttfaKept.length
+				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
+				: 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -8249,7 +8250,10 @@ export class ServerHealth extends DashboardEndpoint {
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
 		 * unrecognised name is visible on the page instead of silently absent. */
-		const norm = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
+		const norm = (s: any) =>
+			String(s || '')
+				.toLowerCase()
+				.replace(/[^a-z0-9]/g, '');
 		const pick = (...names: string[]) => {
 			const want = names.map(norm);
 			return rows.filter((r) => want.includes(norm(r.metric)));
@@ -8313,7 +8317,10 @@ export class ServerHealth extends DashboardEndpoint {
 		 * the same say as a lone slow request. A true window p95 cannot be recovered
 		 * from per-period summaries, so the tail is reported as the worst p95 seen
 		 * and named `worstMs` rather than dressed up as a percentile it is not. */
-		const groups = new Map<string, { path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }>();
+		const groups = new Map<
+			string,
+			{ path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }
+		>();
 		for (const r of pick('duration', 'transfer', 'request')) {
 			if (!r.path) continue;
 			const method = r.method ? String(r.method) : null;
@@ -8367,15 +8374,42 @@ export class ServerHealth extends DashboardEndpoint {
 		// Anything this endpoint consumed, so the leftovers can be named.
 		const matched = new Set(
 			[
-				'main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization',
-				'cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization',
-				'memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss',
-				'database-size', 'databaseSize', 'db-size', 'storage-size',
-				'storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total',
-				'node-storage', 'nodeStorage',
-				'duration', 'transfer', 'request',
-				'bytes-sent', 'bytesSent', 'egress', 'transfer-out',
-				'bytes-received', 'bytesReceived', 'ingress', 'transfer-in',
+				'main-thread-utilization',
+				'mainThreadUtilization',
+				'thread-utilization',
+				'utilization',
+				'cpu-usage',
+				'cpuUsage',
+				'cpu',
+				'process-cpu',
+				'cpu-utilization',
+				'memory',
+				'memory-usage',
+				'memoryUsage',
+				'heap-used',
+				'rss',
+				'database-size',
+				'databaseSize',
+				'db-size',
+				'storage-size',
+				'storage-volume',
+				'storageVolume',
+				'volume-size',
+				'disk-size',
+				'disk-total',
+				'node-storage',
+				'nodeStorage',
+				'duration',
+				'transfer',
+				'request',
+				'bytes-sent',
+				'bytesSent',
+				'egress',
+				'transfer-out',
+				'bytes-received',
+				'bytesReceived',
+				'ingress',
+				'transfer-in',
 				...REPL_LATENCY,
 			].map(norm),
 		);
@@ -8392,7 +8426,9 @@ export class ServerHealth extends DashboardEndpoint {
 			// so sustained utilization is the thing that runs out before anything else.
 			threads: {
 				utilizationPct: util ? asPct(valueOf(util)) : null,
-				windowAvgPct: asPct(avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization')),
+				windowAvgPct: asPct(
+					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
+				),
 				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
 				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
 			},
@@ -8472,8 +8508,14 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
-			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
+			{
+				label: 'between [since, now]',
+				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
+			},
+			{
+				label: 'greater_than since',
+				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
+			},
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8547,7 +8589,8 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] =
+						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8603,8 +8646,14 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
+				if (Array.isArray(v))
+					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object')
+					return Object.fromEntries(
+						Object.entries(v)
+							.slice(0, 12)
+							.map(([k, x]) => [k, describe(x)]),
+					);
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -10285,8 +10334,7 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) =>
-			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 
