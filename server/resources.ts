@@ -4592,6 +4592,16 @@ async function achievementMetrics(playerId: string) {
 			name: d.achievement.get(r.achievementId)?.name || r.achievementId,
 			earnedAt: r.earnedAt,
 		}));
+	/* When each achievement was earned, for ALL of them — not just the five in
+	 * `recent`. Time-to-earn is only interesting for the achievements everybody
+	 * gets, and those are the EARLY ones, which is exactly what a most-recent-five
+	 * list leaves out: a player with twenty achievements reports nothing about the
+	 * first one they ever earned. A flat id -> timestamp map is a few hundred
+	 * bytes and makes both popularity and pacing computable from the rollup.
+	 * `recent` stays as it is; something may still be reading it. */
+	const earnedAt: Record<string, number> = {};
+	for (const r of rows) if (r.achievementId && r.earnedAt) earnedAt[String(r.achievementId)] = Number(r.earnedAt);
+
 	return {
 		earned: rows.length,
 		total: d.achievements.length,
@@ -4599,6 +4609,7 @@ async function achievementMetrics(playerId: string) {
 		completion: round1(rows.length / total),
 		byCategory,
 		recent,
+		earnedAt,
 	};
 }
 
@@ -7654,6 +7665,65 @@ async function metricsRollup(target?: any): Promise<{
 			const bucket = e === 0 ? '0' : `${Math.floor((e - 1) / 10) * 10 + 1}-${(Math.floor((e - 1) / 10) + 1) * 10}`;
 			completionHistogram[bucket] = (completionHistogram[bucket] || 0) + 1;
 		}
+		/* The five achievements the most people have, and how long each took.
+		 *
+		 * Popularity is counted from `earnedAt`, which lists every achievement a
+		 * save holds — NOT from `recentDistribution`, which only sees each player's
+		 * last five and therefore systematically under-counts the early
+		 * achievements that are the popular ones.
+		 *
+		 * "Time to earn" is measured from the save's creation, and is reported as a
+		 * MEDIAN alongside the mean: one player who left the game open for a week
+		 * before finishing the tutorial drags a mean badly, and with a handful of
+		 * saves it is a mean of almost nothing. `players` and `timed` are both
+		 * reported because they differ — a save whose snapshot predates this field
+		 * counts for neither, and one with no usable creation time counts for
+		 * popularity but not for pacing. */
+		const achEarnedBy = new Map<string, { players: number; times: number[] }>();
+		for (const v of withAch) {
+			const map = v.achievements.earnedAt;
+			if (!map || typeof map !== 'object') continue;
+			for (const [id, at] of Object.entries(map)) {
+				let e = achEarnedBy.get(id);
+				if (!e) achEarnedBy.set(id, (e = { players: 0, times: [] }));
+				e.players++;
+				const ms = Number(at) - Number(v.createdAt || 0);
+				// Guard both ends: a missing createdAt yields an absurd age, and clock
+				// skew on a client-stamped timestamp can put an achievement before the
+				// save existed. Neither is a real duration.
+				if (v.createdAt && Number.isFinite(ms) && ms >= 0 && ms <= 365 * DAY_MS) e.times.push(ms / 1000);
+			}
+		}
+		const achDefs = await defs().catch(() => null);
+		const topAchievements = [...achEarnedBy.entries()]
+			.sort((a, b) => b[1].players - a[1].players || a[0].localeCompare(b[0]))
+			.slice(0, 5)
+			.map(([id, e]) => {
+				const sorted = [...e.times].sort((a, b) => a - b);
+				const mid = sorted.length
+					? sorted.length % 2
+						? sorted[(sorted.length - 1) / 2]
+						: (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
+					: null;
+				return {
+					id,
+					name: (achDefs as any)?.achievement?.get?.(id)?.name || id,
+					players: e.players,
+					// How many of those players had a usable duration behind them.
+					timed: sorted.length,
+					medianSecondsToEarn: mid == null ? null : round1(mid),
+					avgSecondsToEarn: sorted.length ? round1(sorted.reduce((a, b) => a + b, 0) / sorted.length) : null,
+					fastestSeconds: sorted.length ? round1(sorted[0]) : null,
+					slowestSeconds: sorted.length ? round1(sorted[sorted.length - 1]) : null,
+				};
+			});
+		// Saves whose snapshot predates the per-achievement timestamps contribute
+		// nothing here, and a top-five drawn from four saves is not a top five.
+		const achTimingCoverage = {
+			savesWithAchievements: withAch.length,
+			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length).length,
+		};
+
 		const achievementsSummary = {
 			totalDefined: withAch.reduce((m, v) => Math.max(m, v.achievements.total || 0), 0),
 			totalEarned,
@@ -7665,6 +7735,8 @@ async function metricsRollup(target?: any): Promise<{
 			byCategory,
 			recentDistribution,
 			completionHistogram,
+			topAchievements,
+			timingCoverage: achTimingCoverage,
 		};
 
 		// Time-per-area: sum every save's dwell time, so you can see where players
@@ -7704,7 +7776,8 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets)
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
 		// Count the ABANDONED sessions the heartbeat can never bucket.
 		//
@@ -7830,9 +7903,7 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length
-				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
-				: 0,
+			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -8250,10 +8321,7 @@ export class ServerHealth extends DashboardEndpoint {
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
 		 * unrecognised name is visible on the page instead of silently absent. */
-		const norm = (s: any) =>
-			String(s || '')
-				.toLowerCase()
-				.replace(/[^a-z0-9]/g, '');
+		const norm = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 		const pick = (...names: string[]) => {
 			const want = names.map(norm);
 			return rows.filter((r) => want.includes(norm(r.metric)));
@@ -8317,12 +8385,35 @@ export class ServerHealth extends DashboardEndpoint {
 		 * the same say as a lone slow request. A true window p95 cannot be recovered
 		 * from per-period summaries, so the tail is reported as the worst p95 seen
 		 * and named `worstMs` rather than dressed up as a percentile it is not. */
-		const groups = new Map<
-			string,
-			{ path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }
-		>();
+		/* Infrastructure traffic is not players, and mixing them makes both numbers
+		 * lie. `status` is Harper Fabric's load-balancer probe — @harperdb/status-check,
+		 * installed by the platform, not by this app — and on a two-node instance it
+		 * runs often enough to dominate the request count. Harper's own operations
+		 * (get_usage_licenses and friends) arrive as snake_case names with no HTTP
+		 * method, which is what separates them from this app's PascalCase resources.
+		 * Neither belongs in "slowest endpoints" or in the denominator of an error
+		 * rate that is supposed to describe what players experienced. */
+		const INFRA_PATHS = new Set(['status', 'health', 'healthz', 'healthcheck', 'ping', 'metrics_health']);
+		const isInfra = (path: any, method: any) => {
+			const p = String(path || '');
+			if (INFRA_PATHS.has(norm(p))) return true;
+			// A Harper operation: no HTTP method and a snake_case/lowercase name.
+			return !method && /^[a-z][a-z0-9_]*$/.test(p);
+		};
+
+		let appCalls = 0;
+		let infraCalls = 0;
+		const infraSeen = new Set<string>();
+		const groups = new Map<string, { path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }>();
 		for (const r of pick('duration', 'transfer', 'request')) {
 			if (!r.path) continue;
+			const calls0 = Math.max(1, Number(r.count) || 0);
+			if (isInfra(r.path, r.method)) {
+				infraCalls += calls0;
+				infraSeen.add(String(r.path));
+				continue;
+			}
+			appCalls += calls0;
 			const method = r.method ? String(r.method) : null;
 			const key = `${r.path}\u0000${method || ''}`;
 			let g = groups.get(key);
@@ -8374,42 +8465,15 @@ export class ServerHealth extends DashboardEndpoint {
 		// Anything this endpoint consumed, so the leftovers can be named.
 		const matched = new Set(
 			[
-				'main-thread-utilization',
-				'mainThreadUtilization',
-				'thread-utilization',
-				'utilization',
-				'cpu-usage',
-				'cpuUsage',
-				'cpu',
-				'process-cpu',
-				'cpu-utilization',
-				'memory',
-				'memory-usage',
-				'memoryUsage',
-				'heap-used',
-				'rss',
-				'database-size',
-				'databaseSize',
-				'db-size',
-				'storage-size',
-				'storage-volume',
-				'storageVolume',
-				'volume-size',
-				'disk-size',
-				'disk-total',
-				'node-storage',
-				'nodeStorage',
-				'duration',
-				'transfer',
-				'request',
-				'bytes-sent',
-				'bytesSent',
-				'egress',
-				'transfer-out',
-				'bytes-received',
-				'bytesReceived',
-				'ingress',
-				'transfer-in',
+				'main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization',
+				'cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization',
+				'memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss',
+				'database-size', 'databaseSize', 'db-size', 'storage-size',
+				'storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total',
+				'node-storage', 'nodeStorage',
+				'duration', 'transfer', 'request',
+				'bytes-sent', 'bytesSent', 'egress', 'transfer-out',
+				'bytes-received', 'bytesReceived', 'ingress', 'transfer-in',
 				...REPL_LATENCY,
 			].map(norm),
 		);
@@ -8426,9 +8490,7 @@ export class ServerHealth extends DashboardEndpoint {
 			// so sustained utilization is the thing that runs out before anything else.
 			threads: {
 				utilizationPct: util ? asPct(valueOf(util)) : null,
-				windowAvgPct: asPct(
-					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
-				),
+				windowAvgPct: asPct(avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization')),
 				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
 				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
 			},
@@ -8437,13 +8499,44 @@ export class ServerHealth extends DashboardEndpoint {
 				volumeBytes: valueOf(latestOf('storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total')),
 				nodeStorageBytes: valueOf(latestOf('node-storage', 'nodeStorage')),
 			},
-			http: {
-				responses: totalResponses,
-				byStatus,
-				serverErrors,
-				errorRatePct: totalResponses ? round1((serverErrors / totalResponses) * 100) : 0,
-				slowest,
-			},
+			http: (() => {
+				/* The 5xx rate should describe what PLAYERS hit, but the response_*
+				 * counters carry no path — they are global per status — so 5xx cannot
+				 * be attributed to a route directly. The duration records DO carry
+				 * paths, which gives an exact infrastructure request count.
+				 *
+				 * Subtracting one from the other is only sound if the two families are
+				 * counting the same events. They are checked against each other rather
+				 * than assumed: if the totals do not reconcile within 5%, the app-only
+				 * rate is NOT reported, because scaling a denominator by a ratio that
+				 * does not hold is a guess wearing a percentage sign. `basis` says
+				 * which of the two you are looking at, every time. */
+				const totalCalls = appCalls + infraCalls;
+				const reconciles = totalResponses > 0 && totalCalls > 0 && Math.abs(totalCalls - totalResponses) / totalResponses <= 0.05;
+				const appResponses = reconciles ? Math.max(0, totalResponses - infraCalls) : null;
+				const basis = appResponses && appResponses > 0 ? 'app' : 'all';
+				const denom = basis === 'app' ? (appResponses as number) : totalResponses;
+				return {
+					responses: totalResponses,
+					byStatus,
+					serverErrors,
+					// Over player traffic where that is defensible, over everything where
+					// it is not — and `errorRateBasis` always says which.
+					errorRatePct: denom ? round1((serverErrors / denom) * 100) : 0,
+					errorRateBasis: basis,
+					errorRateOf: denom,
+					requests: {
+						app: appCalls,
+						infrastructure: infraCalls,
+						infrastructurePaths: [...infraSeen].sort(),
+						// Whether the request records and the response counters agree. When
+						// they don't, something is being counted by one and not the other,
+						// and that is worth seeing rather than smoothing over.
+						reconcilesWithResponses: reconciles,
+					},
+					slowest,
+				};
+			})(),
 			// Two nodes replicate behind this, so latency between them is what says
 			// whether they are actually keeping up with each other.
 			replication: {
@@ -8462,6 +8555,34 @@ export class ServerHealth extends DashboardEndpoint {
 			 * the page, so the panel diagnoses itself next time. */
 			metricsSeen: seen,
 			metricsUnmatched: seen.filter((m) => !matched.has(norm(m))),
+			/* Every metric in the window, aggregated the same way regardless of what
+			 * it is. The named gauges above are an opinionated reading of a handful
+			 * of these; this is the rest of the telemetry without an opinion, so a
+			 * metric this endpoint has never heard of is still legible instead of
+			 * being a name in an apology at the bottom of the page. */
+			allMetrics: seen
+				.map((name) => {
+					const rs = pick(name);
+					const vals = rs.map((r) => valueOf(r)).filter((v): v is number => v != null);
+					let latest: any = null;
+					for (const r of rs) if (!latest || (r.time || 0) > (latest.time || 0)) latest = r;
+					const sum = vals.reduce((a, b) => a + b, 0);
+					return {
+						metric: name,
+						samples: rs.length,
+						// Counters are worth summing, gauges are worth reading latest. Both
+						// are given rather than guessing which kind this metric is.
+						latest: latest ? valueOf(latest) : null,
+						total: vals.length ? round1(sum) : null,
+						mean: vals.length ? round1(sum / vals.length) : null,
+						min: vals.length ? round1(Math.min(...vals)) : null,
+						max: vals.length ? round1(Math.max(...vals)) : null,
+						// A metric with paths is per-route; one without is instance-wide.
+						paths: [...new Set(rs.map((r) => r.path).filter(Boolean).map(String))].length,
+						read: matched.has(norm(name)),
+					};
+				})
+				.sort((a, b) => b.samples - a.samples),
 		};
 	}
 }
@@ -8508,14 +8629,8 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{
-				label: 'between [since, now]',
-				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
-			},
-			{
-				label: 'greater_than since',
-				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
-			},
+			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
+			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8589,8 +8704,7 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] =
-						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8646,14 +8760,8 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v))
-					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object')
-					return Object.fromEntries(
-						Object.entries(v)
-							.slice(0, 12)
-							.map(([k, x]) => [k, describe(x)]),
-					);
+				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -10334,7 +10442,8 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) =>
+			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 

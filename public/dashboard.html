@@ -2784,7 +2784,54 @@
 					);
 				}
 
-				/* ---- Engagement KPIs ---- */
+				/* The five achievements the most caretakers have, and how long each took
+			 * from the moment the save was created.
+			 *
+			 * Median leads and the mean sits beside it: one person who left the game
+			 * open overnight before finishing the tutorial moves a mean by hours and
+			 * the median not at all, and with a few dozen saves that is the common
+			 * case rather than the exception. The spread is shown for the same
+			 * reason — "median 4m, fastest 40s, slowest 3h" is a different fact from
+			 * "median 4m" and the second one on its own invites the wrong plan. */
+			function topAchievementsHTML(s) {
+				const a = (s && s.achievements) || {};
+				const top = a.topAchievements || [];
+				if (!top.length) return '';
+				const cov = a.timingCoverage || {};
+				// fmtDur rounds to whole minutes, which turns "earned it in 40 seconds"
+				// into "1m" and "in 8 seconds" into "0m" — the fast end is the
+				// interesting end for a first milestone, so keep seconds below a minute.
+				const dur = (sec) => (n(sec) < 60 ? `${Math.round(n(sec))}s` : fmtDur(sec));
+				const rows = top
+					.map((t) => {
+						const spread =
+							t.timed > 1 && t.fastestSeconds != null
+								? `<span class="alltime">${dur(t.fastestSeconds)}–${dur(t.slowestSeconds)}</span>`
+								: '';
+						return (
+							`<tr><td>${esc(t.name)}</td>` +
+							`<td class="num">${fmt(t.players)}</td>` +
+							`<td class="num">${t.medianSecondsToEarn == null ? '—' : dur(t.medianSecondsToEarn)}</td>` +
+							`<td class="num">${t.avgSecondsToEarn == null ? '—' : dur(t.avgSecondsToEarn)}</td>` +
+							`<td class="num">${spread || '—'}</td></tr>`
+						);
+					})
+					.join('');
+				// A top five drawn from four saves is not a top five. Say the base.
+				const missing = n(cov.savesWithAchievements) - n(cov.savesWithTimestamps);
+				return (
+					`<div class="card" style="margin-top:.8rem"><h3>First five milestones<span class="tag">most earned · time from starting the save</span></h3>` +
+					`<table class="tbl"><thead><tr><th>Achievement</th><th class="num">Caretakers</th><th class="num">Median</th>` +
+					`<th class="num">Mean</th><th class="num">Range</th></tr></thead><tbody>${rows}</tbody></table>` +
+					(missing > 0
+						? `<p class="emptynote">Based on ${fmt(cov.savesWithTimestamps)} of ${fmt(cov.savesWithAchievements)} saves. ` +
+							`The other ${fmt(missing)} last reported before per-achievement timestamps existed, so they count for nothing here until they next sync.</p>`
+						: '') +
+					`</div>`
+				);
+			}
+
+			/* ---- Engagement KPIs ---- */
 				out.push(
 					sec(
 						'Engagement',
@@ -2800,7 +2847,7 @@
 								'Return rate',
 								`${fmt(R.returningPlayers)} came back`,
 							),
-						].join('')}</div>` + sessionShapeHTML(s) + clockNoteHTML(s),
+						].join('')}</div>` + sessionShapeHTML(s) + topAchievementsHTML(s) + clockNoteHTML(s),
 					),
 				);
 
@@ -3582,6 +3629,63 @@
 			 * Everything else on that page is the GAME going wrong. This is the SERVER
 			 * going wrong, which produces no gameplay events at all — a saturated
 			 * thread or a replication stall looks like silence from every other panel. */
+			/* Who the traffic actually was. A load-balancer probe every couple of
+			 * seconds outnumbers real players on a small game, and until it is named
+			 * it silently pads every request total on this page. */
+			function trafficHTML(ht) {
+				const rq = ht && ht.requests;
+				if (!rq || (!rq.app && !rq.infrastructure)) return '';
+				const total = n(rq.app) + n(rq.infrastructure);
+				const rows = [
+					['Players', n(rq.app)],
+					['Infrastructure', n(rq.infrastructure)],
+				];
+				const paths = (rq.infrastructurePaths || []).map((p) => `<code>${esc(p)}</code>`).join(' ');
+				return (
+					`<div class="card" style="margin-top:.8rem"><h3>Who called<span class="tag">requests in this window</span></h3>` +
+					barRows(rows, { cls: 'sky' }) +
+					(paths
+						? `<p class="emptynote">Infrastructure here is ${paths} — Harper Fabric's own health probe and internal operations, ` +
+							`not players. That is ${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of all requests.</p>`
+						: '') +
+					(rq.reconcilesWithResponses === false
+						? `<p class="emptynote">These request records and the response counters <b>disagree</b> by more than 5%, so the 5xx rate above ` +
+							`is left over all traffic rather than being adjusted by a number that does not add up.</p>`
+						: '') +
+					`</div>`
+				);
+			}
+
+			/* Everything Harper reported, with no opinion about it. The gauges above
+			 * are a reading of seven or eight of these; this is all of them, so a
+			 * metric this dashboard has never heard of is still something you can
+			 * look at rather than a name in a footnote. */
+			function allMetricsHTML(h) {
+				const all = h.allMetrics || [];
+				if (!all.length) return '';
+				const num = (v) => (v == null ? '—' : fmt(v));
+				const rows = all
+					.map(
+						(m) =>
+							`<tr><td><code>${esc(m.metric)}</code>${m.read ? '' : ' <span class="alltime">not charted</span>'}</td>` +
+							`<td class="num">${fmt(m.samples)}</td>` +
+							`<td class="num">${num(m.latest)}</td>` +
+							`<td class="num">${num(m.mean)}</td>` +
+							`<td class="num">${num(m.min)}</td>` +
+							`<td class="num">${num(m.max)}</td>` +
+							`<td class="num">${m.paths ? fmt(m.paths) : '—'}</td></tr>`,
+					)
+					.join('');
+				return (
+					`<div class="card" style="margin-top:.8rem"><h3>Everything Harper reported<span class="tag">${fmt(all.length)} metrics in this window</span></h3>` +
+					`<table class="tbl"><thead><tr><th>Metric</th><th class="num">Samples</th><th class="num">Latest</th>` +
+					`<th class="num">Mean</th><th class="num">Min</th><th class="num">Max</th><th class="num">Routes</th></tr></thead>` +
+					`<tbody>${rows}</tbody></table>` +
+					`<p class="emptynote">Counters (bytes, responses) are worth reading as <b>Mean</b> per sample; gauges (utilization, sizes) as <b>Latest</b>. ` +
+					`<b>Routes</b> is how many distinct paths the metric was broken down by — 0 means it is instance-wide.</p></div>`
+				);
+			}
+
 			function serverHealthHTML() {
 				const h = SERVERHEALTH;
 				if (!h) return '';
@@ -3645,7 +3749,12 @@
 						kpi(
 							ht.serverErrors ? `<span class="accent">${ratePct(ht.errorRatePct)}</span>` : pct(0),
 							'5xx rate',
-							`${fmt(ht.serverErrors)} of ${fmt(ht.responses)} responses`,
+							// Never just "of N responses". Which N it is over is the whole
+							// difference between a rate about players and a rate diluted by
+							// a load balancer polling every couple of seconds.
+							ht.errorRateBasis === 'app'
+								? `${fmt(ht.serverErrors)} of ${fmt(ht.errorRateOf)} player requests`
+								: `${fmt(ht.serverErrors)} of ${fmt(ht.responses)} responses — <b>all traffic</b>`,
 						),
 						kpi(
 							rep.latencyMs == null ? '—' : `${fmt(rep.latencyMs)}<small>ms</small>`,
@@ -3664,15 +3773,8 @@
 							? `<p class="emptynote"><b>This window is partial.</b> The read stopped at its row cap, so everything above is computed from the ` +
 								`first ${fmt(h.samples)} records in the range rather than all of them — pick a shorter window for a complete picture.</p>`
 							: '') +
-						/* An em-dash where a number should be reads exactly like an idle
-						 * server. Naming the metrics that arrived and went unused is the
-						 * difference between "nothing is happening" and "this panel is
-						 * looking for the wrong name on this Harper version". */
-						((h.metricsUnmatched || []).length
-							? `<p class="emptynote">${fmt(h.metricsUnmatched.length)} metric${h.metricsUnmatched.length === 1 ? '' : 's'} arrived that this panel does not read: ` +
-								h.metricsUnmatched.map((m) => `<code>${esc(m)}</code>`).join(' ') +
-								`. A gauge showing <b>—</b> above is one of these under a name it is not looking for.</p>`
-							: ''),
+						trafficHTML(ht) +
+						allMetricsHTML(h),
 				);
 			}
 
