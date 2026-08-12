@@ -121,6 +121,27 @@ A Mac can only produce the **macOS** `.dmg`/`.zip`; Windows and Linux need their
   The release version comes **from the tag** (`v0.1.1` → `0.1.1` artifacts + itch version) via `electron-builder -c.extraMetadata.version`, so you don't bump `package.json` by hand — just tag. (`package.json`'s version is only the local-dev default.)
 - **Locally on your Mac.** `npm run desktop:dist` → macOS `.dmg`/`.zip` in `dist/`, then drag into **Edit game → Uploads** by hand if you're not using the tag flow.
 
+#### Manual release with a platform picker
+
+A tag is all-or-nothing: `v0.3.2` fires desktop *and* Android *and* the demo *and* MAS. That is what you want for a real version bump and not what you want when only the Chromebook APK needs a respin. For that there's **Actions → itch release (manual) → Run workflow** (`.github/workflows/itch-release.yml`):
+
+| Field | |
+|---|---|
+| **Version** | `0.3.2` — validated as semver before any runner starts, so a typo can't get baked into an APK's `versionName` |
+| **Windows / macOS / Linux** | one checkbox each → `windows` / `osx` / `linux` channels |
+| **Chromebook** | the Capacitor APK → `android` channel |
+| **Browser demo** | the `DEMO=true` web build → `html5` channel |
+| **Publish** | **off by default** — unticked builds artifacts only, so you can rehearse a release without touching the store page |
+
+It doesn't reimplement any of the builds: `desktop-build.yml`, `android-build.yml` and `itch-demo.yml` each grew a `workflow_call` trigger taking `(version, publish)`, and this workflow calls them. Tag pushes behave exactly as before. The Mac App Store is deliberately out of scope — it isn't an itch channel and has its own review cadence (`mas-v0.3.2`).
+
+Two consequences of `workflow_call` worth knowing, because both were live bugs the first time round:
+
+- A called workflow inherits the **caller's `github.ref`**, so `startsWith(github.ref, 'refs/tags/')` is no longer a safe "should I publish?" test — every publish gate is now `inputs.publish || (github.event_name == 'push' && <tag>)`, and every `concurrency` group includes the event name so a manual run can't cancel an in-flight tag build.
+- A called workflow also inherits the caller's **`github.run_number`**, which is why the Android `versionCode` no longer comes from it (see below).
+
+> GitHub only lists "Run workflow" for workflows on the **default branch** — this has to be on `main` before the button shows up, even though the run itself can target any branch.
+
 On the itch page itself, set it up once as a downloadable **Game** ("played on your computer", installable by the itch app), add screenshots + cover + tags + the AI disclosure, and set it Public. After that, tagging a release keeps the builds current automatically.
 
 > Windows builds are unsigned, so SmartScreen shows a "Windows protected your PC" prompt the first time (More info → Run anyway) — normal for itch games; note it on the store page.
@@ -289,8 +310,26 @@ What it patches, and why each line matters:
 - `SuppressWindowControlNavigationButton` — the game is one activity hosting a
   canvas with no back-stack, so the ChromeOS frame's back button would only ever
   kill the app mid-play.
-- `minSdk 30`, `compileSdk`/`targetSdk 36` — Google Play requires API 36 for new
-  apps submitted from **31 August 2026**.
+- **`configChanges` including `density|navigation|fontScale`** — anything not
+  listed there destroys and recreates the activity, which for this app means the
+  WebView reloads and Phaser tears the scene down mid-play. Capacitor's template
+  covers orientation/keyboard/screenSize/locale/uiMode; the three it omits are
+  exactly the ChromeOS ones. `density` is the big one: docking to a classroom
+  monitor or nudging ChromeOS's display-size slider changes DPI, and without this
+  the player is dumped back to the title.
+- **`<layout defaultWidth/minWidth …>`** — ChromeOS launches an Android app into
+  a phone-shaped window unless the activity says otherwise, so a landscape game
+  opens as a tall slice and has to be resized before you can see anything. Also
+  sets a floor (640×400dp) below which the HUD can't lay out.
+- `minSdk 28`, `compileSdk`/`targetSdk 36` — **28, not 30.** Chromebooks run two
+  different Android runtimes: ARCVM (Android 11 / API 30) from ChromeOS 100
+  onward, and the older ARC++ container (Android 9 / API 28) on everything
+  before it — which is disproportionately the cheap, old, still-in-service school
+  hardware this game is for. minSdk 30 makes the app invisible to all of them, in
+  exchange for legacy-storage shims we never touch (saves go to the app-private
+  `Directory.Data` via `@capacitor/filesystem`, so scoped storage never applies).
+  targetSdk 36 is non-negotiable in the other direction: Google Play requires API
+  36 for new apps and updates from **31 August 2026**.
 
 ### Signing
 
@@ -303,12 +342,54 @@ export ANDROID_KEYSTORE_PASSWORD=… ANDROID_KEY_ALIAS=wild-willows ANDROID_KEY_
 npm run android:apk
 ```
 
-With none of them set, Gradle falls back to debug signing so a local smoke build
-still works — but a debug-signed APK can't go to Play and shouldn't go on itch.
+With none of them set, the release buildType falls back to the **debug** key so a
+local smoke build is still installable — but a debug-signed APK can't go to Play
+and shouldn't go on itch. (That fallback is explicit in `patch-android.mjs`. Left
+to itself, AGP gives a release build *no* signing config at all and emits
+`app-release-unsigned.apk`, which no device will install — the smoke build only
+looks like it worked.)
 
-> **Back the keystore up somewhere that is not this repo.** Losing it means you
-> can never ship an update under the same Play listing again. `*.jks` is
-> gitignored for that reason.
+#### Creating the keystore and the four GitHub secrets
+
+One-time. `keytool` ships with the JDK, so any machine with Java has it.
+
+```bash
+keytool -genkeypair -v \
+  -keystore wild-willows-release.jks \
+  -alias wild-willows \
+  -keyalg RSA -keysize 4096 \
+  -validity 10000 \
+  -storetype PKCS12
+```
+
+It prompts for a password (use the same one for the store and the key — Gradle
+accepts them separately, but PKCS12 keeps one password anyway) and for a name /
+org / locality. Those land in the certificate and are effectively permanent, so
+put something real in the CN, e.g. `Bailey Dunning`.
+
+Then, in **Settings → Secrets and variables → Actions → New repository secret**:
+
+| Secret | Value |
+|---|---|
+| `ANDROID_KEYSTORE_BASE64` | `base64 -i wild-willows-release.jks \| pbcopy` — the whole `.jks` as one base64 blob |
+| `ANDROID_KEYSTORE_PASSWORD` | the password you just typed |
+| `ANDROID_KEY_ALIAS` | `wild-willows` |
+| `ANDROID_KEY_PASSWORD` | same password, unless you set a separate key password |
+
+Set all four or none — a partial set is the one configuration that produces a
+confusing failure rather than a clean debug build.
+
+Verify the blob round-trips before trusting it:
+
+```bash
+base64 -i wild-willows-release.jks | base64 -d > /tmp/rt.jks
+keytool -list -keystore /tmp/rt.jks    # should print the wild-willows entry
+```
+
+> **Back the keystore up somewhere that is not this repo** — a password manager
+> or an encrypted drive, not iCloud Drive next to the checkout. Losing it means
+> you can never ship an update under the same Play listing again; there is no
+> recovery, only a new listing. `*.jks` is gitignored for that reason.
 
 ### CI
 
@@ -317,14 +398,30 @@ still works — but a debug-signed APK can't go to Play and shouldn't go on itch
 ```
 git tag android-v0.3.0 && git push origin android-v0.3.0   → build AND publish to itch
 git tag v0.3.0                                             → this + desktop + MAS
-Actions tab → Run workflow                                 → build artifacts only
+Actions → itch release (manual)                            → tick "Chromebook", pick publish on/off
+Actions → Android build & publish → Run workflow           → build artifacts only
 ```
 
 Secrets: `ANDROID_KEYSTORE_BASE64`, `ANDROID_KEYSTORE_PASSWORD`,
 `ANDROID_KEY_ALIAS`, `ANDROID_KEY_PASSWORD` (all four, or none → debug build),
-plus the existing `BUTLER_API_KEY`. The publish job refuses to push a
-debug-signed APK to itch. `versionName` comes from the tag; `versionCode` comes
-from the run number, because Play rejects a reused `versionCode` forever.
+plus the existing `BUTLER_API_KEY`.
+
+The publish job refuses to push anything that isn't release-signed, and it checks
+the **artifact**, not the secret: after packaging, `apksigner verify --print-certs`
+runs against the APK and the job fails if the certificate is `CN=Android Debug`.
+The secret being present only proves a keystore was decoded; this proves Gradle
+actually used it. Without that check the failure mode is silent and expensive —
+an APK on itch that Chromebooks install happily and Play can never accept an
+update for, because the signing identity is wrong and unchangeable.
+
+`versionName` comes from the tag (or the manual release's Version field).
+`versionCode` is **minutes since the Unix epoch**, not `github.run_number`: a
+reusable workflow inherits the *caller's* run number, so the day `itch-release.yml`
+started calling this workflow the counter would have jumped backwards and Play
+would have rejected every subsequent upload — permanently, since it remembers
+every `versionCode` you have ever shipped. Minutes-since-epoch is monotonic
+across every trigger path, unique per build, and sits around 29.6M today against
+Play's 2,100,000,000 ceiling.
 
 ### Known gaps before this is a Play release
 
@@ -342,6 +439,20 @@ from the run number, because Play rejects a reused `versionCode` forever.
   rejection.
 - **App icons** — still Capacitor's placeholder. Generate real ones before any
   public listing.
+- **Capacitor isn't in the lockfile** — the `@capacitor/*` packages are described
+  as devDependencies but aren't actually in `package.json`, so `npm ci` doesn't
+  install them and `android-build.yml` falls back to `npm i -D …@latest`. Every
+  release therefore resolves whatever Capacitor published that morning, and a
+  major bump changes the generated `android/` template that
+  `scripts/patch-android.mjs` regexes against. The workflow now emits a
+  `::warning::` when it takes that path. Fix: run `npm run android:init` once
+  locally and commit `package.json` + `package-lock.json`.
+- **Sideloading is blocked on managed Chromebooks** — the itch APK reaches
+  personal Chromebooks (Play Store on, developer mode / "install unknown apps"),
+  but a school-managed device installs only what the admin console pushes from
+  Play. The itch APK is therefore an enthusiast and pilot-teacher channel; the
+  Play listing is the one that actually reaches classrooms. Worth saying plainly
+  on the store page so nobody buys a download they can't install.
 
 ---
 

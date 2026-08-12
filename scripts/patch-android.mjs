@@ -90,12 +90,66 @@ edit(MANIFEST, 'suppress ChromeOS back button', (xml) => {
 	return xml.replace(/(<activity\b[^>]*>)/, `$1${meta}`);
 });
 
+// Handle every configuration change the activity can survive IN PROCESS.
+// Anything not listed here destroys and recreates the activity — which on this
+// app means the WebView reloads, Phaser tears down the scene, and the player is
+// dumped back at the title mid-session.
+//
+// Capacitor's template covers orientation/keyboard/screenSize/locale/uiMode. The
+// three it omits are exactly the ChromeOS ones:
+//   density    — plugging into an external monitor, or changing ChromeOS's
+//                display-size slider, changes DPI. On a laptop this is rare; on a
+//                Chromebook docked at a classroom desk it is a daily event.
+//   navigation — a Chromebook gaining/losing a d-pad-ish input device.
+//   fontScale  — ChromeOS accessibility text scaling; the WebView restyles fine
+//                on its own, so a full restart is pure loss.
+const CONFIG_CHANGES = [
+	'orientation',
+	'keyboardHidden',
+	'keyboard',
+	'screenSize',
+	'smallestScreenSize',
+	'screenLayout',
+	'locale',
+	'layoutDirection',
+	'uiMode',
+	'density',
+	'navigation',
+	'fontScale',
+].join('|');
+
+edit(MANIFEST, 'survive ChromeOS config changes (density/navigation/fontScale)', (xml) =>
+	xml.replace(/android:configChanges="[^"]*"/, `android:configChanges="${CONFIG_CHANGES}"`),
+);
+
+edit(MANIFEST, 'ChromeOS launch window size', (xml) => {
+	if (xml.includes('<layout')) return xml;
+	// ChromeOS launches an Android app into a phone-shaped window unless the
+	// activity declares otherwise, so a landscape game opens as a tall slice and
+	// the player has to resize before they can see anything. defaultWidth/Height
+	// are honoured on first launch; minWidth/minHeight stop the window being
+	// dragged down to a size the HUD can't lay out in.
+	const layout = `
+            <layout
+                android:defaultWidth="1280dp"
+                android:defaultHeight="800dp"
+                android:minWidth="640dp"
+                android:minHeight="400dp"
+                android:gravity="center" />`;
+	return xml.replace(/(<activity\b[^>]*>)/, `$1${layout}`);
+});
+
 // ---------------------------------------------------------------- sdk levels
-edit('android/variables.gradle', 'SDK levels (min 30 / target 36)', (gradle) =>
+edit('android/variables.gradle', 'SDK levels (min 28 / target 36)', (gradle) =>
 	gradle
-		// ChromeOS ARC runs a recent Android; 30 drops nothing that matters and
-		// avoids a pile of legacy-storage compatibility shims.
-		.replace(/minSdkVersion\s*=\s*\d+/, 'minSdkVersion = 30')
+		// minSdk 28, NOT 30. Chromebooks split across two Android runtimes: ARCVM
+		// (Android 11 / API 30) on anything from ChromeOS 100 onward, and the older
+		// ARC++ container (Android 9 / API 28) on the pre-ARCVM fleet — which is
+		// disproportionately the cheap, older, still-in-service school hardware this
+		// game is aimed at. minSdk 30 makes the app invisible to all of them for the
+		// sake of storage shims we don't use anyway (saves go to the app-private
+		// Directory.Data via @capacitor/filesystem, so scoped storage never applies).
+		.replace(/minSdkVersion\s*=\s*\d+/, 'minSdkVersion = 28')
 		// Google Play requires API 36 for new apps submitted from 31 Aug 2026.
 		.replace(/compileSdkVersion\s*=\s*\d+/, 'compileSdkVersion = 36')
 		.replace(/targetSdkVersion\s*=\s*\d+/, 'targetSdkVersion = 36'),
@@ -124,13 +178,22 @@ edit('android/app/build.gradle', 'release signing config', (gradle) => {
 `;
 	let out = gradle.replace(/(android\s*\{)/, `$1\n${signing}`);
 
-	// Attach it to the release buildType, only when a keystore was actually
-	// provided — an unsigned release APK is still useful for a smoke test.
+	// Attach it to the release buildType when a keystore was provided, and fall
+	// back to the DEBUG key when it wasn't.
+	//
+	// The fallback is not cosmetic. Gradle's release buildType has no signing
+	// config by default, and an AGP release build with no signing config emits
+	// `app-release-unsigned.apk` — which no Android device or Chromebook will
+	// install, so the "local smoke build still works" promise quietly wasn't true.
+	// Debug-signing keeps the smoke build installable; the CI publish job still
+	// refuses to push anything that isn't release-signed, so this can't leak to itch.
 	out = out.replace(
 		/(buildTypes\s*\{[\s\S]*?release\s*\{)/,
 		`$1
             if (System.getenv("ANDROID_KEYSTORE_PATH")) {
                 signingConfig signingConfigs.wildWillowsRelease
+            } else {
+                signingConfig signingConfigs.debug
             }`,
 	);
 	return out;
