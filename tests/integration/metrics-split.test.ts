@@ -366,7 +366,8 @@ describe('who is public and who is not', () => {
 	// That presence-or-absence IS the access control, which makes it worth asserting
 	// directly: this is the test that fails if someone later "tidies" one of these
 	// classes back onto PublicEndpoint and quietly republishes it.
-	const isPublic = (cls: any) => typeof cls?.prototype?.allowRead === 'function' && cls.prototype.allowRead() === true;
+	const isPublic = (cls: any) =>
+		typeof cls?.prototype?.allowRead === 'function' && cls.prototype.allowRead() === true;
 
 	it('leaves the endpoints clients actually call public', async () => {
 		const mod = await loadServer();
@@ -376,11 +377,15 @@ describe('who is public and who is not', () => {
 		// the marketing + policy pages App Store Connect links to
 		expect(isPublic(mod['']), 'landing page').toBe(true);
 		expect(isPublic(mod['privacy']), 'privacy page').toBe(true);
+		// And the dashboard SHELL, deliberately: a login form cannot live behind the
+		// thing it logs you into. It ships no data; the endpoints are the boundary.
+		expect(isPublic(mod['dashboard']), 'dashboard page').toBe(true);
 	});
 
-	it('puts every dashboard feed behind admin auth', async () => {
+	it('puts every dashboard feed behind auth', async () => {
 		const mod = await loadServer();
 		for (const name of [
+			'DashboardAuth',
 			'MetricsSummary',
 			'MetricsPlayers',
 			'SaveHealth', // recent[].recordId is a real save UUID — the capability other endpoints trust
@@ -391,7 +396,63 @@ describe('who is public and who is not', () => {
 		]) {
 			expect(isPublic(mod[name]), name).toBe(false);
 		}
-		expect(isPublic(mod['dashboard']), 'dashboard page').toBe(false);
+	});
+
+	describe('the role gate', () => {
+		const FEEDS = ['DashboardAuth', 'MetricsSummary', 'MetricsPlayers', 'SaveHealth', 'GameplayHealth', 'LandingStats'];
+		const asUser = (role: string, sup = false) => ({
+			username: 'u',
+			role: sup ? { role, permission: { super_user: true } } : { role },
+		});
+
+		// The case that matters most. Auth code written against a guessed user shape
+		// fails by denying everyone (visible immediately) or admitting everyone
+		// (visible never) — so pin the second one down.
+		it('refuses anyone it cannot identify', async () => {
+			const mod = await loadServer();
+			for (const name of FEEDS) {
+				for (const [label, user] of [
+					['no user at all', undefined],
+					['null', null],
+					['empty object', {}],
+					['a role object with no role name', { username: 'u', role: {} }],
+					['some unrelated role', asUser('cluster_user')],
+				] as const) {
+					expect(mod[name].prototype.allowRead(user), `${name} · ${label}`).toBe(false);
+				}
+			}
+		});
+
+		it('admits super-user and the read-only dashboard role', async () => {
+			const mod = await loadServer();
+			for (const name of FEEDS) {
+				expect(mod[name].prototype.allowRead(asUser('super_user', true)), `${name} · super_user flag`).toBe(true);
+				expect(mod[name].prototype.allowRead(asUser('super_user')), `${name} · super_user name`).toBe(true);
+				expect(mod[name].prototype.allowRead(asUser('metrics_reader')), `${name} · metrics_reader`).toBe(true);
+				// Harper's user object is not documented; tolerate a bare string role.
+				expect(mod[name].prototype.allowRead({ username: 'u', role: 'metrics_reader' }), `${name} · string role`).toBe(
+					true,
+				);
+			}
+		});
+
+		it('grants no writes to anybody', async () => {
+			const mod = await loadServer();
+			for (const name of FEEDS) {
+				expect(mod[name].prototype.allowCreate(), name).toBe(false);
+				expect(mod[name].prototype.allowUpdate(), name).toBe(false);
+				expect(mod[name].prototype.allowDelete(), name).toBe(false);
+			}
+		});
+
+		it('keeps emails and server internals on the real super-user key', async () => {
+			const mod = await loadServer();
+			// No allowRead override at all — these defer entirely to Harper, so the
+			// read-only dashboard role cannot reach them.
+			for (const name of ['ListFeedback', 'SystemProbe']) {
+				expect(typeof mod[name].prototype.allowRead, name).toBe('undefined');
+			}
+		});
 	});
 });
 

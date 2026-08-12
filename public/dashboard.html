@@ -134,6 +134,86 @@
 				box-shadow: var(--shadow);
 				transition: transform 0.1s;
 			}
+			/* The `hidden` attribute is only a UA style rule, so any element this page
+			   gives an explicit `display` to ignores it — which left the filter
+			   dropdowns sitting above the sign-in form, styled as if they worked.
+			   State this once, loudly, rather than tracking down each offender. */
+			[hidden] {
+				display: none !important;
+			}
+			/* Sign-in screen. Small, centred, and the only thing on the page — there is
+			   nothing else to look at until it is answered. */
+			.loginwrap {
+				display: flex;
+				justify-content: center;
+				padding: 3rem 1rem;
+			}
+			.card.login {
+				width: 100%;
+				max-width: 380px;
+				display: flex;
+				flex-direction: column;
+				gap: 0.7rem;
+			}
+			.card.login h2 {
+				margin: 0;
+				font-size: 1.15rem;
+			}
+			.card.login label {
+				display: flex;
+				flex-direction: column;
+				gap: 0.25rem;
+				font-size: 0.8rem;
+				color: var(--muted);
+			}
+			.card.login input {
+				font: inherit;
+				font-size: 0.92rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 10px;
+				background: #fff;
+				padding: 0.45rem 0.6rem;
+			}
+			.card.login input:focus {
+				outline: 2px solid var(--accent);
+				outline-offset: 1px;
+			}
+			.card.login button {
+				margin-top: 0.3rem;
+				align-self: flex-start;
+			}
+			.loginerr {
+				margin: 0;
+				font-size: 0.82rem;
+				color: #a33f52;
+				background: #fbeaee;
+				border: 1px solid #f0cdd5;
+				border-radius: 10px;
+				padding: 0.45rem 0.6rem;
+			}
+			#whoami {
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			#whoami .wrole {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-radius: 999px;
+				padding: 0.05rem 0.45rem;
+				font-size: 0.7rem;
+				font-weight: 700;
+			}
+			button.linkish {
+				font: inherit;
+				font-size: 0.78rem;
+				background: none;
+				border: 0;
+				padding: 0;
+				color: var(--accent-dark);
+				text-decoration: underline;
+				cursor: pointer;
+			}
 			/* The Problems toggle. Neutral until something is actually wrong, then it
 			   goes amber — so the button's colour carries the state without needing to
 			   be read. */
@@ -1067,6 +1147,7 @@
 				</div>
 				<div class="meta">
 					<div class="live"><span class="dot"></span> Live dashboard</div>
+					<div id="whoami" hidden></div>
 					<div id="generated">Loading…</div>
 					<label class="vfilter"
 						><span>Version</span>
@@ -3030,11 +3111,73 @@
 				syncVersionMode();
 			}
 
-			/* Every request this page makes is same-origin and needs the admin
-			 * credentials the browser collected when it challenged for /dashboard.
-			 * Stated explicitly rather than left to the default so it survives a
-			 * future move to a token or a cross-origin host. */
-			const REQ = { headers: { accept: 'application/json' }, credentials: 'same-origin' };
+			/* ------------------------------------------------------------------ *
+			 * Credentials
+			 *
+			 * The page is public; every endpoint it reads is not. So this holds the
+			 * username and password you sign in with and attaches them as HTTP basic
+			 * auth to each request — which is what the browser's own password prompt
+			 * would have done, done by hand so the page does not depend on Harper
+			 * sending WWW-Authenticate.
+			 *
+			 * sessionStorage, not localStorage: it survives a refresh (you are not
+			 * retyping a password every time you hit Refresh mid-investigation) and
+			 * dies with the tab, so a shared or forgotten machine does not keep it.
+			 *
+			 * Sign in with a read-only Harper role, never the super-user account. A
+			 * password held in a browser tab should be one that can read these numbers
+			 * and do nothing else.
+			 * ------------------------------------------------------------------ */
+			const AUTH_KEY = 'ww-dashboard-auth';
+			let AUTH = null; // { header, username, role }
+
+			/* btoa() only accepts Latin-1 and throws on anything else, which would turn
+			 * a perfectly good password containing a non-ASCII character into an
+			 * unexplained crash at sign-in. Encode as UTF-8 bytes first, per RFC 7617. */
+			function basicHeader(username, password) {
+				const bytes = new TextEncoder().encode(`${username}:${password}`);
+				let bin = '';
+				for (const b of bytes) bin += String.fromCharCode(b);
+				return 'Basic ' + btoa(bin);
+			}
+
+			function loadAuth() {
+				try {
+					const raw = JSON.parse(sessionStorage.getItem(AUTH_KEY) || 'null');
+					if (raw && typeof raw.header === 'string') AUTH = raw;
+				} catch {
+					/* unreadable — treat as signed out */
+				}
+			}
+			function saveAuth(auth) {
+				AUTH = auth;
+				try {
+					sessionStorage.setItem(AUTH_KEY, JSON.stringify(auth));
+				} catch {
+					/* storage unavailable — stays in memory for this page view */
+				}
+			}
+			function signOut() {
+				AUTH = null;
+				try {
+					sessionStorage.removeItem(AUTH_KEY);
+				} catch {
+					/* nothing to clear */
+				}
+				showLogin();
+			}
+			window.__signOut = signOut;
+
+			/* Request options for every fetch on this page. A function, not a constant,
+			 * because the credentials arrive after the script does. */
+			function req() {
+				return {
+					headers: AUTH
+						? { accept: 'application/json', authorization: AUTH.header }
+						: { accept: 'application/json' },
+					credentials: 'same-origin',
+				};
+			}
 
 			/* The roll-up used to arrive as ONE response: aggregates with a record for
 			 * every player stapled to the end. At 310 saves that was ~1 MB, 98.6% of it
@@ -3056,7 +3199,7 @@
 				let total = null;
 				for (;;) {
 					const url = `../MetricsPlayers/?${qs}&limit=${PLAYER_PAGE}` + (cursor ? `&cursor=${encodeURIComponent(cursor)}` : '');
-					const res = await fetch(url, REQ);
+					const res = await fetch(url, req());
 					if (!res.ok) throw new Error(`MetricsPlayers returned ${res.status}`);
 					const page = await res.json();
 					total = page.total;
@@ -3069,7 +3212,86 @@
 				return { players: out, total, truncated: total != null && out.length < total };
 			}
 
+			/* ------------------------------------------------------------------ *
+			 * Sign in
+			 * ------------------------------------------------------------------ */
+			function showLogin(message) {
+				const gen = document.getElementById('generated');
+				if (gen) gen.textContent = '';
+				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
+				['refresh', 'problems'].forEach((id) => {
+					const el = document.getElementById(id);
+					if (el) el.hidden = true;
+				});
+				syncWhoami();
+				document.getElementById('root').innerHTML =
+					`<section class="loginwrap"><form class="card login" id="login-form">` +
+					`<h2>Sign in</h2>` +
+					`<p class="emptynote">These numbers describe real players, so the dashboard asks who you are. ` +
+					`Use a read-only Harper account — not your super-user login.</p>` +
+					`<label>Username<input type="text" id="login-user" autocomplete="username" required autofocus></label>` +
+					`<label>Password<input type="password" id="login-pass" autocomplete="current-password" required></label>` +
+					(message ? `<p class="loginerr" role="alert">${esc(message)}</p>` : '') +
+					`<button type="submit" class="refresh" id="login-go">Sign in</button>` +
+					`</form></section>`;
+				document.getElementById('login-form').addEventListener('submit', async (e) => {
+					e.preventDefault();
+					const btn = document.getElementById('login-go');
+					const username = document.getElementById('login-user').value.trim();
+					const password = document.getElementById('login-pass').value;
+					if (!username || !password) return;
+					btn.disabled = true;
+					btn.textContent = 'Checking…';
+					const header = basicHeader(username, password);
+					try {
+						// Checked against /DashboardAuth/, which reads nothing. Testing a
+						// password by rolling up every save would be an odd way to spend a
+						// database scan.
+						const res = await fetch('../DashboardAuth/', {
+							headers: { accept: 'application/json', authorization: header },
+							credentials: 'same-origin',
+						});
+						if (res.status === 401 || res.status === 403) {
+							// 401 and 403 are different failures and it is worth saying which:
+							// one means the password is wrong, the other means the account is
+							// real but not permitted — only one of those is worth retyping.
+							return showLogin(
+								res.status === 403
+									? 'That account signed in but is not allowed to read the dashboard. It needs the metrics_reader role, or super-user.'
+									: 'Wrong username or password.',
+							);
+						}
+						if (!res.ok) return showLogin(`The server answered ${res.status}. Try again in a moment.`);
+						const who = await res.json();
+						saveAuth({ header, username: who.username || username, role: who.role || null });
+						document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = false));
+						const rf = document.getElementById('refresh');
+						if (rf) rf.hidden = false;
+						syncWhoami();
+						load();
+					} catch (err) {
+						showLogin(`Could not reach the server — ${String((err && err.message) || err)}`);
+					} finally {
+						btn.disabled = false;
+						btn.textContent = 'Sign in';
+					}
+				});
+			}
+
+			/** Who is signed in, with a way out. */
+			function syncWhoami() {
+				const el = document.getElementById('whoami');
+				if (!el) return;
+				el.hidden = !AUTH;
+				if (AUTH)
+					el.innerHTML =
+						`${esc(AUTH.username)}${AUTH.role ? ` <span class="wrole">${esc(AUTH.role)}</span>` : ''} · ` +
+						`<button type="button" class="linkish" id="signout">Sign out</button>`;
+			}
+
 			async function load() {
+				// The page is public and the data is not, so every path in starts here.
+				if (!AUTH) return showLogin();
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
@@ -3094,22 +3316,22 @@
 					if (EXCLUDED_DEVICES.length) qs += '&excludeDevice=' + encodeURIComponent(EXCLUDED_DEVICES.join(','));
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
-					const landingReq = fetch('../LandingStats/', REQ)
+					const landingReq = fetch('../LandingStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
 					// than breaking the page.
-					const saveReq = fetch('../SaveHealth/', REQ)
+					const saveReq = fetch('../SaveHealth/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Refusals + interface crashes. Same contract again: an instance that
 					// predates the endpoint hides the panel rather than breaking the page.
-					const healthReq = fetch('../GameplayHealth/', REQ)
+					const healthReq = fetch('../GameplayHealth/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Aggregates first — they render the whole page except the caretaker
 					// wall, so they are the ones worth having in flight on their own.
-					const sumRes = await fetch(`../MetricsSummary/?${qs}`, REQ);
+					const sumRes = await fetch(`../MetricsSummary/?${qs}`, req());
 					if (!sumRes.ok) throw new Error(`MetricsSummary returned ${sumRes.status}`);
 					const head = await sumRes.json();
 					const rows = await fetchAllPlayers(qs);
@@ -3134,13 +3356,22 @@
 						gen.textContent = `Updated ${d.toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`;
 					}
 				} catch (err) {
-					const unauth = /returned 40[13]/.test(String(err && err.message));
+					// A 401/403 mid-session means the credentials stopped working — the
+					// password changed, the role was revoked, the account was disabled.
+					// Drop them and ask again rather than leaving a dead session showing
+					// an error it cannot recover from.
+					if (/returned 40[13]/.test(String(err && err.message))) {
+						AUTH = null;
+						try {
+							sessionStorage.removeItem(AUTH_KEY);
+						} catch {
+							/* nothing to clear */
+						}
+						return showLogin('Your sign-in is no longer valid. Please sign in again.');
+					}
 					root.innerHTML =
-						`<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br><span style="font-size:.8rem;opacity:.8">` +
-						(unauth
-							? 'This dashboard and the endpoints it reads (<code>/MetricsSummary/</code>, <code>/MetricsPlayers/</code>) require Harper admin credentials. Reload and sign in when prompted.'
-							: 'The dashboard reads from <code>/MetricsSummary/</code> and <code>/MetricsPlayers/</code> on this host.') +
-						`</span></div>`;
+						`<div class="err"><b>Couldn’t load metrics.</b><br>${esc(err.message || err)}<br>` +
+						`<span style="font-size:.8rem;opacity:.8">The dashboard reads from <code>/MetricsSummary/</code> and <code>/MetricsPlayers/</code> on this host.</span></div>`;
 					gen.textContent = '';
 				}
 			}
@@ -3249,9 +3480,19 @@
 				if (e.key === 'Escape') closePlayerModal();
 			});
 
+			// Sign out from the header. Delegated, because syncWhoami() rebuilds the
+			// button whenever the signed-in identity changes.
+			document.querySelector('header').addEventListener('click', (e) => {
+				if (e.target && e.target.id === 'signout') signOut();
+			});
+
 			// expose for offline/unit rendering (jsdom smoke test)
 			window.__renderDashboard = render;
 			window.__openPlayerModal = openPlayerModal;
+			// Pick up an existing session before deciding what to show — a refresh
+			// mid-investigation should land back on the numbers, not on a login form.
+			loadAuth();
+			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();
 		</script>
 	</body>
