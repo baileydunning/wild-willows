@@ -18,7 +18,13 @@ const STORAGE_KEY = 'wild-willows:last-save';
 
 // Hosted Harper for desktop co-op. (Web builds ignore this and use their own
 // origin.) Override-able later via Settings if needed.
-export const COOP_BASE_URL = 'https://wild.willows.harperfabric.com';
+//
+// The URL is baked into every shipped build (it's also what the metrics
+// uplink, app-open ping, feedback, save-incident and client-error reporters
+// use), so moving hosts must not mean stranding installed copies. Owning the
+// name makes that a DNS change instead of a release. Do NOT put the vendor
+// hostname back here.
+export const COOP_BASE_URL = 'https://wildwillows.app';
 
 const isDesktop = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
 
