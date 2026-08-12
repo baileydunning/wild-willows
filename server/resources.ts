@@ -7697,8 +7697,7 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets)
-				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
 		const sessionsCovered = Object.values(sessionLengthDistribution).reduce((a, b) => a + b, 0);
 		const sessionLengths = {
@@ -7780,7 +7779,9 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
+			p90Seconds: ttfaKept.length
+				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
+				: 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -8191,8 +8192,14 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
-			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
+			{
+				label: 'between [since, now]',
+				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
+			},
+			{
+				label: 'greater_than since',
+				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
+			},
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8266,7 +8273,8 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] =
+						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8322,8 +8330,14 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
+				if (Array.isArray(v))
+					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object')
+					return Object.fromEntries(
+						Object.entries(v)
+							.slice(0, 12)
+							.map(([k, x]) => [k, describe(x)]),
+					);
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -9918,8 +9932,7 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) =>
-			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 

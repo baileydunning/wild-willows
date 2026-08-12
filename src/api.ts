@@ -534,8 +534,7 @@ export const api = {
 		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action })),
 	plant: (area: string, x: number, y: number, plantId: string) =>
 		session((playerId) => post<any>('/Plant/', { playerId, area, x, y, plantId })),
-	harvest: (placementId: string) =>
-		session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),
+	harvest: (placementId: string) => session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),
 	syncPlayer: (x: number, y: number, area?: string, tutorialStep?: number) =>
 		session((playerId) => post<any>('/SyncPlayer/', { playerId, x, y, area, tutorialStep })),
 	// language + edition ride on the heartbeat so metrics can report interface
@@ -545,9 +544,7 @@ export const api = {
 	// tell which definition of "play time" a row was recorded under, instead of
 	// silently averaging two of them together.
 	heartbeat: (idleGateMs?: number) =>
-		session((playerId) =>
-			post<any>('/Heartbeat/', { playerId, language: getLocale(), edition: EDITION, idleGateMs }),
-		),
+		session((playerId) => post<any>('/Heartbeat/', { playerId, language: getLocale(), edition: EDITION, idleGateMs })),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		session((playerId) => post<any>('/AppendFeed/', { playerId, entries })),
 	recalc: (biomeId: string) => session((playerId) => post<any>('/RecalcBiome/', { playerId, biomeId })),

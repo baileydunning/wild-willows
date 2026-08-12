@@ -366,8 +366,7 @@ describe('who is public and who is not', () => {
 	// That presence-or-absence IS the access control, which makes it worth asserting
 	// directly: this is the test that fails if someone later "tidies" one of these
 	// classes back onto PublicEndpoint and quietly republishes it.
-	const isPublic = (cls: any) =>
-		typeof cls?.prototype?.allowRead === 'function' && cls.prototype.allowRead() === true;
+	const isPublic = (cls: any) => typeof cls?.prototype?.allowRead === 'function' && cls.prototype.allowRead() === true;
 
 	it('leaves the endpoints clients actually call public', async () => {
 		const mod = await loadServer();
