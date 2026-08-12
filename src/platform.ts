@@ -55,7 +55,7 @@ const BUILD_CHANNEL: string = typeof __CHANNEL__ !== 'undefined' ? __CHANNEL__ :
  *
  * Runtime evidence beats the build stamp wherever it exists, because runtime
  * evidence cannot drift. The web bundle in particular is ONE artifact pushed to
- * two places (itch's html5 channel and wildwillows.app/play), so its own
+ * two places (itch's html5 channel and play.wildwillows.app), so its own
  * hostname is the only thing that can tell those apart — a build-time flag
  * would need two builds and would silently lie the first time one got pushed to
  * the wrong place.

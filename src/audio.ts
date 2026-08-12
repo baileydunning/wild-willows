@@ -623,7 +623,11 @@ export function bindGameAudio(): () => void {
 		// (info, unlock, achievement, animal) uses the neutral toast tick.
 		const kind = String(payload?.kind || '');
 		if (kind === 'error') playSfx('cant');
-		else playSfx('toast');
+		// The neutral toast tick has no asset yet (there is no sfx/toast file), so
+		// non-error toasts are deliberately silent. Every other sfx id reaches
+		// playSfx through the `id in AUDIO_ASSETS.sfx` guard below and no-ops on its
+		// own when an asset is missing; this call site is hard-coded, so it has to
+		// be removed by hand. Restore both together if a toast sound ever lands.
 	});
 	const offRain = bridge.on('audio-rain', (payload: any) => {
 		setRainActive(!!payload?.active);

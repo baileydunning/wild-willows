@@ -65,7 +65,7 @@ jobs:
           # in at build time here. See detectChannel() in src/platform.ts.
           #
           # Deliberately NOT set in itch-demo.yml: that one artifact is served from
-          # BOTH itch and wildwillows.app/play, and its own hostname tells them
+          # BOTH itch and play.wildwillows.app, and its own hostname tells them
           # apart at runtime. Stamping it would make it lie on one of the two.
           # The MAS workflows stamp 'mas' as a fallback, but process.mas already
           # answers it there at runtime and that verdict wins.

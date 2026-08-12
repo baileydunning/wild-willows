@@ -40,4 +40,21 @@ export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 //   'solo'   — fully-offline in-app backend (localStorage saves, no network to
 //              play). Metrics still upload best-effort.
 // Metrics are tagged edition:'demo' either way.
-export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'harper';
+//
+// 'solo' because the demo is the one build that can be handed to an unbounded
+// number of people at once. Server-authoritative play costs ~145 writes and
+// ~1,750 row reads per player per MINUTE (measured — scripts/capacity-report.mjs),
+// which caps the hosted instance in the hundreds of concurrent players. The same
+// game running in-app costs one AppOpen write per launch and one SyncMetrics
+// write every 3 minutes, so the ceiling stops being a database question and
+// becomes a CDN question. A cozy single-player demo gains nothing from
+// server-side validation — there is no leaderboard and no economy to protect.
+//
+// What this does NOT change: metrics. shouldUplink() (src/solo/metricsUplink.ts)
+// reports on the 'solo' transport too, so the demo→full funnel, the acquisition
+// counts and the channel split all keep working.
+//
+// Returning players with a save created under 'harper' are NOT stranded by this —
+// resolveDemoBackend() (src/api.ts) still honours the DEMO_HOME_KEY pin and
+// probes Harper for them. Read that before changing this back.
+export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'solo';

@@ -11,6 +11,7 @@ import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
 import { adaptiveInterval, ewma } from './perf';
+import { CHANNEL } from './platform';
 import { bridge } from './game/bridge';
 import { reportClientError } from './clientErrors';
 
@@ -147,8 +148,22 @@ async function probeHostedHarper(): Promise<void> {
  *  the in-app solo backend for the whole session. A no-op for every other build. */
 export async function resolveDemoBackend(): Promise<'harper' | 'solo'> {
 	if (!DEMO_WEB) return 'harper';
-	// Solo-default demo: already committed to the offline backend, no probe.
-	if (demoBackend !== 'pending') return demoBackend;
+	if (demoBackend === 'harper') return demoBackend;
+	// Solo-default demo (DEMO_WEB_BACKEND === 'solo'): committed to the offline
+	// backend before the first request, no probe needed.
+	//
+	// UNLESS this device pinned a demo save to Harper, which every demo save did
+	// back when 'harper' was the default. Short-circuiting here would point those
+	// players at the empty offline store: their save is still sitting on the
+	// server, but the title screen isn't looking there, and "my save is gone" is
+	// what that looks like from the outside. It's the exact failure the
+	// DEMO_HOME_KEY pin exists to prevent — the pin just has to be consulted here
+	// too, now that 'solo' can be the STARTING value and not only a fallback.
+	//
+	// Falling through re-uses the probe below, including its catch: if Harper is
+	// unreachable the `home === 'harper'` branch keeps them in Harper mode and
+	// flags it, rather than silently starting them somewhere else.
+	if (demoBackend === 'solo' && getDemoSaveHome() !== 'harper') return demoBackend;
 
 	demoHomeUnreachable = false;
 	const home = getDemoSaveHome();
@@ -341,7 +356,20 @@ export function lastSave(mode?: SaveMode): { playerId: string; name: string; mod
  * gameplay transport and has the local/solo short-circuit ahead of it.
  */
 export function hostedBase(): string {
-	return isDesktop || DEMO_WEB ? COOP_BASE_URL : '';
+	if (isDesktop) return COOP_BASE_URL;
+	// Served from a host WE control (wildwillows.app, play.wildwillows.app): post
+	// same-origin. On play.* the Cloudflare Worker forwards these paths to Harper
+	// server-side, so the browser never makes a cross-origin request and there is
+	// no CORS to configure. That matters more than it sounds: these calls are all
+	// fire-and-forget with swallowed errors, so when CORS blocks them nothing
+	// surfaces — the reports simply stop arriving and the dashboard quietly
+	// under-counts. Same-origin removes the failure mode rather than configuring
+	// around it.
+	if (CHANNEL === 'direct') return '';
+	// itch's iframe (or anywhere else): has to go cross-origin to Harper, which
+	// DOES require Harper to allow that origin. '' is the plain web build, which
+	// Harper serves itself.
+	return DEMO_WEB ? COOP_BASE_URL : '';
 }
 
 /**

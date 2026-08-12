@@ -10269,6 +10269,11 @@ const MAIL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 const LANDING_CLICK_TARGETS = new Set([
 	'appstore',
 	'itch',
+	// 'play' is the landing page's primary CTA — it opens the browser demo at
+	// /play on this domain. 'demo' is what that same button reported back when it
+	// pointed at the itch storefront instead; kept so the historical counts stay
+	// readable rather than quietly changing meaning mid-series.
+	'play',
 	'demo',
 	'theme',
 	'privacy',
@@ -11182,7 +11187,7 @@ class StudentWorksheetsPdf extends PublicEndpoint {
 // extension-stripping list is Harper's, not ours — this way /educator-guide.pdf
 // resolves whether or not Harper decides to trim the suffix first.
 export {
-	LandingPage as '',
+	LandingPage as home,
 	PrivacyPage as privacy,
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,

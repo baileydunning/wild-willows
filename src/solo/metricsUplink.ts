@@ -17,7 +17,7 @@
 // is torn down before a normal fetch can finish. So a short first session that
 // closes quickly still reports.
 
-import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP } from '../api';
+import { api, getPlayerId, getSoloSlot, getTransport, hostedBase, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
 import { DEMO, EDITION } from '../demo';
 import { APP_VERSION, BUILD_TIME, CHANNEL, detectOS } from '../platform';
@@ -64,7 +64,7 @@ let lastPayload: string | null = null;
 function endpoint(): string {
 	// Desktop and the browser demo's offline fallback both uplink cross-origin to
 	// the hosted Harper; the deployed web build would post to its own origin.
-	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/SyncMetrics/`;
+	return `${hostedBase()}/SyncMetrics/`;
 }
 
 /** Should the active session uplink to SoloMetrics? Solo (desktop + demo's

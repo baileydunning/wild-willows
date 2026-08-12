@@ -8,15 +8,15 @@
 // getDeviceId) plus build/OS facts. A dropped ping loses nothing — the next
 // open/create re-reports the device's latest state.
 
-import { COOP_BASE_URL, IS_DESKTOP } from '../api';
+import { hostedBase, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
-import { DEMO, EDITION } from '../demo';
+import { EDITION } from '../demo';
 import { APP_VERSION, CHANNEL, detectOS, getDeviceId } from '../platform';
 
 function endpoint(): string {
 	// Desktop and the browser demo both post cross-origin to the hosted Harper;
 	// the deployed web build posts to its own origin.
-	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/AppOpen/`;
+	return `${hostedBase()}/AppOpen/`;
 }
 
 async function send(phase: 'open' | 'created' | 'demo_done', extra: Record<string, any> = {}): Promise<void> {

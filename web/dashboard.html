@@ -1853,6 +1853,17 @@
 			}
 
 			/* Shared action labels (used by the all-time totals and the per-player modal). */
+			/* Storefront a copy arrived through (see detectChannel in src/platform.ts).
+			 * 'unknown' is every device that opened the game before channels shipped —
+			 * shown as its own row rather than folded into a real store, so the
+			 * backfill gap stays visible instead of padding whichever one you read first. */
+			const CHANNEL_LABELS = {
+				itch: 'itch.io',
+				mas: 'Mac App Store',
+				direct: 'wildwillows.app',
+				dev: 'Development',
+				unknown: 'Before channels shipped',
+			};
 			const LANG_LABELS = {
 				en: 'English',
 				'en-kid': 'English (Kids)',
@@ -2780,7 +2791,7 @@
 					for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
 					landingSection = sec(
 						'Landing page',
-						'wild.willows.harperfabric.com — visits, link clicks & mailing list',
+						'wildwillows.app — visits, link clicks & mailing list',
 						`<div class="grid kpis">${[
 							kpi(fmt(lt.visits), 'Visits', `${fmt(lt.uniques)} first-time visitors`),
 							kpi(
@@ -3038,6 +3049,34 @@
 							kpi(pct(acq.bounceRatePct), 'Bounced', `${fmt(acq.bounced)} never made a character`),
 						].join('')}</div>`,
 				);
+
+				/* ---- Where they came from ----
+				 * Devices and conversion per storefront. Sorted by conversion, not by
+				 * size, because size is the number you can't trust across channels:
+				 * inside itch's game iframe the device id lives in THIRD-PARTY storage
+				 * that browsers partition or clear on their own, so one itch player can
+				 * count as several devices while a wildwillows.app player (first-party)
+				 * counts as one. The rate survives that; the totals don't. Both are
+				 * shown — the caption says which to believe. */
+				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(b[1].converted) - n(a[1].converted));
+				const channelCard = chanRows.length
+					? cardTitled(
+							'Where they came from',
+							'compare on conversion — device counts are not comparable across stores',
+							`<table class="tbl"><thead><tr><th>Storefront</th><th class="num">Devices</th>` +
+								`<th class="num">Made a character</th><th class="num">Conversion</th></tr></thead><tbody>` +
+								chanRows
+									.map(
+										([key, c]) =>
+											`<tr><td>${esc(CHANNEL_LABELS[key] || key)}</td>` +
+											`<td class="num">${fmt(c.devices)}</td>` +
+											`<td class="num">${fmt(c.converted)}</td>` +
+											`<td class="num"><span class="accent">${pct(c.conversionPct)}</span></td></tr>`,
+									)
+									.join('') +
+								`</tbody></table>`,
+						)
+					: '';
 				const demoCard = dc.demoInstalls
 					? cardTitled(
 							'Demo completion',
@@ -3115,7 +3154,8 @@
 									? `<div style="margin-top:.8rem">${demoCard}</div>`
 									: convCard
 										? `<div style="margin-top:.8rem">${convCard}</div>`
-										: ''),
+										: '') +
+							(channelCard ? `<div style="margin-top:.8rem">${channelCard}</div>` : ''),
 					),
 				);
 
@@ -3179,6 +3219,7 @@
 				const plat = s.platforms || {},
 					oss = s.operatingSystems || {},
 					vers = s.versions || {},
+					chans = s.channels || {},
 					langs = s.languages || {};
 				const platSeg = [
 					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
@@ -3199,6 +3240,11 @@
 								}),
 							) +
 							cardTitled('Language', null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: 'rose' })) +
+							cardTitled(
+								'Storefront',
+								'where the copy came from',
+								barRows(objToEntries(chans), { labelMap: CHANNEL_LABELS, cls: 'gold' }),
+							) +
 							`</div><div class="card" style="margin-top:.8rem"><h3>Game version</h3>` +
 							barRows(objToEntries(vers), { cls: 'gold' }) +
 							`</div>`,
