@@ -912,6 +912,32 @@
 				font-size: 0.92em;
 			}
 
+			/* A card you can fold away. Used for raw reference data that is worth
+			   having on the page but not worth reading every time. */
+			details.card > summary {
+				cursor: pointer;
+				font-size: 0.96rem;
+				list-style: none;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: baseline;
+				justify-content: space-between;
+				gap: 0.15rem 0.8rem;
+			}
+			details.card > summary::-webkit-details-marker {
+				display: none;
+			}
+			details.card > summary b::before {
+				content: '▸ ';
+				color: var(--faint);
+			}
+			details.card[open] > summary b::before {
+				content: '▾ ';
+			}
+			details.card[open] > summary {
+				margin-bottom: 0.9rem;
+			}
+
 			/* Row-level delete. Quiet until you are near it — a red × on every row of
 			   a table you are reading is an invitation to misclick. */
 			button.delbtn {
@@ -3651,16 +3677,10 @@
 				return (
 					`<div class="card" style="margin-top:.8rem"><h3>Who called<span class="tag">requests in this window</span></h3>` +
 					barRows(rows, { cls: 'sky' }) +
-					(n(rq.probes)
-						? `<p class="emptynote"><b>Health probes</b> are ${list(rq.probePaths)} — the platform asking whether each node is up, ` +
-							`constantly and automatically. Nothing to act on unless the number changes shape.</p>`
-						: '') +
-					(n(rq.operations)
-						? `<p class="emptynote"><b>Console &amp; admin</b> is ${list(rq.operationPaths)} — Harper's own operations, which is mostly ` +
-							`the management console: opening it lists your users and roles and describes every table. These track a person using Harper, not the game.</p>`
-						: '') +
 					(n(rq.infrastructure)
-						? `<p class="emptynote">Between them that is ${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of all requests — which is why the 5xx rate above is taken over player traffic only.</p>`
+						? `<p class="emptynote">${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of requests are not players — the platform ` +
+							`health-checking your nodes (${list(rq.probePaths)}) and Harper's console (${list(rq.operationPaths)}). ` +
+							`That is why the 5xx rate is taken over gameplay only.</p>`
 						: '') +
 					(rq.reconcilesWithResponses === false
 						? `<p class="emptynote">These request records and the response counters <b>disagree</b> by more than 5%, so the 5xx rate above ` +
@@ -3690,13 +3710,18 @@
 							`<td class="num">${m.paths ? fmt(m.paths) : '—'}</td></tr>`,
 					)
 					.join('');
+				/* Collapsed by default. This is the raw telemetry, and it is genuinely
+				 * useful when a gauge above looks wrong — but twenty-one rows of
+				 * rocksdb counters as the last thing on the page buried the four
+				 * numbers the page exists to show. Open it when you want it. */
 				return (
-					`<div class="card" style="margin-top:.8rem"><h3>Everything Harper reported<span class="tag">${fmt(all.length)} metrics in this window</span></h3>` +
+					`<details class="card" style="margin-top:.8rem"><summary><b>Everything Harper reported</b> <span class="tag">${fmt(all.length)} metrics · raw</span></summary>` +
 					`<table class="tbl"><thead><tr><th>Metric</th><th class="num">Samples</th><th class="num">Latest</th>` +
 					`<th class="num">Mean</th><th class="num">Min</th><th class="num">Max</th><th class="num">Routes</th></tr></thead>` +
 					`<tbody>${rows}</tbody></table>` +
-					`<p class="emptynote">Counters (bytes, responses) are worth reading as <b>Mean</b> per sample; gauges (utilization, sizes) as <b>Latest</b>. ` +
-					`<b>Routes</b> is how many distinct paths the metric was broken down by — 0 means it is instance-wide.</p></div>`
+					`<p class="emptynote">Counters (bytes, responses) read as <b>Mean</b> per sample; gauges (sizes, utilization) as <b>Latest</b>. ` +
+					`<b>Routes</b> is how many distinct paths a metric was broken down by — 0 means instance-wide. ` +
+					`To see a metric's records verbatim, including the unit: <code>/ServerHealth/?raw=&lt;metric&gt;</code>.</p></details>`
 				);
 			}
 
@@ -3768,26 +3793,8 @@
 					`<div class="grid kpis">${[
 						/* The capacity ceiling: a small number of threads serves this whole
 						 * app, so sustained utilization runs out before anything else. */
-						/* A gauge that is present but in a unit this page cannot read is a
-						 * different fact from a gauge that is missing, and "89876%" is
-						 * worse than either. Show the raw figure and say plainly that the
-						 * unit is unrecognised. */
-						kpi(
-							t.utilizationPct != null
-								? `<span class="accent">${pct(t.utilizationPct)}</span>`
-								: t.utilizationRaw != null
-									? `<span class="muted">${fmt(round1v(t.utilizationRaw))}</span>`
-									: '—',
-							'Thread utilization',
-							t.utilizationPct != null
-								? t.windowAvgPct == null
-									? 'right now'
-									: `${pct(t.windowAvgPct)} average over the window`
-								: t.utilizationRaw != null
-									? 'reported in a unit this page does not recognise — see the table below'
-									: 'not reported',
-						),
 						kpi(t.cpuPct == null ? '—' : pct(t.cpuPct), 'CPU'),
+						kpi(t.memoryPct == null ? '—' : pct(t.memoryPct), 'Memory'),
 						kpi(
 							gb(st.databaseBytes),
 							'Database size',

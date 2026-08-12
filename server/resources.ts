@@ -8385,14 +8385,37 @@ export class ServerHealth extends DashboardEndpoint {
 		// Harper writes one row per metric per minute per thread, so a point reading
 		// and a window average answer different questions — a utilization spike and a
 		// sustained ceiling are not the same problem and shouldn't collapse together.
+		/* When a record was written.
+		 *
+		 * NOT simply `r.time`. The primary key is a composite [timeMs, nodeId], and
+		 * on the live instance `time` is frequently absent — so `Number(r.time) || 0`
+		 * silently became 0 for every row. Everything built on "the newest sample"
+		 * then broke in ways that looked like data rather than like a bug: latestOf
+		 * returned the FIRST row it scanned instead of the newest, and grouping by
+		 * newest timestamp matched all 80 records in the window at once, which is how
+		 * a 4MB database was reported as "17.66GB across 80 databases". Read the
+		 * composite id when the field is missing. */
+		const timeOf = (r: any): number => {
+			const t = Number(r?.time);
+			if (Number.isFinite(t) && t > 0) return t;
+			const id = r?.id;
+			if (Array.isArray(id)) {
+				const t0 = Number(id[0]);
+				if (Number.isFinite(t0) && t0 > 0) return t0;
+			}
+			return 0;
+		};
 		/* Every record sharing the newest timestamp for a metric. Metrics that are
 		 * emitted per-database (or per-thread) produce several records an interval,
 		 * and picking one of them is arbitrary in a way that is invisible on screen. */
 		const latestGroup = (...names: string[]) => {
 			const rs = pick(...names);
 			if (!rs.length) return [];
-			const newest = rs.reduce((m, r) => Math.max(m, Number(r.time) || 0), 0);
-			return rs.filter((r) => (Number(r.time) || 0) === newest);
+			const newest = rs.reduce((m, r) => Math.max(m, timeOf(r)), 0);
+			// A metric with no usable timestamp anywhere: one record is all that can
+			// honestly be claimed, rather than the whole window summed together.
+			if (!newest) return rs.slice(-1);
+			return rs.filter((r) => timeOf(r) === newest);
 		};
 		const latestSum = (...names: string[]) => {
 			const vs = latestGroup(...names)
@@ -8403,7 +8426,7 @@ export class ServerHealth extends DashboardEndpoint {
 		const latestParts = (...names: string[]) => latestGroup(...names).length || null;
 		const latestOf = (...names: string[]) => {
 			let best: any = null;
-			for (const r of pick(...names)) if (!best || (r.time || 0) > (best.time || 0)) best = r;
+			for (const r of pick(...names)) if (!best || timeOf(r) > timeOf(best)) best = r;
 			return best;
 		};
 		// Raw, deliberately unrounded. Rounding here destroyed ratio metrics before
@@ -8597,7 +8620,7 @@ export class ServerHealth extends DashboardEndpoint {
 			// put it.
 			const sample = rows
 				.filter((r) => norm(r.metric) === want)
-				.sort((a, b) => (Number(b.time) || 0) - (Number(a.time) || 0))
+				.sort((a, b) => timeOf(b) - timeOf(a))
 				.slice(0, 12);
 			return {
 				generatedAt: now,
@@ -8678,7 +8701,11 @@ export class ServerHealth extends DashboardEndpoint {
 					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
 				),
 				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
-				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
+				/* `memory` reports 33 with a max of 84 on the live instance — that is a
+				 * percentage, not a byte count, and calling the field memoryBytes was
+				 * wrong even though nothing rendered it. Report it as what it is, and
+				 * only when it is in a range a percentage can occupy. */
+				memoryPct: asPct(valueOf(latestOf('memory', 'memory-usage', 'memoryUsage'))),
 			},
 			storage: {
 				/* Sum the newest sample, not one of them.
@@ -8798,7 +8825,7 @@ export class ServerHealth extends DashboardEndpoint {
 					const rs = pick(name);
 					const vals = rs.map((r) => valueOf(r)).filter((v): v is number => v != null);
 					let latest: any = null;
-					for (const r of rs) if (!latest || (r.time || 0) > (latest.time || 0)) latest = r;
+					for (const r of rs) if (!latest || timeOf(r) > timeOf(latest)) latest = r;
 					const sum = vals.reduce((a, b) => a + b, 0);
 					return {
 						metric: name,
