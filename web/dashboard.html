@@ -676,6 +676,22 @@
 				color: #fff;
 				background: var(--accent);
 			}
+			/* Shown only while the wall is sorted by recency — see the card render. */
+			.hltag.hlsince {
+				color: var(--muted);
+				background: var(--card);
+				border: 1px solid var(--rule);
+				cursor: help;
+			}
+			/* The sort control sits inside the highlights card, above the grid. */
+			.hlpick {
+				margin-bottom: 0.9rem;
+			}
+			.hlpicklabel {
+				font-weight: 700;
+				color: var(--muted);
+				margin-right: 0.15rem;
+			}
 
 			/* ---- player modal ---- */
 			.modal-overlay {
@@ -2149,6 +2165,62 @@
 			}
 
 			/* ------------------------------------------------------------------ *
+			 * Player highlights — sort order
+			 * ------------------------------------------------------------------ *
+			 * Every field below is already on the rows in hand, so changing the
+			 * order redraws from the payload with no refetch — the same contract as
+			 * the per-day chart's presets.
+			 *
+			 * `val` returns the number to rank DESCENDING by, which is why recency
+			 * is negated: the smallest gap since last played is the highest rank. */
+			const HL_SORTS = [
+				{ key: 'playtime', label: 'Playtime', val: (p) => n(p.playSeconds) },
+				{
+					key: 'animals',
+					label: 'Animals returned',
+					val: (p) => n(p.biomeSummary && p.biomeSummary.totalAnimalsReturned),
+				},
+				{ key: 'recent', label: 'Recently played', val: (p) => -hlSinceMinutes(p) },
+				{ key: 'actions', label: 'Actions', val: (p) => n(p.totalActions) },
+				{
+					key: 'achievements',
+					label: 'Achievements',
+					val: (p) => n(p.achievements && p.achievements.earned),
+				},
+				{
+					key: 'restored',
+					label: 'Biomes restored',
+					val: (p) => n(p.biomeSummary && p.biomeSummary.biomesFullyRestored),
+				},
+			];
+			const HL_SORT = { key: 'playtime' };
+
+			/* Minutes since a caretaker was last active.
+			 *
+			 * minutesSinceActive is what the rest of the page reads, but it is absent
+			 * on rows written before it shipped, so fall back to hoursSinceActive and
+			 * then to lastSeenAt. A row carrying none of the three ranks LAST rather
+			 * than first — an unknown gap is not a recent one. */
+			function hlSinceMinutes(p) {
+				if (!p) return Infinity;
+				if (p.minutesSinceActive != null) return n(p.minutesSinceActive);
+				if (p.hoursSinceActive != null) return n(p.hoursSinceActive) * 60;
+				const t = p.lastSeenAt ? new Date(p.lastSeenAt).getTime() : NaN;
+				return isFinite(t) ? Math.max(0, (Date.now() - t) / 60000) : Infinity;
+			}
+
+			/* Compact "time since" for the highlight cards: minutes, then hours, then
+			 * days. Deliberately coarse — nobody reads this one to the minute. */
+			function fmtSince(mins) {
+				if (!isFinite(mins)) return '—';
+				if (mins < 1) return 'now';
+				if (mins < 60) return Math.round(mins) + 'm';
+				const h = Math.round(mins / 60);
+				if (h < 48) return h + 'h';
+				return Math.round(h / 24) + 'd';
+			}
+
+			/* ------------------------------------------------------------------ *
 			 * Per-player modal — a full picture of one caretaker's playthrough
 			 * ------------------------------------------------------------------ */
 			let PLAYERS_BY_ID = {};
@@ -2768,6 +2840,7 @@
 						appstore: 'Mac App Store',
 						itch: 'itch.io',
 						demo: 'Free demo',
+						play: 'Free demo',
 						theme: 'Theme played',
 						gallery: 'Gallery opened',
 						privacy: 'Privacy page',
@@ -2779,6 +2852,24 @@
 						'school-copy': 'Classroom copy request',
 						other: 'Other',
 					};
+					/* The primary CTA reported `demo` while it pointed at itch's storefront,
+					 * and reports `play` now that it opens the demo on wildwillows.app. Same
+					 * button, same intent, so they render as ONE series — otherwise the
+					 * headline CTA number appears to reset to zero on the day the link
+					 * changed, and the old total looks like it was lost.
+					 *
+					 * Folded HERE and not in the stored counters, which is the whole point:
+					 * LandingStat keeps `demo` and `play` apart on disk forever, so "how many
+					 * people did we send to itch before we hosted it ourselves" stays an
+					 * answerable question. Merging on write would have destroyed that. */
+					function mergeCtaClicks(clicks) {
+						const out = { ...(clicks || {}) };
+						if (out.demo) {
+							out.play = n(out.play) + n(out.demo);
+							delete out.demo;
+						}
+						return out;
+					}
 					const ldays = LANDING.days || [];
 					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
 					// Server-side download counts from the two PDF endpoints — the honest
@@ -2814,7 +2905,7 @@
 							cardTitled(
 								'Clicks by link',
 								'all-time',
-								barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: 'gold' }),
+								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
 							cardTitled('Daily visits', `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
 							`</div>` +
@@ -2956,27 +3047,38 @@
 				const idleHidden = qualified.filter((p) => p.idle).length;
 				const engaged = qualified.filter((p) => !p.idle);
 				if (engaged.length) {
-					const top = [...engaged].sort(
-						(a, b) =>
-							n(b.playSeconds) - n(a.playSeconds) ||
-							n(b.totalActions) - n(a.totalActions) ||
-							n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points),
-					);
+					const sortCfg = HL_SORTS.find((o) => o.key === HL_SORT.key) || HL_SORTS[0];
+					/* Ties fall back to the original ranking — playtime, then actions, then
+					 * achievement points. Sorting by a sparse field (a wall of nobody having
+					 * returned an animal yet) would otherwise leave the tail in whatever
+					 * order the rows arrived in, which changes between loads. */
+					const tiebreak = (a, b) =>
+						n(b.playSeconds) - n(a.playSeconds) ||
+						n(b.totalActions) - n(a.totalActions) ||
+						n(b.achievements && b.achievements.points) - n(a.achievements && a.achievements.points);
+					/* Compared rather than subtracted: recency ranks unknowns at -Infinity,
+					 * and Infinity - Infinity is NaN, which makes a comparator incoherent
+					 * and the resulting order implementation-defined. */
+					const desc = (x, y) => (x === y ? 0 : x > y ? -1 : 1);
+					const top = [...engaged].sort((a, b) => desc(sortCfg.val(a), sortCfg.val(b)) || tiebreak(a, b));
 
 					// Superlative badges: each dimension's true leader (within the shown set)
 					// earns its tag; a standout who leads several shows up to two of them.
-					const supTags = {};
+					// Keyed by the row object itself rather than by position, so a badge keeps
+					// naming the same caretaker no matter which sort moved them where — and so
+					// rows with no playerId can't collide on a shared empty key.
+					const supTags = new Map();
 					const assignSup = (key, label) => {
 						let best = 0,
-							idx = -1;
-						top.forEach((p, i) => {
+							winner = null;
+						top.forEach((p) => {
 							const v = n(key(p));
 							if (v > best) {
 								best = v;
-								idx = i;
+								winner = p;
 							}
 						});
-						if (idx >= 0) (supTags[idx] = supTags[idx] || []).push(label);
+						if (winner) supTags.set(winner, (supTags.get(winner) || []).concat(label));
 					};
 					assignSup((p) => p.playSeconds, 'Most playtime');
 					assignSup((p) => p.totalActions, 'Most active');
@@ -2988,11 +3090,11 @@
 					// always agree about who is currently playing.
 					const isActiveNow = (p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5;
 					const cards = top
-						.map((p, i) => {
+						.map((p) => {
 							const bs = p.biomeSummary || {};
 							const edi = p.edition === 'demo' ? 'demo' : 'full';
 							const live = isActiveNow(p);
-							const tags = (supTags[i] || [])
+							const tags = (supTags.get(p) || [])
 								.slice(0, 2)
 								.map((t) => `<span class="hltag">${t}</span>`)
 								.join('');
@@ -3005,7 +3107,16 @@
 							const convTag = p.convertedFromDemo
 								? `<span class="hltag hlconv" title="Played the demo${cv.demoPlaySeconds ? ` for ${fmtDur(cv.demoPlaySeconds)}` : ''}, then bought the game and imported this save${cv.at ? ` · ${cv.exact ? '' : 'around '}${new Date(cv.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}">demo → full</span>`
 								: '';
-							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+							/* When the wall is ordered by recency, the gap being sorted on should
+							 * be legible on the card — otherwise the order looks arbitrary. The
+							 * "Active now" pill already says it for the top of that list, so it
+							 * isn't printed twice, and the stats grid stays a clean 3 × 2. */
+							const since = hlSinceMinutes(p);
+							const sinceTag =
+								sortCfg.key === 'recent' && !live
+									? `<span class="hltag hlsince" title="Time since this caretaker was last active">${isFinite(since) ? `${fmtSince(since)} ago` : 'last played unknown'}</span>`
+									: '';
+							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
@@ -3015,12 +3126,24 @@
 							].join('')}</div></div></div>`;
 						})
 						.join('');
+					/* Sort control. Same pill group as the per-day chart's presets, and like
+					 * that one it only reorders what is already on screen — the set of cards
+					 * shown never changes, so nothing can hide behind a sort. */
+					const picker =
+						`<div class="dpick hlpick" role="group" aria-label="Sort player highlights">` +
+						`<span class="hlpicklabel">Sort by</span>` +
+						HL_SORTS.map(
+							(o) =>
+								`<button type="button" class="dbtn${HL_SORT.key === o.key ? ' on' : ''}" data-hlsort="${o.key}" aria-pressed="${HL_SORT.key === o.key ? 'true' : 'false'}">${o.label}</button>`,
+						).join('') +
+						`</div>`;
 					charSection = sec(
 						'Player highlights',
 						`everyone who played more than 5 min · ${top.length} caretakers` +
 							(idleHidden ? ` · ${fmt(idleHidden)} idle ${idleHidden === 1 ? 'window' : 'windows'} hidden` : '') +
+							` · sorted by ${sortCfg.label.toLowerCase()}` +
 							` · click a card for the full breakdown`,
-						`<div class="card"><div class="hlgrid">${cards}</div></div>`,
+						`<div class="card">${picker}<div class="hlgrid">${cards}</div></div>`,
 					);
 				}
 
@@ -4182,6 +4305,17 @@
 					DAY_RANGE.from = DAY_RANGE.to;
 					DAY_RANGE.to = t;
 				}
+				rerender();
+			});
+
+			// Player highlights sort. Reorders the rows already in hand — no refetch,
+			// and no change to which caretakers are shown.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-hlsort]');
+				if (!btn) return;
+				const key = btn.getAttribute('data-hlsort');
+				if (!HL_SORTS.some((o) => o.key === key) || HL_SORT.key === key) return;
+				HL_SORT.key = key;
 				rerender();
 			});
 
