@@ -336,13 +336,18 @@ describe('keeping your own machine out of the acquisition funnel', () => {
 		expect(a.excludedDevices).toMatchObject({ matched: 1, opens: 40, charactersCreated: 2 });
 	});
 
-	it('still lists a hidden device so it can be un-hidden', async () => {
+	it('no longer ships a device roster, and reports what it excluded instead', async () => {
+		// There used to be a `deviceRoster` here: every device, busiest first, each
+		// flagged excluded or not, so the dashboard could offer a picker for hiding
+		// your own machine. The picker is gone — raw app opens came off the page
+		// entirely, which removes the distortion rather than filtering around it —
+		// and the roster went with it rather than being built into every response
+		// for nobody. What stands in its place is the report stating what the
+		// filter took, so a hidden device is still accounted for without
+		// enumerating every device that ever opened the game to do it.
 		const a = (await w.get('MetricsSummary', undefined, { excludeDevice: 'mine' })).summary.acquisition;
-		expect(a.deviceRoster).toHaveLength(3);
-		// busiest first, so your own machine is the easy one to spot
-		expect(a.deviceRoster[0].deviceId).toBe('mine');
-		expect(a.deviceRoster[0].excluded).toBe(true);
-		expect(a.deviceRoster[1].excluded).toBe(false);
+		expect(a.deviceRoster).toBeUndefined();
+		expect(a.excludedDevices).toMatchObject({ ids: ['mine'], matched: 1, opens: 40 });
 	});
 
 	it('accepts the filter comma-separated or repeated, like ?exclude=', async () => {
