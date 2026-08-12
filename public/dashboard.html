@@ -3592,9 +3592,13 @@
 						'Server health',
 						'telemetry unavailable',
 						card(
-							`<p class="emptynote">Could not read <code>system.hdb_analytics</code>: <b>${esc(h.readError || 'unknown')}</b>. ` +
-								`A component CAN read the system database as <code>metrics_reader</code> — that was verified against the live server — so this ` +
-								`is not the role. Something else is refusing the read, and the message above is the whole of what Harper said about it.</p>`,
+							`<p class="emptynote">Could not read <code>system.hdb_analytics</code>: <b>${esc(h.readError || 'unknown')}</b>.</p>` +
+								// The successful read that "proved" this works was taken while the
+								// account was temporarily super-user, so it proved nothing about the
+								// read-only role. Say what is actually known.
+								`<p class="emptynote">The read HAS worked from this component as a super-user. Whether a plain <code>metrics_reader</code> ` +
+								`can do the same is still unestablished — Harper's super-user role carries explicit read permission on the system tables and a ` +
+								`read-only role may not. If this panel fills in as super-user and not otherwise, that is the answer.</p>`,
 						),
 					);
 				}
