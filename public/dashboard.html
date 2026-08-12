@@ -2032,6 +2032,18 @@
 				const shown = visibleDays(daily);
 				const totalNew = shown.reduce((a, d) => a + n(d.created), 0);
 				const busiest = shown.slice().sort((a, b) => n(b.created) - n(a.created))[0];
+				/* The date inputs show the window that is ACTUALLY on screen, whichever
+				 * way it was chosen. They used to fall back to the whole dataset's
+				 * first and last day whenever a preset was active, so clicking "7d"
+				 * drew seven columns above two dates three months apart — and on a
+				 * fresh instance, where firstDay/lastDay are absent, they showed
+				 * nothing at all. Reading the bounds off the rendered days means the
+				 * pickers and the chart cannot disagree, and picking a preset then
+				 * nudging one date starts from where you were rather than from the
+				 * beginning of time. */
+				const firstShown = (shown[0] && shown[0].day) || daily.firstDay || '';
+				const lastShown = (shown[shown.length - 1] && shown[shown.length - 1].day) || daily.lastDay || '';
+				const bounds = `min="${esc(daily.firstDay || firstShown)}" max="${esc(daily.lastDay || lastShown)}"`;
 				const picker =
 					`<div class="dpick">` +
 					DAY_PRESETS.map(
@@ -2039,8 +2051,8 @@
 							`<button type="button" class="dbtn${DAY_RANGE.preset === p.key ? ' on' : ''}" data-range="${p.key}">${p.label}</button>`,
 					).join('') +
 					`<span class="dsep"></span>` +
-					`<label>From <input type="date" class="dinput" data-range-from value="${esc(DAY_RANGE.from || daily.firstDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
-					`<label>To <input type="date" class="dinput" data-range-to value="${esc(DAY_RANGE.to || daily.lastDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
+					`<label>From <input type="date" class="dinput" data-range-from value="${esc(firstShown)}" ${bounds}></label>` +
+					`<label>To <input type="date" class="dinput" data-range-to value="${esc(lastShown)}" ${bounds}></label>` +
 					`</div>`;
 				const sub = shown.length
 					? `${fmt(totalNew)} new in ${fmt(shown.length)} ${shown.length === 1 ? 'day' : 'days'}` +
@@ -2105,26 +2117,14 @@
 			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload — Harper's own telemetry
 			/* How far back the server view looks, in minutes.
 			 *
-			 * Not fixed at 15 any more. Harper emits the gauges (database size,
-			 * storage volume, thread utilization) sparsely, so a short window
-			 * routinely lands BETWEEN samples and reports them as absent — which is
-			 * how this panel first shipped showing em-dashes on a healthy server. A
-			 * short window is still the right one for "what is happening right now",
-			 * so it is a choice rather than a constant. Remembered across reloads. */
-			const SERVER_WINDOWS = [
-				{ minutes: 15, label: '15m' },
-				{ minutes: 60, label: '1h' },
-				{ minutes: 360, label: '6h' },
-				{ minutes: 1440, label: '24h' },
-			];
-			const SERVER_WINDOW_KEY = 'ww-dashboard-server-window';
-			let SERVER_WINDOW = 60;
-			try {
-				const saved = parseInt(localStorage.getItem(SERVER_WINDOW_KEY), 10);
-				if (SERVER_WINDOWS.some((w) => w.minutes === saved)) SERVER_WINDOW = saved;
-			} catch {
-				/* private mode — the default stands */
-			}
+			 * One hour, fixed. Not 15: Harper emits the gauges (database size,
+			 * storage volume, thread utilization) sparsely, and a short window lands
+			 * BETWEEN samples and reports them as absent — which is how this panel
+			 * first shipped showing em-dashes on a healthy server. Not adjustable in
+			 * the UI either: a 24h window makes ServerHealth read to its 4,000-row
+			 * cap and it became the slowest endpoint on the instance. The endpoint
+			 * still honours ?minutes= for anyone reading it directly. */
+			const SERVER_WINDOW = 60;
 
 			/** How this caretaker has their settings — every option in Settings →
 			 *  Accessibility, plus audio. Sourced from the `prefs` block each solo
@@ -3635,18 +3635,27 @@
 			function trafficHTML(ht) {
 				const rq = ht && ht.requests;
 				if (!rq || (!rq.app && !rq.infrastructure)) return '';
-				const total = n(rq.app) + n(rq.infrastructure);
+				const total = n(rq.gameplay != null ? rq.gameplay : rq.app) + n(rq.infrastructure);
 				const rows = [
-					['Players', n(rq.app)],
-					['Infrastructure', n(rq.infrastructure)],
-				];
-				const paths = (rq.infrastructurePaths || []).map((p) => `<code>${esc(p)}</code>`).join(' ');
+					['Gameplay', n(rq.gameplay != null ? rq.gameplay : rq.app)],
+					['This dashboard', n(rq.dashboard)],
+					['Health probes', n(rq.probes)],
+					['Console & admin', n(rq.operations)],
+				].filter((r) => r[1] > 0);
+				const list = (xs) => (xs || []).map((p) => `<code>${esc(p)}</code>`).join(' ');
 				return (
 					`<div class="card" style="margin-top:.8rem"><h3>Who called<span class="tag">requests in this window</span></h3>` +
 					barRows(rows, { cls: 'sky' }) +
-					(paths
-						? `<p class="emptynote">Infrastructure here is ${paths} — Harper Fabric's own health probe and internal operations, ` +
-							`not players. That is ${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of all requests.</p>`
+					(n(rq.probes)
+						? `<p class="emptynote"><b>Health probes</b> are ${list(rq.probePaths)} — the platform asking whether each node is up, ` +
+							`constantly and automatically. Nothing to act on unless the number changes shape.</p>`
+						: '') +
+					(n(rq.operations)
+						? `<p class="emptynote"><b>Console &amp; admin</b> is ${list(rq.operationPaths)} — Harper's own operations, which is mostly ` +
+							`the management console: opening it lists your users and roles and describes every table. These track a person using Harper, not the game.</p>`
+						: '') +
+					(n(rq.infrastructure)
+						? `<p class="emptynote">Between them that is ${pct(total ? (n(rq.infrastructure) / total) * 100 : 0)} of all requests — which is why the 5xx rate above is taken over player traffic only.</p>`
 						: '') +
 					(rq.reconcilesWithResponses === false
 						? `<p class="emptynote">These request records and the response counters <b>disagree</b> by more than 5%, so the 5xx rate above ` +
@@ -3711,32 +3720,35 @@
 					ht = h.http || {},
 					rep = h.replication || {};
 				const gb = (b) => (b == null ? '—' : `${(b / 1e9).toFixed(2)}<small>GB</small>`);
+				const gt = ht.gameplayTiming;
+				// Colour only past the point where it is worth looking at. Under a
+				// second a slow call is a curiosity; past that a player feels it.
+				const slowTone = (ms) => (n(ms) >= 1000 ? '<span class="accent">' : '<span>');
 				const quota = st.volumeBytes && st.databaseBytes ? Math.round((st.databaseBytes / st.volumeBytes) * 100) : null;
-				const slowRows = (ht.slowest || [])
-					.map(
-						(r) =>
-							`<tr><td><code>${esc(r.path)}</code></td><td>${esc(r.method || '—')}</td>` +
-							`<td class="num">${fmt(r.worstMs)}<small>ms</small></td>` +
-							`<td class="num">${r.typicalMs == null ? '—' : fmt(r.typicalMs) + '<small>ms</small>'}</td>` +
-							`<td class="num">${fmt(r.calls)}</td></tr>`,
-					)
-					.join('');
+				const endpointTable = (list, title, tag, note) => {
+					if (!list || !list.length) return '';
+					const rows = list
+						.map(
+							(r) =>
+								`<tr><td><code>${esc(r.path)}</code></td><td>${esc(r.method || '—')}</td>` +
+								`<td class="num">${fmt(r.worstMs)}<small>ms</small></td>` +
+								`<td class="num">${r.typicalMs == null ? '—' : fmt(r.typicalMs) + '<small>ms</small>'}</td>` +
+								`<td class="num">${fmt(r.calls)}</td></tr>`,
+						)
+						.join('');
+					return (
+						`<div class="card" style="margin-top:.8rem"><h3>${esc(title)}<span class="tag">${esc(tag)}</span></h3>` +
+						`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">Worst</th>` +
+						`<th class="num">Typical</th><th class="num">Calls</th></tr></thead><tbody>${rows}</tbody></table>` +
+						(note ? `<p class="emptynote">${note}</p>` : '') +
+						`</div>`
+					);
+				};
 				const statusRows = objToEntries(ht.byStatus).slice(0, 8);
-				// Window picker. Refetches, because the windowing happens server-side
-				// over a time-bounded read of the analytics table.
-				const picker =
-					`<div class="dpick">` +
-					SERVER_WINDOWS.map(
-						(w) =>
-							`<button type="button" class="dbtn${w.minutes === SERVER_WINDOW ? ' on' : ''}" data-swin="${w.minutes}">${w.label}</button>`,
-					).join('') +
-					`</div>`;
-				const win = SERVER_WINDOWS.find((w) => w.minutes === n(h.windowMinutes));
 				return sec(
 					'Server health',
-					`Harper's own telemetry · last ${win ? win.label : fmt(h.windowMinutes) + ' min'} · ${fmt(h.samples)} samples`,
-					picker +
-						`<div class="grid kpis">${[
+					`Harper's own telemetry · last ${fmt(h.windowMinutes)} min · ${fmt(h.samples)} samples`,
+					`<div class="grid kpis">${[
 						/* The capacity ceiling: a small number of threads serves this whole
 						 * app, so sustained utilization runs out before anything else. */
 						kpi(
@@ -3746,6 +3758,26 @@
 						),
 						kpi(t.cpuPct == null ? '—' : pct(t.cpuPct), 'CPU'),
 						kpi(gb(st.databaseBytes), 'Database size', quota == null ? '' : `${pct(quota)} of the volume`),
+						/* How long gameplay takes, next to how often it fails. A perfect
+						 * error rate on a server that answers every call in two seconds is
+						 * a game nobody plays, so the timing sits beside the 5xx rate
+						 * rather than being buried in the table below it. */
+						...(gt
+							? [
+									kpi(
+										gt.typicalMs == null ? '—' : `${fmt(gt.typicalMs)}<small>ms</small>`,
+										'Gameplay response',
+										`typical across ${fmt(gt.calls)} request${gt.calls === 1 ? '' : 's'}`,
+									),
+									kpi(
+										gt.worstMs == null ? '—' : `${slowTone(gt.worstMs)}${fmt(gt.worstMs)}<small>ms</small></span>`,
+										'Slowest gameplay call',
+										// A worst-case with no name attached is not something you
+										// can go and fix.
+										gt.worstPath ? `<code>${esc(gt.worstPath)}</code>${gt.worstMethod ? ' ' + esc(gt.worstMethod) : ''}` : 'no path recorded',
+									),
+								]
+							: []),
 						kpi(
 							ht.serverErrors ? `<span class="accent">${ratePct(ht.errorRatePct)}</span>` : pct(0),
 							'5xx rate',
@@ -3753,7 +3785,7 @@
 							// difference between a rate about players and a rate diluted by
 							// a load balancer polling every couple of seconds.
 							ht.errorRateBasis === 'app'
-								? `${fmt(ht.serverErrors)} of ${fmt(ht.errorRateOf)} player requests`
+								? `${fmt(ht.serverErrors)} of ${fmt(ht.errorRateOf)} gameplay requests`
 								: `${fmt(ht.serverErrors)} of ${fmt(ht.responses)} responses — <b>all traffic</b>`,
 						),
 						kpi(
@@ -3762,10 +3794,14 @@
 							rep.samples ? `${fmt(rep.samples)} samples between nodes` : 'no samples in this window',
 						),
 					].join('')}</div>` +
-						(slowRows
-							? `<div class="card" style="margin-top:.8rem"><h3>Slowest endpoints<span class="tag">grouped by path · worst first</span></h3>` +
-								`<table class="tbl"><thead><tr><th>Path</th><th>Method</th><th class="num">Worst</th><th class="num">Typical</th><th class="num">Calls</th></tr></thead><tbody>${slowRows}</tbody></table></div>`
-							: '') +
+						// Gameplay first: this is what players actually wait for. The
+						// dashboard's own endpoints follow, because a slow metrics query is
+						// a different problem from a slow Collect and reading them in one
+						// list makes the game look worse than it is.
+						endpointTable(ht.slowest, 'Gameplay endpoints', 'what players wait for · worst first',
+							'Grouped by path across the window. <b>Worst</b> is the slowest p95 seen, not a window percentile — that cannot be recovered from per-period summaries. <b>Typical</b> is weighted by call volume.') +
+						endpointTable(ht.slowestDashboard, 'Dashboard endpoints', 'what this page costs · worst first',
+							'This page reading itself. Not player traffic, and excluded from the 5xx rate above.') +
 						(statusRows.length
 							? `<div class="card" style="margin-top:.8rem"><h3>Responses<span class="tag">by status</span></h3>${barRows(statusRows, { cls: 'sky' })}</div>`
 							: '') +
@@ -3946,23 +3982,6 @@
 			// Open a player's breakdown modal when their highlight card is clicked or
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
-
-			// Server-health window. Refetches — the window is applied server-side over
-			// a time-bounded read, so this is not a client-side filter of data already
-			// in the browser the way the day-chart picker is.
-			rootEl.addEventListener('click', (e) => {
-				const btn = e.target.closest && e.target.closest('.dbtn[data-swin]');
-				if (!btn) return;
-				const mins = parseInt(btn.getAttribute('data-swin'), 10);
-				if (!SERVER_WINDOWS.some((w) => w.minutes === mins)) return;
-				SERVER_WINDOW = mins;
-				try {
-					localStorage.setItem(SERVER_WINDOW_KEY, String(mins));
-				} catch {
-					/* private mode — the choice still holds for this session */
-				}
-				load();
-			});
 
 			/* Delete a telemetry record.
 			 *

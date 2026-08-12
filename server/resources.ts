@@ -7721,8 +7721,7 @@ async function metricsRollup(target?: any): Promise<{
 		// nothing here, and a top-five drawn from four saves is not a top five.
 		const achTimingCoverage = {
 			savesWithAchievements: withAch.length,
-			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length)
-				.length,
+			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length).length,
 		};
 
 		const achievementsSummary = {
@@ -7777,7 +7776,8 @@ async function metricsRollup(target?: any): Promise<{
 		for (const v of timed) {
 			const buckets = Object.entries(v.sessionLengths || {});
 			if (buckets.length) sessionLengthSaves++;
-			for (const [b, n] of buckets) sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
+			for (const [b, n] of buckets)
+				sessionLengthDistribution[b] = (sessionLengthDistribution[b] || 0) + (n as number);
 		}
 		// Count the ABANDONED sessions the heartbeat can never bucket.
 		//
@@ -7903,9 +7903,7 @@ async function metricsRollup(target?: any): Promise<{
 			// Mean over everyone who acted within the plausible window.
 			trimmedAvgSeconds: mean(ttfaKept),
 			trimmedMedianSeconds: median(ttfaKept),
-			p90Seconds: ttfaKept.length
-				? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))])
-				: 0,
+			p90Seconds: ttfaKept.length ? round1(ttfaKept[Math.min(ttfaKept.length - 1, Math.floor(ttfaKept.length * 0.9))]) : 0,
 			// Said out loud rather than silently dropped, so the exclusion is auditable.
 			outliersExcluded: ttfaAll.length - ttfaKept.length,
 			outlierThresholdSeconds: TTFA_OUTLIER_SECONDS,
@@ -8323,10 +8321,7 @@ export class ServerHealth extends DashboardEndpoint {
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
 		 * unrecognised name is visible on the page instead of silently absent. */
-		const norm = (s: any) =>
-			String(s || '')
-				.toLowerCase()
-				.replace(/[^a-z0-9]/g, '');
+		const norm = (s: any) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');
 		const pick = (...names: string[]) => {
 			const want = names.map(norm);
 			return rows.filter((r) => want.includes(norm(r.metric)));
@@ -8334,12 +8329,45 @@ export class ServerHealth extends DashboardEndpoint {
 		/* Which field carries the number also varies by metric — a gauge lands in
 		 * `total`, a rate in `ratio`, a timing in `mean`. Take the first that is
 		 * actually a number rather than assuming one. */
+		// Bookkeeping, not measurements: numbers present on every record, none of
+		// which is the thing the metric is actually reporting.
+		const NON_VALUE = new Set(['time', 'period', 'id', 'nodeid', 'node', 'count', 'timestamp', 'starttime', 'endtime']);
 		const valueOf = (r: any, prefer?: string) => {
 			for (const f of [prefer, 'total', 'value', 'ratio', 'mean', 'median'].filter(Boolean) as string[]) {
 				const n = Number(r?.[f]);
 				if (Number.isFinite(n)) return n;
 			}
+			/* Last resort: the first numeric field that is not bookkeeping.
+			 *
+			 * Hard-coding the field list turned out to be the same mistake as
+			 * hard-coding the metric names. database-size and main-thread-utilization
+			 * both arrive on the live instance and both still rendered as em-dashes,
+			 * because their number is not in `total`. A gauge whose value sits under a
+			 * name nothing predicted is still a gauge, and reading it beats reporting
+			 * nothing — with `allMetrics[].fields` publishing what was actually there,
+			 * so this stays checkable rather than magic. */
+			if (r && typeof r === 'object') {
+				for (const [k, v] of Object.entries(r)) {
+					if (NON_VALUE.has(k.toLowerCase())) continue;
+					if (typeof v !== 'number' || !Number.isFinite(v)) continue;
+					return v;
+				}
+			}
 			return null;
+		};
+		/* Every numeric leaf on a record, one level into nested objects, as dotted
+		 * paths. This is the diagnostic that ends the guessing: when a gauge reads
+		 * em-dash, this says what its records actually carry. */
+		const numericFields = (r: any, depth = 0): string[] => {
+			if (!r || typeof r !== 'object') return [];
+			const out: string[] = [];
+			for (const [k, v] of Object.entries(r)) {
+				if (k === 'id' || k === 'metric' || k === 'path' || k === 'method' || k === 'type') continue;
+				if (v && typeof v === 'object' && !Array.isArray(v) && depth < 1) {
+					for (const sub of numericFields(v, depth + 1)) out.push(`${k}.${sub}`);
+				} else if (typeof v === 'number' && Number.isFinite(v)) out.push(k);
+			}
+			return out;
 		};
 		// Harper writes one row per metric per minute per thread, so a point reading
 		// and a window average answer different questions — a utilization spike and a
@@ -8398,34 +8426,65 @@ export class ServerHealth extends DashboardEndpoint {
 		 * method, which is what separates them from this app's PascalCase resources.
 		 * Neither belongs in "slowest endpoints" or in the denominator of an error
 		 * rate that is supposed to describe what players experienced. */
-		const INFRA_PATHS = new Set(['status', 'health', 'healthz', 'healthcheck', 'ping', 'metrics_health']);
-		const isInfra = (path: any, method: any) => {
+		const PROBE_PATHS = new Set(['status', 'getstatus', 'health', 'healthz', 'healthcheck', 'ping']);
+		/* Two different things, kept apart because they mean different things.
+		 *
+		 * A PROBE is automatic and constant — the platform asking "is this node up"
+		 * every few seconds forever. An OPERATION is a person: opening the Harper
+		 * console lists your users, describes your tables and reads your components,
+		 * and alter_user is somebody changing a password. Calling both "the health
+		 * probe" was wrong, and it mattered — a spike in operations is you, and a
+		 * spike in probes is the platform deciding something is unwell. */
+		/* This dashboard's own endpoints. Listed explicitly rather than pattern-
+		 * matched, because the line is about WHO CALLS them, not what they are
+		 * named: /Metrics/ looks like tooling and is not — the game client fetches
+		 * it on every uplink — while /MetricsSummary/ and /MetricsPlayers/ are only
+		 * ever reached by this page. Getting that backwards would move real player
+		 * traffic into the tooling bucket and quietly shrink the numbers that
+		 * matter. Anything not named here is gameplay. */
+		const DASHBOARD_PATHS = new Set(
+			[
+				'MetricsSummary', 'MetricsPlayers', 'GameplayHealth', 'SaveHealth', 'ServerHealth',
+				'LandingStats', 'ClearProblem', 'DashboardAuth', 'DashboardPage', 'dashboard', 'ListFeedback',
+				'ListMailingList', 'SystemProbe',
+			].map(norm),
+		);
+		const classify = (path: any, method: any): 'gameplay' | 'dashboard' | 'probe' | 'operation' => {
 			const p = String(path || '');
-			if (INFRA_PATHS.has(norm(p))) return true;
+			if (PROBE_PATHS.has(norm(p))) return 'probe';
 			// A Harper operation: no HTTP method and a snake_case/lowercase name.
-			return !method && /^[a-z][a-z0-9_]*$/.test(p);
+			// This app's resources are PascalCase and always arrive with a method.
+			if (!method && /^[a-z][a-z0-9_]*$/.test(p)) return 'operation';
+			return DASHBOARD_PATHS.has(norm(p)) ? 'dashboard' : 'gameplay';
 		};
 
 		let appCalls = 0;
-		let infraCalls = 0;
-		const infraSeen = new Set<string>();
-		const groups = new Map<
-			string,
-			{ path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }
-		>();
+		let dashCalls = 0;
+		let probeCalls = 0;
+		let opCalls = 0;
+		const probesSeen = new Set<string>();
+		const opsSeen = new Set<string>();
+		const groups = new Map<string, { kind: string; path: string; method: string | null; calls: number; worst: number; wsum: number; wn: number }>();
 		for (const r of pick('duration', 'transfer', 'request')) {
 			if (!r.path) continue;
 			const calls0 = Math.max(1, Number(r.count) || 0);
-			if (isInfra(r.path, r.method)) {
-				infraCalls += calls0;
-				infraSeen.add(String(r.path));
+			const kind = classify(r.path, r.method);
+			if (kind === 'probe') {
+				probeCalls += calls0;
+				probesSeen.add(String(r.path));
 				continue;
 			}
-			appCalls += calls0;
+			if (kind === 'operation') {
+				opCalls += calls0;
+				opsSeen.add(String(r.path));
+				continue;
+			}
+			if (kind === 'dashboard') dashCalls += calls0;
+			else appCalls += calls0;
 			const method = r.method ? String(r.method) : null;
-			const key = `${r.path}\u0000${method || ''}`;
+			const key = `${kind}\u0000${r.path}\u0000${method || ''}`;
 			let g = groups.get(key);
-			if (!g) groups.set(key, (g = { path: String(r.path), method, calls: 0, worst: 0, wsum: 0, wn: 0 }));
+			if (!g) groups.set(key, (g = { kind, path: String(r.path), method, calls: 0, worst: 0, wsum: 0, wn: 0 }));
 			const calls = Math.max(1, Number(r.count) || 0);
 			const tail = Number(r.p95);
 			const mid = Number(r.median);
@@ -8438,8 +8497,8 @@ export class ServerHealth extends DashboardEndpoint {
 				g.wn += calls;
 			}
 		}
-		const slowest = [...groups.values()]
-			.map((g) => ({
+		const rank = (g: any) => ({
+				kind: g.kind,
 				path: g.path,
 				method: g.method,
 				// Worst single p95 observed in the window, not a window percentile.
@@ -8447,9 +8506,12 @@ export class ServerHealth extends DashboardEndpoint {
 				// Count-weighted typical response, so volume carries the weight.
 				typicalMs: g.wn ? round1(g.wsum / g.wn) : null,
 				calls: g.calls,
-			}))
-			.sort((a, b) => b.worstMs - a.worstMs)
-			.slice(0, 10);
+			});
+		const byWorst = (a: any, b: any) => b.worstMs - a.worstMs;
+		// Two lists, because they answer different questions: one is what players
+		// wait for, the other is what this page costs to look at.
+		const slowest = [...groups.values()].filter((g) => g.kind === 'gameplay').map(rank).sort(byWorst).slice(0, 10);
+		const slowestDashboard = [...groups.values()].filter((g) => g.kind === 'dashboard').map(rank).sort(byWorst).slice(0, 10);
 
 		const util = latestOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization');
 		// Utilization arrives as a 0-1 ratio from some sources and an already-scaled
@@ -8473,42 +8535,15 @@ export class ServerHealth extends DashboardEndpoint {
 		// Anything this endpoint consumed, so the leftovers can be named.
 		const matched = new Set(
 			[
-				'main-thread-utilization',
-				'mainThreadUtilization',
-				'thread-utilization',
-				'utilization',
-				'cpu-usage',
-				'cpuUsage',
-				'cpu',
-				'process-cpu',
-				'cpu-utilization',
-				'memory',
-				'memory-usage',
-				'memoryUsage',
-				'heap-used',
-				'rss',
-				'database-size',
-				'databaseSize',
-				'db-size',
-				'storage-size',
-				'storage-volume',
-				'storageVolume',
-				'volume-size',
-				'disk-size',
-				'disk-total',
-				'node-storage',
-				'nodeStorage',
-				'duration',
-				'transfer',
-				'request',
-				'bytes-sent',
-				'bytesSent',
-				'egress',
-				'transfer-out',
-				'bytes-received',
-				'bytesReceived',
-				'ingress',
-				'transfer-in',
+				'main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization',
+				'cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization',
+				'memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss',
+				'database-size', 'databaseSize', 'db-size', 'storage-size',
+				'storage-volume', 'storageVolume', 'volume-size', 'disk-size', 'disk-total',
+				'node-storage', 'nodeStorage',
+				'duration', 'transfer', 'request',
+				'bytes-sent', 'bytesSent', 'egress', 'transfer-out',
+				'bytes-received', 'bytesReceived', 'ingress', 'transfer-in',
 				...REPL_LATENCY,
 			].map(norm),
 		);
@@ -8525,9 +8560,7 @@ export class ServerHealth extends DashboardEndpoint {
 			// so sustained utilization is the thing that runs out before anything else.
 			threads: {
 				utilizationPct: util ? asPct(valueOf(util)) : null,
-				windowAvgPct: asPct(
-					avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization'),
-				),
+				windowAvgPct: asPct(avgOf('main-thread-utilization', 'mainThreadUtilization', 'thread-utilization', 'utilization')),
 				cpuPct: asPct(avgOf('cpu-usage', 'cpuUsage', 'cpu', 'process-cpu', 'cpu-utilization')),
 				memoryBytes: valueOf(latestOf('memory', 'memory-usage', 'memoryUsage', 'heap-used', 'rss')),
 			},
@@ -8548,9 +8581,12 @@ export class ServerHealth extends DashboardEndpoint {
 				 * rate is NOT reported, because scaling a denominator by a ratio that
 				 * does not hold is a guess wearing a percentage sign. `basis` says
 				 * which of the two you are looking at, every time. */
+				// The dashboard's own traffic is not player traffic either. Counting it
+				// as such put six requests per page view into the denominator of a
+				// rate that is supposed to describe the game.
+				const infraCalls = probeCalls + opCalls + dashCalls;
 				const totalCalls = appCalls + infraCalls;
-				const reconciles =
-					totalResponses > 0 && totalCalls > 0 && Math.abs(totalCalls - totalResponses) / totalResponses <= 0.05;
+				const reconciles = totalResponses > 0 && totalCalls > 0 && Math.abs(totalCalls - totalResponses) / totalResponses <= 0.05;
 				const appResponses = reconciles ? Math.max(0, totalResponses - infraCalls) : null;
 				const basis = appResponses && appResponses > 0 ? 'app' : 'all';
 				const denom = basis === 'app' ? (appResponses as number) : totalResponses;
@@ -8565,14 +8601,48 @@ export class ServerHealth extends DashboardEndpoint {
 					errorRateOf: denom,
 					requests: {
 						app: appCalls,
+						gameplay: appCalls,
+						// This page looking at itself.
+						dashboard: dashCalls,
+						// The platform asking whether this node is alive.
+						probes: probeCalls,
+						probePaths: [...probesSeen].sort(),
+						// A human in the Harper console, or a tool acting like one.
+						operations: opCalls,
+						operationPaths: [...opsSeen].sort(),
 						infrastructure: infraCalls,
-						infrastructurePaths: [...infraSeen].sort(),
+						infrastructurePaths: [...probesSeen, ...opsSeen].sort(),
 						// Whether the request records and the response counters agree. When
 						// they don't, something is being counted by one and not the other,
 						// and that is worth seeing rather than smoothing over.
 						reconcilesWithResponses: reconciles,
 					},
 					slowest,
+					slowestDashboard,
+					/* How long gameplay actually takes, as a headline rather than
+					 * something to be reconstructed from the table below. The 5xx rate
+					 * only reports requests that FAILED; a server that answers every
+					 * call successfully in two seconds has a perfect error rate and a
+					 * game nobody wants to play. Count-weighted so the endpoints players
+					 * hit constantly carry the number, and the worst path is named
+					 * because "worst 1.4s" without a name is not actionable. */
+					gameplayTiming: (() => {
+						const gs = [...groups.values()].filter((g) => g.kind === 'gameplay');
+						if (!gs.length) return null;
+						const calls = gs.reduce((a, g) => a + g.calls, 0);
+						const wsum = gs.reduce((a, g) => a + g.wsum, 0);
+						const wn = gs.reduce((a, g) => a + g.wn, 0);
+						const worstG = gs.reduce((m, g) => (g.worst > (m?.worst ?? -1) ? g : m), null as any);
+						return {
+							calls,
+							typicalMs: wn ? round1(wsum / wn) : null,
+							worstMs: worstG ? round1(worstG.worst) : null,
+							worstPath: worstG ? worstG.path : null,
+							worstMethod: worstG ? worstG.method : null,
+							// How many distinct gameplay routes were exercised at all.
+							paths: gs.length,
+						};
+					})(),
 				};
 			})(),
 			// Two nodes replicate behind this, so latency between them is what says
@@ -8616,15 +8686,11 @@ export class ServerHealth extends DashboardEndpoint {
 						min: vals.length ? round1(Math.min(...vals)) : null,
 						max: vals.length ? round1(Math.max(...vals)) : null,
 						// A metric with paths is per-route; one without is instance-wide.
-						paths: [
-							...new Set(
-								rs
-									.map((r) => r.path)
-									.filter(Boolean)
-									.map(String),
-							),
-						].length,
+						paths: [...new Set(rs.map((r) => r.path).filter(Boolean).map(String))].length,
 						read: matched.has(norm(name)),
+						// Where this metric's numbers actually live. When a gauge above
+						// shows an em-dash, this is the field list that explains why.
+						fields: [...new Set(rs.flatMap((r) => numericFields(r)))].sort(),
 					};
 				})
 				.sort((a, b) => b.samples - a.samples),
@@ -8674,14 +8740,8 @@ export class SystemProbe extends Resource {
 		// same one — whichever returns rows is the answer.
 		const since = now - 3_600_000;
 		const shapes: Array<{ label: string; query: any }> = [
-			{
-				label: 'between [since, now]',
-				query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] },
-			},
-			{
-				label: 'greater_than since',
-				query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] },
-			},
+			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
+			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
 			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
 			{ label: 'no conditions, limit 50', query: { limit: 50 } },
 		];
@@ -8755,8 +8815,7 @@ export class SystemProbe extends Resource {
 			for (const k of clusterish) {
 				try {
 					const v = s[k];
-					detail[k] =
-						typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
 				} catch (e: any) {
 					detail[k] = `threw: ${e?.message || e}`;
 				}
@@ -8812,14 +8871,8 @@ export class SystemProbe extends Resource {
 			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
 			const describe = (v: any): any => {
 				if (v === null) return 'null';
-				if (Array.isArray(v))
-					return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
-				if (typeof v === 'object')
-					return Object.fromEntries(
-						Object.entries(v)
-							.slice(0, 12)
-							.map(([k, x]) => [k, describe(x)]),
-					);
+				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
 				if (typeof v === 'string') {
 					// Names and role labels are the whole point of this probe; anything
 					// that smells like a secret is reported as present, not printed.
@@ -10500,7 +10553,8 @@ export class GameplayHealth extends DashboardEndpoint {
 		// counters has no evidence either way, and hiding it would be asserting
 		// something the data cannot support.
 		const inRange = (r: any) => !windowed || r.windowCount === null || r.windowCount > 0;
-		const sumWindow = (rows: any[]) => rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
+		const sumWindow = (rows: any[]) =>
+			rows.reduce((n, r) => n + (r.windowCount === null ? 0 : r.windowCount), 0);
 		const shownRefusals = refusals.filter(inRange);
 		const shownErrors = clientErrors.filter(inRange);
 
