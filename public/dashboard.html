@@ -134,6 +134,28 @@
 				box-shadow: var(--shadow);
 				transition: transform 0.1s;
 			}
+			/* The Problems toggle. Neutral until something is actually wrong, then it
+			   goes amber — so the button's colour carries the state without needing to
+			   be read. */
+			button.refresh.probs.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+			}
+			button.refresh.probs .pbadge {
+				display: inline-block;
+				margin-left: 0.35rem;
+				padding: 0 0.4rem;
+				border-radius: 999px;
+				background: #f6e8c9;
+				color: #a9781c;
+				font-weight: 700;
+				font-size: 0.74rem;
+				font-variant-numeric: tabular-nums;
+			}
+			button.refresh.probs.bad {
+				border-color: #e2c481;
+			}
 			/* Hide/show control in the Devices table. Deliberately quiet: it is a
 			   maintenance switch, not something to draw the eye on every load. */
 			button.devtoggle {
@@ -519,6 +541,14 @@
 				border-radius: 999px;
 				padding: 0.12rem 0.55rem;
 			}
+			/* Demo → full carry-over. Gold rather than the usual green: this is the
+			   milestone worth spotting from across the page, not another stat. */
+			.hltag.hlconv {
+				color: #7a5410;
+				background: linear-gradient(180deg, #f7e6bd, #f0d79b);
+				border: 1px solid #e2c481;
+				cursor: help;
+			}
 			.hledi {
 				font-size: 0.6rem;
 				font-weight: 700;
@@ -831,6 +861,147 @@
 				font-size: 0.82rem;
 				padding: 0.4rem 0;
 			}
+			/* Caveats that travel with the duration numbers. Readable, not shouty —
+			   they qualify the figures above rather than warn about them. */
+			.clocknote {
+				font-size: 0.84rem;
+				color: var(--muted);
+				line-height: 1.5;
+				padding: 0.5rem 0;
+			}
+			.clocknote + .clocknote {
+				border-top: 1px solid var(--rule);
+			}
+			.clocknote b {
+				color: var(--ink);
+			}
+			.clocknote .cnrule {
+				display: block;
+				margin-top: 0.15rem;
+				color: var(--faint);
+				font-size: 0.76rem;
+			}
+			/* Day-by-day bar chart + its range control. */
+			.dcolwrap {
+				position: relative;
+				padding-left: 2.2rem;
+			}
+			.dmax {
+				position: absolute;
+				left: 0;
+				top: 0;
+				font-size: 0.7rem;
+				color: var(--faint);
+				font-variant-numeric: tabular-nums;
+			}
+			.dcols {
+				display: flex;
+				align-items: flex-end;
+				gap: 2px;
+				height: 124px;
+			}
+			.dcol {
+				flex: 1 1 0;
+				min-width: 0;
+				display: flex;
+				flex-direction: column;
+				align-items: center;
+				justify-content: flex-end;
+				height: 100%;
+				gap: 0.3rem;
+			}
+			.dcol .dbar {
+				display: block;
+				width: 100%;
+				max-width: 22px;
+				border-radius: 3px 3px 0 0;
+				background: linear-gradient(180deg, var(--accent) 0%, var(--accent-dark) 100%);
+				transition: height 0.5s cubic-bezier(0.2, 0.7, 0.2, 1);
+			}
+			/* A day with nobody is drawn as a flat tick, not nothing — an absent bar
+			   and a missing day look identical otherwise. */
+			.dcol .dbar.zero {
+				height: 2px;
+				background: var(--rule);
+			}
+			.dcol .dl {
+				font-size: 0.62rem;
+				color: var(--faint);
+				white-space: nowrap;
+				height: 0.8rem;
+			}
+			.dpick {
+				display: flex;
+				align-items: center;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin-bottom: 0.7rem;
+				font-size: 0.78rem;
+				color: var(--muted);
+			}
+			.dpick label {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.3rem;
+			}
+			.dpick .dsep {
+				width: 1px;
+				height: 1.1rem;
+				background: var(--rule);
+				margin: 0 0.3rem;
+			}
+			button.dbtn {
+				font: inherit;
+				font-size: 0.78rem;
+				cursor: pointer;
+				border: 1px solid var(--rule);
+				background: var(--card);
+				color: var(--muted);
+				padding: 0.2rem 0.7rem;
+				border-radius: 999px;
+			}
+			button.dbtn.on {
+				background: var(--accent-soft);
+				color: var(--accent-dark);
+				border-color: var(--accent);
+				font-weight: 700;
+			}
+			.dinput {
+				font: inherit;
+				font-size: 0.76rem;
+				color: var(--ink);
+				border: 1px solid var(--rule);
+				border-radius: 8px;
+				background: var(--card);
+				padding: 0.15rem 0.4rem;
+			}
+			/* Appearance popularity: a colour choice has to be shown as the colour. */
+			.swgrid {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+			}
+			.swchip {
+				display: inline-flex;
+				align-items: center;
+				gap: 0.35rem;
+				border: 1px solid var(--rule);
+				border-radius: 999px;
+				padding: 0.15rem 0.55rem 0.15rem 0.2rem;
+				font-size: 0.78rem;
+				color: var(--ink);
+				background: var(--card);
+				font-variant-numeric: tabular-nums;
+			}
+			.swchip .dot {
+				width: 16px;
+				height: 16px;
+				border-radius: 50%;
+				border: 1px solid rgba(47, 58, 39, 0.18);
+			}
+			.swchip .cnt {
+				color: var(--muted);
+			}
 			footer {
 				margin-top: 3rem;
 				text-align: center;
@@ -929,6 +1100,15 @@
 							<option value="include">Counted</option>
 						</select>
 					</label>
+					<!-- Problems are hidden by default: on a normal day there is nothing to
+					     act on, and a wall of "not enough materials" refusals above the
+					     numbers you came for is noise. The BADGE is what makes hiding them
+					     safe — it counts the things that are actually wrong (crashes and
+					     unreadable saves, never routine refusals), so a bad day still
+					     announces itself from the top of the page. -->
+					<button class="refresh probs" id="problems" type="button" aria-expanded="false" hidden>
+						<span id="problems-label">Problems</span>
+					</button>
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
 				</div>
 			</header>
@@ -1413,6 +1593,226 @@
 				return r ? `${h}h ${r}m` : `${h}h`;
 			}
 
+			/* How long a session actually lasts.
+			 *
+			 * The server has computed this histogram all along and nothing has ever
+			 * drawn it. It is drawn here WITH its coverage stated, because the buckets
+			 * are a subset — only sessions a client recorded a length for land in them,
+			 * so the total can be a couple of dozen while Sessions above reads in the
+			 * hundreds. Shown as a share of the sessions it covers, not of all of them,
+			 * or the percentages would be quietly wrong. */
+			const SESSION_BUCKET_ORDER = ['<2m', '2-10m', '10-30m', '30m+'];
+			const SESSION_BUCKET_LABELS = {
+				'<2m': 'Under 2 min',
+				'2-10m': '2 – 10 min',
+				'10-30m': '10 – 30 min',
+				'30m+': 'Over 30 min',
+			};
+			function sessionShapeHTML(s) {
+				const sl = s.sessionLengths || (s.sessionLengthDistribution ? { buckets: s.sessionLengthDistribution } : null);
+				if (!sl) return '';
+				const buckets = sl.buckets || {};
+				const covered = sl.sessionsCovered != null ? sl.sessionsCovered : Object.values(buckets).reduce((a, v) => a + n(v), 0);
+				if (!covered) return '';
+				const entries = SESSION_BUCKET_ORDER.filter((k) => buckets[k] != null).map((k) => [k, n(buckets[k])]);
+				const total = n(sl.totalSessions);
+				// The caveat is the point of the panel, so it goes in the subtitle where
+				// it cannot be scrolled past, not in a footnote.
+				const tag =
+					total && covered < total
+						? `${fmt(covered)} of ${fmt(total)} sessions measured (${pct(sl.coveragePct)})`
+						: `${fmt(covered)} sessions measured`;
+				return `<div style="margin-top:.8rem">${cardTitled(
+					'How long a session lasts',
+					tag,
+					barRows(entries, { labelMap: SESSION_BUCKET_LABELS, cls: 'sky' }) +
+						(total && covered < total
+							? `<p class="emptynote">Only sessions a client recorded a length for reach these buckets — older builds report none. The shares above are of the ${fmt(covered)} measured, not of all ${fmt(total)}.</p>`
+							: ''),
+				)}</div>`;
+			}
+
+			/* New caretakers per day.
+			 *
+			 * The range control here scopes THIS CHART ONLY, and the subtitle says so.
+			 * It deliberately does not filter the rest of the page: almost every number
+			 * above is a lifetime total carried on a save (play time, actions, biome
+			 * health), not something attributable to a day, so a picker that appeared to
+			 * scope the whole report would be answering a question the data can't. */
+			const DAY_RANGE = { preset: '30', from: '', to: '' };
+
+			function visibleDays(daily) {
+				const days = (daily && daily.days) || [];
+				if (!days.length) return [];
+				if (DAY_RANGE.preset === 'custom') {
+					const from = DAY_RANGE.from || days[0].day;
+					const to = DAY_RANGE.to || days[days.length - 1].day;
+					return days.filter((d) => d.day >= from && d.day <= to);
+				}
+				if (DAY_RANGE.preset === 'all') return days;
+				return days.slice(-Number(DAY_RANGE.preset));
+			}
+
+			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
+			 * which puts a number and a label under every column — fine for four
+			 * tutorial steps, unreadable at ninety days. Here the count lives in the
+			 * tooltip and the axis is labelled at intervals. */
+			function dayCols(days, key) {
+				if (!days.length) return `<div class="emptynote">No days in this range.</div>`;
+				const max = Math.max(...days.map((d) => n(d[key])), 1);
+				const step = Math.ceil(days.length / 8);
+				const fmtDay = (iso) => {
+					const [y, m, dd] = iso.split('-');
+					return `${MONTHS[Number(m) - 1]} ${Number(dd)}`;
+				};
+				const bars = days
+					.map((d, i) => {
+						const v = n(d[key]);
+						const h = v ? Math.max(2, (v / max) * 96) : 0;
+						const lab = i % step === 0 || i === days.length - 1 ? fmtDay(d.day) : '';
+						return (
+							`<div class="dcol" title="${esc(fmtDay(d.day))} · ${fmt(v)}">` +
+							`<span class="dbar${v ? '' : ' zero'}" style="height:${h}px"></span>` +
+							`<span class="dl">${lab}</span></div>`
+						);
+					})
+					.join('');
+				return `<div class="dcolwrap"><div class="dmax">${fmt(max)}</div><div class="dcols">${bars}</div></div>`;
+			}
+
+			const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+			const DAY_PRESETS = [
+				{ key: '7', label: '7d' },
+				{ key: '30', label: '30d' },
+				{ key: '90', label: '90d' },
+				{ key: 'all', label: 'All' },
+			];
+
+			function dailyHTML(s) {
+				const daily = s.daily;
+				if (!daily || !daily.days || !daily.days.length) return '';
+				const shown = visibleDays(daily);
+				const totalNew = shown.reduce((a, d) => a + n(d.created), 0);
+				const busiest = shown.slice().sort((a, b) => n(b.created) - n(a.created))[0];
+				const picker =
+					`<div class="dpick">` +
+					DAY_PRESETS.map(
+						(p) =>
+							`<button type="button" class="dbtn${DAY_RANGE.preset === p.key ? ' on' : ''}" data-range="${p.key}">${p.label}</button>`,
+					).join('') +
+					`<span class="dsep"></span>` +
+					`<label>From <input type="date" class="dinput" data-range-from value="${esc(DAY_RANGE.from || daily.firstDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
+					`<label>To <input type="date" class="dinput" data-range-to value="${esc(DAY_RANGE.to || daily.lastDay)}" min="${esc(daily.firstDay)}" max="${esc(daily.lastDay)}"></label>` +
+					`</div>`;
+				const sub = shown.length
+					? `${fmt(totalNew)} new in ${fmt(shown.length)} ${shown.length === 1 ? 'day' : 'days'}` +
+						(busiest && busiest.created ? ` · busiest ${esc(busiest.day)} with ${fmt(busiest.created)}` : '')
+					: 'no days in this range';
+				// Saves created only. The payload also carries a per-day `lastSeen`, but
+				// it is the day each save was LAST active — not daily actives — and a
+				// second chart of it next to this one invited exactly the misreading it
+				// was captioned to prevent. Left in the API for anything that wants it.
+				return sec(
+					'New caretakers per day',
+					'this chart only — the rest of the page is all-time',
+					picker + cardTitled('Saves created', sub, dayCols(shown, 'created')),
+				);
+			}
+
+			/* What caretakers choose to look like.
+			 *
+			 * The server has tallied every appearance choice across every save this
+			 * whole time and nothing has ever rendered it. It is the one panel here
+			 * that answers an art question rather than a numbers one: which hats are
+			 * worth drawing more of, and which nobody has ever picked.
+			 *
+			 * Colour fields are shown AS the colour. A bar chart of '#6e4a33' vs
+			 * '#eec39a' is unreadable — the whole point of the choice is what it looks
+			 * like, so swatches, sorted by how often they were chosen. */
+			const APPEARANCE_FIELDS = [
+				{ key: 'hat', label: 'Hats', kind: 'name' },
+				{ key: 'hairstyle', label: 'Hairstyles', kind: 'name' },
+				{ key: 'body', label: 'Body', kind: 'name' },
+				{ key: 'beard', label: 'Beards', kind: 'name' },
+				{ key: 'skin', label: 'Skin tones', kind: 'color' },
+				{ key: 'hair', label: 'Hair colours', kind: 'color' },
+				{ key: 'outfit', label: 'Outfit colours', kind: 'color' },
+				{ key: 'hatColor', label: 'Hat colours', kind: 'color' },
+			];
+			function swatches(entries) {
+				return `<div class="swgrid">${entries
+					.map(
+						([v, c]) =>
+							`<span class="swchip" title="${esc(String(v))} · ${fmt(c)}"><span class="dot" style="background:${esc(
+								String(v),
+							)}"></span><span class="cnt">${fmt(c)}</span></span>`,
+					)
+					.join('')}</div>`;
+			}
+			function appearanceHTML(s) {
+				const ap = s.appearancePopularity || {};
+				const choices = ap.choices || {};
+				const cards = APPEARANCE_FIELDS.map((f) => {
+					const entries = objToEntries(choices[f.key]).filter((e) => e[0] && e[0] !== 'unknown');
+					if (!entries.length) return '';
+					// "none" is a real answer for a hat or a beard — how many people
+					// chose NOT to wear one is as interesting as which one they picked.
+					const TOP_N = 5;
+					const top = entries.slice(0, TOP_N);
+					// When the list is cut, the tag says so. "6 options chosen" above five
+					// bars reads as if six were on screen, and the missing one is always
+					// the least-picked — which is the one worth knowing about.
+					const tag =
+						entries.length > TOP_N
+							? `top ${TOP_N} of ${fmt(entries.length)} chosen`
+							: `${fmt(entries.length)} ${entries.length === 1 ? 'option' : 'options'} chosen`;
+					return cardTitled(f.label, tag, f.kind === 'color' ? swatches(top) : barRows(top, { cls: 'gold' }));
+				}).filter(Boolean);
+				if (!cards.length) return '';
+				return sec(
+					'What caretakers look like',
+					`the customization ${fmt(ap.savesWithAppearance)} people actually picked`,
+					`<div class="grid two">${cards.join('')}</div>`,
+				);
+			}
+
+			/* What the play-time numbers are NOT counting, and why.
+			 *
+			 * Two separate caveats ride on every duration on this page: windows left
+			 * open (excluded by default), and the fact that rev 1 clients counted
+			 * untouched windows as play while rev 2 does not. Both were reported in the
+			 * payload and shown nowhere, which is the worst of both — the numbers were
+			 * already qualified, the reader just couldn't see it. */
+			function clockNoteHTML(s) {
+				const a = s.anomalies;
+				if (!a) return '';
+				const clock = a.clock || {};
+				const revs = Object.entries(clock.byRev || {}).filter((e) => n(e[1]) > 0);
+				const mixed = revs.length > 1;
+				if (!a.idlePlayers && !mixed) return '';
+				const bits = [];
+				if (a.idlePlayers) {
+					bits.push(
+						`<div class="clocknote"><b>${fmt(a.idlePlayers)} ${a.idlePlayers === 1 ? 'save' : 'saves'} left a window open</b> — ` +
+							`${fmt(a.idleHours)} hours and ${fmt(a.idleActions)} actions of it. ` +
+							(a.excluded
+								? `Excluded from ${esc(a.affects)}; they still count everywhere else.`
+								: `<em>Currently included.</em> Switch “Idle windows” to Exclude to drop them from ${esc(a.affects)}.`) +
+							`<span class="cnrule">${esc(a.rule)}</span></div>`,
+					);
+				}
+				if (mixed) {
+					bits.push(
+						`<div class="clocknote"><b>Two play-time definitions in one total.</b> ${esc(clock.note || '')} — ` +
+							revs.map(([k, v]) => `${fmt(v)} on ${esc(k)}`).join(', ') +
+							`. Read any trend that crosses the change as two series, not one.` +
+							(clock.idleGateMinutes ? `<span class="cnrule">rev 2 stops the clock after ${n(clock.idleGateMinutes)} min untouched</span>` : '') +
+							`</div>`,
+					);
+				}
+				return `<div style="margin-top:.8rem">${cardTitled('About these durations', 'what the clock does and does not count', bits.join(''))}</div>`;
+			}
+
 			/* ------------------------------------------------------------------ *
 			 * Per-player modal — a full picture of one caretaker's playthrough
 			 * ------------------------------------------------------------------ */
@@ -1603,10 +2003,19 @@
 					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
 				);
 				const when = [joined, last].filter(Boolean).join(' · ');
+				/* Carried over from the demo. Spelled out here rather than left as a
+				 * chip: the modal is where you go to find out what actually happened,
+				 * and "1h 46m in the demo, then bought it" is the story. */
+				const mc = p.conversion || {};
+				const mconv = p.convertedFromDemo
+					? `<span class="hltag hlconv" title="${mc.exact ? 'Stamped when the save was exported' : 'Inferred from this save’s demo row — it predates the export stamp'}">demo → full${
+							mc.demoPlaySeconds ? ` · ${fmtDur(mc.demoPlaySeconds)} in the demo` : ''
+						}${mc.at ? ` · ${mc.exact ? '' : '~'}${new Date(mc.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}</span>`
+					: '';
 				return (
 					`<button class="modal-close" data-close aria-label="Close">×</button>` +
 					`<div class="modal-head"><div class="mav">${avatarSVG(p.appearance)}</div><div><h2>${esc(p.name || 'Unnamed')}</h2>` +
-					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
+					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${mconv}${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
@@ -1646,7 +2055,70 @@
 			/* ------------------------------------------------------------------ *
 			 * Main render
 			 * ------------------------------------------------------------------ */
+			/* Whether the failure panels are on screen. Off by default, remembered
+			 * across reloads — if you opened them because you were chasing something,
+			 * a refresh mid-chase shouldn't close them again. */
+			const SHOW_PROBLEMS_KEY = 'ww-dashboard-show-problems';
+			let SHOW_PROBLEMS = false;
+			try {
+				SHOW_PROBLEMS = localStorage.getItem(SHOW_PROBLEMS_KEY) === '1';
+			} catch {
+				/* private mode — default to hidden */
+			}
+
+			/* What the badge counts.
+			 *
+			 * Deliberately NOT refusals. A refusal is the server saying "not enough
+			 * materials" — that is the game working, and every player generates them,
+			 * so a lifetime refusal count would sit in the thousands and mean nothing.
+			 * Badging it would train you to ignore the badge, which is the one failure
+			 * mode a hidden panel cannot survive.
+			 *
+			 * Crashes and records that will not decode are different: neither should
+			 * ever happen, so any number above zero is worth the walk. */
+			function problemCount() {
+				const crashes = (GAMEPLAYHEALTH && GAMEPLAYHEALTH.clientErrors && GAMEPLAYHEALTH.clientErrors.total) || 0;
+				const badSaves = (SAVEHEALTH && SAVEHEALTH.affected) || 0;
+				return { crashes: n(crashes), badSaves: n(badSaves), total: n(crashes) + n(badSaves) };
+			}
+
+			function syncProblemsButton() {
+				const btn = document.getElementById('problems');
+				const label = document.getElementById('problems-label');
+				if (!btn || !label) return;
+				// Nothing to show at all (endpoints unavailable) — hide the control rather
+				// than offer a button that opens an empty page.
+				const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
+				btn.hidden = !havePanels;
+				if (!havePanels) return;
+				const p = problemCount();
+				const bits = [];
+				if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
+				if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
+				// It swaps the whole page, so when it is on the button is a way BACK, not
+				// a "hide" — labelling a mode switch by what it conceals leaves you
+				// hunting for the way out.
+				label.innerHTML = SHOW_PROBLEMS
+					? '← Dashboard'
+					: 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
+				btn.title = p.total
+					? bits.join(' · ') + ' — plus every refusal the server has given'
+					: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
+				btn.classList.toggle('on', SHOW_PROBLEMS);
+				btn.classList.toggle('bad', p.total > 0);
+				btn.setAttribute('aria-expanded', SHOW_PROBLEMS ? 'true' : 'false');
+			}
+
+			/* The last payload, kept so the date picker can redraw without refetching.
+			 * The range only scopes a chart the server already sent in full, so a
+			 * round-trip per click would be latency for nothing. */
+			let LAST_DATA = null;
+			function rerender() {
+				if (LAST_DATA) render(LAST_DATA);
+			}
+
 			function render(data) {
+				LAST_DATA = data;
 				const s = (data && data.summary) || {};
 				const players = (data && data.players) || [];
 				const A = s.audience || {},
@@ -1676,6 +2148,12 @@
 						].join('')}</div>`,
 					),
 				);
+
+				/* ---- New caretakers per day ----
+				 * Directly under Overview: same audience question with a time axis, and
+				 * the 24h / 7d tiles above are two points on this line. */
+				const dailySection = dailyHTML(s);
+				if (dailySection) out.push(dailySection);
 
 				/* ---- What is going wrong ----
 				 * Everything else on this page counts what players DID. That leaves a whole
@@ -1880,7 +2358,7 @@
 								'Return rate',
 								`${fmt(R.returningPlayers)} came back`,
 							),
-						].join('')}</div>`,
+						].join('')}</div>` + sessionShapeHTML(s) + clockNoteHTML(s),
 					),
 				);
 
@@ -1990,7 +2468,13 @@
 							// The green border is the ask, but colour alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? `<span class="hltag hllive">Active now</span>` : '';
-							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+							// The best thing a card can say about a player: they played the
+							// demo, bought the game, and carried this meadow across.
+							const cv = p.conversion || {};
+							const convTag = p.convertedFromDemo
+								? `<span class="hltag hlconv" title="Played the demo${cv.demoPlaySeconds ? ` for ${fmtDur(cv.demoPlaySeconds)}` : ''}, then bought the game and imported this save${cv.at ? ` · ${cv.exact ? '' : 'around '}${new Date(cv.at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}` : ''}">demo → full</span>`
+								: '';
+							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
@@ -2055,6 +2539,34 @@
 								].join('')}</div>`,
 						)
 					: '';
+
+				/* ---- Carried over from the demo ----
+				 * "Finished the demo" measures the demo. THIS measures whether the demo
+				 * sells the game: they bought it and brought their meadow across, which
+				 * is a stronger statement than either an install or a completion. Its
+				 * own card because burying it in a completion funnel undersells it. */
+				const cvs = s.conversions || {};
+				const convCard = cvs.demoToFull
+					? cardTitled(
+							'Carried over from the demo',
+							'bought the game and imported their save',
+							`<div class="grid three">${[
+								kpi(
+									`<span class="accent">${fmt(cvs.demoToFull)}</span>`,
+									cvs.demoToFull === 1 ? 'Caretaker' : 'Caretakers',
+									cvs.inferred
+										? `${fmt(cvs.inferred)} matched to their demo save${cvs.stamped ? `, ${fmt(cvs.stamped)} stamped at export` : ''}`
+										: 'stamped when the save was exported',
+								),
+								kpi(pct(cvs.ratePct), 'Of demo saves', `${fmt(cvs.demoSavesSeen)} demo saves reported in`),
+								kpi(
+									`${fmt(cvs.avgDemoMinutesBeforeBuying)}<small>m</small>`,
+									'Demo play first',
+									'average, before carrying over',
+								),
+							].join('')}</div>`,
+						)
+					: '';
 				// Every activation signal we have. "Created" is the entry point (always first
 				// and largest); the rest are sorted by count so the funnel always reads
 				// top-down. They're independent booleans, not strict prerequisites, so sorting
@@ -2112,7 +2624,13 @@
 						'Funnels',
 						'from install to a thriving meadow',
 						`<div class="grid two">${acqCards}${cardTitled('Activation funnel', 'all caretakers', funSteps)}</div>` +
-							(demoCard ? `<div style="margin-top:.8rem">${demoCard}</div>` : '') +
+							(demoCard && convCard
+								? `<div class="grid two" style="margin-top:.8rem">${demoCard}${convCard}</div>`
+								: demoCard
+									? `<div style="margin-top:.8rem">${demoCard}</div>`
+									: convCard
+										? `<div style="margin-top:.8rem">${convCard}</div>`
+										: '') +
 							(deviceCard ? `<div style="margin-top:.8rem">${deviceCard}</div>` : ''),
 					),
 				);
@@ -2381,8 +2899,13 @@
 					);
 				}
 
-				/* ---- Save health, directly above the player highlights ---- */
-				if (saveSection) out.push(saveSection);
+				/* Save health and "What is going wrong" are NOT pushed into `out`.
+				 * Problems is a mode, not a section: when it is on the page shows those
+				 * two and nothing else (see the assembly at the end of render). */
+
+				/* ---- What caretakers look like, then who they are ---- */
+				const appearanceSection = appearanceHTML(s);
+				if (appearanceSection) out.push(appearanceSection);
 
 				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
@@ -2390,11 +2913,29 @@
 				/* ---- Landing page (site traffic, not game numbers) ---- */
 				if (landingSection) out.push(landingSection);
 
-				/* ---- What is going wrong — the very bottom of the page.
-				 * Refusals and interface crashes are the thing you go looking for, not
-				 * the thing you want to read past on the way to the numbers. It used to
-				 * sit near the top and pushed everything else down on a normal day. */
-				if (healthSection) out.push(healthSection);
+				/* ---- Problems mode ----
+				 * When it is on, the page IS the failure panels — everything above is
+				 * built but not shown. Two views of one dataset rather than a long page
+				 * with a tail: you are either reading how the game is going or chasing
+				 * something that broke, and the numbers are a distraction from the second.
+				 *
+				 * Everything above is still computed rather than skipped. It costs
+				 * nothing measurable (the data is already in the browser) and it keeps
+				 * one code path, so the two views can never disagree about the same
+				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
+				 * switching still resolves. */
+				if (SHOW_PROBLEMS) {
+					const panels = [healthSection, saveSection].filter(Boolean);
+					document.getElementById('root').innerHTML = panels.length
+						? panels.join('')
+						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
+							card(
+								`<p class="emptynote">Neither <code>/GameplayHealth/</code> nor <code>/SaveHealth/</code> answered, so there is nothing to show here — ` +
+									`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>`,
+							) +
+							`</section>`;
+					return;
+				}
 
 				document.getElementById('root').innerHTML = out.join('');
 			}
@@ -2579,6 +3120,9 @@
 					GAMEPLAYHEALTH = await healthReq;
 					populateFilterOptions(data.filters);
 					render(data);
+					// After render: the badge reads the two health payloads, which only
+					// just resolved above.
+					syncProblemsButton();
 					if (rows.truncated) {
 						const warn = document.createElement('div');
 						warn.className = 'err';
@@ -2602,6 +3146,23 @@
 			}
 
 			document.getElementById('refresh').addEventListener('click', load);
+
+			// Show/hide the failure panels. On opening, scroll to them — they render at
+			// the bottom of a long page, and a button that appears to do nothing is
+			// worse than no button.
+			document.getElementById('problems').addEventListener('click', () => {
+				SHOW_PROBLEMS = !SHOW_PROBLEMS;
+				try {
+					localStorage.setItem(SHOW_PROBLEMS_KEY, SHOW_PROBLEMS ? '1' : '0');
+				} catch {
+					/* private mode — the toggle still works for this session */
+				}
+				rerender();
+				syncProblemsButton();
+				// Either direction replaces the whole page, so start it at the top rather
+				// than dropping you mid-way down a document you have not seen.
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
 			for (const cfg of FILTER_CFG) {
 				const sel = document.getElementById(cfg.el);
 				if (sel)
@@ -2629,6 +3190,42 @@
 			// Open a player's breakdown modal when their highlight card is clicked or
 			// activated by keyboard. Delegated on #root, which persists across re-renders.
 			const rootEl = document.getElementById('root');
+			// Date-range presets for the per-day chart. Redraws from the payload already
+			// in hand — no refetch.
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-range]');
+				if (!btn) return;
+				DAY_RANGE.preset = btn.getAttribute('data-range');
+				DAY_RANGE.from = '';
+				DAY_RANGE.to = '';
+				rerender();
+			});
+			// Typing a date switches the control to a custom range. Handled on 'change'
+			// so a half-typed year doesn't blank the chart mid-keystroke.
+			rootEl.addEventListener('change', (e) => {
+				const el = e.target;
+				if (!el || !el.classList || !el.classList.contains('dinput')) return;
+				const daily = (LAST_DATA && LAST_DATA.summary && LAST_DATA.summary.daily) || {};
+				if (DAY_RANGE.preset !== 'custom') {
+					// Seed the other end from what is on screen, so changing one date
+					// doesn't silently widen the range back to everything.
+					const shown = visibleDays(daily);
+					DAY_RANGE.from = shown.length ? shown[0].day : daily.firstDay || '';
+					DAY_RANGE.to = shown.length ? shown[shown.length - 1].day : daily.lastDay || '';
+					DAY_RANGE.preset = 'custom';
+				}
+				if (el.hasAttribute('data-range-from')) DAY_RANGE.from = el.value;
+				if (el.hasAttribute('data-range-to')) DAY_RANGE.to = el.value;
+				// An inverted range is a slip, not an instruction — swap rather than
+				// showing an empty chart.
+				if (DAY_RANGE.from && DAY_RANGE.to && DAY_RANGE.from > DAY_RANGE.to) {
+					const t = DAY_RANGE.from;
+					DAY_RANGE.from = DAY_RANGE.to;
+					DAY_RANGE.to = t;
+				}
+				rerender();
+			});
+
 			rootEl.addEventListener('click', (e) => {
 				// Hide/show a device from the acquisition funnel. Checked before the
 				// player card, since a button is never inside one.

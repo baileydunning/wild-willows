@@ -2238,6 +2238,17 @@ function metricsView(player: any) {
 		creationSeconds: creationMs ? round1(creationMs / 1000) : null,
 		appearance: player.appearance || null,
 		counts,
+		// Demo → full carry-over. Stamped by ExportDemoSave onto the copy the player
+		// downloads, so a save that was bought and imported can say so about itself
+		// for the rest of its life. Null on saves that started in the full game (and
+		// on demo saves that have not been exported yet).
+		convertedFromDemoAt: m.convertedFromDemoAt || null,
+		// What they had done in the demo at the moment they carried it over — the
+		// interesting half of the milestone. Frozen at export; the live counters keep
+		// climbing past these.
+		demoPlaySeconds: m.demoPlaySeconds ?? null,
+		demoSessions: m.demoSessions ?? null,
+		demoActions: m.demoActions ?? null,
 	};
 }
 
@@ -5082,7 +5093,27 @@ export class ExportDemoSave extends PublicEndpoint {
 		// Reset edition to 'full' on the exported copy: the player is carrying this
 		// into the paid game, so it should report as a full-game save (Heartbeat
 		// keeps 'demo' sticky otherwise).
-		const exportedPlayer = { ...player, metrics: encodeMetrics({ ...(readMetrics(player) || {}), edition: 'full' }) };
+		//
+		// Flipping that flag used to be ALL this did, which erased the most
+		// interesting thing that had ever happened to the save: after import it was
+		// indistinguishable from one that started in the full game, so "played the
+		// demo, liked it, bought it, carried their meadow across" — the single
+		// clearest signal the demo is doing its job — left no trace anywhere. Stamp
+		// the milestone and freeze how far they had got, so the save can report it
+		// about itself from then on.
+		const prevMetrics = readMetrics(player) || {};
+		const atExport = metricsView(player);
+		const exportedPlayer = {
+			...player,
+			metrics: encodeMetrics({
+				...prevMetrics,
+				edition: 'full',
+				convertedFromDemoAt: Date.now(),
+				demoPlaySeconds: atExport.playSeconds,
+				demoSessions: atExport.sessions,
+				demoActions: atExport.totalActions,
+			}),
+		};
 
 		const save = {
 			meta: {
@@ -6854,7 +6885,7 @@ async function buildDashboardRows(): Promise<any[]> {
 		/* SoloMetrics table not created yet — empty dashboard */
 	}
 
-	return soloRows
+	const rows = soloRows
 		.map((r: any) => {
 			// snapshot is stored as a JSON string (see SyncMetrics); tolerate any
 			// legacy object rows too.
@@ -6887,6 +6918,13 @@ async function buildDashboardRows(): Promise<any[]> {
 			return {
 				...s,
 				playerId: r.id, // slot-scoped id — solo name slugs can collide across machines
+				// The SAVE's own id (`<name-slug>-<random6>`, minted once by
+				// CreatePlayer and carried through an export/import unchanged), kept
+				// under its own name because `playerId` above deliberately overwrites
+				// it with the slot-scoped one. This is the only thing that survives a
+				// demo save being carried into the full game, so it is what links the
+				// two rows together below.
+				savePlayerId: s.playerId || null,
 				name: r.name || s.name || null,
 				solo: true,
 				platform: r.platform || null,
@@ -6936,6 +6974,74 @@ async function buildDashboardRows(): Promise<any[]> {
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
+
+	return markDemoConversions(rows);
+}
+
+/**
+ * Flag the saves that came over from the demo — the "played the demo, bought the
+ * game, brought their meadow with them" milestone.
+ *
+ * Two ways a row can prove it, because one of them only works going forward:
+ *
+ *  1. `convertedFromDemoAt` — stamped by ExportDemoSave onto the copy the player
+ *     downloads. Authoritative, and it survives everything: the demo row could be
+ *     deleted tomorrow and the save would still know its own history.
+ *
+ *  2. A DEMO row sharing this row's `savePlayerId`. Importing a save mints a new
+ *     slot id, so the carried-over save uplinks as a NEW SoloMetrics row while the
+ *     demo's original row stays put — two rows, same save id, different editions.
+ *     That pairing is what makes conversions that already happened visible, before
+ *     the stamp existed. Save ids are `<name-slug>-<random6>` and minted once per
+ *     save, so this is a real identity match, not a name collision.
+ *
+ * The demo half of a pair is marked `supersededByFull` rather than dropped. Both
+ * rows are real uplinks and quietly deleting one would make the player count move
+ * for reasons nothing in the response explained; the aggregate below counts the
+ * pair once and says how many rows are doubled up.
+ */
+function markDemoConversions(rows: any[]): any[] {
+	const editionOf = (r: any) => (r.edition === 'demo' ? 'demo' : 'full');
+	// Newest demo row per save id — a save could have uplinked from more than one
+	// demo session before it was carried over.
+	const demoBySave = new Map<string, any>();
+	for (const r of rows) {
+		if (editionOf(r) !== 'demo' || !r.savePlayerId) continue;
+		const prev = demoBySave.get(r.savePlayerId);
+		if (!prev || (r.lastSeenAt || 0) > (prev.lastSeenAt || 0)) demoBySave.set(r.savePlayerId, r);
+	}
+	const convertedSaveIds = new Set<string>();
+	for (const r of rows) {
+		if (editionOf(r) !== 'full' || !r.savePlayerId) continue;
+		if (r.convertedFromDemoAt || demoBySave.has(r.savePlayerId)) convertedSaveIds.add(r.savePlayerId);
+	}
+
+	return rows.map((r) => {
+		if (editionOf(r) === 'demo') {
+			const superseded = !!(r.savePlayerId && convertedSaveIds.has(r.savePlayerId));
+			return { ...r, convertedFromDemo: false, supersededByFull: superseded };
+		}
+		const twin = r.savePlayerId ? demoBySave.get(r.savePlayerId) : null;
+		if (!r.convertedFromDemoAt && !twin) return { ...r, convertedFromDemo: false, supersededByFull: false };
+		return {
+			...r,
+			convertedFromDemo: true,
+			supersededByFull: false,
+			conversion: {
+				// The stamp is exact. Without it, the demo row's last sighting is the
+				// closest honest answer, so it is labelled as an estimate rather than
+				// dressed up as a timestamp.
+				at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
+				exact: !!r.convertedFromDemoAt,
+				source: r.convertedFromDemoAt ? 'stamped-at-export' : 'paired-demo-save',
+				// How far they got in the demo before buying. Prefers the frozen stamp;
+				// falls back to whatever the demo row last reported.
+				demoPlaySeconds: r.demoPlaySeconds ?? twin?.playSeconds ?? null,
+				demoSessions: r.demoSessions ?? twin?.sessions ?? null,
+				demoActions: r.demoActions ?? twin?.totalActions ?? null,
+			},
+		};
+	});
 }
 
 const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows);
@@ -7261,6 +7367,57 @@ async function metricsRollup(target?: any): Promise<{
 			newLast7d: all.filter((v) => now - v.createdAt <= 7 * DAY_MS).length,
 		};
 
+		// Daily series, built from the two timestamps every row already carries.
+		//
+		// Read `created` as the real one: a save is created once, on a known day, so
+		// summing them per day is exact and complete.
+		//
+		// `lastSeen` needs its label read carefully — it is "saves whose MOST RECENT
+		// activity was this day", NOT daily active players. Each row holds a single
+		// lastSeenAt, so somebody who played every day for a week appears once, on the
+		// last of those days, and every earlier day they played is unrecoverable.
+		// Charting it as "active per day" would understate every day but the newest.
+		// True DAU would need a per-day record the uplink does not keep; this is the
+		// honest thing derivable from what is stored, and it is named for what it is.
+		//
+		// The range is DENSE — every day from the first to the last, zeros included.
+		// A bar chart that silently omits empty days shows a busier game than exists.
+		const dayKeyOf = (ms: number) => new Date(ms).toISOString().slice(0, 10);
+		const createdByDay: Record<string, number> = {};
+		const lastSeenByDay: Record<string, number> = {};
+		let firstMs = 0;
+		let lastMs = 0;
+		for (const v of all) {
+			if (v.createdAt) {
+				const k = dayKeyOf(v.createdAt);
+				createdByDay[k] = (createdByDay[k] || 0) + 1;
+				if (!firstMs || v.createdAt < firstMs) firstMs = v.createdAt;
+				if (v.createdAt > lastMs) lastMs = v.createdAt;
+			}
+			if (v.lastSeenAt) {
+				const k = dayKeyOf(v.lastSeenAt);
+				lastSeenByDay[k] = (lastSeenByDay[k] || 0) + 1;
+				if (v.lastSeenAt > lastMs) lastMs = v.lastSeenAt;
+			}
+		}
+		const days: Array<{ day: string; created: number; lastSeen: number }> = [];
+		if (firstMs) {
+			// Walk by UTC day index rather than adding 86_400_000 to a timestamp, so a
+			// leap second or a DST-adjacent value can't skip or repeat a day.
+			const startDay = Math.floor(firstMs / DAY_MS);
+			const endDay = Math.floor((lastMs || firstMs) / DAY_MS);
+			for (let d = startDay; d <= endDay && days.length < 1200; d++) {
+				const key = dayKeyOf(d * DAY_MS);
+				days.push({ day: key, created: createdByDay[key] || 0, lastSeen: lastSeenByDay[key] || 0 });
+			}
+		}
+		const daily = {
+			days,
+			firstDay: days.length ? days[0].day : null,
+			lastDay: days.length ? days[days.length - 1].day : null,
+			note: 'created is exact; lastSeen is the day of each save’s most recent activity, not daily active players',
+		};
+
 		// Composition breakdowns straight off the uplink envelope.
 		const tally = (pick: (v: any) => string | null) => {
 			const out: Record<string, number> = {};
@@ -7279,6 +7436,30 @@ async function metricsRollup(target?: any): Promise<{
 
 		// Retention: did they come back for more than one session?
 		const returningPlayers = all.filter((v) => v.sessions >= 2).length;
+
+		// Demo → full carry-overs (see markDemoConversions). The strongest signal the
+		// demo is earning its keep: not "they finished it", but "they bought the game
+		// and brought their meadow with them".
+		const convertedSaves = all.filter((v) => v.convertedFromDemo);
+		const supersededDemoSaves = all.filter((v) => v.supersededByFull).length;
+		// Denominator: demo saves that ever reported, counting a converted pair once.
+		const demoSavesSeen = all.filter((v) => (v.edition === 'demo' ? 'demo' : 'full') === 'demo').length;
+		const demoPopulation = demoSavesSeen - supersededDemoSaves + convertedSaves.length;
+		const carriedSeconds = convertedSaves.reduce((a, v) => a + (v.conversion?.demoPlaySeconds || 0), 0);
+		const conversions = {
+			demoToFull: convertedSaves.length,
+			// How many of those we know exactly (stamped at export) vs inferred from a
+			// paired demo save. Conversions that predate the stamp are the inferred ones.
+			stamped: convertedSaves.filter((v) => v.conversion?.exact).length,
+			inferred: convertedSaves.filter((v) => v.conversion && !v.conversion.exact).length,
+			demoSavesSeen: demoPopulation,
+			ratePct: demoPopulation ? Math.round((convertedSaves.length / demoPopulation) * 100) : 0,
+			avgDemoMinutesBeforeBuying: convertedSaves.length ? Math.round(carriedSeconds / 60 / convertedSaves.length) : 0,
+			// A converted player has TWO rows (the demo original and the imported
+			// save), so `players` above counts them twice. Said out loud rather than
+			// silently reconciled — both rows are real uplinks.
+			supersededDemoSaves,
+		};
 
 		// Activation funnel — how far players get from first launch. Each flag is
 		// read from the snapshot's activation block when present, falling back to the
@@ -7672,6 +7853,7 @@ async function metricsRollup(target?: any): Promise<{
 				excludedDevices: [...excludedDevices],
 				anomalies,
 				audience,
+				daily,
 				languages,
 				platforms,
 				operatingSystems,
@@ -7692,6 +7874,7 @@ async function metricsRollup(target?: any): Promise<{
 					returningPlayers,
 					returningRatePct: pct(returningPlayers),
 				},
+				conversions,
 				progression: {
 					avgBiomeHealth,
 					biomesFullyRestored: all.reduce((acc, v) => acc + (v.biomeSummary?.biomesFullyRestored || 0), 0),
@@ -7820,6 +8003,248 @@ export class MetricsPlayers extends Resource {
 			nextCursor: more && last ? encodeMetricsCursor(last.playerId) : null,
 			...(cursorStale ? { cursorStale: true } : {}),
 			players: lean ? page.map(metricsListRow) : page,
+		};
+	}
+}
+
+// ---------------------------------------------------------------- system probe
+// Harper records its own telemetry into two tables in the `system` database —
+// hdb_analytics (aggregated once a minute) and hdb_raw_analytics (per second,
+// per thread). If a component can read those in-process, the dashboard can show
+// real server health (thread utilisation, database size, HTTP error rate) with
+// no credentials stored anywhere and no call out to the operations API on :9925.
+//
+// Whether a component CAN read them is not documented either way, and the answer
+// decides the whole design — so this endpoint finds out instead of guessing. It
+// is a throwaway: once we know, it either turns into a real health endpoint or
+// gets deleted. Every step is independently caught, so one failure still leaves a
+// useful report rather than a stack trace.
+//
+//   curl -u HDB_ADMIN https://wild.willows.harperfabric.com/SystemProbe/
+
+/** Read at most `max` records from a search, whatever the query did.
+ *  The cap is enforced HERE, not in the query: if a condition is ignored or
+ *  unsupported, an unbounded scan of a per-minute telemetry table would be
+ *  enormous, and the point of a probe is to not take the server down. */
+async function takeFrom(iterable: any, max: number): Promise<any[]> {
+	const out: any[] = [];
+	for await (const item of iterable) {
+		if (item != null) out.push(item);
+		if (out.length >= max) break;
+	}
+	return out;
+}
+
+export class SystemProbe extends Resource {
+	async get() {
+		const now = Date.now();
+		const steps: any[] = [];
+		const step = async (name: string, fn: () => Promise<any>) => {
+			try {
+				steps.push({ step: name, ok: true, ...((await fn()) || {}) });
+			} catch (e: any) {
+				steps.push({ step: name, ok: false, error: String(e?.message || e) });
+			}
+		};
+
+		const dbs: any = (globalThis as any).databases;
+
+		await step('databases global', async () => ({
+			present: !!dbs,
+			names: dbs ? Object.keys(dbs) : [],
+		}));
+
+		await step('system database', async () => {
+			const sys = dbs?.system;
+			return { present: !!sys, tables: sys ? Object.keys(sys) : [] };
+		});
+
+		// The two tables we actually care about, and what they look like.
+		for (const tableName of ['hdb_analytics', 'hdb_raw_analytics']) {
+			await step(`${tableName} · shape`, async () => {
+				const t = dbs?.system?.[tableName];
+				if (!t) return { present: false };
+				return {
+					present: true,
+					hasSearch: typeof t.search === 'function',
+					hasGet: typeof t.get === 'function',
+				};
+			});
+		}
+
+		// Try to actually read the last hour. Several condition shapes, because the
+		// in-process search API and the operations API do not obviously take the
+		// same one — whichever returns rows is the answer.
+		const since = now - 3_600_000;
+		const shapes: Array<{ label: string; query: any }> = [
+			{ label: 'between [since, now]', query: { conditions: [{ attribute: 'id', comparator: 'between', value: [since, now] }] } },
+			{ label: 'greater_than since', query: { conditions: [{ attribute: 'id', comparator: 'greater_than', value: since }] } },
+			{ label: 'gt since', query: { conditions: [{ attribute: 'id', comparator: 'gt', value: since }] } },
+			{ label: 'no conditions, limit 50', query: { limit: 50 } },
+		];
+		for (const shape of shapes) {
+			await step(`hdb_analytics · ${shape.label}`, async () => {
+				const t = dbs?.system?.hdb_analytics;
+				if (!t || typeof t.search !== 'function') return { skipped: 'table not readable' };
+				const rows = await takeFrom(t.search(shape.query), 200);
+				// Report the SHAPE of what came back, not the rows themselves — this is
+				// reconnaissance, and a telemetry dump is not something to page through.
+				const metrics: Record<string, number> = {};
+				const types: Record<string, number> = {};
+				let oldest = 0;
+				let newest = 0;
+				for (const r of rows) {
+					const m = String(r?.metric || '?');
+					metrics[m] = (metrics[m] || 0) + 1;
+					const ty = String(r?.type || '?');
+					types[ty] = (types[ty] || 0) + 1;
+					const id = Number(r?.id) || 0;
+					if (id && (!oldest || id < oldest)) oldest = id;
+					if (id > newest) newest = id;
+				}
+				return {
+					returned: rows.length,
+					cappedAt200: rows.length >= 200,
+					metrics,
+					types,
+					oldest: oldest ? new Date(oldest).toISOString() : null,
+					newest: newest ? new Date(newest).toISOString() : null,
+					sampleKeys: rows[0] ? Object.keys(rows[0]) : [],
+					sample: rows[0] || null,
+				};
+			});
+		}
+
+		// Replication, specifically. There are two nodes behind this, so
+		// replication-latency / bytes-sent / bytes-received are the metrics that
+		// actually matter — a Problems page for a two-node setup that cannot say
+		// whether the nodes are in sync is missing its main job.
+		await step('hdb_analytics · replication metrics', async () => {
+			const t = dbs?.system?.hdb_analytics;
+			if (!t || typeof t.search !== 'function') return { skipped: 'table not readable' };
+			const rows = await takeFrom(
+				t.search({ conditions: [{ attribute: 'id', comparator: 'between', value: [now - 3_600_000, now] }] }),
+				500,
+			);
+			const wanted = new Set(['replication-latency', 'bytes-sent', 'bytes-received']);
+			const hits = rows.filter((r: any) => wanted.has(String(r?.metric)));
+			return {
+				scanned: rows.length,
+				replicationRows: hits.length,
+				byMetric: hits.reduce((acc: Record<string, number>, r: any) => {
+					acc[r.metric] = (acc[r.metric] || 0) + 1;
+					return acc;
+				}, {}),
+				sample: hits[0] || null,
+			};
+		});
+
+		// `server` carries cluster information per the component docs. With two nodes
+		// replicating, whatever is on here may answer "are both nodes up and caught
+		// up" without touching the operations API at all.
+		await step('server global', async () => {
+			const s: any = (globalThis as any).server;
+			if (!s) return { present: false };
+			const keys = Object.keys(s);
+			// Anything that looks like it knows about the other node.
+			const clusterish = keys.filter((k) => /cluster|repl|node|peer|leader|member/i.test(k));
+			const detail: Record<string, any> = {};
+			for (const k of clusterish) {
+				try {
+					const v = s[k];
+					detail[k] = typeof v === 'function' ? 'function' : v && typeof v === 'object' ? Object.keys(v).slice(0, 20) : v;
+				} catch (e: any) {
+					detail[k] = `threw: ${e?.message || e}`;
+				}
+			}
+			return { present: true, keys: keys.slice(0, 40), clusterish, detail };
+		});
+
+		// Node skew, checked the way deploy-coop.sh already checks it: ask both
+		// public entry points what build they are serving. This needs no credentials
+		// and no operations API — GET /Version/ is public and already exists — and a
+		// mismatch is exactly what deploy-coop.sh calls "a stale component or broken
+		// replication". Done server-side so there is no cross-origin problem, with a
+		// short timeout so a wedged peer cannot hang this request.
+		await step('node build skew', async () => {
+			const peers = ['https://wild.willows.harperfabric.com', 'https://wild.willows.harperfabric.com:9926'];
+			const results = await Promise.all(
+				peers.map(async (base) => {
+					try {
+						const res = await fetch(`${base}/Version/`, {
+							headers: { accept: 'application/json' },
+							signal: AbortSignal.timeout(3000),
+						});
+						if (!res.ok) return { node: base, ok: false, status: res.status };
+						const body: any = await res.json();
+						return { node: base, ok: true, build: body?.build || null };
+					} catch (e: any) {
+						return { node: base, ok: false, error: String(e?.message || e) };
+					}
+				}),
+			);
+			const builds = [...new Set(results.filter((r: any) => r.ok).map((r: any) => r.build))];
+			return {
+				expected: buildStamp,
+				results,
+				inSync: builds.length === 1 && builds[0] === buildStamp,
+				distinctBuilds: builds.length,
+			};
+		});
+
+		// The authenticated user, as Harper hands it to an endpoint.
+		//
+		// This decides how role-based access gets written. `allowRead(user)` is the
+		// hook, but the shape of `user` is not documented, and auth code written
+		// against a guessed shape fails in exactly two ways: it denies everybody, or
+		// it lets everybody in. Neither is discoverable by reading the code. So read
+		// the real object off the real server first.
+		//
+		// Values are described, never echoed — this response is a diagnostic, and a
+		// diagnostic that prints password hashes is a new vulnerability.
+		await step('authenticated user shape', async () => {
+			const ctx: any = (this as any).getContext?.();
+			const user: any = ctx?.user;
+			if (!user) return { present: false, contextKeys: ctx ? Object.keys(ctx).slice(0, 30) : [] };
+			const describe = (v: any): any => {
+				if (v === null) return 'null';
+				if (Array.isArray(v)) return `array[${v.length}]${v.length && typeof v[0] === 'string' ? ': ' + v.slice(0, 8).join(',') : ''}`;
+				if (typeof v === 'object') return Object.fromEntries(Object.entries(v).slice(0, 12).map(([k, x]) => [k, describe(x)]));
+				if (typeof v === 'string') {
+					// Names and role labels are the whole point of this probe; anything
+					// that smells like a secret is reported as present, not printed.
+					return /pass|hash|salt|secret|token|key/i.test(v) ? `string(${v.length})` : v;
+				}
+				return typeof v;
+			};
+			const safe: Record<string, any> = {};
+			for (const [k, v] of Object.entries(user)) {
+				safe[k] = /pass|hash|salt|secret|token|key/i.test(k) ? `«redacted ${typeof v}»` : describe(v);
+			}
+			return {
+				present: true,
+				keys: Object.keys(user),
+				shape: safe,
+				// The two candidate paths for a role check, resolved against reality.
+				'user.role': describe(user.role),
+				'user.role?.role': typeof user.role === 'object' ? describe((user.role as any)?.role) : undefined,
+			};
+		});
+
+		await step('logger global', async () => {
+			const l: any = (globalThis as any).logger;
+			return { present: !!l, methods: l ? Object.keys(l).slice(0, 20) : [] };
+		});
+
+		return {
+			checkedAt: now,
+			note: 'Throwaway reconnaissance for the Problems page — delete once the answer is known.',
+			verdict: steps.find((s) => s.step?.startsWith('hdb_analytics ·') && s.returned > 0)
+				? 'hdb_analytics IS readable in-process — the dashboard can show real server health with no stored credentials.'
+				: dbs?.system
+					? 'system database is visible but no analytics rows came back — check the condition shapes above.'
+					: 'system database is NOT visible to this component — server health would need the operations API on :9925.',
+			steps,
 		};
 	}
 }

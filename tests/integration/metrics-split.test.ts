@@ -180,6 +180,128 @@ describe('MetricsPlayers', () => {
 	});
 });
 
+describe('the per-day series', () => {
+	const DAY = 86_400_000;
+	// Mid-day UTC on purpose: a timestamp near midnight would hide a timezone slip
+	// in the day bucketing.
+	const base = Date.UTC(2026, 6, 1, 12);
+
+	beforeEach(async () => {
+		for (const [i, offset] of [0, 0, 3].entries()) {
+			await w.post('SyncMetrics', {
+				clientId: `slot-${i}`,
+				name: `C${i}`,
+				snapshot: snap({ name: `C${i}`, createdAt: base + offset * DAY, lastSeenAt: base + 3 * DAY }),
+			});
+		}
+	});
+
+	it('returns a DENSE range — a day with nobody is a zero, not a gap', async () => {
+		const d = (await w.get('MetricsSummary')).summary.daily;
+		// Skipping empty days would draw a busier game than exists.
+		expect(d.days.map((x: any) => x.day)).toEqual(['2026-07-01', '2026-07-02', '2026-07-03', '2026-07-04']);
+		expect(d.days.map((x: any) => x.created)).toEqual([2, 0, 0, 1]);
+		expect(d.firstDay).toBe('2026-07-01');
+		expect(d.lastDay).toBe('2026-07-04');
+	});
+
+	it('does not pretend lastSeen is daily actives', async () => {
+		const d = (await w.get('MetricsSummary')).summary.daily;
+		// All three saves were active on day 3 and only day 3 is credited — a save
+		// carries ONE lastSeenAt, so the days they played before are unrecoverable.
+		// The field is named and annotated for that, rather than charted as DAU.
+		expect(d.days.map((x: any) => x.lastSeen)).toEqual([0, 0, 0, 3]);
+		expect(d.note).toContain('not daily active players');
+	});
+});
+
+describe('demo → full carry-over', () => {
+	// ExportDemoSave used to do exactly one thing: flip edition to 'full'. That
+	// erased the most interesting event in the save's life — after import it looked
+	// identical to one that started in the full game, so "played the demo, bought
+	// the game, brought their meadow across" left no trace at all.
+	//
+	// Two mechanisms now, because one of them has to work backwards: the export
+	// stamps the save, AND the roll-up pairs an imported save with its original
+	// demo row (importing mints a new slot id, so both rows exist and share the
+	// save's own id). The pairing is what makes conversions that already happened
+	// visible without a client update.
+	const SAVE_ID = 'willow-a1b2c3';
+
+	it('spots a carry-over that predates the stamp, by pairing the two rows', async () => {
+		await w.post('SyncMetrics', {
+			clientId: 'demo-slot',
+			name: 'Willow',
+			snapshot: snap({
+				playerId: SAVE_ID,
+				name: 'Willow',
+				edition: 'demo',
+				playSeconds: 6360, // 1h 46m in the demo
+				sessions: 1,
+				lastSeenAt: Date.now() - 86_400_000,
+			}),
+		});
+		await w.post('SyncMetrics', {
+			clientId: 'full-slot',
+			name: 'Willow',
+			snapshot: snap({ playerId: SAVE_ID, name: 'Willow', edition: 'full', playSeconds: 8100, sessions: 2 }),
+		});
+		await w.post('SyncMetrics', {
+			clientId: 'other',
+			name: 'Fern',
+			snapshot: snap({ playerId: 'fern-z9y8x7', name: 'Fern', edition: 'full' }),
+		});
+
+		const rows = (await w.get('MetricsPlayers')).players;
+		const full = rows.find((r: any) => r.savePlayerId === SAVE_ID && r.edition === 'full');
+		const demo = rows.find((r: any) => r.savePlayerId === SAVE_ID && r.edition === 'demo');
+
+		expect(full.convertedFromDemo).toBe(true);
+		expect(full.conversion.source).toBe('paired-demo-save');
+		// An inferred date is labelled inferred rather than presented as a timestamp.
+		expect(full.conversion.exact).toBe(false);
+		expect(full.conversion.demoPlaySeconds).toBe(6360);
+		// The demo original is marked, not deleted — both rows are real uplinks.
+		expect(demo.supersededByFull).toBe(true);
+		expect(demo.convertedFromDemo).toBe(false);
+		expect(rows.find((r: any) => r.savePlayerId === 'fern-z9y8x7').convertedFromDemo).toBe(false);
+
+		const c = (await w.get('MetricsSummary')).summary.conversions;
+		expect(c).toMatchObject({
+			demoToFull: 1,
+			inferred: 1,
+			stamped: 0,
+			demoSavesSeen: 1, // the pair counts once, not twice
+			ratePct: 100,
+			avgDemoMinutesBeforeBuying: 106,
+			supersededDemoSaves: 1,
+		});
+	});
+
+	it('stamps the export so the save knows its own history from then on', async () => {
+		const { playerId } = await w.post('CreatePlayer', { name: 'Sage', passcode: '1234', appearance });
+		expect((await w.get('Metrics', playerId)).player.convertedFromDemoAt).toBeNull();
+
+		const t = w.db.Player;
+		const row: any = await t.get(playerId);
+		const m = JSON.parse(row.metrics);
+		await t.patch(playerId, { metrics: JSON.stringify({ ...m, edition: 'demo', playSeconds: 900, sessions: 3 }) });
+
+		const out = await w.post('ExportDemoSave', { playerId });
+		const exported = JSON.parse(out.data.Player[0].metrics);
+		expect(exported.edition).toBe('full');
+		expect(exported.convertedFromDemoAt).toBeGreaterThan(0);
+		expect(exported.demoPlaySeconds).toBe(900);
+		expect(exported.demoSessions).toBe(3);
+
+		// and it rides through metricsView into what the client uplinks
+		await t.patch(playerId, { metrics: JSON.stringify(exported) });
+		const view = await w.get('Metrics', playerId);
+		expect(view.player.convertedFromDemoAt).toBeGreaterThan(0);
+		expect(view.player.demoPlaySeconds).toBe(900);
+	});
+});
+
 describe('keeping your own machine out of the acquisition funnel', () => {
 	// ?exclude=<name> drops SAVES. The acquisition funnel reads AppOpen — one row
 	// per install, with no save name on it — so a developer's own launches kept
@@ -266,6 +388,7 @@ describe('who is public and who is not', () => {
 			'GameplayHealth',
 			'LandingStats',
 			'ListFeedback', // the pre-existing precedent this all copies
+			'SystemProbe', // reconnaissance on Harper's own telemetry — never public
 		]) {
 			expect(isPublic(mod[name]), name).toBe(false);
 		}
