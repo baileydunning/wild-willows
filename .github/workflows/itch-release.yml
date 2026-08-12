@@ -1,0 +1,193 @@
+name: itch release (manual)
+
+# ONE BUTTON for an itch.io release, with a checkbox per platform.
+#
+#   Actions → itch release (manual) → Run workflow
+#     Version:      0.3.2
+#     Windows       [x]   → bai13y/wild-willows:windows
+#     macOS         [x]   → :osx
+#     Linux         [x]   → :linux
+#     Chromebook    [x]   → :android   (Capacitor APK — Chromebooks and sideload)
+#     Browser demo  [x]   → :html5
+#     Publish       [ ]   → OFF builds artifacts only; ON pushes to itch
+#
+# WHY THIS EXISTS: the tag flow (`git tag v0.3.2`) is all-or-nothing — it fires
+# desktop, Android, demo and MAS at once. That is right for a real version bump
+# and wrong for "the Chromebook APK needs a respin, nothing else changed".
+#
+# WHY IT CALLS THE OTHER WORKFLOWS INSTEAD OF REBUILDING: desktop-build.yml,
+# android-build.yml and itch-demo.yml are the single source of truth for how each
+# platform is built and pushed. They gained a `workflow_call` trigger so this file
+# can invoke them with (version, publish) rather than keeping a second, drifting
+# copy of the build logic. Tag pushes still work exactly as before.
+#
+# NOT COVERED HERE: the Mac App Store (mas-release.yml). MAS is not an itch
+# channel and has its own review-gated cadence — tag `mas-v0.3.2` for that.
+#
+# Secrets used (inherited): BUTLER_API_KEY, the MAC_/APPLE_ signing set, and
+# ANDROID_KEYSTORE_BASE64 / ANDROID_KEYSTORE_PASSWORD / ANDROID_KEY_ALIAS /
+# ANDROID_KEY_PASSWORD. A missing Android keystore does not fail the run — the
+# APK builds debug-signed and android-build.yml refuses to publish it.
+#
+# NOTE: GitHub only shows "Run workflow" for workflows present on the DEFAULT
+# branch. This file has to be merged to main before the button appears, even
+# though you can then point the run at any branch.
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version, e.g. 0.3.2 (no leading v)'
+        type: string
+        required: true
+      windows:
+        description: 'Windows'
+        type: boolean
+        default: true
+      macos:
+        description: 'macOS'
+        type: boolean
+        default: true
+      linux:
+        description: 'Linux'
+        type: boolean
+        default: true
+      chromebook:
+        description: 'Chromebook / Android APK'
+        type: boolean
+        default: true
+      web_demo:
+        description: 'Browser demo (html5)'
+        type: boolean
+        default: true
+      publish:
+        description: 'PUBLISH to itch (off = build artifacts only)'
+        type: boolean
+        default: false
+
+concurrency:
+  group: itch-release-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  plan:
+    name: Check the release plan
+    runs-on: ubuntu-latest
+    outputs:
+      desktop_platforms: ${{ steps.plan.outputs.desktop_platforms }}
+      any_desktop: ${{ steps.plan.outputs.any_desktop }}
+      version: ${{ steps.plan.outputs.version }}
+    steps:
+      - id: plan
+        env:
+          VERSION: ${{ inputs.version }}
+          WINDOWS: ${{ inputs.windows }}
+          MACOS: ${{ inputs.macos }}
+          LINUX: ${{ inputs.linux }}
+          CHROMEBOOK: ${{ inputs.chromebook }}
+          WEB_DEMO: ${{ inputs.web_demo }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          set -euo pipefail
+
+          # Reject a bad version BEFORE 20 minutes of macOS runner time, and
+          # before a typo'd string is baked into an APK's versionName forever.
+          VER="${VERSION#v}"
+          if ! printf '%s' "$VER" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([-+][0-9A-Za-z.-]+)?$'; then
+            echo "::error::Version '$VERSION' is not semver (expected e.g. 0.3.2)."
+            exit 1
+          fi
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
+          sel=""
+          [ "$WINDOWS" = "true" ] && sel="${sel:+$sel,}windows"
+          [ "$MACOS"   = "true" ] && sel="${sel:+$sel,}macos"
+          [ "$LINUX"   = "true" ] && sel="${sel:+$sel,}linux"
+          echo "desktop_platforms=$sel" >> "$GITHUB_OUTPUT"
+          echo "any_desktop=$([ -n "$sel" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+          if [ -z "$sel" ] && [ "$CHROMEBOOK" != "true" ] && [ "$WEB_DEMO" != "true" ]; then
+            echo "::error::Nothing selected — tick at least one platform."
+            exit 1
+          fi
+
+          {
+            echo "## itch release plan"
+            echo
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Version | \`$VER\` |"
+            echo "| Desktop | ${sel:-_none_} |"
+            echo "| Chromebook (APK) | $CHROMEBOOK |"
+            echo "| Browser demo | $WEB_DEMO |"
+            echo "| **Publish to itch** | **$PUBLISH** |"
+            echo
+            if [ "$PUBLISH" = "true" ]; then
+              echo "Selected builds will be pushed to \`bai13y/wild-willows\`."
+            else
+              echo "Dry run — artifacts only, nothing reaches the itch page."
+            fi
+          } >> "$GITHUB_STEP_SUMMARY"
+
+  desktop:
+    name: Desktop
+    needs: plan
+    if: needs.plan.outputs.any_desktop == 'true'
+    uses: ./.github/workflows/desktop-build.yml
+    secrets: inherit
+    with:
+      platforms: ${{ needs.plan.outputs.desktop_platforms }}
+      version: ${{ needs.plan.outputs.version }}
+      publish: ${{ inputs.publish }}
+
+  chromebook:
+    name: Chromebook
+    needs: plan
+    if: inputs.chromebook
+    uses: ./.github/workflows/android-build.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      publish: ${{ inputs.publish }}
+
+  web_demo:
+    name: Browser demo
+    needs: plan
+    if: inputs.web_demo
+    uses: ./.github/workflows/itch-demo.yml
+    secrets: inherit
+    with:
+      version: ${{ needs.plan.outputs.version }}
+      publish: ${{ inputs.publish }}
+
+  # A single place to look when a release is half-green. `always()` so this still
+  # reports when one platform failed; `skipped` is a normal, expected result here
+  # because unticked platforms never run.
+  summary:
+    name: Release summary
+    needs: [plan, desktop, chromebook, web_demo]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - env:
+          VER: ${{ needs.plan.outputs.version }}
+          DESKTOP: ${{ needs.desktop.result }}
+          CHROMEBOOK: ${{ needs.chromebook.result }}
+          DEMO: ${{ needs.web_demo.result }}
+          PUBLISH: ${{ inputs.publish }}
+        run: |
+          set -euo pipefail
+          {
+            echo "## itch release $VER — $([ "$PUBLISH" = "true" ] && echo published || echo 'dry run')"
+            echo
+            echo "| Target | Result |"
+            echo "|---|---|"
+            echo "| Desktop | $DESKTOP |"
+            echo "| Chromebook (APK) | $CHROMEBOOK |"
+            echo "| Browser demo | $DEMO |"
+          } >> "$GITHUB_STEP_SUMMARY"
+          for r in "$DESKTOP" "$CHROMEBOOK" "$DEMO"; do
+            case "$r" in
+              failure|cancelled) echo "::error::A selected target did not succeed."; exit 1 ;;
+            esac
+          done

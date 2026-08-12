@@ -28,9 +28,29 @@ on:
   push:
     tags: ['itch-v*', 'v*']
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to stamp (blank = package.json + "-demo")'
+        type: string
+        default: ''
+      publish:
+        description: 'Publish the demo to the html5 channel'
+        type: boolean
+        default: true
+  # Called by itch-release.yml so the manual platform picker reuses this build.
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        default: ''
+      publish:
+        type: boolean
+        default: false
 
 concurrency:
-  group: itch-demo-${{ github.ref }}
+  # The event name is part of the group because a reusable workflow inherits the
+  # caller's github.ref — without it a manual release would cancel a tag build.
+  group: itch-demo-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
@@ -82,17 +102,28 @@ jobs:
           chmod +x "$HOME/butler/butler"
           "$HOME/butler/butler" -V
 
+      # Publish on a tag push, or when a manual/called run asked for it. The tag
+      # half is scoped to `push` because a reusable workflow inherits the
+      # caller's ref, and a release started from a tag with the demo box unticked
+      # must not publish anyway.
       - name: Push web demo to itch (html5 channel)
+        if: >-
+          inputs.publish ||
+          (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/'))
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          INPUT_VERSION: ${{ inputs.version }}
         run: |
           set -euo pipefail
           BUTLER="$HOME/butler/butler"
           GAME="bai13y/wild-willows"
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then
-            VERSION="${GITHUB_REF_NAME#itch-}"; VERSION="${VERSION#v}"   # itch-v0.1.0 / v0.1.0 -> 0.1.0
-          else
-            VERSION="$(node -p "require('./package.json').version")-demo"  # manual run
+          VERSION="${INPUT_VERSION:-}"
+          if [ -z "$VERSION" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VERSION="${GITHUB_REF_NAME#itch-}"
+          fi
+          VERSION="${VERSION#v}"
+          if [ -z "$VERSION" ]; then
+            VERSION="$(node -p "require('./package.json').version")-demo"
           fi
           echo "Pushing web/ -> $GAME:html5 (v$VERSION)"
           # HTML5 games are pushed as the folder that holds index.html; itch serves

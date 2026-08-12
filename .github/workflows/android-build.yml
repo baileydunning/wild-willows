@@ -1,0 +1,269 @@
+name: Android build & publish
+
+# Builds the Capacitor Android app (the same solo/offline web bundle the desktop
+# app ships) and, on an android-v* or plain v* tag, publishes the APK to the
+# `android` channel of bai13y/wild-willows with butler.
+#
+# WHY CI AND NOT LOCALLY: the Android SDK, Gradle and Google's Maven repo are all
+# large downloads that CI already has fast, cached access to — and this keeps the
+# release artifact reproducible instead of "whatever was on Bailey's Mac".
+#
+# Tag scheme (mirrors desktop-build.yml / mas-release.yml):
+#   android-v0.3.0 → Android ONLY (this workflow)
+#   v0.3.0         → this workflow AND desktop-build.yml AND mas-release.yml
+#   Actions tab → Run workflow → build artifacts only, no publish
+#
+# Required repo secrets for a SIGNED build (all four, or none):
+#   ANDROID_KEYSTORE_BASE64    base64 of the .jks  (base64 -i release.jks | pbcopy)
+#   ANDROID_KEYSTORE_PASSWORD
+#   ANDROID_KEY_ALIAS
+#   ANDROID_KEY_PASSWORD
+# With none set the job still runs and produces a DEBUG-SIGNED apk — useful for a
+# smoke test, but do not put it on itch and it will not upload to Play.
+#
+# Required for publishing: BUTLER_API_KEY (already set for the desktop workflows).
+
+on:
+  push:
+    tags: ['android-v*', 'v*']
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to stamp (blank = package.json)'
+        type: string
+        default: ''
+      publish:
+        description: 'Publish to itch even on a manual run'
+        type: boolean
+        default: false
+  # Called by itch-release.yml so a manual, platform-picked release reuses this
+  # exact build instead of a second copy of it.
+  workflow_call:
+    inputs:
+      version:
+        type: string
+        default: ''
+      publish:
+        type: boolean
+        default: false
+
+concurrency:
+  # Distinct from the caller's group: a reusable workflow inherits github.ref, so
+  # without the event name a manual release on main would cancel a tag build.
+  group: android-${{ github.ref }}-${{ github.event_name }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    name: Build Android APK + AAB
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      # Capacitor's Gradle plugin needs a JDK; 21 is what AGP expects for API 36.
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+
+      - uses: android-actions/setup-android@v3
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Belt and braces: if the Capacitor packages aren't in package.json yet
+      # (i.e. `npm run android:init` hasn't been run and committed locally), pull
+      # them in so the workflow is self-sufficient on a fresh branch. Once they
+      # ARE committed, `npm ci` above has already installed them and this no-ops.
+      - name: Ensure Capacitor is installed
+        run: |
+          set -euo pipefail
+          if [ ! -d node_modules/@capacitor/cli ]; then
+            echo "::warning::Capacitor is not in package.json/package-lock.json, so this release build resolved @latest. A Capacitor major bump can change the generated android/ template under you. Run 'npm run android:init' locally and commit the lockfile to make releases reproducible."
+            npm i -D @capacitor/core@latest @capacitor/cli@latest \
+                     @capacitor/android@latest @capacitor/filesystem@latest
+          else
+            echo "Capacitor already installed from the lockfile."
+          fi
+          npx cap --version
+
+      # build:server regenerates resources.js, which the SOLO backend bundles —
+      # so this is not optional even though nothing here talks to Harper.
+      - name: Build web bundle
+        run: npm run build
+
+      - name: Scaffold and patch the Android project
+        run: |
+          set -euo pipefail
+          # android/ is gitignored and generated. `cap add` refuses to overwrite,
+          # so only add when absent; `cap sync` then copies web/ + plugins in.
+          if [ ! -d android ]; then
+            npx cap add android
+          fi
+          npx cap sync android
+          node scripts/patch-android.mjs
+
+      # versionName is what humans see (tag → store listing). versionCode is the
+      # integer Play orders updates by, and Play remembers every value you have
+      # ever shipped — reuse one and the upload is rejected forever.
+      #
+      # NOT github.run_number: a reusable workflow inherits the CALLER's run
+      # number, so the day itch-release.yml started calling this workflow the
+      # counter would jump backwards and Play would start rejecting builds.
+      # Minutes-since-epoch is monotonic across every trigger path, unique per
+      # build, and ~29.6M today — decades of headroom under Play's 2100000000 cap.
+      - name: Stamp version
+        id: stamp
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          VERSION="${INPUT_VERSION:-}"
+          if [ -z "$VERSION" ]; then
+            REF="${GITHUB_REF_NAME:-manual}"
+            VERSION="${REF#android-}"; VERSION="${VERSION#v}"
+          fi
+          VERSION="${VERSION#v}"
+          case "$VERSION" in
+            ''|manual|*[!0-9.]*) VERSION=$(node -p "require('./package.json').version") ;;
+          esac
+          VERSION_CODE=$(( $(date -u +%s) / 60 ))
+          echo "VERSION=$VERSION" >> "$GITHUB_ENV"
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          sed -i "s/versionName \".*\"/versionName \"$VERSION\"/" android/app/build.gradle
+          sed -i "s/versionCode .*/versionCode ${VERSION_CODE}/" android/app/build.gradle
+          grep -E 'versionName|versionCode' android/app/build.gradle
+
+      - name: Decode signing keystore
+        id: keystore
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          set -euo pipefail
+          if [ -z "${KEYSTORE_B64:-}" ]; then
+            echo "No ANDROID_KEYSTORE_BASE64 secret — building DEBUG-SIGNED."
+            echo "signed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/release.jks"
+          echo "ANDROID_KEYSTORE_PATH=$RUNNER_TEMP/release.jks" >> "$GITHUB_ENV"
+          echo "signed=true" >> "$GITHUB_OUTPUT"
+
+      - name: Build APK (itch) and AAB (Play)
+        working-directory: android
+        env:
+          ANDROID_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          ANDROID_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          ANDROID_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          set -euo pipefail
+          chmod +x ./gradlew
+          # APK for itch (direct sideload); AAB for Play. Same code, different wrapper.
+          ./gradlew --no-daemon assembleRelease bundleRelease
+
+      - name: Collect artifacts
+        run: |
+          set -euo pipefail
+          mkdir -p dist-android
+          find android/app/build/outputs \( -name '*.apk' -o -name '*.aab' \) -print | while read -r f; do
+            cp "$f" "dist-android/wild-willows-${VERSION}-$(basename "$f")"
+          done
+          ls -lh dist-android
+
+      # Trust the artifact, not the secret. `signed=true` above only means a
+      # keystore was DECODED; this proves Gradle actually used it. Catches the
+      # nasty case where the release buildType silently fell back to the debug key
+      # (or emitted an unsigned APK) and we'd otherwise publish an APK that itch
+      # accepts, Chromebooks install, and Play can never take an update for.
+      - name: Verify the APK is release-signed
+        if: steps.keystore.outputs.signed == 'true'
+        run: |
+          set -euo pipefail
+          apk=$(ls dist-android/*.apk | head -1)
+          echo "Verifying $apk"
+          # apksigner lives in whichever build-tools version Gradle pulled in, so
+          # find it rather than hardcoding a path. keytool is the fallback: it
+          # can't validate the v2/v3 signature blocks, but it does print the
+          # signing certificate, which is the thing being checked here.
+          apksigner=$(find "${ANDROID_HOME:-/usr/local/lib/android/sdk}/build-tools" -name apksigner 2>/dev/null | sort | tail -1)
+          if [ -n "$apksigner" ]; then
+            "$apksigner" verify --print-certs "$apk" | tee /tmp/certs.txt
+          else
+            echo "::warning::apksigner not found — falling back to keytool for the certificate check."
+            keytool -printcert -jarfile "$apk" | tee /tmp/certs.txt
+          fi
+          if grep -qi 'CN=Android Debug' /tmp/certs.txt; then
+            echo "::error::APK is DEBUG-signed despite a keystore being present — refusing to continue."
+            exit 1
+          fi
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: wild-willows-android
+          if-no-files-found: error
+          retention-days: 14
+          path: dist-android/*
+
+    outputs:
+      signed: ${{ steps.keystore.outputs.signed }}
+      version: ${{ steps.stamp.outputs.version }}
+
+  publish:
+    name: Publish APK to itch
+    needs: build
+    # Only publish a properly signed build — a debug-signed APK on a public itch
+    # page is a support burden (it can't be upgraded to a Play install later).
+    #
+    # The tag half is scoped to `push` on purpose: when itch-release.yml calls
+    # this workflow, github.ref is the caller's ref, so a manual run started from
+    # a tag would otherwise publish even with the box unticked.
+    if: >-
+      needs.build.outputs.signed == 'true' &&
+      (inputs.publish || (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/')))
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          name: wild-willows-android
+          path: artifacts
+
+      - name: Install butler
+        run: |
+          set -euo pipefail
+          for i in 1 2 3 4 5; do
+            if curl -fL --connect-timeout 20 --retry 5 --retry-delay 5 --retry-all-errors \
+                 -o butler.zip https://broth.itch.zone/butler/linux-amd64/LATEST/archive/default; then
+              break
+            fi
+            echo "butler download attempt $i failed; retrying in 10s…"
+            sleep 10
+            [ "$i" = 5 ] && { echo "Could not download butler after 5 attempts"; exit 1; }
+          done
+          unzip -q butler.zip -d "$HOME/butler"
+          chmod +x "$HOME/butler/butler"
+          "$HOME/butler/butler" -V
+
+      - name: Push APK to itch.io
+        env:
+          BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          # Take the version the build job actually stamped into the APK rather
+          # than re-deriving it from the ref — on a manual release the ref is a
+          # branch name, which is not a version.
+          VERSION: ${{ needs.build.outputs.version }}
+        run: |
+          set -euo pipefail
+          BUTLER="$HOME/butler/butler"
+          GAME="bai13y/wild-willows"
+
+          apk=$(ls artifacts/*.apk 2>/dev/null | head -1 || true)
+          if [ -z "$apk" ]; then
+            echo "No APK found — nothing to publish."; exit 1
+          fi
+          echo "Pushing $apk -> $GAME:android (v$VERSION)"
+          "$BUTLER" push "$apk" "$GAME:android" --userversion "$VERSION"
+          "$BUTLER" status "$GAME"

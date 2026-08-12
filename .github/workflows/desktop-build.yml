@@ -25,26 +25,78 @@ on:
   push:
     tags: ['itch-v*', 'v*']
   workflow_dispatch:
+    inputs:
+      platforms:
+        description: 'Desktop OSes to build (comma-separated: windows,macos,linux)'
+        type: string
+        default: 'windows,macos,linux'
+      version:
+        description: 'Version to stamp (blank = package.json)'
+        type: string
+        default: ''
+      publish:
+        description: 'Publish to itch'
+        type: boolean
+        default: false
+  # Called by itch-release.yml so the manual platform picker reuses this build
+  # rather than keeping a second copy of it.
+  workflow_call:
+    inputs:
+      platforms:
+        type: string
+        default: 'windows,macos,linux'
+      version:
+        type: string
+        default: ''
+      publish:
+        type: boolean
+        default: false
 
-# Don't let two runs on the same tag/ref pile up.
+# Don't let two runs on the same tag/ref pile up. The event name is part of the
+# group because a reusable workflow inherits the CALLER's github.ref — without it
+# a manual release run on main could cancel an in-flight tag build.
 concurrency:
-  group: desktop-${{ github.ref }}
+  group: desktop-${{ github.ref }}-${{ github.event_name }}
   cancel-in-progress: true
 
 jobs:
+  # A matrix cannot be filtered with a job-level `if` (the matrix context isn't
+  # available there), so platform selection is resolved into the matrix itself.
+  # On a tag push `inputs` is null and this falls through to all three OSes.
+  plan:
+    name: Resolve platforms
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{ steps.pick.outputs.matrix }}
+    steps:
+      - id: pick
+        env:
+          PLATFORMS: ${{ inputs.platforms }}
+        run: |
+          set -euo pipefail
+          SEL="${PLATFORMS:-windows,macos,linux}"
+          echo "Requested: $SEL"
+          include=""
+          add() { include="${include:+$include,}$1"; }
+          case ",$SEL," in *,windows,*) add '{"os":"windows-latest","artifact":"wild-willows-windows"}';; esac
+          case ",$SEL," in *,macos,*)   add '{"os":"macos-latest","artifact":"wild-willows-macos"}';; esac
+          case ",$SEL," in *,linux,*)   add '{"os":"ubuntu-latest","artifact":"wild-willows-linux"}';; esac
+          if [ -z "$include" ]; then
+            echo "::error::No valid desktop platform in '$SEL'. Expected some of: windows, macos, linux."
+            exit 1
+          fi
+          echo "matrix={\"include\":[$include]}" >> "$GITHUB_OUTPUT"
+
   build:
     name: Build (${{ matrix.os }})
+    needs: plan
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
-      matrix:
-        include:
-          - os: windows-latest
-            artifact: wild-willows-windows
-          - os: macos-latest
-            artifact: wild-willows-macos
-          - os: ubuntu-latest
-            artifact: wild-willows-linux
+      matrix: ${{ fromJSON(needs.plan.outputs.matrix) }}
+    # Every matrix leg resolves the same version, so last-writer-wins is fine here.
+    outputs:
+      version: ${{ steps.ver.outputs.version }}
     steps:
       - uses: actions/checkout@v4
 
@@ -59,6 +111,25 @@ jobs:
       - name: Build web client + server bundle
         run: npm run build
 
+      # One place that decides the version, so the two packaging steps below and
+      # the publish job can't drift. Explicit input wins; otherwise a tag supplies
+      # it; otherwise blank, which means "leave package.json's version alone".
+      - name: Resolve release version
+        id: ver
+        shell: bash
+        env:
+          INPUT_VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          VER="${INPUT_VERSION:-}"
+          if [ -z "$VER" ] && [[ "$GITHUB_REF" == refs/tags/* ]]; then
+            VER="${GITHUB_REF_NAME#itch-}"
+          fi
+          VER="${VER#v}"
+          echo "Release version: ${VER:-<package.json>}"
+          echo "RELEASE_VERSION=$VER" >> "$GITHUB_ENV"
+          echo "version=$VER" >> "$GITHUB_OUTPUT"
+
       # macOS: signed + notarized. Kept separate from the other OSes so CSC_LINK
       # is NEVER defined on a non-mac runner — Windows reads CSC_LINK as its own
       # signing cert (WIN_CSC_LINK) and fails on an empty value. The version is
@@ -68,7 +139,7 @@ jobs:
         shell: bash
         run: |
           EXTRA=""
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then VER="${GITHUB_REF_NAME#itch-}"; VER="${VER#v}"; EXTRA="-c.extraMetadata.version=$VER"; fi
+          if [ -n "${RELEASE_VERSION:-}" ]; then EXTRA="-c.extraMetadata.version=$RELEASE_VERSION"; fi
           npx electron-builder --publish never $EXTRA
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -84,7 +155,7 @@ jobs:
         shell: bash
         run: |
           EXTRA=""
-          if [[ "$GITHUB_REF" == refs/tags/* ]]; then VER="${GITHUB_REF_NAME#itch-}"; VER="${VER#v}"; EXTRA="-c.extraMetadata.version=$VER"; fi
+          if [ -n "${RELEASE_VERSION:-}" ]; then EXTRA="-c.extraMetadata.version=$RELEASE_VERSION"; fi
           npx electron-builder --publish never $EXTRA
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -101,11 +172,16 @@ jobs:
             dist/*.zip
             dist/*.AppImage
 
-  # Publish to itch with butler — only on an itch-v* or plain v* tag push.
+  # Publish to itch with butler — on an itch-v*/v* tag push, or when a manual run
+  # explicitly asked for it. The tag half is scoped to `push` because a reusable
+  # workflow inherits the caller's github.ref: without that scope, a manual
+  # release started from a tag would publish even with the box unticked.
   publish:
     name: Publish to itch
     needs: build
-    if: startsWith(github.ref, 'refs/tags/')
+    if: >-
+      inputs.publish ||
+      (github.event_name == 'push' && startsWith(github.ref, 'refs/tags/'))
     runs-on: ubuntu-latest
     steps:
       - name: Download all build artifacts
@@ -134,11 +210,17 @@ jobs:
       - name: Push builds to itch.io
         env:
           BUTLER_API_KEY: ${{ secrets.BUTLER_API_KEY }}
+          # The version the build job actually stamped into the binaries. On a
+          # manual release the ref is a branch name, which is not a version.
+          VERSION: ${{ needs.build.outputs.version }}
         run: |
           set -euo pipefail
           BUTLER="$HOME/butler/butler"
           GAME="bai13y/wild-willows"
-          VERSION="${GITHUB_REF_NAME#itch-}"; VERSION="${VERSION#v}"   # itch-v0.1.0 / v0.1.0 -> 0.1.0
+          if [ -z "${VERSION:-}" ]; then
+            echo "::error::No version resolved — refusing to push an unversioned build to itch."
+            exit 1
+          fi
 
           # Pick the best file per platform: portable zip for win/mac, AppImage for linux.
           win=$(ls artifacts/wild-willows-windows/*.zip 2>/dev/null | head -1 || true)
