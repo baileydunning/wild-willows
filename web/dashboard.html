@@ -732,6 +732,56 @@
 			.modal-close:hover {
 				color: var(--ink);
 			}
+			/* Super-user-only remove control at the foot of the player modal. Same
+			   red pair as button.delbtn so there is one "destructive" colour on the
+			   page, but boxed and labelled rather than a bare × — this one has no
+			   undo, and it should not look like the counter deletes that do. */
+			.dangerzone {
+				display: flex;
+				gap: 1rem;
+				align-items: center;
+				justify-content: space-between;
+				margin-top: 1rem;
+				padding: 0.9rem 1rem;
+				border: 1px solid #f0cdd5;
+				border-radius: 12px;
+				background: #fdf6f7;
+			}
+			.dangerzone b {
+				font-size: 0.95rem;
+			}
+			.dangerzone p {
+				margin: 0.25rem 0 0;
+				max-width: 52ch;
+				font-size: 0.84rem;
+				line-height: 1.5;
+				color: var(--muted);
+			}
+			button.dangerbtn {
+				font: inherit;
+				font-size: 0.88rem;
+				cursor: pointer;
+				white-space: nowrap;
+				border: 1px solid #e0a9b6;
+				background: #fff;
+				color: #a33f52;
+				border-radius: 9px;
+				padding: 0.45rem 0.8rem;
+				transition:
+					color 0.12s,
+					background 0.12s,
+					border-color 0.12s;
+			}
+			button.dangerbtn:hover:not(:disabled),
+			button.dangerbtn[data-armed='1'] {
+				background: #a33f52;
+				border-color: #a33f52;
+				color: #fff;
+			}
+			button.dangerbtn:disabled {
+				opacity: 0.6;
+				cursor: default;
+			}
 			.modal-head {
 				display: flex;
 				gap: 1rem;
@@ -2455,7 +2505,29 @@
 							: '') +
 					(prefsCard
 						? `<div class="grid two" style="margin-top:.8rem">${onboard}${prefsCard}</div>`
-						: `<div style="margin-top:.8rem">${onboard}</div>`)
+						: `<div style="margin-top:.8rem">${onboard}</div>`) +
+					dangerZoneHTML(p)
+				);
+			}
+
+			/** The remove control at the foot of the modal — super-users only.
+			 *
+			 * Hiding it from metrics_reader is cosmetic; /DeleteSoloMetrics/ refuses
+			 * that role outright. This is the half of the gate you can see.
+			 *
+			 * The copy spells out all three things an operator would otherwise have to
+			 * find out by doing it: the page's numbers move, the player's save is not
+			 * touched, and a save still in use will uplink itself back. */
+			function dangerZoneHTML(p) {
+				if (!AUTH || !AUTH.superUser) return '';
+				return (
+					`<div class="dangerzone">` +
+					`<div><b>Remove this caretaker</b>` +
+					`<p>Deletes their row from <code>solo_metrics</code>, and every number on this page recomputes without them. ` +
+					`Their save is not touched — it lives on their own device. ` +
+					`If that save is still being played, its next sync uplinks a new row and they reappear without their history.</p></div>` +
+					`<button class="dangerbtn" data-del-player="${esc(p.playerId)}">Remove</button>` +
+					`</div>`
 				);
 			}
 
@@ -2471,6 +2543,7 @@
 					modalEl.addEventListener('click', (e) => {
 						if (e.target === modalEl || (e.target.closest && e.target.closest('[data-close]'))) closePlayerModal();
 					});
+					modalEl.addEventListener('click', onRemoveCaretaker);
 				}
 				modalEl.querySelector('.modal').innerHTML = playerModalHTML(p);
 				modalEl.style.display = 'flex';
@@ -2479,6 +2552,80 @@
 			function closePlayerModal() {
 				if (modalEl) modalEl.style.display = 'none';
 				document.body.classList.remove('modal-open');
+			}
+
+			/* Remove a caretaker's telemetry row.
+			 *
+			 * TWO CLICKS, unlike the problem-row deletes. Those have no confirm on
+			 * purpose — they clear regenerable counters, and the comment there is
+			 * explicit that "the type of record that is expensive to lose (a player's
+			 * save) is not reachable from this endpoint at all". This one IS expensive
+			 * to lose: it is the only copy of that caretaker's history and there is no
+			 * undo. So the second click has to be a decision, and the button disarms
+			 * itself after a few seconds rather than staying hot for a stray click.
+			 *
+			 * Not a confirm() — a native modal on top of this one steals focus from a
+			 * dialog that is already modal, and the wording matters more than a browser
+			 * will let us phrase it. */
+			async function onRemoveCaretaker(e) {
+				const btn = e.target.closest && e.target.closest('.dangerbtn[data-del-player]');
+				if (!btn || btn.disabled) return;
+				const id = btn.getAttribute('data-del-player');
+
+				if (btn.getAttribute('data-armed') !== '1') {
+					btn.setAttribute('data-armed', '1');
+					btn.textContent = 'Really remove? There is no undo';
+					clearTimeout(btn.__armTimer);
+					btn.__armTimer = setTimeout(() => {
+						btn.removeAttribute('data-armed');
+						btn.textContent = 'Remove';
+					}, 5000);
+					return;
+				}
+
+				clearTimeout(btn.__armTimer);
+				btn.disabled = true;
+				btn.textContent = 'Removing…';
+				try {
+					const res = await fetch('../DeleteSoloMetrics/', {
+						...req(),
+						method: 'POST',
+						headers: { ...(req().headers || {}), 'content-type': 'application/json' },
+						body: JSON.stringify({ ids: [id] }),
+					});
+					const out = res.ok ? await res.json().catch(() => null) : null;
+					if (!res.ok || !out || out.ok === false) {
+						/* 403 here means the account reads the dashboard but is not a
+						 * super-user — worth saying, because the button being visible at
+						 * all in that case would be a bug and the message is how you'd
+						 * notice. */
+						const why =
+							(out && (out.error || (out.failed && out.failed[0] && out.failed[0].error))) ||
+							(res.status === 403
+								? 'this account can read the dashboard but not remove records'
+								: `server returned ${res.status}`);
+						throw new Error(why);
+					}
+					/* out.deleted === 0 with the id in out.missing means it was already
+					 * gone — someone else's tab, or a double submit. That is the outcome
+					 * asked for, so it is not an error; fall through and refresh. */
+					delete PLAYERS_BY_ID[id];
+					closePlayerModal();
+					/* Refetch rather than patch the payload in place. forgetProblem() can
+					 * subtract a counter locally because it feeds one panel; a caretaker
+					 * feeds the head count, the conversion funnel, every average and every
+					 * distribution on this page. Redoing that arithmetic in the browser is
+					 * drift waiting to happen, and the server already invalidated its
+					 * roll-up cache, so one reload is both cheaper and truthful. */
+					load();
+				} catch (err) {
+					btn.disabled = false;
+					btn.removeAttribute('data-armed');
+					btn.textContent = `Could not remove — ${err.message || err}`;
+					setTimeout(() => {
+						btn.textContent = 'Remove';
+					}, 4500);
+				}
 			}
 
 			/* ------------------------------------------------------------------ *
@@ -3726,7 +3873,7 @@
 			 * and do nothing else.
 			 * ------------------------------------------------------------------ */
 			const AUTH_KEY = 'ww-dashboard-auth';
-			let AUTH = null; // { header, username, role }
+			let AUTH = null; // { header, username, role, superUser }
 
 			/* btoa() only accepts Latin-1 and throws on anything else, which would turn
 			 * a perfectly good password containing a non-ASCII character into an
@@ -3858,7 +4005,17 @@
 						}
 						if (!res.ok) return showLogin(`The server answered ${res.status}. Try again in a moment.`);
 						const who = await res.json();
-						saveAuth({ header, username: who.username || username, role: who.role || null });
+						/* superUser decides whether the modal offers the remove control.
+						 * A session restored from sessionStorage that predates this field
+						 * is simply missing it, which hides the button until the next
+						 * sign-in — the right way round for a destructive action, and the
+						 * server refuses it regardless of what the page chose to draw. */
+						saveAuth({
+							header,
+							username: who.username || username,
+							role: who.role || null,
+							superUser: !!who.superUser,
+						});
 						document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = false));
 						const rf = document.getElementById('refresh');
 						if (rf) rf.hidden = false;
