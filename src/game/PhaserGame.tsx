@@ -33,7 +33,25 @@ export function PhaserGame() {
 				zoom: 1 / d0,
 			},
 			scene: [WorldScene],
-			render: { antialias: true, pixelArt: false },
+			render: {
+				antialias: true,
+				pixelArt: false,
+				/* Both of these target frame PACING, not how much work the GPU does.
+				 *
+				 * Measured (Chrome trace, three runs): during gameplay the compositor runs
+				 * at 60/s while requestAnimationFrame fires at 30/s — exactly every other
+				 * vsync — with the main thread at ~18% and the GPU at ~6%. Nothing is
+				 * missing a deadline; the canvas is simply locked to half rate. Turning
+				 * graphics quality down cut GPU work 40% and moved the frame rate by zero,
+				 * which is what ruled out fill rate as the cause.
+				 *
+				 * `desynchronized` releases the canvas from that lock-step with the
+				 * compositor. `powerPreference` asks for the discrete GPU where a machine
+				 * has one, which also affects how presentation is scheduled. Neither
+				 * changes a pixel of what is drawn. */
+				desynchronized: true,
+				powerPreference: 'high-performance',
+			},
 			input: { activePointers: 3 }, // joystick + tap at the same time
 		});
 		const applySize = () => {
