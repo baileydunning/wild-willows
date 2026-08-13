@@ -1,4 +1,4 @@
-name: itch web demo
+name: web demo (itch & play.wildwillows.app)
 
 # Builds the browser-playable DEMO (a static web build, DEMO=true) and publishes
 # it to the HTML5 channel of bai13y/wild-willows with butler, so it runs right on

@@ -121,6 +121,35 @@ export default defineConfig({
 		// rejects that syntax, and there's no hosted web UI to support old
 		// browsers for: the build runs in Electron (Chromium 126) and local dev.
 		target: 'es2022',
+		rollupOptions: {
+			output: {
+				/* Split the two big, rarely-changing vendors out of the entry chunk.
+				 *
+				 * Without this, everything shipped in ONE entry chunk — 2.8 MB of
+				 * Phaser (~1.1 MB), React, and all 15 UI panels — and that chunk's
+				 * content hash moves whenever any app file does. A one-line tweak to a
+				 * panel therefore re-downloaded Phaser and React for every returning
+				 * player. Pulled out, those two keep their hashes across releases and
+				 * stay in the browser cache until the dependency itself is upgraded.
+				 *
+				 * This buys cacheability, NOT size: Phaser comes in as a default/
+				 * namespace import (`import Phaser from 'phaser'`), so none of it can
+				 * be tree-shaken and it ships whole either way.
+				 *
+				 * Matched on the resolved module path rather than the `{ phaser:
+				 * ['phaser'] }` object form, because the object form only claims the
+				 * named modules and what they themselves import — which strands
+				 * `react/jsx-runtime` (pulled in by every component the JSX transform
+				 * touches) and `scheduler` (react-dom's own dependency) back in the
+				 * entry chunk, i.e. exactly the pieces we were trying to move. */
+				manualChunks(id) {
+					const path = id.replace(/\\/g, '/');
+					if (path.includes('/node_modules/phaser/')) return 'phaser';
+					if (/\/node_modules\/(react|react-dom|scheduler)\//.test(path)) return 'react';
+					return undefined;
+				},
+			},
+		},
 	},
 	server: {
 		port: 5173,

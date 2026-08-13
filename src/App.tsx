@@ -5,7 +5,7 @@ import { bridge } from './game/bridge';
 import { PhaserGame } from './game/PhaserGame';
 import { usePrefs } from './prefs';
 import { actionForToken, BIND_ACTIONS, tokenFromEvent } from './keybindings';
-import { GameProvider, useGame } from './state';
+import { GameProvider, useGame, useGameFeed } from './state';
 import { useI18n } from './i18n/react';
 import { liveDayPhase, liveWeatherType } from './weather';
 import { harvestReadyAt } from './types';
@@ -198,7 +198,10 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 function GameScreen() {
 	const game = useGame();
 	const { t } = useI18n();
-	const { panel, setPanel, placementObjectId, cancelPlacement, notify, toasts, dismissToast } = game;
+	const { panel, setPanel, placementObjectId, cancelPlacement, notify } = game;
+	// Toasts live in their own context now (see FeedCtx) so a raised toast doesn't
+	// re-render the whole game screen.
+	const { toasts, dismissToast } = useGameFeed();
 	const [clickedPlacement, setClickedPlacement] = useState<ClickedPlacement | null>(null);
 	const [clickedBed, setClickedBed] = useState<ClickedBed | null>(null);
 	const [devOpen, setDevOpen] = useState(false);

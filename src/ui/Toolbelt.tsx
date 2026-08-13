@@ -1,5 +1,5 @@
-import { useEffect, useRef, useState } from 'react';
-import { useGame } from '../state';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import { useGame, useGameFeed } from '../state';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
@@ -120,19 +120,30 @@ export function Toolbelt() {
 	);
 }
 
+// Built once, not once per row. toLocaleTimeString/toLocaleDateString construct a
+// fresh Intl formatter on every call, and this runs for every entry in a feed
+// that holds up to 100 of them — a few hundred Intl operations per render of the
+// Feed panel. These use the browser's default locale exactly as the old calls did
+// (`[]` and `undefined` mean the same thing to Intl), so the output is unchanged.
+const FEED_TIME_FMT = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit' });
+const FEED_DATE_FMT = new Intl.DateTimeFormat(undefined, { month: 'short', day: 'numeric' });
+
 function feedTime(at: number): string {
 	const d = new Date(at);
 	const today = new Date();
 	const sameDay = d.toDateString() === today.toDateString();
-	const time = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-	return sameDay ? time : `${d.toLocaleDateString([], { month: 'short', day: 'numeric' })} · ${time}`;
+	const time = FEED_TIME_FMT.format(d);
+	return sameDay ? time : `${FEED_DATE_FMT.format(d)} · ${time}`;
 }
 
 /** The full activity feed as a panel (F) — scroll back through the last 100 notable moments. */
 export function FeedPanel() {
-	const { feedLog, setPanel } = useGame();
+	const { setPanel } = useGame();
+	const { feedLog } = useGameFeed();
 	const { t } = useI18n();
-	const entries = [...feedLog].reverse(); // notable beats only, newest first
+	// Copy + reverse only when the feed actually changes, not on every render the
+	// panel happens to do.
+	const entries = useMemo(() => [...feedLog].reverse(), [feedLog]); // notable beats only, newest first
 	return (
 		<div className="panel-backdrop" onClick={() => setPanel(null)}>
 			<div className="panel" onClick={(e) => e.stopPropagation()}>
@@ -169,7 +180,8 @@ export function FeedPanel() {
 const LOG_PREF_KEY = 'wild-willows:log-open';
 
 export function ActivityLog() {
-	const { log, panel } = useGame();
+	const { panel } = useGame();
+	const { log } = useGameFeed();
 	const { t } = useI18n();
 	const [open, setOpen] = useState(() => {
 		try {

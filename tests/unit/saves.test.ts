@@ -18,7 +18,33 @@ const store = new Map<string, string>();
 
 // Control what the "active save" serializes to, so we can simulate an in-game restyle.
 const h = vi.hoisted(() => ({ data: { Player: [] as any[] } as Record<string, any[]> }));
-vi.mock('../../src/solo/backend', () => ({ serializeActiveSave: () => h.data }));
+
+// persist() no longer hands the whole row graph to JSON.stringify: it asks the
+// backend for pre-serialized JSON (assembled from per-table caches), reads the
+// player row directly instead of scanning a dump, and skips the write entirely
+// when the world's write counter hasn't moved since the last save. The mock has
+// to supply all three, and its version has to actually change when a test swaps
+// `h.data` — otherwise the no-op skip would suppress the very write these tests
+// assert on. Identity of the swapped-in object is the natural stand-in for the
+// real backend's per-write counter.
+vi.mock('../../src/solo/backend', () => {
+	const versions = new WeakMap<object, number>();
+	let nextVersion = 1;
+	const versionOf = (data: object): number => {
+		let v = versions.get(data);
+		if (v === undefined) {
+			v = nextVersion++;
+			versions.set(data, v);
+		}
+		return v;
+	};
+	return {
+		serializeActiveSave: () => h.data,
+		serializeActiveSaveJson: () => JSON.stringify(h.data),
+		activeSaveRow: (table: string, id: string) => (h.data[table] || []).find((r: any) => r?.id === id) ?? null,
+		activeSaveVersion: () => versionOf(h.data),
+	};
+});
 
 import { createSlot, persist, listSaves, loadSaveData, exportSlot, importSave } from '../../src/solo/saves';
 

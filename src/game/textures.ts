@@ -4,6 +4,7 @@
 import Phaser from 'phaser';
 import { bridge } from './bridge';
 import { hatPalette, flowerPalette } from '../color';
+import { getPrefs } from '../prefs';
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -15,14 +16,40 @@ type G = Phaser.GameObjects.Graphics;
  * crisp under camera zoom + HiDPI. Every sprite must render at
  * `INV_TEX_SCALE` scale to appear at its logical size — WorldScene's `img()`
  * helper does this. Power of two so logical sizes stay float-exact (no tile seams).
+ *
+ * RESOLVED ONCE, HERE, AT MODULE LOAD — and it has to stay that way. Both
+ * constants are read from dozens of call sites across this file and WorldScene
+ * (`0.55 * INV_TEX_SCALE`, `g.generateTexture(k, w * TEX_SCALE, …)`), and the
+ * whole scheme only holds together because the factor a texture was rasterized
+ * at is the same factor its sprite is scaled back down by. A function that could
+ * answer differently at two call sites would render sprites at the wrong size.
+ * So this deliberately does NOT follow a mid-session Graphics Quality change —
+ * the textures already uploaded to the GPU were built at the old factor, and the
+ * next reload picks up the new one. (prefs.ts restores localStorage at import
+ * time and is a dependency of this module, so the value below is the player's
+ * saved choice, not the default.)
+ *
+ * Low quality drops to 2×: a QUARTER of the texture memory and of the boot-time
+ * rasterizing, since the factor squares into pixel area. That is the trade the
+ * setting exists to make, and there is room for it — Low also pins the canvas to
+ * 1 device pixel per CSS pixel (renderScale() in prefs.ts), and WorldScene's
+ * applyZoom clamps the camera to 2.6× that ratio, so even the most zoomed-in
+ * view Low can produce still samples these textures at under 2× density.
+ *
+ * High stays at 4× on HiDPI as well. That looks like supersampling twice, but it
+ * isn't: the device-pixel ratio enters the render path exactly ONCE, through
+ * that same camera clamp, which multiplies its bounds by renderScale(). On a 2×
+ * display the world is therefore drawn at twice as many device pixels per tile,
+ * and 4× textures are barely oversampled — cutting them there would be a visible
+ * softening rather than a free win.
  */
-export const TEX_SCALE = 4;
+export const TEX_SCALE = getPrefs().graphicsQuality === 'low' ? 2 : 4;
 export const INV_TEX_SCALE = 1 / TEX_SCALE;
 
 function tex(scene: Phaser.Scene, key: string, w: number, h: number, draw: (g: G) => void) {
 	if (scene.textures.exists(key)) return;
 	const g = scene.make.graphics({ x: 0, y: 0 }, false);
-	g.scaleCanvas(TEX_SCALE, TEX_SCALE); // rasterize the logical-pixel draw commands 4× sharper
+	g.scaleCanvas(TEX_SCALE, TEX_SCALE); // rasterize the logical-pixel draw commands TEX_SCALE× sharper
 	draw(g);
 	g.generateTexture(key, w * TEX_SCALE, h * TEX_SCALE);
 	g.destroy();
@@ -606,18 +633,44 @@ export function makeNodeTextures(scene: Phaser.Scene) {
  * then shows the same hand-drawn picture the world uses instead of a flat
  * colour swatch. Must run after makeNodeTextures.
  */
-export function snapshotResourceIcons(scene: Phaser.Scene) {
+/**
+ * Rasterize every texture under `prefix` to a data URL, once.
+ *
+ * getBase64() is a canvas toDataURL('image/png') per texture — a full PNG encode.
+ * There are 38 `rnode-` and 367 `obj-` textures, and at TEX_SCALE 4 that measured
+ * at roughly 120-200ms of blocked main thread for the set.
+ *
+ * create() called both snapshots unconditionally, and create() re-runs on every
+ * scene restart — which is every area transition. So walking through a gate paid
+ * a fifth of a second re-encoding PNGs that were byte-identical to the ones
+ * already sitting in bridge.shared. bridge.ts has described these as snapshotted
+ * "once at boot" all along; now they actually are.
+ *
+ * Guarded on the number of matching texture keys rather than a plain boolean, so
+ * if a texture under the prefix is ever added later the set is rebuilt instead of
+ * going quietly stale.
+ */
+const iconSnapshotCounts: Record<string, number> = {};
+
+function snapshotIcons(scene: Phaser.Scene, prefix: string): Record<string, string> | null {
+	const keys = scene.textures.getTextureKeys().filter((k) => k.startsWith(prefix));
+	if (iconSnapshotCounts[prefix] === keys.length) return null;
 	const icons: Record<string, string> = {};
-	for (const key of scene.textures.getTextureKeys()) {
-		if (!key.startsWith('rnode-')) continue;
+	for (const key of keys) {
 		try {
 			const uri = scene.textures.getBase64(key);
-			if (uri) icons[key.slice('rnode-'.length)] = uri;
+			if (uri) icons[key.slice(prefix.length)] = uri;
 		} catch {
-			/* a texture that can't be rasterized just falls back to a swatch */
+			/* a texture that can't be rasterized just gets no picture */
 		}
 	}
-	bridge.shared.resourceIcons = icons;
+	iconSnapshotCounts[prefix] = keys.length;
+	return icons;
+}
+
+export function snapshotResourceIcons(scene: Phaser.Scene) {
+	const icons = snapshotIcons(scene, 'rnode-');
+	if (icons) bridge.shared.resourceIcons = icons;
 }
 
 /**
@@ -627,17 +680,8 @@ export function snapshotResourceIcons(scene: Phaser.Scene) {
  * Must run after makeObjectTextures.
  */
 export function snapshotObjectIcons(scene: Phaser.Scene) {
-	const icons: Record<string, string> = {};
-	for (const key of scene.textures.getTextureKeys()) {
-		if (!key.startsWith('obj-')) continue;
-		try {
-			const uri = scene.textures.getBase64(key);
-			if (uri) icons[key.slice('obj-'.length)] = uri;
-		} catch {
-			/* a texture that can't be rasterized just gets no menu picture */
-		}
-	}
-	bridge.shared.objectIcons = icons;
+	const icons = snapshotIcons(scene, 'obj-');
+	if (icons) bridge.shared.objectIcons = icons;
 }
 
 /** Habitat / home object sprites, keyed `obj-<shape>`. */

@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
-import { useGame } from '../state';
+import { useGame, useGameFeed } from '../state';
 import { useI18n } from '../i18n/react';
 import { homePerkStrength } from '../types';
 import {
@@ -169,20 +169,6 @@ export function HUD() {
 	const homePerk = homeStyleDef?.perk;
 	const homePerkStr = homePerk && home ? homePerkStrength(homePerk, home) : 0;
 	const homeTrackDefs: Record<string, any> = data.homeTracks || {};
-	const HOME_TRACK_ORDER = ['space', 'comfort', 'decor', 'light'];
-
-	// Every top-menu button is visible from the very start — the contextual hints
-	// explain each one the first time it's opened, so nothing needs to be hidden.
-	const show = {
-		feed: true,
-		journal: true,
-		achievements: true,
-		inventory: true,
-		crafting: true,
-		tools: true,
-		biomes: true,
-		weather: true,
-	};
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	// Show each menu's CURRENT key (custom bindings included), matched by panel id.
@@ -454,8 +440,25 @@ export function HUD() {
 	);
 }
 
+const HOME_TRACK_ORDER = ['space', 'comfort', 'decor', 'light'];
+
+// Every top-menu button is visible from the very start — the contextual hints
+// explain each one the first time it's opened, so nothing needs to be hidden.
+// Module scope because they are constants: rebuilding them inside the component
+// handed every render a new array and a new object for no reason.
+const show = {
+	feed: true,
+	journal: true,
+	achievements: true,
+	inventory: true,
+	crafting: true,
+	tools: true,
+	biomes: true,
+	weather: true,
+};
+
 export function Toasts() {
-	const { toasts, dismissToast } = useGame();
+	const { toasts, dismissToast } = useGameFeed();
 	const { t } = useI18n();
 	const iconFor = { animal: 'paw', unlock: 'sparkle', error: 'help', info: 'leaf', achievement: 'star' } as const;
 	// Toasts carry the things you most need to hear — an animal returned, an area
