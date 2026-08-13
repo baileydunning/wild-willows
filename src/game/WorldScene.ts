@@ -193,6 +193,30 @@ export class WorldScene extends Phaser.Scene {
 	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
 	private lastSynced = { x: 0, y: 0 };
+	// ONE timer for the whole preserve's growth, not one per plant.
+	//
+	// drawPlacements() used to call this.time.delayedCall() per still-growing plant
+	// and per regrowing plant. Nothing ever removed those timers, and
+	// drawPlacements() re-runs on EVERY refreshDynamic() — which is every gather,
+	// dig, place and weather tick. So a plant growing across 50 actions accumulated
+	// 50 identical timers, all due at the same instant, each one forcing a full
+	// rebuild and emitting plant-matured (a RecalcBiome POST + a full GameState
+	// refetch). N rebuilds x M growing plants, detonating together.
+	//
+	// That is the "planted too many plants and it dropped to 1 fps, had to refresh"
+	// and "a tree grew and I had to save and quit" report. Tracking only the EARLIEST
+	// upcoming growth event and re-deriving it on each rebuild makes the cost one
+	// timer, regardless of how many plants are in the ground or how long the
+	// session has run.
+	private growthTimer: Phaser.Time.TimerEvent | null = null;
+	/** Epoch ms of the soonest pending growth event, or 0 when nothing is due. */
+	private nextGrowthAt = 0;
+	/** True when the soonest event is a plant finishing growing (habitat changed,
+	 *  so the biome needs re-evaluating) rather than merely becoming harvestable. */
+	private nextGrowthMatures = false;
+	/** Set when a fired growth event was a maturation, read by the coalesced flush.
+	 *  Survives fn replacement in scheduleFlush, which keeps only the last closure. */
+	private grownPending = false;
 	// Same check api.ts uses to pick the desktop transport. Read once: the preload
 	// sets it long before any scene is constructed.
 	private readonly isDesktopBuild = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
@@ -699,7 +723,8 @@ export class WorldScene extends Phaser.Scene {
 			unsubPrefs();
 			unsubGear();
 			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
-			for (const k of ['world', 'prefs', 'gear', 'quality']) cancelFlush(this.flushKey(k));
+			for (const k of ['world', 'prefs', 'gear', 'quality', 'grown']) cancelFlush(this.flushKey(k));
+			this.clearGrowthTimer();
 		});
 
 		// Safety net for orphaned tweens (see clearLayer for the full story).
@@ -2161,6 +2186,9 @@ export class WorldScene extends Phaser.Scene {
 		this.clearLayer(this.dynamic);
 		this.nodeSprites.clear();
 		this.interactables = [];
+		// Growth events are re-derived from the placements we are about to draw, so
+		// drop the previous timer rather than letting rebuilds pile them up.
+		this.clearGrowthTimer();
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
 		if (this.isIndoors) {
 			this.refreshHome();
@@ -2208,6 +2236,53 @@ export class WorldScene extends Phaser.Scene {
 			this.clearLayer(this.animals);
 			this.drawAnimals();
 		}
+		// drawPlacements() has now reported every upcoming growth event; arm the one
+		// timer that covers the soonest of them.
+		this.armGrowthTimer();
+	}
+
+	/** Cancel the pending growth timer and forget what it was waiting for. */
+	private clearGrowthTimer() {
+		this.growthTimer?.remove(false);
+		this.growthTimer = null;
+		this.nextGrowthAt = 0;
+		this.nextGrowthMatures = false;
+	}
+
+	/**
+	 * Report an upcoming growth event. Keeps only the soonest — the repaint it
+	 * triggers re-runs drawPlacements(), which reports the next one, so the chain
+	 * walks the whole field one event at a time with a single live timer.
+	 */
+	private noteGrowth(at: number, matures: boolean) {
+		if (this.nextGrowthAt !== 0 && at >= this.nextGrowthAt) return;
+		this.nextGrowthAt = at;
+		this.nextGrowthMatures = matures;
+	}
+
+	private armGrowthTimer() {
+		if (!this.alive || this.nextGrowthAt === 0) return;
+		const matures = this.nextGrowthMatures;
+		// Anything already due (matured while the tab was hidden) fires on the next
+		// tick rather than in the past.
+		const delay = Math.max(0, this.nextGrowthAt - Date.now());
+		this.growthTimer = this.time.delayedCall(delay, () => {
+			this.growthTimer = null;
+			if (!this.alive) return;
+			if (matures) this.grownPending = true;
+			// Coalesced like world-dirty: if a gather lands in the same frame, the two
+			// collapse into one rebuild instead of two. Forced, because a sprout
+			// becoming a grown plant changes no state the dynamic signature reads.
+			scheduleFlush(this.flushKey('grown'), () => {
+				if (!this.alive || !(this.dynamic as any)?.scene) return;
+				const wasMaturation = this.grownPending;
+				this.grownPending = false;
+				this.refreshDynamic(true);
+				// Only a maturation changes the habitat, so only it is worth the
+				// RecalcBiome round trip a listener will make.
+				if (wasMaturation) bridge.emit('plant-matured', this.area);
+			});
+		});
 	}
 
 	/**
@@ -3452,14 +3527,9 @@ export class WorldScene extends Phaser.Scene {
 			const shapeKey = `obj-${def.shape || 'kit'}`;
 			const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
 			const img = this.addDyn(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
-			if (stillGrowing) {
-				this.time.delayedCall(growMs - age + 300, () => {
-					if (!this.alive) return;
-					this.refreshDynamic(true); // sprout→grown swap isn't a state change, so force it
-					// the plant is now mature habitat — re-check who can return
-					bridge.emit('plant-matured', this.area);
-				});
-			}
+			// Reported, not scheduled: armGrowthTimer() sets one timer for the soonest
+			// of these once the whole field has been drawn.
+			if (stillGrowing) this.noteGrowth(Date.now() + (growMs - age) + 300, true);
 
 			// Harvest-ready plants get a soft golden glint above them; if one will
 			// become ready later (regrowing after a harvest), nudge a repaint then so
@@ -3509,9 +3579,8 @@ export class WorldScene extends Phaser.Scene {
 						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
 					});
 				} else if (readyAt != null) {
-					this.time.delayedCall(readyAt - now + 200, () => {
-						if (this.alive) this.refreshDynamic(true);
-					});
+					// Becoming harvestable only adds a glint — no habitat change, so no recalc.
+					this.noteGrowth(readyAt + 200, false);
 				}
 			}
 

@@ -25,6 +25,7 @@ import { reportCharacterCreated, reportDemoComplete, reportSaveResumed } from '.
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
+import { coalesceAfter, cancelCoalesced } from './perf';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId } from './types';
@@ -131,6 +132,10 @@ const RECONCILE_MS = 1500;
  * is the other thing — a window left open on screen for hours.
  */
 const HEARTBEAT_IDLE_MS = 30 * 60 * 1000;
+// How long a burst of biome recalcs is collected before one is sent. Long enough
+// to swallow a field of plants finishing together, short enough that an animal
+// arriving still feels like it followed what you planted.
+const RECALC_COALESCE_MS = 1200;
 // The activity feed rides the heartbeat (see the flush effect below). This is a
 // safety net for lines buffered between beats — not a second, faster cadence.
 const FEED_FLUSH_MS = 30_000;
@@ -1492,7 +1497,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// Re-evaluate a biome's animals (e.g. after a planted habitat finishes growing
 	// in) so anything now eligible returns without needing another manual action.
-	const recalcArea = useCallback((area: string) => act(() => api.recalc(area)), [act]);
+	//
+	// COALESCED, because this is the expensive end of a maturation. Each call is a
+	// RecalcBiome POST followed (inside act) by a full GameState refetch, and a row
+	// of plants sown in one sitting finishes within seconds of itself — so the
+	// unthrottled version fired a burst of concurrent round trips, each landing as
+	// its own adoptState and its own world rebuild. Animals noticing new habitat is
+	// ambient, not a response to a click, so spending a second to collect the burst
+	// costs the player nothing they can perceive. Keyed by area: two biomes
+	// maturing at once still get their own recalc.
+	const recalcKeys = useRef<Set<string>>(new Set());
+	const recalcArea = useCallback(
+		(area: string) => {
+			const key = `recalc:${area}`;
+			recalcKeys.current.add(key);
+			coalesceAfter(key, RECALC_COALESCE_MS, () => void act(() => api.recalc(area)));
+		},
+		[act],
+	);
+	// A queued recalc outliving the provider would fire against a torn-down tree.
+	useEffect(() => {
+		const keys = recalcKeys.current;
+		return () => {
+			for (const key of keys) cancelCoalesced(key);
+		};
+	}, []);
 
 	const openChest = useCallback((id: string) => {
 		setActiveChestId(id);
