@@ -65,7 +65,6 @@ interface Ctx {
 	/** Download the finished demo save for import into the full game; resolves to
 	 *  the filename on success, null on failure. */
 	exportDemo: () => Promise<string | null>;
-	saveStatus: SaveStatus;
 	panel: PanelId;
 	setPanel: (p: PanelId) => void;
 	helpOpen: boolean;
@@ -77,11 +76,7 @@ interface Ctx {
 	placementObjectId: string | null;
 	startPlacement: (objectId: string) => void;
 	cancelPlacement: () => void;
-	toasts: Toast[];
 	notify: (text: string, kind?: Toast['kind']) => void;
-	dismissToast: (id: number) => void;
-	log: LogEntry[];
-	feedLog: LogEntry[];
 	/** Append a line to the activity feed. `notable` also saves it to the Feed
 	 *  menu (F) and persists it, so players can scroll back to it later. */
 	pushLog: (icon: string, text: string, notable?: boolean) => void;
@@ -128,6 +123,29 @@ interface Ctx {
 
 const GameCtx = createContext<Ctx>(null as any);
 export const useGame = () => useContext(GameCtx);
+
+/**
+ * The high-churn half of the store, deliberately kept OUT of Ctx.
+ *
+ * Ctx is one memoised object, so ANY field in it changing hands every consumer a
+ * brand-new value. These five change far more often than the rest of the app:
+ * a single gather writes saveStatus twice ('saving' then 'saved', plus an 'idle'
+ * 1.8s later), pushes a log line, and can raise a toast — six new context values
+ * for one action, each re-rendering the entire overlay layer, none of which had
+ * anything to do with the HUD or the toolbelt.
+ *
+ * Split out, a log line re-renders the feed and nothing else.
+ */
+export interface FeedCtx {
+	toasts: Toast[];
+	dismissToast: (id: number) => void;
+	log: LogEntry[];
+	feedLog: LogEntry[];
+	saveStatus: SaveStatus;
+}
+
+const GameFeedCtx = createContext<FeedCtx>(null as any);
+export const useGameFeed = () => useContext(GameFeedCtx);
 
 let toastSeq = 1;
 
@@ -1566,7 +1584,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoComplete,
 			dismissDemo,
 			exportDemo,
-			saveStatus,
 			panel,
 			setPanel,
 			helpOpen,
@@ -1578,11 +1595,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			placementObjectId,
 			startPlacement,
 			cancelPlacement,
-			toasts,
 			notify: toast,
-			dismissToast,
-			log,
-			feedLog,
 			pushLog,
 			selectedTool,
 			setSelectedTool,
@@ -1628,17 +1641,12 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoComplete,
 			dismissDemo,
 			exportDemo,
-			saveStatus,
 			panel,
 			helpOpen,
 			activeChestId,
 			animalCardId,
 			placementObjectId,
-			toasts,
 			toast,
-			dismissToast,
-			log,
-			feedLog,
 			pushLog,
 			selectedTool,
 			setSelectedTool,
@@ -1681,5 +1689,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		],
 	);
 
-	return <GameCtx.Provider value={value}>{children}</GameCtx.Provider>;
+	// Separate memo, separate provider: the feed half re-renders on its own churn
+	// without dragging the rest of the tree along.
+	const feedValue = useMemo<FeedCtx>(
+		() => ({ toasts, dismissToast, log, feedLog, saveStatus }),
+		[toasts, dismissToast, log, feedLog, saveStatus],
+	);
+
+	return (
+		<GameCtx.Provider value={value}>
+			<GameFeedCtx.Provider value={feedValue}>{children}</GameFeedCtx.Provider>
+		</GameCtx.Provider>
+	);
 }

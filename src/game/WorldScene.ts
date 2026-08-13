@@ -32,14 +32,14 @@ import {
 	phaseAtProgress,
 	gatherResourceFor,
 } from '../weather';
-import { t, content } from '../i18n';
+import { t, content, getLocale, isSimpleText } from '../i18n';
 import { getPrefs, renderScale, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
 import { scheduleFlush, cancelFlush } from '../perf';
 import { harvestReadyAt } from '../types';
-import type { BiomeDef, HabitatObjectDef } from '../types';
+import type { BiomeDef, HabitatObjectDef, Placement } from '../types';
 
 export const TILE = 32;
 // Base grid — the home interior's world size, and the fallback for any biome
@@ -160,6 +160,24 @@ interface PlacementEntry {
 	growth?: { at: number; matures: boolean };
 }
 
+/** The interior rectangle (tile coords) plus its cosmetics — what roomSpec()
+ *  hands back for the home or a trail tent. Named only so the memoised copy the
+ *  scene holds onto can be typed; see roomSpec(). */
+interface RoomSpec {
+	x0: number;
+	y0: number;
+	x1: number;
+	y1: number;
+	floor: string;
+	wall: string;
+	accent: string;
+	rug: string;
+	decor: number;
+	light: number;
+	doorX: number;
+	doorY: number;
+}
+
 export class WorldScene extends Phaser.Scene {
 	area = 'meadow';
 	private player!: Phaser.GameObjects.Image;
@@ -227,6 +245,28 @@ export class WorldScene extends Phaser.Scene {
 	private fireCacheSrc: unknown = null;
 	private fireCacheArea = '';
 	private hintKeyCache = ''; // '' = needs recompute
+	// id -> habitat-object def (see objectDefs). Keyed by the data array's identity
+	// AND the active wording, because the one synthetic def carries a localized name.
+	private objectDefMap: Map<string, HabitatObjectDef> | null = null;
+	private objectDefSrc: unknown = null;
+	private objectDefLocale = '';
+	// `area:x,y` -> the placement standing on that tile (see placementAt).
+	private placementByTile: Map<string, Placement> | null = null;
+	private placementByTileSrc: unknown = null;
+	// The interior room, which is a pure function of the area + the home config.
+	private roomCache: RoomSpec | null = null;
+	private roomCacheArea = '';
+	private roomCacheHome: unknown = null;
+	private roomCacheData: unknown = null;
+	// The object id currently being placed or moved (see activeObjectId).
+	private activeIdCache: string | null = null;
+	private activeIdMoving: string | null = null;
+	private activeIdPlacing: string | null = null;
+	private activeIdSrc: unknown = null;
+	/** Ring of reusable floating labels — see floatText(). */
+	private floatLabels: Phaser.GameObjects.Text[] = [];
+	private floatNext = 0;
+	private static readonly FLOAT_POOL = 8;
 	private lastGateCheckAt = 0;
 	private lastFocusX = Infinity;
 	private lastFocusY = Infinity;
@@ -283,6 +323,9 @@ export class WorldScene extends Phaser.Scene {
 	private readonly syncEverySec = this.isDesktopBuild ? 3 : 10;
 	private activeTool = 'basket';
 	private highlight!: Phaser.GameObjects.Container;
+	/** The highlight ring's infinite pulse, held so it can be parked while the
+	 *  ring is hidden (which is most of the time) — see syncRingPulse(). */
+	private ringPulse?: Phaser.Tweens.Tween;
 	private tileCursor!: Phaser.GameObjects.Image;
 	// The interactable the pointer is currently hovering (for hover feedback), and
 	// a signature of the last dynamic-layer build so redundant world-dirty events
@@ -358,8 +401,32 @@ export class WorldScene extends Phaser.Scene {
 
 	/** The interior room for wherever we are: the home's configured room, or the
 	 *  fixed tent-sized room of a trail tent. */
-	private roomSpec() {
-		return this.tentBiome ? this.tentRoom() : this.homeRoom();
+	private roomSpec(): RoomSpec {
+		// Indoors this is asked up to five times a frame — the movement blocking
+		// check wants the walls, canPlaceAt wants the floor — and each call built a
+		// fresh twelve-field object, homeRoom() re-walking the style and space
+		// tables out of the data files to do it.
+		//
+		// It is a pure function of the area and the home config, and both are
+		// swapped wholesale when a new state is adopted (never mutated in place),
+		// so memoise against their identity exactly the way firesHere() does: a new
+		// state object means a rebuild, anything else — including a live recolor,
+		// which comes back as a new state — is a hit.
+		const home = bridge.shared.state?.player?.home;
+		const data = bridge.shared.data;
+		if (
+			this.roomCache &&
+			this.roomCacheArea === this.area &&
+			this.roomCacheHome === home &&
+			this.roomCacheData === data
+		) {
+			return this.roomCache;
+		}
+		this.roomCacheArea = this.area;
+		this.roomCacheHome = home;
+		this.roomCacheData = data;
+		this.roomCache = this.tentBiome ? this.tentRoom() : this.homeRoom();
+		return this.roomCache;
 	}
 
 	/** Trail-tent interior: the starter-tent footprint with canvas-y colors —
@@ -475,16 +542,44 @@ export class WorldScene extends Phaser.Scene {
 	private biomeDef(id = this.area): BiomeDef | undefined {
 		return bridge.shared.data?.biomes.find((b) => b.id === id);
 	}
+	/**
+	 * id -> habitat-object def, for the O(1) lookups objectDef() hands out.
+	 *
+	 * objectDef() is one of the busiest functions in the scene: the frame loop asks
+	 * it about whatever is on the cursor, drawPlacements() asks it once per
+	 * placement on every repaint, and refreshDynamic() asks it once per placement
+	 * again just to find the bridges. Every one of those was a linear scan of
+	 * habitatObjects with a fresh closure per call — and the 'workbench' branch was
+	 * worse still: a new object literal AND a fresh i18n lookup, every time.
+	 *
+	 * Rebuilt when the data array is swapped (it is loaded once and replaced
+	 * wholesale, never mutated) or when the wording changes underneath the
+	 * synthetic def — a locale switch and the plain-language toggle both re-word
+	 * it, and both are in the key.
+	 */
+	private objectDefs(): Map<string, HabitatObjectDef> {
+		const defs = bridge.shared.data?.habitatObjects;
+		const loc = getLocale() + (isSimpleText() ? ':simple' : '');
+		if (this.objectDefMap && this.objectDefSrc === defs && this.objectDefLocale === loc) return this.objectDefMap;
+		const map = new Map<string, HabitatObjectDef>();
+		for (const o of defs || []) map.set(o.id, o);
+		// The crafting station is a permanent fixture of the camp, not something the
+		// data files describe. Written LAST so it still wins over a same-named entry,
+		// which is what the old id === 'workbench' early return did.
+		map.set('workbench', {
+			id: 'workbench',
+			name: t('game.object.craftingStation'),
+			shape: 'workbench',
+			placement: 'outdoor',
+		} as any);
+		this.objectDefMap = map;
+		this.objectDefSrc = defs;
+		this.objectDefLocale = loc;
+		return map;
+	}
+
 	private objectDef(id: string): HabitatObjectDef | undefined {
-		if (id === 'workbench') {
-			return {
-				id,
-				name: t('game.object.craftingStation'),
-				shape: 'workbench',
-				placement: 'outdoor',
-			} as any;
-		}
-		return bridge.shared.data?.habitatObjects.find((o) => o.id === id);
+		return this.objectDefs().get(id);
 	}
 
 	/** Localized display name of a biome (content overlay wins; data name, then a literal, as fallback). */
@@ -511,6 +606,10 @@ export class WorldScene extends Phaser.Scene {
 		this.lightBrush = undefined;
 		this.lightBitmapMask = undefined;
 		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
+		// Same restart hazard as the overlays above: the float-text ring is holding
+		// Text objects that belonged to the scene this instance just was.
+		this.floatLabels = [];
+		this.floatNext = 0;
 		makeBaseTextures(this);
 		makeObjectTextures(this);
 		makeAnimalTextures(this);
@@ -678,7 +777,7 @@ export class WorldScene extends Phaser.Scene {
 			.setOrigin(0.5);
 		this.highlight = this.add.container(0, 0, [ring, badgeBg, badgeText]).setDepth(6000).setVisible(false);
 		this.interactBadge = badgeText;
-		const ringPulse = this.tweens.add({
+		this.ringPulse = this.tweens.add({
 			targets: ring,
 			scale: { from: 0.92 * INV_TEX_SCALE, to: 1.08 * INV_TEX_SCALE },
 			alpha: { from: 0.95, to: 0.6 },
@@ -686,14 +785,12 @@ export class WorldScene extends Phaser.Scene {
 			yoyo: true,
 			repeat: -1,
 		});
-		// Honor reduce-motion: hold the ring steady instead of pulsing.
+		// Honor reduce-motion: hold the ring steady instead of pulsing. Whether the
+		// tween actually runs is syncRingPulse's call now — it folds this pref
+		// together with "is the ring even on screen".
 		const applyRingMotion = () => {
-			if (getPrefs().reduceMotion) {
-				ringPulse.pause();
-				ring.setScale(INV_TEX_SCALE).setAlpha(0.95);
-			} else if (ringPulse.paused) {
-				ringPulse.resume();
-			}
+			if (getPrefs().reduceMotion) ring.setScale(INV_TEX_SCALE).setAlpha(0.95);
+			this.syncRingPulse();
 		};
 		applyRingMotion();
 
@@ -779,6 +876,11 @@ export class WorldScene extends Phaser.Scene {
 			// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
 			for (const k of ['world', 'prefs', 'gear', 'quality', 'grown']) cancelFlush(this.flushKey(k));
 			this.clearGrowthTimer();
+			// Let the float-text ring go with the scene that owns it, rather than
+			// leaving a restarted create() holding a list of dead Text objects.
+			for (const label of this.floatLabels) label.destroy();
+			this.floatLabels = [];
+			this.floatNext = 0;
 		});
 
 		// Safety net for orphaned tweens (see clearLayer for the full story).
@@ -3647,25 +3749,59 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
-	private floatText(x: number, y: number, text: string, color: string) {
-		const t = this.add
-			.text(x, y, text, {
+	/** One slot of the float-text ring, built on first use. */
+	private floatLabel(slot: number): Phaser.GameObjects.Text {
+		const existing = this.floatLabels[slot];
+		// destroy() nulls `.scene`, so a label left behind by the scene this instance
+		// used to be (scene.restart() reuses the instance) is rebuilt, never reused.
+		if (existing && existing.scene) return existing;
+		const label = this.add
+			.text(0, 0, '', {
 				fontFamily: 'Quicksand, sans-serif',
 				fontSize: '13px',
-				color,
+				color: '#ffffff',
 				fontStyle: 'bold',
 				stroke: '#2b3321',
 				strokeThickness: 3,
 			})
 			.setOrigin(0.5)
-			.setDepth(7000);
+			.setDepth(7000)
+			.setVisible(false);
+		this.floatLabels[slot] = label;
+		return label;
+	}
+
+	/**
+	 * A little label that rises and fades — "+2 fiber", "tap tap", a sleeper's z.
+	 *
+	 * POOLED, because Text is far and away the most expensive thing Phaser can
+	 * make: every one allocates its own canvas and 2D context, lays the string out,
+	 * and uploads a fresh texture to the GPU. This fires on every pickup, every
+	 * terraform, once every ~800ms for the length of a build and every 620ms while
+	 * asleep — so create-then-destroy-1.1s-later meant a canvas and a texture upload
+	 * several times a second during perfectly ordinary play, with the garbage to
+	 * match.
+	 *
+	 * A ring of FLOAT_POOL labels is comfortably more than can ever be in flight at
+	 * once (each lives 1.1s and nothing emits them faster than a couple a second),
+	 * so by the time the ring comes back around a slot is long since parked. If
+	 * something ever did outpace it, killing the old tween first means the oldest
+	 * label is simply cut short rather than left with two tweens fighting over it.
+	 */
+	private floatText(x: number, y: number, text: string, color: string) {
+		const slot = this.floatNext;
+		this.floatNext = (this.floatNext + 1) % WorldScene.FLOAT_POOL;
+		const label = this.floatLabel(slot);
+		this.tweens.killTweensOf(label);
+		label.setText(text).setColor(color).setPosition(x, y).setAlpha(1).setVisible(true);
 		this.tweens.add({
-			targets: t,
+			targets: label,
 			y: y - 26,
 			alpha: 0,
 			duration: 1100,
 			ease: 'Sine.easeOut',
-			onComplete: () => t.destroy(),
+			// Parked, not destroyed — it belongs to whoever asks next.
+			onComplete: () => label.setVisible(false),
 		});
 	}
 
@@ -4184,6 +4320,12 @@ export class WorldScene extends Phaser.Scene {
 					}
 				},
 			});
+			// Hand the timer to the sprite so clearLayer can cancel it immediately —
+			// the same hazard the shadow follower documents. The self-removal above
+			// only fires on the NEXT tick, so rapid rebuilds (every gear toggle, every
+			// comfort shift) stacked a fresh 60ms timer per unrecorded animal before
+			// the old ones noticed they had nothing left to follow.
+			glint.setData('wxTimer', follow);
 		}
 		img.on('pointerdown', () => {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
@@ -4532,11 +4674,29 @@ export class WorldScene extends Phaser.Scene {
 		this.ghost = null;
 	}
 
-	/** The object id currently being placed or moved, if any. */
+	/** The object id currently being placed or moved, if any.
+	 *
+	 *  Read several times a frame while a ghost is up (the rotate check, and once
+	 *  per canPlaceAt call), and the moving case scanned the whole placements array
+	 *  for each of them. The answer only changes when placement mode changes or the
+	 *  state is swapped, so key the memo on exactly those three things and let it
+	 *  invalidate itself — no enter/exitPlacement bookkeeping to keep in sync. */
 	private activeObjectId(): string | null {
-		if (this.movingPlacementId)
-			return bridge.shared.state?.placements.find((p) => p.id === this.movingPlacementId)?.objectId ?? null;
-		return this.placementObjectId;
+		const placements = bridge.shared.state?.placements;
+		if (
+			this.activeIdMoving === this.movingPlacementId &&
+			this.activeIdPlacing === this.placementObjectId &&
+			this.activeIdSrc === placements
+		) {
+			return this.activeIdCache;
+		}
+		this.activeIdMoving = this.movingPlacementId;
+		this.activeIdPlacing = this.placementObjectId;
+		this.activeIdSrc = placements;
+		this.activeIdCache = this.movingPlacementId
+			? (placements?.find((p) => p.id === this.movingPlacementId)?.objectId ?? null)
+			: this.placementObjectId;
+		return this.activeIdCache;
 	}
 	/** Whether the active place/move object can be rotated (paths, bridges, furniture…). */
 	private activeRotatable(): boolean {
@@ -4544,19 +4704,46 @@ export class WorldScene extends Phaser.Scene {
 		return !!(id && this.objectDef(id)?.rotatable);
 	}
 
+	/**
+	 * The placement standing on a tile of the CURRENT area, if any.
+	 *
+	 * canPlaceAt() runs up to three times a frame while something is on the cursor
+	 * (the ghost, plus tileReachable for the terraform cursor) and every run walked
+	 * the entire placements array looking for the tile — a list that only grows as
+	 * the preserve is built out, which is exactly when the frame budget is
+	 * tightest. It is the same shape of cost drawPlacements() was already fixed
+	 * for, one level down.
+	 *
+	 * Built like waterTiles/bridgeTiles (a flat map of `x,y` keys) but keyed by
+	 * area as well, so walking between biomes doesn't invalidate it, and memoised
+	 * against the identity of the placements array like firesHere(): a new state
+	 * object means a rebuild, anything else is a hit. One entry per tile is the
+	 * whole answer — the server never stacks two placements on the same tile.
+	 */
+	private placementAt(tx: number, ty: number): Placement | undefined {
+		const placements = bridge.shared.state?.placements;
+		if (!this.placementByTile || this.placementByTileSrc !== placements) {
+			const map = new Map<string, Placement>();
+			for (const p of placements || []) {
+				const key = `${p.area}:${p.x},${p.y}`;
+				if (!map.has(key)) map.set(key, p); // first wins, matching the old .some() scan order
+			}
+			this.placementByTile = map;
+			this.placementByTileSrc = placements;
+		}
+		return this.placementByTile.get(`${this.area}:${tx},${ty}`);
+	}
+
 	private canPlaceAt(tx: number, ty: number, forTerraform = false, ignoreId?: string): boolean {
 		// Indoors: you can only decorate on the floor (inside the walls).
 		if (this.isIndoors) {
 			const r = this.roomSpec();
 			if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
-			const sH = bridge.shared.state;
-			if (sH?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty))
-				return false;
+			const onTile = this.placementAt(tx, ty);
+			if (onTile && onTile.id !== ignoreId) return false;
 			// items that need a bigger home can't be placed in a small one yet
 			// (a trail tent always counts as the starter size — space 1)
-			const activeId = this.movingPlacementId
-				? sH?.placements.find((p) => p.id === this.movingPlacementId)?.objectId
-				: this.placementObjectId;
+			const activeId = this.activeObjectId();
 			const homeMin = activeId ? this.objectDef(activeId)?.homeMin || 0 : 0;
 			const space = this.tentBiome ? 1 : bridge.shared.state?.player?.home?.space || 1;
 			if (homeMin > space) return false;
@@ -4583,15 +4770,13 @@ export class WorldScene extends Phaser.Scene {
 			ty <= Math.floor(CAMP.fire.y)
 		)
 			return false; // tent + campfire tiles (rows derived from the camp so they track it)
-		const s = bridge.shared.state;
-		if (s?.placements.some((p) => p.id !== ignoreId && p.area === this.area && p.x === tx && p.y === ty)) return false;
+		const occupant = this.placementAt(tx, ty);
+		if (occupant && occupant.id !== ignoreId) return false;
 		// note: resource nodes never block building — if you build on a regen spot,
 		// the node relocates itself (see computeNodes)
 		// water tiles only accept bridges (terraform clicks are exempt — the can/shovel work on water)
 		if (!forTerraform && this.waterTiles.has(`${tx},${ty}`)) {
-			const activeId = this.movingPlacementId
-				? bridge.shared.state?.placements.find((p) => p.id === this.movingPlacementId)?.objectId
-				: this.placementObjectId;
+			const activeId = this.activeObjectId();
 			return !!(activeId && this.objectDef(activeId)?.bridge);
 		}
 		return true;
@@ -4613,6 +4798,27 @@ export class WorldScene extends Phaser.Scene {
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
+	}
+
+	/**
+	 * Run the highlight ring's pulse only while the ring can actually be seen.
+	 *
+	 * `repeat: -1` means the tween never completes, so it sat in the manager
+	 * interpolating a scale and an alpha every single frame for the whole session —
+	 * including the common case, which is that nothing is in range and the
+	 * highlight is hidden (the visibility toggle beside it was already fixed for
+	 * the same reason). A paused tween costs nothing and keeps its position in the
+	 * cycle, so the ring picks up mid-pulse when it reappears and reads exactly as
+	 * it did before. Reduce-motion still wins: applyRingMotion() parks the ring at
+	 * its resting scale in create() and this never resumes it.
+	 */
+	private syncRingPulse() {
+		const pulse = this.ringPulse;
+		if (!pulse) return;
+		const run = !!this.highlight?.visible && !getPrefs().reduceMotion;
+		if (run === !pulse.paused) return;
+		if (run) pulse.resume();
+		else pulse.pause();
 	}
 
 	private setWalkAudio(active: boolean) {
@@ -4858,12 +5064,16 @@ export class WorldScene extends Phaser.Scene {
 
 		// pulsing highlight on whatever you can interact with right now
 		if (focus && getPrefs().interactHint !== false) {
-			if (!this.highlight.visible) this.highlight.setVisible(true);
+			if (!this.highlight.visible) {
+				this.highlight.setVisible(true);
+				this.syncRingPulse(); // the pulse only ticks while the ring is on screen
+			}
 			this.highlight.setPosition(focus.x, focus.y + 2);
 		} else if (this.highlight.visible) {
 			// The common case is "nothing in range", which used to re-assert
 			// visible=false on every single frame for the whole session.
 			this.highlight.setVisible(false);
+			this.syncRingPulse();
 		}
 
 		// terraform tile cursor under the pointer

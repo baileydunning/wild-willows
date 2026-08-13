@@ -184,26 +184,12 @@ function stopMusicFade() {
 	}
 }
 
-/* Every write in here is guarded on the value ACTUALLY changing, and that is the
- * whole point of the function's shape.
- *
- * Assigning `currentTime` runs the media element's seek algorithm even when the
- * value you assign is the value already there — it fires seeking/seeked and
- * touches the media pipeline regardless — and these are `preload="metadata"`
- * streaming elements (see createAudio), so the work is not free. `volume` is
- * cheaper but crosses the same boundary.
- *
- * This loop walks EVERY music track ever built: musicEls is a cache that is
- * never pruned, so a long session accumulates up to all 19 of them. And it runs
- * on EVERY game state change, via syncMusicPlayback. Re-zeroing an element that
- * is already paused at 0 with the volume already at 0 is pure cost for no
- * observable effect. */
 function pauseOrphanedMusic() {
 	for (const el of musicEls.values()) {
 		if (el === musicEl || el === fadingMusicEl) continue;
 		if (!el.paused) el.pause();
-		if (el.currentTime !== 0) el.currentTime = 0;
-		if (el.volume !== 0) el.volume = 0;
+		el.currentTime = 0;
+		el.volume = 0;
 	}
 }
 
@@ -284,16 +270,12 @@ function stopAmbienceFade() {
 	}
 }
 
-/* Guarded for exactly the reasons spelled out over pauseOrphanedMusic: a
- * no-op assignment to currentTime still seeks, this walks the whole unpruned
- * ambienceEls cache, and syncAmbiencePlayback calls it on every state change.
- * Fewer tracks than music, same wasted work per pass. */
 function pauseOrphanedAmbience() {
 	for (const el of ambienceEls.values()) {
 		if (el === ambienceEl || el === fadingAmbienceEl) continue;
 		if (!el.paused) el.pause();
-		if (el.currentTime !== 0) el.currentTime = 0;
-		if (el.volume !== 0) el.volume = 0;
+		el.currentTime = 0;
+		el.volume = 0;
 	}
 }
 
