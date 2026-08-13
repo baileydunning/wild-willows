@@ -8062,6 +8062,51 @@ async function metricsRollup(target?: any): Promise<{
 		for (const c of Object.values<any>(channelSplit))
 			c.conversionPct = c.devices ? Math.round((c.converted / c.devices) * 100) : 0;
 
+		/* The keyboard gate: devices shown "Wild Willows needs a keyboard".
+		 *
+		 * These are not bounces. A bounce opened the game and chose to leave; these
+		 * people never got the chance, and until the gate started reporting they were
+		 * silently mixed into the same number — which is the sort of thing that makes
+		 * a bounce rate look like a design problem when it is a hardware one.
+		 *
+		 * `turnedAway` is the count that matters: shown the screen and never got in.
+		 * `gotIn` is the tablet-with-a-keyboard case, kept out of it.
+		 *
+		 * COVERAGE: only devices that have opened the game since the gate started
+		 * reporting can appear here, so early numbers understate — and a device that
+		 * was never gated is indistinguishable from one that predates the field, both
+		 * being simply absent. There is no honest way to compute that gap, so none is
+		 * offered; `since` carries the first gate report instead, and the dashboard
+		 * dates the number rather than implying it covers all time.
+		 */
+		const gatedRows = openRows.filter((o) => o.keyboardGated);
+		const gotInRows = gatedRows.filter((o) => o.keyboardGatePassed);
+		const turnedAwayRows = gatedRows.filter((o) => !o.keyboardGatePassed);
+		// Which devices they are. The gate is about hardware, so the answer people
+		// actually want from this number is "are these phones?" — os carries that
+		// (ios | android | windows | mac | linux), platform only says web vs desktop.
+		const turnedAwayByOs: Record<string, number> = {};
+		for (const o of turnedAwayRows) {
+			const k = String(o.os || 'unknown');
+			turnedAwayByOs[k] = (turnedAwayByOs[k] || 0) + 1;
+		}
+		const bouncedDevices = devices - convertedDevices;
+		const gateTimes = gatedRows.map((o) => Number(o.keyboardGatedAt) || 0).filter((v) => v > 0);
+		const keyboardGate = {
+			shown: gatedRows.length,
+			turnedAway: turnedAwayRows.length,
+			gotIn: gotInRows.length,
+			// Share of ALL devices, not of the ones that reported — the honest
+			// denominator, and the one that makes the bounce comparison meaningful.
+			pctOfDevices: devices ? Math.round((turnedAwayRows.length / devices) * 100) : 0,
+			// How much of the bounce rate is actually this.
+			pctOfBounced: bouncedDevices ? Math.round((turnedAwayRows.length / bouncedDevices) * 100) : 0,
+			byOs: turnedAwayByOs,
+			// When the first device reported being gated — i.e. how far back this
+			// number goes. 0 until one does.
+			since: gateTimes.length ? Math.min(...gateTimes) : 0,
+		};
+
 		const withCreatorTime = openRows.filter((o) => (o.creationMs || 0) > 0);
 		const totalCharacters = openRows.reduce((a, o) => a + (o.savesCreated || 0), 0);
 		const savesPerPersonHistogram: Record<string, number> = {};
@@ -8086,6 +8131,9 @@ async function metricsRollup(target?: any): Promise<{
 			editions: editionSplit,
 			// Per-storefront funnel (itch | mas | direct | dev) — see channelSplit.
 			channels: channelSplit,
+			// Devices the keyboard gate turned away — see keyboardGate above. Sits in
+			// acquisition because that is where they were being miscounted.
+			keyboardGate,
 			// What the ?excludeDevice= filter took out. The dashboard no longer offers
 			// a device picker — raw app opens came off the page entirely, which removes
 			// the distortion rather than filtering around it — but the query parameter
@@ -10173,6 +10221,12 @@ export class SyncMetrics extends PublicEndpoint {
  *   phase "open"    — app launched (counted toward opens)
  *   phase "created" — a character was just created (marks the device converted,
  *                     bumps savesCreated, and records the creator time)
+ *   phase "kb_gate" — the keyboard gate turned this device away, with
+ *                     keyboardGatePassed:true on a later ping if a keyboard
+ *                     turned up and it got in after all. NOT counted toward
+ *                     opens: it describes a launch that already pinged, and
+ *                     double-counting it would inflate the denominator of every
+ *                     rate on the acquisition panel.
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
@@ -10182,7 +10236,14 @@ export class AppOpen extends PublicEndpoint {
 			.trim()
 			.slice(0, 64);
 		if (!deviceId) throw new GameError(tr('server.err.deviceIdRequired'), 400, 'server.err.deviceIdRequired');
-		const phase = body.phase === 'created' ? 'created' : body.phase === 'demo_done' ? 'demo_done' : 'open';
+		const phase =
+			body.phase === 'created'
+				? 'created'
+				: body.phase === 'demo_done'
+					? 'demo_done'
+					: body.phase === 'kb_gate'
+						? 'kb_gate'
+						: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -10243,6 +10304,21 @@ export class AppOpen extends PublicEndpoint {
 			// so it survives the save being reset when the thank-you popup is dismissed.
 			reachedDemoGoal: existing?.reachedDemoGoal || phase === 'demo_done',
 			demoGoalAt: existing?.demoGoalAt || (phase === 'demo_done' ? now : 0),
+			/* The keyboard gate. Both sticky, and deliberately so: this is the one
+			 * question a device answers ONCE and then keeps answering differently.
+			 * A phone that was turned away in March is still a phone that was turned
+			 * away, even though today's ping is a launch like any other — so
+			 * `keyboardGated` must not be re-derived from the current request.
+			 *
+			 * keyboardGatePassed is separate rather than an unset of keyboardGated,
+			 * because "shown the screen" and "stopped by it" are different numbers
+			 * and only the second one is a lost player. A tablet with a Bluetooth
+			 * keyboard trips the gate for the half-second before a key is pressed;
+			 * folding that into the blocked count would repeat, in a new number, the
+			 * bounce-rate mistake this field exists to correct. */
+			keyboardGated: existing?.keyboardGated || phase === 'kb_gate',
+			keyboardGatePassed: existing?.keyboardGatePassed || (phase === 'kb_gate' && body.keyboardGatePassed === true),
+			keyboardGatedAt: existing?.keyboardGatedAt || (phase === 'kb_gate' ? now : 0),
 			updatedAt: now,
 		});
 		dashboardCache.invalidate(); // acquisition numbers changed — refresh on the next read
