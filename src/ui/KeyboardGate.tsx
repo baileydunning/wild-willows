@@ -1,5 +1,6 @@
-import { useEffect, useState, type ReactNode } from 'react';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { useI18n } from '../i18n/react';
+import { reportKeyboardGate } from '../solo/appOpen';
 
 /**
  * Wild Willows is a keyboard game (WASD / arrows to roam, letter keys for
@@ -18,6 +19,30 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 	const { t } = useI18n();
 	const [finePointer, setFinePointer] = useState(hasFinePointer);
 	const [keyboardSeen, setKeyboardSeen] = useState(false);
+	const blocked = !finePointer && !keyboardSeen;
+	const reported = useRef({ blocked: false, gotIn: false });
+
+	/* Report being turned away, and report getting in afterwards.
+	 *
+	 * Nothing is sent for a device that is never blocked, which is almost all of
+	 * them — the ping exists to describe the people this screen stops, and a
+	 * silent no-op on a computer keeps it that way.
+	 *
+	 * Both sends are latched, because `blocked` can flip more than once in a
+	 * visit: (any-pointer: fine) is live, so unplugging a mouse re-blocks a
+	 * desktop, and without the latch that would post again on every flip and
+	 * count one person as several. */
+	useEffect(() => {
+		if (blocked) {
+			if (reported.current.blocked) return;
+			reported.current.blocked = true;
+			reportKeyboardGate(false);
+		} else if (reported.current.blocked && !reported.current.gotIn) {
+			// Blocked earlier this visit, playing now — a keyboard turned up.
+			reported.current.gotIn = true;
+			reportKeyboardGate(true);
+		}
+	}, [blocked]);
 
 	useEffect(() => {
 		const mql = window.matchMedia('(any-pointer: fine)');
@@ -36,7 +61,7 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 		};
 	}, []);
 
-	if (finePointer || keyboardSeen) return <>{children}</>;
+	if (!blocked) return <>{children}</>;
 
 	return (
 		<div className="kb-gate">

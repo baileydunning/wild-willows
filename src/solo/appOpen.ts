@@ -19,7 +19,10 @@ function endpoint(): string {
 	return `${hostedBase()}/AppOpen/`;
 }
 
-async function send(phase: 'open' | 'created' | 'demo_done', extra: Record<string, any> = {}): Promise<void> {
+async function send(
+	phase: 'open' | 'created' | 'demo_done' | 'kb_gate',
+	extra: Record<string, any> = {},
+): Promise<void> {
 	try {
 		await fetch(endpoint(), {
 			method: 'POST',
@@ -61,4 +64,23 @@ export function reportCharacterCreated(creationMs: number): void {
  *  when the player dismisses the thank-you popup. */
 export function reportDemoComplete(): void {
 	void send('demo_done');
+}
+
+/**
+ * Fire when the keyboard gate blocks this device — "Wild Willows needs a
+ * keyboard" — and again with `gotIn` if a keyboard later shows up and the same
+ * visit gets through.
+ *
+ * This is the ONLY thing a gated player can report. The gate wraps GameProvider
+ * (see App.tsx), so someone stuck behind it never gets a player id or a save
+ * slot, and the /SyncMetrics/ path needs both — which is why this rides the
+ * device-scoped acquisition ping instead. Until now such a device was
+ * indistinguishable from someone who opened the game and wandered off: it
+ * counted as a bounce.
+ *
+ * Its own phase rather than 'open', because 'open' increments the per-device
+ * open count and a gate ping is not a launch. Both flags are sticky server-side.
+ */
+export function reportKeyboardGate(gotIn: boolean): void {
+	void send('kb_gate', { keyboardGatePassed: !!gotIn });
 }

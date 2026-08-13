@@ -161,7 +161,9 @@ type SoloMetrics @table(database: "wildwillows") {
 # created (phase "created"), so /Metrics/ can report how many people opened the
 # app, how many went on to create a character (vs bounced), and how many
 # characters each person creates. Dynamic (id only) so the field set can evolve.
-type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, platform, os, version, language, firstOpenAt, lastOpenAt, opens, converted, firstConvertedAt, savesCreated, creationMs, updatedAt
+# Also carries the keyboard gate (phase "kb_gate"): a device with no keyboard
+# never reaches a save slot, so this row is the only place it can be counted.
+type AppOpen @table(database: "wildwillows") { id: ID @primaryKey } # deviceId, platform, os, version, language, firstOpenAt, lastOpenAt, opens, converted, firstConvertedAt, savesCreated, creationMs, keyboardGated, keyboardGatePassed, keyboardGatedAt, updatedAt
 
 # One row per record that failed to decode (`${table}:${recordId}`) · table,
 # recordId, kind, firstSeenAt, lastSeenAt, count. Written whenever salvage gives

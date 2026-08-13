@@ -1873,6 +1873,17 @@
 			 * 'unknown' is every device that opened the game before channels shipped —
 			 * shown as its own row rather than folded into a real store, so the
 			 * backfill gap stays visible instead of padding whichever one you read first. */
+			/* detectOS() in src/platform.ts returns exactly these. Shared, because the
+			   keyboard gate reads them too and a phone has to be recognisable as a
+			   phone in both places. */
+			const OS_LABELS = {
+				mac: 'macOS',
+				windows: 'Windows',
+				linux: 'Linux',
+				ios: 'iPhone / iPad',
+				android: 'Android',
+				unknown: 'Unknown',
+			};
 			const CHANNEL_LABELS = {
 				itch: 'itch.io',
 				mas: 'Mac App Store',
@@ -3149,6 +3160,7 @@
 
 				/* ---- Acquisition + Activation funnels ---- */
 				const acq = s.acquisition || {};
+				const kg = acq.keyboardGate || {};
 				const fun = s.funnel || {};
 				const dc = s.demoCompletion || {};
 				const acqCards = cardTitled(
@@ -3170,8 +3182,45 @@
 								`${fmt(acq.converted)} of ${fmt(acq.devices)} devices`,
 							),
 							kpi(pct(acq.bounceRatePct), 'Bounced', `${fmt(acq.bounced)} never made a character`),
+							// Sits beside Bounced on purpose: these devices are counted in it,
+							// and they are the part of it that is not a choice anyone made.
+							kpi(
+								fmt(kg.turnedAway),
+								'Turned away',
+								`needed a keyboard${n(kg.pctOfBounced) ? ` · ${pct(kg.pctOfBounced)} of bounces` : ''}`,
+							),
 						].join('')}</div>`,
 				);
+
+				/* ---- Turned away by the keyboard gate ----
+				 * The game needs WASD, so a device with no keyboard gets the "Wild Willows
+				 * needs a keyboard" screen instead of the game. Broken out by operating
+				 * system because the question this number is really being asked to answer
+				 * is "how many of these are phones?".
+				 *
+				 * Only devices that opened the game after the gate started reporting can
+				 * appear, so the card dates itself rather than implying it covers all time.
+				 * The card is hidden entirely until the first one arrives — a card reading
+				 * zero would say "nobody is turned away" when it means "not measured yet". */
+				const gateCard = n(kg.shown)
+					? cardTitled(
+							'Turned away by the keyboard gate',
+							kg.since
+								? `since ${new Date(n(kg.since)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
+								: 'devices with no keyboard',
+							// Two, not three: the card sits in a half-width column, and "saw the
+							// screen" is only these two added together.
+							`<div class="grid two">${[
+								kpi(
+									`<span class="accent">${fmt(kg.turnedAway)}</span>`,
+									'Could not play',
+									`${pct(kg.pctOfDevices)} of all devices`,
+								),
+								kpi(fmt(kg.gotIn), 'Found a keyboard', `of ${fmt(kg.shown)} shown the screen`),
+							].join('')}</div>` +
+								`<div style="margin-top:.6rem">${barRows(objToEntries(kg.byOs), { labelMap: OS_LABELS, cls: 'sky' })}</div>`,
+						)
+					: '';
 
 				/* ---- Where they came from ----
 				 * Devices and conversion per storefront. Sorted by conversion, not by
@@ -3278,7 +3327,11 @@
 									: convCard
 										? `<div style="margin-top:.8rem">${convCard}</div>`
 										: '') +
-							(channelCard ? `<div style="margin-top:.8rem">${channelCard}</div>` : ''),
+							(channelCard && gateCard
+							? `<div class="grid two" style="margin-top:.8rem">${channelCard}${gateCard}</div>`
+							: channelCard || gateCard
+								? `<div style="margin-top:.8rem">${channelCard || gateCard}</div>`
+								: ''),
 					),
 				);
 
@@ -3357,10 +3410,7 @@
 							cardTitled(
 								'Operating system',
 								null,
-								barRows(objToEntries(oss), {
-									labelMap: { mac: 'macOS', windows: 'Windows', linux: 'Linux' },
-									cls: 'sky',
-								}),
+								barRows(objToEntries(oss), { labelMap: OS_LABELS, cls: 'sky' }),
 							) +
 							cardTitled('Language', null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: 'rose' })) +
 							cardTitled(
