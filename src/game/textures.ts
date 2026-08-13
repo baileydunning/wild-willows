@@ -633,18 +633,44 @@ export function makeNodeTextures(scene: Phaser.Scene) {
  * then shows the same hand-drawn picture the world uses instead of a flat
  * colour swatch. Must run after makeNodeTextures.
  */
-export function snapshotResourceIcons(scene: Phaser.Scene) {
+/**
+ * Rasterize every texture under `prefix` to a data URL, once.
+ *
+ * getBase64() is a canvas toDataURL('image/png') per texture — a full PNG encode.
+ * There are 38 `rnode-` and 367 `obj-` textures, and at TEX_SCALE 4 that measured
+ * at roughly 120-200ms of blocked main thread for the set.
+ *
+ * create() called both snapshots unconditionally, and create() re-runs on every
+ * scene restart — which is every area transition. So walking through a gate paid
+ * a fifth of a second re-encoding PNGs that were byte-identical to the ones
+ * already sitting in bridge.shared. bridge.ts has described these as snapshotted
+ * "once at boot" all along; now they actually are.
+ *
+ * Guarded on the number of matching texture keys rather than a plain boolean, so
+ * if a texture under the prefix is ever added later the set is rebuilt instead of
+ * going quietly stale.
+ */
+const iconSnapshotCounts: Record<string, number> = {};
+
+function snapshotIcons(scene: Phaser.Scene, prefix: string): Record<string, string> | null {
+	const keys = scene.textures.getTextureKeys().filter((k) => k.startsWith(prefix));
+	if (iconSnapshotCounts[prefix] === keys.length) return null;
 	const icons: Record<string, string> = {};
-	for (const key of scene.textures.getTextureKeys()) {
-		if (!key.startsWith('rnode-')) continue;
+	for (const key of keys) {
 		try {
 			const uri = scene.textures.getBase64(key);
-			if (uri) icons[key.slice('rnode-'.length)] = uri;
+			if (uri) icons[key.slice(prefix.length)] = uri;
 		} catch {
-			/* a texture that can't be rasterized just falls back to a swatch */
+			/* a texture that can't be rasterized just gets no picture */
 		}
 	}
-	bridge.shared.resourceIcons = icons;
+	iconSnapshotCounts[prefix] = keys.length;
+	return icons;
+}
+
+export function snapshotResourceIcons(scene: Phaser.Scene) {
+	const icons = snapshotIcons(scene, 'rnode-');
+	if (icons) bridge.shared.resourceIcons = icons;
 }
 
 /**
@@ -654,17 +680,8 @@ export function snapshotResourceIcons(scene: Phaser.Scene) {
  * Must run after makeObjectTextures.
  */
 export function snapshotObjectIcons(scene: Phaser.Scene) {
-	const icons: Record<string, string> = {};
-	for (const key of scene.textures.getTextureKeys()) {
-		if (!key.startsWith('obj-')) continue;
-		try {
-			const uri = scene.textures.getBase64(key);
-			if (uri) icons[key.slice('obj-'.length)] = uri;
-		} catch {
-			/* a texture that can't be rasterized just gets no menu picture */
-		}
-	}
-	bridge.shared.objectIcons = icons;
+	const icons = snapshotIcons(scene, 'obj-');
+	if (icons) bridge.shared.objectIcons = icons;
 }
 
 /** Habitat / home object sprites, keyed `obj-<shape>`. */
