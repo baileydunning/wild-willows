@@ -21,7 +21,7 @@ import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { reportSaveIncident } from './solo/saveIncident';
-import { reportCharacterCreated, reportDemoComplete } from './solo/appOpen';
+import { reportCharacterCreated, reportDemoComplete, reportSaveResumed } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
@@ -622,6 +622,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			const { state } = resumed;
 			feedSeeded.current = false;
 			adoptState(state);
+			reportSaveResumed(); // funnel: a returning player is not a bounce
 		},
 		[adoptState],
 	);
@@ -632,6 +633,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			setPlayerId(r.playerId);
 			rememberSave(r.playerId, r.state.player.name, 'solo');
 			adoptState(r.state);
+			reportSaveResumed(); // funnel: a returning player is not a bounce
 		},
 		[adoptState],
 	);
@@ -644,6 +646,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			try {
 				adoptState(await api.gameState());
 				rememberSave(last.playerId, last.name, 'solo');
+				reportSaveResumed(); // funnel: a returning player is not a bounce
 			} catch (e) {
 				// Drop BOTH halves of the session, not just one.
 				//

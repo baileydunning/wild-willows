@@ -21,6 +21,12 @@
 {
 	"$schema": "node_modules/wrangler/config-schema.json",
 	"name": "wildwillows-play",
+	// Pinned so `npx wrangler deploy` works with no env vars. Wrangler has to pick
+	// an account, and a login/token that can see more than one fails with "more
+	// than one account available" rather than choosing — which is a confusing way
+	// to lose ten minutes. Not a secret: it appears in every dashboard URL, and
+	// Cloudflare's own docs commit it.
+	"account_id": "cabc4f5dbdd465a7fd1ad27e499fa1ef",
 	"main": "workers/play.js",
 	"compatibility_date": "2026-08-01",
 	"assets": {
@@ -35,20 +41,16 @@
 		// Setting it to `true` instead would work, but bills a Worker invocation for
 		// every chunk and image as well. Search engines index the page, not the JS,
 		// so the entry point is the only place the robots header has to land.
-		// The Worker must see the HTML entry point (to set the robots headers) and
-		// the proxied telemetry paths. The telemetry ones are not optional: with
-		// `not_found_handling: single-page-application`, a POST to /AppOpen/ would
-		// otherwise be answered by the asset server with index.html and a 200 — the
-		// report silently swallowed by a page of HTML.
-		"run_worker_first": [
-			"/",
-			"/index.html",
-			"/AppOpen/*",
-			"/SyncMetrics/*",
-			"/ReportClientError/*",
-			"/ReportSaveIncident/*",
-			"/SubmitFeedback/*"
-		]
+		// TRUE, not a path list. The Worker now proxies ~40 gameplay endpoints, and
+		// with `not_found_handling: single-page-application` any path it does NOT see
+		// first is answered by the asset server with index.html and a 200 — so a
+		// forgotten entry would not 404, it would return a page of HTML to a game
+		// action and look like corrupt server state. An explicit list is one rename
+		// away from that; routing everything through the Worker cannot drift.
+		//
+		// The cost is a Worker invocation per asset request as well. At Workers'
+		// per-request pricing that is noise next to the correctness it buys.
+		"run_worker_first": true
 	},
 	// A custom domain, NOT a route: Cloudflare creates the DNS record and issues
 	// the certificate itself. Nothing to add by hand in the DNS tab, and nothing

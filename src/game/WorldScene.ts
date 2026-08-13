@@ -507,9 +507,21 @@ export class WorldScene extends Phaser.Scene {
 		// amounts, feedback, …) the game must NOT eat those keystrokes for
 		// movement. Disable the scene's keyboard (and Phaser's global key capture)
 		// whenever a text input is focused, and restore it the moment focus leaves.
+		/* The keyboard plugin outlives its own manager for a moment during teardown:
+		 * the object is still there (so a `!kb` check passes) but kb.manager is
+		 * already null, and enable/disableGlobalCapture writes preventDefault
+		 * straight onto it. Dismantling the DOM moves focus, which fires focusout
+		 * synchronously — before the shutdown handler below removes these listeners
+		 * — so the window is real and easy to hit. Toggling a settings control is
+		 * enough to land in it. Check the manager, not just the plugin. */
+		const liveKeyboard = () => {
+			if (!this.alive) return null;
+			const kb = this.input?.keyboard as any;
+			return kb && kb.manager ? (kb as Phaser.Input.Keyboard.KeyboardPlugin) : null;
+		};
 		const onFocusIn = (e: FocusEvent) => {
 			if (!isTypingTarget(e.target)) return;
-			const kb = this.input.keyboard;
+			const kb = liveKeyboard();
 			if (!kb) return;
 			kb.enabled = false;
 			kb.disableGlobalCapture();
@@ -517,7 +529,7 @@ export class WorldScene extends Phaser.Scene {
 		};
 		const onFocusOut = (e: FocusEvent) => {
 			if (!isTypingTarget(e.target)) return;
-			const kb = this.input.keyboard;
+			const kb = liveKeyboard();
 			if (!kb) return;
 			kb.enabled = true;
 			kb.enableGlobalCapture();
@@ -538,8 +550,13 @@ export class WorldScene extends Phaser.Scene {
 		// A text box may already hold focus when this scene (re)starts — e.g.
 		// changing areas or reloading while a panel's field is active.
 		if (isTypingTarget(document.activeElement)) {
-			this.input.keyboard!.enabled = false;
-			this.input.keyboard!.disableGlobalCapture();
+			// Route through the same guard — this runs during create(), which on an
+			// area change happens while the previous scene is still unwinding.
+			const kb = liveKeyboard();
+			if (kb) {
+				kb.enabled = false;
+				kb.disableGlobalCapture();
+			}
 		}
 		// nearest-interactable highlight (pulsing ring + key hint)
 		const ring = this.img(0, 0, 'ring').setTint(0xffe9a8);
@@ -3114,7 +3131,11 @@ export class WorldScene extends Phaser.Scene {
 
 	/** Items visibly pop out of the node, arc into your basket, and a +N floats up. */
 	private playPickup(p: { nodeId: string; resourceId: string; qty: number; tool: string; color?: string }) {
-		if (!this.alive) return;
+		// Same mid-restart hazard the world-dirty handler guards against: during
+		// scene.restart() `alive` has not flipped yet, but the scene's factories are
+		// already gone — so this.add is null and every gather throws out of the
+		// bridge handler. `alive` alone is not enough.
+		if (!this.alive || !(this.dynamic as any)?.scene) return;
 		const node = this.nodes.find((n) => n.id === p.nodeId);
 		const sx = node ? node.tx * TILE + 16 : this.player.x;
 		const sy = node ? node.ty * TILE + 16 : this.player.y;
@@ -3184,7 +3205,9 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	private playTerraformFx(p: { x: number; y: number; action: string }) {
-		if (!this.alive) return;
+		// Same guard as playPickup — this is registered on the bridge right next to
+		// it and torn down at the same moment.
+		if (!this.alive || !(this.dynamic as any)?.scene) return;
 		const x = p.x * TILE + 16;
 		const y = p.y * TILE + 16;
 		const toolKey = p.action === 'water' ? 'tool-watering-can' : 'tool-shovel';

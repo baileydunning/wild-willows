@@ -7569,7 +7569,7 @@ async function metricsRollup(target?: any): Promise<{
 		const versions = tally((v) => v.version);
 		// demo vs paid split (rides inside each solo snapshot; defaults to full).
 		const editions = tally((v) => v.edition || 'full');
-		// Which storefront each save came from. Also rides inside the snapshot (see
+		// Which channel each save came from. Also rides inside the snapshot (see
 		// metricsUplink), so it needs no column and lands on the row via the spread
 		// above. Saves written before this shipped have none — they read 'unknown'
 		// rather than being folded into a real channel, so the backfill gap stays
@@ -8005,6 +8005,20 @@ async function metricsRollup(target?: any): Promise<{
 
 		const deviceIdOf = (o: any) => String(o?.deviceId || String(o?.id || '').replace(/^dev:/, ''));
 
+		/* OUR OWN devices come out by default — the ones that marked themselves via
+		 * ?dev=1, plus anything running on localhost (channel 'dev'). On a young
+		 * game these are most of the funnel: every title-screen reload while
+		 * checking a change counts as an install that never converted, so the
+		 * numbers say more about the week's development than about players.
+		 *
+		 * `?includeDev=1` puts them back for anyone who wants the raw totals. What
+		 * was removed is reported below rather than left to be inferred from a
+		 * number that quietly got smaller. */
+		const includeDev = ['1', 'true'].includes(String(oneParam('includeDev') || '').toLowerCase());
+		const isOurs = (o: any) => !!o?.isDev || (o?.channel || '') === 'dev';
+		const devRows = includeDev ? [] : openRows.filter(isOurs);
+		if (devRows.length) openRows = openRows.filter((o) => !isOurs(o));
+
 		const excludedRows = excludedDevices.size ? openRows.filter((o) => excludedDevices.has(deviceIdOf(o))) : [];
 		if (excludedDevices.size) openRows = openRows.filter((o) => !excludedDevices.has(deviceIdOf(o)));
 		// What the exclusion actually removed, stated rather than left to be inferred
@@ -8036,7 +8050,7 @@ async function metricsRollup(target?: any): Promise<{
 			const k = o.edition === 'demo' ? 'demo' : 'full';
 			editionSplit[k] = (editionSplit[k] || 0) + 1;
 		}
-		/* Per-STOREFRONT funnel: how many devices each channel brought, and how
+		/* Per-CHANNEL funnel: how many devices each channel brought, and how
 		 * many of them went on to make a character.
 		 *
 		 * Deliberately not a bare count. Raw device counts across channels are not
@@ -8047,7 +8061,7 @@ async function metricsRollup(target?: any): Promise<{
 		 * not. Both are returned, but the rate is the one to compare on.
 		 *
 		 * 'unknown' is its own bucket: every device that opened the game before
-		 * this shipped has no channel, and folding those into a real storefront
+		 * this shipped has no channel, and folding those into a real one
 		 * would silently inflate whichever one you happened to look at.
 		 */
 		const channelSplit: Record<string, any> = {};
@@ -8114,13 +8128,33 @@ async function metricsRollup(target?: any): Promise<{
 			const k = String(o.savesCreated || 0);
 			savesPerPersonHistogram[k] = (savesPerPersonHistogram[k] || 0) + 1;
 		}
+		/* PLAYED = created a character OR came back to an existing save.
+		 *
+		 * Bounce used to mean "never made a character", which counted every
+		 * returning player as a bounce — the rate got WORSE as the game started
+		 * retaining people, which is precisely backwards. Someone who pressed
+		 * Continue did not bounce; they are the best outcome on this screen.
+		 *
+		 * `converted` is left alone and still means character creation, so the
+		 * existing series keeps its meaning. Bounce is recomputed on `played`.
+		 *
+		 * Note for reading old numbers: devices that last opened the game before
+		 * this shipped have no `resumed` flag, so historical bounce stays overstated.
+		 * It corrects going forward rather than retroactively. */
+		const resumedDevices = openRows.filter((o) => o.resumed).length;
+		const playedDevices = openRows.filter((o) => o.converted || o.resumed).length;
 		const acquisition = {
 			devices,
 			totalOpens: openRows.reduce((a, o) => a + (o.opens || 0), 0),
 			converted: convertedDevices,
-			bounced: devices - convertedDevices,
+			// Came back to a save they already had.
+			resumed: resumedDevices,
+			// Did either — the honest denominator for "did this device play?"
+			played: playedDevices,
+			playedPct: devices ? Math.round((playedDevices / devices) * 100) : 0,
+			bounced: devices - playedDevices,
 			conversionPct: devices ? Math.round((convertedDevices / devices) * 100) : 0,
-			bounceRatePct: devices ? Math.round(((devices - convertedDevices) / devices) * 100) : 0,
+			bounceRatePct: devices ? Math.round(((devices - playedDevices) / devices) * 100) : 0,
 			avgCreatorSeconds: withCreatorTime.length
 				? round1(withCreatorTime.reduce((a, o) => a + o.creationMs, 0) / withCreatorTime.length / 1000)
 				: 0,
@@ -8129,7 +8163,7 @@ async function metricsRollup(target?: any): Promise<{
 			avgCharactersPerConverted: convertedDevices ? round1(totalCharacters / convertedDevices) : 0,
 			charactersPerPersonHistogram: savesPerPersonHistogram,
 			editions: editionSplit,
-			// Per-storefront funnel (itch | mas | direct | dev) — see channelSplit.
+			// Per-channel funnel (itch | mas | direct | dev) — see channelSplit.
 			channels: channelSplit,
 			// Devices the keyboard gate turned away — see keyboardGate above. Sits in
 			// acquisition because that is where they were being miscounted.
@@ -8139,6 +8173,13 @@ async function metricsRollup(target?: any): Promise<{
 			// the distortion rather than filtering around it — but the query parameter
 			// stays for anyone reading this endpoint directly.
 			excludedDevices: excludedDeviceStats,
+			// Our own machines, dropped by default. `?includeDev=1` keeps them in.
+			ownDevices: {
+				matched: devRows.length,
+				opens: devRows.reduce((a, o) => a + (o.opens || 0), 0),
+				charactersCreated: devRows.reduce((a, o) => a + (o.savesCreated || 0), 0),
+				included: includeDev,
+			},
 		};
 
 		return {
@@ -10239,11 +10280,13 @@ export class AppOpen extends PublicEndpoint {
 		const phase =
 			body.phase === 'created'
 				? 'created'
-				: body.phase === 'demo_done'
-					? 'demo_done'
-					: body.phase === 'kb_gate'
-						? 'kb_gate'
-						: 'open';
+				: body.phase === 'resumed'
+					? 'resumed'
+					: body.phase === 'demo_done'
+						? 'demo_done'
+						: body.phase === 'kb_gate'
+							? 'kb_gate'
+							: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -10255,7 +10298,7 @@ export class AppOpen extends PublicEndpoint {
 			id,
 			deviceId,
 			platform: String(body.platform || '').slice(0, 20) || existing?.platform || null,
-			// Which storefront handed this device its copy (itch | mas | direct |
+			// Which channel handed this device its copy (itch | mas | direct |
 			// dev). Orthogonal to `platform`, because itch ships both a download and
 			// the browser demo.
 			//
@@ -10296,6 +10339,24 @@ export class AppOpen extends PublicEndpoint {
 			opens: (existing?.opens || 0) + (phase === 'open' ? 1 : 0),
 			converted: existing?.converted || phase === 'created',
 			firstConvertedAt: existing?.firstConvertedAt || (phase === 'created' ? now : 0),
+			/* Picked up an existing save — Continue, Load Game, or a passcode login.
+			 *
+			 * Kept as its OWN flag rather than folded into `converted`, for two
+			 * reasons. `converted` means "made a character" and has months of history
+			 * behind it; quietly widening it would rewrite what every past number
+			 * meant. And the two facts answer different questions — creation measures
+			 * whether the game gets people started, resumption measures whether it
+			 * gets them back. The funnel below combines them into "played"; the raw
+			 * flags stay separable forever.
+			 *
+			 * Sticky: someone who returned once has returned, whatever they do next. */
+			/* One of our own machines rather than a player's (see isDevDevice() in
+			 * src/platform.ts). Deliberately NOT sticky-true like the others: this one
+			 * has to be undoable, or a mis-marked device is excluded from the numbers
+			 * forever with no way back. An absent flag leaves whatever was there. */
+			isDev: body.dev === true ? true : body.dev === false ? false : existing?.isDev || false,
+			resumed: existing?.resumed || phase === 'resumed',
+			firstResumedAt: existing?.firstResumedAt || (phase === 'resumed' ? now : 0),
 			// How many characters this person has created.
 			savesCreated: (existing?.savesCreated || 0) + (phase === 'created' ? 1 : 0),
 			// Keep the most recent creator time we've seen for this device.

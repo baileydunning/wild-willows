@@ -24,7 +24,7 @@ export function detectOS(): string {
 }
 
 /**
- * Storefronts / distribution sources a build can arrive through.
+ * Channels — the distribution sources a build can arrive through.
  *
  *   itch   — itch.io: BOTH the browser demo and the desktop download
  *   mas    — the Mac App Store
@@ -46,7 +46,7 @@ const CHANNELS: Channel[] = ['itch', 'mas', 'direct', 'dev'];
 const BUILD_CHANNEL: string = typeof __CHANNEL__ !== 'undefined' ? __CHANNEL__ : '';
 
 /**
- * WHERE THIS COPY CAME FROM — the storefront, not the platform.
+ * WHERE THIS COPY CAME FROM — the channel, not the platform.
  *
  * `platform` (web | desktop) already says what it runs on; this says who handed
  * it to the player. They are orthogonal on purpose: itch sells a download AND
@@ -90,6 +90,37 @@ function normalizeChannel(v: unknown): Channel | null {
 		.trim()
 		.toLowerCase();
 	return (CHANNELS as string[]).includes(c) ? (c as Channel) : null;
+}
+
+/**
+ * Is this one of OUR machines rather than a player's?
+ *
+ * Every launch from a dev's own laptop lands in the acquisition funnel next to
+ * real players, and on a young game that is most of the numbers — an install
+ * count that is mostly you, and a conversion rate dragged down by every time you
+ * opened the title screen to check a CSS change. `channel === 'dev'` catches
+ * localhost, but testing the REAL deploy on wildwillows.app looks exactly like a
+ * player, because it is the same build on the same host.
+ *
+ * So the device says so itself. Visit any game URL with `?dev=1` once per
+ * machine and it is remembered; `?dev=0` undoes it. The flag rides on every
+ * AppOpen ping, and because the server keeps one row per device holding that
+ * device's whole history, marking a machine retroactively removes everything it
+ * ever contributed — not just what it does from now on.
+ */
+const DEV_DEVICE_KEY = 'wild-willows:dev-device';
+
+export function isDevDevice(): boolean {
+	try {
+		const q = typeof location !== 'undefined' ? new URLSearchParams(location.search).get('dev') : null;
+		if (q === '1' || q === 'true') localStorage.setItem(DEV_DEVICE_KEY, '1');
+		else if (q === '0' || q === 'false') localStorage.removeItem(DEV_DEVICE_KEY);
+		return localStorage.getItem(DEV_DEVICE_KEY) === '1';
+	} catch {
+		// Private mode / no storage — treat as a real player, which is the safe
+		// direction: over-counting a player beats hiding one.
+		return false;
+	}
 }
 
 /** Resolved once — nothing here changes for the life of the page. */

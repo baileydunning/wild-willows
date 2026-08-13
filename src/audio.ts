@@ -104,7 +104,20 @@ function resolveAssetUrl(path: string): string {
 
 function createAudio(path: string, loop = false): HTMLAudioElement {
 	const el = new Audio(resolveAssetUrl(path));
-	el.preload = 'auto';
+	/* preload is keyed off `loop`, which cleanly separates the two kinds of audio
+	 * here: everything looping is long-form (music, ambience, rain/storm, walking,
+	 * humming) and everything one-shot is a short sfx.
+	 *
+	 * 'auto' on a looping track downloads the WHOLE file the moment the element is
+	 * constructed. Entering the world builds the meadow ambience — 5.1 MB — and a
+	 * music track, on top of the app bundle and the in-app backend chunk still
+	 * settling, and the result is a few seconds of a character that barely moves.
+	 * 'metadata' lets them stream instead; playback starts just as promptly because
+	 * these are backgrounds, not cues.
+	 *
+	 * Short sfx keep 'auto' deliberately — they're tens of KB, and a gather sound
+	 * that arrives late is worse than one that cost a few hundred KB up front. */
+	el.preload = loop ? 'metadata' : 'auto';
 	el.loop = loop;
 	el.addEventListener('error', () => warnMissing(path));
 	return el;

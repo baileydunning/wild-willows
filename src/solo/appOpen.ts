@@ -11,7 +11,7 @@
 import { hostedBase, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
 import { EDITION } from '../demo';
-import { APP_VERSION, CHANNEL, detectOS, getDeviceId } from '../platform';
+import { APP_VERSION, CHANNEL, detectOS, getDeviceId, isDevDevice } from '../platform';
 
 function endpoint(): string {
 	// Desktop and the browser demo both post cross-origin to the hosted Harper;
@@ -20,7 +20,7 @@ function endpoint(): string {
 }
 
 async function send(
-	phase: 'open' | 'created' | 'demo_done' | 'kb_gate',
+	phase: 'open' | 'created' | 'resumed' | 'demo_done' | 'kb_gate',
 	extra: Record<string, any> = {},
 ): Promise<void> {
 	try {
@@ -33,10 +33,12 @@ async function send(
 				deviceId: getDeviceId(),
 				phase,
 				platform: IS_DESKTOP ? 'desktop' : 'web',
-				// Which storefront this copy came from (itch | mas | direct | dev).
+				// Which channel this copy came from (itch | mas | direct | dev).
 				// Orthogonal to `platform`: itch ships a download AND the browser demo,
 				// so the pair is what actually answers "where are players coming from".
 				channel: CHANNEL,
+				// One of our machines, not a player's — see isDevDevice().
+				dev: isDevDevice(),
 				os: detectOS(),
 				version: APP_VERSION,
 				edition: EDITION,
@@ -57,6 +59,23 @@ export function reportAppOpen(): void {
 /** Fire once when a character is created, with how long the creator took (ms). */
 export function reportCharacterCreated(creationMs: number): void {
 	void send('created', { creationMs: Math.max(0, Math.round(creationMs || 0)) });
+}
+
+/**
+ * Fire when a player picks up an EXISTING save — Continue, Load Game, or a
+ * passcode login.
+ *
+ * Without this the funnel only ever heard about character CREATION, so everyone
+ * returning to a save they already had was counted as a BOUNCE: they opened the
+ * app, created nothing, and landed in "never made a character". That is the
+ * opposite of what they did — a returning player is the strongest engagement
+ * signal the game has, and counting them as a bounce made the rate meaningless
+ * exactly as the game started retaining people.
+ *
+ * Sticky server-side, so it survives however many times they come back.
+ */
+export function reportSaveResumed(): void {
+	void send('resumed');
 }
 
 /** Fire once when the demo hard-stop is reached (the goal animals have returned).
