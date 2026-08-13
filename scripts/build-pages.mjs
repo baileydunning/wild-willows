@@ -84,6 +84,10 @@ const pages = {
 	// the policy pages. Regenerate with scripts/build-landing.mjs when screenshots
 	// or copy change.
 	landingHtml: 'public/landing.html',
+	// The teachers page, served at /teachers. Same deal as the landing page: a
+	// self-contained single string with its screenshots inlined as data URIs, and
+	// its <style> is the landing page's copied verbatim so the two cannot drift.
+	teachersHtml: 'public/teachers.html',
 };
 
 let out =
@@ -169,6 +173,7 @@ const sitemapSources = {
 	'/privacy.html': 'public/privacy.html',
 	'/age-rating.html': 'public/age-rating.html',
 	'/support.html': 'public/support.html',
+	'/teachers': 'public/teachers.html',
 	'/educator-guide.pdf': `public/pdfs/${pdfs.educatorGuidePdfB64}`,
 	'/student-worksheets.pdf': `public/pdfs/${pdfs.studentWorksheetsPdfB64}`,
 };

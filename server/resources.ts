@@ -58,7 +58,16 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, landingHtml, ogImageB64, buildStamp } from './pages';
+import {
+	privacyHtml,
+	ageRatingHtml,
+	supportHtml,
+	dashboardHtml,
+	landingHtml,
+	teachersHtml,
+	ogImageB64,
+	buildStamp,
+} from './pages';
 import { pageLastmod } from './page-lastmod';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
@@ -10419,6 +10428,12 @@ const LANDING_CLICK_TARGETS = new Set([
 	'get-nav',
 	'gallery',
 	'edu-nav',
+	// /teachers reports itself here, once per browser session, as a click rather
+	// than a visit. Visits are ONE undifferentiated series shared by every page
+	// that sends them, so a teachers-page visit would silently inflate the landing
+	// page's number with no way to unmix them later. Its own target keeps both
+	// numbers honest. See the comment in public/teachers.html's script.
+	'edu-page',
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
@@ -11198,6 +11213,11 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	privacy: { path: '/privacy.html', redirect: true, sitemap: true },
 	'age-rating': { path: '/age-rating.html', redirect: true, sitemap: true },
 	support: { path: '/support.html', redirect: true, sitemap: true },
+	// Extensionless on purpose: this one is not a store-listing URL that anything
+	// external already points at, so it gets the cleaner path teachers will type
+	// and share. Harper serves /teachers.html too (it strips the suffix), which
+	// costs nothing and cannot be linked to by accident.
+	teachers: { path: '/teachers', redirect: true, sitemap: true },
 	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
 	// the only thing on the site aimed squarely at teachers searching for a
 	// classroom ecology resource. No redirect: they are not served through
@@ -11324,6 +11344,23 @@ class SupportPage extends PublicEndpoint {
 class DashboardPage extends PublicEndpoint {
 	async get() {
 		return htmlPage(this, 'dashboard', dashboardHtml, { private: true });
+	}
+}
+
+/**
+ * GET /teachers — the classroom page: what the game teaches, how one class
+ * period runs, discussion prompts, and the two free PDFs.
+ *
+ * Its own page rather than a section of the landing page because the audience
+ * arrives differently. A teacher searching "ecosystem lesson plan grades 5-8"
+ * is not looking for a cozy game, and an anchor deep inside a 480 KB marketing
+ * page is neither a shareable link nor something a search engine will surface
+ * on its own terms. Splitting it also means the landing page stops paying for
+ * copy that only teachers read.
+ */
+class TeachersPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(this, 'teachers', teachersHtml);
 	}
 }
 
@@ -11567,6 +11604,7 @@ export {
 	PrivacyPage as privacy,
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,
+	TeachersPage as teachers,
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',
