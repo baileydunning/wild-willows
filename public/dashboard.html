@@ -2851,6 +2851,7 @@
 						appstore: 'Mac App Store',
 						itch: 'itch.io',
 						demo: 'Free demo',
+						play: 'Free demo',
 						theme: 'Theme played',
 						gallery: 'Gallery opened',
 						privacy: 'Privacy page',
@@ -2862,6 +2863,24 @@
 						'school-copy': 'Classroom copy request',
 						other: 'Other',
 					};
+					/* The primary CTA reported `demo` while it pointed at itch's storefront,
+					 * and reports `play` now that it opens the demo on wildwillows.app. Same
+					 * button, same intent, so they render as ONE series — otherwise the
+					 * headline CTA number appears to reset to zero on the day the link
+					 * changed, and the old total looks like it was lost.
+					 *
+					 * Folded HERE and not in the stored counters, which is the whole point:
+					 * LandingStat keeps `demo` and `play` apart on disk forever, so "how many
+					 * people did we send to itch before we hosted it ourselves" stays an
+					 * answerable question. Merging on write would have destroyed that. */
+					function mergeCtaClicks(clicks) {
+						const out = { ...(clicks || {}) };
+						if (out.demo) {
+							out.play = n(out.play) + n(out.demo);
+							delete out.demo;
+						}
+						return out;
+					}
 					const ldays = LANDING.days || [];
 					const todayRow = ldays.find((d) => d.day === LANDING.today) || {};
 					// Server-side download counts from the two PDF endpoints — the honest
@@ -2897,7 +2916,7 @@
 							cardTitled(
 								'Clicks by link',
 								'all-time',
-								barRows(objToEntries(lt.clicks), { labelMap: CLICK_LABELS, cls: 'gold' }),
+								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
 							cardTitled('Daily visits', `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
 							`</div>` +
