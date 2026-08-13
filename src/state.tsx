@@ -25,6 +25,14 @@ import { reportCharacterCreated, reportDemoComplete, reportSaveResumed } from '.
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
+import {
+	applyCollectResult,
+	applyCraftResult,
+	applyHarvestResult,
+	applyMoveResult,
+	applyPlaceResult,
+	applyPlantResult,
+} from './actionPatch';
 import { coalesceAfter, cancelCoalesced } from './perf';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
@@ -112,7 +120,10 @@ interface Ctx {
 	setGoals: (goals: any[]) => Promise<void>;
 	addGoal: (goal: any) => Promise<void>;
 	changeArea: (area: string) => Promise<void>;
-	recalcArea: (area: string) => Promise<void>;
+	// Fire-and-forget, NOT a promise: the recalc is coalesced (see recalcArea), so
+	// the call returns as soon as the request is queued and there is nothing
+	// meaningful to await — the refreshed state arrives via adoptState.
+	recalcArea: (area: string) => void;
 }
 
 const GameCtx = createContext<Ctx>(null as any);
@@ -1065,6 +1076,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						color: res?.color,
 					});
 				},
+				{ apply: (r, prev) => applyCollectResult(r, prev, biomeId) },
 			),
 		[act, data, pushLog, toast],
 	);
@@ -1127,6 +1139,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					else pushLog('leaf', t('app.log.planted', { name }));
 					bridge.emit('audio-sfx', { id: 'plant' });
 				},
+				{ apply: applyPlantResult },
 			),
 		[act, data, pushLog],
 	);
@@ -1152,6 +1165,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						bridge.emit('audio-sfx', { id: 'harvest' });
 					}
 				},
+				{ apply: applyHarvestResult },
 			),
 		[act, data, toast, pushLog],
 	);
@@ -1201,6 +1215,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					}
 					bridge.emit('audio-sfx', { id: 'craft' });
 				},
+				{ apply: applyCraftResult },
 			),
 		[act, data, toast],
 	);
@@ -1236,6 +1251,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					);
 					bridge.emit('audio-sfx', { id: 'place' });
 				},
+				{ apply: applyPlaceResult },
 			),
 		[act, data, pushLog],
 	);
@@ -1273,6 +1289,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					pushLog('pin', t('app.log.moved'));
 					bridge.emit('audio-sfx', { id: 'move' });
 				},
+				{ apply: applyMoveResult },
 			),
 		[act, pushLog],
 	);
@@ -1288,6 +1305,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					pushLog('pin', t('app.log.rotated'));
 					bridge.emit('audio-sfx', { id: 'move' });
 				},
+				{ apply: applyMoveResult },
 			);
 		},
 		[act, pushLog],

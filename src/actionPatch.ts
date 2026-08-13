@@ -1,0 +1,166 @@
+import type { GameState, Placement } from './types';
+
+/**
+ * Fold a gameplay POST response into the local snapshot.
+ *
+ * The sibling of `applyTerraformResult` (src/terraformPatch.ts), for the six
+ * verbs that were still paying for it twice.
+ *
+ * Every action used to cost TWO serial round trips: the POST that did the thing,
+ * then a blocking `GET /GameState/` before anything could be drawn. The second
+ * trip re-downloads the whole world — every placement, every terrain tile, the
+ * feed — uncompressed, so it got slower the more the player had built, and it
+ * lands on whichever continent the Harper node is on. Terraform was fixed this
+ * way and the other six were left behind, even though each of their responses
+ * already carries exactly what the refetch was wanted for.
+ *
+ * RULES, and they are what keep this safe:
+ *
+ *  1. Every function returns `null` to mean "I cannot reconstruct this — go get
+ *     the authoritative snapshot instead". Returning null is always correct and
+ *     costs only what today already costs, so when in doubt, return null.
+ *  2. Only fields the server actually SENT are written. Nothing is inferred from
+ *     what the client believes the rules are — that is how a client model drifts
+ *     from the server's and stays wrong until a reload.
+ *  3. An action that reshaped more than its own footprint (an animal came home, a
+ *     biome unlocked) bails out wholesale. Those touch discoveries, unlock flags,
+ *     achievements and feed entries the response does not enumerate.
+ *
+ * `scheduleReconcile()` in state.tsx re-fetches the real snapshot shortly after
+ * the last patched action either way, so anything not modelled here — daily-task
+ * progress, achievements — self-corrects within a second or so rather than
+ * lasting until the next full refresh.
+ *
+ * Pure, so it can be tested against the real server's responses with no React
+ * tree and no Phaser scene.
+ */
+
+/** Anything that reshapes more than the action's own footprint. */
+function broadChange(r: any): boolean {
+	return !r?.ok || !!r.newAnimals?.length || !!r.unlockedBiomes?.length;
+}
+
+/** Replace one placement by id, or append it if it is new. Never both. */
+function withPlacement(prev: GameState, placement: Placement): Placement[] {
+	const next = (prev.placements || []).filter((p) => p.id !== placement.id);
+	next.push(placement);
+	return next;
+}
+
+/** Fold in a recalculated biome, if the response carried one. */
+function withBiomeState(prev: GameState, next: GameState, r: any): GameState {
+	if (!r.biomeState) return next;
+	return {
+		...next,
+		biomeStates: (prev.biomeStates || []).map((b) => (b.biomeId === r.biomeState.biomeId ? r.biomeState : b)),
+	};
+}
+
+/**
+ * `POST /CollectResource/` -> `{ ok, gained, inventory, nodeId, harvestedAt }`.
+ *
+ * The node's cooldown is the whole point of the refetch here: without it the
+ * sprite stays a full node until the next refresh and the player gathers a bare
+ * patch. The row id is `worldId:area:nodeId` (see nodeAvailable in WorldScene),
+ * falling back to the player id for solo and legacy rows exactly as the reader
+ * does, so the two can never disagree about which row they mean.
+ */
+export function applyCollectResult(r: any, prev: GameState, area: string): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.inventory || !r.nodeId || typeof r.harvestedAt !== 'number') return null;
+	const wid = (prev as any).worldId || prev.player.id;
+	const id = `${wid}:${area}:${r.nodeId}`;
+	const nodeStates = (prev.nodeStates || []).filter((n) => n.id !== id);
+	nodeStates.push({ id, harvestedAt: r.harvestedAt });
+	return {
+		...prev,
+		player: { ...prev.player, inventory: r.inventory },
+		nodeStates,
+	};
+}
+
+/**
+ * `POST /Plant/` -> `{ ok, placement, inventory, usedFrom, perkGrowth, ...recalc }`.
+ *
+ * Sowing CONSUMES the watered bed it went into, and the response does not name
+ * the tile it removed — only the placement it created. The bed is at the
+ * placement's own square, so that is what is dropped, by position. Matching on
+ * the placement's coordinates rather than the caller's arguments keeps this
+ * anchored to what the server actually did.
+ */
+export function applyPlantResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.placement || !r.inventory) return null;
+	const p = r.placement as Placement;
+	const terrain = (prev.terrain || []).filter((tt: any) => !(tt.area === p.area && tt.x === p.x && tt.y === p.y));
+	const next: GameState = {
+		...prev,
+		terrain,
+		placements: withPlacement(prev, p),
+		player: { ...prev.player, inventory: r.inventory },
+	};
+	return withBiomeState(prev, next, r);
+}
+
+/**
+ * `POST /PlaceObject/` -> `{ ok, placement, craftedItems, ...recalc }`.
+ *
+ * No inventory here: placing spends a CRAFTED item, not raw resources.
+ */
+export function applyPlaceResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.placement || !r.craftedItems) return null;
+	const next: GameState = {
+		...prev,
+		placements: withPlacement(prev, r.placement as Placement),
+		player: { ...prev.player, craftedItems: r.craftedItems },
+	};
+	return withBiomeState(prev, next, r);
+}
+
+/**
+ * `POST /HarvestPlacement/` -> `{ ok, placementId, gained, inventory, placement }`.
+ *
+ * The returned placement carries the new `lastHarvestAt`, which is what moves the
+ * plant out of harvest-ready and restarts its regrow clock.
+ */
+export function applyHarvestResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.placement || !r.inventory) return null;
+	return {
+		...prev,
+		placements: withPlacement(prev, r.placement as Placement),
+		player: { ...prev.player, inventory: r.inventory },
+	};
+}
+
+/**
+ * `POST /CraftItem/` -> `{ ok, crafted, craftedItems, inventory, chests, usedFrom, refund, unlockedBiomes }`.
+ *
+ * Crafting can pull materials from chests, so `chests` comes back too and has to
+ * be adopted or a chest would still show the spent stack. Crafting the thing that
+ * opens a biome is caught by broadChange: an unlock rewrites the player's unlock
+ * flags and can seed a whole area's starting terrain.
+ */
+export function applyCraftResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.craftedItems || !r.inventory) return null;
+	const next: GameState = {
+		...prev,
+		player: { ...prev.player, craftedItems: r.craftedItems, inventory: r.inventory },
+	};
+	if (r.chests) next.chests = r.chests;
+	return next;
+}
+
+/**
+ * `POST /MoveObject/` -> `{ ok, placement }`.
+ *
+ * The narrowest of the six: one row moves, nothing else changes. Rotation rides
+ * the same endpoint and the same response.
+ */
+export function applyMoveResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.placement) return null;
+	return { ...prev, placements: withPlacement(prev, r.placement as Placement) };
+}

@@ -145,6 +145,20 @@ interface Interactable {
 	available?: () => boolean;
 }
 
+/** One built placement, kept so a repaint can reuse it instead of rebuilding it. */
+interface PlacementEntry {
+	/** Everything the sprites baked in; a mismatch means rebuild. */
+	key: string;
+	/** Every object created for this placement, so it can be torn down cleanly. */
+	objs: Phaser.GameObjects.GameObject[];
+	/** Re-pushed on every repaint — refreshDynamic empties the live list. */
+	its: Interactable[];
+	/** The only thing that keeps moving after the sprite exists (growth, maturing). */
+	applyScale: () => void;
+	/** The next clock event this placement is waiting on, if any. */
+	growth?: { at: number; matures: boolean };
+}
+
 export class WorldScene extends Phaser.Scene {
 	area = 'meadow';
 	private player!: Phaser.GameObjects.Image;
@@ -183,7 +197,22 @@ export class WorldScene extends Phaser.Scene {
 	private animalSig = ''; // routine refresh doesn't reset their wandering
 	private interactables: Interactable[] = [];
 	private nodes: NodeDef[] = [];
-	private nodeSprites = new Map<string, Phaser.GameObjects.Container>();
+	// Nodes and placements are DIFFED, for the same reason terrain is (above) and
+	// with the same shape. They were torn down and rebuilt in full on every
+	// world-dirty — every gather, dig, place and weather tick — so the cost of one
+	// action scaled with everything the player had ever built. Reviewers described
+	// it exactly: "any time there were too many resources on the screen my game
+	// would come to a screeching halt, especially as you're building and placing
+	// way more items." Each rebuild also re-created an infinite tween per node and
+	// per harvest-ready plant, and re-attached every pointer handler.
+	//
+	// Keyed by id plus everything the sprites bake in, so anything that actually
+	// changed is still rebuilt and anything that did not is left alone. Placing
+	// item #200 now costs what item #1 cost.
+	private nodeLayer!: Phaser.GameObjects.Group;
+	private nodeEntries = new Map<string, { key: string; container: Phaser.GameObjects.Container; it: Interactable }>();
+	private placementLayer!: Phaser.GameObjects.Group;
+	private placementSprites = new Map<string, PlacementEntry>();
 	private lastPrompt = '';
 	private unsubs: Array<() => void> = [];
 	private placementObjectId: string | null = null;
@@ -493,6 +522,12 @@ export class WorldScene extends Phaser.Scene {
 		// so the diff map has to start empty or it would track destroyed objects.
 		this.terrain = this.add.group();
 		this.terrainSprites.clear();
+		// Same contract as terrain: fresh groups per create(), so the diff maps never
+		// track sprites that went with the previous scene.
+		this.nodeLayer = this.add.group();
+		this.nodeEntries.clear();
+		this.placementLayer = this.add.group();
+		this.placementSprites.clear();
 
 		this.drawGround();
 		const playerKey = makePlayerTexture(this, bridge.shared.state?.player.appearance);
@@ -2184,14 +2219,22 @@ export class WorldScene extends Phaser.Scene {
 			this.dynamicSig = sig;
 		}
 		this.clearLayer(this.dynamic);
-		this.nodeSprites.clear();
 		this.interactables = [];
 		// Growth events are re-derived from the placements we are about to draw, so
 		// drop the previous timer rather than letting rebuilds pile them up.
 		this.clearGrowthTimer();
 		this.hoveredIt = null; // its hit zone was just destroyed; a fresh pointerover will re-set it
 		if (this.isIndoors) {
+			// Nodes never exist indoors and drawNodes() is not on this path, so they
+			// have to be dropped explicitly or the preserve's would show through the
+			// room. Placements need no such help: refreshHome() calls drawPlacements(),
+			// and anything belonging to the area you just left is absent from its
+			// `want` set, so the diff destroys it there.
+			this.clearNodeLayer();
 			this.refreshHome();
+			// A tent interior can hold plants too, so its growth events still need a
+			// timer — the outdoor path arms one at the end of refreshDynamic.
+			this.armGrowthTimer();
 			return;
 		}
 		// collision lookups: open water blocks walking unless bridged
@@ -2239,6 +2282,15 @@ export class WorldScene extends Phaser.Scene {
 		// drawPlacements() has now reported every upcoming growth event; arm the one
 		// timer that covers the soonest of them.
 		this.armGrowthTimer();
+	}
+
+	/** Drop every diffed node sprite (going indoors, where there are none). */
+	private clearNodeLayer() {
+		for (const entry of this.nodeEntries.values()) {
+			this.tweens.killTweensOf(entry.container);
+			entry.container.destroy();
+		}
+		this.nodeEntries.clear();
 	}
 
 	/** Cancel the pending growth timer and forget what it was waiting for. */
@@ -2362,9 +2414,12 @@ export class WorldScene extends Phaser.Scene {
 	private registerInteractable(
 		it: Interactable,
 		hitObject?: Phaser.GameObjects.GameObject,
-		opts: { terraformPassthrough?: boolean; keyOnly?: boolean } = {},
+		opts: { terraformPassthrough?: boolean; keyOnly?: boolean; collect?: Interactable[] } = {},
 	) {
-		this.interactables.push(it);
+		// `collect` routes the interactable into a diffed entry instead of the live
+		// list, so a surviving sprite can re-announce itself on later rebuilds
+		// without re-attaching its pointer handlers.
+		(opts.collect || this.interactables).push(it);
 		const target =
 			hitObject ||
 			this.addDyn(this.add.zone(it.x, it.y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true }));
@@ -3165,63 +3220,98 @@ export class WorldScene extends Phaser.Scene {
 		return Date.now() - rec.harvestedAt >= s.nodeRegenSeconds * 1000;
 	}
 
+	/**
+	 * Resource nodes, diffed like terrain.
+	 *
+	 * The node LAYOUT is seeded from the world id, so it only changes when the set
+	 * of nodes changes — not when one is gathered. Whether a node is currently
+	 * available is already handled separately by updateNodeVisuals(), which just
+	 * toggles two sprites. So the whole set used to be destroyed and rebuilt (a
+	 * container, two images, a hit area and an infinite tween each) on every
+	 * action, to end up looking identical.
+	 */
 	private drawNodes() {
 		this.nodes = this.computeNodes();
-		const data = bridge.shared.data;
+		const want = new Map<string, NodeDef>();
+		for (const node of this.nodes) want.set(node.id, node);
+		for (const [id, entry] of [...this.nodeEntries]) {
+			const node = want.get(id);
+			if (node && this.nodeKey(node) === entry.key) continue;
+			this.tweens.killTweensOf(entry.container);
+			entry.container.destroy();
+			this.nodeEntries.delete(id);
+		}
 		for (const node of this.nodes) {
-			const res = data?.resources.find((r) => r.id === node.resourceId);
-			const x = node.tx * TILE + 16;
-			const y = node.ty * TILE + 16;
-			const container = this.add.container(x, y).setDepth(y);
-
-			const texKey = this.textures.exists(`rnode-${node.resourceId}`) ? `rnode-${node.resourceId}` : 'node';
-			const img = this.img(0, 0, texKey);
-			if (texKey === 'node') img.setTint(Phaser.Display.Color.HexStringToColor(res?.color || '#999999').color);
-			const sprout = this.img(0, 2, 'sprout');
-			container.add([img, sprout]);
-			(container as any).nodeImg = img;
-			(container as any).sproutImg = sprout;
-			container.setSize(52, 52).setInteractive({ useHandCursor: true });
-			this.addDyn(container);
-			this.nodeSprites.set(node.id, container);
-			this.tweens.add({
-				targets: container,
-				scale: { from: 1, to: 1.07 },
-				duration: 1100 + (node.tx % 5) * 130,
-				yoyo: true,
-				repeat: -1,
-				ease: 'Sine.easeInOut',
-			});
-			const it: Interactable = {
-				x,
-				y,
-				label: t('game.label.gather', {
-					name: content('resource', node.resourceId, 'name', res?.name || node.resourceId),
-				}),
-				available: () => this.nodeAvailable(node),
-				action: () => {
-					if (this.nodeAvailable(node))
-						bridge.emit('collect-node', {
-							biomeId: this.area,
-							nodeId: node.id,
-							resourceId: node.resourceId,
-						});
-					else
-						bridge.emit('toast', {
-							text: t('game.toast.stillRegrowing'),
-							kind: 'error',
-						});
-				},
-			};
-			this.registerInteractable(it, container);
+			const existing = this.nodeEntries.get(node.id);
+			if (existing) {
+				// refreshDynamic emptied this.interactables, so survivors re-announce.
+				this.interactables.push(existing.it);
+				continue;
+			}
+			this.nodeEntries.set(node.id, this.buildNode(node));
 		}
 		this.updateNodeVisuals();
+	}
+
+	/** Everything about a node its sprites bake in. Availability is deliberately
+	 *  absent — that is updateNodeVisuals()'s job and costs two setVisible calls. */
+	private nodeKey(node: NodeDef): string {
+		return `${node.resourceId}|${node.tx}|${node.ty}`;
+	}
+
+	private buildNode(node: NodeDef) {
+		const data = bridge.shared.data;
+		const res = data?.resources.find((r) => r.id === node.resourceId);
+		const x = node.tx * TILE + 16;
+		const y = node.ty * TILE + 16;
+		const container = this.add.container(x, y).setDepth(y);
+
+		const texKey = this.textures.exists(`rnode-${node.resourceId}`) ? `rnode-${node.resourceId}` : 'node';
+		const img = this.img(0, 0, texKey);
+		if (texKey === 'node') img.setTint(Phaser.Display.Color.HexStringToColor(res?.color || '#999999').color);
+		const sprout = this.img(0, 2, 'sprout');
+		container.add([img, sprout]);
+		(container as any).nodeImg = img;
+		(container as any).sproutImg = sprout;
+		container.setSize(52, 52).setInteractive({ useHandCursor: true });
+		this.nodeLayer.add(container);
+		this.tweens.add({
+			targets: container,
+			scale: { from: 1, to: 1.07 },
+			duration: 1100 + (node.tx % 5) * 130,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
+		const it: Interactable = {
+			x,
+			y,
+			label: t('game.label.gather', {
+				name: content('resource', node.resourceId, 'name', res?.name || node.resourceId),
+			}),
+			available: () => this.nodeAvailable(node),
+			action: () => {
+				if (this.nodeAvailable(node))
+					bridge.emit('collect-node', {
+						biomeId: this.area,
+						nodeId: node.id,
+						resourceId: node.resourceId,
+					});
+				else
+					bridge.emit('toast', {
+						text: t('game.toast.stillRegrowing'),
+						kind: 'error',
+					});
+			},
+		};
+		this.registerInteractable(it, container);
+		return { key: this.nodeKey(node), container, it };
 	}
 
 	private updateNodeVisuals() {
 		if (!this.alive) return;
 		for (const node of this.nodes) {
-			const c = this.nodeSprites.get(node.id);
+			const c = this.nodeEntries.get(node.id)?.container;
 			if (!c || !c.active) continue;
 			const available = this.nodeAvailable(node);
 			((c as any).nodeImg as Phaser.GameObjects.Image).setVisible(available);
@@ -3501,266 +3591,368 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+	 * Placements, diffed like terrain and nodes.
+	 *
+	 * This is the one that players felt most: every gather, dig, place and weather
+	 * tick destroyed and rebuilt every item in the biome — sprite, shadow, hit
+	 * area, pointer handler, and for harvest-ready plants an infinite tween — to
+	 * end up drawing the same thing. The more you had built, the more each action
+	 * cost, which is why it degraded over a session on hardware that should never
+	 * have struggled.
+	 */
 	private drawPlacements() {
 		const s = bridge.shared.state;
 		if (!s) return;
+		const want = new Map<string, any>();
 		for (const p of s.placements) {
 			if (p.area !== this.area) continue;
-			const def = this.objectDef(p.objectId);
-			if (!def) continue;
-			const x = p.x * TILE + 16;
-			const y = p.y * TILE + 16;
-			const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-			this.addDyn(
-				this.img(x, y + (tall ? 22 : 10), 'shadow')
-					.setDepth(3)
-					.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
-			);
-
-			// freshly planted things start as a sprout and grow in
-			const growMs = (def.growSeconds || 0) * 1000;
-			const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
-			const stillGrowing = growMs > 0 && age < growMs;
-			// fall back to the generic kit sprite if this object's shape texture is
-			// missing (e.g. data with a newer shape than the loaded client), so a
-			// placed item never renders as a blank/black missing-texture square
-			const shapeKey = `obj-${def.shape || 'kit'}`;
-			const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
-			const img = this.addDyn(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
-			// Reported, not scheduled: armGrowthTimer() sets one timer for the soonest
-			// of these once the whole field has been drawn.
-			if (stillGrowing) this.noteGrowth(Date.now() + (growMs - age) + 300, true);
-
-			// Harvest-ready plants get a soft golden glint above them; if one will
-			// become ready later (regrowing after a harvest), nudge a repaint then so
-			// the glint appears on its own.
-			if (def.yield && p.plantedAt && !stillGrowing) {
-				const readyAt = harvestReadyAt(def, {
-					plantedAt: p.plantedAt,
-					lastHarvestAt: (p as any).lastHarvestAt,
-				});
-				const now = Date.now();
-				if (readyAt != null && now >= readyAt) {
-					// A single small, dim star that twinkles occasionally above the plant —
-					// staggered per-plant so a field of ready plants doesn't pulse in
-					// unison (the old full glow on every plant read as a wall of light).
-					this.ensureMoteTexture();
-					const stagger = hashStr(p.id) % 1400;
-					const mote = this.addDyn(
-						this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote')
-							.setDepth(y + 40)
-							.setTint(0xffe9a8)
-							.setAlpha(0)
-							.setScale(0.12),
-					);
-					mote.setBlendMode(Phaser.BlendModes.ADD);
-					this.tweens.add({
-						targets: mote,
-						alpha: { from: 0, to: 0.7 },
-						scale: { from: 0.08, to: 0.17 },
-						angle: { from: 0, to: 40 },
-						duration: 780,
-						delay: stagger,
-						hold: 120,
-						yoyo: true,
-						repeat: -1,
-						repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
-						ease: 'Sine.easeInOut',
-					});
-					// Register it so E / Space (and the mobile interact button) harvest the
-					// nearest ready plant, just like gathering a node. Clicking still opens
-					// the placement menu (which also has a Harvest button).
-					this.interactables.push({
-						x,
-						y,
-						label: t('game.label.harvest', {
-							name: content('habitatObject', p.objectId, 'name', def.name),
-						}),
-						action: () => bridge.emit('harvest-placement', { placementId: p.id }),
-					});
-				} else if (readyAt != null) {
-					// Becoming harvestable only adds a glint — no habitat change, so no recalc.
-					this.noteGrowth(readyAt + 200, false);
-				}
+			if (!this.objectDef(p.objectId)) continue;
+			want.set(p.id, p);
+		}
+		// Gone, or changed in a way its sprites baked in: drop the old build.
+		for (const [id, entry] of [...this.placementSprites]) {
+			const p = want.get(id);
+			if (p && this.placementKey(p) === entry.key) continue;
+			this.destroyPlacement(entry);
+			this.placementSprites.delete(id);
+		}
+		for (const p of want.values()) {
+			let entry = this.placementSprites.get(p.id);
+			if (entry) {
+				// Survived: only the clock-driven part needs touching.
+				entry.applyScale();
+			} else {
+				entry = this.buildPlacement(p);
+				this.placementSprites.set(p.id, entry);
 			}
+			// refreshDynamic emptied this.interactables, so survivors re-announce.
+			for (const it of entry.its) this.interactables.push(it);
+			if (entry.growth) this.noteGrowth(entry.growth.at, entry.growth.matures);
+		}
+	}
 
-			// Camp fixtures stay crisp and identical; everything the player crafts
-			// and places gets a little deterministic character seeded from its
-			// placement id, so no two crafted items look exactly alike.
-			const isFixture =
-				def.isChest ||
-				!!def.onePerArea ||
-				['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
-			const growScale = stillGrowing ? 1 + (age / growMs) * 0.6 : 1;
-			// Living habitat keeps growing for real hours after placement
-			// (matureHours): young plants render smaller and ease up to full size
-			// as they mature — so the preserve visibly grows between sessions.
-			const matMs = (def.matureHours || 0) * 3_600_000;
+	/**
+	 * Everything about a placement that its sprites bake in.
+	 *
+	 * Deliberately conservative: plantedAt and lastHarvestAt are in here even
+	 * though they only reach the sprite indirectly, because the click handler
+	 * closes over them — a stale closure would report the wrong harvest time to
+	 * the placement menu. Anything not listed here must be re-derivable by
+	 * applyScale(), or it does not belong outside the key.
+	 */
+	private placementKey(p: any): string {
+		const def = this.objectDef(p.objectId);
+		const growMs = (def?.growSeconds || 0) * 1000;
+		const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
+		const growing = growMs > 0 && age < growMs;
+		let ready = 0;
+		if (def?.yield && p.plantedAt && !growing) {
+			const at = harvestReadyAt(def, { plantedAt: p.plantedAt, lastHarvestAt: p.lastHarvestAt });
+			ready = at != null && Date.now() >= at ? 1 : 0;
+		}
+		return [
+			p.objectId,
+			p.x,
+			p.y,
+			p.rotation || 0,
+			p.color || '',
+			p.plantedAt || 0,
+			p.lastHarvestAt || 0,
+			growing ? 1 : 0,
+			ready,
+		].join('|');
+	}
+
+	private destroyPlacement(entry: PlacementEntry) {
+		for (const o of entry.objs) {
+			this.tweens.killTweensOf(o);
+			o.destroy();
+		}
+	}
+
+	private buildPlacement(p: any): PlacementEntry {
+		const def = this.objectDef(p.objectId)!;
+		const objs: Phaser.GameObjects.GameObject[] = [];
+		const its: Interactable[] = [];
+		let growth: { at: number; matures: boolean } | undefined;
+		let applyScale: () => void = () => undefined;
+		/** Adopt an object into the placement layer AND the entry's teardown list. */
+		const own = <T extends Phaser.GameObjects.GameObject>(o: T): T => {
+			this.placementLayer.add(o);
+			objs.push(o);
+			return o;
+		};
+		const x = p.x * TILE + 16;
+		const y = p.y * TILE + 16;
+		const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
+		own(
+			this.img(x, y + (tall ? 22 : 10), 'shadow')
+				.setDepth(3)
+				.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
+		);
+
+		// freshly planted things start as a sprout and grow in
+		const growMs = (def.growSeconds || 0) * 1000;
+		const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
+		const stillGrowing = growMs > 0 && age < growMs;
+		// fall back to the generic kit sprite if this object's shape texture is
+		// missing (e.g. data with a newer shape than the loaded client), so a
+		// placed item never renders as a blank/black missing-texture square
+		const shapeKey = `obj-${def.shape || 'kit'}`;
+		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
+		const img = own(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
+		// Recorded on the entry, not scheduled: armGrowthTimer() sets one timer for
+		// the soonest across the whole field, and a surviving entry replays this
+		// without being rebuilt.
+		if (stillGrowing) growth = { at: p.plantedAt + growMs + 300, matures: true };
+
+		// Harvest-ready plants get a soft golden glint above them; if one will
+		// become ready later (regrowing after a harvest), nudge a repaint then so
+		// the glint appears on its own.
+		if (def.yield && p.plantedAt && !stillGrowing) {
+			const readyAt = harvestReadyAt(def, {
+				plantedAt: p.plantedAt,
+				lastHarvestAt: (p as any).lastHarvestAt,
+			});
+			const now = Date.now();
+			if (readyAt != null && now >= readyAt) {
+				// A single small, dim star that twinkles occasionally above the plant —
+				// staggered per-plant so a field of ready plants doesn't pulse in
+				// unison (the old full glow on every plant read as a wall of light).
+				this.ensureMoteTexture();
+				const stagger = hashStr(p.id) % 1400;
+				const mote = own(
+					this.img(x + (tall ? 7 : 5), y - (tall ? 22 : 10), 'harvest-mote')
+						.setDepth(y + 40)
+						.setTint(0xffe9a8)
+						.setAlpha(0)
+						.setScale(0.12),
+				);
+				mote.setBlendMode(Phaser.BlendModes.ADD);
+				this.tweens.add({
+					targets: mote,
+					alpha: { from: 0, to: 0.7 },
+					scale: { from: 0.08, to: 0.17 },
+					angle: { from: 0, to: 40 },
+					duration: 780,
+					delay: stagger,
+					hold: 120,
+					yoyo: true,
+					repeat: -1,
+					repeatDelay: 900 + (hashStr(p.id + 'r') % 900),
+					ease: 'Sine.easeInOut',
+				});
+				// Register it so E / Space (and the mobile interact button) harvest the
+				// nearest ready plant, just like gathering a node. Clicking still opens
+				// the placement menu (which also has a Harvest button).
+				its.push({
+					x,
+					y,
+					label: t('game.label.harvest', {
+						name: content('habitatObject', p.objectId, 'name', def.name),
+					}),
+					action: () => bridge.emit('harvest-placement', { placementId: p.id }),
+				});
+			} else if (readyAt != null) {
+				// Becoming harvestable only adds a glint — no habitat change, so no recalc.
+				growth = { at: readyAt + 200, matures: false };
+			}
+		}
+
+		// Camp fixtures stay crisp and identical; everything the player crafts
+		// and places gets a little deterministic character seeded from its
+		// placement id, so no two crafted items look exactly alike.
+		const isFixture =
+			def.isChest ||
+			!!def.onePerArea ||
+			['workbench', 'field-journal-stand', 'bed', 'home-bed', 'home-sleeping-bag'].includes(p.objectId);
+		// Living habitat keeps growing for real hours after placement
+		// (matureHours): young plants render smaller and ease up to full size
+		// as they mature — so the preserve visibly grows between sessions.
+		const matMs = (def.matureHours || 0) * 3_600_000;
+		// player-chosen quarter-turn (see PlaceObject/MoveObject), radians
+		const rot = Phaser.Math.DegToRad((p as any).rotation || 0);
+		// Flip, lean and shade are drawn from a generator seeded by the placement
+		// id, so they are decided ONCE, here. The draw ORDER matters — it is what
+		// makes a given item look the same every session — so it is unchanged.
+		let sizeJitter = 1;
+		if (isFixture) {
+			if (rot) img.setRotation(rot);
+		} else {
+			const vr = mulberry32(hashStr(p.id));
+			img.setFlipX(vr() < 0.5);
+			img.setRotation(rot + (vr() - 0.5) * 0.12); // chosen turn + a natural ±~3.5° lean
+			sizeJitter = 0.9 + vr() * 0.2; // 0.9–1.1 size
+			const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
+			const v = Math.round(255 * shade);
+			img.setTint((v << 16) | (v << 8) | v);
+		}
+		// The only thing that keeps changing once the sprite exists. Read from the
+		// clock rather than the age captured at build time, so a survivor's growth
+		// stays smooth across repaints instead of freezing at its build moment.
+		applyScale = () => {
+			const liveAge = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
+			const growScale = stillGrowing && growMs > 0 ? 1 + (Math.min(liveAge, growMs) / growMs) * 0.6 : 1;
 			const placedAge = Date.now() - (p.placedAt || 0);
 			const matureScale = matMs > 0 && !stillGrowing && p.placedAt ? 0.72 + 0.28 * Math.min(1, placedAge / matMs) : 1;
-			// player-chosen quarter-turn (see PlaceObject/MoveObject), radians
-			const rot = Phaser.Math.DegToRad((p as any).rotation || 0);
-			if (isFixture) {
-				img.setScale(growScale * matureScale * INV_TEX_SCALE);
-				if (rot) img.setRotation(rot);
-			} else {
-				const vr = mulberry32(hashStr(p.id));
-				img.setFlipX(vr() < 0.5);
-				img.setRotation(rot + (vr() - 0.5) * 0.12); // chosen turn + a natural ±~3.5° lean
-				img.setScale(growScale * matureScale * (0.9 + vr() * 0.2) * INV_TEX_SCALE); // 0.9–1.1 size
-				const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
-				const v = Math.round(255 * shade);
-				img.setTint((v << 16) | (v << 8) | v);
-			}
-			// paint-tool recolor: a per-item color override wins over the default tint
-			if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
+			img.setScale(growScale * matureScale * sizeJitter * INV_TEX_SCALE);
+		};
+		applyScale();
+		// paint-tool recolor: a per-item color override wins over the default tint
+		if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
 
-			// placed campfires glow like the base-camp fire: a warm, steady additive
-			// halo (wide wash + bright core — indoors too, cozy in a tent). At night
-			// the light mask also carves the dark away here.
-			if (p.objectId === 'campfire') {
-				const glow = this.addDyn(
-					this.img(x, y, 'glow')
-						.setTint(0xffb84f)
-						.setDepth(y - 1)
-						.setScale(1.7 * INV_TEX_SCALE),
-				) as Phaser.GameObjects.Image;
-				glow.setBlendMode(Phaser.BlendModes.ADD);
-				const core = this.addDyn(
-					this.img(x, y, 'glow')
-						.setTint(0xffd98a)
-						.setDepth(y + 2)
-						.setAlpha(0.4)
-						.setScale(0.55 * INV_TEX_SCALE),
-				) as Phaser.GameObjects.Image;
-				core.setBlendMode(Phaser.BlendModes.ADD);
-			}
+		// placed campfires glow like the base-camp fire: a warm, steady additive
+		// halo (wide wash + bright core — indoors too, cozy in a tent). At night
+		// the light mask also carves the dark away here.
+		if (p.objectId === 'campfire') {
+			const glow = own(
+				this.img(x, y, 'glow')
+					.setTint(0xffb84f)
+					.setDepth(y - 1)
+					.setScale(1.7 * INV_TEX_SCALE),
+			) as Phaser.GameObjects.Image;
+			glow.setBlendMode(Phaser.BlendModes.ADD);
+			const core = own(
+				this.img(x, y, 'glow')
+					.setTint(0xffd98a)
+					.setDepth(y + 2)
+					.setAlpha(0.4)
+					.setScale(0.55 * INV_TEX_SCALE),
+			) as Phaser.GameObjects.Image;
+			core.setBlendMode(Phaser.BlendModes.ADD);
+		}
 
-			img.setInteractive({ useHandCursor: true });
-			// Beds render as fixtures (crisp, no random lean or tint) but do NOT claim
-			// the click: sleeping is key-only, so a tap falls through to the normal
-			// placement menu and you can move a bed like any other piece of furniture.
-			const hasPrimaryAction = isFixture && !isSleepable(p.objectId);
-			const defName = content('habitatObject', p.objectId, 'name', def.name);
-			img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
-				if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
-				if (this.placementObjectId || this.movingPlacementId) return;
-				if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
-				// shovel digs planted things back up — materials are refunded
-				if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
-					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 155) bridge.emit('dig-up', { placementId: p.id, name: defName });
-					else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
-					return;
-				}
-				if (this.terraformAction()) return;
-				if (pointer.event && (pointer.event as MouseEvent).shiftKey) {
-					bridge.emit('remove-placement', {
+		img.setInteractive({ useHandCursor: true });
+		// Beds render as fixtures (crisp, no random lean or tint) but do NOT claim
+		// the click: sleeping is key-only, so a tap falls through to the normal
+		// placement menu and you can move a bed like any other piece of furniture.
+		const hasPrimaryAction = isFixture && !isSleepable(p.objectId);
+		const defName = content('habitatObject', p.objectId, 'name', def.name);
+		img.on('pointerdown', (pointer: Phaser.Input.Pointer) => {
+			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
+			if (this.placementObjectId || this.movingPlacementId) return;
+			if (this.activeTool === 'paint' && this.isHome) return; // painting handled globally
+			// shovel digs planted things back up — materials are refunded
+			if (this.terraformAction() === 'dig' && def.plantable && p.plantedAt) {
+				const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
+				if (dist <= 155) bridge.emit('dig-up', { placementId: p.id, name: defName });
+				else bridge.emit('toast', { text: t('game.toast.walkCloser'), kind: 'info' });
+				return;
+			}
+			if (this.terraformAction()) return;
+			if (pointer.event && (pointer.event as MouseEvent).shiftKey) {
+				bridge.emit('remove-placement', {
+					placementId: p.id,
+					objectId: p.objectId,
+					name: defName,
+				});
+				return;
+			}
+			if (!hasPrimaryAction) {
+				const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
+				if (dist <= 155)
+					bridge.emit('placement-clicked', {
 						placementId: p.id,
 						objectId: p.objectId,
 						name: defName,
+						plantedAt: p.plantedAt,
+						lastHarvestAt: (p as any).lastHarvestAt,
+						x: p.x,
+						y: p.y,
+						rotation: p.rotation || 0,
 					});
-					return;
-				}
-				if (!hasPrimaryAction) {
-					const dist = Phaser.Math.Distance.Between(this.player.x, this.player.y, x, y);
-					if (dist <= 155)
-						bridge.emit('placement-clicked', {
-							placementId: p.id,
-							objectId: p.objectId,
-							name: defName,
-							plantedAt: p.plantedAt,
-							lastHarvestAt: (p as any).lastHarvestAt,
-							x: p.x,
-							y: p.y,
-							rotation: p.rotation || 0,
-						});
-					else
-						bridge.emit('toast', {
-							text: t('game.toast.walkCloser'),
-							kind: 'info',
-						});
-				}
-			});
-
-			if (p.objectId === 'trail-tent') {
-				// your away-base: step inside to decorate it (its own little interior)
-				const interior = `tent-${this.area}`;
-				this.registerInteractable(
-					{
-						x,
-						y: y + 8,
-						label: t('game.label.stepInTent'),
-						action: () => bridge.emit('request-area', { area: interior }),
-					},
-					img,
-				);
-			} else if (def.isChest) {
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.openChest', { name: defName }),
-						action: () => bridge.emit('open-chest', { chestId: p.id }),
-					},
-					img,
-				);
-			} else if (p.objectId === 'workbench') {
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.openCrafting'),
-						action: () => bridge.emit('open-crafting'),
-					},
-					img,
-				);
-			} else if (p.objectId === 'field-journal-stand') {
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.readJournal'),
-						// A stand out in the world opens the journal AT the biome you're
-						// standing in. Reopening from the menu still resumes wherever you
-						// last were, but walking up to a lectern in the wetland and being
-						// shown the forest page is wrong — the stand is a thing in a place.
-						// tentBiome covers a stand pitched inside a trail tent, whose area
-						// id is `tent-<biome>` rather than a biome id.
-						action: () => bridge.emit('open-journal', { area: this.tentBiome || this.area }),
-					},
-					img,
-				);
-			} else if (isSleepable(p.objectId)) {
-				// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
-				// placement menu below (move / rotate / pick up), which is what you
-				// almost always mean when you click furniture.
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.sleep'),
-						action: () => this.sleepAt(x, y),
-					},
-					img,
-					{ keyOnly: true },
-				);
-			} else if (p.objectId === 'bed') {
-				this.registerInteractable(
-					{
-						x,
-						y,
-						label: t('game.label.restMoment'),
-						action: () =>
-							bridge.emit('toast', {
-								text: t('game.toast.quietBreath'),
-								kind: 'info',
-							}),
-					},
-					img,
-				);
+				else
+					bridge.emit('toast', {
+						text: t('game.toast.walkCloser'),
+						kind: 'info',
+					});
 			}
+		});
+
+		if (p.objectId === 'trail-tent') {
+			// your away-base: step inside to decorate it (its own little interior)
+			const interior = `tent-${this.area}`;
+			this.registerInteractable(
+				{
+					x,
+					y: y + 8,
+					label: t('game.label.stepInTent'),
+					action: () => bridge.emit('request-area', { area: interior }),
+				},
+				img,
+				{ collect: its },
+			);
+		} else if (def.isChest) {
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.openChest', { name: defName }),
+					action: () => bridge.emit('open-chest', { chestId: p.id }),
+				},
+				img,
+				{ collect: its },
+			);
+		} else if (p.objectId === 'workbench') {
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.openCrafting'),
+					action: () => bridge.emit('open-crafting'),
+				},
+				img,
+				{ collect: its },
+			);
+		} else if (p.objectId === 'field-journal-stand') {
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readJournal'),
+					// A stand out in the world opens the journal AT the biome you're
+					// standing in. Reopening from the menu still resumes wherever you
+					// last were, but walking up to a lectern in the wetland and being
+					// shown the forest page is wrong — the stand is a thing in a place.
+					// tentBiome covers a stand pitched inside a trail tent, whose area
+					// id is `tent-<biome>` rather than a biome id.
+					action: () => bridge.emit('open-journal', { area: this.tentBiome || this.area }),
+				},
+				img,
+				{ collect: its },
+			);
+		} else if (isSleepable(p.objectId)) {
+			// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
+			// placement menu below (move / rotate / pick up), which is what you
+			// almost always mean when you click furniture.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.sleep'),
+					action: () => this.sleepAt(x, y),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'bed') {
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.restMoment'),
+					action: () =>
+						bridge.emit('toast', {
+							text: t('game.toast.quietBreath'),
+							kind: 'info',
+						}),
+				},
+				img,
+				{ collect: its },
+			);
 		}
+		return { key: this.placementKey(p), objs, its, applyScale, growth };
 	}
 
 	private drawAnimals() {
