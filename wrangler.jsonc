@@ -35,22 +35,30 @@
 		// The demo is a single-page app: an unknown path should hand back the app
 		// shell, not a 404, so a stale bookmark still lands in the game.
 		"not_found_handling": "single-page-application",
-		// Run the Worker ONLY for the HTML entry point. `run_worker_first` defaults
-		// to false, which means a Worker with assets never sees requests that match
-		// an asset — so the headers in play.js would silently never be applied.
-		// Setting it to `true` instead would work, but bills a Worker invocation for
-		// every chunk and image as well. Search engines index the page, not the JS,
-		// so the entry point is the only place the robots header has to land.
-		// TRUE, not a path list. The Worker now proxies ~40 gameplay endpoints, and
-		// with `not_found_handling: single-page-application` any path it does NOT see
-		// first is answered by the asset server with index.html and a 200 — so a
-		// forgotten entry would not 404, it would return a page of HTML to a game
-		// action and look like corrupt server state. An explicit list is one rename
-		// away from that; routing everything through the Worker cannot drift.
+		// DEFAULT-ON, WITH TWO CARVE-OUTS. `run_worker_first` defaults to false,
+		// which means a Worker with assets never sees requests that match an asset —
+		// so the headers in play.js would silently never be applied.
 		//
-		// The cost is a Worker invocation per asset request as well. At Workers'
-		// per-request pricing that is noise next to the correctness it buys.
-		"run_worker_first": true
+		// The list is deliberately NOT an allowlist of the ~40 proxied gameplay
+		// endpoints. With `not_found_handling: single-page-application` any path the
+		// Worker does NOT see first is answered by the asset server with index.html
+		// and a 200 — so a forgotten entry would not 404, it would return a page of
+		// HTML to a game action and look like corrupt server state. `/*` keeps that
+		// impossible: a new endpoint is covered the day it is added, with nothing to
+		// remember. Only the two directories that can never hold an endpoint are
+		// excluded, so the list cannot drift out of step with src/api.ts.
+		//
+		// Why exclude them: requests to static assets are free and unlimited, but a
+		// Worker invocation for the same request is billed. /assets and /audio are
+		// ~15 of the ~20 requests a cold first load makes, and they are the two
+		// directories the robots header does not need to land on — search engines
+		// index the page, not the JS chunks. Everything that renders as a page
+		// (/, /landing.html, /privacy.html, /pdfs/*, any SPA route) still goes
+		// through the Worker and still gets x-robots-tag + canonical.
+		//
+		// Negative patterns take precedence over positive ones; see
+		// developers.cloudflare.com/workers/static-assets/routing/worker-script/
+		"run_worker_first": ["/*", "!/assets/*", "!/audio/*"]
 	},
 	// A custom domain, NOT a route: Cloudflare creates the DNS record and issues
 	// the certificate itself. Nothing to add by hand in the DNS tab, and nothing

@@ -59,6 +59,9 @@ interface Task {
 }
 
 const tasks = new Map<string, Task>();
+
+/** Pending `coalesceAfter` timers, keyed the same way `tasks` is. */
+const timers = new Map<string, ReturnType<typeof setTimeout>>();
 let scheduled = false;
 let lastFrameAt = 0;
 /** EWMA of observed frame interval, used as a whole-device health signal. */
@@ -206,6 +209,47 @@ export function perfSnapshot(): Record<string, { costMs: number; skip: number; r
 	return out;
 }
 
+/**
+ * Time-coalesced sibling of `scheduleFlush`, for work that must be deferred by a
+ * real interval rather than to the next frame.
+ *
+ * FIRST CALL WINS, and it arms the timer; every call for the same key inside the
+ * window is dropped, because the run already queued will cover it. That is the
+ * opposite of `scheduleFlush`'s last-writer-wins rule, and deliberately so: this
+ * exists for events whose *fn is identical every time* (recalculate biome X) and
+ * whose cost is a network round trip. Resetting the timer on each call — a plain
+ * debounce — would let a steady drip of events postpone the work forever.
+ *
+ * Latency is therefore bounded at `ms`, no matter how many calls arrive.
+ *
+ * Why it exists: a row of plants sown in one sitting finishes growing at close to
+ * the same moment, and every finish fired its own RecalcBiome POST plus a full
+ * GameState refetch. Players reported the game dropping to 1 fps and needing a
+ * page refresh. One round trip per burst is indistinguishable to them.
+ */
+export function coalesceAfter(key: string, ms: number, fn: () => void): void {
+	if (timers.has(key)) return;
+	timers.set(
+		key,
+		setTimeout(() => {
+			timers.delete(key);
+			try {
+				fn();
+			} catch (e) {
+				console.error('coalesced task failed', e);
+			}
+		}, ms),
+	);
+}
+
+/** Drop a queued coalesced run (teardown, or the work became irrelevant). */
+export function cancelCoalesced(key: string): void {
+	const t = timers.get(key);
+	if (t === undefined) return;
+	clearTimeout(t);
+	timers.delete(key);
+}
+
 /** Observed average frame interval, ms. */
 export const frameTimeMs = (): number => frameMs;
 
@@ -217,4 +261,6 @@ export function resetPerf(): void {
 	frameMs = FRAME_MS;
 	lastFrameAt = 0;
 	scheduled = false;
+	for (const t of timers.values()) clearTimeout(t);
+	timers.clear();
 }

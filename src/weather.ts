@@ -151,6 +151,41 @@ let _haveAnchor = false;
 let _anchorServerT = 0;
 let _anchorWallT = 0;
 let _anchorBase = NaN;
+/** When the tab went hidden, or 0 while it is visible. */
+let _hiddenAt = 0;
+
+/**
+ * Beyond this much disagreement, the snapshot is not a lagging report of THIS
+ * world — it is a different one (another save loaded, a world reset), so it wins
+ * outright. Inside it, a snapshot that reads behind our estimate just means play
+ * time is still being counted in ~30s heartbeat steps.
+ */
+const RESET_GAP_MS = 60 * 60 * 1000;
+
+/**
+ * Wall time, but only the part the player was actually here for.
+ *
+ * The world's clock is PLAY time: the server derives it from playSeconds, which
+ * accrues on heartbeats and stops while the tab is hidden. If our estimate ran on
+ * real time it would sail past the server's during any spell away, and the next
+ * snapshot would have to drag it back.
+ */
+function playedNow(): number {
+	return _hiddenAt || Date.now();
+}
+
+if (typeof document !== 'undefined') {
+	document.addEventListener('visibilitychange', () => {
+		if (document.visibilityState === 'hidden') {
+			_hiddenAt = Date.now();
+		} else if (_hiddenAt) {
+			// Push the anchor forward by exactly the time away, so the estimate
+			// resumes where it stopped rather than where the wall clock got to.
+			_anchorWallT += Date.now() - _hiddenAt;
+			_hiddenAt = 0;
+		}
+	});
+}
 
 /** Continuously-advancing play-time estimate (ms) derived from a snapshot.
  *  Re-syncs ONLY when the snapshot's play-time actually moves (a heartbeat, an
@@ -159,15 +194,47 @@ let _anchorBase = NaN;
  *  idle instead of stalling between snapshot refreshes. (Same approach the HUD
  *  DayTimer uses for its clock, so all of them stay in sync.) */
 export function liveTime(snap: WeatherSnapshot | null | undefined): number {
-	if (!snap) return _haveAnchor ? _anchorServerT + (Date.now() - _anchorWallT) : Date.now();
+	if (!snap) return _haveAnchor ? _anchorServerT + (playedNow() - _anchorWallT) : Date.now();
 	const base = (snap.dayIndex + snap.dayProgress) * snap.dayMs;
-	if (!_haveAnchor || base !== _anchorBase) {
+	if (!_haveAnchor) {
 		_haveAnchor = true;
 		_anchorBase = base;
 		_anchorServerT = base;
-		_anchorWallT = Date.now();
+		_anchorWallT = playedNow();
+	} else if (base !== _anchorBase) {
+		// NEVER RUN THE DAY BACKWARDS. Play time reaches us in ~30s heartbeat steps,
+		// so a fresh snapshot routinely reads BEHIND an estimate that has been
+		// ticking every frame. Following it there rewinds the sky — dusk snapping
+		// back to afternoon and darkening again, which is exactly what players see
+		// when this is got wrong. Take the snapshot only when it has moved ahead of
+		// us (the heartbeat caught up, or time passed while the preserve lived on
+		// without us), or when it disagrees so wildly that it must be another world.
+		const estimate = _anchorServerT + (playedNow() - _anchorWallT);
+		_anchorBase = base;
+		if (base > estimate || estimate - base > RESET_GAP_MS) {
+			_anchorServerT = base;
+			_anchorWallT = playedNow();
+		}
 	}
-	return _anchorServerT + (Date.now() - _anchorWallT);
+	return _anchorServerT + (playedNow() - _anchorWallT);
+}
+
+/** Where we are within the current day, 0–1. The lighting's clock and the HUD's
+ *  are deliberately the same one, so dusk on screen matches dusk on the dial. */
+export function liveDayProgress(snap: WeatherSnapshot | null | undefined): number | null {
+	if (!snap) return null;
+	const dayMs = snap.dayMs || DAY_MS;
+	const t = liveTime(snap);
+	return (((t % dayMs) + dayMs) % dayMs) / dayMs;
+}
+
+/** Test hook: forget the anchor so each case starts from a known clock. */
+export function resetLiveClock(): void {
+	_haveAnchor = false;
+	_anchorServerT = 0;
+	_anchorWallT = 0;
+	_anchorBase = NaN;
+	_hiddenAt = 0;
 }
 
 export function liveDayPhase(snap: WeatherSnapshot | null | undefined): string {

@@ -1934,6 +1934,10 @@
 				android: 'Android',
 				unknown: 'Unknown',
 			};
+			/* Still used by the acquisition funnel's "Where they came from" table, which
+			 * reports channels WITH their conversion rate. There used to be a plain
+			 * Channel bar card up in Platforms & builds as well; it said less, and as a
+			 * fourth card in a three-across grid it sat alone on a row of its own. */
 			const CHANNEL_LABELS = {
 				itch: 'itch.io',
 				mas: 'Mac App Store',
@@ -3541,7 +3545,6 @@
 				const plat = s.platforms || {},
 					oss = s.operatingSystems || {},
 					vers = s.versions || {},
-					chans = s.channels || {},
 					langs = s.languages || {};
 				const platSeg = [
 					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
@@ -3559,11 +3562,6 @@
 								barRows(objToEntries(oss), { labelMap: OS_LABELS, cls: 'sky' }),
 							) +
 							cardTitled('Language', null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: 'rose' })) +
-							cardTitled(
-								'Channel',
-								'where the copy came from',
-								barRows(objToEntries(chans), { labelMap: CHANNEL_LABELS, cls: 'gold' }),
-							) +
 							`</div><div class="card" style="margin-top:.8rem"><h3>Game version</h3>` +
 							barRows(objToEntries(vers), { cls: 'gold' }) +
 							`</div>`,

@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.3.3",
+	"version": "0.3.4",
 	"private": true,
 	"description": "Wild Willows — a cozy nature-restoration life sim",
 	"type": "module",
@@ -12,6 +12,7 @@
 	"scripts": {
 		"dev:web": "vite",
 		"dev": "npm run build:server && harper dev .",
+		"browser": "DEMO=true npm run build:web && vite preview --open",
 		"build": "npm run build:server && npm run build:web",
 		"build:web": "vite build",
 		"icons": "node scripts/build-icons.mjs",

@@ -1,5 +1,15 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
-import { scheduleFlush, cancelFlush, flushNow, adaptiveInterval, ewma, perfSnapshot, resetPerf } from '../../src/perf';
+import {
+	scheduleFlush,
+	cancelFlush,
+	flushNow,
+	adaptiveInterval,
+	ewma,
+	perfSnapshot,
+	resetPerf,
+	coalesceAfter,
+	cancelCoalesced,
+} from '../../src/perf';
 
 // The flush scheduler is what keeps a burst of world/settings events from doing
 // the same expensive rebuild many times in one frame, and what backs that work
@@ -233,5 +243,100 @@ describe('ewma', () => {
 		const after = ewma(10, 100, 0.25);
 		expect(after).toBeGreaterThan(10);
 		expect(after).toBeLessThan(100);
+	});
+});
+
+// A field of plants sown in one sitting finishes growing within seconds of
+// itself. Before coalesceAfter, every finish fired its own RecalcBiome POST plus
+// a full GameState refetch, and players reported the game dropping to 1 fps and
+// needing a page refresh. The invariant that has to hold forever: the number of
+// round trips is a function of the number of BURSTS, never of the number of
+// plants. These tests use fake timers so the window is exact.
+describe('coalesceAfter (maturation bursts)', () => {
+	beforeEach(() => {
+		vi.useFakeTimers();
+	});
+
+	afterEach(() => {
+		vi.useRealTimers();
+	});
+
+	it('collapses a whole field maturing at once into one run', () => {
+		const recalc = vi.fn();
+		// 40 plants finishing in the same instant.
+		for (let i = 0; i < 40; i++) coalesceAfter('recalc:meadow', 1200, recalc);
+		expect(recalc).not.toHaveBeenCalled(); // nothing fires inside the window
+
+		vi.advanceTimersByTime(1200);
+		expect(recalc).toHaveBeenCalledTimes(1);
+	});
+
+	it('cost does not scale with the number of plants', () => {
+		for (const plants of [1, 10, 100, 1000]) {
+			const recalc = vi.fn();
+			const key = `recalc:field-${plants}`;
+			for (let i = 0; i < plants; i++) coalesceAfter(key, 1200, recalc);
+			vi.advanceTimersByTime(1200);
+			expect(recalc, `${plants} plants`).toHaveBeenCalledTimes(1);
+		}
+	});
+
+	it('bounds latency: a steady drip cannot postpone the run forever', () => {
+		const recalc = vi.fn();
+		// A plant finishing every 100ms for two full windows. A plain debounce
+		// (reset-on-call) would never fire; this must fire on schedule.
+		for (let i = 0; i < 24; i++) {
+			coalesceAfter('recalc:meadow', 1200, recalc);
+			vi.advanceTimersByTime(100);
+		}
+		expect(recalc).toHaveBeenCalledTimes(2);
+	});
+
+	it('re-arms after the window, so a later maturation still recalcs', () => {
+		const recalc = vi.fn();
+		coalesceAfter('recalc:meadow', 1200, recalc);
+		vi.advanceTimersByTime(1200);
+		expect(recalc).toHaveBeenCalledTimes(1);
+
+		coalesceAfter('recalc:meadow', 1200, recalc);
+		vi.advanceTimersByTime(1200);
+		expect(recalc).toHaveBeenCalledTimes(2);
+	});
+
+	it('keys independently, so two biomes maturing together each recalc', () => {
+		const meadow = vi.fn();
+		const forest = vi.fn();
+		for (let i = 0; i < 10; i++) {
+			coalesceAfter('recalc:meadow', 1200, meadow);
+			coalesceAfter('recalc:forest', 1200, forest);
+		}
+		vi.advanceTimersByTime(1200);
+		expect(meadow).toHaveBeenCalledTimes(1);
+		expect(forest).toHaveBeenCalledTimes(1);
+	});
+
+	it('cancelCoalesced drops a queued run, so teardown cannot fire it', () => {
+		const recalc = vi.fn();
+		coalesceAfter('recalc:meadow', 1200, recalc);
+		cancelCoalesced('recalc:meadow');
+		vi.advanceTimersByTime(5000);
+		expect(recalc).not.toHaveBeenCalled();
+	});
+
+	it('a throwing task does not wedge the key', () => {
+		const boom = vi.fn(() => {
+			throw new Error('recalc failed');
+		});
+		vi.spyOn(console, 'error').mockImplementation(() => undefined);
+		coalesceAfter('recalc:meadow', 1200, boom);
+		vi.advanceTimersByTime(1200);
+		expect(boom).toHaveBeenCalledTimes(1);
+
+		// The key must be free again, or one network blip would silence recalcs
+		// for that biome for the rest of the session.
+		const after = vi.fn();
+		coalesceAfter('recalc:meadow', 1200, after);
+		vi.advanceTimersByTime(1200);
+		expect(after).toHaveBeenCalledTimes(1);
 	});
 });

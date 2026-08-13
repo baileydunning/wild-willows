@@ -14,12 +14,19 @@ beforeEach(async () => {
 
 describe('player lifecycle', () => {
 	it('creates a player whose solo world is themselves, with a starter loadout', async () => {
-		const a = await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance });
+		// Deliberately not a numeric passcode: the leak check below is a substring
+		// scan over the whole payload, and a digit string like '1234' matches by
+		// chance inside epoch-ms timestamps (serverTime, createdAt, ...).
+		const secret = 'pw-do-not-leak';
+		const a = await w.post('CreatePlayer', { name: 'Sam', passcode: secret, appearance });
 		expect(a.ok).toBe(true);
 		expect(a.worldId).toBe(a.playerId);
 		expect(a.state.chests.length).toBeGreaterThan(0); // starter chest
 		// passcode must never leak back to the client
-		expect(JSON.stringify(a.state)).not.toContain('1234');
+		expect(JSON.stringify(a.state)).not.toContain(secret);
+		expect(a.state.player).not.toHaveProperty('passcode');
+		expect(a.state.player).not.toHaveProperty('passcodeHash');
+		expect(a.state.player).not.toHaveProperty('passcodeSalt');
 	});
 
 	// Names are a label, not an identity: ids carry a random suffix, so two saves
