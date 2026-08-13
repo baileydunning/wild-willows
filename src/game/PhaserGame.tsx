@@ -36,20 +36,17 @@ export function PhaserGame() {
 			render: {
 				antialias: true,
 				pixelArt: false,
-				/* Both of these target frame PACING, not how much work the GPU does.
+				/* Asks for the discrete GPU on machines that have one. A hint: ignored
+				 * where it does not apply, and it changes nothing about what is drawn.
 				 *
-				 * Measured (Chrome trace, three runs): during gameplay the compositor runs
-				 * at 60/s while requestAnimationFrame fires at 30/s — exactly every other
-				 * vsync — with the main thread at ~18% and the GPU at ~6%. Nothing is
-				 * missing a deadline; the canvas is simply locked to half rate. Turning
-				 * graphics quality down cut GPU work 40% and moved the frame rate by zero,
-				 * which is what ruled out fill rate as the cause.
-				 *
-				 * `desynchronized` releases the canvas from that lock-step with the
-				 * compositor. `powerPreference` asks for the discrete GPU where a machine
-				 * has one, which also affects how presentation is scheduled. Neither
-				 * changes a pixel of what is drawn. */
-				desynchronized: true,
+				 * `desynchronized: true` was here too, as an attempt at a measured 30fps
+				 * cap (rAF running at exactly half the compositor rate with the main thread
+				 * at ~18% and the GPU at ~6%). It CRASHES headless Chromium — the i18n e2e
+				 * suite died with "Protocol error … session closed" the moment Phaser built
+				 * its WebGL context, while the title-screen tests, which never mount Phaser,
+				 * passed. Do not put it back without running `npm run test:e2e:i18n` first.
+				 * The frame-rate question is still open and may yet be profiler overhead —
+				 * it was never reproduced with DevTools closed. */
 				powerPreference: 'high-performance',
 			},
 			input: { activePointers: 3 }, // joystick + tap at the same time

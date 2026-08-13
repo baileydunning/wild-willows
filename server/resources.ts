@@ -8114,13 +8114,33 @@ async function metricsRollup(target?: any): Promise<{
 			const k = String(o.savesCreated || 0);
 			savesPerPersonHistogram[k] = (savesPerPersonHistogram[k] || 0) + 1;
 		}
+		/* PLAYED = created a character OR came back to an existing save.
+		 *
+		 * Bounce used to mean "never made a character", which counted every
+		 * returning player as a bounce — the rate got WORSE as the game started
+		 * retaining people, which is precisely backwards. Someone who pressed
+		 * Continue did not bounce; they are the best outcome on this screen.
+		 *
+		 * `converted` is left alone and still means character creation, so the
+		 * existing series keeps its meaning. Bounce is recomputed on `played`.
+		 *
+		 * Note for reading old numbers: devices that last opened the game before
+		 * this shipped have no `resumed` flag, so historical bounce stays overstated.
+		 * It corrects going forward rather than retroactively. */
+		const resumedDevices = openRows.filter((o) => o.resumed).length;
+		const playedDevices = openRows.filter((o) => o.converted || o.resumed).length;
 		const acquisition = {
 			devices,
 			totalOpens: openRows.reduce((a, o) => a + (o.opens || 0), 0),
 			converted: convertedDevices,
-			bounced: devices - convertedDevices,
+			// Came back to a save they already had.
+			resumed: resumedDevices,
+			// Did either — the honest denominator for "did this device play?"
+			played: playedDevices,
+			playedPct: devices ? Math.round((playedDevices / devices) * 100) : 0,
+			bounced: devices - playedDevices,
 			conversionPct: devices ? Math.round((convertedDevices / devices) * 100) : 0,
-			bounceRatePct: devices ? Math.round(((devices - convertedDevices) / devices) * 100) : 0,
+			bounceRatePct: devices ? Math.round(((devices - playedDevices) / devices) * 100) : 0,
 			avgCreatorSeconds: withCreatorTime.length
 				? round1(withCreatorTime.reduce((a, o) => a + o.creationMs, 0) / withCreatorTime.length / 1000)
 				: 0,
@@ -10239,11 +10259,13 @@ export class AppOpen extends PublicEndpoint {
 		const phase =
 			body.phase === 'created'
 				? 'created'
-				: body.phase === 'demo_done'
-					? 'demo_done'
-					: body.phase === 'kb_gate'
-						? 'kb_gate'
-						: 'open';
+				: body.phase === 'resumed'
+					? 'resumed'
+					: body.phase === 'demo_done'
+						? 'demo_done'
+						: body.phase === 'kb_gate'
+							? 'kb_gate'
+							: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -10296,6 +10318,19 @@ export class AppOpen extends PublicEndpoint {
 			opens: (existing?.opens || 0) + (phase === 'open' ? 1 : 0),
 			converted: existing?.converted || phase === 'created',
 			firstConvertedAt: existing?.firstConvertedAt || (phase === 'created' ? now : 0),
+			/* Picked up an existing save — Continue, Load Game, or a passcode login.
+			 *
+			 * Kept as its OWN flag rather than folded into `converted`, for two
+			 * reasons. `converted` means "made a character" and has months of history
+			 * behind it; quietly widening it would rewrite what every past number
+			 * meant. And the two facts answer different questions — creation measures
+			 * whether the game gets people started, resumption measures whether it
+			 * gets them back. The funnel below combines them into "played"; the raw
+			 * flags stay separable forever.
+			 *
+			 * Sticky: someone who returned once has returned, whatever they do next. */
+			resumed: existing?.resumed || phase === 'resumed',
+			firstResumedAt: existing?.firstResumedAt || (phase === 'resumed' ? now : 0),
 			// How many characters this person has created.
 			savesCreated: (existing?.savesCreated || 0) + (phase === 'created' ? 1 : 0),
 			// Keep the most recent creator time we've seen for this device.
