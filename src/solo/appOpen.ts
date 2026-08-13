@@ -8,15 +8,15 @@
 // getDeviceId) plus build/OS facts. A dropped ping loses nothing — the next
 // open/create re-reports the device's latest state.
 
-import { hostedBase, IS_DESKTOP } from '../api';
+import { COOP_BASE_URL, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
-import { EDITION } from '../demo';
-import { APP_VERSION, CHANNEL, detectOS, getDeviceId } from '../platform';
+import { DEMO, EDITION } from '../demo';
+import { APP_VERSION, detectOS, getDeviceId } from '../platform';
 
 function endpoint(): string {
 	// Desktop and the browser demo both post cross-origin to the hosted Harper;
 	// the deployed web build posts to its own origin.
-	return `${hostedBase()}/AppOpen/`;
+	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/AppOpen/`;
 }
 
 async function send(phase: 'open' | 'created' | 'demo_done', extra: Record<string, any> = {}): Promise<void> {
@@ -30,10 +30,6 @@ async function send(phase: 'open' | 'created' | 'demo_done', extra: Record<strin
 				deviceId: getDeviceId(),
 				phase,
 				platform: IS_DESKTOP ? 'desktop' : 'web',
-				// Which storefront this copy came from (itch | mas | direct | dev).
-				// Orthogonal to `platform`: itch ships a download AND the browser demo,
-				// so the pair is what actually answers "where are players coming from".
-				channel: CHANNEL,
 				os: detectOS(),
 				version: APP_VERSION,
 				edition: EDITION,

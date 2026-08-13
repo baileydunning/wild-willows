@@ -1,5 +1,6 @@
 {
   "music": {
+    "preserve": "/audio/music/preserve-loop.mp3",
     "wildwillowstheme": "/audio/music/WildWillows_ThemeIdea.mp3",
     "meadowambient": "/audio/music/willowmeadow/meadowambient.mp3",
     "meadowambient_level2": "/audio/music/willowmeadow/meadowambient_level2.mp3",
@@ -26,6 +27,7 @@
     "rain": "/audio/sfx/rain.mp3"
   },
   "sfx": {
+    "toast": "/audio/sfx/toast.mp3",
     "areaUnlocked": "/audio/sfx/AreaUnlocked.ogg",
     "cant": "/audio/sfx/cant.ogg",
     "hover": [
@@ -38,13 +40,14 @@
     "footstep": "/audio/sfx/dirtfootsteps.ogg",
     "harvest": "/audio/sfx/harvest.ogg",
     "craft": "/audio/sfx/craftv2.ogg",
-    "pickup": [
-      "/audio/sfx/pickup1.ogg",
-      "/audio/sfx/pickup2.ogg"
-    ],
+    "place": "/audio/sfx/place.mp3",
+    "pickup": ["/audio/sfx/pickup1.ogg", "/audio/sfx/pickup2.ogg"],
     "water": "/audio/sfx/water.ogg",
     "waterground": "/audio/sfx/waterground.mp3",
-    "plant": "/audio/sfx/plant.mp3"
+    "plant": "/audio/sfx/plant.mp3",
+    "move": "/audio/sfx/move.mp3",
+    "upgrade": "/audio/sfx/upgrade.mp3",
+    "rest": "/audio/sfx/rest.mp3"
   },
   "sfxGain": {
     "cant": 0.45,

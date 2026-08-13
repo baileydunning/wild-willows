@@ -182,18 +182,15 @@ describe('audio — toast kind routing', () => {
 		expect(bySrc('cant.ogg')).toHaveLength(1);
 	});
 
-	it('stays silent for non-error kinds — the neutral toast has no asset', () => {
+	it('plays the neutral "toast" for non-error kinds (incl. animal & achievement)', () => {
 		bridge.emit('audio-toast', { kind: 'info' });
 		bridge.emit('audio-toast', { kind: 'animal' });
 		bridge.emit('audio-toast', { kind: 'achievement' });
 		bridge.emit('audio-toast', {}); // no kind
-		// There is no sfx/toast file, so the neutral tick was removed rather than
-		// left pointing at a 404 on every toast. Restore both the asset and the
-		// playSfx('toast') call site in src/audio.ts together if one ever lands.
-		expect(bySrc('toast.mp3')).toHaveLength(0);
-		// The assertion that actually matters: silence must NOT be "fixed" by
-		// routing these through the error sound. Every info toast would then read
-		// as something going wrong, which is worse than no sound at all.
+		// one cached element per sound, replayed each time
+		const toastEls = bySrc('toast.mp3');
+		expect(toastEls).toHaveLength(1);
+		expect(toastEls[0].play).toHaveBeenCalledTimes(4);
 		expect(bySrc('cant.ogg')).toHaveLength(0);
 	});
 });

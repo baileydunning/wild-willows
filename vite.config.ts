@@ -100,16 +100,6 @@ export default defineConfig({
 		// backend if it's unreachable) and hard-stops after 5 animals return to the
 		// meadow. See src/demo.ts.
 		__DEMO__: JSON.stringify(process.env.DEMO === 'true'),
-		// Where this artifact is DISTRIBUTED (itch | mas | direct). Deliberately
-		// separate from `platform` (web/desktop): itch ships both a browser demo
-		// and a download, and those are one storefront on two platforms —
-		// collapsing them loses the question worth asking.
-		//
-		// Only needed for builds whose channel can't be worked out at runtime.
-		// detectChannel() (src/platform.ts) prefers real runtime evidence — the
-		// page's own hostname, process.mas, Steam's env vars — and falls back to
-		// this. Unset means "dev", which is the honest answer for a local build.
-		__CHANNEL__: JSON.stringify(process.env.WW_CHANNEL || ''),
 	},
 	build: {
 		outDir: 'web',
