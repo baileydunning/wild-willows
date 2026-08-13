@@ -267,6 +267,18 @@ export class WorldScene extends Phaser.Scene {
 	private floatLabels: Phaser.GameObjects.Text[] = [];
 	private floatNext = 0;
 	private static readonly FLOAT_POOL = 8;
+	// One-shot gather effects (tool swing + flying items) reuse a ring too — see
+	// fxSprite(). Sized to cover a burst: a gather spends up to 4 of these and each
+	// animation runs ~600ms, so this holds roughly a second of fast gathering
+	// before the ring wraps and clips the oldest effect.
+	private fxSprites: Phaser.GameObjects.Image[] = [];
+	private fxNext = 0;
+	private static readonly FX_POOL = 24;
+	// Terraform specks are Arcs, not Images, so they need their own ring. A dig
+	// throws 6 at once and each lives ~380-580ms.
+	private fxSpecks: Phaser.GameObjects.Arc[] = [];
+	private speckNext = 0;
+	private static readonly SPECK_POOL = 24;
 	private lastGateCheckAt = 0;
 	private lastFocusX = Infinity;
 	private lastFocusY = Infinity;
@@ -610,6 +622,10 @@ export class WorldScene extends Phaser.Scene {
 		// Text objects that belonged to the scene this instance just was.
 		this.floatLabels = [];
 		this.floatNext = 0;
+		this.fxSprites = [];
+		this.fxNext = 0;
+		this.fxSpecks = [];
+		this.speckNext = 0;
 		makeBaseTextures(this);
 		makeObjectTextures(this);
 		makeAnimalTextures(this);
@@ -880,6 +896,10 @@ export class WorldScene extends Phaser.Scene {
 			// leaving a restarted create() holding a list of dead Text objects.
 			for (const label of this.floatLabels) label.destroy();
 			this.floatLabels = [];
+			for (const img of this.fxSprites) img.destroy();
+			this.fxSprites = [];
+			for (const speck of this.fxSpecks) speck.destroy();
+			this.fxSpecks = [];
 			this.floatNext = 0;
 		});
 
@@ -3516,7 +3536,7 @@ export class WorldScene extends Phaser.Scene {
 		// tool swing beside the player
 		const toolKey = `tool-${p.tool}`;
 		if (this.textures.exists(toolKey)) {
-			const toolImg = this.img(this.player.x + 14, this.player.y - 4, toolKey)
+			const toolImg = this.fxSprite(this.player.x + 14, this.player.y - 4, toolKey)
 				.setDepth(6500)
 				.setAngle(-30);
 			this.tweens.add({
@@ -3529,21 +3549,39 @@ export class WorldScene extends Phaser.Scene {
 						targets: toolImg,
 						alpha: 0,
 						duration: 160,
-						onComplete: () => toolImg.destroy(),
+						// Parked, not destroyed — it belongs to whoever asks next.
+						onComplete: () => toolImg.setVisible(false),
 					}),
 			});
 		}
-		// little squash on the player — you can see yourself grab it
+		// Little squash on the player — you can see yourself grab it.
+		//
+		// A yoyo tween captures its START value at the moment it begins and returns
+		// THERE, not to any absolute rest pose. Gathering fast enough to overlap two
+		// of these meant the second one started while the player was still mid-squash,
+		// captured that squashed scale as its "rest", and yoyo'd back to it. Every
+		// overlapping pickup ratcheted the distortion a little further and nothing
+		// ever put it back, so a burst of rapid pickups left the caretaker visibly
+		// squashed for the rest of the session.
+		//
+		// Killing the in-flight one and restoring the exact base scale first means
+		// every squash starts from the same pose, and the final onComplete restores
+		// it exactly rather than trusting float math. This is the only tween in the
+		// scene that targets the player (checked), so killTweensOf is safe here — if
+		// that ever stops being true, hold a reference to this tween instead.
+		this.tweens.killTweensOf(this.player);
+		this.player.setScale(INV_TEX_SCALE);
 		this.tweens.add({
 			targets: this.player,
 			scaleX: 1.12 * INV_TEX_SCALE,
 			scaleY: 0.9 * INV_TEX_SCALE,
 			duration: 110,
 			yoyo: true,
+			onComplete: () => this.player.setScale(INV_TEX_SCALE),
 		});
 
 		for (let i = 0; i < Math.min(p.qty, 3); i++) {
-			const item = this.img(sx, sy, texKey)
+			const item = this.fxSprite(sx, sy, texKey)
 				.setDepth(6400)
 				.setScale(0.55 * INV_TEX_SCALE);
 			this.tweens.add({
@@ -3561,7 +3599,7 @@ export class WorldScene extends Phaser.Scene {
 				scale: 0.2 * INV_TEX_SCALE,
 				alpha: { from: 1, to: 0.7 },
 				delay: i * 70,
-				onComplete: () => item.destroy(),
+				onComplete: () => item.setVisible(false),
 			});
 		}
 		const res = bridge.shared.data?.resources.find((r) => r.id === p.resourceId);
@@ -3583,7 +3621,7 @@ export class WorldScene extends Phaser.Scene {
 		const x = p.x * TILE + 16;
 		const y = p.y * TILE + 16;
 		const toolKey = p.action === 'water' ? 'tool-watering-can' : 'tool-shovel';
-		const toolImg = this.img(x + 10, y - 12, toolKey)
+		const toolImg = this.fxSprite(x + 10, y - 12, toolKey)
 			.setDepth(6500)
 			.setAngle(-25);
 		this.tweens.add({
@@ -3591,11 +3629,12 @@ export class WorldScene extends Phaser.Scene {
 			angle: 30,
 			duration: 240,
 			yoyo: true,
-			onComplete: () => toolImg.destroy(),
+			// Parked, not destroyed — it belongs to whoever asks next.
+			onComplete: () => toolImg.setVisible(false),
 		});
 		const color = p.action === 'water' ? 0x8fd0e8 : 0x8a6a48;
 		for (let i = 0; i < 6; i++) {
-			const speck = this.add.circle(x, y, 2.4, color, 0.9).setDepth(6450);
+			const speck = this.fxSpeck(x, y, color).setDepth(6450);
 			this.tweens.add({
 				targets: speck,
 				x: x + (Math.random() - 0.5) * 36,
@@ -3603,7 +3642,7 @@ export class WorldScene extends Phaser.Scene {
 				alpha: 0,
 				duration: 380 + Math.random() * 200,
 				ease: 'Sine.easeOut',
-				onComplete: () => speck.destroy(),
+				onComplete: () => speck.setVisible(false),
 			});
 		}
 		this.floatText(
@@ -3750,6 +3789,62 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	/** One slot of the float-text ring, built on first use. */
+	/**
+	 * A pooled one-shot sprite for gather effects.
+	 *
+	 * Every pickup used to build a tool image plus up to three item images with
+	 * this.add.image() and destroy them ~600ms later. Each one is an allocation, a
+	 * display-list insert, and then a removal — so gathering fast enough to overlap
+	 * several pickups churned GameObjects continuously, which is what made a rapid
+	 * burst stutter. Same ring the float labels use.
+	 *
+	 * A recycled slot still carries whatever the last effect left on it, and the
+	 * two callers between them set texture, position, depth, scale, angle and
+	 * alpha — so everything except depth (which both call sites always set) is
+	 * reset here. Miss one and an item sprite inherits the tool's -30° tilt.
+	 */
+	private fxSprite(x: number, y: number, key: string): Phaser.GameObjects.Image {
+		const slot = this.fxNext;
+		this.fxNext = (this.fxNext + 1) % WorldScene.FX_POOL;
+		let img = this.fxSprites[slot];
+		// destroy() nulls `.scene`, so a sprite left behind by the scene this instance
+		// used to be (scene.restart() reuses the instance) is rebuilt, never reused.
+		if (!img || !img.scene) {
+			img = this.add.image(0, 0, key);
+			this.fxSprites[slot] = img;
+		}
+		// Wrapping the ring mid-flight cuts the oldest effect short rather than
+		// leaving two tweens fighting over one sprite.
+		this.tweens.killTweensOf(img);
+		return img.setTexture(key).setPosition(x, y).setScale(INV_TEX_SCALE).setAngle(0).setAlpha(1).setVisible(true);
+	}
+
+	/**
+	 * A pooled dirt/water speck for the terraform effect.
+	 *
+	 * Digging threw six fresh Arcs per click and destroyed them a third of a second
+	 * later, so holding the shovel down churned GameObjects exactly the way rapid
+	 * gathering did before fxSprite().
+	 *
+	 * The colour is per-action (brown for digging, blue for watering) so it has to
+	 * be re-applied on every acquire, and the tween drives the object's alpha to 0
+	 * while the FILL alpha stays 0.9 — both need resetting or a recycled speck
+	 * comes back invisible.
+	 */
+	private fxSpeck(x: number, y: number, color: number): Phaser.GameObjects.Arc {
+		const slot = this.speckNext;
+		this.speckNext = (this.speckNext + 1) % WorldScene.SPECK_POOL;
+		let arc = this.fxSpecks[slot];
+		// destroy() nulls `.scene`, so anything left behind by the scene this instance
+		// used to be (scene.restart() reuses the instance) is rebuilt, never reused.
+		if (!arc || !arc.scene) {
+			arc = this.add.circle(0, 0, 2.4, color, 0.9);
+			this.fxSpecks[slot] = arc;
+		}
+		this.tweens.killTweensOf(arc);
+		return arc.setPosition(x, y).setFillStyle(color, 0.9).setAlpha(1).setVisible(true);
+	}
+
 	private floatLabel(slot: number): Phaser.GameObjects.Text {
 		const existing = this.floatLabels[slot];
 		// destroy() nulls `.scene`, so a label left behind by the scene this instance
