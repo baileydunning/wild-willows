@@ -28,6 +28,7 @@ import {
 	weatherType,
 	liveWeatherType,
 	dayPhaseStyle,
+	liveDayProgress,
 	phaseAtProgress,
 	gatherResourceFor,
 } from '../weather';
@@ -315,8 +316,6 @@ export class WorldScene extends Phaser.Scene {
 	private skyState = { r: 255, g: 200, b: 150, a: 0 };
 	// Free-running day clock (mirrors the HUD's DayTimer): advances on wall time so
 	// the cycle keeps moving even when idle, and re-syncs when the snapshot's day moves.
-	private dayAnchor?: { base: number; wall: number };
-	private lastSnapDay = -1;
 
 	constructor() {
 		super('world');
@@ -495,8 +494,6 @@ export class WorldScene extends Phaser.Scene {
 		this.lightMaskRT = undefined;
 		this.lightBrush = undefined;
 		this.lightBitmapMask = undefined;
-		this.dayAnchor = undefined;
-		this.lastSnapDay = -1;
 		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
 		makeBaseTextures(this);
 		makeObjectTextures(this);
@@ -1681,17 +1678,17 @@ export class WorldScene extends Phaser.Scene {
 	/** Free-running 0..1 day progress. Mirrors the HUD's DayTimer: anchor to the
 	 *  snapshot's play-time, then advance on wall time (so the cycle keeps moving
 	 *  while idle), re-syncing only when the snapshot's day actually moves. */
+	/**
+	 * Where the world is in its day, from the SHARED clock in weather.ts.
+	 *
+	 * This used to keep its own anchor, duplicating that logic — and duplicating
+	 * its bug: both re-anchored on any change to the snapshot's play time, so a
+	 * snapshot arriving behind the free-running estimate rewound the sky. One
+	 * clock means the lighting and the HUD's dial cannot disagree, which is what
+	 * the comment on applyDayNight always claimed.
+	 */
 	private currentDayProgress(): number | null {
-		const snap = bridge.shared.state?.weather;
-		if (!snap) return null;
-		const dayMs = snap.dayMs || 720000;
-		const base = (snap.dayIndex + snap.dayProgress) * dayMs;
-		if (!this.dayAnchor || base !== this.lastSnapDay) {
-			this.dayAnchor = { base, wall: Date.now() };
-			this.lastSnapDay = base;
-		}
-		const now = this.dayAnchor.base + (Date.now() - this.dayAnchor.wall);
-		return (((now % dayMs) + dayMs) % dayMs) / dayMs;
+		return liveDayProgress(bridge.shared.state?.weather);
 	}
 
 	private ensureLightOverlay() {
