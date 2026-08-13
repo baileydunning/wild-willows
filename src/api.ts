@@ -129,7 +129,7 @@ async function probeHostedHarper(): Promise<void> {
 	let lastErr: unknown;
 	for (let i = 0; i < attempts.length; i++) {
 		try {
-			const res = await fetch(COOP_BASE_URL + '/Version/', {
+			const res = await fetch(hostedBase() + '/Version/', {
 				headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
 				signal: AbortSignal.timeout(attempts[i]),
 			});
@@ -443,7 +443,12 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 	// The itch demo is served cross-origin from the hosted Harper, so its web
 	// calls target COOP_BASE_URL too (only reached in Harper mode; the solo
 	// fallback routes through the local branch above).
-	const base = (transport === 'coop' && isDesktop) || DEMO_WEB ? COOP_BASE_URL : '';
+	// hostedBase() is the single rule for "where does the hosted server live from
+	// here": absolute for desktop and for itch's iframe, SAME-ORIGIN on our own
+	// hosts, where the Worker proxies to Harper. Using it here too means gameplay,
+	// telemetry and the boot probe cannot disagree about the origin — which they
+	// did when this line had its own copy of the rule.
+	const base = (transport === 'coop' && isDesktop) || DEMO_WEB ? hostedBase() : '';
 	// fetch() REJECTS (rather than resolving with a status) only when the request
 	// never reached a server at all: no connection, DNS, CORS, or the machine going
 	// to sleep mid-request. The browser's wording for that is "Failed to fetch" —

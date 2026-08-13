@@ -41,20 +41,19 @@ export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 //              play). Metrics still upload best-effort.
 // Metrics are tagged edition:'demo' either way.
 //
-// 'solo' because the demo is the one build that can be handed to an unbounded
-// number of people at once. Server-authoritative play costs ~145 writes and
-// ~1,750 row reads per player per MINUTE (measured — scripts/capacity-report.mjs),
-// which caps the hosted instance in the hundreds of concurrent players. The same
-// game running in-app costs one AppOpen write per launch and one SyncMetrics
-// write every 3 minutes, so the ceiling stops being a database question and
-// becomes a CDN question. A cozy single-player demo gains nothing from
-// server-side validation — there is no leaderboard and no economy to protect.
+// 'harper' — the demo plays against the real server, same rules and same
+// validation as the full game, with ONE source of truth for game logic instead
+// of a second copy running in the browser.
 //
-// What this does NOT change: metrics. shouldUplink() (src/solo/metricsUplink.ts)
-// reports on the 'solo' transport too, so the demo→full funnel, the acquisition
-// counts and the channel split all keep working.
+// The cost is a concurrency ceiling: server-authoritative play measures ~145
+// writes and ~1,750 row reads per player per MINUTE (scripts/capacity-report.mjs),
+// which caps the hosted instance around 570 concurrent players and binds on
+// READS, not writes. If the demo ever gets that busy, the fix is read
+// amplification first — Terraform reads 53 rows per call and GameState 30 —
+// not a bigger instance.
 //
-// Returning players with a save created under 'harper' are NOT stranded by this —
-// resolveDemoBackend() (src/api.ts) still honours the DEMO_HOME_KEY pin and
-// probes Harper for them. Read that before changing this back.
-export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'solo';
+// Cross-origin is handled by the Worker (workers/play.js), which proxies these
+// endpoints server-side so the browser only ever talks to its own origin. Do not
+// "simplify" that away by pointing the client straight at the API host; that
+// needs CORS on Harper, and when CORS breaks these calls fail silently.
+export const DEMO_WEB_BACKEND: 'solo' | 'harper' = 'harper';

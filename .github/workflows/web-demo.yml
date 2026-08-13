@@ -73,9 +73,9 @@ jobs:
       - name: Publish demo to play.wildwillows.app
         env:
           CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          # Required as well as the token. Without it wrangler has to guess which
-          # account to deploy to, and an API token with access to more than one
-          # fails with "more than one account available" instead of picking.
+          # The account is PINNED in wrangler.jsonc, so the token is the only secret
+          # this needs. Left here as an optional override for deploying into a
+          # different account without editing the config.
           CLOUDFLARE_ACCOUNT_ID: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
         run: |
           set -euo pipefail
@@ -83,12 +83,9 @@ jobs:
           # BEFORE the step's own `env:` is applied, so `env.CLOUDFLARE_API_TOKEN`
           # there is always empty and the step would silently never run. Which is
           # the worst possible outcome: a green build that published nothing.
-          missing=""
-          [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]] && missing="$missing CLOUDFLARE_API_TOKEN"
-          [[ -z "${CLOUDFLARE_ACCOUNT_ID:-}" ]] && missing="$missing CLOUDFLARE_ACCOUNT_ID"
-          if [[ -n "$missing" ]]; then
-            echo "::warning::Missing secret(s):$missing — skipping the play.wildwillows.app deploy."
-            echo "Create the token from the 'Edit Cloudflare Workers' template and add both repo secrets."
+          if [[ -z "${CLOUDFLARE_API_TOKEN:-}" ]]; then
+            echo "::warning::CLOUDFLARE_API_TOKEN is not set — skipping the play.wildwillows.app deploy."
+            echo "Create it from the 'Edit Cloudflare Workers' template and add it as a repo secret."
             exit 0
           fi
           npx --yes wrangler@4 deploy
