@@ -11416,6 +11416,50 @@ function decodedBinary(key: string, b64: string): any {
 	return buf;
 }
 
+/**
+ * GET /img/<name>.webp — the screenshots for the landing and teachers pages.
+ *
+ * These were base64 data URIs inside the HTML until the pages grew to 470 KB and
+ * 260 KB of render-blocking document. Inlining looks like it saves a request, and
+ * it does — at the cost of the one thing that actually matters here: an inlined
+ * image cannot be cached apart from the page carrying it, cannot be fetched in
+ * parallel with it, and cannot be deferred, because `loading="lazy"` on a data
+ * URI defers nothing that has not already been downloaded. Four of these nine are
+ * on BOTH pages, and as data URIs each one was paid for twice.
+ *
+ * Names are content-hashed by the build, so the answer is `immutable` with a
+ * one-year max-age: a changed screenshot gets a new filename, and a name that
+ * never changes never needs revalidating. That also makes the lookup its own
+ * path-traversal defence — the key either exists in the generated record or the
+ * request is a 404, and nothing here ever touches a filesystem path.
+ *
+ * Not in PUBLIC_PAGES: these are not pages, so there is no canonical to redirect
+ * to and a 301 would just buy every image an extra round trip.
+ */
+class Screenshot extends PublicEndpoint {
+	async get() {
+		const raw = String((this as any).getId?.() || '').trim();
+		// Harper strips some trailing extensions and not others; accept either form
+		// rather than depending on which list .webp happens to be on today.
+		const name = raw.endsWith('.webp') ? raw : `${raw}.webp`;
+		let body = decodedBinaries.get(`img:${name}`);
+		if (!body) {
+			const { screenshotsB64 } = await import('./img-assets');
+			const b64 = Object.prototype.hasOwnProperty.call(screenshotsB64, name) ? screenshotsB64[name] : null;
+			if (!b64) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: 'Not found' };
+			body = decodedBinary(`img:${name}`, b64);
+		}
+		return {
+			status: 200,
+			headers: {
+				'content-type': 'image/webp',
+				'cache-control': 'public, max-age=31536000, immutable',
+			},
+			body,
+		};
+	}
+}
+
 /** GET /og-image.jpg — the social/OpenGraph preview image for the landing page. */
 class OgImage extends PublicEndpoint {
 	async get() {
@@ -11608,6 +11652,7 @@ export {
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',
+	Screenshot as img,
 	Theme as theme,
 	EducatorGuidePdf as 'educator-guide',
 	EducatorGuidePdf as 'educator-guide.pdf',

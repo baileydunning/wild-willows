@@ -308,6 +308,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `GET /dashboard` | Internal gameplay-metrics dashboard page — renders `/MetricsSummary/` + `/MetricsPlayers/` (audience, funnels, progression, achievements, customized caretakers). **Super-user only**, along with the `/SaveHealth/`, `/GameplayHealth/` and `/LandingStats/` feeds it reads |
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
 | `GET /privacy.html` · `GET /age-rating.html` · `GET /support.html` | Store-listing pages (privacy policy, age suitability, support/FAQ) served as endpoints — HTML inlined from `public/*.html` by `scripts/build-pages.mjs` |
+| `GET /img/<name>.webp` | The landing + teachers page screenshots, content-hashed and served `immutable` for a year. They were base64 data URIs inside the HTML until the pages hit 470 KB and 260 KB of render-blocking document; as real URLs the pages are ~66 KB each, the images cache independently, and the four screenshots BOTH pages use are fetched once. Bytes ride along in `server/img-assets.ts` (generated from `public/img/`) |
 | `GET /teachers` | The classroom page — what the game teaches, the 45–60 min lesson arc, discussion prompts, and the two free PDFs. Same inlining path as the pages above; its own URL rather than an anchor on `/` because teachers arrive from a different search and need something shareable |
 
 ## How animals return
