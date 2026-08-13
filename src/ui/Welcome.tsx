@@ -16,6 +16,7 @@ import { useGame } from '../state';
 import { LOCALE_NAMES, chooseLocale } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { DEMO } from '../demo';
+import { APP_VERSION } from '../platform';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
 import {
@@ -686,6 +687,16 @@ export function WelcomeScreen() {
 					<span className="credit-entry">
 						<Icon name="note" size={12} /> {t('app.welcome.creditAudio')} Jon Licht
 					</span>
+					<span className="credit-dot" aria-hidden="true">
+						·
+					</span>
+					{/* Deliberately NOT translated: "v0.3.3" is the same string in every
+					    language, and a t() key here would mean touching every catalog and
+					    keeping them in step for a literal that never varies. It is also
+					    plain selectable text on purpose — the first thing a bug report
+					    needs is which build the player was on, and asking someone to open
+					    Settings to find it loses most of them. */}
+					<span className="credit-version">v{APP_VERSION}</span>
 				</p>
 			</div>
 

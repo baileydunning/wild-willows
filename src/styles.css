@@ -3379,6 +3379,15 @@ input {
 .welcome-credits-footer .credit-entry svg {
 	opacity: 0.85;
 }
+/* The build the player is on, sat beside the credits. Inherits the footer's
+   0.55 opacity and then takes another step down, so it reads as a marking rather
+   than as a third credit — present if you look for it, invisible if you don't.
+   Tabular figures stop the line shifting width as version numbers change. */
+.welcome-credits-footer .credit-version {
+	opacity: 0.7;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.3px;
+}
 .welcome-credits-footer .credit-dot {
 	opacity: 0.55;
 }
