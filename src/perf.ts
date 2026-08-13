@@ -92,9 +92,16 @@ function runFrame(): void {
 	const t = now();
 	if (lastFrameAt) {
 		const delta = t - lastFrameAt;
-		// Ignore absurd gaps (backgrounded tab, sleeping laptop) — they say
-		// nothing about how fast this device renders.
-		if (delta < 1000) frameMs += (delta - frameMs) * ALPHA;
+		// runFrame only runs when work is PENDING, so consecutive samples are not
+		// consecutive frames — the gap between two flush bursts is idle time, not
+		// render time. The old 1000ms guard let a normal half-second pause between
+		// two gathers land in the average as a "137ms frame", which tripped
+		// FRAME_STRESS_MS and made every registered task back off (up to MAX_SKIP
+		// frames) on a machine that was rendering a flawless 60fps.
+		//
+		// A genuine stress frame is tens of milliseconds, so anything past 100ms is
+		// an idle gap and tells us nothing about how fast this device renders.
+		if (delta < 100) frameMs += (delta - frameMs) * ALPHA;
 	}
 	lastFrameAt = t;
 

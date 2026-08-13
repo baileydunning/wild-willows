@@ -216,6 +216,23 @@ export class WorldScene extends Phaser.Scene {
 	private placementSprites = new Map<string, PlacementEntry>();
 	private lastPrompt = '';
 	private unsubs: Array<() => void> = [];
+	// --- per-frame caches (perf) ---------------------------------------------
+	// The frame loop used to rebuild these every tick. They all change only when
+	// the world does, so they are memoised against the identity of the array they
+	// are derived from: a new state object means a rebuild, otherwise a hit.
+	private frameTime = 0;
+	private nodeStateMap: Map<string, any> | null = null;
+	private nodeStateSrc: unknown = null;
+	private fireCache: { x: number; y: number }[] | null = null;
+	private fireCacheSrc: unknown = null;
+	private fireCacheArea = '';
+	private hintKeyCache = ''; // '' = needs recompute
+	private lastGateCheckAt = 0;
+	private lastFocusX = Infinity;
+	private lastFocusY = Infinity;
+	private lastFocusLabel: string | null = null;
+	private lastFocusSource: 'near' | 'hover' | null = null;
+
 	private placementObjectId: string | null = null;
 	private movingPlacementId: string | null = null;
 	private sleeping = false;
@@ -271,7 +288,6 @@ export class WorldScene extends Phaser.Scene {
 	// a signature of the last dynamic-layer build so redundant world-dirty events
 	// (boot nudges, unrelated saves) don't tear down and rebuild every sprite/tween.
 	private hoveredIt: Interactable | null = null;
-	private lastFocusSig: string | null = null;
 	private lastGateInfo: string | null = null;
 	private dynamicSig = '';
 	private isTouch = false;
@@ -509,7 +525,13 @@ export class WorldScene extends Phaser.Scene {
 		else this.cameras.main.removeBounds();
 		this.cameras.main.setBackgroundColor('#26301f');
 		this.applyZoom();
-		this.scale.on('resize', () => this.applyZoom());
+		// The ScaleManager is GAME-global, so it outlives this scene. The scene is
+		// restarted on every area transition and on every graphics-quality change,
+		// so an un-removed handler here leaked one dead scene per restart — each
+		// one still firing applyZoom() against a torn-down camera on every resize.
+		const onScaleResize = () => this.applyZoom();
+		this.scale.on('resize', onScaleResize);
+		this.unsubs.push(() => this.scale.off('resize', onScaleResize));
 
 		// groups must exist before drawGround(): the home room is now drawn into the
 		// dynamic group so it can be repainted live when you use the paint tool.
@@ -836,6 +858,16 @@ export class WorldScene extends Phaser.Scene {
 			this.setWalkAudio(false);
 			this.unsubs.forEach((u) => u());
 			this.unsubs = [];
+			// These three were built with add:false, so they are NOT on the display
+			// list and scene teardown does not collect them. create() only nulled the
+			// references, which leaked a screen-sized framebuffer per scene restart —
+			// and the scene restarts on every area transition.
+			this.lightBitmapMask?.destroy();
+			this.lightBrush?.destroy();
+			this.lightMaskRT?.destroy();
+			this.lightBitmapMask = undefined;
+			this.lightBrush = undefined;
+			this.lightMaskRT = undefined;
 		});
 
 		this.time.addEvent({
@@ -1903,11 +1935,22 @@ export class WorldScene extends Phaser.Scene {
 	/** Every burning fire in this area (world px): the meadow base-camp fire plus
 	 *  any placed campfires. These push back the night tint just like the lamp. */
 	private firesHere(): { x: number; y: number }[] {
+		// Called from the frame loop. The fire list only changes when placements do,
+		// so it is memoised against the identity of the placements array — walking
+		// every placement (a number that grows as the preserve is built out) and
+		// allocating a fresh array of points 60 times a second was pure waste.
+		const placements = bridge.shared.state?.placements;
+		if (this.fireCache && this.fireCacheSrc === placements && this.fireCacheArea === this.area) {
+			return this.fireCache;
+		}
 		const fires: { x: number; y: number }[] = [];
 		if (this.area === 'meadow') fires.push({ x: CAMP.fire.x * TILE, y: CAMP.fire.y * TILE });
-		for (const p of bridge.shared.state?.placements || []) {
+		for (const p of placements || []) {
 			if (p.area === this.area && p.objectId === 'campfire') fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
 		}
+		this.fireCache = fires;
+		this.fireCacheSrc = placements;
+		this.fireCacheArea = this.area;
 		return fires;
 	}
 
@@ -1918,9 +1961,17 @@ export class WorldScene extends Phaser.Scene {
 	 *  tracks the tint as night eases in and out. */
 	private updateNightLights() {
 		const dark = !this.isIndoors && !!this.lightOverlay?.visible && this.lightState.a > 0.15;
+		// Bail before touching the fire list. The old order built the list (and an
+		// empty throwaway array on the daylight path) and only then discovered it
+		// had nothing to light — for roughly two thirds of every in-game day.
+		if (!dark) {
+			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
+			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
+			return;
+		}
 		const hasLamp = this.hasHeadlamp();
-		const fires = dark ? this.firesHere() : [];
-		if (!dark || (!hasLamp && fires.length === 0)) {
+		const fires = this.firesHere();
+		if (!hasLamp && fires.length === 0) {
 			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
 			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
 			return;
@@ -1931,10 +1982,13 @@ export class WorldScene extends Phaser.Scene {
 		const x = this.player.x,
 			y = this.player.y;
 		// halo pinned just beneath the caretaker so they stand in front of the light
-		this.lampGlow!.setPosition(x, y)
-			.setDepth(y - 4)
-			.setAlpha(hasLamp ? 0.3 * depth : 0)
-			.setVisible(hasLamp);
+		const glow = this.lampGlow!;
+		glow.setPosition(x, y).setAlpha(hasLamp ? 0.3 * depth : 0);
+		// Guarded for the same reason as the player's depth: the setter queues a
+		// display-list re-sort whether or not the value changed.
+		const glowDepth = y - 4;
+		if (glow.depth !== glowDepth) glow.setDepth(glowDepth);
+		if (glow.visible !== hasLamp) glow.setVisible(hasLamp);
 		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
 		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
 		// screen-sized RenderTexture, restamped each frame at each light's
@@ -1975,19 +2029,30 @@ export class WorldScene extends Phaser.Scene {
 			viewX += (this.player.x - cam.followOffset.x - cam.width * cam.originX - cam.scrollX) * cam.lerp.x;
 			viewY += (this.player.y - cam.followOffset.y - cam.height * cam.originY - cam.scrollY) * cam.lerp.y;
 		}
+		// RenderTexture.draw() is beginDraw + batchDraw + endDraw internally, i.e. a
+		// framebuffer bind and a pipeline flush PER LIGHT. Campfires are placeable,
+		// so that cost was unbounded — a lit path of 20 fires meant 20 binds every
+		// frame after dark. One begin/end around the whole set costs one bind total.
 		const stamp = (wx: number, wy: number, size: number, alpha: number) => {
-			const s = size * cam.zoom;
-			this.lightBrush!.setDisplaySize(s, s).setAlpha(alpha);
-			rt.draw(this.lightBrush!, (wx - viewX) * cam.zoom, (wy - viewY) * cam.zoom);
+			const sz = size * cam.zoom;
+			const sx = (wx - viewX) * cam.zoom;
+			const sy = (wy - viewY) * cam.zoom;
+			// Skip lights that cannot touch the screen at all.
+			if (sx + sz < 0 || sy + sz < 0 || sx - sz > rt.width || sy - sz > rt.height) return;
+			this.lightBrush!.setDisplaySize(sz, sz).setAlpha(alpha);
+			rt.batchDraw(this.lightBrush!, sx, sy);
 		};
 		rt.clear();
+		rt.beginDraw();
 		// the lamp never fully clears the night (max ~0.8 mask alpha) — a modest
 		// personal glow, dimmer and tighter than a campfire's
 		if (hasLamp) stamp(x, y, WorldScene.LAMP_MASK, Math.min(0.8, depth * 0.9));
 		// steady light — no flicker; the lit edge holds still so night reads calmly
-		fires.forEach((f) => {
+		for (let i = 0; i < fires.length; i++) {
+			const f = fires[i];
 			stamp(f.x, f.y, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
-		});
+		}
+		rt.endDraw();
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
 
@@ -3212,7 +3277,23 @@ export class WorldScene extends Phaser.Scene {
 		// Node cooldowns are world-scoped now, so match on the world id (falls back to
 		// the player id for solo / legacy rows).
 		const wid = (s as any).worldId || s.player.id;
-		const rec = s.nodeStates.find((n) => n.id === `${wid}:${this.area}:${node.id}`);
+		// This runs for every node, every frame, via nearestInteractable(). Building
+		// the key string here and scanning nodeStates linearly cost one allocation
+		// and one O(nodeStates) walk per node per frame — and nodeStates grows for
+		// the life of the save, so it got worse the longer you played.
+		const n = node as any;
+		if (n._skWid !== wid || n._skArea !== this.area) {
+			n._skWid = wid;
+			n._skArea = this.area;
+			n._sk = `${wid}:${this.area}:${node.id}`;
+		}
+		if (this.nodeStateSrc !== s.nodeStates) {
+			this.nodeStateSrc = s.nodeStates;
+			const m = new Map<string, any>();
+			for (const ns of s.nodeStates) m.set(ns.id, ns);
+			this.nodeStateMap = m;
+		}
+		const rec = this.nodeStateMap!.get(n._sk);
 		if (!rec) return true;
 		return Date.now() - rec.harvestedAt >= s.nodeRegenSeconds * 1000;
 	}
@@ -4368,7 +4449,14 @@ export class WorldScene extends Phaser.Scene {
 				y: ty,
 				duration: Math.max(600, (dist / speed) * 1000),
 				ease: 'Sine.easeInOut',
-				onUpdate: () => img.setDepth(img.y),
+				// Depth only needs to change when the sprite crosses a pixel row, but
+				// the raw write queued a re-sort of the whole display list on every
+				// frame of every wander leg — which is why the scene was re-sorting
+				// even while the player stood still.
+				onUpdate: () => {
+					const d = img.y | 0;
+					if (img.depth !== d) img.setDepth(d);
+				},
 				onComplete: () => {
 					for (const t of flourish) t.remove();
 					if (img.active) {
@@ -4513,9 +4601,13 @@ export class WorldScene extends Phaser.Scene {
 
 	update(_time: number, delta: number) {
 		const dt = delta / 1000;
+		this.frameTime = _time;
 		this.positionWeatherEmitter();
 		this.handleMovement(dt);
-		this.playerShadow.setPosition(this.player.x, this.player.y + 15);
+		const shadowY = this.player.y + 15;
+		if (this.playerShadow.x !== this.player.x || this.playerShadow.y !== shadowY) {
+			this.playerShadow.setPosition(this.player.x, shadowY);
+		}
 		this.handleGhost();
 		this.handleInteraction();
 		this.syncPosition(dt);
@@ -4532,11 +4624,18 @@ export class WorldScene extends Phaser.Scene {
 	/** The compact interact key to show in-world — prefer a real key over the wide
 	 *  word "Space", so the little hover badge never overflows. */
 	private interactHintKey(): string {
-		const toks = getBindings().interact;
-		return keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
+		// Read every frame by the prompt builder. Bindings only change on rebind,
+		// which already calls through rebindMoveKeys() — so cache and invalidate
+		// there rather than re-deriving the label 60 times a second.
+		if (!this.hintKeyCache) {
+			const toks = getBindings().interact;
+			this.hintKeyCache = keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
+		}
+		return this.hintKeyCache;
 	}
 
 	private rebindMoveKeys() {
+		this.hintKeyCache = '';
 		const kb = this.input.keyboard;
 		if (!kb) return;
 		// Never remove/destroy the fixed keys (arrows/Space/Esc/Shift) — Phaser keeps
@@ -4560,6 +4659,11 @@ export class WorldScene extends Phaser.Scene {
 		if (this.interactBadge && !this.isTouch) this.interactBadge.setText(this.interactHintKey());
 	}
 
+	private static anyKeyDown(arr: Phaser.Input.Keyboard.Key[]): boolean {
+		for (let i = 0; i < arr.length; i++) if (arr[i].isDown) return true;
+		return false;
+	}
+
 	private handleMovement(dt: number) {
 		if (this.sleeping) {
 			this.setWalkAudio(false);
@@ -4568,7 +4672,9 @@ export class WorldScene extends Phaser.Scene {
 		let vx = 0,
 			vy = 0;
 		const mk = this.moveKeys;
-		const held = (arr: Phaser.Input.Keyboard.Key[]) => arr.some((key) => key.isDown);
+		// Was `arr.some(key => key.isDown)` — one outer closure plus four inner
+		// callbacks allocated every frame, for a four-way check.
+		const held = WorldScene.anyKeyDown;
 		if (held(mk.left)) vx -= 1;
 		if (held(mk.right)) vx += 1;
 		if (held(mk.up)) vy -= 1;
@@ -4581,8 +4687,11 @@ export class WorldScene extends Phaser.Scene {
 		}
 		if (vx === 0 && vy === 0) {
 			this.setWalkAudio(false);
-			// settle back upright when standing still
-			this.player.setRotation(this.player.rotation * 0.8);
+			// settle back upright when standing still. Snap to 0 once it is visually
+			// upright — the old decay never reached zero, so it kept dirtying the
+			// player transform on every frame the player stood still, forever.
+			const rot = this.player.rotation;
+			if (rot !== 0) this.player.setRotation(Math.abs(rot) < 1e-3 ? 0 : rot * 0.8);
 			return;
 		}
 		this.walkT += dt * 11;
@@ -4642,7 +4751,12 @@ export class WorldScene extends Phaser.Scene {
 
 		const moved = Phaser.Math.Distance.Between(this.player.x, this.player.y, nx, ny) > 0.1;
 		this.player.setPosition(nx, ny);
-		this.player.setDepth(ny + 16);
+		// Phaser's depth setter calls displayList.queueDepthSort() unconditionally —
+		// it does not check whether the value actually changed. Guarding it keeps
+		// the scene's ~10k-object display list from being re-sorted on frames where
+		// nothing moved.
+		const depth = ny + 16;
+		if (this.player.depth !== depth) this.player.setDepth(depth);
 		this.setWalkAudio(moved);
 	}
 
@@ -4653,19 +4767,32 @@ export class WorldScene extends Phaser.Scene {
 		const ty = Math.floor(pointer.worldY / TILE);
 		this.ghost.setPosition(tx * TILE + 16, ty * TILE + 16);
 		const ok = this.canPlaceAt(tx, ty, false, this.movingPlacementId || undefined);
-		((this.ghost as any).frame as Phaser.GameObjects.Image).setTexture(ok ? 'ghost-ok' : 'ghost-bad');
+		// setTexture re-resolves the texture, the frame and the display origin. The
+		// answer changes only when the pointer crosses between a legal and an
+		// illegal tile, so compare the key first.
+		const ghostImg = (this.ghost as any).frame as Phaser.GameObjects.Image;
+		const ghostKey = ok ? 'ghost-ok' : 'ghost-bad';
+		if (ghostImg.texture.key !== ghostKey) ghostImg.setTexture(ghostKey);
 	}
 
 	private nearestInteractable(): Interactable | null {
 		let best: Interactable | null = null;
-		let bestDist = 90; // generous reach so E grabs what you're clearly standing near (was 68)
+		// generous reach so E grabs what you're clearly standing near (was 68)
+		let bestD2 = 90 * 90;
+		const px = this.player.x;
+		const py = this.player.y;
+		// Distance first, availability second. available() hits the node-state map,
+		// and ~95% of interactables are out of reach on any given frame, so testing
+		// it first meant paying for every node in the area 60 times a second.
+		// Squared distance also drops a Math.sqrt per interactable per frame.
 		for (const it of this.interactables) {
+			const dx = px - it.x;
+			const dy = py - it.y;
+			const d2 = dx * dx + dy * dy;
+			if (d2 >= bestD2) continue;
 			if (it.available && !it.available()) continue;
-			const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, it.x, it.y);
-			if (d < bestDist) {
-				best = it;
-				bestDist = d;
-			}
+			best = it;
+			bestD2 = d2;
 		}
 		return best;
 	}
@@ -4685,9 +4812,21 @@ export class WorldScene extends Phaser.Scene {
 		// Fire exactly once when the ring lands on a new target (or clears), so
 		// callers can react (for example: contextual UI) without getting spammed
 		// every frame. The hover SFX is reserved for true "in range" focus only.
-		const focusSig = focus ? `${focus.x}:${focus.y}:${focus.label}:${focusSource}` : null;
-		if (focusSig !== this.lastFocusSig) {
-			this.lastFocusSig = focusSig;
+		// Was a template literal rebuilt every frame purely to detect change. Same
+		// comparison, four scalar reads, no allocation.
+		const fx = focus ? focus.x : Infinity;
+		const fy = focus ? focus.y : Infinity;
+		const flabel = focus ? focus.label : null;
+		if (
+			fx !== this.lastFocusX ||
+			fy !== this.lastFocusY ||
+			flabel !== this.lastFocusLabel ||
+			focusSource !== this.lastFocusSource
+		) {
+			this.lastFocusX = fx;
+			this.lastFocusY = fy;
+			this.lastFocusLabel = flabel;
+			this.lastFocusSource = focusSource;
 			if (focus && focusSource) {
 				bridge.emit('interactable-hover', {
 					x: focus.x,
@@ -4704,7 +4843,12 @@ export class WorldScene extends Phaser.Scene {
 		// Walked up to a locked gate → post what's still needed to the corner feed,
 		// but only when the remaining list actually CHANGES (not on every approach),
 		// so repeatedly walking up to the same gate doesn't spam the feed.
-		if (near?.liveLabel) {
+		// liveLabel() rebuilds the whole "what you still need" sentence — several
+		// linear scans over biomes/habitat objects plus a handful of i18n
+		// interpolations — and the result is byte-identical almost every frame.
+		// A requirements line does not need to be recomputed at 60Hz.
+		if (near?.liveLabel && this.frameTime - this.lastGateCheckAt >= 250) {
+			this.lastGateCheckAt = this.frameTime;
 			const info = near.liveLabel();
 			if (info !== this.lastGateInfo) {
 				this.lastGateInfo = info;
@@ -4714,8 +4858,11 @@ export class WorldScene extends Phaser.Scene {
 
 		// pulsing highlight on whatever you can interact with right now
 		if (focus && getPrefs().interactHint !== false) {
-			this.highlight.setVisible(true).setPosition(focus.x, focus.y + 2);
-		} else {
+			if (!this.highlight.visible) this.highlight.setVisible(true);
+			this.highlight.setPosition(focus.x, focus.y + 2);
+		} else if (this.highlight.visible) {
+			// The common case is "nothing in range", which used to re-assert
+			// visible=false on every single frame for the whole session.
 			this.highlight.setVisible(false);
 		}
 
@@ -4725,11 +4872,11 @@ export class WorldScene extends Phaser.Scene {
 			const tx = Math.floor(pointer.worldX / TILE);
 			const ty = Math.floor(pointer.worldY / TILE);
 			const ok = this.tileReachable(tx, ty);
-			this.tileCursor
-				.setVisible(true)
-				.setPosition(tx * TILE + 16, ty * TILE + 16)
-				.setTexture(ok ? 'ghost-ok' : 'ghost-bad');
-		} else {
+			if (!this.tileCursor.visible) this.tileCursor.setVisible(true);
+			this.tileCursor.setPosition(tx * TILE + 16, ty * TILE + 16);
+			const cursorKey = ok ? 'ghost-ok' : 'ghost-bad';
+			if (this.tileCursor.texture.key !== cursorKey) this.tileCursor.setTexture(cursorKey);
+		} else if (this.tileCursor.visible) {
 			this.tileCursor.setVisible(false);
 		}
 
@@ -4756,7 +4903,10 @@ export class WorldScene extends Phaser.Scene {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
 		}
-		const interactPressed = this.moveKeys.interact.some((key) => Phaser.Input.Keyboard.JustDown(key));
+		let interactPressed = false;
+		for (const key of this.moveKeys.interact) {
+			if (Phaser.Input.Keyboard.JustDown(key)) interactPressed = true;
+		}
 		if (near && interactPressed) {
 			near.action();
 		}

@@ -19,7 +19,8 @@ export function isTouchDevice() {
 export function MobileControls() {
 	const [active, setActive] = useState(false);
 	const baseRef = useRef<HTMLDivElement>(null);
-	const [knob, setKnob] = useState({ x: 0, y: 0 });
+	const knobRef = useRef<HTMLDivElement>(null);
+	const padRef = useRef<{ cx: number; cy: number; hw: number; hh: number } | null>(null);
 	const pointerId = useRef<number | null>(null);
 
 	useEffect(() => {
@@ -30,28 +31,53 @@ export function MobileControls() {
 
 	if (!isTouchDevice()) return null;
 
-	const updateFromEvent = (e: React.PointerEvent) => {
+	// Measured once per gesture instead of once per pointermove.
+	//
+	// getBoundingClientRect() forces a synchronous layout, and the previous move
+	// had just written `transform` to the knob — so every move was a read-after-
+	// write layout thrash, for the entire time a finger was on the stick. Which
+	// is exactly when Phaser needs the frame budget. The pad is fixed-position
+	// and cannot move while the gesture is in flight, so one measurement holds.
+	const measure = () => {
 		const base = baseRef.current;
 		if (!base) return;
 		const rect = base.getBoundingClientRect();
-		const cx = rect.left + rect.width / 2;
-		const cy = rect.top + rect.height / 2;
-		let dx = (e.clientX - cx) / (rect.width / 2);
-		let dy = (e.clientY - cy) / (rect.height / 2);
+		padRef.current = {
+			cx: rect.left + rect.width / 2,
+			cy: rect.top + rect.height / 2,
+			hw: rect.width / 2,
+			hh: rect.height / 2,
+		};
+	};
+
+	// Written straight to the DOM and to the bridge. Phaser reads
+	// bridge.shared.joy in its own update(), so driving the knob through React
+	// state meant a full render (and a commit) per pointer event to move one
+	// element by a few pixels — work React was doing on Phaser's thread.
+	const moveKnob = (x: number, y: number) => {
+		const el = knobRef.current;
+		if (el) el.style.transform = `translate(${x * 26}px, ${y * 26}px)`;
+		bridge.shared.joy = { x, y };
+	};
+
+	const updateFromEvent = (e: React.PointerEvent) => {
+		const pad = padRef.current;
+		if (!pad) return;
+		let dx = (e.clientX - pad.cx) / pad.hw;
+		let dy = (e.clientY - pad.cy) / pad.hh;
 		const len = Math.hypot(dx, dy);
 		if (len > 1) {
 			dx /= len;
 			dy /= len;
 		}
-		setKnob({ x: dx, y: dy });
-		bridge.shared.joy = { x: dx, y: dy };
+		moveKnob(dx, dy);
 	};
 
 	const release = () => {
 		pointerId.current = null;
+		padRef.current = null;
 		setActive(false);
-		setKnob({ x: 0, y: 0 });
-		bridge.shared.joy = { x: 0, y: 0 };
+		moveKnob(0, 0);
 	};
 
 	return (
@@ -62,6 +88,7 @@ export function MobileControls() {
 				pointerId.current = e.pointerId;
 				(e.target as HTMLElement).setPointerCapture(e.pointerId);
 				setActive(true);
+				measure();
 				updateFromEvent(e);
 			}}
 			onPointerMove={(e) => {
@@ -70,7 +97,7 @@ export function MobileControls() {
 			onPointerUp={release}
 			onPointerCancel={release}
 		>
-			<div className="joystick-knob" style={{ transform: `translate(${knob.x * 26}px, ${knob.y * 26}px)` }} />
+			<div ref={knobRef} className="joystick-knob" />
 		</div>
 	);
 }
