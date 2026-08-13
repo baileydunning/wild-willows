@@ -1869,7 +1869,7 @@
 			}
 
 			/* Shared action labels (used by the all-time totals and the per-player modal). */
-			/* Storefront a copy arrived through (see detectChannel in src/platform.ts).
+			/* The channel a copy arrived through (see detectChannel in src/platform.ts).
 			 * 'unknown' is every device that opened the game before channels shipped —
 			 * shown as its own row rather than folded into a real store, so the
 			 * backfill gap stays visible instead of padding whichever one you read first. */
@@ -3163,11 +3163,51 @@
 				const kg = acq.keyboardGate || {};
 				const fun = s.funnel || {};
 				const dc = s.demoCompletion || {};
+				/* ---- Where they came from ----
+				 * Devices and conversion per channel. Sorted by conversion, not by
+				 * size, because size is the number you can't trust across channels:
+				 * inside itch's game iframe the device id lives in THIRD-PARTY storage
+				 * that browsers partition or clear on their own, so one itch player can
+				 * count as several devices while a wildwillows.app player (first-party)
+				 * counts as one. The rate survives that; the totals don't. Both are
+				 * shown — the caption says which to believe. */
+				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(b[1].converted) - n(a[1].converted));
+				/* Rendered INSIDE the acquisition card rather than as its own: it answers
+				 * the same question the funnel above it does — where these devices came
+				 * from — and the acquisition card is half-height next to the activation
+				 * one, so it was sitting on a column of empty space. */
+				const channelBlock = chanRows.length
+					? `<h4 class="sub-h">Where they came from</h4>` +
+						`<p class="emptynote" style="margin:-.2rem 0 .5rem">compare on conversion — device counts are not comparable across stores</p>` +
+							`<table class="tbl"><thead><tr><th>Channel</th><th class="num">Devices</th>` +
+								`<th class="num">Made a character</th><th class="num">Conversion</th></tr></thead><tbody>` +
+								chanRows
+									.map(
+										([key, c]) =>
+											`<tr><td>${esc(CHANNEL_LABELS[key] || key)}</td>` +
+											`<td class="num">${fmt(c.devices)}</td>` +
+											`<td class="num">${fmt(c.converted)}</td>` +
+											`<td class="num"><span class="accent">${pct(c.conversionPct)}</span></td></tr>`,
+									)
+									.join('') +
+								`</tbody></table>`
+					: '';
+				/* Say what came out. A funnel that silently shrank is worse than one which
+				 * admits it dropped your own launches. */
+				const own = acq.ownDevices || {};
+				const ownNote = own.matched
+					? `<p class="emptynote" style="margin-top:.6rem">Excluding ${fmt(own.matched)} of your own device${own.matched === 1 ? '' : 's'} (${fmt(own.opens)} opens). Append <code>?includeDev=1</code> to the URL to put them back.</p>`
+					: '';
 				const acqCards = cardTitled(
 					'Acquisition funnel',
 					'per device',
 					funnel([
 						{ label: 'Opened the app', value: acq.devices },
+						/* "Started playing" = made a character OR returned to a save. This
+						 * step was creation alone, which counted every returning player as a
+						 * bounce — so the rate got WORSE as retention improved. Creation is
+						 * still its own step below. */
+						{ label: 'Started playing', value: acq.played != null ? acq.played : acq.converted },
 						{ label: 'Created a character', value: acq.converted },
 					]) +
 						`<div class="grid kpis" style="margin-top:1rem">${[
@@ -3177,11 +3217,12 @@
 							// developer moves them by one device out of hundreds. Dropping the tile
 							// removes the distortion at its source instead of filtering around it.
 							kpi(
-								`<span class="accent">${pct(acq.conversionPct)}</span>`,
-								'Conversion',
-								`${fmt(acq.converted)} of ${fmt(acq.devices)} devices`,
+								`<span class="accent">${pct(acq.playedPct != null ? acq.playedPct : acq.conversionPct)}</span>`,
+								'Played',
+								`${fmt(acq.played != null ? acq.played : acq.converted)} of ${fmt(acq.devices)} devices` +
+									(n(acq.resumed) ? ` · ${fmt(acq.resumed)} came back to a save` : ''),
 							),
-							kpi(pct(acq.bounceRatePct), 'Bounced', `${fmt(acq.bounced)} never made a character`),
+							kpi(pct(acq.bounceRatePct), 'Bounced', `${fmt(acq.bounced)} never started playing`),
 							// Sits beside Bounced on purpose: these devices are counted in it,
 							// and they are the part of it that is not a choice anyone made.
 							kpi(
@@ -3189,7 +3230,9 @@
 								'Turned away',
 								`needed a keyboard${n(kg.pctOfBounced) ? ` · ${pct(kg.pctOfBounced)} of bounces` : ''}`,
 							),
-						].join('')}</div>`,
+						].join('')}</div>` +
+						ownNote +
+						(channelBlock ? `<div style="margin-top:1rem">${channelBlock}</div>` : ''),
 				);
 
 				/* ---- Turned away by the keyboard gate ----
@@ -3202,53 +3245,13 @@
 				 * appear, so the card dates itself rather than implying it covers all time.
 				 * The card is hidden entirely until the first one arrives — a card reading
 				 * zero would say "nobody is turned away" when it means "not measured yet". */
-				const gateCard = n(kg.shown)
-					? cardTitled(
-							'Turned away by the keyboard gate',
-							kg.since
-								? `since ${new Date(n(kg.since)).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`
-								: 'devices with no keyboard',
-							// Two, not three: the card sits in a half-width column, and "saw the
-							// screen" is only these two added together.
-							`<div class="grid two">${[
-								kpi(
-									`<span class="accent">${fmt(kg.turnedAway)}</span>`,
-									'Could not play',
-									`${pct(kg.pctOfDevices)} of all devices`,
-								),
-								kpi(fmt(kg.gotIn), 'Found a keyboard', `of ${fmt(kg.shown)} shown the screen`),
-							].join('')}</div>` +
-								`<div style="margin-top:.6rem">${barRows(objToEntries(kg.byOs), { labelMap: OS_LABELS, cls: 'sky' })}</div>`,
-						)
-					: '';
+				/* The keyboard gate has no card of its own. It is one number — how many
+				 * devices could not play — and it already sits in the acquisition tiles
+				 * beside Bounced, which is the only place it means anything (those devices
+				 * ARE part of the bounce, and the part nobody chose). A half-page card for
+				 * a count of one was mostly whitespace. `keyboardGate` is still on the
+				 * endpoint in full, byOs included, for anyone reading it directly. */
 
-				/* ---- Where they came from ----
-				 * Devices and conversion per storefront. Sorted by conversion, not by
-				 * size, because size is the number you can't trust across channels:
-				 * inside itch's game iframe the device id lives in THIRD-PARTY storage
-				 * that browsers partition or clear on their own, so one itch player can
-				 * count as several devices while a wildwillows.app player (first-party)
-				 * counts as one. The rate survives that; the totals don't. Both are
-				 * shown — the caption says which to believe. */
-				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(b[1].converted) - n(a[1].converted));
-				const channelCard = chanRows.length
-					? cardTitled(
-							'Where they came from',
-							'compare on conversion — device counts are not comparable across stores',
-							`<table class="tbl"><thead><tr><th>Storefront</th><th class="num">Devices</th>` +
-								`<th class="num">Made a character</th><th class="num">Conversion</th></tr></thead><tbody>` +
-								chanRows
-									.map(
-										([key, c]) =>
-											`<tr><td>${esc(CHANNEL_LABELS[key] || key)}</td>` +
-											`<td class="num">${fmt(c.devices)}</td>` +
-											`<td class="num">${fmt(c.converted)}</td>` +
-											`<td class="num"><span class="accent">${pct(c.conversionPct)}</span></td></tr>`,
-									)
-									.join('') +
-								`</tbody></table>`,
-						)
-					: '';
 				const demoCard = dc.demoInstalls
 					? cardTitled(
 							'Demo completion',
@@ -3327,11 +3330,7 @@
 									: convCard
 										? `<div style="margin-top:.8rem">${convCard}</div>`
 										: '') +
-							(channelCard && gateCard
-							? `<div class="grid two" style="margin-top:.8rem">${channelCard}${gateCard}</div>`
-							: channelCard || gateCard
-								? `<div style="margin-top:.8rem">${channelCard || gateCard}</div>`
-								: ''),
+							'',
 					),
 				);
 
@@ -3414,7 +3413,7 @@
 							) +
 							cardTitled('Language', null, barRows(objToEntries(langs), { labelMap: LANG_LABELS, cls: 'rose' })) +
 							cardTitled(
-								'Storefront',
+								'Channel',
 								'where the copy came from',
 								barRows(objToEntries(chans), { labelMap: CHANNEL_LABELS, cls: 'gold' }),
 							) +

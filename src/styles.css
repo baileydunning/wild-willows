@@ -3383,6 +3383,17 @@ input {
    0.55 opacity and then takes another step down, so it reads as a marking rather
    than as a third credit — present if you look for it, invisible if you don't.
    Tabular figures stop the line shifting width as version numbers change. */
+/* A heading for a block nested INSIDE a card, under that card's own <h3> — used
+   by the channel table folded into the acquisition funnel. Quieter and tighter
+   than an h3 so it reads as a subdivision rather than a second card. */
+.card .sub-h {
+	margin: 0 0 0.35rem;
+	font-size: calc(12px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.02em;
+	text-transform: uppercase;
+	opacity: 0.75;
+}
 .welcome-credits-footer .credit-version {
 	opacity: 0.7;
 	font-variant-numeric: tabular-nums;

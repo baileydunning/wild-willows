@@ -60,7 +60,7 @@ jobs:
         run: npm run build
         env:
           # These artifacts are the itch.io downloads. A desktop build carries no
-          # runtime evidence of which storefront it came from — process.mas covers
+          # runtime evidence of which channel it came from — process.mas covers
           # the Mac App Store and nothing else does — so the channel gets stamped
           # in at build time here. See detectChannel() in src/platform.ts.
           #

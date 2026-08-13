@@ -11,7 +11,7 @@
 import { hostedBase, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
 import { EDITION } from '../demo';
-import { APP_VERSION, CHANNEL, detectOS, getDeviceId } from '../platform';
+import { APP_VERSION, CHANNEL, detectOS, getDeviceId, isDevDevice } from '../platform';
 
 function endpoint(): string {
 	// Desktop and the browser demo both post cross-origin to the hosted Harper;
@@ -33,10 +33,12 @@ async function send(
 				deviceId: getDeviceId(),
 				phase,
 				platform: IS_DESKTOP ? 'desktop' : 'web',
-				// Which storefront this copy came from (itch | mas | direct | dev).
+				// Which channel this copy came from (itch | mas | direct | dev).
 				// Orthogonal to `platform`: itch ships a download AND the browser demo,
 				// so the pair is what actually answers "where are players coming from".
 				channel: CHANNEL,
+				// One of our machines, not a player's — see isDevDevice().
+				dev: isDevDevice(),
 				os: detectOS(),
 				version: APP_VERSION,
 				edition: EDITION,
