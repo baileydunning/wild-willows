@@ -36,7 +36,15 @@ jobs:
     name: Build & deploy co-op server
     runs-on: ubuntu-latest
     steps:
+      # fetch-depth: 0 — NOT the default 1. scripts/build-pages.mjs dates each
+      # sitemap URL from `git log -1 -- <file>`, and in a shallow clone every
+      # file resolves to the single commit that exists, so all six pages would
+      # claim to have changed on the same day. The script detects the shallow
+      # case and omits <lastmod> entirely rather than emit that, so a shallow
+      # deploy is safe — it just silently loses the dates.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
       - uses: actions/setup-node@v4
         with:
           node-version-file: .nvmrc

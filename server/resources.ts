@@ -59,6 +59,7 @@ import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
 import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, landingHtml, ogImageB64, buildStamp } from './pages';
+import { pageLastmod } from './page-lastmod';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
 // biome). Derived once from the static seed data so the weather snapshot stays
@@ -10833,6 +10834,86 @@ export class ClearProblem extends DashboardEndpoint {
 }
 
 /**
+ * POST /DeleteSoloMetrics/ {id} or {ids:[…]} — remove a caretaker's telemetry
+ * row from SoloMetrics. Driven by the Remove button in the dashboard's player
+ * modal.
+ *
+ * WHAT THIS DELETES, precisely, because the button says "remove caretaker" and
+ * that reads like more than it is:
+ *
+ *   • The SoloMetrics row — the uplinked snapshot this dashboard is built from.
+ *     Nothing else stores it, so this is destructive and there is no undo.
+ *   • NOT their save. Saves live on the player's own device as local files (it
+ *     is the first promise the privacy policy makes) and this server has never
+ *     held one. Nobody loses a preserve because of this endpoint.
+ *
+ * AND IT MAY COME BACK. SyncMetrics upserts `solo:${clientId}` on every sync, so
+ * a save that is still being played uplinks a fresh row the next time it is
+ * online. That is not a bug to paper over: this is "forget what we know right
+ * now", not a ban, and the modal says so in as many words. For a dead test save
+ * it stays gone; for a live one it comes back thinner, having lost its history.
+ *
+ * SUPER-USER ONLY — deliberately narrower than allowRead. metrics_reader exists
+ * precisely so the password sitting in a browser tab is one whose leak is "worth
+ * rotating and nothing worse" (see DASHBOARD_ROLES). A read-only credential that
+ * can destroy records would make that claim false.
+ */
+export class DeleteSoloMetrics extends DashboardEndpoint {
+	// POST maps to create in Harper's permission model. Note this does NOT defer
+	// to allowRead the way ClearProblem does — see the super-user note above.
+	allowCreate(user?: any) {
+		return isSuperUser(user);
+	}
+
+	async post(data: any) {
+		const body = await bodyOf(data);
+		// Batch-capable so the UI can grow a multi-select later without a second
+		// endpoint, capped so it can never become an unbounded delete loop inside
+		// one request. Lower than ClearProblem's 500: that clears counters, this
+		// destroys histories, and a runaway here is not recoverable.
+		const ids = (Array.isArray(body?.ids) ? body.ids : [body?.id])
+			.filter((x: any) => x != null && x !== '')
+			.map((x: any) => String(x))
+			.slice(0, 100);
+		if (!ids.length) return { ok: false, error: 'no ids given', deleted: 0 };
+
+		const table = (db() as any).SoloMetrics;
+		if (!table) return { ok: false, error: 'SoloMetrics table is not available', deleted: 0 };
+
+		// No `solo:` prefix check on the ids. Every row SyncMetrics writes carries
+		// it, but buildDashboardRows also back-fills legacy rows, and a guard that
+		// rejected their shape would leave exactly the oldest junk undeletable —
+		// which is most of what anyone would want this button for. The table
+		// binding is the scope; a stray id simply misses.
+		let deleted = 0;
+		const missing: string[] = [];
+		const failed: { id: string; error: string }[] = [];
+		for (const id of ids) {
+			try {
+				// Point-read first so "already gone" and "delete failed" stay distinct
+				// in the response — the UI treats one as success and one as an error.
+				const row = await safeGet(table, id);
+				if (!row) {
+					missing.push(id);
+					continue;
+				}
+				await table.delete(id);
+				deleted++;
+			} catch (e: any) {
+				failed.push({ id, error: String(e?.message || e) });
+			}
+		}
+
+		// The roll-up is cached for DASHBOARD_CACHE_MS and every number on the page
+		// derives from it. Skip this and the row is gone from the database but still
+		// on screen until the TTL lapses, which reads as the delete having failed.
+		if (deleted) dashboardCache.invalidate();
+
+		return { ok: failed.length === 0, deleted, missing, failed };
+	}
+}
+
+/**
  * GET /GameplayHealth/ — what is going WRONG, as opposed to what players did.
  *
  * The rest of the metrics count successes: resources gathered, items crafted,
@@ -11089,28 +11170,43 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
 }
 
 /**
- * The apex wildwillows.app is a proxied CNAME to this Harper, so the ORIGIN
- * hostname answers the very same pages on the open internet. Google found the
- * origin first and indexed it INSTEAD of the apex: a brand search for the game
- * returns wild.willows.harperfabric.com and never returns wildwillows.app at
- * all. Two hostnames serving byte-identical HTML split every link and ranking
- * signal between them, and the one that won is the one nobody types or links to.
+ * Every public URL this Harper serves, in ONE table — because two lists that
+ * have to agree with each other eventually won't, and the failure is silent: a
+ * page added to the site but forgotten in the sitemap just quietly never gets
+ * indexed.
  *
- * So the origin hostname permanently redirects to the apex — but ONLY for the
- * public HTML pages listed here. NOT for the API: the desktop app, the itch
- * build and the browser demo all call this Harper cross-origin by its real
- * hostname, and a 301 on those endpoints would break every one of them. Keying
- * the redirect off this table (rather than off "is it HTML") is what makes that
- * impossible by construction — an endpoint cannot be caught by accident.
+ * `redirect` — requests for this path arriving on the ORIGIN hostname are 301'd
+ * to the apex. Background: wildwillows.app is a proxied CNAME to this Harper, so
+ * the origin answers the identical pages under its own name, and Google indexed
+ * the origin INSTEAD of the apex (the Mac App Store listing pointed at it, which
+ * is how the crawler found it). Two hostnames serving byte-identical HTML split
+ * every ranking signal between them.
  *
- * The dashboard is deliberately absent: it is noindex, it is reached by URL on
- * the origin, and redirecting it would strip the Authorization header.
+ * The flag is on individual paths, and NOT a blanket "redirect all HTML", for
+ * one reason: the desktop app, the itch build and the browser demo all call this
+ * Harper cross-origin BY ITS REAL HOSTNAME. A 301 on those endpoints would break
+ * every one of them. Only what is listed here can ever redirect.
+ *
+ * `sitemap` — the path is listed in /sitemap.xml.
+ *
+ * Two flags rather than one because they genuinely diverge: the dashboard wants
+ * neither, and a future noindex page would want the redirect without the
+ * listing. Keeping them distinct means neither decision has to be re-derived.
  */
-const CANONICAL_PATHS: Record<string, string> = {
-	landing: '/',
-	privacy: '/privacy.html',
-	'age-rating': '/age-rating.html',
-	support: '/support.html',
+const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: boolean }> = {
+	landing: { path: '/', redirect: true, sitemap: true },
+	privacy: { path: '/privacy.html', redirect: true, sitemap: true },
+	'age-rating': { path: '/age-rating.html', redirect: true, sitemap: true },
+	support: { path: '/support.html', redirect: true, sitemap: true },
+	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
+	// the only thing on the site aimed squarely at teachers searching for a
+	// classroom ecology resource. No redirect: they are not served through
+	// htmlPage(), so nothing would read the flag.
+	'educator-guide': { path: '/educator-guide.pdf', redirect: false, sitemap: true },
+	'student-worksheets': { path: '/student-worksheets.pdf', redirect: false, sitemap: true },
+	// Neither. The metrics dashboard is noindex, is reached by URL on the origin,
+	// and redirecting it would strip the Authorization header on the way.
+	dashboard: { path: '/dashboard', redirect: false, sitemap: false },
 };
 const ORIGIN_HOSTNAME = 'wild.willows.harperfabric.com';
 const SITE_ORIGIN = 'https://wildwillows.app';
@@ -11143,9 +11239,10 @@ function htmlPage(res: any, key: string, html: string, opts: { private?: boolean
 	const reqHeaders: any = res?.getContext?.()?.headers;
 	if (!reqHeaders || typeof reqHeaders.get !== 'function') return { status: 200, headers, body: html };
 
-	// Origin hostname -> apex. See CANONICAL_PATHS above for why this is a table
+	// Origin hostname -> apex. See PUBLIC_PAGES above for why this is a table
 	// lookup and not a blanket rule.
-	const canonicalPath = CANONICAL_PATHS[key];
+	const page = PUBLIC_PAGES[key];
+	const canonicalPath = page?.redirect ? page.path : undefined;
 	const host = String(reqHeaders.get('host') || '')
 		.toLowerCase()
 		.split(':')[0];
@@ -11401,33 +11498,60 @@ class RobotsTxt extends PublicEndpoint {
 	}
 }
 
+/**
+ * GET /sitemap.xml — the four public pages plus the two classroom PDFs.
+ *
+ * What is deliberately NOT here:
+ *
+ * <priority> and <changefreq>. Google ignores both, and has said so plainly for
+ * years. They are inherited from a 2005 spec that no major engine implements.
+ * Emitting them costs bytes and buys a false sense of control over crawl order.
+ *
+ * A build-time <lastmod>. See server/page-lastmod.ts: the date comes from git,
+ * per file, and a path that cannot be dated honestly is simply emitted without
+ * the element. A sitemap that claims every page changed on every deploy is worse
+ * than one that claims nothing, because the engine stops believing the field.
+ *
+ * play.wildwillows.app. It is intentionally noindex (see workers/play.js), and a
+ * sitemap may only list URLs on its own host anyway.
+ */
 class SitemapXml extends PublicEndpoint {
 	async get() {
-		// buildStamp is `<version>+<ISO timestamp>`; the date half is a truthful
-		// lastmod, because these pages ship WITH the build — they are inlined into
-		// pages.ts at build time, so a new build is the only way they can change.
-		const lastmod = (buildStamp.split('+')[1] || '').slice(0, 10) || undefined;
-		const urls: Array<{ loc: string; priority: string }> = [
-			{ loc: '/', priority: '1.0' },
-			{ loc: '/support.html', priority: '0.6' },
-			{ loc: '/age-rating.html', priority: '0.5' },
-			{ loc: '/privacy.html', priority: '0.3' },
-		];
+		// Static, known-safe paths today. Escaped regardless: <loc> is XML, and the
+		// day someone adds a query string with an `&` the feed silently stops
+		// parsing — Search Console reports it as an unreadable sitemap, which is a
+		// slow thing to notice and an annoying one to diagnose.
+		const xml = (s: string) =>
+			s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+
+		const entries = Object.values(PUBLIC_PAGES)
+			.filter((p) => p.sitemap)
+			.map((p) => {
+				const lastmod = pageLastmod[p.path];
+				return (
+					'\t<url>\n' +
+					`\t\t<loc>${xml(SITE_ORIGIN + p.path)}</loc>\n` +
+					(lastmod ? `\t\t<lastmod>${lastmod}</lastmod>\n` : '') +
+					'\t</url>\n'
+				);
+			})
+			.join('');
+
 		const body =
 			'<?xml version="1.0" encoding="UTF-8"?>\n' +
 			'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
-			urls
-				.map(
-					(u) =>
-						`\t<url>\n\t\t<loc>${SITE_ORIGIN}${u.loc}</loc>\n` +
-						(lastmod ? `\t\t<lastmod>${lastmod}</lastmod>\n` : '') +
-						`\t\t<priority>${u.priority}</priority>\n\t</url>\n`,
-				)
-				.join('') +
+			entries +
 			'</urlset>\n';
+
 		return {
 			status: 200,
-			headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+			headers: {
+				'content-type': 'application/xml; charset=utf-8',
+				// Short on purpose: this is the file Search Console re-fetches to find
+				// out what changed, and a long TTL at the CDN would hand it a stale
+				// answer for the rest of the day after a deploy.
+				'cache-control': 'public, max-age=3600',
+			},
 			body,
 		};
 	}
