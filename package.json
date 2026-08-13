@@ -12,6 +12,7 @@
 	"scripts": {
 		"dev:web": "vite",
 		"dev": "npm run build:server && harper dev .",
+		"browser": "DEMO=true npm run build:web && vite preview --open",
 		"build": "npm run build:server && npm run build:web",
 		"build:web": "vite build",
 		"icons": "node scripts/build-icons.mjs",

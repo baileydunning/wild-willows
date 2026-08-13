@@ -22,7 +22,7 @@ Open **http://localhost:5173/**. Harper is **endpoints only** (no static hosting
 
 > **Keyboard required.** Wild Willows is a keyboard game (WASD/arrows to roam, letter keys for panels, number keys for tools), so it gates to devices with a keyboard. A computer (any mouse/trackpad) is allowed; a touch-only phone/tablet sees a "connect a keyboard" screen until a key is pressed.
 
-After changing `server/resources.ts`, run `npm run build:server` (or restart `npm run dev`, which rebuilds then starts `harper dev .`). To check the **production build** instead of the dev server, `npm run build:web && npx vite preview` serves it on :4173 with the same API proxy. A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
+After changing `server/resources.ts`, run `npm run build:server` (or restart `npm run dev`, which rebuilds then starts `harper dev .`). To check the **production build** instead of the dev server, `npm run build:web && npx vite preview` serves it on :4173 with the same API proxy. To play the **browser demo** — the `DEMO=true` build that ships to itch's html5 channel and to play.wildwillows.app — run `npm run browser`, which rebuilds with the demo behaviour baked in (Harper-first backend, the 5-animal hard-stop, `edition:'demo'` metrics) and opens :4173. It proxies to the same local Harper, so keep `npm run dev` running in another terminal. A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
 
 > **Editing `data/*.json` live:** the server inlines the definition JSON for boot-time reconciliation, so after renaming/removing definition records, rebuild `resources.js` and restart Harper. Write data files atomically (temp + rename) so the live data loader never reads a half-written file.
 
