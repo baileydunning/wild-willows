@@ -11089,6 +11089,33 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
 }
 
 /**
+ * The apex wildwillows.app is a proxied CNAME to this Harper, so the ORIGIN
+ * hostname answers the very same pages on the open internet. Google found the
+ * origin first and indexed it INSTEAD of the apex: a brand search for the game
+ * returns wild.willows.harperfabric.com and never returns wildwillows.app at
+ * all. Two hostnames serving byte-identical HTML split every link and ranking
+ * signal between them, and the one that won is the one nobody types or links to.
+ *
+ * So the origin hostname permanently redirects to the apex — but ONLY for the
+ * public HTML pages listed here. NOT for the API: the desktop app, the itch
+ * build and the browser demo all call this Harper cross-origin by its real
+ * hostname, and a 301 on those endpoints would break every one of them. Keying
+ * the redirect off this table (rather than off "is it HTML") is what makes that
+ * impossible by construction — an endpoint cannot be caught by accident.
+ *
+ * The dashboard is deliberately absent: it is noindex, it is reached by URL on
+ * the origin, and redirecting it would strip the Authorization header.
+ */
+const CANONICAL_PATHS: Record<string, string> = {
+	landing: '/',
+	privacy: '/privacy.html',
+	'age-rating': '/age-rating.html',
+	support: '/support.html',
+};
+const ORIGIN_HOSTNAME = 'wild.willows.harperfabric.com';
+const SITE_ORIGIN = 'https://wildwillows.app';
+
+/**
  * One of the inlined HTML pages, content-negotiated and revalidatable.
  *
  * `res` is the endpoint instance, needed only to reach the request headers. As in
@@ -11115,6 +11142,25 @@ function htmlPage(res: any, key: string, html: string, opts: { private?: boolean
 
 	const reqHeaders: any = res?.getContext?.()?.headers;
 	if (!reqHeaders || typeof reqHeaders.get !== 'function') return { status: 200, headers, body: html };
+
+	// Origin hostname -> apex. See CANONICAL_PATHS above for why this is a table
+	// lookup and not a blanket rule.
+	const canonicalPath = CANONICAL_PATHS[key];
+	const host = String(reqHeaders.get('host') || '')
+		.toLowerCase()
+		.split(':')[0];
+	if (canonicalPath && host === ORIGIN_HOSTNAME) {
+		return {
+			status: 301,
+			headers: {
+				location: SITE_ORIGIN + canonicalPath,
+				// A 301 is cached forever by browsers unless told otherwise, and this
+				// one is a hostname decision that could plausibly be revisited. An hour
+				// is long enough for crawlers to act on and short enough to take back.
+				'cache-control': 'public, max-age=3600',
+			},
+		};
+	}
 
 	// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
 	const norm = (s: string) => s.replace(/^W\//, '').trim();
@@ -11318,6 +11364,75 @@ class StudentWorksheetsPdf extends PublicEndpoint {
 	}
 }
 
+/**
+ * GET /robots.txt and GET /sitemap.xml — the two files that tell Google this
+ * site exists and which URLs are worth having.
+ *
+ * There were none. Cloudflare was answering /robots.txt with its managed
+ * content-signals block, which contains no User-agent, Allow, Disallow or
+ * Sitemap line at all — so nothing was BLOCKED, but nothing was announced
+ * either, and there was no sitemap for a crawler to find. Combined with the
+ * origin-hostname duplicate above, the apex was absent from search entirely.
+ *
+ * Cloudflare appends its content-signals block to an origin robots.txt rather
+ * than replacing it, so this file and that block should coexist. Worth
+ * confirming on the live domain after this deploys — if Cloudflare still wins,
+ * the managed robots.txt has to be turned off in the dashboard.
+ *
+ * Everything here is public and worth indexing except the metrics dashboard,
+ * which is disallowed as a courtesy (its real protection is that every endpoint
+ * it reads refuses an unauthenticated request — see DashboardPage).
+ */
+class RobotsTxt extends PublicEndpoint {
+	async get() {
+		const body = [
+			'User-agent: *',
+			'Allow: /',
+			'Disallow: /dashboard',
+			'',
+			`Sitemap: ${SITE_ORIGIN}/sitemap.xml`,
+			'',
+		].join('\n');
+		return {
+			status: 200,
+			headers: { 'content-type': 'text/plain; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+			body,
+		};
+	}
+}
+
+class SitemapXml extends PublicEndpoint {
+	async get() {
+		// buildStamp is `<version>+<ISO timestamp>`; the date half is a truthful
+		// lastmod, because these pages ship WITH the build — they are inlined into
+		// pages.ts at build time, so a new build is the only way they can change.
+		const lastmod = (buildStamp.split('+')[1] || '').slice(0, 10) || undefined;
+		const urls: Array<{ loc: string; priority: string }> = [
+			{ loc: '/', priority: '1.0' },
+			{ loc: '/support.html', priority: '0.6' },
+			{ loc: '/age-rating.html', priority: '0.5' },
+			{ loc: '/privacy.html', priority: '0.3' },
+		];
+		const body =
+			'<?xml version="1.0" encoding="UTF-8"?>\n' +
+			'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+			urls
+				.map(
+					(u) =>
+						`\t<url>\n\t\t<loc>${SITE_ORIGIN}${u.loc}</loc>\n` +
+						(lastmod ? `\t\t<lastmod>${lastmod}</lastmod>\n` : '') +
+						`\t\t<priority>${u.priority}</priority>\n\t</url>\n`,
+				)
+				.join('') +
+			'</urlset>\n';
+		return {
+			status: 200,
+			headers: { 'content-type': 'application/xml; charset=utf-8', 'cache-control': 'public, max-age=3600' },
+			body,
+		};
+	}
+}
+
 // Export under the exact URL paths (string export names keep the hyphen; the empty
 // name serves the site root, and Harper strips a trailing .ico/.jpg/.svg extension).
 // The PDFs are exported under BOTH the bare name and the .pdf one, because the
@@ -11336,4 +11451,8 @@ export {
 	EducatorGuidePdf as 'educator-guide.pdf',
 	StudentWorksheetsPdf as 'student-worksheets',
 	StudentWorksheetsPdf as 'student-worksheets.pdf',
+	RobotsTxt as robots,
+	RobotsTxt as 'robots.txt',
+	SitemapXml as sitemap,
+	SitemapXml as 'sitemap.xml',
 };
