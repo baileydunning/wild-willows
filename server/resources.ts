@@ -58,7 +58,16 @@ import {
 import { t as tr } from '../src/i18n/server';
 // Policy pages (privacy / age suitability), inlined from public/*.html by
 // scripts/build-pages.mjs — served as endpoints, see the bottom of this file.
-import { privacyHtml, ageRatingHtml, supportHtml, dashboardHtml, landingHtml, ogImageB64, buildStamp } from './pages';
+import {
+	privacyHtml,
+	ageRatingHtml,
+	supportHtml,
+	dashboardHtml,
+	landingHtml,
+	teachersHtml,
+	ogImageB64,
+	buildStamp,
+} from './pages';
 import { pageLastmod } from './page-lastmod';
 
 // Biome ids for the weather block (weather is per-biome; climate differs by
@@ -10419,6 +10428,12 @@ const LANDING_CLICK_TARGETS = new Set([
 	'get-nav',
 	'gallery',
 	'edu-nav',
+	// /teachers reports itself here, once per browser session, as a click rather
+	// than a visit. Visits are ONE undifferentiated series shared by every page
+	// that sends them, so a teachers-page visit would silently inflate the landing
+	// page's number with no way to unmix them later. Its own target keeps both
+	// numbers honest. See the comment in public/teachers.html's script.
+	'edu-page',
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
@@ -11198,6 +11213,11 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	privacy: { path: '/privacy.html', redirect: true, sitemap: true },
 	'age-rating': { path: '/age-rating.html', redirect: true, sitemap: true },
 	support: { path: '/support.html', redirect: true, sitemap: true },
+	// Extensionless on purpose: this one is not a store-listing URL that anything
+	// external already points at, so it gets the cleaner path teachers will type
+	// and share. Harper serves /teachers.html too (it strips the suffix), which
+	// costs nothing and cannot be linked to by accident.
+	teachers: { path: '/teachers', redirect: true, sitemap: true },
 	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
 	// the only thing on the site aimed squarely at teachers searching for a
 	// classroom ecology resource. No redirect: they are not served through
@@ -11328,6 +11348,23 @@ class DashboardPage extends PublicEndpoint {
 }
 
 /**
+ * GET /teachers — the classroom page: what the game teaches, how one class
+ * period runs, discussion prompts, and the two free PDFs.
+ *
+ * Its own page rather than a section of the landing page because the audience
+ * arrives differently. A teacher searching "ecosystem lesson plan grades 5-8"
+ * is not looking for a cozy game, and an anchor deep inside a 480 KB marketing
+ * page is neither a shareable link nor something a search engine will surface
+ * on its own terms. Splitting it also means the landing page stops paying for
+ * copy that only teachers read.
+ */
+class TeachersPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(this, 'teachers', teachersHtml);
+	}
+}
+
+/**
  * GET / — the public marketing landing page (the face of wild.willows.harperfabric.com).
  * Self-contained, SEO-optimized static HTML with inlined screenshots, served at the
  * site root. Registered under the empty-string export name below, which Harper's
@@ -11377,6 +11414,50 @@ function decodedBinary(key: string, b64: string): any {
 	let buf = decodedBinaries.get(key);
 	if (!buf) decodedBinaries.set(key, (buf = nodeBuffer.from(b64, 'base64')));
 	return buf;
+}
+
+/**
+ * GET /img/<name>.webp — the screenshots for the landing and teachers pages.
+ *
+ * These were base64 data URIs inside the HTML until the pages grew to 470 KB and
+ * 260 KB of render-blocking document. Inlining looks like it saves a request, and
+ * it does — at the cost of the one thing that actually matters here: an inlined
+ * image cannot be cached apart from the page carrying it, cannot be fetched in
+ * parallel with it, and cannot be deferred, because `loading="lazy"` on a data
+ * URI defers nothing that has not already been downloaded. Four of these nine are
+ * on BOTH pages, and as data URIs each one was paid for twice.
+ *
+ * Names are content-hashed by the build, so the answer is `immutable` with a
+ * one-year max-age: a changed screenshot gets a new filename, and a name that
+ * never changes never needs revalidating. That also makes the lookup its own
+ * path-traversal defence — the key either exists in the generated record or the
+ * request is a 404, and nothing here ever touches a filesystem path.
+ *
+ * Not in PUBLIC_PAGES: these are not pages, so there is no canonical to redirect
+ * to and a 301 would just buy every image an extra round trip.
+ */
+class Screenshot extends PublicEndpoint {
+	async get() {
+		const raw = String((this as any).getId?.() || '').trim();
+		// Harper strips some trailing extensions and not others; accept either form
+		// rather than depending on which list .webp happens to be on today.
+		const name = raw.endsWith('.webp') ? raw : `${raw}.webp`;
+		let body = decodedBinaries.get(`img:${name}`);
+		if (!body) {
+			const { screenshotsB64 } = await import('./img-assets');
+			const b64 = Object.prototype.hasOwnProperty.call(screenshotsB64, name) ? screenshotsB64[name] : null;
+			if (!b64) return { status: 404, headers: { 'content-type': 'text/plain; charset=utf-8' }, body: 'Not found' };
+			body = decodedBinary(`img:${name}`, b64);
+		}
+		return {
+			status: 200,
+			headers: {
+				'content-type': 'image/webp',
+				'cache-control': 'public, max-age=31536000, immutable',
+			},
+			body,
+		};
+	}
 }
 
 /** GET /og-image.jpg — the social/OpenGraph preview image for the landing page. */
@@ -11567,9 +11648,11 @@ export {
 	PrivacyPage as privacy,
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,
+	TeachersPage as teachers,
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',
+	Screenshot as img,
 	Theme as theme,
 	EducatorGuidePdf as 'educator-guide',
 	EducatorGuidePdf as 'educator-guide.pdf',
