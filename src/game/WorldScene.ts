@@ -193,6 +193,23 @@ export class WorldScene extends Phaser.Scene {
 	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
 	private lastSynced = { x: 0, y: 0 };
+	// Same check api.ts uses to pick the desktop transport. Read once: the preload
+	// sets it long before any scene is constructed.
+	private readonly isDesktopBuild = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
+	// How long the player has to keep moving before their position is saved.
+	//
+	// SPLIT BY PLATFORM, deliberately. On desktop this write goes to the in-app
+	// solo backend and costs a local file write, so the original 3s window is kept
+	// exactly as it was — nothing about desktop play changes.
+	//
+	// On the web every save is an HTTP request through the Cloudflare Worker to
+	// Harper, and at 3s a walking player generated up to 20 of them a minute — more
+	// than heartbeats and real actions combined, and the single largest source of
+	// requests the game makes. 10s costs at most ten seconds of walking on a hard
+	// crash (a clean close still flushes, see flushPosition below) and cuts the
+	// rate to 6/min. This is a background convenience save, not gameplay state:
+	// every action that matters sends its own position with it.
+	private readonly syncEverySec = this.isDesktopBuild ? 3 : 10;
 	private activeTool = 'basket';
 	private highlight!: Phaser.GameObjects.Container;
 	private tileCursor!: Phaser.GameObjects.Image;
@@ -543,7 +560,17 @@ export class WorldScene extends Phaser.Scene {
 		// direction" (playtest). Drop all held keys whenever focus goes away.
 		const onWindowBlur = () => this.input.keyboard?.resetKeys();
 		const onHidden = () => {
-			if (document.visibilityState === 'hidden') this.input.keyboard?.resetKeys();
+			if (document.visibilityState !== 'hidden') return;
+			this.input.keyboard?.resetKeys();
+			// Land the current position before the tab goes away. visibilitychange is
+			// the last event that reliably fires on a tab close, so this is the flush
+			// that lets syncEverySec be long on the web (see the field's comment).
+			//
+			// WEB ONLY. Electron fires this too (minimise, hide), but desktop kept the
+			// 3s window, so there is at most three seconds of walking to rescue and
+			// nothing to compensate for. Skipping it leaves desktop's behaviour on hide
+			// exactly what it was before this window was ever split.
+			if (!this.isDesktopBuild && this.alive) this.flushPosition();
 		};
 		window.addEventListener('blur', onWindowBlur);
 		document.addEventListener('visibilitychange', onHidden);
@@ -4479,8 +4506,24 @@ export class WorldScene extends Phaser.Scene {
 
 	private syncPosition(dt: number) {
 		this.moveAccum += dt;
-		if (this.moveAccum < 3) return;
+		if (this.moveAccum < this.syncEverySec) return;
 		this.moveAccum = 0;
+		this.flushPosition();
+	}
+
+	/**
+	 * Save the player's position now, if it has actually moved since the last save.
+	 *
+	 * Pulled out of syncPosition so the tab going away can force one. Without it,
+	 * lengthening the web sync window would lose up to that many seconds of walking
+	 * every time someone closed the tab mid-stride — with it, a clean close (tab
+	 * closed, navigated away, switched apps) lands the current position and the
+	 * longer window only costs anything in a hard crash.
+	 *
+	 * The >0.5 tile guard stays: standing still must not generate saves, which is
+	 * what makes it safe to call this on every hide.
+	 */
+	private flushPosition() {
 		const tx = this.player.x / TILE;
 		const ty = this.player.y / TILE;
 		if (Math.abs(tx - this.lastSynced.x) > 0.5 || Math.abs(ty - this.lastSynced.y) > 0.5) {
