@@ -50,6 +50,33 @@ export function PhaserGame() {
 				powerPreference: 'high-performance',
 			},
 			input: { activePointers: 3 }, // joystick + tap at the same time
+			fps: {
+				/* Why the caretaker used to wade through treacle for the first few
+				 * seconds after loading a save — and again every time you clicked back
+				 * into the window.
+				 *
+				 * This was never a frame-rate problem; it was a distance problem.
+				 * Phaser's TimeStep.resetDelta() sets an internal `_coolDown` counter to
+				 * `panicMax`, and while that counter is above zero smoothDelta() does
+				 * `delta = Math.min(delta, 1000 / targetFps)` — it hands update() 16.67ms
+				 * no matter how long the frame actually took. resetDelta() runs on boot,
+				 * on resume, and on every window focus.
+				 *
+				 * Movement integrates that delta (`speed * dt` in handleMovement), so
+				 * during the cooldown the player covers 16.67ms of ground per frame while
+				 * real time runs far ahead. At the ~12fps the scene manages while create()
+				 * is still building the world, the default 120-frame cooldown lasts TEN
+				 * SECONDS of wall time and moves the player at a fifth of their speed.
+				 * Walking looked broken; the frame counter looked fine; both were true.
+				 *
+				 * 8 frames is enough to swallow the genuinely garbage deltas right after a
+				 * resume, and the real protection against those is the separate guard
+				 * below it in smoothDelta() — anything over `1000 / minFps` (200ms) is
+				 * replaced with the last sane value regardless of this setting, so a tab
+				 * left in the background still can't teleport anyone on return.
+				 */
+				panicMax: 8,
+			},
 		});
 		const applySize = () => {
 			const g = game.current;
