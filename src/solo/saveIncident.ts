@@ -9,8 +9,8 @@
 // Strictly best-effort and never rethrows: the player has already hit one
 // failure, and telemetry must not stack a second one on top of it.
 
-import { COOP_BASE_URL, IS_DESKTOP } from '../api';
-import { DEMO } from '../demo';
+import { hostedBase, IS_DESKTOP } from '../api';
+
 import { APP_VERSION, BUILD_TIME } from '../platform';
 
 /** Tell the hosted instance that a save could not be read. Fire and forget. */
@@ -20,7 +20,7 @@ export function reportSaveIncident(recordId: string, kind: 'unreadable' | 'refus
 		// Desktop and the demo's offline fallback post cross-origin to the hosted
 		// Harper; a deployed web build posts to its own origin (same rule as the
 		// metrics uplink).
-		const url = `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/ReportSaveIncident/`;
+		const url = `${hostedBase()}/ReportSaveIncident/`;
 		void fetch(url, {
 			method: 'POST',
 			headers: { 'Content-Type': 'application/json' },

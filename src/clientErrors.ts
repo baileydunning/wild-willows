@@ -11,8 +11,8 @@
 // a device that can't reach the server is already having a worse problem than a
 // missing metric.
 
-import { COOP_BASE_URL, IS_DESKTOP } from './api';
-import { DEMO } from './demo';
+import { hostedBase } from './api';
+
 import { APP_VERSION, BUILD_TIME, detectOS } from './platform';
 
 /** Fingerprints already sent this session, so one bad frame doesn't flood. */
@@ -22,7 +22,7 @@ const MAX_PER_SESSION = 8;
 let sent = 0;
 
 function endpoint(): string {
-	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/ReportClientError/`;
+	return `${hostedBase()}/ReportClientError/`;
 }
 
 /**

@@ -58,6 +58,14 @@ jobs:
 
       - name: Build web client + server bundle
         run: npm run build
+        env:
+          # Belt and braces. process.mas already identifies a Mac App Store build
+          # at runtime (see detectDesktopChannel in electron/preload.js), and that
+          # verdict wins over this one — so this is the fallback for the day the
+          # runtime signal isn't there: an Electron change, or a .pkg built by some
+          # path that doesn't set it. A MAS artifact can only ever be MAS, so
+          # stamping it costs nothing and can't be wrong.
+          WW_CHANNEL: mas
 
       # The mas config points at build/embedded.provisionprofile (gitignored);
       # materialize it from the secret.

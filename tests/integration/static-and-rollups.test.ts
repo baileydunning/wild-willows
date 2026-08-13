@@ -29,8 +29,12 @@ beforeEach(async () => {
 const size = (body: any): number => (typeof body === 'string' ? Buffer.byteLength(body, 'utf8') : body.length);
 
 // URL-path export names, as registered at the bottom of server/resources.ts.
+// NOTE: the landing page is 'home', NOT '' — the root export was retired so it
+// stops shadowing /.well-known/acme-challenge/, which was swallowing Harper's
+// own certificate challenges and returning 588 KB of landing page to the CA.
+// Cloudflare rewrites / -> /home so visitors still land on it at the apex.
 const PAGES: [name: string, label: string][] = [
-	['', 'landing'],
+	['home', 'landing'],
 	['dashboard', 'dashboard'],
 	['privacy', 'privacy'],
 	['age-rating', 'age-rating'],
@@ -41,7 +45,7 @@ describe('inlined HTML pages', () => {
 	it('returns a plain string when there is no request context', async () => {
 		// This is the path the in-app solo backend takes; it must never touch zlib,
 		// which is a no-op shim in the web build.
-		const r = await w.get('');
+		const r = await w.get('home');
 		expect(typeof r.body).toBe('string');
 		expect(r.status).toBe(200);
 		expect(r.headers['content-type']).toMatch(/text\/html/);
@@ -55,33 +59,33 @@ describe('inlined HTML pages', () => {
 	});
 
 	it('falls back to gzip, then to identity', async () => {
-		const gz = await w.fetch('', { 'accept-encoding': 'gzip, deflate' });
+		const gz = await w.fetch('home', { 'accept-encoding': 'gzip, deflate' });
 		expect(gz.headers['content-encoding']).toBe('gzip');
 
-		const identity = await w.fetch('', { 'accept-encoding': 'identity' });
+		const identity = await w.fetch('home', { 'accept-encoding': 'identity' });
 		expect(identity.headers['content-encoding']).toBeUndefined();
 		expect(typeof identity.body).toBe('string');
 	});
 
 	it('advertises Vary so a proxy cannot serve brotli to a client that refuses it', async () => {
-		const r = await w.fetch('', { 'accept-encoding': 'br' });
+		const r = await w.fetch('home', { 'accept-encoding': 'br' });
 		expect(r.headers.vary).toBe('Accept-Encoding');
 	});
 
 	it('revalidates into an empty 304', async () => {
-		const first = await w.fetch('', { 'accept-encoding': 'br' });
+		const first = await w.fetch('home', { 'accept-encoding': 'br' });
 		expect(first.headers.etag).toBeTruthy();
 
-		const again = await w.fetch('', { 'if-none-match': first.headers.etag });
+		const again = await w.fetch('home', { 'if-none-match': first.headers.etag });
 		expect(again.status).toBe(304);
 		expect(again.body).toBeFalsy();
 
 		// A strong/weak prefix mismatch still counts as a match…
-		const strong = await w.fetch('', { 'if-none-match': String(first.headers.etag).replace(/^W\//, '') });
+		const strong = await w.fetch('home', { 'if-none-match': String(first.headers.etag).replace(/^W\//, '') });
 		expect(strong.status).toBe(304);
 
 		// …but a stale build stamp does not.
-		const stale = await w.fetch('', { 'if-none-match': 'W/"landing-0.0.1+ancient"' });
+		const stale = await w.fetch('home', { 'if-none-match': 'W/"landing-0.0.1+ancient"' });
 		expect(stale.status).toBe(200);
 		expect(stale.body).toBeTruthy();
 	});
@@ -94,8 +98,8 @@ describe('inlined HTML pages', () => {
 	});
 
 	it('compresses each page only once', async () => {
-		const a = await w.fetch('', { 'accept-encoding': 'br' });
-		const b = await w.fetch('', { 'accept-encoding': 'br' });
+		const a = await w.fetch('home', { 'accept-encoding': 'br' });
+		const b = await w.fetch('home', { 'accept-encoding': 'br' });
 		// Same buffer instance — not merely equal bytes — proves it was memoized
 		// rather than recompressed.
 		expect(b.body).toBe(a.body);

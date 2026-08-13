@@ -379,7 +379,7 @@ describe('who is public and who is not', () => {
 			expect(isPublic(mod[name]), name).toBe(true);
 		}
 		// the marketing + policy pages App Store Connect links to
-		expect(isPublic(mod['']), 'landing page').toBe(true);
+		expect(isPublic(mod['home']), 'landing page').toBe(true);
 		expect(isPublic(mod['privacy']), 'privacy page').toBe(true);
 		// And the dashboard SHELL, deliberately: a login form cannot live behind the
 		// thing it logs you into. It ships no data; the endpoints are the boundary.

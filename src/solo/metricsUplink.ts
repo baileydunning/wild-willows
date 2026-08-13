@@ -17,10 +17,10 @@
 // is torn down before a normal fetch can finish. So a short first session that
 // closes quickly still reports.
 
-import { api, getPlayerId, getSoloSlot, getTransport, COOP_BASE_URL, IS_DESKTOP } from '../api';
+import { api, getPlayerId, getSoloSlot, getTransport, hostedBase, IS_DESKTOP } from '../api';
 import { getLocale } from '../i18n';
 import { DEMO, EDITION } from '../demo';
-import { APP_VERSION, BUILD_TIME, detectOS } from '../platform';
+import { APP_VERSION, BUILD_TIME, CHANNEL, detectOS } from '../platform';
 import { getPrefs, resolveTheme } from '../prefs';
 
 /** Compact audio + accessibility settings snapshot for the metrics dashboard
@@ -64,7 +64,7 @@ let lastPayload: string | null = null;
 function endpoint(): string {
 	// Desktop and the browser demo's offline fallback both uplink cross-origin to
 	// the hosted Harper; the deployed web build would post to its own origin.
-	return `${IS_DESKTOP || DEMO ? COOP_BASE_URL : ''}/SyncMetrics/`;
+	return `${hostedBase()}/SyncMetrics/`;
 }
 
 /** Should the active session uplink to SoloMetrics? Solo (desktop + demo's
@@ -106,11 +106,14 @@ async function reportOnce(): Promise<boolean> {
 			version: APP_VERSION,
 			build: BUILD_TIME,
 			language: getLocale(),
-			// edition rides inside the snapshot JSON (SoloMetrics is a fixed-column
-			// table), so the dashboard can split demo vs paid players. `prefs` carries
+			// edition and channel BOTH ride inside the snapshot JSON rather than
+			// becoming columns, because SoloMetrics is a fixed-column (positional)
+			// table: adding a column there leaves every existing row undecodable —
+			// the exact failure the schema comment warns about. The snapshot is a
+			// scalar JSON string, so it absorbs new fields for free. `prefs` carries
 			// the player's audio + accessibility settings (localStorage-only, so they
 			// have to be attached here) for mute-rate and a11y-usage reporting.
-			snapshot: { ...snapshot, edition: EDITION, prefs: snapshotPrefs() },
+			snapshot: { ...snapshot, edition: EDITION, channel: CHANNEL, prefs: snapshotPrefs() },
 		});
 		lastPayload = body; // cache for the closing beacon
 		await fetch(endpoint(), {
