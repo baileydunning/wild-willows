@@ -5,7 +5,7 @@
 // A slot file is { meta, data } where `data` is the serialized dynamic tables
 // from the in-app backend and `meta` is light info for the load menu.
 
-import { serializeActiveSave } from './backend';
+import { activeSaveRow, activeSaveVersion, serializeActiveSave, serializeActiveSaveJson } from './backend';
 
 export interface SaveMeta {
 	slotId: string;
@@ -60,7 +60,12 @@ async function readRaw(slotId: string): Promise<SaveFile | null> {
 }
 
 async function writeRaw(slotId: string, file: SaveFile): Promise<void> {
-	const contents = JSON.stringify(file);
+	await writeRawJson(slotId, JSON.stringify(file));
+}
+
+/** Write an already-serialized save file. The autosave path builds its JSON
+ *  incrementally (see persist), so it must not be re-stringified here. */
+async function writeRawJson(slotId: string, contents: string): Promise<void> {
 	if (hasDesktopSaves()) {
 		await bridge()!.saves!.write(slotId, contents);
 		return;
@@ -116,17 +121,35 @@ export async function createSlot(meta: Omit<SaveMeta, 'slotId' | 'createdAt' | '
  *  in-game (restyle your caretaker), so re-read them from the saved player row
  *  instead of trusting the meta captured when the slot was created/loaded. */
 export async function persist(meta: SaveMeta): Promise<void> {
-	const data = serializeActiveSave();
-	if (!data) return;
-	const player = (data.Player || []).find((p: any) => p?.id === meta.playerId);
+	// Nothing has been written since the last save — skip it. Rewriting an
+	// identical multi-megabyte file costs a full serialize and a blocking
+	// localStorage write for no change at all.
+	const version = activeSaveVersion();
+	if (version === lastPersistedVersion && lastPersistedSlot === meta.slotId) return;
+
+	// Serialize via the per-table caches instead of handing the whole row graph
+	// to JSON.stringify. A typical action dirties one or two of the nine dynamic
+	// tables, so the rest are reused verbatim as already-valid JSON.
+	const dataJson = serializeActiveSaveJson();
+	if (dataJson === null) return;
+	const player = activeSaveRow('Player', meta.playerId);
 	const updated: SaveMeta = {
 		...meta,
 		name: player?.name ?? meta.name,
 		appearance: player?.appearance ?? meta.appearance,
 		updatedAt: Date.now(),
 	};
-	await writeRaw(meta.slotId, { meta: updated, data });
+	// Assembled by hand so `data` is spliced in as pre-built JSON. Both halves are
+	// valid JSON, so the result parses back to exactly the old shape.
+	await writeRawJson(meta.slotId, '{"meta":' + JSON.stringify(updated) + ',"data":' + dataJson + '}');
+	lastPersistedVersion = version;
+	lastPersistedSlot = meta.slotId;
 }
+
+// Guard state for the no-op skip above. Slot is tracked too, so saving into a
+// different slot always writes even when the world hasn't changed.
+let lastPersistedVersion = -1;
+let lastPersistedSlot: string | null = null;
 
 export async function deleteSave(slotId: string): Promise<void> {
 	try {

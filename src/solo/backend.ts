@@ -8,7 +8,14 @@
 // globalThis BEFORE importing the module (its `class … extends Resource` runs at
 // import time), then dispatch HTTP-shaped calls to the exported endpoint classes.
 
-import { hydrateSave, makeLocalDatabase, serializeSave, type LocalDatabase } from './localDb';
+import {
+	dbWriteVersion,
+	hydrateSave,
+	makeLocalDatabase,
+	serializeSave,
+	serializeSaveDataJson,
+	type LocalDatabase,
+} from './localDb';
 
 // Minimal stand-in for Harper's Resource base class. Endpoints only ever read
 // `this.getId()` (the trailing URL segment, e.g. the playerId in /GameState/x).
@@ -128,6 +135,21 @@ export async function loadSoloGame(playerId: string, saveData: Record<string, an
 export function serializeActiveSave(): Record<string, any[]> | null {
 	return activeDb ? serializeSave(activeDb) : null;
 }
+
+/** The active world's dynamic tables as save-file JSON, reusing the per-table
+ *  caches so an autosave only re-stringifies what the last action touched. */
+export function serializeActiveSaveJson(): string | null {
+	return activeDb ? serializeSaveDataJson(activeDb) : null;
+}
+
+/** One row out of the active world, without dumping every table. */
+export function activeSaveRow(table: string, id: string): any | null {
+	return activeDb?.[table]?.peek(id) ?? null;
+}
+
+/** Write counter across all dynamic tables — lets the autosave skip a write
+ *  when no game state has changed since the last one. */
+export const activeSaveVersion = (): number => dbWriteVersion();
 
 export function hasActiveSolo(): boolean {
 	return activeDb != null;

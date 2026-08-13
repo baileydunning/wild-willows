@@ -48,8 +48,20 @@ function idPrefixOf(query: any): string | null {
 	return null;
 }
 
+/** Bumped on every write to any table. persist() uses it to skip a save when
+ *  nothing has actually changed since the last one. */
+let writeVersion = 0;
+export const dbWriteVersion = () => writeVersion;
+
 class LocalTable {
 	private rows = new Map<string, any>();
+	// Serializing the whole save on every autosave got steadily more expensive as
+	// a preserve grew, and a typical action dirties one or two tables out of nine.
+	// So each table caches its own JSON and only re-stringifies when it has been
+	// written to. Costs one retained string per table (bounded by save size) and
+	// turns a multi-hundred-millisecond freeze into a concat of cached strings.
+	private dirty = true;
+	private json = '[]';
 
 	// Harper resolves get() to a stored record by primary key (or null).
 	async get(id: any): Promise<any | null> {
@@ -61,6 +73,7 @@ class LocalTable {
 	async put(record: any): Promise<void> {
 		if (!record || record.id == null) throw new Error('put() requires a record with an id');
 		this.rows.set(String(record.id), copy(record));
+		this.touch();
 	}
 
 	// patch merges a partial into an existing record (shallow, like Harper).
@@ -68,10 +81,16 @@ class LocalTable {
 		const key = String(id);
 		const cur = this.rows.get(key) || { id: key };
 		this.rows.set(key, { ...cur, ...partial, id: cur.id ?? key });
+		this.touch();
 	}
 
 	async delete(id: any): Promise<void> {
-		this.rows.delete(String(id));
+		if (this.rows.delete(String(id))) this.touch();
+	}
+
+	private touch(): void {
+		this.dirty = true;
+		writeVersion++;
 	}
 
 	// The server calls search({}) / search({ select: ['id'] }) for a full scan, and
@@ -97,9 +116,23 @@ class LocalTable {
 	dump(): any[] {
 		return Array.from(this.rows.values());
 	}
+	/** This table's rows as a JSON array, re-stringified only when dirty. */
+	dumpJson(): string {
+		if (this.dirty) {
+			this.json = JSON.stringify(Array.from(this.rows.values()));
+			this.dirty = false;
+		}
+		return this.json;
+	}
+	/** Read a row without copying the whole table (used for save metadata). */
+	peek(id: any): any | null {
+		const rec = this.rows.get(String(id));
+		return rec ? copy(rec) : null;
+	}
 	load(records: any[]): void {
 		this.rows.clear();
 		for (const r of records || []) if (r && r.id != null) this.rows.set(String(r.id), r);
+		this.touch();
 	}
 	get size() {
 		return this.rows.size;
@@ -148,6 +181,24 @@ export function serializeSave(db: LocalDatabase): Record<string, any[]> {
 	const out: Record<string, any[]> = {};
 	for (const name of DYNAMIC_TABLES) out[name] = db[name].dump();
 	return out;
+}
+
+/**
+ * The dynamic tables as the JSON for a save file's `data` object, assembled from
+ * each table's cached JSON so untouched tables are never re-stringified.
+ *
+ * Built as a string rather than an object because the whole point is to avoid
+ * handing the full row graph to JSON.stringify again. Key order follows
+ * DYNAMIC_TABLES, and every value is already-valid JSON from dumpJson().
+ */
+export function serializeSaveDataJson(db: LocalDatabase): string {
+	let out = '{';
+	for (let i = 0; i < DYNAMIC_TABLES.length; i++) {
+		const name = DYNAMIC_TABLES[i];
+		if (i) out += ',';
+		out += JSON.stringify(name) + ':' + db[name].dumpJson();
+	}
+	return out + '}';
 }
 
 /** Hydrate dynamic tables from a previously serialized save. */
