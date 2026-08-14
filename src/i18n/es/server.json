@@ -110,6 +110,8 @@
 		"needWateringCan": "Necesitas tu regadera para eso",
 		"prepareBedFirst": "Prepara un bancal con tu pala primero",
 		"alreadyOpenWater": "Esto ya es agua abierta",
+		"bedJustWatered": "Ese bancal acaba de regarse — vuelve a hacer clic si quieres inundarlo y convertirlo en agua abierta",
+		"groundChanged": "Este terreno cambió mientras trabajabas — vuelve a mirarlo antes de moldearlo",
 		"tooDryToFlood": "El terreno de {biome} es demasiado seco para inundarlo — aquí los bancales solo pueden prepararse para plantar.",
 		"gateMustStayClear": "El sendero de la puerta debe seguir siendo transitable — inunda un canal en otro sitio.",
 		"needWater": "Necesitas {count} de agua para eso — recolecta más primero",

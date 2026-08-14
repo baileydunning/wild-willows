@@ -8,7 +8,54 @@ import {
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
 	worldToScreen,
+	arrivalKind,
 } from '../../src/game/interactions';
+
+// The west→east walking order of the preserve, as WorldScene holds it.
+const ORDER = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
+
+describe('arrivalKind', () => {
+	it('THE BUG: a second transition to the area you are already in must not move you', () => {
+		// Stepping outside is a round trip, and the door is clickable twice. The
+		// duplicate landed after the scene had already moved to the meadow, so it
+		// asked for a meadow→meadow "crossing" — which fell through to the
+		// came-from-a-neighbour rule and put the caretaker at the east trail gate,
+		// halfway across the map from the house they just walked out of.
+		expect(arrivalKind('meadow', 'meadow', ORDER)).toBe('in-place');
+		expect(arrivalKind('meadow', 'meadow', ORDER)).not.toBe('east-edge');
+		// …and it is not a meadow quirk: every area has to stand still for its own id.
+		for (const a of ORDER) expect(arrivalKind(a, a, ORDER)).toBe('in-place');
+	});
+
+	it('puts you in front of the tent door when you step out of your home', () => {
+		expect(arrivalKind('meadow', 'home', ORDER)).toBe('camp-door');
+	});
+
+	it('puts you in front of a trail tent when you step out of one', () => {
+		expect(arrivalKind('forest', 'tent-forest', ORDER, true)).toBe('tent-door');
+	});
+
+	it('falls back rather than guessing when the tent it named is not pitched', () => {
+		// No placement to stand in front of — 'tent-forest' is in no walking order,
+		// so there is nothing to derive an edge from either.
+		expect(arrivalKind('forest', 'tent-forest', ORDER, false)).toBe('default');
+	});
+
+	it('enters on the edge facing where you came from', () => {
+		expect(arrivalKind('forest', 'meadow', ORDER)).toBe('west-edge');
+		expect(arrivalKind('meadow', 'forest', ORDER)).toBe('east-edge');
+		// Skipping biomes (the map's travel button) still faces the right way.
+		expect(arrivalKind('coastal', 'meadow', ORDER)).toBe('west-edge');
+		expect(arrivalKind('meadow', 'coastal', ORDER)).toBe('east-edge');
+	});
+
+	it('falls back for an area it has never heard of', () => {
+		expect(arrivalKind('forest', 'somewhere-else', ORDER)).toBe('default');
+		expect(arrivalKind('brand-new-biome', 'meadow', ORDER)).toBe('default');
+		// The home interior is not on the trail, and only the meadow lets out of it.
+		expect(arrivalKind('forest', 'home', ORDER)).toBe('default');
+	});
+});
 
 describe('canPaintClick', () => {
 	it('paints when the paint tool is selected indoors and nothing is being placed/moved', () => {

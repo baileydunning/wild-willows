@@ -693,6 +693,88 @@
 				margin-right: 0.15rem;
 			}
 
+			/* ---- "playing right now" list, inside the shared modal ---- */
+			.acchips {
+				display: flex;
+				flex-wrap: wrap;
+				gap: 0.4rem;
+				margin: 0 0 0.9rem;
+			}
+			.acchip {
+				background: var(--card);
+				border-radius: 999px;
+				padding: 0.2rem 0.65rem;
+				font-size: 0.82rem;
+				font-weight: 700;
+				color: var(--muted);
+				box-shadow: var(--shadow);
+			}
+			.acrow {
+				display: flex;
+				align-items: center;
+				gap: 0.75rem;
+				background: var(--card);
+				border-radius: 14px;
+				padding: 0.6rem 0.8rem;
+				margin-bottom: 0.5rem;
+				cursor: pointer;
+				box-shadow: var(--shadow);
+			}
+			.acrow:hover,
+			.acrow:focus-visible {
+				outline: 2px solid var(--accent);
+				outline-offset: 1px;
+			}
+			.acav svg {
+				width: 40px;
+				height: 40px;
+				display: block;
+			}
+			.acbody {
+				min-width: 0;
+			}
+			.acname {
+				font-weight: 800;
+			}
+			.actags {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				gap: 0.3rem;
+				margin: 0.15rem 0;
+			}
+			/* The channel is the reason this list exists, so it reads first and loudest
+			   — everything beside it is a plain grey chip. */
+			.acchan {
+				background: var(--accent);
+				color: #fff;
+				border-radius: 999px;
+				padding: 0.1rem 0.55rem;
+				font-size: 0.75rem;
+				font-weight: 800;
+			}
+			.actag {
+				background: var(--bg);
+				border-radius: 999px;
+				padding: 0.1rem 0.55rem;
+				font-size: 0.75rem;
+				font-weight: 700;
+				color: var(--muted);
+			}
+			.acmeta {
+				font-size: 0.82rem;
+				color: var(--muted);
+			}
+			/* A KPI tile that opens something. Same card, but it says so. */
+			.kpi-click {
+				cursor: pointer;
+			}
+			.kpi-click:hover,
+			.kpi-click:focus-visible {
+				outline: 2px solid var(--accent);
+				outline-offset: 1px;
+			}
+
 			/* ---- player modal ---- */
 			.modal-overlay {
 				position: fixed;
@@ -1784,8 +1866,15 @@
 			/* ------------------------------------------------------------------ *
 			 * Render building blocks
 			 * ------------------------------------------------------------------ */
-			function kpi(v, k, hint) {
-				return `<div class="card kpi"><div class="v">${v}</div><div class="k">${k}</div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
+			/* `click` turns a tile into a button that opens a modal — used by "Active
+			 * now", where the number is only half the answer and the other half (who,
+			 * and where did they come from) is one click away. Tiles without it are
+			 * plain text and stay unfocusable, so nothing looks pressable that isn't. */
+			function kpi(v, k, hint, click) {
+				const attrs = click
+					? ` kpi-click" role="button" tabindex="0" data-kpi="${click}" title="Click for details`
+					: '"';
+				return `<div class="card kpi${attrs}"><div class="v">${v}</div><div class="k">${k}</div>${hint ? `<div class="hint">${hint}</div>` : ''}</div>`;
 			}
 			function barRows(entries, opts) {
 				opts = opts || {};
@@ -1941,6 +2030,20 @@
 				'start-rest': 'Rest at camp',
 				'start-stream': 'Dig a stream',
 				'start-home': 'Build a home',
+			};
+
+			/* Where a caretaker is standing, for the who's-playing-now list. Ids come
+			 * from the snapshot; names mirror data/biomes.json. A trail tent reports as
+			 * `tent-<biome>`, and 'home' is the camp — neither is a biome, but both are
+			 * where someone actually is. */
+			const AREA_LABELS = {
+				meadow: 'Willow Meadow',
+				forest: 'Old Hollow Forest',
+				wetland: 'Rushwater Wetland',
+				desert: 'Redstone Scrubland',
+				alpine: 'Graywind Heights',
+				coastal: 'Pelican Shore',
+				home: 'their home',
 			};
 
 			const OS_LABELS = {
@@ -2553,9 +2656,8 @@
 			}
 
 			/** Open the modal for a player id (looked up from the last render). */
-			function openPlayerModal(pid) {
-				const p = PLAYERS_BY_ID[pid];
-				if (!p) return;
+			/** The one overlay both modals live in — built on first use, reused after. */
+			function showModal(html) {
 				if (!modalEl) {
 					modalEl = document.createElement('div');
 					modalEl.className = 'modal-overlay';
@@ -2565,10 +2667,96 @@
 						if (e.target === modalEl || (e.target.closest && e.target.closest('[data-close]'))) closePlayerModal();
 					});
 					modalEl.addEventListener('click', onRemoveCaretaker);
+					// A row in the who's-playing list opens that caretaker's full breakdown,
+					// in the same overlay — the list is a way in, not a dead end.
+					modalEl.addEventListener('click', (e) => {
+						const row = e.target.closest && e.target.closest('.acrow[data-pid]');
+						if (row) openPlayerModal(row.getAttribute('data-pid'));
+					});
 				}
-				modalEl.querySelector('.modal').innerHTML = playerModalHTML(p);
+				modalEl.querySelector('.modal').innerHTML = html;
+				modalEl.querySelector('.modal').scrollTop = 0;
 				modalEl.style.display = 'flex';
 				document.body.classList.add('modal-open');
+			}
+
+			function openPlayerModal(pid) {
+				const p = PLAYERS_BY_ID[pid];
+				if (!p) return;
+				showModal(playerModalHTML(p));
+			}
+
+			/** Everyone playing right now, and where they came from.
+			 *
+			 * The KPI answers "how many"; this answers the two questions that always
+			 * follow — WHO, and through which door. Channel is the point: three people
+			 * on itch and three on wildwillows.app are the same number and completely
+			 * different news. Same 5-minute window as the KPI and the wall's live
+			 * badge, read from the same rows, so the three can never disagree. */
+			function activeNowModalHTML() {
+				const players = (LAST_DATA && LAST_DATA.players) || [];
+				const live = players
+					.filter((p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5)
+					.sort((a, b) => n(a.minutesSinceActive) - n(b.minutesSinceActive));
+
+				const since = (m) => (n(m) < 1 ? 'just now' : `${Math.round(n(m))} min ago`);
+				const rows = live
+					.map((p) => {
+						const chan = CHANNEL_LABELS[p.channel || 'unknown'] || p.channel || 'Unknown';
+						const edi = p.edition === 'demo' ? 'demo' : 'full';
+						const plat = p.platform === 'desktop' ? 'Desktop app' : 'Browser';
+						const area = p.currentArea || '';
+						const where = area ? AREA_LABELS[area] || (area.startsWith('tent-') ? 'a trail tent' : area) : null;
+						const bits = [
+							`<span class="acchan">${esc(chan)}</span>`,
+							`<span class="hledi ${edi}">${edi}</span>`,
+							`<span class="actag">${esc(plat)}</span>`,
+							p.os ? `<span class="actag">${esc(OS_LABELS[p.os] || p.os)}</span>` : '',
+							p.version ? `<span class="actag">v${esc(p.version)}</span>` : '',
+						]
+							.filter(Boolean)
+							.join('');
+						const stats = [
+							where ? `in ${esc(where)}` : '',
+							`${fmtDur(p.playSeconds)} played`,
+							`${fmt(p.sessions)} ${n(p.sessions) === 1 ? 'session' : 'sessions'}`,
+							since(p.minutesSinceActive),
+						]
+							.filter(Boolean)
+							.join(' · ');
+						return (
+							`<div class="acrow" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="Click for the full breakdown">` +
+							`<div class="acav">${avatarSVG(p.appearance)}</div>` +
+							`<div class="acbody"><div class="acname">${esc(p.name || 'Unnamed')}</div>` +
+							`<div class="actags">${bits}</div>` +
+							`<div class="acmeta">${esc(stats)}</div></div></div>`
+						);
+					})
+					.join('');
+
+				// Where they came from, as a tally — the shape of who is on right now,
+				// which is the thing worth glancing at before reading any single row.
+				const tally = {};
+				for (const p of live) {
+					const k = p.channel || 'unknown';
+					tally[k] = (tally[k] || 0) + 1;
+				}
+				const chips = Object.entries(tally)
+					.sort((a, b) => b[1] - a[1])
+					.map(([k, v]) => `<span class="acchip">${esc(CHANNEL_LABELS[k] || k)} · ${fmt(v)}</span>`)
+					.join('');
+
+				return (
+					`<button class="modal-close" data-close aria-label="Close">×</button>` +
+					`<div class="modal-head"><div><h2>Playing right now</h2>` +
+					`<div class="msub">${fmt(live.length)} ${live.length === 1 ? 'caretaker' : 'caretakers'} seen in the last 5 minutes</div></div></div>` +
+					(chips ? `<div class="acchips">${chips}</div>` : '') +
+					(rows || `<div class="emptynote">Nobody is playing at this exact moment.</div>`)
+				);
+			}
+
+			function openActiveNowModal() {
+				showModal(activeNowModalHTML());
 			}
 			function closePlayerModal() {
 				if (modalEl) modalEl.style.display = 'none';
@@ -2822,7 +3010,12 @@
 						overviewSub,
 						`<div class="grid kpis kpis-6">${[
 							kpi(fmt(s.players), 'Total caretakers', 'unique anonymous saves'),
-							kpi(`<span class="accent">${fmt(A.activeNow)}</span>`, 'Active now', 'seen in the last 5 minutes'),
+							kpi(
+								`<span class="accent">${fmt(A.activeNow)}</span>`,
+								'Active now',
+								n(A.activeNow) > 0 ? 'seen in the last 5 minutes · click for who' : 'seen in the last 5 minutes',
+								n(A.activeNow) > 0 ? 'active-now' : null,
+							),
 							kpi(fmt(A.activeLast24h), 'Active · 24h'),
 							kpi(fmt(A.activeLast7d), 'Active · 7d'),
 							kpi(fmt(A.activeLast14d), 'Active · 14d'),
@@ -4600,18 +4793,31 @@
 
 			rootEl.addEventListener('click', (e) => {
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
-				if (card) openPlayerModal(card.getAttribute('data-pid'));
+				if (card) return openPlayerModal(card.getAttribute('data-pid'));
+				const tile = e.target.closest && e.target.closest('.kpi-click[data-kpi="active-now"]');
+				if (tile) openActiveNowModal();
 			});
 			rootEl.addEventListener('keydown', (e) => {
 				if (e.key !== 'Enter' && e.key !== ' ') return;
 				const card = e.target.closest && e.target.closest('.hlcard[data-pid]');
 				if (card) {
 					e.preventDefault();
-					openPlayerModal(card.getAttribute('data-pid'));
+					return openPlayerModal(card.getAttribute('data-pid'));
+				}
+				const tile = e.target.closest && e.target.closest('.kpi-click[data-kpi="active-now"]');
+				if (tile) {
+					e.preventDefault();
+					openActiveNowModal();
 				}
 			});
 			document.addEventListener('keydown', (e) => {
-				if (e.key === 'Escape') closePlayerModal();
+				if (e.key === 'Escape') return closePlayerModal();
+				if (e.key !== 'Enter' && e.key !== ' ') return;
+				const row = e.target.closest && e.target.closest('.acrow[data-pid]');
+				if (row) {
+					e.preventDefault();
+					openPlayerModal(row.getAttribute('data-pid'));
+				}
 			});
 
 			// Sign out from the header. Delegated, because syncWhoami() rebuilds the
@@ -4623,6 +4829,7 @@
 			// expose for offline/unit rendering (jsdom smoke test)
 			window.__renderDashboard = render;
 			window.__openPlayerModal = openPlayerModal;
+			window.__openActiveNowModal = openActiveNowModal;
 			// Pick up an existing session before deciding what to show — a refresh
 			// mid-investigation should land back on the numbers, not on a login form.
 			loadAuth();

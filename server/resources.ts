@@ -6882,7 +6882,7 @@ export class SetGoals extends PublicEndpoint {
  */
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, action } = await bodyOf(data);
+		const { playerId, area, x, y, action, expect } = await bodyOf(data);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6916,6 +6916,34 @@ export class Terraform extends PublicEndpoint {
 			// Match by position, not id: legacy beds carry an old id but must still be
 			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
 			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+
+			// Compare-and-swap on the tile's type.
+			//
+			// Watering ESCALATES — bare ground is dug into a bed, a bed is watered, a
+			// watered bed floods into open water — and the client decides which of
+			// those a click means from its own copy of the tile. That copy doesn't
+			// change until the round trip lands, so on a slow connection a player who
+			// waters a bed, sees nothing, and clicks again sends a second "water" that
+			// was decided against 'tilled' but arrives at a tile that is now 'watered'.
+			// The server obligingly floods it, and the bed they were tending becomes a
+			// pond. Same shape of accident for a shovel click that lands after the
+			// ground it was aimed at has already been dug.
+			//
+			// So the client now says what it believed the tile was, and a command aimed
+			// at ground that has become something else is refused instead of applied to
+			// whatever happens to be there. `undefined` skips the check, which keeps
+			// older clients (and the integration suites' direct posts) working.
+			if (expect !== undefined) {
+				const actual = existing?.type ?? null;
+				if ((expect ?? null) !== actual) {
+					// The overwhelmingly common case, and the one worth explaining: the
+					// bed finished watering between the click and its arrival.
+					const key =
+						expect === 'tilled' && actual === 'watered' ? 'server.err.bedJustWatered' : 'server.err.groundChanged';
+					throw new GameError(tr(key), 409, key);
+				}
+			}
+
 			let inventory = player.inventory || {};
 			let tile: any = null;
 			let removedId: string | undefined;

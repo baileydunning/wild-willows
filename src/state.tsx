@@ -93,7 +93,14 @@ interface Ctx {
 	pushLog: (icon: string, text: string, notable?: boolean) => void;
 	selectedTool: string;
 	setSelectedTool: (toolId: string) => void;
-	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
+	terraform: (
+		area: string,
+		x: number,
+		y: number,
+		action: 'dig' | 'water' | 'clear',
+		/** the tile type this command was decided against — see api.terraform */
+		expect?: string | null,
+	) => Promise<void>;
 	plant: (area: string, x: number, y: number, plantId: string) => Promise<void>;
 	setTutorialStep: (step: number) => void;
 	startNew: (name: string, passcode: string, appearance: Appearance, creationMs?: number) => Promise<void>;
@@ -1187,9 +1194,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const terraform = useCallback(
-		(area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
+		(area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
 			act(
-				() => api.terraform(area, x, y, action),
+				() => api.terraform(area, x, y, action, expect),
 				(r) => {
 					if (action === 'dig') {
 						if (r?.dug) {
@@ -1612,8 +1619,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, state, toast, canAffordCraft],
 	);
 
+	// The area change in flight, if any. Stepping through a door is a round trip
+	// (sync the position, refetch the snapshot, then rebuild the scene), and every
+	// door is a thing you can click twice — or click and then press the interact
+	// key on — before the first trip lands. Each extra request re-ran the whole
+	// transition, and the duplicate that arrived AFTER the scene had already moved
+	// asked it to travel from the meadow to the meadow, which the spawn rules read
+	// as "arrived from a neighbouring biome" and answered with the trail gate. So
+	// the caretaker stepped out of their house and was yanked across the meadow.
+	//
+	// One transition at a time, and none at all to where we already are.
+	const areaChanging = useRef<string | null>(null);
 	const changeArea = useCallback(
 		async (area: string) => {
+			if (areaChanging.current || (bridge.shared.state?.player.area ?? state?.player.area) === area) return;
+			areaChanging.current = area;
 			try {
 				setSaveStatus('saving');
 				await api.syncPlayer(state?.player.x ?? 0, state?.player.y ?? 0, area);
@@ -1625,6 +1645,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			} catch (e: any) {
 				setSaveStatus('idle');
 				toast(e.message || t('app.error.cannotGoThere'), 'error');
+			} finally {
+				areaChanging.current = null;
 			}
 		},
 		[state, markSaved, toast, adoptState],

@@ -569,8 +569,13 @@ export const api = {
 	observe: (animalId: string) => session((playerId) => post<any>('/ObserveAnimal/', { playerId, animalId })),
 	claimTask: (taskId: string) => session((playerId) => post<any>('/ClaimTask/', { playerId, taskId })),
 	setGoals: (goals: any[]) => session((playerId) => post<any>('/SetGoals/', { playerId, goals })),
-	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
-		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action })),
+	// `expect` is the tile type the click was decided against ('tilled', 'watered',
+	// … or null for bare ground). The server refuses the command if the tile has
+	// since become something else, so a second click sent while the first is still
+	// in flight can't escalate a bed the player only meant to water into open
+	// water. Leaving it undefined means "don't check".
+	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
+		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action, expect })),
 	plant: (area: string, x: number, y: number, plantId: string) =>
 		session((playerId) => post<any>('/Plant/', { playerId, area, x, y, plantId })),
 	harvest: (placementId: string) => session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),

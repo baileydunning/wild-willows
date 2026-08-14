@@ -8,6 +8,7 @@ import {
 	gateEdges,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
+	arrivalKind,
 } from './interactions';
 import {
 	animalScale,
@@ -81,6 +82,11 @@ const CAMP_BLOCK = { x0: 19.5, y0: 3.2, x1: 23.9, y1: 5.9 }; // keep nodes/place
 // area's own grid size (see spawnFor), since biomes are different sizes now.
 const AREA_ORDER = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
 const SPAWN_DEFAULT = { x: 24, y: 11 };
+
+// How long a shaped tile ignores a second command (see terraformRepeatGuard).
+// Long enough to cover an impatient double-click on a slow connection, short
+// enough that deliberately watering a bed twice to flood it still feels instant.
+const TERRAFORM_REPEAT_MS = 700;
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -292,6 +298,9 @@ export class WorldScene extends Phaser.Scene {
 	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
 	private lastSynced = { x: 0, y: 0 };
+	// tile key -> scene clock reading when we last sent a shaping command for it
+	// (see terraformRepeatGuard)
+	private lastTerraformAt = new Map<string, number>();
 	// ONE timer for the whole preserve's growth, not one per plant.
 	//
 	// drawPlacements() used to call this.time.delayedCall() per still-growing plant
@@ -674,6 +683,18 @@ export class WorldScene extends Phaser.Scene {
 			spawn = { x: r.doorX + 0.5, y: r.doorY + 0.2 };
 		}
 		this.player.setPosition(spawn.x * TILE, spawn.y * TILE);
+		// The save now holds THIS position, not the one it was holding a moment ago.
+		//
+		// changeArea() posts the outgoing area's coordinates alongside the incoming
+		// area name (it has no way to know where the scene will put you), so between
+		// a transition and the first half-tile of walking the server's idea of where
+		// you are is a leftover from the area you just left. savedSpawn() reads that
+		// row, so anything that rebuilt the scene in that window — a reload, most
+		// obviously — resumed you at a position from the previous area. Landing the
+		// arrival straight away closes the window; lastSynced is set alongside so a
+		// boot (where the spawn came FROM the save) doesn't post it straight back.
+		this.lastSynced = { x: spawn.x, y: spawn.y };
+		if (data?.spawn) bridge.emit('player-moved', { x: spawn.x, y: spawn.y });
 		this.cameras.main.startFollow(this.player, true, 0.12, 0.12);
 		this.startLeaves();
 
@@ -971,6 +992,18 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(bridge.on('terraformed', (p: any) => this.playTerraformFx(p)));
 		this.unsubs.push(
 			bridge.on('area-changed', (area: string) => {
+				// A transition to the area we're ALREADY standing in is not a transition,
+				// and restarting for one teleports the caretaker: spawnFor(a, a) falls
+				// through to its "came from a neighbour" branch and lands them at the
+				// trail gate on the far edge. That's the "walk out of my house and get
+				// yanked to the trail sign" bug — stepping outside is an async round trip,
+				// so a second click on the door (or the interact key landing while the
+				// first request is still in flight) fired a SECOND area change, this time
+				// from the meadow to the meadow.
+				//
+				// changeArea() drops the duplicate request too; this is the backstop that
+				// makes a redundant event harmless no matter where it came from.
+				if (area === this.area) return;
 				this.exitPlacement();
 				this.scene.restart({ area, spawn: this.spawnFor(area, this.area) });
 			}),
@@ -1081,7 +1114,12 @@ export class WorldScene extends Phaser.Scene {
 				return;
 			}
 			// terraform with shovel / watering can on an empty reachable tile
-			if (this.terraformAction() && (!over || over.length === 0) && this.tileReachable(tx, ty)) {
+			if (
+				this.terraformAction() &&
+				(!over || over.length === 0) &&
+				this.tileReachable(tx, ty) &&
+				!this.terraformRepeatGuard(tx, ty)
+			) {
 				bridge.emit('terraform-at', this.terraformPayload(tx, ty));
 			}
 		});
@@ -1160,6 +1198,36 @@ export class WorldScene extends Phaser.Scene {
 		return area === 'coastal' ? COAST_COLS : 0;
 	}
 
+	/**
+	 * Swallow a repeat shaping command on a tile we've only just sent one for.
+	 *
+	 * Watering escalates — a tilled bed becomes a watered bed, and a watered bed
+	 * becomes open water — and which of those a click means is decided from the
+	 * LOCAL copy of the tile, which doesn't change until the round trip lands. On a
+	 * slow connection the player waters a bed, sees nothing happen, clicks again,
+	 * and the second click (still reading "tilled") reaches a server that has since
+	 * written "watered" — so it floods the bed they were tending into a pond.
+	 *
+	 * The server refuses the mismatch outright now (Terraform's `expect`), but a
+	 * bounced request is still a wasted trip and an error toast for what is plainly
+	 * a double-click. Anything inside this window on the same tile is dropped in
+	 * silence; a deliberate second visit — click, watch it soak in, decide to make
+	 * a pond — is well past it.
+	 */
+	private terraformRepeatGuard(tx: number, ty: number): boolean {
+		const key = `${tx},${ty}`;
+		const now = this.time.now;
+		const last = this.lastTerraformAt.get(key);
+		if (last !== undefined && now - last < TERRAFORM_REPEAT_MS) return true;
+		this.lastTerraformAt.set(key, now);
+		// The map is per-scene and only ever holds tiles shaped in the last moment;
+		// sweep it rather than let a long session's worth of dug beds accumulate.
+		if (this.lastTerraformAt.size > 64) {
+			for (const [k, at] of this.lastTerraformAt) if (now - at >= TERRAFORM_REPEAT_MS) this.lastTerraformAt.delete(k);
+		}
+		return false;
+	}
+
 	/** Terraform event payload — destructive actions on a watered bed ask first. */
 	private terraformPayload(tx: number, ty: number) {
 		const action = this.terraformActionFor(tx, ty);
@@ -1180,7 +1248,13 @@ export class WorldScene extends Phaser.Scene {
 				// otherwise flooding happens immediately — no confirmation prompt
 			}
 		}
-		return { area: this.area, x: tx, y: ty, action, confirm, block };
+		// What this click was decided against. The server compares it to the tile it
+		// actually holds and refuses the command if the two disagree, so a click
+		// aimed at a bed can never land on the different bed it has become in the
+		// meantime — which is the whole of the "watering turned my bed into a pond"
+		// report. `null` means "I believe this ground is unshaped".
+		const expect = existing?.type ?? null;
+		return { area: this.area, x: tx, y: ty, action, expect, confirm, block };
 	}
 
 	private tileReachable(tx: number, ty: number): boolean {
@@ -1197,19 +1271,25 @@ export class WorldScene extends Phaser.Scene {
 	 * grid size (biomes are different sizes now, the meadow biggest of all).
 	 */
 	private spawnFor(area: string, from: string): { x: number; y: number } {
-		// stepping back out of the home → right in front of the camp tent door
-		if (area === 'meadow' && from === 'home') return { ...CAMP_TENT_FRONT };
-		// stepping out of a trail tent → right in front of where it's pitched
-		if (from === `tent-${area}`) {
-			const p = bridge.shared.state?.placements.find((pl) => pl.area === area && pl.objectId === 'trail-tent');
-			if (p) return { x: p.x + 0.5, y: p.y + 1.4 };
-		}
-		const ai = AREA_ORDER.indexOf(area);
-		const fi = AREA_ORDER.indexOf(from);
-		if (ai < 0 || fi < 0) return { ...SPAWN_DEFAULT };
+		const tent = bridge.shared.state?.placements.find((pl) => pl.area === area && pl.objectId === 'trail-tent');
 		const d = this.dimsOf(area);
-		// came from the west neighbour → appear at the west edge; from the east → east edge
-		return fi < ai ? { x: 1.8, y: d.gateY } : { x: d.cols - 2.2, y: d.gateY };
+		// The rule itself lives in interactions.ts so it can be tested without Phaser
+		// — including the one that stops a duplicate transition throwing the
+		// caretaker across the map (see arrivalKind).
+		switch (arrivalKind(area, from, AREA_ORDER, !!tent)) {
+			case 'in-place':
+				return { x: this.player.x / TILE, y: this.player.y / TILE };
+			case 'camp-door':
+				return { ...CAMP_TENT_FRONT };
+			case 'tent-door':
+				return { x: tent!.x + 0.5, y: tent!.y + 1.4 };
+			case 'west-edge':
+				return { x: 1.8, y: d.gateY };
+			case 'east-edge':
+				return { x: d.cols - 2.2, y: d.gateY };
+			default:
+				return { ...SPAWN_DEFAULT };
+		}
 	}
 
 	private savedSpawn() {
@@ -2634,7 +2714,7 @@ export class WorldScene extends Phaser.Scene {
 			if (this.terraformAction() && opts.terraformPassthrough) {
 				const tx = Math.floor(pointer.worldX / TILE);
 				const ty = Math.floor(pointer.worldY / TILE);
-				if (this.tileReachable(tx, ty)) {
+				if (this.tileReachable(tx, ty) && !this.terraformRepeatGuard(tx, ty)) {
 					bridge.emit('terraform-at', this.terraformPayload(tx, ty));
 				}
 				return;

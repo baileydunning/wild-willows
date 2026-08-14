@@ -271,7 +271,9 @@ function GameScreen() {
 				}
 				// destructive actions on a watered bed (clear / flood) confirm first
 				if (p.confirm && !window.confirm(p.confirm)) return;
-				game.terraform(p.area, p.x, p.y, p.action);
+				// p.expect carries the tile this click was aimed at, so the server can
+				// refuse it if the ground has changed since (see api.terraform).
+				game.terraform(p.area, p.x, p.y, p.action, p.expect);
 			}),
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
 			bridge.on('harvest-placement', (p: any) => game.harvest(p.placementId)),
