@@ -361,6 +361,7 @@
 		"deleteForever": "Delete forever",
 		"errDelete": "Could not delete the save",
 		"exportSaveTitle": "Back up this save",
+		"exportSaveHintDemo": "Download this preserve — world, journal, progress, and your caretaker’s name and look — as a single file. The full game’s Import Save picks it up exactly where you left off.",
 		"exportSaveHint": "Download a copy of this preserve — world, journal, progress, and your caretaker’s name and look — as a single file. Keep it as a backup or move it to another computer.",
 		"exportSave": "Export save",
 		"exporting": "Exporting…",
@@ -491,6 +492,15 @@
 		"exportButton": "Download my save",
 		"exporting": "Preparing…",
 		"exportDone": "Saved — check your downloads",
-		"exportFail": "Couldn't export the save. Try again?"
+		"exportFail": "Couldn't export the save. Try again?",
+		"nudgeTitle": "Are you done playing?",
+		"nudgeBody": "No rush — your meadow is right where you left it. If you're finishing up, take your progress with you: download your save and the full game can pick it up exactly here.",
+		"nudgeAnytime": "You can download your save any time from Settings (O).",
+		"nudgeKeepPlaying": "Keep playing",
+		"nudgeSavedTitle": "Your meadow is saved!",
+		"nudgeSavedBody": "The save file is in your downloads. Get the full game, choose Import Save on its title screen, and carry on right where you left off — with five more biomes to restore.",
+		"nudgeBackToGame": "Back to the demo",
+		"storeItch": "Get it on itch.io",
+		"storeMas": "Get it on the Mac App Store"
 	}
 }

@@ -17,6 +17,7 @@ import {
 	exportDemoSave,
 } from './api';
 import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
+import { watchDemoNudge } from './demoNudge';
 import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
@@ -62,8 +63,13 @@ interface Ctx {
 	demoBackend: 'pending' | 'harper' | 'solo';
 	demoComplete: boolean;
 	dismissDemo: () => void;
-	/** Download the finished demo save for import into the full game; resolves to
-	 *  the filename on success, null on failure. */
+	/** itch demo only: the soft "are you done playing?" prompt is up — raised on
+	 *  idleness or on coming back from being away, dismissible, and nothing to do
+	 *  with the hard-stop above. */
+	demoNudge: boolean;
+	dismissDemoNudge: () => void;
+	/** Download the demo save for import into the full game; resolves to the
+	 *  filename on success, null on failure. */
 	exportDemo: () => Promise<string | null>;
 	panel: PanelId;
 	setPanel: (p: PanelId) => void;
@@ -176,6 +182,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// itch demo: resolved backend (Harper vs offline solo) + the 5-animal gate.
 	const [demoBackend, setDemoBackend] = useState<'pending' | 'harper' | 'solo'>(DEMO ? 'pending' : 'harper');
 	const [demoComplete, setDemoComplete] = useState(false);
+	const [demoNudge, setDemoNudge] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const [panel, setPanel] = useState<PanelId>(null);
 	const [helpOpen, setHelpOpen] = useState(false);
@@ -332,6 +339,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// dismiss (see dismissDemo). We flush the feed so an export captures the latest.
 	const finishDemo = useCallback(() => {
 		setDemoComplete(true);
+		setDemoNudge(false); // the hard-stop supersedes the soft prompt; never stack them
 		reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
 		flushFeed(); // persist buffered feed so an export captures it
 	}, [flushFeed]);
@@ -359,6 +367,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}, 1000);
 		return () => clearInterval(id);
 	}, [finishDemo]);
+
+	// Demo re-engagement prompt: raised once, when a player stops playing without
+	// finishing (window untouched for five minutes, or back after a spell away).
+	// See src/demoNudge.ts for the two signals and why they're the ones worth
+	// watching; the prompt itself is src/ui/DemoNudge.tsx.
+	//
+	// `demoNudgeShown` makes it once-per-page-load rather than once-per-watcher:
+	// the effect re-attaches whenever the demo save changes hands (new game after a
+	// logout, say), and a second prompt in one sitting reads as nagging even when
+	// the first one was answered ten minutes earlier.
+	//
+	// The dependency is the player ID, NOT `state`. `state` is a fresh object after
+	// every action and every background refresh, so depending on it would tear the
+	// watcher down and rebuild it — resetting the idle clock — several times a
+	// minute, and the five-minute mark would never arrive.
+	const demoNudgeShown = useRef(false);
+	const demoSavePlayerId = state?.player?.id ?? null;
+	useEffect(() => {
+		if (!DEMO || !demoSavePlayerId || demoComplete || demoNudgeShown.current) return;
+		return watchDemoNudge(() => {
+			demoNudgeShown.current = true;
+			setDemoNudge(true);
+		});
+	}, [demoSavePlayerId, demoComplete]);
+
+	const dismissDemoNudge = useCallback(() => setDemoNudge(false), []);
 
 	useEffect(() => {
 		bridge.shared.state = state;
@@ -726,6 +760,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.shared.state = null;
 		setPanel(null);
 		setPlacementObjectId(null);
+		setDemoNudge(false); // a soft prompt belongs to the save it was raised over
 		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
 		setFeedLog([]);
 		feedSeeded.current = false;
@@ -750,9 +785,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		logout();
 	}, [logout]);
 
-	// Export the finished demo save as a file the full downloadable game can
-	// import (Import Save on its title screen). Returns the filename on success.
+	// Export the demo save as a file the full downloadable game can import (Import
+	// Save on its title screen). Returns the filename on success.
+	//
+	// Flushes the buffered feed first. The hard-stop path already did that when it
+	// finished the demo, but the soft prompt (src/ui/DemoNudge.tsx) can export at
+	// any moment mid-play, and a feed line still sitting in the buffer would be
+	// missing from the copy they carry across.
 	const exportDemo = useCallback(async (): Promise<string | null> => {
+		flushFeed();
 		try {
 			const out = await exportDemoSave();
 			if (!out) return null;
@@ -769,7 +810,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		} catch {
 			return null;
 		}
-	}, []);
+	}, [flushFeed]);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
 	// accrue play time and session counts. Best-effort, and skipped in two cases
@@ -1583,6 +1624,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
+			demoNudge,
+			dismissDemoNudge,
 			exportDemo,
 			panel,
 			setPanel,
@@ -1640,6 +1683,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
+			demoNudge,
+			dismissDemoNudge,
 			exportDemo,
 			panel,
 			helpOpen,

@@ -225,7 +225,9 @@
 			"feedbackRejected": "The server could not take that note. Please try again later."
 		},
 		"demo": {
-			"doneBody": "That is the end of the free demo. Thank you for healing a corner of the preserve. The full game opens five more areas to heal. It also adds deeper crafting, seasons and weather, a journal to fill, and many more animals to bring home."
+			"doneBody": "That is the end of the free demo. Thank you for healing a corner of the preserve. The full game opens five more areas to heal. It also adds deeper crafting, seasons and weather, a journal to fill, and many more animals to bring home.",
+			"nudgeBody": "No rush. Your meadow is right where you left it. If you are done for now, you can take it with you: download your save, and the full game can start it again from here.",
+			"nudgeSavedBody": "The save file is in your downloads. Get the full game, pick Import Save on its first screen, and keep going from here — with five more areas to heal."
 		},
 		"kbGate": {
 			"body3": ", and reach your basket, tools, and journal with keys. So it does not work on a phone or tablet by itself.",

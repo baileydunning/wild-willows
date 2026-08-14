@@ -225,7 +225,9 @@
 			"feedbackRejected": "El servidor no pudo recibir esa nota. Inténtalo más tarde."
 		},
 		"demo": {
-			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales."
+			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales.",
+			"nudgeBody": "Sin prisa. Tu prado sigue justo donde lo dejaste. Si ya terminaste por ahora, puedes llevártelo: descarga tu partida y el juego completo la abrirá desde aquí.",
+			"nudgeSavedBody": "El archivo está en tus descargas. Consigue el juego completo, elige Importar partida en su primera pantalla y sigue desde aquí, con cinco zonas más por sanar."
 		},
 		"kbGate": {
 			"body3": ", y llegar a tu cesta, tus herramientas y tu diario con teclas. Por eso no funciona solo en un móvil o una tableta.",

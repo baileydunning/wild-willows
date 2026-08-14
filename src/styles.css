@@ -5860,6 +5860,59 @@ kbd {
 	color: var(--green);
 }
 
+/* ── "Are you done playing?" — the demo's soft prompt (src/ui/DemoNudge.tsx) ─ */
+/* Borrows the hard-stop popup's card so the two read as the same voice, but it
+   is a suggestion, not an ending: dimmer backdrop, and it goes away. */
+.demo-nudge-backdrop {
+	/* Under the hard-stop popup's z-index, above everything else. */
+	z-index: 89;
+}
+.demo-nudge-card {
+	gap: 6px;
+}
+.demo-nudge-stores {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 12px;
+}
+/* The store links are anchors, not buttons — inside itch's iframe a real
+   `target="_blank"` link is the reliable way out of the frame, where
+   window.open() is at the mercy of popup blocking. So they need the base button
+   paint that `button {}` gives their neighbours. */
+a.demo-nudge-store {
+	text-decoration: none;
+	font-family: var(--font-body);
+	background: var(--cream);
+	color: var(--ink);
+	cursor: pointer;
+	margin-top: 0;
+	transition:
+		transform 0.08s ease,
+		background 0.15s ease;
+}
+a.demo-nudge-store:hover {
+	background: var(--paper-2);
+	transform: translateY(-1px);
+}
+a.demo-nudge-store.primary {
+	background: var(--green);
+	color: var(--on-accent);
+}
+a.demo-nudge-store.primary:hover {
+	background: var(--green-deep);
+}
+.demo-nudge-anytime {
+	margin: 12px 0 0;
+	max-width: 32ch;
+}
+.demo-nudge-card .demo-nudge-dismiss {
+	margin-top: 10px;
+	font-size: calc(15px * var(--ui-scale));
+	padding: 8px 16px;
+}
+
 /* ── Contextual hint banner (first time a menu opens / you enter home) ───── */
 /* Sits above the open panel so the explanation is visible while the player is
    looking at the menu; the same line is also written to the activity feed. */

@@ -383,10 +383,16 @@ body.lb-open{overflow:hidden}
    this page needs and the landing page does not lives down here.
    ============================================================ */
 
-/* hero: same dusk, but shorter — teachers are here to skim, not to be sold to */
-.hero.edu .wrap{padding:3.4rem 1.2rem 3rem}
-.hero.edu .wordmark{font-size:clamp(2rem,5.4vw,3.3rem)}
-.hero.edu .kicker{font-size:.82rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#e3b98a;margin:0 0 .5rem}
+/* hero: same dusk, but shorter — teachers are here to skim, not to be sold to.
+   The modifier is `hero-edu` and NOT `edu`, which is the trap it fell into once:
+   `.edu` already exists above as the two-up grid of PDF download cards, and it
+   carries display:grid, max-width:62rem and margin:0 auto. A hero wearing that
+   class silently became a 992px centred box on desktop — and looked perfect on
+   mobile, because below 992px the max-width never bites. Any new modifier on
+   this page has to be checked against the landing page's sheet above. */
+.hero.hero-edu .wrap{padding:3.4rem 1.2rem 3rem}
+.hero.hero-edu .wordmark{font-size:clamp(2rem,5.4vw,3.3rem)}
+.hero.hero-edu .kicker{font-size:.82rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#e3b98a;margin:0 0 .5rem}
 .hero .chips{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:1.4rem 0 0}
 .hero .chip{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.34);color:#eee8d2}
 
@@ -479,7 +485,7 @@ section[id]{scroll-margin-top:66px}
   </div>
 </div></nav>
 
-<header class="hero edu" id="top">
+<header class="hero hero-edu" id="top">
   <div class="hero-scene" aria-hidden="true">
     <span class="star" style="top:10%;left:14%;width:3px;height:3px"></span>
     <span class="star" style="top:16%;left:33%;width:2px;height:2px;animation-delay:.9s"></span>

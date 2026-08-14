@@ -361,6 +361,7 @@
 		"deleteForever": "Eliminar para siempre",
 		"errDelete": "No se pudo eliminar la partida",
 		"exportSaveTitle": "Respalda esta partida",
+		"exportSaveHintDemo": "Descarga esta reserva — mundo, diario, progreso y el nombre y aspecto de tu cuidador — en un solo archivo. Importar partida del juego completo la retoma justo donde la dejaste.",
 		"exportSaveHint": "Descarga una copia de esta reserva — el mundo, el diario, el progreso y el nombre y aspecto de tu cuidador — en un solo archivo. Guárdala como respaldo o llévala a otra computadora.",
 		"exportSave": "Exportar partida",
 		"exporting": "Exportando…",
@@ -491,6 +492,15 @@
 		"exportButton": "Descargar mi partida",
 		"exporting": "Preparando…",
 		"exportDone": "Guardado: revisa tus descargas",
-		"exportFail": "No se pudo exportar la partida. ¿Intentar de nuevo?"
+		"exportFail": "No se pudo exportar la partida. ¿Intentar de nuevo?",
+		"nudgeTitle": "¿Ya terminaste de jugar?",
+		"nudgeBody": "Sin prisa: tu prado sigue justo donde lo dejaste. Si ya vas a terminar, llévate tu progreso: descarga tu partida y el juego completo la retomará exactamente aquí.",
+		"nudgeAnytime": "Puedes descargar tu partida cuando quieras desde Ajustes (O).",
+		"nudgeKeepPlaying": "Seguir jugando",
+		"nudgeSavedTitle": "¡Tu prado está guardado!",
+		"nudgeSavedBody": "El archivo está en tus descargas. Consigue el juego completo, elige Importar partida en su pantalla de inicio y continúa justo donde lo dejaste, con cinco biomas más por restaurar.",
+		"nudgeBackToGame": "Volver a la demo",
+		"storeItch": "Consíguelo en itch.io",
+		"storeMas": "Consíguelo en la Mac App Store"
 	}
 }
