@@ -1719,8 +1719,8 @@ const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 
 
 // New caretakers start empty-handed — the first task is to gather seeds and
 // fiber for a Grass Patch, so the tutorial's opening loop has real stakes.
-// No starting seeds — the very first goal is "gather 12 seeds", so a fresh
-// basket should read 0/12, not 2/12. (A little water lets you tend a bed right
+// No starting seeds — the very first goal is "gather 10 seeds", so a fresh
+// basket should read 0/10, not 2/10. (A little water lets you tend a bed right
 // away for the tutorial.)
 const START_INVENTORY: Record<string, number> = { water: 6, wildflowers: 1 };
 const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
@@ -2140,7 +2140,15 @@ function encodeDaily(daily: any): string {
 // but kept OUT of totalActions (and actionsPerMinute) so those stay a
 // gameplay-intensity signal. (Declared here so bumpMetrics can tell a real
 // gameplay action from cosmetic fiddling when stamping firstActionAt.)
-const META_COUNTERS = new Set(['recolors', 'appearanceChanges']);
+// Counters that are NOT actions of their own: cosmetic fiddling, and tallies
+// kept alongside an action that already counts (bedsWatered rides on a terraform
+// action, gathered:<id> rides on resourcesCollected). Excluded from totalActions
+// so the dashboard's per-player action count keeps meaning the same thing it did
+// before each one was added.
+const META_COUNTERS = new Set(['recolors', 'appearanceChanges', 'bedsWatered', 'goalsCreated']);
+/** Per-resource lifetime gather tallies — one key per resource, all meta. */
+const META_COUNTER_PREFIX = 'gathered:';
+const isMetaCounter = (key: string) => META_COUNTERS.has(key) || key.startsWith(META_COUNTER_PREFIX);
 
 /** Session-length histogram bucket for a finished session. */
 function sessionBucket(seconds: number): string {
@@ -2182,7 +2190,7 @@ async function bumpMetrics(
 	const metrics = { ...prev, counts, lastSeenAt: now };
 	// Stamp the first real gameplay action (cosmetic fiddling doesn't count), so
 	// the dashboard can measure onboarding friction (create → first action).
-	if (!prev.firstActionAt && entries.some(([k, v]) => v && !META_COUNTERS.has(k))) {
+	if (!prev.firstActionAt && entries.some(([k, v]) => v && !isMetaCounter(k))) {
 		metrics.firstActionAt = now;
 	}
 	const patch: any = { metrics: encodeMetrics(metrics) };
@@ -2224,7 +2232,7 @@ function metricsView(player: any) {
 	const playSeconds = m.playSeconds || 0;
 	const sessions = m.sessions || 0;
 	const counts: Record<string, number> = m.counts || {};
-	const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (META_COUNTERS.has(k) ? 0 : b || 0), 0);
+	const totalActions = Object.entries(counts).reduce((a, [k, b]) => a + (isMetaCounter(k) ? 0 : b || 0), 0);
 	const createdAt = player.createdAt || m.firstSeenAt || now;
 	const lastSeenAt = m.lastSeenAt || null;
 
@@ -2292,6 +2300,10 @@ function metricsView(player: any) {
 		creationSeconds: creationMs ? round1(creationMs / 1000) : null,
 		appearance: player.appearance || null,
 		counts,
+		// Onboarding: how far into the ten-goal starter chain this save got, and
+		// whether it went on to author goals of its own. Rides on the snapshot, so
+		// the solo/demo uplink reports it exactly like the hosted game does.
+		...starterChainMetrics(player),
 		// Demo → full carry-over. Stamped by ExportDemoSave onto the copy the player
 		// downloads, so a save that was bought and imported can say so about itself
 		// for the rest of its life. Null on saves that started in the full game (and
@@ -3538,6 +3550,10 @@ interface TaskCtx {
 	placements?: any[];
 	/** every Chest row in this world (for "collect N" goal progress) */
 	chests?: any[];
+	/** every TerrainTile row in this world (for the starter chain's stream goal).
+	 *  Optional: callers that don't have it pass nothing and the water-shaped
+	 *  metric reads zero, which is only ever a goal showing 0/3 for one render. */
+	terrain?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
 	 *  only from these, never the wider co-op roam set, so tasks stay specific to
@@ -3833,7 +3849,7 @@ function dailyTasksFor(
 }
 
 // ---- player-authored goals (the custom task list) -------------------------
-// The board is the player's OWN list now: three fixed starters that teach the
+// The board is the player's OWN list now: the ten-goal starter chain that teaches the
 // core loop, then whatever goals the player builds. Progress is read from
 // durable world state (not the day counters, which reset), claims are permanent
 // (player.goalClaims), and each finished goal grants one small fixed bundle.
@@ -4215,31 +4231,78 @@ function goalText(goal: CustomGoal, ctx: TaskCtx): string {
 	}
 }
 
-/** The three fixed starter tasks that always begin the game (until claimed). */
+/**
+ * The starter chain: ten fixed goals that open the game, shown ONE AT A TIME.
+ *
+ * Each link is a different verb — gather, craft-and-place, welcome, plant,
+ * harvest, welcome again (a whole group this time), upgrade, build at volume,
+ * shape the land, build a home — so
+ * a player who follows the chain has touched every core mechanic once by the end
+ * of it. No link repeats another's motion: watering, for instance, is not its own
+ * goal because you cannot plant without doing it, and a goal for something the
+ * player has already had to do reads as filler.
+ *
+ * The order is a dependency chain, not a difficulty ramp. The grasshopper is
+ * third because it is the game's first real reward and the whole premise —
+ * animals come home when the habitat is right — and it needs exactly what the
+ * two goals before it produce: a crafted grass patch, placed. Harvest follows
+ * planting because it needs something grown. The bugs goal sits where a planted,
+ * flowering meadow has started drawing small neighbours in on its own.
+ *
+ * The finale is deliberate: shaping open water is the most advanced thing the
+ * land lets you do, and building a house is the biggest thing you can make.
+ *
+ * Only one is on the board at a time (see dailyTasksBlock) — claiming reveals
+ * the next. Ten visible at once reads as a chore list; one reads as the next
+ * thing to do. Finishing all ten is what unlocks player-authored goals.
+ *
+ * Progress comes from durable world state wherever possible (held materials,
+ * placements and their harvest stamps, discoveries, tool tiers, terrain, the home
+ * row) so it survives a reload and cannot be replayed. The one exception is
+ * `objectsPlaced`, a lifetime counter: the seeded camp tent and chest are
+ * placements too, so counting live rows would hand the player two free steps
+ * they never took.
+ */
 function starterTasks(ctx: TaskCtx): any[] {
+	const counts = (readMetrics(ctx.player)?.counts || {}) as Record<string, number>;
+	const placed = counts.objectsPlaced || 0;
 	const grasshopper = ctx.discoveries.some((x: any) => x.animalId === FIRST_ANIMAL_ID);
-	const craftedAny = Object.keys(ctx.player?.craftedEver || {}).length > 0;
+	const planted = (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
+	const harvested = (ctx.placements || []).some((p: any) => typeof p.lastHarvestAt === 'number');
+	// "Bugs" in the way a caretaker means it: the small crawling, flying, creeping
+	// neighbours. The definitions split `kind` into 'insect' (grasshopper, ladybug,
+	// bumblebee) and 'invertebrate' (snail, pillbug, garden spider) for display;
+	// both are bugs to a player, and splitting them here would make the goal a
+	// puzzle about the data model rather than about the meadow.
+	//
+	// The grasshopper from three goals earlier counts, so this arrives at 1/3 and
+	// asks for two more — a visible head start rather than a fresh zero.
+	const bugs = ctx.discoveries.filter((x: any) => BUG_KINDS.has(ctx.d?.animal?.get(x.animalId)?.kind)).length;
+	const journalTier = (ctx.player?.tools?.['field-journal'] as number) || 1;
+	// Largest connected body of water the PLAYER shaped — the seeded channels the
+	// wetland ships with are excluded, so a stream has to be dug, not inherited.
+	const water = analyzeWater(ctx.terrain || [], true);
 	return [
 		{
-			id: 'start-gather',
+			id: 'start-seeds',
 			kind: 'gather',
 			icon: 'basket',
-			text: tr('server.task.collectSeeds'),
+			text: tr('server.starter.seeds', { count: STARTER_SEEDS }),
 			hint: tr('server.task.gatherHint'),
-			target: 12,
-			progress: Math.min(12, heldAmount(ctx, 'seeds')),
+			target: STARTER_SEEDS,
+			progress: Math.min(STARTER_SEEDS, counts[`${META_COUNTER_PREFIX}seeds`] || 0),
+			// `event` + `resourceId` let the client credit a pickup the moment it
+			// happens rather than at the next full sync — the very first goal in the
+			// game used to sit at 0/10 while seeds visibly piled up, which reads as a
+			// broken counter. Monotonic because it counts gathering, not holding: the
+			// bar must not fall back when those seeds get planted.
+			resourceId: 'seeds',
+			base: 0,
+			monotonic: true,
+			event: 'gather',
 		},
 		{
-			id: 'start-craft',
-			kind: 'craft',
-			icon: 'hammer',
-			text: tr('server.task.craftFirst'),
-			hint: tr('server.task.craftFirstHint'),
-			target: 1,
-			progress: craftedAny ? 1 : 0,
-		},
-		{
-			id: 'start-welcome',
+			id: 'start-grasshopper',
 			kind: 'welcome',
 			icon: 'sparkle',
 			text: tr('server.task.welcomeGrasshopper'),
@@ -4247,7 +4310,171 @@ function starterTasks(ctx: TaskCtx): any[] {
 			target: 1,
 			progress: grasshopper ? 1 : 0,
 		},
+		{
+			id: 'start-plant',
+			kind: 'plant',
+			icon: 'leaf',
+			text: tr('server.starter.plant', { count: 3 }),
+			hint: tr('server.starter.plantHint'),
+			target: 3,
+			progress: Math.min(3, planted),
+		},
+		{
+			id: 'start-harvest',
+			kind: 'gather',
+			icon: 'basket',
+			text: tr('server.starter.harvest'),
+			hint: tr('server.starter.harvestHint'),
+			target: 1,
+			progress: harvested ? 1 : 0,
+		},
+		{
+			id: 'start-bugs',
+			kind: 'welcome',
+			icon: 'paw',
+			text: tr('server.starter.bugs', { count: STARTER_BUGS }),
+			hint: tr('server.starter.bugsHint'),
+			target: STARTER_BUGS,
+			progress: Math.min(STARTER_BUGS, bugs),
+		},
+		{
+			id: 'start-journal-upgrade',
+			kind: 'goal',
+			icon: 'journal',
+			text: tr('server.starter.journal'),
+			hint: tr('server.starter.journalHint'),
+			target: 1,
+			progress: journalTier >= 2 ? 1 : 0,
+		},
+		{
+			id: 'start-build-ten',
+			kind: 'place',
+			icon: 'hammer',
+			text: tr('server.starter.buildTen', { count: STARTER_PLACE_TOTAL }),
+			hint: tr('server.starter.buildTenHint'),
+			target: STARTER_PLACE_TOTAL,
+			progress: Math.min(STARTER_PLACE_TOTAL, placed),
+			// Credited the moment the thing lands in the world, not at the next sync:
+			// the player watched themselves put it down, so the bar moving a second
+			// later reads as the game missing it. Counts placements, so crafting
+			// something and leaving it in the basket is not enough — it has to be out
+			// there, which is what makes a habitat.
+			monotonic: true,
+			event: 'place',
+		},
+		{
+			// Craft a sleeping bag, put it in the tent, sleep in it: crafting, placing
+			// indoors, and resting in one small errand. It sits late on purpose — a
+			// night's sleep refreshes every gathering spot, which is worth most to a
+			// caretaker who has just spent their materials on ten placed things and is
+			// about to need more for a stream.
+			//
+			// The recipe was gated behind welcoming the ground squirrel, which put this
+			// goal behind an animal that arrives on its own schedule. It ships ungated
+			// (four fiber, see data/recipes.json) — a caretaker sleeping rough until a
+			// squirrel turns up was never the intent.
+			id: 'start-rest',
+			kind: 'goal',
+			icon: 'home',
+			text: tr('server.starter.rest'),
+			hint: tr('server.starter.restHint'),
+			target: 1,
+			progress: (counts.restsTaken || 0) > 0 ? 1 : 0,
+		},
+		{
+			id: 'start-stream',
+			kind: 'water',
+			icon: 'can',
+			text: tr('server.starter.stream'),
+			hint: tr('server.starter.streamHint'),
+			target: STARTER_STREAM_TILES,
+			progress: Math.min(STARTER_STREAM_TILES, water.lake || 0),
+		},
+		{
+			id: 'start-home',
+			kind: 'goal',
+			icon: 'home',
+			text: tr('server.starter.home'),
+			hint: tr('server.starter.homeHint'),
+			target: 1,
+			progress: ctx.player?.home?.styleLocked ? 1 : 0,
+		},
 	];
+}
+
+/** The definition `kind`s a player would call a bug. */
+const BUG_KINDS = new Set(['invertebrate', 'insect']);
+
+/** How many links of the chain are on the board at once. */
+const STARTER_VISIBLE = 3;
+
+/** Sizes for the chain's counted goals. */
+const STARTER_SEEDS = 10;
+const STARTER_BUGS = 3;
+const STARTER_PLACE_TOTAL = 10;
+/** Connected open-water tiles that count as "a stream" — small enough to dig in
+ *  one sitting (each tile is a dig plus two waterings), big enough that the
+ *  player has to chain them and see a channel appear rather than a puddle. */
+const STARTER_STREAM_TILES = 3;
+
+/**
+ * The three starter ids the SHIPPED build used. Nothing writes them any more —
+ * they exist purely as the marker for "this save finished the old chain".
+ *
+ * A save that claimed all three was already past its onboarding, and dropping
+ * seven tutorial goals onto a board that has been running for weeks is noise, so
+ * those saves skip the chain entirely (and keep their custom goals unlocked,
+ * since `startersDone` on the client is simply "no start-* task on the board").
+ * The ids in the new chain are all fresh, so no new player can ever accidentally
+ * satisfy this test.
+ */
+const LEGACY_STARTER_IDS = ['start-gather', 'start-craft', 'start-welcome'];
+
+/** Did this save finish the pre-chain starters? Then it never sees the chain. */
+function starterChainRetired(player: any): boolean {
+	const claims: Record<string, boolean> = player?.goalClaims || {};
+	return LEGACY_STARTER_IDS.every((id) => claims[id]);
+}
+
+/**
+ * The chain's ids, in order. Derived from the chain itself rather than written
+ * out a second time, so a goal renamed or reordered can't quietly desync the
+ * funnel from the thing it measures. The dummy context is safe because every
+ * field starterTasks() reads is optional-with-a-default; only the ids are used.
+ */
+function starterTaskIds(): string[] {
+	return starterTasks({ player: {}, discoveries: [], biomeStates: [] } as any).map((s: any) => s.id);
+}
+
+/**
+ * Where one save is in the opening, for the metrics roll-up.
+ *
+ * The whole point of the chain is to hand the board over: ten goals that teach
+ * the game and then get out of the way. So the number that matters is not how
+ * many players finished it — it's how many went on to write a goal of their own
+ * afterwards, which is the behaviour the chain is trying to produce. `step` is
+ * where the rest stalled, and it's the only way to tell "quit the game" from
+ * "stuck on Build a home".
+ *
+ * All of it is read from data the save already stores (goalClaims, and the
+ * goalsCreated counter), so it costs nothing and works retroactively.
+ */
+function starterChainMetrics(player: any) {
+	const claims: Record<string, boolean> = player?.goalClaims || {};
+	const ids = starterTaskIds();
+	const claimed = ids.filter((id) => claims[id]).length;
+	const retired = starterChainRetired(player);
+	return {
+		// 0-10, or 10 for a save that finished the old three-goal opening — those
+		// never see the chain, so counting them as stalled at 0 would be a lie.
+		starterStep: retired ? ids.length : claimed,
+		starterTotal: ids.length,
+		starterDone: retired || claimed >= ids.length,
+		/** Pre-chain save: its step is inferred, not observed. */
+		starterLegacy: retired,
+		/** Goals the player wrote themselves, ever (see SetGoals). */
+		goalsCreated: (readMetrics(player)?.counts?.goalsCreated as number) || 0,
+	};
 }
 
 /** Validate + normalize a player-submitted goal list (rewards + baselines are
@@ -4331,7 +4558,7 @@ function sanitizeGoals(goals: any[], d: any): CustomGoal[] {
 	return out;
 }
 
-/** The on-screen board: three fixed starters, then the player's own goal list. */
+/** The on-screen board: the current starter (one at a time), then the player's own goal list. */
 function dailyTasksBlock(ctx: TaskCtx) {
 	const { player, now, d } = ctx;
 	const dayKey = playerDayKey(player, now);
@@ -4364,10 +4591,20 @@ function dailyTasksBlock(ctx: TaskCtx) {
 			claimed: false,
 		});
 	}
-	// Then the three fixed starters, while any remain unclaimed.
-	for (const s of starterTasks(ctx)) {
-		if (goalClaims[s.id]) continue;
-		tasks.push({ ...s, counter: '', reward: goalReward(ctx, s.id), claimed: false });
+	// Then the starter chain — the next STARTER_VISIBLE unclaimed links, in order,
+	// sitting under the pinned biome goal. Claiming one pulls the following link up
+	// into the empty slot (the client refreshes state after a claim), so the board
+	// always shows the same short horizon instead of a ten-item backlog.
+	//
+	// Three rather than one because a single goal gives a player nothing to do when
+	// the current one is gated on something slow — a plant maturing, an animal
+	// deciding to come home. Three is enough to always have a move available and
+	// still few enough to read as "what's next" rather than a chore list.
+	if (!starterChainRetired(player)) {
+		const next = starterTasks(ctx)
+			.filter((s) => !goalClaims[s.id])
+			.slice(0, STARTER_VISIBLE);
+		for (const s of next) tasks.push({ ...s, counter: '', reward: goalReward(ctx, s.id), claimed: false });
 	}
 	// Finally, the player's own goals.
 	for (const g of (player?.customGoals || []) as CustomGoal[]) {
@@ -4393,6 +4630,10 @@ function dailyTasksBlock(ctx: TaskCtx) {
 			icon: GOAL_ICON[g.kind] || 'check',
 			text: goalText(g, ctx),
 			target,
+			// A "collect N of X" goal counts held materials, so the client can keep it
+			// live between syncs (withHeldTaskProgress). The baseline rides along
+			// because progress is what has been gathered SINCE the goal was set.
+			...(g.kind === 'collect' ? { resourceId: g.resourceId, base: g.base || 0 } : {}),
 			counter: '',
 			reward: goalReward(ctx, g.id),
 			progress: goalProgress(g, ctx),
@@ -4470,6 +4711,7 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			biomeStates,
 			placements,
 			chests,
+			terrain,
 			now,
 			unlockedBiomes: personalUnlocked,
 		}),
@@ -5486,11 +5728,26 @@ export class CollectResource extends PublicEndpoint {
 			await patchPlayer(playerId, { inventory });
 			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
 
-			await bumpMetrics(player, { resourcesCollected: total }, { [`res:${resourceId}`]: total });
+			// `gathered:<id>` is the LIFETIME tally for that resource, next to the
+			// per-day `res:<id>` counter. The starter chain's opening goal reads it so
+			// "gather 10 seeds" measures what you have gathered, not what you are still
+			// holding: seeds get spent on the very next goal, and a counter that falls
+			// back to 4/10 because you planted something is telling the player their
+			// work was undone. META-prefixed, so it doesn't double-count against
+			// resourcesCollected in the action totals.
+			await bumpMetrics(
+				player,
+				{ resourcesCollected: total, [`gathered:${resourceId}`]: total },
+				{ [`res:${resourceId}`]: total },
+			);
 			await awardAchievements(playerId);
 			return {
 				ok: true,
 				gained: { [resourceId]: total },
+				// Named explicitly so the client's optimistic patch knows WHICH resource
+				// this pickup was, without inferring it from the gained map — that's how
+				// it credits a gather-counting goal on the same frame (actionPatch.ts).
+				resourceId,
 				perkBonus: perkBonus || undefined,
 				inventory,
 				nodeId,
@@ -6460,11 +6717,17 @@ export class ClaimTask extends PublicEndpoint {
 			const wid = worldOf(player);
 			const now = Date.now();
 
-			const [discoveries, biomeStates, placements, chests] = await Promise.all([
+			// Terrain rides along because the starter chain's stream goal is measured
+			// from it, and this board is the one a claim is validated against — read it
+			// here or "Dig a stream" would compute 0/3 and refuse a finished goal. It's
+			// one extra read on a claim, which happens a handful of times per save,
+			// not on every GameState.
+			const [discoveries, biomeStates, placements, chests, terrain] = await Promise.all([
 				byWorld(t.Discovery, wid),
 				byWorld(t.BiomeState, wid),
 				byWorld(t.Placement, wid),
 				byWorld(t.Chest, wid),
+				byWorld(t.TerrainTile, wid),
 			]);
 			const block = dailyTasksBlock({
 				wid,
@@ -6474,6 +6737,7 @@ export class ClaimTask extends PublicEndpoint {
 				biomeStates,
 				placements,
 				chests,
+				terrain,
 				now,
 				unlockedBiomes: player.unlockedBiomes,
 			});
@@ -6519,10 +6783,25 @@ export class ClaimTask extends PublicEndpoint {
 			await bumpMetrics(player, { tasksCompleted: 1 });
 			await awardAchievements(playerId);
 
-			const dailyTasks = {
-				...block,
-				tasks: block.tasks.map((x: any) => (x.id === task.id ? { ...x, claimed: true } : x)),
-			};
+			// Return the board AS IT IS NOW — recomputed against the patched player, so
+			// the claimed goal is gone and the next link of the starter chain is
+			// already on it. The response used to carry the pre-claim board with the
+			// finished goal flagged `claimed`, which meant the new goal only appeared
+			// after the client's follow-up GameState fetch: claim, then a beat of
+			// nothing, then the board moves. The player reads that pause as the game
+			// not having noticed.
+			const dailyTasks = dailyTasksBlock({
+				wid,
+				player: { ...player, ...patch },
+				d,
+				discoveries,
+				biomeStates,
+				placements,
+				chests,
+				terrain,
+				now,
+				unlockedBiomes: player.unlockedBiomes,
+			});
 			return { ok: true, taskId: task.id, text: task.text, gained, inventory, dailyTasks };
 		});
 	}
@@ -6582,7 +6861,15 @@ export class SetGoals extends PublicEndpoint {
 			}
 			keep.push(out);
 		}
+		// Count goals the player AUTHORED, not goals they hold. The list is the wrong
+		// thing to measure: a finished goal is deleted from it on claim, so someone
+		// who set six and finished six looks identical to someone who never set any.
+		// This counter is the only durable trace of "picked the board up as a tool",
+		// which is the question the starter chain exists to move (see
+		// starterChainMetrics). META, so it doesn't inflate the action totals.
+		const added = keep.filter((g) => !prev.has(g.id)).length;
 		await patchPlayer(playerId, { customGoals: keep });
+		if (added) await bumpMetrics(player, { goalsCreated: added });
 		return { ok: true, customGoals: keep, goalLimit: limit };
 	}
 }
@@ -6704,7 +6991,17 @@ export class Terraform extends PublicEndpoint {
 				player: { ...player, inventory },
 			});
 			// recalcBiome counts any animal that returned
-			await bumpMetrics(player, { terraformActions: 1 }, action === 'water' ? { water: 1 } : {});
+			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
+			// It has to be a counter rather than a count of watered tiles, because
+			// planting turns a watered bed into a planted one — counting live tiles
+			// would make that goal's progress run backwards the moment the player
+			// actually used the bed. It's in META_COUNTERS, so it doesn't double-count
+			// against terraformActions in the action totals the dashboard reports.
+			await bumpMetrics(
+				player,
+				{ terraformActions: 1, ...(action === 'water' ? { bedsWatered: 1 } : {}) },
+				action === 'water' ? { water: 1 } : {},
+			);
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -7113,6 +7410,15 @@ async function buildDashboardRows(): Promise<any[]> {
 				// series can be split at the change instead of straddling it.
 				metricsRev: s.metricsRev || 1,
 				idleGateMs: s.idleGateMs ?? null,
+				// Starter chain (defaulted, so snapshots uplinked before it existed
+				// aggregate as "step 0" rather than NaN — they're excluded from the
+				// funnel's denominator below by `starterTotal`, which only rows that
+				// know about the chain carry).
+				starterStep: s.starterStep || 0,
+				starterTotal: s.starterTotal || 0,
+				starterDone: s.starterDone === true,
+				starterLegacy: s.starterLegacy === true,
+				goalsCreated: s.goalsCreated || (s.counts?.goalsCreated as number) || 0,
 			};
 		})
 		.sort((a, b) => (b.lastSeenAt || 0) - (a.lastSeenAt || 0) || b.playSeconds - a.playSeconds);
@@ -7651,6 +7957,49 @@ async function metricsRollup(target?: any): Promise<{
 			unlockedSecondBiome: pct(funnel.unlockedSecondBiome),
 		};
 
+		// The starter chain, and the conversion it exists to produce.
+		//
+		// Denominator is saves that actually KNOW about the chain (`starterTotal`
+		// set) — snapshots uplinked before it shipped carry no step and would
+		// otherwise pile up at 0 and read as a catastrophic first-goal drop-off.
+		// Legacy saves that finished the old three-goal opening are reported
+		// separately for the same reason: they're counted as done because they are,
+		// but their step was inferred, not watched, so folding them into the
+		// per-step numbers would put ten fictional claims in the funnel.
+		//
+		// `authoredAfter` is the number this whole feature is judged on: of the
+		// players who finished the chain, how many then wrote a goal of their own.
+		// Finishing ten goals is not the win — picking up the board is.
+		const chainRows = all.filter((v) => (v.starterTotal || 0) > 0 && !v.starterLegacy);
+		const chainIds = starterTaskIds();
+		const chainBase = chainRows.length;
+		const chainPct = (n: number) => (chainBase ? Math.round((n / chainBase) * 100) : 0);
+		const finishedChain = chainRows.filter((v) => v.starterDone);
+		const starterChain = {
+			saves: chainBase,
+			legacySaves: all.filter((v) => v.starterLegacy).length,
+			// One entry per goal, in chain order: how many saves have claimed it.
+			// Reading top to bottom gives the drop-off, goal by goal.
+			steps: chainIds.map((id, i) => {
+				const reached = chainRows.filter((v) => (v.starterStep || 0) >= i + 1).length;
+				return { id, step: i + 1, reached, pct: chainPct(reached) };
+			}),
+			completed: finishedChain.length,
+			completedPct: chainPct(finishedChain.length),
+			// Where the unfinished ones are sitting right now.
+			stalledAt: chainIds.reduce<Record<string, number>>((acc, id, i) => {
+				const n = chainRows.filter((v) => !v.starterDone && (v.starterStep || 0) === i).length;
+				if (n) acc[id] = n;
+				return acc;
+			}, {}),
+			authoredOwnGoal: chainRows.filter((v) => (v.goalsCreated || 0) > 0).length,
+			authoredAfterFinishing: finishedChain.filter((v) => (v.goalsCreated || 0) > 0).length,
+			authoredAfterFinishingPct: finishedChain.length
+				? Math.round((finishedChain.filter((v) => (v.goalsCreated || 0) > 0).length / finishedChain.length) * 100)
+				: 0,
+			avgGoalsAuthored: chainBase ? round1(chainRows.reduce((a, v) => a + (v.goalsCreated || 0), 0) / chainBase) : 0,
+		};
+
 		// Where players are in the world.
 		const areaTally: Record<string, number> = {};
 		for (const v of all) if (v.currentArea) areaTally[v.currentArea] = (areaTally[v.currentArea] || 0) + 1;
@@ -8047,12 +8396,32 @@ async function metricsRollup(target?: any): Promise<{
 		const demoDevices = openRows.filter((o) => o.edition === 'demo');
 		const demoConverted = demoDevices.filter((o) => o.converted).length;
 		const demoFinished = demoDevices.filter((o) => o.reachedDemoGoal).length;
+		// The "are you done playing?" prompt, as a funnel: raised → save exported →
+		// store link clicked. Device-scoped and sticky like everything else on this
+		// row, so it survives the demo save being wiped at the hard-stop.
+		//
+		// Exports are counted here rather than at ExportDemoSave because the server
+		// endpoint cannot tell WHERE an export came from, and that is the entire
+		// question: the prompt is only worth its interruption if it produces exports
+		// that the Settings button and the end-of-demo popup would not have. Compare
+		// `exported` against demoCompletion.reachedGoal to see it.
+		const nudgeShown = demoDevices.filter((o) => o.demoNudgeShown).length;
+		const nudgeExported = demoDevices.filter((o) => o.demoNudgeExported).length;
+		const nudgeStore = demoDevices.filter((o) => o.demoNudgeStore).length;
+		const demoNudge = {
+			shown: nudgeShown,
+			exported: nudgeExported,
+			storeClicked: nudgeStore,
+			exportPct: nudgeShown ? Math.round((nudgeExported / nudgeShown) * 100) : 0,
+			storePct: nudgeShown ? Math.round((nudgeStore / nudgeShown) * 100) : 0,
+		};
 		const demoCompletion = {
 			demoInstalls: demoDevices.length,
 			createdCharacter: demoConverted,
 			reachedGoal: demoFinished,
 			// completion rate among demo players who actually made a character
 			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
+			nudge: demoNudge,
 		};
 		// demo vs paid split of installs (edition is stamped on each AppOpen row).
 		const editionSplit: Record<string, number> = {};
@@ -8258,6 +8627,7 @@ async function metricsRollup(target?: any): Promise<{
 				settings,
 				funnel,
 				funnelPct,
+				starterChain,
 				actionTotals,
 				achievements: achievementsSummary,
 			},
@@ -10278,6 +10648,10 @@ export class SyncMetrics extends PublicEndpoint {
  *                     opens: it describes a launch that already pinged, and
  *                     double-counting it would inflate the denominator of every
  *                     rate on the acquisition panel.
+ *   phase "demo_nudge" — the demo's "are you done playing?" prompt, with
+ *                     nudgeStep 'shown' | 'exported' | 'store'. Same rule as the
+ *                     gate: describes a launch that already pinged, so it is NOT
+ *                     counted toward opens.
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
@@ -10294,9 +10668,11 @@ export class AppOpen extends PublicEndpoint {
 					? 'resumed'
 					: body.phase === 'demo_done'
 						? 'demo_done'
-						: body.phase === 'kb_gate'
-							? 'kb_gate'
-							: 'open';
+						: body.phase === 'demo_nudge'
+							? 'demo_nudge'
+							: body.phase === 'kb_gate'
+								? 'kb_gate'
+								: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -10375,6 +10751,19 @@ export class AppOpen extends PublicEndpoint {
 			// so it survives the save being reset when the thank-you popup is dismissed.
 			reachedDemoGoal: existing?.reachedDemoGoal || phase === 'demo_done',
 			demoGoalAt: existing?.demoGoalAt || (phase === 'demo_done' ? now : 0),
+			/* The "are you done playing?" prompt (src/ui/DemoNudge.tsx), as three
+			 * sticky flags rather than a count: raised, exported a save from it,
+			 * clicked through to a store. Sticky because the question is how many
+			 * PEOPLE it moved, not how many times it fired — and it only ever fires
+			 * once per page load anyway.
+			 *
+			 * `shown` is its own flag instead of being inferred from the other two.
+			 * Without it, a prompt that everyone dismisses is indistinguishable from
+			 * a prompt that never appeared, and those call for opposite fixes. */
+			demoNudgeShown: existing?.demoNudgeShown || phase === 'demo_nudge',
+			demoNudgeExported: existing?.demoNudgeExported || (phase === 'demo_nudge' && body.nudgeStep === 'exported'),
+			demoNudgeStore: existing?.demoNudgeStore || (phase === 'demo_nudge' && body.nudgeStep === 'store'),
+			demoNudgeAt: existing?.demoNudgeAt || (phase === 'demo_nudge' ? now : 0),
 			/* The keyboard gate. Both sticky, and deliberately so: this is the one
 			 * question a device answers ONCE and then keeps answering differently.
 			 * A phone that was turned away in March is still a phone that was turned

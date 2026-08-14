@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useGame } from '../state';
 import { isTypingTarget } from '../typing';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
+import { TUTORIAL_GOALS_STEP, tutorialReached } from './Tutorial';
 
 /**
  * Today's Tasks — a small on-screen board, not a menu panel. It sits under the
@@ -12,16 +13,33 @@ import { Icon } from './icons';
  */
 const COLLAPSE_KEY = 'ww-tasks-collapsed';
 
+/** The player's remembered preference, once the board is theirs to arrange. */
+function storedCollapsed(): boolean {
+	try {
+		return localStorage.getItem(COLLAPSE_KEY) === '1';
+	} catch {
+		return false;
+	}
+}
+
 export function TasksWidget() {
 	const { data, state, claimTask, setPanel } = useGame();
 	const { t, content } = useI18n();
-	const [collapsed, setCollapsed] = useState<boolean>(() => {
-		try {
-			return localStorage.getItem(COLLAPSE_KEY) === '1';
-		} catch {
-			return false;
-		}
-	});
+	// A new caretaker's board starts folded away and opens on the tutorial's last
+	// step, which is the one that explains it — a list of ten goals on screen
+	// before anything has said what goals are reads as clutter, and clutter gets
+	// ignored for the rest of the save. It is collapsed, not hidden: the pill stays
+	// reachable, so nobody is locked out of their own task list by a tutorial they
+	// closed. Past that step (or on a save that never had a tutorial) the player's
+	// own remembered preference applies, as it always did.
+	const goalsRevealed = tutorialReached(state, TUTORIAL_GOALS_STEP);
+	const [collapsed, setCollapsed] = useState<boolean>(() => !goalsRevealed || storedCollapsed());
+	const wasRevealed = useRef(goalsRevealed);
+	useEffect(() => {
+		if (!goalsRevealed || wasRevealed.current) return;
+		wasRevealed.current = true;
+		setCollapsed(storedCollapsed()); // the reveal — hand it back to the player
+	}, [goalsRevealed]);
 	const toggle = () => {
 		setCollapsed((c) => {
 			try {

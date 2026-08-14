@@ -475,8 +475,8 @@
 		},
 		"grasshopper": {
 			"title": "Welcome your first neighbor",
-			"text": "A grasshopper returns at 8% health with a patch down. Click it to record it in your journal — that's the whole loop!",
-			"touch": "A grasshopper returns at 8% health with a patch down. Tap it to record it in your journal — that's the whole loop!"
+			"text": "A grasshopper returns at 8% health with a patch down. Click it to record it in your journal — that's the whole loop! It also earns your first achievement, ★ First Friend.",
+			"touch": "A grasshopper returns at 8% health with a patch down. Tap it to record it in your journal — that's the whole loop! It also earns your first achievement, ★ First Friend."
 		},
 		"star": {
 			"title": "Your first star",
@@ -484,9 +484,9 @@
 			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →"
 		},
 		"goals": {
-			"title": "Set your own goals",
-			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way.",
-			"touch": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way."
+			"title": "Your goals, up here",
+			"text": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
+			"touch": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",
@@ -496,8 +496,8 @@
 		"demoNote": "This is the free demo — restore the meadow to unlock the forest, then explore. The demo wraps up after your first 10 minutes in the forest.",
 		"menus": {
 			"title": "Your menus, up top",
-			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements), Build (basket, crafting, tools, goals), and World (the Preserve map, weather). Each one explains itself the first time you open it.",
-			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements), Build (basket, crafting, tools, goals), and World (map, weather). Each one explains itself the first time you open it."
+			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it.",
+			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it."
 		},
 		"toolbelt": {
 			"title": "Your toolbelt",
@@ -506,8 +506,8 @@
 		},
 		"navigate": {
 			"title": "Find your way around",
-			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Press H anytime for help.",
-			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Tap the ? button anytime for help."
+			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Press H anytime for help.",
+			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Tap the ? button anytime for help."
 		},
 		"moreAnimals": {
 			"title": "Bring the meadow home",
@@ -626,7 +626,7 @@
 		"creature": "creature",
 		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
 		"moreNote": "You can hold 3 goals at a time — 6 once the whole preserve is unlocked. Tip: you can also add a goal for a specific animal from its field-journal entry, or a specific item to craft from the crafting menu — look for the target button.",
-		"startersIntro": "Your goals live here. Right now these are your first tasks — finish them to earn their rewards.",
+		"startersIntro": "Your goals live here. To begin with, the preserve sets them for you: ten starter goals that show you around, three on the board at a time. Finish one to claim its reward and the next takes its place. Once you’ve worked through all ten, this is where you design your own.",
 		"unlockHint": "Once you finish these, you'll be able to set goals of your own.",
 		"added": "added",
 		"alreadyAdded": "Already a goal",

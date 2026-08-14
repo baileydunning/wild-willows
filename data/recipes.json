@@ -2348,10 +2348,6 @@
       "name": "Sleeping Bag",
       "category": "home",
       "unlockBiome": "meadow",
-      "unlock": {
-        "requiresAnimal": "ground-squirrel",
-        "label": "Welcome the Ground Squirrel back to Willow Meadow"
-      },
       "output": {
         "itemId": "home-sleeping-bag",
         "qty": 1

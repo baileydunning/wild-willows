@@ -475,8 +475,8 @@
 		},
 		"grasshopper": {
 			"title": "Da la bienvenida a tu primer vecino",
-			"text": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Haz clic en él para anotarlo en tu diario: ¡ese es todo el ciclo!",
-			"touch": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Tócalo para anotarlo en tu diario: ¡ese es todo el ciclo!"
+			"text": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Haz clic en él para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo.",
+			"touch": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Tócalo para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo."
 		},
 		"star": {
 			"title": "Tu primera estrella",
@@ -484,9 +484,9 @@
 			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
 		},
 		"goals": {
-			"title": "Fija tus propios objetivos",
-			"text": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera.",
-			"touch": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera."
+			"title": "Tus objetivos, aquí arriba",
+			"text": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera.",
+			"touch": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera."
 		},
 		"home": {
 			"title": "Siéntete como en casa",
@@ -496,8 +496,8 @@
 		"demoNote": "Esta es la demo gratuita: restaura el prado para desbloquear el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque.",
 		"menus": {
 			"title": "Tus menús, arriba",
-			"text": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros), Construir (cesta, fabricación, herramientas, objetivos) y Mundo (el mapa de la Reserva, el clima). Cada uno se explica solo la primera vez que lo abres.",
-			"touch": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario, logros), Construir (cesta, fabricación, herramientas, objetivos) y Mundo (mapa, clima). Cada uno se explica solo la primera vez que lo abres."
+			"text": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres.",
+			"touch": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres."
 		},
 		"toolbelt": {
 			"title": "Tu cinturón de herramientas",
@@ -506,8 +506,8 @@
 		},
 		"navigate": {
 			"title": "Orientarte en la pantalla",
-			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Pulsa H para ayuda.",
-			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Toca el botón ? para ayuda."
+			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Pulsa H para ayuda.",
+			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Toca el botón ? para ayuda."
 		},
 		"moreAnimals": {
 			"title": "Devuelve la vida a la pradera",
@@ -626,7 +626,7 @@
 		"creature": "animal",
 		"rewardNote": "Completar cualquier objetivo otorga un pequeño paquete de materiales — recláma­lo en el tablero.",
 		"moreNote": "Puedes tener 3 objetivos a la vez — 6 cuando toda la reserva esté desbloqueada. Consejo: también puedes añadir un objetivo para un animal concreto desde su entrada del diario de campo, o un objeto concreto para fabricar desde el menú de fabricación — busca el botón de diana.",
-		"startersIntro": "Tus objetivos están aquí. Por ahora, estas son tus primeras tareas: complétalas para ganar sus recompensas.",
+		"startersIntro": "Tus objetivos están aquí. Al principio la reserva te los propone: diez objetivos iniciales que te enseñan el juego, tres en el tablero a la vez. Completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando hayas hecho los diez, aquí diseñarás los tuyos.",
 		"unlockHint": "Cuando completes estas, podrás fijar tus propios objetivos.",
 		"added": "añadido",
 		"alreadyAdded": "Ya es un objetivo",

@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { STORE_ITCH_URL, STORE_MAS_URL } from '../demo';
+import { reportDemoNudge } from '../solo/appOpen';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
@@ -33,8 +34,10 @@ export function DemoNudge() {
 		setExportError(false);
 		const name = await exportDemo();
 		setExporting(false);
-		if (name) setExported(true);
-		else setExportError(true);
+		if (name) {
+			setExported(true);
+			reportDemoNudge('exported'); // metrics: the prompt produced a carried save
+		} else setExportError(true);
 	};
 
 	return (
@@ -74,10 +77,17 @@ export function DemoNudge() {
 							href={STORE_ITCH_URL}
 							target="_blank"
 							rel="noopener noreferrer"
+							onClick={() => reportDemoNudge('store')}
 						>
 							<Icon name="star" size={15} /> <span>{t('app.demo.storeItch')}</span>
 						</a>
-						<a className="big-btn demo-nudge-store" href={STORE_MAS_URL} target="_blank" rel="noopener noreferrer">
+						<a
+							className="big-btn demo-nudge-store"
+							href={STORE_MAS_URL}
+							target="_blank"
+							rel="noopener noreferrer"
+							onClick={() => reportDemoNudge('store')}
+						>
 							<Icon name="star" size={15} /> <span>{t('app.demo.storeMas')}</span>
 						</a>
 					</div>

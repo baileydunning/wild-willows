@@ -2,6 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
+import { customGoalsUnlocked } from '../types';
 import { homePerkStrength } from '../types';
 import { recipeUnlocked, recipeSearchScore, upcomingRecipes } from '../recipes';
 import { useGear, setGear, GEAR_IDS, type GearId } from '../gear';
@@ -328,6 +329,8 @@ export function ChestPanel() {
 
 export function CraftingPanel() {
 	const { data, state, setPanel, craft, startPlacement, notify, addGoal } = useGame();
+	// The target buttons only exist once the player can actually set goals.
+	const canSetGoals = customGoalsUnlocked(state);
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	// default the Place filter to where you're standing — indoors, a dedicated "home"
@@ -681,7 +684,7 @@ export function CraftingPanel() {
 									<div className="recipe-actions">
 										{/* Hide the "set as goal" button when it'd be busywork: a once-only
 									    recipe already made, or one you can already afford to craft now. */}
-										{!(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
+										{canSetGoals && !(r.once && made) && !canCraft(r) && !unlockKitIds.has(r.output.itemId) && (
 											<button
 												className="icon-btn subtle add-goal-btn"
 												disabled={goalAdded}
@@ -892,6 +895,8 @@ export function ToolsPanel() {
 
 export function BiomesPanel() {
 	const { data, state, setPanel, changeArea, addGoal } = useGame();
+	// The target buttons only exist once the player can actually set goals.
+	const canSetGoals = customGoalsUnlocked(state);
 	const { t, content } = useI18n();
 	// Which biome's detail is shown below the map. `null` means "use the default"
 	// (the biome you're standing in, else the first open one, else the first).
@@ -1016,13 +1021,15 @@ export function BiomesPanel() {
 									<Icon name="lock" size={12} /> {t('panels.biomes.toUnlock')}
 								</div>
 								<p>{content('biome', biome.id, 'unlock.label', biome.unlock.label)}</p>
-								<button
-									className="bd-addgoal"
-									disabled={(state.customGoals || []).some((g) => g.kind === 'unlock' && g.biomeId === biome.id)}
-									onClick={() => addGoal({ kind: 'unlock', target: 1, biomeId: biome.id })}
-								>
-									<Icon name="plus" size={12} /> {t('panels.biomes.addGoal', { biome: biomeName })}
-								</button>
+								{canSetGoals && (
+									<button
+										className="bd-addgoal"
+										disabled={(state.customGoals || []).some((g) => g.kind === 'unlock' && g.biomeId === biome.id)}
+										onClick={() => addGoal({ kind: 'unlock', target: 1, biomeId: biome.id })}
+									>
+										<Icon name="plus" size={12} /> {t('panels.biomes.addGoal', { biome: biomeName })}
+									</button>
+								)}
 							</div>
 						)}
 						<div className="bd-goal">
@@ -1110,6 +1117,8 @@ export function BiomesPanel() {
 
 export function HomePanel() {
 	const { data, state, setPanel, upgradeHome, setHomeStyle, addGoal } = useGame();
+	// The target buttons only exist once the player can actually set goals.
+	const canSetGoals = customGoalsUnlocked(state);
 	const { t, content } = useI18n();
 	const linked = useLinkedChests();
 	if (!data || !state) return null;
@@ -1181,7 +1190,7 @@ export function HomePanel() {
 									)}
 								</div>
 								<div className="recipe-actions">
-									{!hasHomeGoal && (
+									{canSetGoals && !hasHomeGoal && (
 										<button
 											className="icon-btn subtle add-goal-btn"
 											title={t('panels.home.addGoal')}
@@ -1271,7 +1280,7 @@ export function HomePanel() {
 						</div>
 						{next && (
 							<div className="recipe-actions">
-								{!hasHomeGoal && (
+								{canSetGoals && !hasHomeGoal && (
 									<button
 										className="icon-btn subtle add-goal-btn"
 										title={t('panels.home.addGoal')}

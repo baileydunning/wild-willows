@@ -1926,6 +1926,23 @@
 			/* detectOS() in src/platform.ts returns exactly these. Shared, because the
 			   keyboard gate reads them too and a phone has to be recognisable as a
 			   phone in both places. */
+			/* The ten-goal starter chain (starterTasks() in server/resources.ts), keyed
+			 * by task id. Labels live here rather than coming down with the payload
+			 * because the roll-up sends ids — a chain goal renamed in the game should
+			 * not silently rename a historical funnel step. */
+			const STARTER_LABELS = {
+				'start-seeds': 'Gather 10 seeds',
+				'start-grasshopper': 'Welcome the grasshopper',
+				'start-plant': 'Plant 3 seedlings',
+				'start-harvest': 'Harvest something grown',
+				'start-bugs': 'Welcome 3 bugs',
+				'start-journal-upgrade': 'Upgrade the field journal',
+				'start-build-ten': 'Craft + place 10 things',
+				'start-rest': 'Rest at camp',
+				'start-stream': 'Dig a stream',
+				'start-home': 'Build a home',
+			};
+
 			const OS_LABELS = {
 				mac: 'macOS',
 				windows: 'Windows',
@@ -3315,6 +3332,7 @@
 				const kg = acq.keyboardGate || {};
 				const fun = s.funnel || {};
 				const dc = s.demoCompletion || {};
+				const dn = dc.nudge || {};
 				/* ---- Where they came from ----
 				 * Devices and conversion per channel. Sorted by conversion, not by
 				 * size, because size is the number you can't trust across channels:
@@ -3407,7 +3425,7 @@
 				const demoCard = dc.demoInstalls
 					? cardTitled(
 							'Demo completion',
-							'reached the 5-animal hard-stop',
+							'reached the end of the demo',
 							funnel([
 								{ label: 'Made a character', value: dc.createdCharacter },
 								{ label: 'Finished the demo', value: dc.reachedGoal },
@@ -3420,7 +3438,24 @@
 										'of demo players who started',
 									),
 									kpi(fmt(dc.reachedGoal), 'Finished'),
-								].join('')}</div>`,
+								].join('')}</div>` +
+								/* The "are you done playing?" prompt. Only rendered once it has
+								 * actually been shown to someone — a row of zeros here would read
+								 * as "nobody responds to it" when it means "not measured yet".
+								 * Exported is the number that justifies the interruption; if it
+								 * stays near zero the prompt is a tax and should be softened. */
+								(n(dn.shown)
+									? `<h4 class="sub-h" style="margin-top:1rem">"Are you done playing?"</h4>` +
+										`<div class="grid three">${[
+											kpi(fmt(dn.shown), 'Prompt shown', 'devices, once each'),
+											kpi(
+												`<span class="accent">${pct(dn.exportPct)}</span>`,
+												'Saved their meadow',
+												`${fmt(dn.exported)} exported from the prompt`,
+											),
+											kpi(pct(dn.storePct), 'Went to a store', `${fmt(dn.storeClicked)} clicked through`),
+										].join('')}</div>`
+									: ''),
 						)
 					: '';
 
@@ -3470,6 +3505,45 @@
 					.filter((st) => st.value != null)
 					.sort((a, b) => n(b.value) - n(a.value));
 				const funSteps = funnel([{ label: 'Created character', value: fun.created }, ...funRest]);
+
+				/* ---- The starter chain, and what it hands over to ----
+				 * The ten opening goals, one per row, in the order players meet them.
+				 * Unlike the activation funnel above this one IS strictly ordered — a
+				 * player cannot reach step 6 without claiming 5 — so the drop-off between
+				 * rows is real and says exactly which goal is losing people.
+				 *
+				 * The tiles underneath are the point of the whole feature. Finishing ten
+				 * goals is not success; picking the board up afterwards is. If "Wrote
+				 * their own" stays low while "Finished" climbs, the chain is teaching
+				 * people to wait for instructions rather than to set their own. */
+				const sch = s.starterChain || {};
+				const starterCard = n(sch.saves)
+					? cardTitled(
+							'Starter goals',
+							`${fmt(sch.saves)} saves on the chain` +
+								(n(sch.legacySaves) ? ` · ${fmt(sch.legacySaves)} pre-chain saves skipped` : ''),
+							funnel(
+								(sch.steps || []).map((st) => ({
+									label: STARTER_LABELS[st.id] || st.id,
+									value: st.reached,
+								})),
+							) +
+								`<div class="grid three" style="margin-top:1rem">${[
+									kpi(
+										`<span class="accent">${pct(sch.completedPct)}</span>`,
+										'Finished all ten',
+										`${fmt(sch.completed)} of ${fmt(sch.saves)} saves`,
+									),
+									kpi(
+										`<span class="accent">${pct(sch.authoredAfterFinishingPct)}</span>`,
+										'Wrote their own',
+										`${fmt(sch.authoredAfterFinishing)} of those who finished`,
+									),
+									kpi(r1(sch.avgGoalsAuthored), 'Goals authored', 'average per save, ever'),
+								].join('')}</div>`,
+						)
+					: '';
+
 				out.push(
 					sec(
 						'Funnels',
@@ -3482,7 +3556,7 @@
 									: convCard
 										? `<div style="margin-top:.8rem">${convCard}</div>`
 										: '') +
-							'',
+							(starterCard ? `<div style="margin-top:.8rem">${starterCard}</div>` : ''),
 					),
 				);
 

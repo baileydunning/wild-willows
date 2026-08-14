@@ -17,6 +17,7 @@ import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
 import { TasksWidget } from './TasksWidget';
+import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
 
 export function Meter({
 	label,
@@ -133,8 +134,19 @@ export function HUD() {
 	const { t, content } = useI18n();
 	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
-	// The top-right menu can be tucked away so it's out of the scene.
-	const [navOpen, setNavOpen] = useState(true);
+	// The top-right menu can be tucked away so it's out of the scene — and it
+	// STARTS that way for a new caretaker, unfolding when the tutorial reaches the
+	// step that explains it. Six buttons appearing before anything has said what
+	// they do is the interface introducing itself before the game does. Saves that
+	// are past that step (or never had a tutorial) open with it already out.
+	const menusRevealed = tutorialReached(state, TUTORIAL_MENUS_STEP);
+	const [navOpen, setNavOpen] = useState(menusRevealed);
+	const wasRevealed = useRef(menusRevealed);
+	useEffect(() => {
+		if (!menusRevealed || wasRevealed.current) return;
+		wasRevealed.current = true;
+		setNavOpen(true); // the reveal itself — after this the toggle is the player's
+	}, [menusRevealed]);
 	// Tick occasionally so the weather chip reflects the ~10-min weather change
 	// even when the player is idle (no state refresh).
 	const [, setTick] = useState(0);

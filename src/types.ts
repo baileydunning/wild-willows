@@ -517,6 +517,41 @@ export interface DailyTask {
 	steps?: { text: string; done: boolean }[];
 	/** Guidance goal — always on the board, tracks progress, isn't claimed. */
 	pinned?: boolean;
+	/** Set on goals whose progress is simply "how much of this are you holding"
+	 *  (the opening gather goal, and any collect-N goal). The client recomputes
+	 *  those locally as materials come in, so the bar moves with the basket rather
+	 *  than with the next state sync — see withHeldTaskProgress in actionPatch.ts. */
+	resourceId?: string;
+	/** Held amount at the moment the goal was set; progress counts only what has
+	 *  been gathered since. Zero for the fixed starter. */
+	base?: number;
+	/** This goal counts what has been DONE, not what is currently held, so it never
+	 *  falls back when the player spends or removes the thing (the server keeps a
+	 *  lifetime tally). */
+	monotonic?: boolean;
+	/** Which action credits this goal locally, so the bar moves on the same frame
+	 *  as the act rather than at the next full sync — see withEventTaskProgress in
+	 *  actionPatch.ts. 'gather' also matches on `resourceId`. */
+	event?: 'gather' | 'place';
+}
+
+/**
+ * Can the player write their own goals yet?
+ *
+ * They can once the starter chain is finished — no `start-*` task left on the
+ * board. Until then the preserve sets the goals, and every "add this as a goal"
+ * affordance (the target buttons on journal entries, recipes, house styles and
+ * locked biomes) stays HIDDEN rather than sitting there refusing: a button that
+ * exists but always says no teaches nothing except not to press buttons.
+ *
+ * A state with no board yet reads as locked — the caller re-renders when it
+ * arrives, and showing the button for a frame and then taking it away is worse
+ * than showing it a frame late.
+ */
+export function customGoalsUnlocked(state: { dailyTasks?: DailyTasksBlock } | null | undefined): boolean {
+	const tasks = state?.dailyTasks?.tasks;
+	if (!tasks) return false;
+	return !tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('start-'));
 }
 
 export interface DailyTasksBlock {

@@ -4,6 +4,7 @@ import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
+import { TUTORIAL_TOOLBELT_STEP, useTutorialReveal } from './Tutorial';
 
 // `how` is a catalog key (app.toolbelt.how.*), resolved with t() at render time.
 export const TOOL_META: Array<{ id: string; icon: string; key: string; how: string }> = [
@@ -33,12 +34,18 @@ export function Toolbelt() {
 	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor } = useGame();
 	const { t, content } = useI18n();
 	usePrefs(); // reflect custom tool-select keys
+	// The toolbelt stays off screen until the tutorial step that hands it over, so
+	// a new caretaker's first minute is a meadow and a card telling them to walk —
+	// not a row of implements they have no use for yet. Latched, so stepping back
+	// through the tutorial can't take it away again; saves past that step (or with
+	// no tutorial at all) have always had it.
+	const toolbeltRevealed = useTutorialReveal(state, TUTORIAL_TOOLBELT_STEP);
 	// The key cap shown on each tool = its current binding (tool1..tool4).
 	const keyForTool = (toolId: string): string => {
 		const a = BIND_ACTIONS.find((x) => x.tool === toolId);
 		return a ? keyLabel(getBindings()[a.id][0]) : '';
 	};
-	if (!data || !state) return null;
+	if (!data || !state || !toolbeltRevealed) return null;
 	// the paint tool only exists indoors, and only once the home is built into a house
 	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
 

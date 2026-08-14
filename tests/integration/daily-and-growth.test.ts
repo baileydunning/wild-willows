@@ -7,8 +7,9 @@ const forestResources = new Set<string>(
 );
 
 // Retention systems, driven through the real server bundle:
-//  • the daily task board (fresh each player-local morning; day one is a fixed
-//    starter trio, then the next real milestone stays pinned as task #1)
+//  • the daily task board (fresh each player-local morning; the opening is the
+//    ten-goal starter chain, ONE link at a time, and the next real milestone
+//    stays pinned as task #1)
 //  • habitat growth over real wall-clock time (mature plants add health)
 //  • the heartbeat welcome-back pass ("while you were away…")
 //  • condition-gated rare sightings (weather / season / day-phase)
@@ -23,15 +24,17 @@ beforeEach(async () => {
 });
 
 describe('daily task board', () => {
-	it('serves the onboarding board: a pinned next-biome goal plus rewarded starter tasks', async () => {
+	it('serves the onboarding board: a pinned next-biome goal plus three starter tasks', async () => {
 		const s = await w.get('GameState', pid);
 		const dt = s.dailyTasks;
+		// The pin plus the first three links. The chain is deliberately not a backlog:
+		// the other seven arrive as these are claimed (tests/integration/starter-chain).
 		expect(dt.tasks).toHaveLength(4);
 		// task #1 is the always-pinned next-biome guidance goal: tracked, not claimed, no reward
 		expect(dt.tasks[0].id).toBe('next-biome');
 		expect(dt.tasks[0].pinned).toBe(true);
 		expect(Object.keys(dt.tasks[0].reward || {})).toHaveLength(0);
-		// the three starter tasks each have a target, start at zero, and pay a reward
+		// each starter task has a target, starts at zero, and pays a reward
 		for (const t of dt.tasks.filter((x: any) => !x.pinned)) {
 			expect(t.target).toBeGreaterThan(0);
 			expect(t.progress).toBe(0);
@@ -48,19 +51,19 @@ describe('daily task board', () => {
 		expect(s.weather.dayPhase).toBe('day');
 	});
 
-	it('leads with the next-biome pin, then the fixed starter tasks', async () => {
+	it('leads with the next-biome pin, then the current starter tasks', async () => {
 		const dt = (await w.get('GameState', pid)).dailyTasks;
 		expect(dt.tasks.map((t: any) => t.text)).toEqual([
 			'Unlock Old Hollow Forest',
-			'Gather 12 seeds',
-			'Craft your first habitat',
+			'Gather 10 seeds',
 			'Welcome the grasshopper home',
+			'Plant 3 seedlings',
 		]);
 		expect(dt.tasks[0].kind).toBe('unlock');
 		expect(dt.tasks[0].pinned).toBe(true);
-		// the welcome starter carries a "how do I do this?" hover hint
-		const welcome = dt.tasks.find((t: any) => t.id === 'start-welcome');
-		expect(welcome.hint).toContain('grass patch');
+		// every starter carries a "how do I do this?" hover hint — the opening goal
+		// is the first thing a new player reads, so it has to say which key to press
+		expect(dt.tasks[1].hint).toContain('basket');
 	});
 
 	it('pins the next-biome guidance goal with a live checklist that cannot be claimed', async () => {
@@ -84,14 +87,17 @@ describe('daily task board', () => {
 	});
 
 	it('pays out a finished starter task exactly once and rejects early claims', async () => {
-		// start-gather completes from held seeds (progress = min(12, held seeds))
-		const task = (await w.get('GameState', pid)).dailyTasks.tasks.find((t: any) => t.id === 'start-gather');
+		// start-seeds completes from seeds GATHERED (a lifetime tally), so the basket
+		// has to be filled the honest way — handing the player ten seeds no longer
+		// finishes it, which is the point: spending them can't undo it either.
+		const task = (await w.get('GameState', pid)).dailyTasks.tasks.find((t: any) => t.id === 'start-seeds');
 		expect(task.progress).toBe(0);
 		// an unfinished task cannot be claimed
 		await expect(w.post('ClaimTask', { playerId: pid, taskId: task.id })).rejects.toThrow();
-		// finish it (hold enough seeds), then claim
-		const p = await w.db.Player.get(pid);
-		await w.db.Player.patch(pid, { inventory: { ...(p.inventory || {}), seeds: task.target } });
+		// finish it (gather enough seeds), then claim
+		for (let i = 0; i < task.target; i++) {
+			await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: `n${i}`, resourceId: 'seeds' });
+		}
 		const before = await w.db.Player.get(pid);
 		const claim = await w.post('ClaimTask', { playerId: pid, taskId: task.id });
 		expect(claim.ok).toBe(true);
@@ -99,11 +105,14 @@ describe('daily task board', () => {
 		const sum = (inv: Record<string, number>) => Object.values(inv || {}).reduce((a, b) => a + b, 0);
 		const after = await w.db.Player.get(pid);
 		expect(sum(after.inventory)).toBeGreaterThan(sum(before.inventory));
-		// the claimed starter is marked claimed in the response…
-		expect(claim.dailyTasks.tasks.find((t: any) => t.id === task.id)?.claimed).toBe(true);
-		// …and drops off the board on the next fetch
+		// the response carries the board as it stands AFTER the claim, so the client
+		// can paint the next goal without waiting for a follow-up fetch…
+		expect(claim.dailyTasks.tasks.some((t: any) => t.id === task.id)).toBe(false);
+		expect(claim.dailyTasks.tasks.some((t: any) => t.id === 'start-grasshopper')).toBe(true);
+		// …and drops off the board on the next fetch, pulling a new link up behind it
 		const next = (await w.get('GameState', pid)).dailyTasks;
 		expect(next.tasks.some((t: any) => t.id === task.id)).toBe(false);
+		expect(next.tasks.some((t: any) => t.id === 'start-harvest')).toBe(true);
 		// double-claim is refused
 		await expect(w.post('ClaimTask', { playerId: pid, taskId: task.id })).rejects.toThrow();
 	});

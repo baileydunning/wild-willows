@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
+import { customGoalsUnlocked } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -319,6 +320,9 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 		void addGoal({ kind: 'attract', animalId: animal.id, target: 1 });
 	};
 	const alreadyGoal = (state?.customGoals || []).some((g) => g.kind === 'attract' && g.animalId === animal.id);
+	// No "set this as a goal" button until the player has actually unlocked
+	// goal-setting — see customGoalsUnlocked().
+	const canSetGoals = customGoalsUnlocked(state);
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
@@ -330,15 +334,17 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 					<span className="muted small">({content('animal', animal.id, 'rarity', animal.rarity)})</span>
 					<RequirementHints animal={animal} full={full} />
 				</div>
-				<button
-					className="icon-btn subtle add-goal-btn"
-					disabled={alreadyGoal}
-					title={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
-					aria-label={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
-					onClick={addAttractGoal}
-				>
-					<Icon name="target" size={14} />
-				</button>
+				{canSetGoals && (
+					<button
+						className="icon-btn subtle add-goal-btn"
+						disabled={alreadyGoal}
+						title={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
+						aria-label={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
+						onClick={addAttractGoal}
+					>
+						<Icon name="target" size={14} />
+					</button>
+				)}
 			</div>
 		);
 	}

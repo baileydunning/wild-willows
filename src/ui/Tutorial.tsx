@@ -154,6 +154,16 @@ const BASE_STEPS: StepDef[] = [
 		chapter: 1,
 		done: ({ state }) => openWaterTiles(state) >= 3,
 	},
+	// The hand-off: reveal the goal board (see TUTORIAL_GOALS_STEP below) and say
+	// what's on it. Second-to-last on purpose — the tutorial's closing word should
+	// be about the meadow, not about a panel.
+	{
+		icon: 'target',
+		key: 'panels.tutorial.goals',
+		hasTouch: true,
+		chapter: 1,
+		done: () => false,
+	},
 	{
 		icon: 'paw',
 		key: 'panels.tutorial.moreAnimals',
@@ -164,6 +174,55 @@ const BASE_STEPS: StepDef[] = [
 ];
 
 const DONE_STEP = 99;
+
+/**
+ * The two steps that reveal a piece of the top-right corner.
+ *
+ * A new caretaker's screen opens quiet: the menu bar and the goal board both
+ * start collapsed, and each one unfolds at the step that explains it — the menus
+ * early, the goals at the very end, as the tutorial hands over. Six buttons and a
+ * task list on screen in the first ten seconds is the interface introducing
+ * itself before the game has, and a player who has not been told what any of it
+ * does reads it as clutter to be ignored rather than tools to be used.
+ *
+ * Derived by key rather than written as numbers, so inserting a step can't
+ * quietly point these at the wrong card.
+ */
+export const TUTORIAL_MENUS_STEP = BASE_STEPS.findIndex((s) => s.key === 'panels.tutorial.menus');
+export const TUTORIAL_TOOLBELT_STEP = BASE_STEPS.findIndex((s) => s.key === 'panels.tutorial.toolbelt');
+export const TUTORIAL_GOALS_STEP = BASE_STEPS.findIndex((s) => s.key === 'panels.tutorial.goals');
+
+/**
+ * Has this save's tutorial reached (or passed) a step?
+ *
+ * Read from progress rather than remembered as a one-time reveal, so a save that
+ * finished the tutorial, skipped it, or predates it entirely has everything open
+ * from the moment it loads — `tutorialStep` is absent on those, which is what
+ * DONE_STEP means here. A null state is "not loaded yet", not "not started": the
+ * caller re-renders when it arrives.
+ */
+export function tutorialReached(state: any, stepIndex: number): boolean {
+	if (!state?.player) return false;
+	return (state.player.tutorialStep ?? DONE_STEP) >= stepIndex;
+}
+
+/**
+ * The same test, latched: true once the tutorial has reached the step, and true
+ * from then on.
+ *
+ * The latch matters because the tutorial can be stepped BACKWARDS to reread a
+ * card. Without it, going back one page would make the toolbelt vanish from under
+ * the player's hands — a piece of the game disappearing as a punishment for
+ * rereading an instruction.
+ */
+export function useTutorialReveal(state: any, stepIndex: number): boolean {
+	const reached = tutorialReached(state, stepIndex);
+	const [revealed, setRevealed] = useState(reached);
+	useEffect(() => {
+		if (reached) setRevealed(true);
+	}, [reached]);
+	return revealed;
+}
 
 // Remember which step the player was on when they last closed the tutorial, so
 // reopening it from the Help menu resumes there instead of starting over.
@@ -214,7 +273,7 @@ const readMs = (text: string, step: number) => {
 };
 
 export function Tutorial() {
-	const { state, setTutorialStep, panel } = useGame();
+	const { state, setTutorialStep, panel, helpOpen } = useGame();
 	const { t } = useI18n();
 	const [flags, setFlags] = useState<Flags>({
 		moved: false,
@@ -348,6 +407,21 @@ export function Tutorial() {
 	useEffect(() => {
 		if (step >= STEPS.length || step < 0) return;
 		if (replaying || step !== frontier) return;
+		// …and never while a menu is open. Half these steps are finished BY opening a
+		// menu, so without this the next card appears underneath the panel that
+		// completed the last one, spends its reading time hidden, and the player
+		// closes the menu to find the tutorial has moved on without them. Any pending
+		// advance is dropped and the clock restarted, so whatever comes next gets its
+		// full reading time on a clear screen.
+		if (panel || helpOpen) {
+			if (advanceTimer.current) {
+				window.clearTimeout(advanceTimer.current);
+				advanceTimer.current = null;
+			}
+			setCelebrating(false);
+			stepShownAt.current = Date.now();
+			return;
+		}
 		const def = STEPS[step];
 		if (def.done({ state, flags })) {
 			if (advanceTimer.current) return;
@@ -375,7 +449,7 @@ export function Tutorial() {
 				}, remaining);
 			}
 		}
-	}, [state, flags, step, frontier, replaying, touch, setTutorialStep]);
+	}, [state, flags, step, frontier, replaying, touch, setTutorialStep, panel, helpOpen]);
 
 	if (!state || step >= STEPS.length) return null;
 	const def = STEPS[step];

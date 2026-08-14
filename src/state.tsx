@@ -22,7 +22,7 @@ import { flushFeedbackQueue } from './feedback';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { reportSaveIncident } from './solo/saveIncident';
-import { reportCharacterCreated, reportDemoComplete, reportSaveResumed } from './solo/appOpen';
+import { reportCharacterCreated, reportDemoComplete, reportDemoNudge, reportSaveResumed } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
@@ -33,6 +33,7 @@ import {
 	applyMoveResult,
 	applyPlaceResult,
 	applyPlantResult,
+	withHeldTaskProgress,
 } from './actionPatch';
 import { coalesceAfter, cancelCoalesced } from './perf';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
@@ -68,6 +69,10 @@ interface Ctx {
 	 *  with the hard-stop above. */
 	demoNudge: boolean;
 	dismissDemoNudge: () => void;
+	/** The one-time "now the goals are yours" hand-off, raised when the last
+	 *  starter goal is claimed. */
+	goalsUnlocked: boolean;
+	dismissGoalsUnlocked: () => void;
 	/** Download the demo save for import into the full game; resolves to the
 	 *  filename on success, null on failure. */
 	exportDemo: () => Promise<string | null>;
@@ -175,6 +180,28 @@ const RECALC_COALESCE_MS = 1200;
 // safety net for lines buffered between beats — not a second, faster cadence.
 const FEED_FLUSH_MS = 30_000;
 
+/**
+ * Remember, per save, that the "now the goals are yours" hand-off has been seen,
+ * and report whether this is the first time. Storage is best-effort: if it's
+ * unavailable (private mode), we show the modal — a player who has finished ten
+ * starter goals and is never told the board is theirs is the worse failure.
+ */
+const GOALS_UNLOCKED_KEY = 'wild-willows:goals-unlocked-seen';
+
+function markGoalsUnlockedSeen(playerId: string | undefined): boolean {
+	if (!playerId) return false;
+	try {
+		const raw = localStorage.getItem(GOALS_UNLOCKED_KEY);
+		const seen: string[] = raw ? JSON.parse(raw) : [];
+		if (Array.isArray(seen) && seen.includes(playerId)) return false;
+		const next = [...(Array.isArray(seen) ? seen : []), playerId].slice(-20);
+		localStorage.setItem(GOALS_UNLOCKED_KEY, JSON.stringify(next));
+		return true;
+	} catch {
+		return true;
+	}
+}
+
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
 	const [state, setState] = useState<GameState | null>(null);
@@ -183,6 +210,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [demoBackend, setDemoBackend] = useState<'pending' | 'harper' | 'solo'>(DEMO ? 'pending' : 'harper');
 	const [demoComplete, setDemoComplete] = useState(false);
 	const [demoNudge, setDemoNudge] = useState(false);
+	const [goalsUnlocked, setGoalsUnlocked] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
 	const [panel, setPanel] = useState<PanelId>(null);
 	const [helpOpen, setHelpOpen] = useState(false);
@@ -386,13 +414,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const demoSavePlayerId = state?.player?.id ?? null;
 	useEffect(() => {
 		if (!DEMO || !demoSavePlayerId || demoComplete || demoNudgeShown.current) return;
-		return watchDemoNudge(() => {
+		return watchDemoNudge((reason) => {
 			demoNudgeShown.current = true;
 			setDemoNudge(true);
+			reportDemoNudge('shown'); // metrics: the prompt's funnel starts here
+			pushLog('target', t(reason === 'idle' ? 'app.feed.demoNudgeIdle' : 'app.feed.demoNudgeReturned'));
 		});
 	}, [demoSavePlayerId, demoComplete]);
 
 	const dismissDemoNudge = useCallback(() => setDemoNudge(false), []);
+	const dismissGoalsUnlocked = useCallback(() => setGoalsUnlocked(false), []);
 
 	useEffect(() => {
 		bridge.shared.state = state;
@@ -557,10 +588,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [state, toast, pushLog]);
 
-	// Starters graduation: when the last of the three fixed starters clears off the
-	// board, cheer the player on to design their own goals — once, as a toast and a
-	// feed line. We only fire on the present→absent transition we actually witnessed
-	// this session, so returning saves that finished long ago stay quiet.
+	// Starters graduation: when the last of the ten starter goals clears off the
+	// board, hand the board over — a toast, a feed line, and the one-time modal
+	// that actually explains what just became possible (src/ui/GoalsUnlocked.tsx).
+	// We only fire on the present→absent transition we actually witnessed this
+	// session, so returning saves that finished long ago stay quiet.
+	//
+	// The modal is additionally pinned to the save in localStorage. The transition
+	// alone is nearly enough — it happens once per save — but "nearly" is doing
+	// real work there: a co-op member watching someone else claim the last one, or
+	// any future path that briefly empties the board, would re-open a modal the
+	// player has already read and dismissed. Once means once.
 	useEffect(() => {
 		const tasks = state?.dailyTasks?.tasks;
 		if (!tasks) return;
@@ -570,6 +608,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (before && !present) {
 			toast(t('app.toast.startersDone'), 'unlock');
 			pushLog('target', t('app.feed.startersDone'), true);
+			if (markGoalsUnlockedSeen(state?.player?.id)) setGoalsUnlocked(true);
 		}
 	}, [state, toast, pushLog, t]);
 
@@ -609,9 +648,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		saveTimer.current = window.setTimeout(() => setSaveStatus('idle'), 1800);
 	}, []);
 
+	// One funnel for every state the app adopts — server snapshots and optimistic
+	// patches alike. The held-materials pass runs here rather than inside each
+	// patcher so a goal like "gather 10 seeds" tracks the basket no matter which
+	// action moved it (gathering, harvesting, a chest transfer, spending on a
+	// craft). On a server snapshot it's a no-op: the numbers already agree.
 	const adoptState = useCallback((s: GameState) => {
-		setState(s);
-		bridge.shared.state = s;
+		const next = withHeldTaskProgress(s);
+		setState(next);
+		bridge.shared.state = next;
 		bridge.emit('world-dirty');
 	}, []);
 
@@ -761,6 +806,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setPanel(null);
 		setPlacementObjectId(null);
 		setDemoNudge(false); // a soft prompt belongs to the save it was raised over
+		setGoalsUnlocked(false);
 		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
 		setFeedLog([]);
 		feedSeeded.current = false;
@@ -1482,6 +1528,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						pushLog('sparkle', t('app.feed.taskReward', { items: gainedTxt }), true);
 					}
 				},
+				{
+					// The response already carries the board as it stands AFTER the claim —
+					// finished goal gone, next one in its place — so paint it now instead
+					// of waiting out a full GameState round trip. Claiming and then
+					// watching nothing happen for a beat reads as the game not having
+					// registered the click. The trailing reconcile still runs for
+					// everything else the claim touched (achievements, unlocks).
+					apply: (r, prev) =>
+						r?.dailyTasks && r?.inventory
+							? { ...prev, dailyTasks: r.dailyTasks, player: { ...prev.player, inventory: r.inventory } }
+							: null,
+				},
 			),
 		[act, data, toast, pushLog],
 	);
@@ -1626,6 +1684,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			dismissDemo,
 			demoNudge,
 			dismissDemoNudge,
+			goalsUnlocked,
+			dismissGoalsUnlocked,
 			exportDemo,
 			panel,
 			setPanel,
@@ -1685,6 +1745,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			dismissDemo,
 			demoNudge,
 			dismissDemoNudge,
+			goalsUnlocked,
+			dismissGoalsUnlocked,
 			exportDemo,
 			panel,
 			helpOpen,

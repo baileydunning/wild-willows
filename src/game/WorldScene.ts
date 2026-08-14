@@ -2625,10 +2625,12 @@ export class WorldScene extends Phaser.Scene {
 			if (bridge.shared.uiBlocking) return; // a modal is open — clicks don't reach the world
 			if (this.placementObjectId || this.movingPlacementId) return;
 			if (this.activeTool === 'paint' && this.isHome) return; // painting takes over clicks indoors
-			// Only ground tiles (watered beds) let terraform clicks pass through to
-			// the soil beneath (flooding/clearing). Chests, nodes, and stations always
-			// run their own action — holding the shovel or can no longer turns
-			// "open chest" into a baffling terraform error.
+			// Ground tiles (watered beds) and gather nodes let terraform clicks pass
+			// through to the soil beneath — a bed can be flooded or cleared, and a node
+			// steps aside (see the node registration in drawNodes). Chests and stations
+			// always run their own action instead: they can't move out of the way, and
+			// holding the shovel or can should never turn "open chest" into a baffling
+			// terraform error.
 			if (this.terraformAction() && opts.terraformPassthrough) {
 				const tx = Math.floor(pointer.worldX / TILE);
 				const ty = Math.floor(pointer.worldY / TILE);
@@ -3504,7 +3506,15 @@ export class WorldScene extends Phaser.Scene {
 					});
 			},
 		};
-		this.registerInteractable(it, container);
+		// Terraform clicks pass THROUGH a gather node. Shaping the land used to stop
+		// dead at every regen spot — you'd click to dig, gather a seed instead, and
+		// have to build around a tile you didn't choose. Nodes are the one occupant
+		// that can simply move: computeNodes() relocates any node sitting on a
+		// terraformed tile to the nearest free square, keeping its id and its
+		// cooldown, so digging under one nudges it aside rather than refusing.
+		// (Chests and stations still swallow the click — those can't be nudged, and
+		// turning "open chest" into a terraform error was the bug that rule fixed.)
+		this.registerInteractable(it, container, { terraformPassthrough: true });
 		return { key: this.nodeKey(node), container, it };
 	}
 

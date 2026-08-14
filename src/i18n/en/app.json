@@ -63,7 +63,7 @@
 		"habitatGoalAdded": "Added its habitat to your goals — see the board (G)",
 		"goalAlready": "That's already one of your goals",
 		"goalLimit": "You can hold {max} goals at once — finish or remove one first",
-		"goalStartersFirst": "Finish your first three goals before adding more.",
+		"goalStartersFirst": "Work through all ten starter goals before adding your own.",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
@@ -71,6 +71,8 @@
 		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
 	},
 	"feed": {
+		"demoNudgeIdle": "The preserve waited quietly while you were away.",
+		"demoNudgeReturned": "Welcome back — the preserve kept growing without you.",
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}.",
 		"achievementUnlocked": "Achievement unlocked: {name}. {flavor}",
 		"taskComplete": "Daily task complete: {text}",
@@ -482,6 +484,14 @@
 		"arrowKeys": "arrow keys",
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
 		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
+	},
+	"goalsUnlocked": {
+		"title": "Now the goals are yours",
+		"body": "That's all ten starter goals done — you've gathered, crafted, watered, planted, welcomed a neighbour home, filled in your journal, and built a house. From here you decide what the preserve works toward.",
+		"how": "Open the board (G) and pick what to aim for: a particular animal to welcome, a thing to craft, a tool to upgrade, a biome to restore, or your home to furnish.",
+		"shortcut": "You can also set one straight from the thing itself — look for the target button on an animal's journal entry, or on a recipe in the crafting menu.",
+		"openButton": "Set my first goal",
+		"laterButton": "Maybe later"
 	},
 	"demo": {
 		"doneTitle": "Thanks for playing the Wild Willows demo!",

@@ -63,7 +63,7 @@
 		"habitatGoalAdded": "Añadido su hábitat a tus objetivos — mira el tablero (G)",
 		"goalAlready": "Ese ya es uno de tus objetivos",
 		"goalLimit": "Puedes tener {max} objetivos a la vez — termina o quita uno primero",
-		"goalStartersFirst": "Termina tus tres primeros objetivos antes de añadir más.",
+		"goalStartersFirst": "Completa los diez objetivos iniciales antes de añadir los tuyos.",
 		"joinRequest": "{name} quiere unirse — presiona U para permitirle entrar",
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}.",
@@ -71,6 +71,8 @@
 		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero."
 	},
 	"feed": {
+		"demoNudgeIdle": "La reserva esperó en silencio mientras no estabas.",
+		"demoNudgeReturned": "Bienvenido de nuevo: la reserva siguió creciendo sin ti.",
 		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}.",
 		"achievementUnlocked": "Logro desbloqueado: {name}. {flavor}",
 		"taskComplete": "Tarea del día completada: {text}",
@@ -482,6 +484,14 @@
 		"arrowKeys": "teclas de flecha",
 		"body3": ", y sacas tu cesta, tus herramientas y tu diario con teclas de acceso rápido — así que no funciona por sí solo en un teléfono o una tableta.",
 		"hint": "Abre Wild Willows en una computadora, o conecta un teclado y presiona cualquier tecla para comenzar."
+	},
+	"goalsUnlocked": {
+		"title": "Ahora los objetivos son tuyos",
+		"body": "Ya completaste los diez objetivos iniciales: recogiste, fabricaste, regaste, plantaste, recibiste a un vecino, llenaste tu diario y construiste una casa. A partir de aquí tú decides hacia dónde va la reserva.",
+		"how": "Abre el tablero (G) y elige una meta: un animal al que dar la bienvenida, algo que fabricar, una herramienta que mejorar, un bioma que restaurar o tu hogar que amueblar.",
+		"shortcut": "También puedes crear uno desde la cosa misma: busca el botón de diana en la ficha de un animal en el diario o en una receta del menú de fabricación.",
+		"openButton": "Crear mi primer objetivo",
+		"laterButton": "Quizá más tarde"
 	},
 	"demo": {
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",

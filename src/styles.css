@@ -3563,7 +3563,12 @@ kbd {
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
-	max-width: 320px;
+	/* Same column width as the biome card and the goal board above it, from the
+	   same variable — the left edge of the screen reads as one column, and the
+	   longest feed line ends where the panels end instead of stopping short of
+	   them at some unrelated width. Bubbles still size to their own text, so short
+	   lines stay short; this is the ceiling they share. */
+	max-width: var(--hud-left-w, 344px);
 	pointer-events: none;
 }
 .activity-scroll {
@@ -4526,6 +4531,17 @@ kbd {
 
 /* ---------- Today's Tasks (collapsible on-screen board) ---------- */
 /* the left column stacks the biome card and the task board */
+/* The left column is a FIXED width, not a content-sized one.
+   344px is measured, not guessed: it is the narrowest width at which every
+   English goal line — the longest being "Welcome the grasshopper home" sharing
+   its row with a Claim button, and the unlock checklist's "10 animals back in
+   Willow Meadow (1 now)" — sits on ONE line, plus a few px of slack for font
+   fallback. Longer translations still wrap; the rows are built for it.
+   Both children stretch to it, so the biome card no longer changes shape when
+   the goal board underneath it opens, closes, or swaps in a longer goal — the
+   column used to size itself to whichever child was widest, which made the card
+   above visibly jump every time the board was toggled. Text inside the board
+   wraps instead of pushing the column wider. */
 .hud-left-col {
 	position: absolute;
 	top: 12px;
@@ -4535,6 +4551,7 @@ kbd {
 	flex-direction: column;
 	gap: 8px;
 	align-items: stretch;
+	width: var(--hud-left-w, 344px);
 }
 .hud-left-col .hud-top-left {
 	position: static;
@@ -4686,7 +4703,9 @@ kbd {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
+	/* stays pill-shaped rather than stretching to the column's fixed width */
 	align-self: flex-start;
+	width: auto;
 	padding: 5px 11px;
 	font-size: calc(12.5px * var(--ui-scale));
 	font-weight: 700;
@@ -4711,7 +4730,7 @@ kbd {
 }
 @media (max-width: 900px) {
 	.hud-left-col {
-		max-width: 46vw;
+		width: min(var(--hud-left-w, 344px), 46vw);
 	}
 	.tasks-row-text {
 		font-size: calc(11.5px * var(--ui-scale));
@@ -5911,6 +5930,46 @@ a.demo-nudge-store.primary:hover {
 	margin-top: 10px;
 	font-size: calc(15px * var(--ui-scale));
 	padding: 8px 16px;
+}
+
+/* ── "Now the goals are yours" — the one-time starter-chain hand-off ─────── */
+.goals-unlocked-backdrop {
+	position: fixed;
+	z-index: 88;
+}
+.goals-unlocked-card {
+	width: 480px;
+	max-width: 92vw;
+	padding: 26px 26px 24px;
+	align-items: center;
+	text-align: center;
+	gap: 4px;
+}
+.goals-unlocked-card h2 {
+	justify-content: center;
+	margin: 6px 0 2px;
+}
+.goals-unlocked-card p {
+	color: var(--ink);
+	line-height: 1.5;
+	margin: 6px 0;
+}
+.goals-unlocked-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 58px;
+	height: 58px;
+	border-radius: 50%;
+	background: var(--tint-leaf-strong);
+	color: var(--green);
+}
+.goals-unlocked-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 14px;
 }
 
 /* ── Contextual hint banner (first time a menu opens / you enter home) ───── */

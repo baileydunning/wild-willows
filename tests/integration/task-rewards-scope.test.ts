@@ -79,15 +79,14 @@ describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 			});
 		}
 
-		// Complete the gather starter (progress = held seeds) and claim it.
+		// Complete the gather starter (progress = seeds GATHERED, a lifetime tally)
+		// and claim it.
 		const s = await w.get('GameState', pid);
-		const task = s.dailyTasks.tasks.find((t: any) => t.id === 'start-gather');
+		const task = s.dailyTasks.tasks.find((t: any) => t.id === 'start-seeds');
 		expect(task).toBeTruthy();
-		const pp = w.db.Player._rows.get(pid);
-		w.db.Player._rows.set(pid, {
-			...pp,
-			inventory: { ...(pp.inventory || {}), seeds: task.target },
-		});
+		for (let i = 0; i < task.target; i++) {
+			await w.post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: `n${i}`, resourceId: 'seeds' });
+		}
 
 		const claimed = await w.post('ClaimTask', { playerId: pid, taskId: task.id });
 		expect(claimed.ok).toBe(true);
