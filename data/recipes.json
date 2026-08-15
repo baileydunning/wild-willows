@@ -582,7 +582,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 5,
+        "reeds": 4,
         "mud": 2
       }
     },
@@ -604,7 +604,7 @@
         "qty": 1
       },
       "materials": {
-        "mud": 6,
+        "mud": 5,
         "clay": 2
       }
     },
@@ -626,8 +626,8 @@
         "qty": 1
       },
       "materials": {
-        "branches": 6,
-        "reeds": 3
+        "branches": 5,
+        "reeds": 2
       }
     },
     {
@@ -644,7 +644,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 4,
+        "reeds": 3,
         "mud": 1
       }
     },
@@ -663,7 +663,7 @@
         "qty": 1
       },
       "materials": {
-        "branches": 5,
+        "branches": 4,
         "mud": 2
       }
     },
@@ -767,7 +767,7 @@
         "qty": 1
       },
       "materials": {
-        "alpine-flowers": 4,
+        "alpine-flowers": 3,
         "seeds": 1,
         "clean-water": 1
       }
@@ -787,8 +787,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
-        "clean-water": 4
+        "stones": 4,
+        "clean-water": 3
       }
     },
     {
@@ -1300,7 +1300,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 4,
+        "reeds": 3,
         "mud": 1
       }
     },
@@ -1318,7 +1318,7 @@
         "qty": 1
       },
       "materials": {
-        "branches": 5,
+        "branches": 4,
         "mud": 1
       }
     },
@@ -1373,7 +1373,7 @@
         "qty": 1
       },
       "materials": {
-        "alpine-flowers": 3,
+        "alpine-flowers": 2,
         "moss": 1
       }
     },
@@ -1391,7 +1391,7 @@
         "qty": 1
       },
       "materials": {
-        "branches": 4,
+        "branches": 3,
         "moss": 2
       }
     },
@@ -1802,7 +1802,7 @@
         "qty": 1
       },
       "materials": {
-        "branches": 4,
+        "branches": 3,
         "reeds": 2,
         "fiber": 2
       }
@@ -1821,7 +1821,7 @@
         "qty": 1
       },
       "materials": {
-        "branches": 5,
+        "branches": 4,
         "mud": 2
       }
     },
@@ -1875,7 +1875,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 7
+        "stones": 6
       }
     },
     {
@@ -1888,8 +1888,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 3,
-        "moss": 3
+        "stones": 2,
+        "moss": 2
       }
     },
     {
@@ -1944,7 +1944,7 @@
         "qty": 1
       },
       "materials": {
-        "fiber": 3,
+        "fiber": 2,
         "alpine-flowers": 2,
         "lichen": 2
       }
@@ -1964,8 +1964,8 @@
         "qty": 1
       },
       "materials": {
-        "lichen": 4,
-        "stones": 4
+        "lichen": 3,
+        "stones": 3
       }
     },
     {
@@ -1982,7 +1982,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 6,
+        "stones": 5,
         "lichen": 1
       }
     },
@@ -2003,7 +2003,7 @@
         "qty": 1
       },
       "materials": {
-        "snow": 5,
+        "snow": 4,
         "clean-water": 2
       }
     },
@@ -2021,7 +2021,7 @@
         "qty": 1
       },
       "materials": {
-        "pine-nuts": 4,
+        "pine-nuts": 3,
         "branches": 2
       }
     },
@@ -2039,8 +2039,8 @@
         "qty": 1
       },
       "materials": {
-        "juniper-berries": 3,
-        "branches": 3,
+        "juniper-berries": 2,
+        "branches": 2,
         "moss": 1
       }
     },
@@ -2058,7 +2058,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
+        "stones": 3,
         "moss": 2,
         "lichen": 2
       }
@@ -2081,9 +2081,9 @@
         "qty": 1
       },
       "materials": {
-        "quartz-crystal": 3,
-        "clean-water": 4,
-        "stones": 3
+        "quartz-crystal": 2,
+        "clean-water": 3,
+        "stones": 2
       }
     },
     {
@@ -2764,9 +2764,9 @@
         "qty": 1
       },
       "materials": {
-        "branches": 10,
-        "reeds": 5,
-        "mud": 3
+        "branches": 9,
+        "reeds": 4,
+        "mud": 2
       }
     },
     {
@@ -2783,9 +2783,9 @@
         "qty": 1
       },
       "materials": {
-        "clay": 6,
-        "clean-water": 5,
-        "reeds": 4
+        "clay": 5,
+        "clean-water": 4,
+        "reeds": 3
       }
     },
     {
@@ -2893,7 +2893,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 3,
+        "stones": 2,
         "lichen": 1
       }
     },
@@ -2911,8 +2911,8 @@
         "qty": 1
       },
       "materials": {
-        "moss": 4,
-        "alpine-flowers": 3,
+        "moss": 3,
+        "alpine-flowers": 2,
         "clay": 2
       }
     },
@@ -2945,7 +2945,7 @@
         "qty": 1
       },
       "materials": {
-        "moss": 3,
+        "moss": 2,
         "clay": 1
       }
     },
@@ -2963,7 +2963,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 6,
+        "stones": 5,
         "clay": 2
       }
     },
@@ -2981,8 +2981,8 @@
         "qty": 1
       },
       "materials": {
-        "clean-water": 3,
-        "clay": 3,
+        "clean-water": 2,
+        "clay": 2,
         "moss": 2
       }
     },
@@ -3000,8 +3000,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
-        "clay": 3
+        "stones": 3,
+        "clay": 2
       }
     },
     {
@@ -3018,8 +3018,8 @@
         "qty": 1
       },
       "materials": {
-        "clay": 4,
-        "stones": 3
+        "clay": 3,
+        "stones": 2
       }
     },
     {
@@ -3089,9 +3089,9 @@
         "qty": 1
       },
       "materials": {
-        "pine-nuts": 6,
-        "clay": 4,
-        "clean-water": 3
+        "pine-nuts": 5,
+        "clay": 3,
+        "clean-water": 2
       }
     },
     {
@@ -3108,7 +3108,7 @@
         "qty": 1
       },
       "materials": {
-        "moss": 3,
+        "moss": 2,
         "clay": 2,
         "stones": 1
       }
@@ -3150,7 +3150,7 @@
         "qty": 1
       },
       "materials": {
-        "clay": 3,
+        "clay": 2,
         "moss": 1
       }
     },
@@ -3168,7 +3168,7 @@
         "qty": 1
       },
       "materials": {
-        "moss": 3,
+        "moss": 2,
         "clay": 2,
         "stones": 2
       }
@@ -3207,7 +3207,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
+        "stones": 4,
         "moss": 2,
         "clay": 2
       }
@@ -3226,8 +3226,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
-        "clay": 3
+        "stones": 4,
+        "clay": 2
       }
     },
     {
@@ -5134,8 +5134,8 @@
         "qty": 1
       },
       "materials": {
-        "clean-water": 4,
-        "stones": 3
+        "clean-water": 3,
+        "stones": 2
       }
     },
     {
@@ -5162,8 +5162,8 @@
         "qty": 1
       },
       "materials": {
-        "clay": 4,
-        "mud": 3
+        "clay": 3,
+        "mud": 2
       }
     },
     {
@@ -5183,7 +5183,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 3,
+        "stones": 2,
         "fiber": 1
       }
     },
@@ -5201,7 +5201,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
+        "stones": 4,
         "clay": 2,
         "clean-water": 2
       }
@@ -5223,8 +5223,8 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 4,
-        "mud": 3,
+        "reeds": 3,
+        "mud": 2,
         "water": 2
       }
     },
@@ -5246,7 +5246,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 4,
+        "reeds": 3,
         "water": 2
       }
     },
@@ -5284,8 +5284,8 @@
         "qty": 1
       },
       "materials": {
-        "clay": 4,
-        "clean-water": 4
+        "clay": 3,
+        "clean-water": 3
       }
     },
     {
@@ -5302,7 +5302,7 @@
         "qty": 1
       },
       "materials": {
-        "fiber": 3,
+        "fiber": 2,
         "mud": 2,
         "water": 2
       }
@@ -5324,8 +5324,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
-        "clay": 3
+        "stones": 3,
+        "clay": 2
       }
     },
     {
@@ -5342,8 +5342,8 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 5,
-        "mud": 3,
+        "reeds": 4,
+        "mud": 2,
         "fiber": 1
       }
     },
@@ -5361,7 +5361,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 5,
+        "reeds": 4,
         "fiber": 2
       }
     },
@@ -5379,8 +5379,8 @@
         "qty": 1
       },
       "materials": {
-        "clay": 5,
-        "mud": 3
+        "clay": 4,
+        "mud": 2
       }
     },
     {
@@ -5398,8 +5398,8 @@
         "qty": 1
       },
       "materials": {
-        "fiber": 4,
-        "mud": 3,
+        "fiber": 3,
+        "mud": 2,
         "water": 2
       }
     },
@@ -5417,7 +5417,7 @@
         "qty": 1
       },
       "materials": {
-        "mud": 4,
+        "mud": 3,
         "reeds": 2
       }
     },
@@ -5435,8 +5435,8 @@
         "qty": 1
       },
       "materials": {
-        "mud": 5,
-        "clay": 3,
+        "mud": 4,
+        "clay": 2,
         "reeds": 1
       }
     },
@@ -5455,9 +5455,9 @@
         "qty": 1
       },
       "materials": {
-        "mud": 6,
-        "clay": 4,
-        "water": 3,
+        "mud": 5,
+        "clay": 3,
+        "water": 2,
         "reeds": 2
       }
     },
@@ -5475,7 +5475,7 @@
         "qty": 1
       },
       "materials": {
-        "mud": 4,
+        "mud": 3,
         "clay": 2,
         "water": 2
       }
@@ -5738,7 +5738,7 @@
         "qty": 1
       },
       "materials": {
-        "reeds": 3,
+        "reeds": 2,
         "mud": 2,
         "water": 2
       }
@@ -5777,7 +5777,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
+        "stones": 4,
         "sand": 2
       }
     },
@@ -5795,7 +5795,7 @@
         "qty": 1
       },
       "materials": {
-        "mushrooms": 3,
+        "mushrooms": 2,
         "moss": 2,
         "snow": 1
       }
@@ -5837,7 +5837,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
+        "stones": 3,
         "moss": 2,
         "clean-water": 2
       }
@@ -5856,7 +5856,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 3,
+        "stones": 2,
         "moss": 1
       }
     },
@@ -5897,8 +5897,8 @@
         "qty": 1
       },
       "materials": {
-        "mud": 3,
-        "reeds": 3,
+        "mud": 2,
+        "reeds": 2,
         "clean-water": 2
       }
     },
@@ -5916,9 +5916,9 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
+        "stones": 3,
         "moss": 2,
-        "clean-water": 3
+        "clean-water": 2
       }
     },
     {
@@ -6146,8 +6146,8 @@
         "qty": 1
       },
       "materials": {
-        "branches": 8,
-        "reeds": 4,
+        "branches": 7,
+        "reeds": 3,
         "mud": 2
       }
     },
@@ -6162,7 +6162,7 @@
       },
       "materials": {
         "mud": 2,
-        "clean-water": 3,
+        "clean-water": 2,
         "reeds": 2
       }
     },
@@ -6238,7 +6238,7 @@
         "qty": 1
       },
       "materials": {
-        "clay": 4,
+        "clay": 3,
         "stones": 2,
         "snow": 2
       }
@@ -6257,8 +6257,8 @@
         "qty": 1
       },
       "materials": {
-        "snow": 5,
-        "stones": 3,
+        "snow": 4,
+        "stones": 2,
         "moss": 2
       }
     },
@@ -6280,8 +6280,8 @@
         "qty": 1
       },
       "materials": {
-        "stones": 7,
-        "clay": 3,
+        "stones": 6,
+        "clay": 2,
         "lichen": 2
       }
     },
@@ -6303,7 +6303,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 4,
+        "stones": 3,
         "lichen": 1
       }
     },
@@ -6325,7 +6325,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 5,
+        "stones": 4,
         "clay": 2,
         "moss": 1
       }
@@ -6344,7 +6344,7 @@
         "qty": 1
       },
       "materials": {
-        "stones": 3,
+        "stones": 2,
         "clay": 2,
         "fiber": 2
       }
@@ -6405,6 +6405,404 @@
         "kelp": 4,
         "sand": 3,
         "water": 2
+      }
+    },
+    {
+      "id": "meadow-overlook-bench",
+      "name": "Meadow Overlook Bench",
+      "category": "structure",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 70,
+        "label": "Restore Willow Meadow to 70% health"
+      },
+      "output": {
+        "itemId": "meadow-overlook-bench",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 5,
+        "fiber": 2,
+        "stones": 3
+      }
+    },
+    {
+      "id": "pollinator-waystation",
+      "name": "Pollinator Waystation",
+      "category": "structure",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 76,
+        "label": "Restore Willow Meadow to 76% health"
+      },
+      "output": {
+        "itemId": "pollinator-waystation",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 2,
+        "fiber": 3,
+        "wildflowers": 5
+      }
+    },
+    {
+      "id": "meadow-lantern-row",
+      "name": "Meadow Lantern Row",
+      "category": "structure",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 84,
+        "label": "Restore Willow Meadow to 84% health"
+      },
+      "output": {
+        "itemId": "meadow-lantern-row",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 4,
+        "stones": 2,
+        "wildflowers": 3
+      }
+    },
+    {
+      "id": "forest-reading-bench",
+      "name": "Forest Reading Bench",
+      "category": "structure",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 68,
+        "label": "Restore Old Hollow Forest to 68% health"
+      },
+      "output": {
+        "itemId": "forest-reading-bench",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 2,
+        "branches": 5,
+        "moss": 3
+      }
+    },
+    {
+      "id": "hollow-trail-marker",
+      "name": "Hollow Trail Marker",
+      "category": "structure",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 76,
+        "label": "Restore Old Hollow Forest to 76% health"
+      },
+      "output": {
+        "itemId": "hollow-trail-marker",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 3,
+        "branches": 4,
+        "moss": 1
+      }
+    },
+    {
+      "id": "old-hollow-arch",
+      "name": "Old Hollow Arch",
+      "category": "structure",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 85,
+        "label": "Restore Old Hollow Forest to 85% health"
+      },
+      "output": {
+        "itemId": "old-hollow-arch",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 4,
+        "branches": 8,
+        "moss": 3
+      }
+    },
+    {
+      "id": "reed-weavers-bench",
+      "name": "Reed Weaver's Bench",
+      "category": "structure",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 62,
+        "label": "Restore Rushwater Wetland to 62% health"
+      },
+      "output": {
+        "itemId": "reed-weavers-bench",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 3,
+        "fiber": 2,
+        "reeds": 5
+      }
+    },
+    {
+      "id": "rushwater-boardwalk-rail",
+      "name": "Rushwater Boardwalk Rail",
+      "category": "structure",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 72,
+        "label": "Restore Rushwater Wetland to 72% health"
+      },
+      "output": {
+        "itemId": "rushwater-boardwalk-rail",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 4,
+        "fiber": 2,
+        "reeds": 4
+      }
+    },
+    {
+      "id": "heron-watch-arch",
+      "name": "Heron Watch Arch",
+      "category": "structure",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 80,
+        "label": "Restore Rushwater Wetland to 80% health"
+      },
+      "output": {
+        "itemId": "heron-watch-arch",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 4,
+        "fiber": 3,
+        "reeds": 6
+      }
+    },
+    {
+      "id": "shade-ramada",
+      "name": "Shade Ramada",
+      "category": "structure",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 62,
+        "label": "Restore Redstone Scrubland to 62% health"
+      },
+      "output": {
+        "itemId": "shade-ramada",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 3,
+        "sand": 4,
+        "stones": 5
+      }
+    },
+    {
+      "id": "redstone-waymarker",
+      "name": "Redstone Waymarker",
+      "category": "structure",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 70,
+        "label": "Restore Redstone Scrubland to 70% health"
+      },
+      "output": {
+        "itemId": "redstone-waymarker",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 2,
+        "sand": 3,
+        "stones": 4
+      }
+    },
+    {
+      "id": "geode-sun-court",
+      "name": "Geode Sun Court",
+      "category": "structure",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 84,
+        "label": "Restore Redstone Scrubland to 84% health"
+      },
+      "output": {
+        "itemId": "geode-sun-court",
+        "qty": 1
+      },
+      "materials": {
+        "geode": 2,
+        "sand": 4,
+        "stones": 6
+      }
+    },
+    {
+      "id": "graywind-rest-bench",
+      "name": "Graywind Rest Bench",
+      "category": "structure",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 62,
+        "label": "Restore Graywind Heights to 62% health"
+      },
+      "output": {
+        "itemId": "graywind-rest-bench",
+        "qty": 1
+      },
+      "materials": {
+        "moss": 2,
+        "pine-nuts": 2,
+        "stones": 5
+      }
+    },
+    {
+      "id": "lichen-cairn-trail",
+      "name": "Lichen Cairn Trail",
+      "category": "structure",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 68,
+        "label": "Restore Graywind Heights to 68% health"
+      },
+      "output": {
+        "itemId": "lichen-cairn-trail",
+        "qty": 1
+      },
+      "materials": {
+        "lichen": 3,
+        "moss": 2,
+        "stones": 6
+      }
+    },
+    {
+      "id": "summit-sundial",
+      "name": "Summit Sundial",
+      "category": "structure",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 84,
+        "label": "Restore Graywind Heights to 84% health"
+      },
+      "output": {
+        "itemId": "summit-sundial",
+        "qty": 1
+      },
+      "materials": {
+        "obsidian": 1,
+        "quartz-crystal": 2,
+        "stones": 6
+      }
+    },
+    {
+      "id": "driftwood-bench",
+      "name": "Driftwood Bench",
+      "category": "structure",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 66,
+        "label": "Restore Pelican Shore to 66% health"
+      },
+      "output": {
+        "itemId": "driftwood-bench",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 5,
+        "sand": 2,
+        "shells": 3
+      }
+    },
+    {
+      "id": "shore-waymark",
+      "name": "Shore Waymark",
+      "category": "structure",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 78,
+        "label": "Restore Pelican Shore to 78% health"
+      },
+      "output": {
+        "itemId": "shore-waymark",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 4,
+        "sea-glass": 1,
+        "shells": 3
+      }
+    },
+    {
+      "id": "tidewatchers-arch",
+      "name": "Tidewatcher's Arch",
+      "category": "structure",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 86,
+        "label": "Restore Pelican Shore to 86% health"
+      },
+      "output": {
+        "itemId": "tidewatchers-arch",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 8,
+        "sea-glass": 2,
+        "shells": 5
+      }
+    },
+    {
+      "id": "wooden-fence",
+      "name": "Wooden Fence",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 64,
+        "label": "Restore Willow Meadow to 64% health"
+      },
+      "output": {
+        "itemId": "wooden-fence",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 4,
+        "fiber": 2
+      }
+    },
+    {
+      "id": "sedge-tussock-nest",
+      "name": "Meadow Sedge Tussock",
+      "category": "habitat",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 68,
+        "label": "Restore Willow Meadow to 68% health"
+      },
+      "output": {
+        "itemId": "sedge-tussock-nest",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 4,
+        "seeds": 3,
+        "water": 1
+      }
+    },
+    {
+      "id": "puffball-turf-ring",
+      "name": "Puffball Ring",
+      "category": "habitat",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 74,
+        "label": "Restore Graywind Heights to 74% health"
+      },
+      "output": {
+        "itemId": "puffball-turf-ring",
+        "qty": 1
+      },
+      "materials": {
+        "clean-water": 1,
+        "lichen": 2,
+        "moss": 3
       }
     }
   ]

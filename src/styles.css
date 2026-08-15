@@ -2780,6 +2780,99 @@ input {
 	margin: 3px 0 0 18px;
 	padding: 0;
 }
+
+/* "Before you look" — the one prediction the expanded guide asks for before it
+   prints an animal's habitat checklist. Sits where the checklist will appear,
+   so answering it doesn't shift the rest of the entry around. */
+.req-guess {
+	margin-top: 6px;
+	padding: 8px 10px;
+	border: 1px dashed var(--green);
+	border-radius: 10px;
+	background: rgba(122, 154, 106, 0.08);
+}
+.req-guess-q {
+	margin: 0 0 7px;
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+}
+.req-guess-q svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+	color: var(--green);
+}
+.req-guess-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.req-guess-option {
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface-float-solid);
+	padding: 4px 11px;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+}
+.req-guess-option:hover,
+.req-guess-option:focus-visible {
+	border-color: var(--green);
+	background: rgba(122, 154, 106, 0.16);
+}
+.req-guess-skip {
+	margin-top: 7px;
+	font-size: 0.92em;
+}
+.req-guess-result {
+	margin: 5px 0 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	flex-wrap: wrap;
+}
+.req-guess-result svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+.req-guess-result.correct {
+	color: #44704e;
+}
+.req-guess-result.correct svg {
+	color: var(--green);
+}
+.req-guess-result.wrong {
+	color: #7d5f1e;
+}
+
+/* Where an entry's facts came from. Collapsed by default — present on every
+   full entry, but never competing with the writing above it. */
+.card-sources {
+	margin: 8px 0 4px;
+	font-size: 0.92em;
+}
+.card-sources summary {
+	cursor: pointer;
+	color: var(--ink-soft);
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+.card-sources summary::marker {
+	color: var(--ink-soft);
+}
+.card-sources ul {
+	margin: 5px 0 0 18px;
+	padding: 0;
+}
+.card-sources li {
+	margin: 2px 0;
+}
+.card-sources a {
+	color: var(--green);
+}
+
 .animal-card .panel-body p {
 	margin: 8px 0;
 }
@@ -5210,6 +5303,15 @@ kbd {
 }
 [data-theme='dark'] .fact {
 	color: #92b899; /*  7.42 */
+}
+[data-theme='dark'] .req-guess {
+	background: rgba(146, 184, 153, 0.09);
+}
+[data-theme='dark'] .req-guess-result.correct {
+	color: #92b899; /*  7.42 */
+}
+[data-theme='dark'] .req-guess-result.wrong {
+	color: #dfc189; /*  7.62 */
 }
 [data-theme='dark'] .web-chip-forage {
 	border-color: #635a3c;

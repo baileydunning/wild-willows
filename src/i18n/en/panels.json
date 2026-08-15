@@ -330,7 +330,19 @@
 			"apex-predator": "It hunts at the top, and nothing here hunts it back. Its return is usually the last piece of a restored area, because it needs everything underneath it to be abundant first. Once it settles it leans on the mid predators, which takes the pressure off the small animals and, further down, off the plants.",
 			"wildlife": "A role the guide has not classified yet. It still counts as an animal living here, but it has not been slotted into the web."
 		},
-		"upsellExpanded": "Write up the Expanded {biome} Guide to see exactly what each animal here is waiting for — in this journal and on the goals you set. See the Tools menu."
+		"upsellExpanded": "Write up the Expanded {biome} Guide to see exactly what each animal here is waiting for — in this journal and on the goals you set. See the Tools menu.",
+		"sourcesTitle": {
+			"one": "Source",
+			"other": "Sources ({count})"
+		},
+		"guessPrompt": "Before you look — from that hint, which of these do you think the {name} is really waiting for?",
+		"guessSkip": "Just show me the list",
+		"guessCorrect": "You called it: the {name} is the piece this one can't do without.",
+		"guessWrong": "Close, but it's the {name} this one can't do without.",
+		"guessTally": {
+			"one": "{correct} of {count} read right so far.",
+			"other": "{correct} of {count} read right so far."
+		}
 	},
 	"achievements": {
 		"title": "Achievements",

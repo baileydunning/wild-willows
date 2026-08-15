@@ -3522,6 +3522,78 @@
 			"rippled-sand-bed": {
 				"name": "Arena Ondulada",
 				"description": "Arena limpia por debajo de la línea de marea baja, peinada en crestas parejas por una corriente lo bastante suave para dejarlas en pie."
+			},
+			"meadow-overlook-bench": {
+				"description": "Un segundo banco, en el extremo del prado y mirando por donde viniste. Mejor una hora antes del anochecer, cuando la hierba se vuelve dorada y las abejas siguen despiertas.",
+				"name": "Banco del Mirador del Prado"
+			},
+			"pollinator-waystation": {
+				"description": "Un arriate elevado de plantas de néctar puesto a propósito en campo abierto, a medio camino entre dos manchas floridas, para que una abeja de corto alcance cruce un terreno que de otro modo no podría.",
+				"name": "Parada para Polinizadores"
+			},
+			"meadow-lantern-row": {
+				"description": "Faroles colgados bajos a lo largo de un sendero en un cordel trenzado. A la altura de la rodilla a propósito: las luces altas deslumbran el prado y las polillas nunca se posan.",
+				"name": "Hilera de Faroles del Prado"
+			},
+			"forest-reading-bench": {
+				"description": "Un banco de tablones con el borde norte teñido de verde suave. El musgo no es descuido: es lo único aquí que no te va a clavar astillas.",
+				"name": "Banco de Lectura del Bosque"
+			},
+			"hollow-trail-marker": {
+				"description": "Un mojón tallado para los senderos de la arboleda profunda, donde cada dirección es la misma columna parda y ya te has equivocado una vez.",
+				"name": "Mojón del Sendero de la Hondonada"
+			},
+			"old-hollow-arch": {
+				"description": "Un arco de ramas curvadas a la entrada de los árboles más viejos. No señala nada ni sostiene nada, y aun así todo el mundo afloja el paso al cruzarlo.",
+				"name": "Arco de la Vieja Hondonada"
+			},
+			"reed-weavers-bench": {
+				"description": "Un banco bajo con asiento de junco tejido, lo bastante retirado del agua como para que una garza siga faenando en la orilla delante de ti.",
+				"name": "Banco del Tejedor de Juncos"
+			},
+			"rushwater-boardwalk-rail": {
+				"description": "Un tramo de pasarela con baranda sobre terreno blando. La baranda es lo importante: mantiene los pies en los tablones, y la marisma que nadie pisa se recompone rápido.",
+				"name": "Pasarela con Baranda de Aguajunco"
+			},
+			"heron-watch-arch": {
+				"description": "Un arco atado con juncos que enmarca el agua abierta. Ponte debajo y quédate quieto: a las garzas les molesta mucho más una silueta que se mueve que una parada.",
+				"name": "Arco del Otero de Garzas"
+			},
+			"shade-ramada": {
+				"description": "Un techo sobre postes, sin paredes. Las paredes atraparían el calor de la tarde; un techo y una brisa que pase bajan la temperatura del suelo una barbaridad.",
+				"name": "Ramada de Sombra"
+			},
+			"redstone-waymarker": {
+				"description": "Un mojón apilado en la línea de la cresta, colocado para verse desde el cauce de abajo, donde las paredes son altas, el sol cae a plomo y cada recodo parece el anterior.",
+				"name": "Señal de Piedra Roja"
+			},
+			"geode-sun-court": {
+				"description": "Un círculo de geodas partidas con la cara de cristal hacia arriba en torno a un suelo barrido. A mediodía el patio entero te devuelve la luz; al anochecer se queda callado y violeta.",
+				"name": "Patio Solar de Geodas"
+			},
+			"graywind-rest-bench": {
+				"description": "Un banco de piedra al abrigo de la cresta, puesto donde no llega el viento. Diez pasos a un lado o a otro y no te oirías ni pensar.",
+				"name": "Banco de Descanso de Vientogrís"
+			},
+			"lichen-cairn-trail": {
+				"description": "Una fila de hitos para el tramo por encima de los últimos árboles. Altos a propósito: los que sirven son los que siguen asomando tras la nevada.",
+				"name": "Sendero de Hitos de Liquen"
+			},
+			"summit-sundial": {
+				"description": "Un gnomon de cuarzo sobre una losa de piedra. Adelanta en verano y no sirve de nada con nubes, que aquí arriba es casi todo el tiempo interesante.",
+				"name": "Reloj de Sol de la Cumbre"
+			},
+			"driftwood-bench": {
+				"description": "Un banco hecho con lo que trajeron las tormentas de invierno, puesto por encima de la línea de algas para que al invierno siguiente le cueste más llevárselo.",
+				"name": "Banco de Madera de Deriva"
+			},
+			"shore-waymark": {
+				"description": "Un poste de madera de deriva con un ojo de vidrio marino encajado en la cabeza. Atrapa el sol bajo y te dice por dónde el sendero deja la arena.",
+				"name": "Baliza de la Orilla"
+			},
+			"tidewatchers-arch": {
+				"description": "Dos troncos curtidos por el temporal apoyados en arco sobre la línea de pleamar. Dos veces al día el agua le llega casi a los pies, y dos veces al día no.",
+				"name": "Arco del Vigía de Mareas"
 			}
 		},
 		"recipe": {
@@ -4475,6 +4547,60 @@
 			},
 			"rippled-sand-bed": {
 				"name": "Arena Ondulada"
+			},
+			"meadow-overlook-bench": {
+				"name": "Banco del Mirador del Prado"
+			},
+			"pollinator-waystation": {
+				"name": "Parada para Polinizadores"
+			},
+			"meadow-lantern-row": {
+				"name": "Hilera de Faroles del Prado"
+			},
+			"forest-reading-bench": {
+				"name": "Banco de Lectura del Bosque"
+			},
+			"hollow-trail-marker": {
+				"name": "Mojón del Sendero de la Hondonada"
+			},
+			"old-hollow-arch": {
+				"name": "Arco de la Vieja Hondonada"
+			},
+			"reed-weavers-bench": {
+				"name": "Banco del Tejedor de Juncos"
+			},
+			"rushwater-boardwalk-rail": {
+				"name": "Pasarela con Baranda de Aguajunco"
+			},
+			"heron-watch-arch": {
+				"name": "Arco del Otero de Garzas"
+			},
+			"shade-ramada": {
+				"name": "Ramada de Sombra"
+			},
+			"redstone-waymarker": {
+				"name": "Señal de Piedra Roja"
+			},
+			"geode-sun-court": {
+				"name": "Patio Solar de Geodas"
+			},
+			"graywind-rest-bench": {
+				"name": "Banco de Descanso de Vientogrís"
+			},
+			"lichen-cairn-trail": {
+				"name": "Sendero de Hitos de Liquen"
+			},
+			"summit-sundial": {
+				"name": "Reloj de Sol de la Cumbre"
+			},
+			"driftwood-bench": {
+				"name": "Banco de Madera de Deriva"
+			},
+			"shore-waymark": {
+				"name": "Baliza de la Orilla"
+			},
+			"tidewatchers-arch": {
+				"name": "Arco del Vigía de Mareas"
 			}
 		},
 		"resource": {

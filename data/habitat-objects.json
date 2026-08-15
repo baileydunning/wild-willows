@@ -3263,7 +3263,7 @@
       "shape": "turfmat",
       "color": "#7c8f5a",
       "description": "A knitted mat of sedge, alpine avens and cushion plants over dark alpine soil. Turf like this takes decades to close over bare ground, and one summer of boot traffic to open it up again.",
-      "matureHours": 30,
+      "matureHours": 24,
       "matureBonus": 3
     },
     {
@@ -3432,7 +3432,7 @@
       "shape": "whitebarkpine",
       "color": "#55684a",
       "description": "A whitebark pine grown from a seed buried and never dug back up. Its cones do not open on their own, so it cannot spread anywhere without help.",
-      "matureHours": 48,
+      "matureHours": 24,
       "matureBonus": 3
     },
     {
@@ -4212,7 +4212,7 @@
       "shape": "soilcrust",
       "color": "#5c5a4a",
       "description": "A living skin of cyanobacteria, lichens and mosses knitting the bare soil together. It fixes nitrogen, holds water and blocks weed seedlings — and a single boot or hoof print undoes decades of it.",
-      "matureHours": 48,
+      "matureHours": 24,
       "matureBonus": 3
     },
     {
@@ -6410,6 +6410,245 @@
       "description": "A hand-cut plug of native bunchgrass, roots and soil together. Set it in bare ground and it spreads on its own.",
       "matureHours": 2,
       "matureBonus": 1
+    },
+    {
+      "id": "meadow-overlook-bench",
+      "name": "Meadow Overlook Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#a3814f",
+      "description": "A second bench, set at the far edge of the meadow facing back the way you came. Best an hour before dusk, when the grass goes gold and the bees are still up."
+    },
+    {
+      "id": "pollinator-waystation",
+      "name": "Pollinator Waystation",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "open",
+        "food"
+      ],
+      "shape": "planter",
+      "color": "#c9843f",
+      "description": "A raised bed of nectar plants set deliberately in the open, halfway between two flowering patches, so a short-range bee can cross ground it otherwise could not."
+    },
+    {
+      "id": "meadow-lantern-row",
+      "name": "Meadow Lantern Row",
+      "placement": "outdoor",
+      "biomes": [
+        "meadow"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lanternstring",
+      "color": "#e8c46a",
+      "description": "Lanterns strung low along a path on a woven cord. Hung at knee height on purpose — high lights wash out the meadow and the moths never settle."
+    },
+    {
+      "id": "forest-reading-bench",
+      "name": "Forest Reading Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#7d6144",
+      "description": "A plank bench gone soft green along its north edge. The moss is not neglect; it is the only thing here that will not give you splinters."
+    },
+    {
+      "id": "hollow-trail-marker",
+      "name": "Hollow Trail Marker",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "signpost",
+      "color": "#8a6f4c",
+      "description": "A carved marker for the paths through the deep stand, where every direction is the same brown column and you have already been wrong once."
+    },
+    {
+      "id": "old-hollow-arch",
+      "name": "Old Hollow Arch",
+      "placement": "outdoor",
+      "biomes": [
+        "forest"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "arch",
+      "color": "#6f5a3f",
+      "description": "A bent-branch arch at the mouth of the oldest trees. It marks nothing, holds nothing up, and everyone slows down walking under it anyway."
+    },
+    {
+      "id": "reed-weavers-bench",
+      "name": "Reed Weaver's Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#93894f",
+      "description": "A low bench with a reed-woven seat, set back far enough from the water that a heron will still work the shallows in front of you."
+    },
+    {
+      "id": "rushwater-boardwalk-rail",
+      "name": "Rushwater Boardwalk Rail",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 2,
+      "needs": [
+        "open"
+      ],
+      "shape": "boardwalk",
+      "color": "#9a8358",
+      "description": "A railed run of boardwalk over soft ground. The rail is the point: it keeps feet on the planks, and marsh that nobody walks on knits back together fast."
+    },
+    {
+      "id": "heron-watch-arch",
+      "name": "Heron Watch Arch",
+      "placement": "outdoor",
+      "biomes": [
+        "wetland"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "arch",
+      "color": "#7e8a5c",
+      "description": "A reed-bound arch framing the open water. Stand under it and stay still; herons mind a moving outline far more than a standing one."
+    },
+    {
+      "id": "shade-ramada",
+      "name": "Shade Ramada",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "gazebo",
+      "color": "#b98b5e",
+      "description": "An open-sided roof on posts, no walls. Walls would trap the afternoon heat; a roof and a through-breeze drop the ground beneath it by a startling amount."
+    },
+    {
+      "id": "redstone-waymarker",
+      "name": "Redstone Waymarker",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "signpost",
+      "color": "#a9603f",
+      "description": "A stacked marker on the ridge line, sited to be visible from the wash below — where the walls are high, the sun is overhead, and every bend looks like the last."
+    },
+    {
+      "id": "geode-sun-court",
+      "name": "Geode Sun Court",
+      "placement": "outdoor",
+      "biomes": [
+        "desert"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "cairnstack",
+      "color": "#c98f52",
+      "description": "A ring of split geodes set crystal-face up around a swept floor. At noon the whole court throws light back at you; at dusk it goes quiet and violet."
+    },
+    {
+      "id": "graywind-rest-bench",
+      "name": "Graywind Rest Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#8d8b84",
+      "description": "A stone bench in the lee of the ridge, put where the wind is not. Ten steps either side and you would not be able to hear yourself think."
+    },
+    {
+      "id": "lichen-cairn-trail",
+      "name": "Lichen Cairn Trail",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "cairnstack",
+      "color": "#9a9a86",
+      "description": "A line of cairns for the stretch above the last trees. Built tall on purpose: the ones that matter are the ones still showing after snow."
+    },
+    {
+      "id": "summit-sundial",
+      "name": "Summit Sundial",
+      "placement": "outdoor",
+      "biomes": [
+        "alpine"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sundial",
+      "color": "#b6b3a4",
+      "description": "A quartz gnomon on a stone plate. Runs fast in summer and is useless in cloud, which up here is most of the interesting weather."
+    },
+    {
+      "id": "driftwood-bench",
+      "name": "Driftwood Bench",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bench",
+      "color": "#a99682",
+      "description": "A bench built from what the winter storms delivered, set above the wrack line so the next winter has to work harder to take it back."
+    },
+    {
+      "id": "shore-waymark",
+      "name": "Shore Waymark",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "signpost",
+      "color": "#9c8e74",
+      "description": "A driftwood post with a sea-glass eye set into the head. It catches the low sun and tells you where the path leaves the sand."
+    },
+    {
+      "id": "tidewatchers-arch",
+      "name": "Tidewatcher's Arch",
+      "placement": "outdoor",
+      "biomes": [
+        "coastal"
+      ],
+      "healthValue": 1,
+      "needs": [],
+      "shape": "arch",
+      "color": "#8fa2a6",
+      "description": "Two storm-cured trunks leaned into an arch above the high-tide line. Twice a day the water comes almost to the feet of it, and twice a day it does not."
     }
   ]
 }

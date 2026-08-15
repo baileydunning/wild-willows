@@ -136,7 +136,19 @@
 			"lockedCard": "Redacta la Guía de Campo de {biome} para leer la ficha completa. Muestra su papel, su comida y a quién come.",
 			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos.",
 			"upsell": "Redacta la Guía de Campo de {biome}. Abre la ficha completa de cada animal de aquí. Búscala en Herramientas.",
-			"upsellExpanded": "Redacta la Guía Grande de {biome}. Dice exactamente qué espera cada animal de aquí. Búscala en Herramientas."
+			"upsellExpanded": "Redacta la Guía Grande de {biome}. Dice exactamente qué espera cada animal de aquí. Búscala en Herramientas.",
+			"guessPrompt": "¡Adivina primero! ¿Cuál crees que necesita más el {name}?",
+			"guessSkip": "Saltar — muéstrame la lista",
+			"guessCorrect": "¡Sí! El {name} es lo que más necesita.",
+			"guessWrong": "Esta vez no. Lo que más necesita es el {name}.",
+			"guessTally": {
+				"one": "Has acertado {correct} de {count}.",
+				"other": "Has acertado {correct} de {count}."
+			},
+			"sourcesTitle": {
+				"one": "De dónde viene esto",
+				"other": "De dónde viene esto ({count})"
+			}
 		},
 		"home": {
 			"buildIntro": "Tu casa aún es una tienda. Elige un estilo para volverla una casa. Cada estilo usa sus materiales y fija tu aspecto para siempre. Cada uno da un bono que crece con cada mejora.",

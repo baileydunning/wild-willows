@@ -370,7 +370,9 @@ Every biome has its own **weather**, and it changes on its own — about every t
 
 ## Field journal
 
-Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (a colored creature for returned animals, a silhouette for ones still to come), comfort level, why it returned, and — once the field guide is upgraded for that area — full diet/shelter/habitat notes and exact return hints. The header names the **field guide for the area you're viewing** (e.g. "Rushwater Wetland Field Guide"), and you can toggle **Unknown first** to surface the animals you haven't found yet or **search** by name or kind.
+Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (a colored creature for returned animals, a silhouette for ones still to come), comfort level, why it returned, and — once the field guide is upgraded for that area — full diet/shelter/habitat notes and exact return hints.
+
+> **The expanded guide asks before it answers.** Opening a still-missing animal's entry on the expanded guide poses one question first: from the habitat hint, which of three same-biome habitat objects is this one really waiting for? Answer and the full checklist opens; there is also a *Just show me the list* link, so nobody is ever blocked. Wrong answers cost nothing and name the right object, and the card keeps a running "read right" tally. The prompt is deterministic per animal (seeded on its id), so it can't be rerolled into an easier one, and it appears once — a returned animal has nothing left to predict. Guesses live in `localStorage` via `src/fieldGuess.ts`, never in the save or on the wire: they grant nothing and gate nothing. Each full entry also ends with a collapsed **Sources** list drawn from the `sources` array every animal record carries (Animal Diversity Web, NPS, US FWS, Cornell Lab and friends) — the citations were always in the data and are now on the page. The header names the **field guide for the area you're viewing** (e.g. "Rushwater Wetland Field Guide"), and you can toggle **Unknown first** to surface the animals you haven't found yet or **search** by name or kind.
 
 ## Localization (i18n)
 

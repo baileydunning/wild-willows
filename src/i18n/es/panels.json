@@ -330,7 +330,19 @@
 			"apex-predator": "Caza en lo más alto, y aquí nada lo caza a él. Su regreso suele ser la última pieza de un área restaurada, porque necesita que todo lo que tiene debajo sea abundante primero. Cuando se asienta, presiona a los depredadores medios, lo que alivia a los animales pequeños y, más abajo, a las plantas.",
 			"wildlife": "Un papel que la guía todavía no ha clasificado. Cuenta igual como animal que vive aquí, pero aún no tiene sitio asignado en la red."
 		},
-		"upsellExpanded": "Redacta la Guía Ampliada de {biome} para ver exactamente qué espera cada animal de aquí, en este diario y en las metas que te propongas. Consulta el menú de Herramientas."
+		"upsellExpanded": "Redacta la Guía Ampliada de {biome} para ver exactamente qué espera cada animal de aquí, en este diario y en las metas que te propongas. Consulta el menú de Herramientas.",
+		"sourcesTitle": {
+			"one": "Fuente",
+			"other": "Fuentes ({count})"
+		},
+		"guessPrompt": "Antes de mirar: según esa pista, ¿cuál de estos crees que espera de verdad el {name}?",
+		"guessSkip": "Muéstrame la lista sin más",
+		"guessCorrect": "Lo acertaste: el {name} es la pieza sin la que este animal no puede vivir.",
+		"guessWrong": "Casi, pero es el {name} lo que este animal no puede dejar de tener.",
+		"guessTally": {
+			"one": "{correct} de {count} acertados hasta ahora.",
+			"other": "{correct} de {count} acertados hasta ahora."
+		}
 	},
 	"achievements": {
 		"title": "Logros",
