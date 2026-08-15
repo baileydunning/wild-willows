@@ -5,7 +5,7 @@
 export const pageLastmod: Record<string, string> = {
 	"/": "2026-08-15",
 	"/privacy.html": "2026-08-12",
-	"/age-rating.html": "2026-08-12",
+	"/age-rating.html": "2026-08-15",
 	"/support.html": "2026-08-12",
 	"/teachers": "2026-08-14",
 	"/educator-guide.pdf": "2026-08-10",
