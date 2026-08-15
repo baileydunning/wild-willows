@@ -104,7 +104,6 @@
 		"restoreFirst": "Restore {biome} to {health}% health first (now {current}%)",
 		"fullyUpgraded": "Fully upgraded.",
 		"upgrade": "Upgrade",
-		"note": "Upgrades use materials from your basket and chests.",
 		"gearTitle": "Caretaker Gear",
 		"gearNote": "Gear you've crafted stays yours for good — switch each piece on or off any time.",
 		"gearOn": "On",
@@ -208,7 +207,7 @@
 		"unknownFirst": "Unknown first",
 		"searchPlaceholder": "Search by name, kind, or role…",
 		"searchAria": "Search the field guide",
-		"upsell": "Upgrade your field guide to Tier {tier} to read the full info card — ecology, diet, and food-web links — for {biome}. See the Tools panel.",
+		"upsell": "Write up the {biome} Field Guide to read the full page for every animal here — their role, what they eat and are eaten by, when they're about, and the habitat they keep. See the Tools menu.",
 		"noMatch": "No animals match your search.",
 		"overviewEmpty": "No animals have returned yet. Restore habitat and they'll start arriving — check back here to see everyone who's home.",
 		"comfort": {
@@ -312,7 +311,7 @@
 		"historyForward": "Forward along your journal trail",
 		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
-		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links.",
+		"lockedCard": "Write up the {biome} Field Guide to read this animal's full entry — its ecological role, diet, and food-web links.",
 		"stage": {
 			"eggs": "(eggs)",
 			"young": "(young)",
@@ -330,7 +329,8 @@
 			"mesopredator": "The middle of the web. It hunts the small animals and holds their numbers down, and it is hunted in turn by whatever sits above it. Take the top away and a mid predator multiplies until the small animals are gone — which is the roundabout reason apex predators matter to plants.",
 			"apex-predator": "It hunts at the top, and nothing here hunts it back. Its return is usually the last piece of a restored area, because it needs everything underneath it to be abundant first. Once it settles it leans on the mid predators, which takes the pressure off the small animals and, further down, off the plants.",
 			"wildlife": "A role the guide has not classified yet. It still counts as an animal living here, but it has not been slotted into the web."
-		}
+		},
+		"upsellExpanded": "Write up the Expanded {biome} Guide to see exactly what each animal here is waiting for — in this journal and on the goals you set. See the Tools menu."
 	},
 	"achievements": {
 		"title": "Achievements",
@@ -364,7 +364,8 @@
 			"animalOne": "Bring back the {animal}.",
 			"animalAll": "Bring back the {animals}.",
 			"animalAny": "Bring back the {animals}.",
-			"animalChain": "Bring back the {first}, plus one of: {any}."
+			"animalChain": "Bring back the {first}, plus one of: {any}.",
+			"journals": "Write up every area's field guide, and the expanded edition of each."
 		},
 		"progress": "Progress: {value}"
 	},
@@ -431,13 +432,13 @@
 		},
 		"journal": {
 			"title": "Open your field journal",
-			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel.",
-			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel."
+			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for.",
+			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for."
 		},
 		"tools": {
 			"title": "Tools & upgrades",
-			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"map": {
 			"title": "Open the Preserve map",
@@ -501,8 +502,8 @@
 		},
 		"toolbelt": {
 			"title": "Your toolbelt",
-			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"navigate": {
 			"title": "Find your way around",

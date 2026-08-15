@@ -25,6 +25,22 @@ async function newSolo(page: Page, name: string) {
 	await expect(page.locator('canvas:not(.confetti-canvas)')).toBeVisible();
 }
 
+/**
+ * Dismiss the opening tutorial.
+ *
+ * A new save now starts with the interface folded away — no menu bar, no goal
+ * board, no toolbelt — and the tutorial hands each piece over at the card that
+ * explains it, so a caretaker's first minute is a meadow rather than a cockpit.
+ * Skipping is the returning player's path to the same place: everything opens at
+ * once. Tests that want the full HUD ask for it here.
+ */
+async function skipTutorial(page: Page) {
+	const skip = page.getByRole('button', { name: 'Skip tutorial' });
+	await expect(skip).toBeVisible();
+	await skip.click();
+	await expect(page.locator('.tutorial-card')).toHaveCount(0);
+}
+
 /** The hidden dev panel (Cmd/Ctrl + Shift + Backspace), used to reach late-game
  *  state without playing the hours it costs. */
 async function openDevPanel(page: Page) {
@@ -119,6 +135,13 @@ test('every panel opens on its key and closes on Escape', async ({ page }) => {
 
 test('the toolbelt selects tools with the number keys', async ({ page }) => {
 	await newSolo(page, 'Tool Tester');
+
+	// The belt is not there yet. A brand-new caretaker has been asked to walk
+	// around a meadow and nothing else, and a row of implements they have no use
+	// for reads as clutter to be ignored rather than tools to be picked up — so
+	// the tutorial hands the belt over at the card that explains it.
+	await expect(page.locator('.tool-slot')).toHaveCount(0);
+	await skipTutorial(page);
 
 	// Three tools outdoors — basket, shovel, watering can, on 1/2/3. (Paint is
 	// the fourth binding but its slot only exists inside a finished house, so it

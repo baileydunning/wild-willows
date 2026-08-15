@@ -131,9 +131,12 @@ TOOL_GATES = {
     'meadow':  [('shovel', 2, 30), ('watering-can', 2, 30), ('basket', 2, 40)],
     'forest':  [('watering-can', 3, 55), ('shovel', 3, 55), ('basket', 3, 60)],
     'wetland': [('shovel', 4, 65), ('basket', 4, 65), ('watering-can', 4, 65)],
-    'desert':  [('field-journal', 5, 35)],
-    'alpine':  [('field-journal', 6, 35)],
-    'coastal': [('field-journal', 7, 35)],
+    # Each area's own field guide, at the rung that opens the animal pages. (This
+    # was one preserve-wide journal on a 7-tier ladder — tier 5/6/7 for these
+    # three — before every area got a guide of its own.)
+    'desert':  [('journal-desert', 2, 35)],
+    'alpine':  [('journal-alpine', 2, 35)],
+    'coastal': [('journal-coastal', 2, 35)],
 }
 HOME_GATES = {
     'meadow':  [('space', 2, 30), ('comfort', 2, 35), ('decor', 3, 50)],
@@ -160,7 +163,7 @@ OVERRIDES = {
     'medium-chest': {'minHealth': 15, 'requiresCrafted': 'small-chest'},
     'large-chest':  {'minHealth': 25, 'requiresCrafted': 'medium-chest'},
     'hiking-boots': {'animalsReturned': 8},
-    'binoculars':   {'minHealth': 20, 'requiresTool': {'id': 'field-journal', 'tier': 2}},
+    'binoculars':   {'minHealth': 20, 'requiresTool': {'id': 'journal-meadow', 'tier': 2}},
     # the headlamp turns up the first time the sun goes down — the moment you
     # actually want one — and stays on the list from then on.
     'headlamp':     {'phaseSeen': ['night']},

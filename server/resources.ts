@@ -1286,7 +1286,10 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 // stamped repairRev 1 — so pruneUnknownDiscoveries and reconcileDiscoveryBiomes
 // would never look at it again. Bumping forces one more pass now that defs()
 // reports the true roster.
-const REPAIR_REV = 2;
+// REV 3: the field journal split into a pair of guides per area, so every save
+// carrying the old preserve-wide tier needs one pass to be handed the books it
+// already paid for (migrateFieldJournal).
+const REPAIR_REV = 3;
 
 async function repairSave(
 	worldId: string,
@@ -1304,6 +1307,7 @@ async function repairSave(
 		const dropped = await pruneUnknownDiscoveries(worldId, d);
 		const refiled = await reconcileDiscoveryBiomes(worldId, d);
 		await repairGateTrails(worldId, d);
+		await migrateFieldJournal(playerId, d, opts.player);
 		// Any of those three changes which animals count as home, and
 		// BiomeState.returnedCount is a stored number that only recalcBiome
 		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a
@@ -1319,6 +1323,43 @@ async function repairSave(
 		// the next write.
 		console.error(`save repair for ${playerId} skipped —`, e?.message || e);
 	}
+}
+
+/**
+ * Turn a save's single `field-journal` tier into the per-area guides.
+ *
+ * Before the split there was ONE journal on a preserve-wide ladder: tier N read
+ * as "I own the guide to every area of order below N", and owning it gave both
+ * the full animal page AND the exact requirements. Now each area has a guide of
+ * its own, so a save that had already climbed that ladder would otherwise open
+ * the tools menu to find every guide unwritten and its journal shut — work it
+ * paid for, taken back.
+ *
+ * So every area the old tier covered gets its guide written all the way up,
+ * because that is exactly what the old tier gave. Nothing is ever removed: a
+ * guide already further along stays where it is, and the legacy tier is left on
+ * the record rather than deleted, so a rolled-back client keeps reading what it
+ * expects.
+ *
+ * Idempotent, and free for the saves that will be the overwhelming majority
+ * within a week — no legacy tier means nothing to do.
+ */
+async function migrateFieldJournal(playerId: string, d: any, cached?: any): Promise<void> {
+	const player = cached ?? (await getPlayer(playerId));
+	const legacy = (player?.tools?.[LEGACY_JOURNAL_TOOL] as number) || 0;
+	if (legacy < 2) return; // never upgraded (or never had one): nothing was paid for
+
+	const tools = { ...(player.tools || {}) };
+	let granted = 0;
+	for (const b of d.biomes) {
+		// The old rule, verbatim: an area's guide sat at tier (order + 1).
+		if (legacy < (b.order || 1) + 1) continue;
+		const id = guideTool(b.id);
+		if ((tools[id] || 1) >= GUIDE_MAX) continue;
+		tools[id] = GUIDE_MAX;
+		granted++;
+	}
+	if (granted) await patchPlayer(playerId, { tools });
 }
 
 /**
@@ -1723,7 +1764,32 @@ const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 
 // basket should read 0/10, not 2/10. (A little water lets you tend a bed right
 // away for the tutorial.)
 const START_INVENTORY: Record<string, number> = { water: 6, wildflowers: 1 };
-const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1, 'field-journal': 1 };
+const START_TOOLS: Record<string, number> = { basket: 1, shovel: 1, 'watering-can': 1 };
+
+// ------------------------------------------------------------- field guides
+//
+// Each AREA has a guide, rather than the preserve sharing one ladder, and each
+// guide is written up in two steps:
+//
+//   1  pocket notes    names, sketches, and a caretaker's hint
+//   2  field guide     opens each animal's full page — role, food web, when
+//                      they're about, the habitat they keep
+//   3  expanded guide  spells out exactly what each animal is waiting for, in
+//                      the journal and on the goals the player sets
+//
+// GUIDE_MAX is the top rung; the naturalist badge and the legacy migration both
+// mean "written all the way up" and neither should hardcode a number.
+// Tools default to 1 when absent, so nothing has to be seeded.
+const guideTool = (biome: string) => `journal-${biome}`;
+const GUIDE_MAX = 3;
+/** The pre-split tool: ONE journal whose tier N covered every area of order < N. */
+const LEGACY_JOURNAL_TOOL = 'field-journal';
+
+const guideLevel = (player: any, biome: string) => (player?.tools?.[guideTool(biome)] as number) || 1;
+/** Can this save read the full animal pages for `biome`? */
+const hasGuide = (player: any, biome: string) => guideLevel(player, biome) >= 2;
+/** …and the exact "what it's waiting for" requirements? */
+const hasExpandedGuide = (player: any, biome: string) => guideLevel(player, biome) >= GUIDE_MAX;
 
 // Character appearance options (validated server-side; the frontend renders these)
 // Preset swatches the creator offers as quick-picks. Colors are no longer
@@ -3985,14 +4051,24 @@ function nextBiomeGoal(ctx: TaskCtx): any | null {
 function attractSteps(animalId: string, ctx: TaskCtx): { text: string; done: boolean }[] {
 	const a = ctx.d.animal.get(animalId);
 	if (!a) return [];
-	// Gated by the field guide: the exact habitat an animal needs is only revealed
-	// once the player has upgraded their field journal to this biome's guide tier
-	// (same rule as the journal). Until then, nudge them to upgrade instead of
-	// spoiling the checklist.
-	const needTier = (ctx.d.biome.get(a.biome)?.order || 1) + 1;
-	const guideTier = ctx.player?.tools?.['field-journal'] || 1;
-	if (guideTier < needTier) {
-		return [{ text: tr('server.goal.upgradeGuide'), done: false }];
+	// Gated by the EXPANDED guide for this animal's area: the exact checklist is
+	// what that edition is for, in the journal and here alike (same rule both
+	// places — see hasExpandedGuide).
+	//
+	// Without it the goal is not blank. It carries the caretaker's hint — the
+	// plain-language "leave a little brush at the edge" line every animal has —
+	// and then says where the exact list comes from. A goal you set yourself
+	// should always tell you something about how to finish it; "go buy a book"
+	// on its own is a locked door with your own goal behind it.
+	if (!hasExpandedGuide(ctx.player, a.biome)) {
+		const steps: { text: string; done: boolean }[] = [];
+		// The hint rides through as written in the definitions, the same way the
+		// habitat steps below carry raw object names: the server bundle registers
+		// only the `server` catalog, so animal content text isn't translatable here.
+		const hint = a.requirements?.hint;
+		if (hint) steps.push({ text: hint, done: false });
+		steps.push({ text: tr('server.goal.upgradeGuide'), done: false });
+		return steps;
 	}
 	const steps: { text: string; done: boolean }[] = [];
 	for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
@@ -4278,7 +4354,9 @@ function starterTasks(ctx: TaskCtx): any[] {
 	// The grasshopper from three goals earlier counts, so this arrives at 1/3 and
 	// asks for two more — a visible head start rather than a fresh zero.
 	const bugs = ctx.discoveries.filter((x: any) => BUG_KINDS.has(ctx.d?.animal?.get(x.animalId)?.kind)).length;
-	const journalTier = (ctx.player?.tools?.['field-journal'] as number) || 1;
+	// The opening chain is a tour of the meadow, so the guide it asks for is the
+	// meadow's — the cheap one, buyable from meadow materials alone.
+	const meadowGuide = hasGuide(ctx.player, 'meadow');
 	// Largest connected body of water the PLAYER shaped — the seeded channels the
 	// wetland ships with are excluded, so a stream has to be dug, not inherited.
 	const water = analyzeWater(ctx.terrain || [], true);
@@ -4344,7 +4422,7 @@ function starterTasks(ctx: TaskCtx): any[] {
 			text: tr('server.starter.journal'),
 			hint: tr('server.starter.journalHint'),
 			target: 1,
-			progress: journalTier >= 2 ? 1 : 0,
+			progress: meadowGuide ? 1 : 0,
 		},
 		{
 			id: 'start-build-ten',
@@ -4748,6 +4826,9 @@ interface AchCtx {
 	totalReturned: number;
 	kindReturned: (b: string, kind: string) => number;
 	tool: (id: string) => number;
+	/** Every area of the preserve, so a "one per biome" trigger can't fall out of
+	 *  step with the data by hardcoding the list. */
+	biomeIds: string[];
 	unlockedCount: number;
 	craftedDistinct: number;
 	tutorialStep: number;
@@ -4808,7 +4889,11 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 	'master-gardener': (c) => (c.counts.plantsPlanted || 0) >= 75,
 	landscaper: (c) => (c.counts.terraformActions || 0) >= 150,
 	'fully-equipped': (c) => c.tool('basket') >= 4 && c.tool('shovel') >= 4 && c.tool('watering-can') >= 4,
-	naturalist: (c) => c.tool('field-journal') >= 7,
+	// Every area's guide, written all the way up to its expanded edition. "Every
+	// guide filled in, every animal's secrets unlocked" is what the badge already
+	// promised; before the split it was one ladder for the whole preserve, and now
+	// it is one per place.
+	naturalist: (c) => c.biomeIds.every((b) => c.tool(guideTool(b)) >= GUIDE_MAX),
 	'recipe-collector': (c) => c.craftedDistinct >= 75,
 
 	'open-road': (c) => c.unlockedCount >= 2,
@@ -4927,6 +5012,7 @@ async function awardAchievements(
 					return a && a.biome === b && a.kind === kind;
 				}).length,
 			tool: (id) => player.tools?.[id] || 1,
+			biomeIds: d.biomes.map((b: any) => b.id),
 			unlockedCount: (player.unlockedBiomes || []).length,
 			craftedDistinct: Object.keys(player.craftedEver || {}).length,
 			tutorialStep: player.tutorialStep || 0,

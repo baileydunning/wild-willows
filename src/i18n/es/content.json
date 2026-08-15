@@ -4616,40 +4616,6 @@
 					}
 				}
 			},
-			"field-journal": {
-				"description": "Para observar animales y registrar quién ha regresado. Cada área tiene su propia guía de campo: recolecta los materiales de esa área para mejorarla y desbloquear sus entradas completas y pistas de regreso.",
-				"name": "Diario de Campo",
-				"tiers": {
-					"1": {
-						"effect": "Observa y registra quién ha regresado. Mejóralo con los materiales de cada área para leer sus entradas de campo completas y pistas de regreso.",
-						"name": "Diario de Campo"
-					},
-					"2": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de la Pradera de los Sauces.",
-						"name": "Guía de Campo de la Pradera de los Sauces"
-					},
-					"3": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Bosque de la Vieja Hondonada.",
-						"name": "Guía de Campo del Bosque de la Vieja Hondonada"
-					},
-					"4": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Humedal de los Juncos.",
-						"name": "Guía de Campo del Humedal de los Juncos"
-					},
-					"5": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Matorral de Piedra Roja.",
-						"name": "Guía de Campo del Matorral de Piedra Roja"
-					},
-					"6": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de las Cumbres del Viento Gris.",
-						"name": "Guía de Campo de las Cumbres del Viento Gris"
-					},
-					"7": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de la Costa del Pelícano: la guía de campo completa.",
-						"name": "Guía del Naturalista Maestro"
-					}
-				}
-			},
 			"shovel": {
 				"description": "Para cavar con cuidado piedras, arcilla y arena, y preparar el terreno de restauración.",
 				"name": "Pala Básica",
@@ -4691,6 +4657,114 @@
 					"4": {
 						"effect": "Recoge 4 de agua a la vez: inunda canales enteros en unos pocos viajes.",
 						"name": "Cántaro Atrapanubes"
+					}
+				}
+			},
+			"journal-meadow": {
+				"description": "Tus notas sobre la Pradera de los Sauces, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Pradera de los Sauces",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de la Pradera de los Sauces.",
+						"name": "Apuntes de Bolsillo de Pradera de los Sauces"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Pradera de los Sauces"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Pradera de los Sauces"
+					}
+				}
+			},
+			"journal-forest": {
+				"description": "Tus notas sobre el Bosque de la Vieja Hondonada, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Bosque de la Vieja Hondonada",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Bosque de la Vieja Hondonada.",
+						"name": "Apuntes de Bolsillo de Bosque de la Vieja Hondonada"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Bosque de la Vieja Hondonada"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Bosque de la Vieja Hondonada"
+					}
+				}
+			},
+			"journal-wetland": {
+				"description": "Tus notas sobre el Humedal de Aguas Juncosas, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Humedal de Aguas Juncosas",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Humedal de Aguas Juncosas.",
+						"name": "Apuntes de Bolsillo de Humedal de Aguas Juncosas"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Humedal de Aguas Juncosas"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Humedal de Aguas Juncosas"
+					}
+				}
+			},
+			"journal-desert": {
+				"description": "Tus notas sobre el Matorral de Piedra Roja, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Matorral de Piedra Roja",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Matorral de Piedra Roja.",
+						"name": "Apuntes de Bolsillo de Matorral de Piedra Roja"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Matorral de Piedra Roja"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Matorral de Piedra Roja"
+					}
+				}
+			},
+			"journal-alpine": {
+				"description": "Tus notas sobre las Alturas de Viento Gris, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Alturas de Viento Gris",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de las Alturas de Viento Gris.",
+						"name": "Apuntes de Bolsillo de Alturas de Viento Gris"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Alturas de Viento Gris"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Alturas de Viento Gris"
+					}
+				}
+			},
+			"journal-coastal": {
+				"description": "Tus notas sobre la Costa del Pelícano, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Costa del Pelícano",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de la Costa del Pelícano.",
+						"name": "Apuntes de Bolsillo de Costa del Pelícano"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Costa del Pelícano"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Costa del Pelícano"
 					}
 				}
 			}

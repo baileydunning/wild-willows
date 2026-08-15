@@ -60,6 +60,18 @@
 	--sil-known-bg: #dedbd2;
 	--sil-ink: #f0e8d4;
 
+	/* Width of the top-left column — the area card, the goal board and the feed,
+	   sized together so their edges line up rather than each card shrinking to its
+	   own longest line.
+
+	   It is set per language, because what it really measures is TEXT. The widest
+	   thing the column has to hold on one line is a goal like "10 animals back in
+	   Old Hollow Forest", and the Spanish for that is a good deal longer. Sizing
+	   for Spanish everywhere would leave English padded out with empty card, so
+	   English gets the tighter column and any language that needs more says so
+	   below (see the :lang rule). */
+	--hud-left-w: 324px;
+
 	/* Tells the browser which way to render the controls it draws itself: select
 	   popups, scrollbars, range tracks, the native colour picker. Without it those
 	   stay stubbornly white in dark mode. */
@@ -78,6 +90,17 @@
 
 	--font-display: var(--font-storybook-display);
 	--font-body: var(--font-storybook-body);
+}
+
+/* Spanish needs about half again the room for the same goal line — measured, not
+   guessed, and most of the difference is the place names themselves ("Old Hollow
+   Forest" against "Bosque de la Vieja Hondonada"). Matching that exactly would
+   want a column past 400px, which is no longer a corner of the screen, so this
+   buys back most of it and leaves the single longest line to wrap. `lang` on
+   <html> is kept in step with the chosen language in src/i18n/index.ts, so the
+   column resizes the moment the player switches. */
+:root:lang(es) {
+	--hud-left-w: 372px;
 }
 
 * {
@@ -3568,7 +3591,7 @@ kbd {
 	   longest feed line ends where the panels end instead of stopping short of
 	   them at some unrelated width. Bubbles still size to their own text, so short
 	   lines stay short; this is the ceiling they share. */
-	max-width: var(--hud-left-w, 344px);
+	max-width: var(--hud-left-w, 324px);
 	pointer-events: none;
 }
 .activity-scroll {
@@ -4551,7 +4574,7 @@ kbd {
 	flex-direction: column;
 	gap: 8px;
 	align-items: stretch;
-	width: var(--hud-left-w, 344px);
+	width: var(--hud-left-w, 324px);
 }
 .hud-left-col .hud-top-left {
 	position: static;
@@ -4730,7 +4753,7 @@ kbd {
 }
 @media (max-width: 900px) {
 	.hud-left-col {
-		width: min(var(--hud-left-w, 344px), 46vw);
+		width: min(var(--hud-left-w, 324px), 46vw);
 	}
 	.tasks-row-text {
 		font-size: calc(11.5px * var(--ui-scale));

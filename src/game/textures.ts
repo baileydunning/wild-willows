@@ -1424,8 +1424,10 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#c9a45a'), 1).fillCircle(3.5, 19, 2.6); // gold rose
 	});
 
-	// Field journals: the cover is tinted to each area's field guide, with one
-	// bookmark ribbon per tier (the final Master guide gets a gold ribbon).
+	// Field journals: the cover is tinted to the place the guide covers, and the
+	// ribbons say which edition it is — one red bookmark for the field guide, a
+	// gold one beside it for the expanded edition that spells out what every
+	// animal is waiting for.
 	const book = (shape: string, cover: string, band: string, ribbons: number) =>
 		o(shape, 28, 30, (g) => {
 			g.fillStyle(C(cover), 1).fillRoundedRect(5, 4, 18, 24, 2); // cover
@@ -1437,13 +1439,22 @@ export function makeObjectTextures(scene: Phaser.Scene) {
 			for (let i = 0; i < ribbons; i++)
 				g.fillStyle(C(i === ribbons - 1 && ribbons > 1 ? '#e3c75f' : '#c45a5a'), 1).fillRect(8 + i * 2, 2, 1.6, 7);
 		});
-	book('journal1', '#8a7a52', '#b7a988', 1); // starter field journal (kraft)
-	book('journal2', '#6b8f4e', '#8fb46a', 2); // Willow Meadow (green)
-	book('journal3', '#3f5f3a', '#6b8f4e', 3); // Old Hollow Forest (deep green)
-	book('journal4', '#3f7a86', '#7fbccb', 4); // Rushwater Wetland (teal)
-	book('journal5', '#b5703a', '#e0a45a', 5); // Redstone Scrubland (terracotta)
-	book('journal6', '#6a7486', '#aab9c6', 6); // Graywind Heights (slate)
-	book('journal7', '#7a2f3a', '#e3c75f', 7); // Master Naturalist's Guide (burgundy + gold)
+	book('journal1', '#8a7a52', '#b7a988', 1); // the pocket notes every caretaker starts with (kraft)
+	// One pair per area: `guide-<biome>` is the field guide, and
+	// `guide-<biome>-expanded` the edition after it. Same cover, one more ribbon —
+	// they read as the same book further along, which is what they are.
+	const GUIDE_COVERS: Record<string, [string, string]> = {
+		meadow: ['#6b8f4e', '#8fb46a'], // Willow Meadow (green)
+		forest: ['#3f5f3a', '#6b8f4e'], // Old Hollow Forest (deep green)
+		wetland: ['#3f7a86', '#7fbccb'], // Rushwater Wetland (teal)
+		desert: ['#b5703a', '#e0a45a'], // Redstone Scrubland (terracotta)
+		alpine: ['#6a7486', '#aab9c6'], // Graywind Heights (slate)
+		coastal: ['#2f6f9e', '#8fc6e2'], // Pelican Shore (ocean blue)
+	};
+	for (const [biome, [cover, band]] of Object.entries(GUIDE_COVERS)) {
+		book(`guide-${biome}`, cover, band, 1);
+		book(`guide-${biome}-expanded`, cover, band, 2);
+	}
 
 	// --- house-style sprites (shown in the House upgrade menu) ---
 	// Log Cabin: dark log walls, warm golden-pine door, brown gabled roof.

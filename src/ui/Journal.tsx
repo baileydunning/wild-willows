@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
-import { customGoalsUnlocked } from '../types';
+import { customGoalsUnlocked, guideToolId, hasGuide, hasExpandedGuide } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
@@ -676,16 +676,20 @@ export function JournalPanel() {
 
 	const tabBiome = biomes.find((b) => b.id === tab);
 	const tabBiomeName = tabBiome ? content('biome', tabBiome.id, 'name', tabBiome.name) : undefined;
-	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = (tabBiome?.order || 1) + 1;
-	const full = guideTier >= needTier;
-	const tierName = (tier: number) => {
-		const n = data.tools.find((tl) => tl.id === 'field-journal')?.tiers.find((tt) => tt.tier === tier)?.name;
-		return n ? content('tool', 'field-journal', `tiers.${tier}.name`, n) : undefined;
+	// Two gates, one per book: the field guide opens the animal pages, the
+	// expanded edition spells out what each animal is waiting for.
+	const tools = state.player.tools;
+	const full = !!tabBiome && hasGuide(tools, tabBiome.id);
+	const expanded = !!tabBiome && hasExpandedGuide(tools, tabBiome.id);
+	/** The name a guide is PRINTED under, owned or not — this is the heading of a
+	 *  section of the journal, not a receipt for what the player has bought. */
+	const guideName = (toolId: string) => {
+		const n = data.tools.find((tl) => tl.id === toolId)?.tiers.find((tt) => tt.tier === 2)?.name;
+		return n ? content('tool', toolId, 'tiers.2.name', n) : undefined;
 	};
 	const tabGuideName = isOverview
 		? t('panels.journal.title')
-		: tierName(needTier) ||
+		: (tabBiome && guideName(guideToolId(tabBiome.id))) ||
 			t('panels.journal.fieldGuide', { biome: tabBiomeName || t('panels.journal.fieldFallback') });
 	const totalReturned = state.discoveries.length;
 
@@ -801,10 +805,18 @@ export function JournalPanel() {
 						)}
 					</div>
 
+					{/* One line at a time, and always the NEXT book: offering both at once
+					    turns a nudge into a price list. */}
 					{!isOverview && !full && (
 						<div className="guide-upsell small">
 							<Icon name="lock" size={13} />
-							<span>{t('panels.journal.upsell', { tier: needTier, biome: tabBiomeName || '' })}</span>
+							<span>{t('panels.journal.upsell', { biome: tabBiomeName || '' })}</span>
+						</div>
+					)}
+					{!isOverview && full && !expanded && (
+						<div className="guide-upsell small">
+							<Icon name="lock" size={13} />
+							<span>{t('panels.journal.upsellExpanded', { biome: tabBiomeName || '' })}</span>
 						</div>
 					)}
 
@@ -819,7 +831,7 @@ export function JournalPanel() {
 							{animals.length === 0 && <p className="muted small">{t('panels.journal.noMatch')}</p>}
 							<div className="entry-list">
 								{animals.map((a) => (
-									<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={full} />
+									<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={expanded} />
 								))}
 							</div>
 						</>
@@ -933,9 +945,10 @@ export function AnimalCard() {
 	if (!animal) return null;
 	const returnedIds = new Set(state.discoveries.map((d) => d.animalId));
 	const neighbors = disc ? neighborsNote(animal, data.animals, returnedIds) : null;
-	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = (data.biomes.find((b) => b.id === animal.biome)?.order || 1) + 1;
-	const full = guideTier >= needTier;
+	// The card IS the thing the field guide buys — role, food web, when they're
+	// about, the habitat they keep. (The exact requirements are the expanded
+	// edition's, and they live on the list entry, not here.)
+	const full = hasGuide(state.player.tools, animal.biome);
 	const cardBiome = data.biomes.find((b) => b.id === animal.biome);
 	const biomeName = cardBiome ? content('biome', cardBiome.id, 'name', cardBiome.name) : undefined;
 	const animalName = content('animal', animal.id, 'name', animal.name);
@@ -1086,7 +1099,7 @@ export function AnimalCard() {
 					) : (
 						<>
 							<p className="muted">
-								<Icon name="lock" size={14} /> {t('panels.journal.lockedCard', { tier: needTier })}
+								<Icon name="lock" size={14} /> {t('panels.journal.lockedCard', { biome: biomeName || '' })}
 							</p>
 							<button className="link" onClick={backToJournal}>
 								{t('panels.journal.backToJournal')}

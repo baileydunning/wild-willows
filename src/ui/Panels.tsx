@@ -2,7 +2,7 @@ import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
-import { customGoalsUnlocked } from '../types';
+import { customGoalsUnlocked, guideBiomeFor } from '../types';
 import { homePerkStrength } from '../types';
 import { recipeUnlocked, recipeSearchScore, upcomingRecipes } from '../recipes';
 import { useGear, setGear, GEAR_IDS, type GearId } from '../gear';
@@ -794,70 +794,81 @@ export function ToolsPanel() {
 	const ownsGear = (itemId: string) => (player.craftedEver?.[itemId] || 0) + (player.craftedItems?.[itemId] || 0) > 0;
 	const ownedGear = GEAR_IDS.filter((id) => ownsGear(GEAR_ITEM[id]));
 
+	// The bench shows the guide for HERE, in the row of tools like any other.
+	//
+	// Every area has its own guide now, and listing all six turned a short page of
+	// things you carry into a catalogue of books for places the caretaker may not
+	// have walked into yet. Only the one for the ground under their feet belongs
+	// on the bench — and because it's an ordinary three-rung tool, it offers one
+	// upgrade at a time: write up the field guide and the expanded edition is what
+	// it offers next. Walk somewhere else and the guide changes with you.
+	const here = guideBiomeFor(player.area);
+	const shown = data.tools.filter((tool) => !tool.journalBiome || tool.journalBiome === here);
+
+	const toolRow = (tool: (typeof data.tools)[number]) => {
+		const tier = player.tools?.[tool.id] || 1;
+		const current = tool.tiers.find((tt) => tt.tier === tier);
+		const next = tool.tiers.find((tt) => tt.tier === tier + 1);
+		let blocked: string | null = null;
+		if (next?.requires?.minHealth) {
+			const bs = state.biomeStates.find((b) => b.biomeId === next.requires!.biome);
+			if ((bs?.health || 0) < next.requires.minHealth) {
+				const biome = data.biomes.find((b) => b.id === next.requires!.biome);
+				blocked = t('panels.tools.restoreFirst', {
+					biome: biome ? content('biome', biome.id, 'name', biome.name) : next.requires.biome,
+					health: next.requires.minHealth,
+					current: bs?.health || 0,
+				});
+			}
+		}
+		const haveMats = next ? Object.entries(next.materials || {}).every(([id, q]) => availability(id) >= q) : false;
+		return (
+			<div className="recipe" key={tool.id}>
+				{/* the sprite for the tool's CURRENT tier — it upgrades as you do */}
+				<ObjectIcon shape={current?.shape || tool.shape} color="#9a8156" size={34} />
+				<div className="grow">
+					<b>
+						{current
+							? content('tool', tool.id, `tiers.${current.tier}.name`, current.name)
+							: content('tool', tool.id, 'name', tool.name)}
+					</b>{' '}
+					<span className="muted small">{t('panels.tools.tier', { tier })}</span>
+					<div className="muted small">
+						{current ? content('tool', tool.id, `tiers.${current.tier}.effect`, current.effect) : ''}
+					</div>
+					{next ? (
+						<>
+							<div className="small upgrade-next">
+								{next.shape && <ObjectIcon shape={next.shape} color="#9a8156" size={20} />}{' '}
+								{t('panels.tools.upgradeNext')} <b>{content('tool', tool.id, `tiers.${next.tier}.name`, next.name)}</b>:{' '}
+								{content('tool', tool.id, `tiers.${next.tier}.effect`, next.effect)}
+							</div>
+							<div className="mats">
+								{Object.entries(next.materials || {}).map(([id, q]) => (
+									<span key={id} className={`mat ${availability(id) >= q ? 'mat-ok' : 'mat-no'}`}>
+										<ResourceIcon id={id} color={resColor(data, id)} />
+										{resName(data, id)} {Math.min(availability(id), q)}/{q}
+									</span>
+								))}
+							</div>
+							{blocked && <div className="muted small">{blocked}</div>}
+						</>
+					) : (
+						<div className="muted small">{t('panels.tools.fullyUpgraded')}</div>
+					)}
+				</div>
+				{next && (
+					<button disabled={!haveMats || !!blocked} onClick={() => upgradeTool(tool.id)}>
+						{t('panels.tools.upgrade')}
+					</button>
+				)}
+			</div>
+		);
+	};
+
 	return (
 		<Panel title={t('panels.tools.title')} icon="tools" onClose={() => setPanel(null)} wide>
-			{data.tools.map((tool) => {
-				const tier = player.tools?.[tool.id] || 1;
-				const current = tool.tiers.find((tt) => tt.tier === tier);
-				const next = tool.tiers.find((tt) => tt.tier === tier + 1);
-				let blocked: string | null = null;
-				if (next?.requires) {
-					const bs = state.biomeStates.find((b) => b.biomeId === next.requires!.biome);
-					if ((bs?.health || 0) < next.requires.minHealth) {
-						const biome = data.biomes.find((b) => b.id === next.requires!.biome);
-						blocked = t('panels.tools.restoreFirst', {
-							biome: biome ? content('biome', biome.id, 'name', biome.name) : next.requires.biome,
-							health: next.requires.minHealth,
-							current: bs?.health || 0,
-						});
-					}
-				}
-				const haveMats = next ? Object.entries(next.materials || {}).every(([id, q]) => availability(id) >= q) : false;
-				return (
-					<div className="recipe" key={tool.id}>
-						{/* the sprite for the tool's CURRENT tier — it upgrades as you do */}
-						<ObjectIcon shape={current?.shape || tool.shape} color="#9a8156" size={34} />
-						<div className="grow">
-							<b>
-								{current
-									? content('tool', tool.id, `tiers.${current.tier}.name`, current.name)
-									: content('tool', tool.id, 'name', tool.name)}
-							</b>{' '}
-							<span className="muted small">{t('panels.tools.tier', { tier })}</span>
-							<div className="muted small">
-								{current ? content('tool', tool.id, `tiers.${current.tier}.effect`, current.effect) : ''}
-							</div>
-							{next ? (
-								<>
-									<div className="small upgrade-next">
-										{next.shape && <ObjectIcon shape={next.shape} color="#9a8156" size={20} />}{' '}
-										{t('panels.tools.upgradeNext')}{' '}
-										<b>{content('tool', tool.id, `tiers.${next.tier}.name`, next.name)}</b>:{' '}
-										{content('tool', tool.id, `tiers.${next.tier}.effect`, next.effect)}
-									</div>
-									<div className="mats">
-										{Object.entries(next.materials || {}).map(([id, q]) => (
-											<span key={id} className={`mat ${availability(id) >= q ? 'mat-ok' : 'mat-no'}`}>
-												<ResourceIcon id={id} color={resColor(data, id)} />
-												{resName(data, id)} {Math.min(availability(id), q)}/{q}
-											</span>
-										))}
-									</div>
-									{blocked && <div className="muted small">{blocked}</div>}
-								</>
-							) : (
-								<div className="muted small">{t('panels.tools.fullyUpgraded')}</div>
-							)}
-						</div>
-						{next && (
-							<button disabled={!haveMats || !!blocked} onClick={() => upgradeTool(tool.id)}>
-								{t('panels.tools.upgrade')}
-							</button>
-						)}
-					</div>
-				);
-			})}
-			<p className="muted">{t('panels.tools.note')}</p>
+			{shown.map(toolRow)}
 			{ownedGear.length > 0 && (
 				<div className="gear-section">
 					<h3>

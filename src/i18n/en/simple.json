@@ -18,7 +18,7 @@
 				"touch": "Tap the hammer button to open crafting. It uses your basket from anywhere. Now let us build the grasshopper a home."
 			},
 			"toolbelt": {
-				"text": "Your tools are at the bottom. 1 is the basket for gathering. 2 is the shovel for digging. 3 is the watering can. Press T to open Tools. There you spend stuff to make each tool better. Better tools gather more and dig more. They also unlock the next field journal tier. Some upgrades open up as land gets healthier.",
+				"text": "Your tools are at the bottom. 1 is the basket to gather. 2 is the shovel to dig. 3 is the watering can. Press T to open Tools. Spend materials there to make them better. Better ones gather and dig more. This area's guide is on the same page.",
 				"touch": "Your tools are at the bottom. The basket gathers. The shovel digs. The watering can waters. Tap the tools button to make each one better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
 			},
 			"tools": {
@@ -26,8 +26,8 @@
 				"touch": "Tap the tools button to open Tools. Spend stuff to make your basket, shovel, watering can, or journal better. Better tools gather more and dig more. Some upgrades open up as land gets healthier."
 			},
 			"journal": {
-				"text": "Press J to open your journal. It lists every animal that can come back to each area. It also shows who is back. Each area has its own guide. You always see the basic entry. Food, shelter, and tips unlock when you gather that area’s stuff and upgrade its guide in Tools.",
-				"touch": "Tap the journal button to open your journal. It lists every animal that can come back to each area. It also shows who is back. Food, shelter, and tips unlock when you gather that area’s stuff and upgrade its guide in Tools."
+				"text": "Press J to open your journal. It shows every animal that can come back to each area. It also shows who came back. Each area has one guide. Write it up once to open the whole page for each animal. Write it up again to see exactly what each animal is waiting for. You do that in Tools.",
+				"touch": "Tap the journal button. It shows every animal that can come back to each area and who came back. Each area has one guide. Write it up once to open the whole page. Write it up again to see what each animal is waiting for. You do that in Tools."
 			},
 			"map": {
 				"text": "Press M to open the Preserve. It tracks how healthy each area is and who lives there. It shows what you need to open the next one. You can also travel back to any area you have been. Tap the walk icon on its row.",
@@ -133,8 +133,10 @@
 		"journal": {
 			"comfortGrows": "Comfort grows with good homes. Place more of what it likes, like {items}, and it will settle in.",
 			"foodWebIntro": "Higher rows eat the rows below. You have found {returned} of {total}. Build more homes to see the rest.",
-			"lockedCard": "Upgrade your field journal to Tier {tier} to read this animal’s full page. It shows its job, its food, and who it eats.",
-			"overviewEmpty": "No animals have come back yet. Build homes and they will start to arrive. Check back here to see everyone."
+			"lockedCard": "Write up the {biome} Field Guide to read this animal’s full page. It shows its job, its food, and who it eats.",
+			"overviewEmpty": "No animals have come back yet. Build homes and they will start to arrive. Check back here to see everyone.",
+			"upsell": "Write up the {biome} Field Guide. It opens the whole page for each animal here. Look in Tools.",
+			"upsellExpanded": "Write up the Bigger {biome} Guide. It says exactly what each animal here is waiting for. Look in Tools."
 		},
 		"home": {
 			"buildIntro": "Your home is still a tent. Pick a style to turn it into a house. Each style uses its own materials and sets your look for good. Each one also gives a bonus that grows with every upgrade.",
@@ -145,9 +147,7 @@
 		"inventory": {
 			"kitsNote": "Kits are not placed and cannot be thrown away. Making them is what counts."
 		},
-		"tools": {
-			"note": "Upgrades use materials from your basket and your chests."
-		},
+		"tools": {},
 		"chest": {
 			"basketFull": "Your basket is full. Put something away or drop it first."
 		},
@@ -279,7 +279,8 @@
 				"unlock": "Do the things listed to open this area.",
 				"health": "Heal the land. Plant, water, and place homes until this area gets better.",
 				"biomeAnimals": "Build a home for every animal here until they all move in."
-			}
+			},
+			"upgradeGuide": "Write up this area’s Bigger Guide in Tools to see the exact list."
 		},
 		"nextbiome": {
 			"hint": "Check off each thing below to open {biome}."
@@ -2429,33 +2430,118 @@
 					}
 				}
 			},
-			"field-journal": {
-				"description": "For watching animals and noting who has come back. Each area has its own guide. Gather that area’s materials to upgrade it and unlock the full pages and tips.",
-				"tiers": {
-					"2": {
-						"effect": "Shows the whole entry for Willow Meadow animals. Also shows how to bring each one back."
-					},
-					"3": {
-						"effect": "Shows the whole entry for Old Hollow Forest animals. Also shows how to bring each one back."
-					},
-					"4": {
-						"effect": "Shows the whole entry for Rushwater Wetland animals. Also shows how to bring each one back."
-					},
-					"5": {
-						"effect": "Shows the whole entry for Redstone Scrubland animals. Also shows how to bring each one back."
-					},
-					"6": {
-						"effect": "Shows the whole entry for Graywind Heights animals. Also shows how to bring each one back."
-					},
-					"7": {
-						"effect": "Shows the whole entry for Pelican Shore animals, and how to bring each one back. The guide is complete."
-					}
-				}
-			},
 			"watering-can": {
 				"tiers": {
 					"2": {
 						"effect": "Carry 2 water at a time. Dry ground heals faster."
+					}
+				}
+			},
+			"journal-meadow": {
+				"description": "Your notes on Willow Meadow. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Willow Meadow Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Willow Meadow.",
+						"name": "Willow Meadow Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Willow Meadow Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Willow Meadow Bigger Guide"
+					}
+				}
+			},
+			"journal-forest": {
+				"description": "Your notes on Old Hollow Forest. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Old Hollow Forest Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Old Hollow Forest.",
+						"name": "Old Hollow Forest Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Old Hollow Forest Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Old Hollow Forest Bigger Guide"
+					}
+				}
+			},
+			"journal-wetland": {
+				"description": "Your notes on Rushwater Wetland. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Rushwater Wetland Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Rushwater Wetland.",
+						"name": "Rushwater Wetland Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Rushwater Wetland Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Rushwater Wetland Bigger Guide"
+					}
+				}
+			},
+			"journal-desert": {
+				"description": "Your notes on Redstone Scrubland. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Redstone Scrubland Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Redstone Scrubland.",
+						"name": "Redstone Scrubland Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Redstone Scrubland Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Redstone Scrubland Bigger Guide"
+					}
+				}
+			},
+			"journal-alpine": {
+				"description": "Your notes on Graywind Heights. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Graywind Heights Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Graywind Heights.",
+						"name": "Graywind Heights Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Graywind Heights Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Graywind Heights Bigger Guide"
+					}
+				}
+			},
+			"journal-coastal": {
+				"description": "Your notes on Pelican Shore. Write them up once to open the whole page for each animal there. Write them up again to see exactly what each animal is waiting for.",
+				"name": "Pelican Shore Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, pictures, and one tip for each animal of Pelican Shore.",
+						"name": "Pelican Shore Pocket Notes"
+					},
+					"2": {
+						"effect": "Shows the whole page for each animal here. Its job, its food, when it comes out, and the home it likes.",
+						"name": "Pelican Shore Field Guide"
+					},
+					"3": {
+						"effect": "Says exactly what each animal here is waiting for. In the journal and on your goals.",
+						"name": "Pelican Shore Bigger Guide"
 					}
 				}
 			}

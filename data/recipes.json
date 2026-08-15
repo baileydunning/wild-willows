@@ -1242,12 +1242,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 4,
-        "requiresPlaced": {
-          "objectId": "grass-patch",
-          "count": 2
-        },
-        "label": "Restore Willow Meadow to 4% health and have 2 Grass Patches standing in Willow Meadow"
+        "minHealth": 60,
+        "label": "Restore Willow Meadow to 60% health"
       },
       "output": {
         "itemId": "brush-pile",
@@ -2842,10 +2838,10 @@
       "unlock": {
         "minHealth": 20,
         "requiresTool": {
-          "id": "field-journal",
+          "id": "journal-meadow",
           "tier": 2
         },
-        "label": "Restore Willow Meadow to 20% health and upgrade your Field Journal to the Willow Meadow Field Guide"
+        "label": "Restore Willow Meadow to 20% health and write up the Willow Meadow Field Guide"
       },
       "output": {
         "itemId": "binoculars",
@@ -3125,10 +3121,10 @@
       "unlock": {
         "minHealth": 16,
         "requiresTool": {
-          "id": "field-journal",
-          "tier": 6
+          "id": "journal-alpine",
+          "tier": 2
         },
-        "label": "Restore Graywind Heights to 16% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+        "label": "Restore Graywind Heights to 16% health and write up the Graywind Heights Field Guide"
       },
       "output": {
         "itemId": "snowfield-debris-line",
@@ -3262,10 +3258,10 @@
       "unlock": {
         "minHealth": 28,
         "requiresTool": {
-          "id": "field-journal",
-          "tier": 7
+          "id": "journal-coastal",
+          "tier": 2
         },
-        "label": "Restore Pelican Shore to 28% health and upgrade your Field Journal to the Master Naturalist's Guide"
+        "label": "Restore Pelican Shore to 28% health and write up the Pelican Shore Field Guide"
       },
       "output": {
         "itemId": "kelp-holdfast-reef",
@@ -3657,10 +3653,10 @@
       "unlock": {
         "minHealth": 13,
         "requiresTool": {
-          "id": "field-journal",
-          "tier": 7
+          "id": "journal-coastal",
+          "tier": 2
         },
-        "label": "Restore Pelican Shore to 13% health and upgrade your Field Journal to the Master Naturalist's Guide"
+        "label": "Restore Pelican Shore to 13% health and write up the Pelican Shore Field Guide"
       },
       "output": {
         "itemId": "dune-manzanita",
@@ -5872,10 +5868,10 @@
       "unlock": {
         "minHealth": 16,
         "requiresTool": {
-          "id": "field-journal",
-          "tier": 5
+          "id": "journal-desert",
+          "tier": 2
         },
-        "label": "Restore Redstone Scrubland to 16% health and upgrade your Field Journal to the Redstone Scrubland Field Guide"
+        "label": "Restore Redstone Scrubland to 16% health and write up the Redstone Scrubland Field Guide"
       },
       "output": {
         "itemId": "borrowed-burrow-mouth",
@@ -6274,10 +6270,10 @@
       "unlock": {
         "minHealth": 29,
         "requiresTool": {
-          "id": "field-journal",
-          "tier": 6
+          "id": "journal-alpine",
+          "tier": 2
         },
-        "label": "Restore Graywind Heights to 29% health and upgrade your Field Journal to the Graywind Heights Field Guide"
+        "label": "Restore Graywind Heights to 29% health and write up the Graywind Heights Field Guide"
       },
       "output": {
         "itemId": "goat-cliff-ledge",

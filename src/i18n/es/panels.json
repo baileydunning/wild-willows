@@ -104,7 +104,6 @@
 		"restoreFirst": "Restaura primero {biome} al {health}% de salud (ahora {current}%)",
 		"fullyUpgraded": "Mejora completa.",
 		"upgrade": "Mejorar",
-		"note": "Las mejoras usan materiales de tu cesta y tus cofres.",
 		"gearTitle": "Equipo de cuidador",
 		"gearNote": "El equipo que has fabricado es tuyo para siempre — activa o desactiva cada pieza cuando quieras.",
 		"gearOn": "Activado",
@@ -208,7 +207,7 @@
 		"unknownFirst": "Desconocidos primero",
 		"searchPlaceholder": "Buscar por nombre, tipo o rol…",
 		"searchAria": "Buscar en la guía de campo",
-		"upsell": "Mejora tu guía de campo al nivel {tier} para leer la ficha completa — ecología, dieta y vínculos de la red trófica — de {biome}. Mira el panel de Herramientas.",
+		"upsell": "Redacta la Guía de campo de {biome} para leer la página completa de cada animal de aquí: su papel, qué come y quién lo come, cuándo se deja ver y el hábitat que ocupa. Consulta el menú de Herramientas.",
 		"noMatch": "Ningún animal coincide con tu búsqueda.",
 		"overviewEmpty": "Todavía no ha regresado ningún animal. Restaura hábitat y empezarán a llegar — vuelve aquí para ver a todos los que ya están en casa.",
 		"comfort": {
@@ -312,7 +311,7 @@
 		"historyForward": "Avanzar por tu recorrido del diario",
 		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
-		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica.",
+		"lockedCard": "Redacta la Guía de campo de {biome} para leer la ficha completa de este animal: su papel ecológico, su dieta y sus vínculos en la red trófica.",
 		"stage": {
 			"eggs": "(huevos)",
 			"young": "(crías)",
@@ -330,7 +329,8 @@
 			"mesopredator": "El centro de la red. Caza a los animales pequeños y mantiene bajos sus números, y a su vez es cazado por lo que esté por encima. Quita la cima y un depredador medio se multiplica hasta acabar con los animales pequeños: esa es la razón indirecta por la que los superdepredadores les importan a las plantas.",
 			"apex-predator": "Caza en lo más alto, y aquí nada lo caza a él. Su regreso suele ser la última pieza de un área restaurada, porque necesita que todo lo que tiene debajo sea abundante primero. Cuando se asienta, presiona a los depredadores medios, lo que alivia a los animales pequeños y, más abajo, a las plantas.",
 			"wildlife": "Un papel que la guía todavía no ha clasificado. Cuenta igual como animal que vive aquí, pero aún no tiene sitio asignado en la red."
-		}
+		},
+		"upsellExpanded": "Redacta la Guía Ampliada de {biome} para ver exactamente qué espera cada animal de aquí, en este diario y en las metas que te propongas. Consulta el menú de Herramientas."
 	},
 	"achievements": {
 		"title": "Logros",
@@ -364,7 +364,8 @@
 			"animalOne": "Trae de vuelta a {animal}.",
 			"animalAll": "Trae de vuelta a {animals}.",
 			"animalAny": "Trae de vuelta a {animals}.",
-			"animalChain": "Trae de vuelta a {first}, y a uno de: {any}."
+			"animalChain": "Trae de vuelta a {first}, y a uno de: {any}.",
+			"journals": "Redacta la guía de campo de cada zona y la edición ampliada de cada una."
 		},
 		"progress": "Progreso: {value}"
 	},
@@ -431,13 +432,13 @@
 		},
 		"journal": {
 			"title": "Abre tu diario de campo",
-			"text": "Presiona J para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía de campo: la entrada básica siempre se muestra, pero la dieta completa, el refugio y las pistas de regreso se desbloquean cuando recolectas los materiales de esa área y mejoras su guía en el panel de Herramientas.",
-			"touch": "Toca el botón del diario para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía de campo: la entrada básica siempre se muestra, pero la dieta completa, el refugio y las pistas de regreso se desbloquean cuando recolectas los materiales de esa área y mejoras su guía en el panel de Herramientas."
+			"text": "Presiona J para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno.",
+			"touch": "Toca el botón del diario para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno."
 		},
 		"tools": {
 			"title": "Herramientas y mejoras",
-			"text": "Presiona T para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala, regadera o diario de campo — los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
-			"touch": "Toca el botón de herramientas para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala, regadera o diario de campo — los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
+			"text": "Presiona T para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
+			"touch": "Toca el botón de herramientas para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
 		},
 		"map": {
 			"title": "Abre el mapa de la Reserva",
@@ -501,8 +502,8 @@
 		},
 		"toolbelt": {
 			"title": "Tu cinturón de herramientas",
-			"text": "Tu cinturón está abajo: 1 cesta para recolectar, 2 pala para moldear la tierra, 3 regadera para el agua. Pulsa T para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una; los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
-			"touch": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. Toca el botón de herramientas para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una; los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
+			"text": "Tu cinturón está abajo: 1 cesta para recolectar, 2 pala para moldear la tierra, 3 regadera para el agua. Pulsa T para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
+			"touch": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. Toca el botón de herramientas para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
 		},
 		"navigate": {
 			"title": "Orientarte en la pantalla",

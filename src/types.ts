@@ -214,7 +214,9 @@ export interface ToolTier {
 	 *  picture in the Tools & Upgrades menu evolves as you upgrade it. */
 	shape?: string;
 	materials?: Record<string, number>;
-	requires?: { biome: string; minHealth: number };
+	/** `minHealth` is optional: a tier can name the area it belongs to purely as
+	 *  provenance (the field guides do) without gating on restoration. */
+	requires?: { biome: string; minHealth?: number };
 }
 
 export interface ToolDef {
@@ -224,6 +226,11 @@ export interface ToolDef {
 	/** Object-sprite key (obj-<shape>) shown beside the tool in the Tools &
 	 *  Upgrades menu, mirroring how crafting shows the thing you're making. */
 	shape?: string;
+	/** Set on the six field guides: which area's animals this one covers. The tools
+	 *  menu shows only the guide for the ground the caretaker is standing on (see
+	 *  guideBiomeFor), so the bench stays a short page rather than a catalogue of
+	 *  books for places they may not have walked into yet. */
+	journalBiome?: string;
 	tiers: ToolTier[];
 }
 
@@ -552,6 +559,51 @@ export function customGoalsUnlocked(state: { dailyTasks?: DailyTasksBlock } | nu
 	const tasks = state?.dailyTasks?.tasks;
 	if (!tasks) return false;
 	return !tasks.some((t) => typeof t.id === 'string' && t.id.startsWith('start-'));
+}
+
+// ------------------------------------------------------------ field guides
+//
+// Each AREA has a guide, rather than the preserve sharing one ladder, and each
+// guide is written up in two steps:
+//
+//   1  pocket notes    names, sketches, and a caretaker's hint
+//   2  field guide     opens each animal's full page
+//   3  expanded guide  spells out exactly what each animal is waiting for
+//
+// It is an ordinary tool, so it sits on the bench beside the basket and the
+// shovel and offers one upgrade at a time — write up the field guide and the
+// expanded edition is what it offers next. The id is built here, in one place,
+// because the same string is spelled out in data/tools.json, the achievement
+// trigger, the tools menu and both journal gates, and five spellings of one
+// string is how one of them ends up wrong.
+export const guideToolId = (biome: string) => `journal-${biome}`;
+
+/** How far the guide to `biome` has been written up: 1, 2, or 3 (see above). */
+export const guideLevel = (tools: Record<string, number> | undefined, biome: string) =>
+	(tools || {})[guideToolId(biome)] || 1;
+
+/** Can this save read the full animal pages for `biome` — role, food web, when
+ *  to spot them, the habitat they keep? */
+export const hasGuide = (tools: Record<string, number> | undefined, biome: string) => guideLevel(tools, biome) >= 2;
+
+/** …and the exact list of what each animal there is waiting for? */
+export const hasExpandedGuide = (tools: Record<string, number> | undefined, biome: string) =>
+	guideLevel(tools, biome) >= 3;
+
+/**
+ * Which area's guides apply where the player is standing.
+ *
+ * The tools menu offers the books for HERE, and "here" is not always somewhere
+ * with animals in it: the home interior is `home`, and a trail tent is
+ * `tent-<biome>`. Both belong to a real place — your camp is in the meadow, a
+ * tent is pitched in the biome it was carried to — so they resolve to it rather
+ * than showing an empty shelf. Anything unrecognised falls back to the meadow,
+ * which is where a save with no area at all begins.
+ */
+export function guideBiomeFor(area: string | null | undefined): string {
+	if (!area || area === 'home') return 'meadow';
+	const tent = /^tent-([a-z][a-z-]*)$/.exec(area);
+	return tent ? tent[1] : area;
 }
 
 export interface DailyTasksBlock {

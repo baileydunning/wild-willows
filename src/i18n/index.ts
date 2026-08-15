@@ -14,7 +14,7 @@ import narrativeEn from './en/narrative.json';
 import serverEn from './en/server.json';
 import gameEn from './en/game.json';
 import simpleEn from './en/simple.json';
-import { registerCatalog, setLocale, getLocale, simpleLocale } from './core';
+import { registerCatalog, setLocale, getLocale, onLocaleChange, simpleLocale } from './core';
 
 registerCatalog('en', {
 	app: appEn,
@@ -90,6 +90,29 @@ export const localeReady: Promise<void> = (async () => {
 		/* storage unavailable */
 	}
 })();
+
+/**
+ * Keep `<html lang>` in step with the chosen language.
+ *
+ * It is what a screen reader picks its pronunciation from, and it is also how
+ * the stylesheet knows which language it is laying out: the top-left HUD column
+ * is sized per language (`:root:lang(es)` in styles.css), because Spanish needs
+ * about half again the width for the same goal line and English shouldn't be
+ * padded out to match. index.html ships `lang="en"`, so this only has work to do
+ * once a player picks something else — but it is wired as a subscription rather
+ * than a line inside chooseLocale() so that ANY path to a locale change, a bare
+ * setLocale() included, lands here too.
+ *
+ * Lives here rather than in core.ts, which is deliberately free of DOM, storage
+ * and Node APIs so the same module can run inside the server bundle.
+ */
+if (typeof document !== 'undefined') {
+	const reflectLang = () => {
+		document.documentElement.lang = getLocale();
+	};
+	onLocaleChange(reflectLang);
+	reflectLang();
+}
 
 export {
 	t,

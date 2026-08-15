@@ -148,8 +148,8 @@
 		"harvestHint": "Dale tiempo a tus plántulas para madurar, luego haz clic en una planta crecida y recoge su cosecha: vuelve a crecer, así que un prado plantado sigue dando.",
 		"bugs": "Da la bienvenida a {count} bichos",
 		"bugsHint": "Los bichos vuelven primero: saltamontes, abejas, mariposas, mariquitas, arañas, caracoles. Planta flores, coloca hábitat y observa quién aparece. Tu diario (J) dice qué le falta a cada uno.",
-		"journal": "Mejora tu diario de campo",
-		"journalHint": "Abre tus herramientas (T) y mejora el diario de campo: la guía añade pistas de regreso para los animales que faltan.",
+		"journal": "Redacta la Guía de Campo de la Pradera de los Sauces",
+		"journalHint": "Abre tus herramientas (T) y redacta la Guía de Campo de la Pradera de los Sauces: abre la página completa de cada animal de esta pradera.",
 		"buildTen": "Fabrica y coloca {count} cosas",
 		"buildTenHint": "Abre la fabricación (C). Cada pieza de hábitat que hagas y coloques cuenta, y se abren más recetas a medida que la pradera se recupera.",
 		"stream": "Cava un arroyo",
@@ -225,7 +225,7 @@
 		},
 		"restore": "Restaura {biome} al {pct}% de salud",
 		"biomeAnimals": "Da la bienvenida a los {count} animales de {biome}",
-		"upgradeGuide": "Mejora tu guía de campo (Herramientas) para revelar exactamente lo que necesita."
+		"upgradeGuide": "Redacta la Guía Ampliada de esta zona (Herramientas) para ver la lista exacta."
 	},
 	"nextbiome": {
 		"title": "Desbloquea {biome}",

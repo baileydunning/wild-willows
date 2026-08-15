@@ -148,8 +148,8 @@
 		"harvestHint": "Give your seedlings time to mature, then click a grown plant and pick its harvest — it regrows, so a planted meadow keeps paying.",
 		"bugs": "Welcome {count} bugs home",
 		"bugsHint": "Bugs come back first — grasshoppers, bees, butterflies, ladybugs, spiders, snails. Plant flowers, place habitat, and watch who turns up. Your journal (J) says what each one is still waiting for.",
-		"journal": "Upgrade your field journal",
-		"journalHint": "Open your tools (T) and upgrade the field journal — the guide fills in return hints for the animals still missing.",
+		"journal": "Write up the Willow Meadow Field Guide",
+		"journalHint": "Open your tools (T) and write up the Willow Meadow Field Guide — it opens the full page for every animal of this meadow.",
 		"buildTen": "Craft and place {count} things",
 		"buildTenHint": "Open crafting (C). Every habitat piece you make and put down counts, and more recipes open as the meadow recovers.",
 		"stream": "Dig a stream",
@@ -225,7 +225,7 @@
 		},
 		"restore": "Restore {biome} to {pct}% health",
 		"biomeAnimals": "Welcome all {count} animals to {biome}",
-		"upgradeGuide": "Upgrade your field guide (Tools) to reveal exactly what it needs."
+		"upgradeGuide": "Write up this area's Expanded Guide (Tools) for the exact list."
 	},
 	"nextbiome": {
 		"title": "Unlock {biome}",
