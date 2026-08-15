@@ -497,9 +497,9 @@
 			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →"
 		},
 		"goals": {
-			"title": "Your goals, up here",
-			"text": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
-			"touch": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
+			"title": "Your goals",
+			"text": "The board on the left, under the meadow's health, is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
+			"touch": "The board on the left, under the meadow's health, is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",

@@ -497,9 +497,9 @@
 			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
 		},
 		"goals": {
-			"title": "Tus objetivos, aquí arriba",
-			"text": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera.",
-			"touch": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera."
+			"title": "Tus objetivos",
+			"text": "El tablero de la izquierda, debajo de la salud del prado, es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera.",
+			"touch": "El tablero de la izquierda, debajo de la salud del prado, es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera."
 		},
 		"home": {
 			"title": "Siéntete como en casa",

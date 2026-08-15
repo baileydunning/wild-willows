@@ -3,7 +3,7 @@
 // A path is ABSENT when no honest date could be determined; the sitemap then
 // omits <lastmod> for it rather than inventing one.
 export const pageLastmod: Record<string, string> = {
-	"/": "2026-08-13",
+	"/": "2026-08-14",
 	"/privacy.html": "2026-08-12",
 	"/age-rating.html": "2026-08-12",
 	"/support.html": "2026-08-12",
