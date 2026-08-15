@@ -2150,6 +2150,13 @@ function freshMetrics(now: number) {
 		// Dwell time per area (seconds), accrued from the heartbeat gap and
 		// attributed to whichever area the player is standing in.
 		areaSeconds: {} as Record<string, number>,
+		// Dwell time per MENU (seconds) and how often each was opened, reported by
+		// the client on the heartbeat (which panel is open is client state — the
+		// server cannot see it). Menu time OVERLAPS areaSeconds rather than being
+		// carved out of it, so areaSeconds keeps exactly the meaning it had before
+		// this existed and old rows stay comparable with new ones.
+		menuSeconds: {} as Record<string, number>,
+		menuOpens: {} as Record<string, number>,
 		// Length of the in-progress session (seconds); rolled into sessionLengths
 		// when a new session begins, so we keep a distribution of session lengths.
 		curSessionSeconds: 0,
@@ -2307,6 +2314,18 @@ function metricsView(player: any) {
 	const areaMinutes: Record<string, number> = {};
 	for (const [a, s] of Object.entries(areaSeconds)) areaMinutes[a] = Math.round((s || 0) / 60);
 	const mostTimeArea = Object.entries(areaSeconds).sort((a, b) => (b[1] || 0) - (a[1] || 0))[0]?.[0] || null;
+	// Time in menus, and how often each was opened. Reported by the client on the
+	// heartbeat; overlaps areaSeconds rather than being subtracted from it, so
+	// `menuShareOfPlay` is a share of play time and NOT one minus time-in-world.
+	// Saves recorded before this shipped simply have empty maps — read a 0% share
+	// on an old row as "not measured", which is what `menuMeasured` is for.
+	const menuSeconds: Record<string, number> = m.menuSeconds || {};
+	const menuOpens: Record<string, number> = m.menuOpens || {};
+	const menuMinutes: Record<string, number> = {};
+	for (const [k, sec] of Object.entries(menuSeconds)) menuMinutes[k] = Math.round((sec || 0) / 60);
+	const menuTotalSeconds = Object.values(menuSeconds).reduce((a, b) => a + (b || 0), 0);
+	const menuTotalOpens = Object.values(menuOpens).reduce((a, b) => a + (b || 0), 0);
+	const mostUsedMenu = Object.entries(menuSeconds).sort((a, b) => (b[1] || 0) - (a[1] || 0))[0]?.[0] || null;
 	// Onboarding friction: how long from creating the save to the first action.
 	const firstActionAt = m.firstActionAt || 0;
 	const timeToFirstActionSeconds = firstActionAt ? round1((firstActionAt - createdAt) / 1000) : null;
@@ -2350,6 +2369,19 @@ function metricsView(player: any) {
 		areaSeconds,
 		areaMinutes,
 		mostTimeArea,
+		// time-per-menu (overlaps the above — see the note where these are read)
+		menuSeconds,
+		menuMinutes,
+		menuOpens,
+		menuTotalSeconds: Math.round(menuTotalSeconds),
+		menuTotalMinutes: Math.round(menuTotalSeconds / 60),
+		menuTotalOpens,
+		mostUsedMenu,
+		menuShareOfPlay: playSeconds > 0 ? round1((menuTotalSeconds / playSeconds) * 100) : null,
+		// False on a save that has never reported menu time — either it predates
+		// this metric or it has only ever beaten from an old client. Without it a
+		// dashboard cannot tell "never opened a menu" from "never measured".
+		menuMeasured: menuTotalSeconds > 0 || menuTotalOpens > 0,
 		// session-length distribution (finished sessions bucketed)
 		sessionLengths: m.sessionLengths || {},
 		// The in-progress session's accrued seconds. Surfaced because "in progress"
@@ -7282,6 +7314,32 @@ const IDLE_MAX_ACTIONS_PER_MIN = 0.5;
 // two populations rather than as a fall in engagement.
 const METRICS_REV = 2;
 
+// The menus a heartbeat may report time against — PanelId in src/types.ts, plus
+// 'help' for the help overlay, which is a menu to a player even though it isn't
+// a panel in the code. A fixed set on purpose: the key space of a stored map
+// should never be whatever a client decides to send, and an unknown panel is
+// dropped rather than allowed to open a new column in every dashboard.
+const MENU_PANELS = new Set([
+	'inventory',
+	'crafting',
+	'chest',
+	'journal',
+	'tools',
+	'biomes',
+	'achievements',
+	'feed',
+	'home',
+	'animal',
+	'settings',
+	'weather',
+	'materials',
+	'goals',
+	'help',
+]);
+/** At most this many opens of one menu per beat — a beat covers ~90s, so a
+ *  larger number is a broken or hostile client, not a busy player. */
+const MAX_MENU_OPENS_PER_BEAT = 200;
+
 /** Did this save spend its time as an unattended window rather than as play? */
 function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): boolean {
 	const minutes = (row.playSeconds || 0) / 60;
@@ -7297,7 +7355,7 @@ function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): bo
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language, edition, idleGateMs } = await bodyOf(data);
+		const { playerId, language, edition, idleGateMs, panel, panelOpens } = await bodyOf(data);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -7322,7 +7380,22 @@ export class Heartbeat extends PublicEndpoint {
 		let sessions = prev.sessions || 0;
 		let curSessionSeconds = prev.curSessionSeconds || 0;
 		const areaSeconds: Record<string, number> = { ...(prev.areaSeconds || {}) };
+		const menuSeconds: Record<string, number> = { ...(prev.menuSeconds || {}) };
+		const menuOpens: Record<string, number> = { ...(prev.menuOpens || {}) };
 		const sessionLengths: Record<string, number> = { ...(prev.sessionLengths || {}) };
+		// Which menu was open at the moment of the beat, if any and if we know it.
+		const openMenu = typeof panel === 'string' && MENU_PANELS.has(panel) ? panel : null;
+		// Menu opens counted by the client since its last successful beat. Merged
+		// here rather than sent as their own request; anything unrecognised, not a
+		// positive number, or implausibly large for one beat is dropped.
+		if (panelOpens && typeof panelOpens === 'object' && !Array.isArray(panelOpens)) {
+			for (const [menu, raw] of Object.entries(panelOpens as Record<string, unknown>)) {
+				if (!MENU_PANELS.has(menu)) continue;
+				const n = Math.floor(Number(raw));
+				if (!Number.isFinite(n) || n <= 0) continue;
+				menuOpens[menu] = (menuOpens[menu] || 0) + Math.min(n, MAX_MENU_OPENS_PER_BEAT);
+			}
+		}
 		const newSession = last === 0 || gap > SESSION_GAP_MS;
 		if (newSession) {
 			// The previous session just ended — bucket its length into the histogram
@@ -7340,6 +7413,11 @@ export class Heartbeat extends PublicEndpoint {
 			// Attribute the elapsed time to the area the player is currently in.
 			const area = player.area || 'unknown';
 			areaSeconds[area] = round1((areaSeconds[area] || 0) + credit);
+			// …and, if a menu was open, to that menu as well. Same approximation the
+			// line above already makes: the whole gap goes to whatever was open when
+			// the beat fired, which over many beats averages out and over one does
+			// not. Overlapping, not carved out — see freshMetrics.
+			if (openMenu) menuSeconds[openMenu] = round1((menuSeconds[openMenu] || 0) + credit);
 		}
 
 		const metrics = {
@@ -7351,6 +7429,8 @@ export class Heartbeat extends PublicEndpoint {
 			sessions,
 			curSessionSeconds: Math.round(curSessionSeconds),
 			areaSeconds,
+			menuSeconds,
+			menuOpens,
 			sessionLengths,
 			...(lang ? { language: lang } : {}),
 			...(gateMs ? { metricsRev: METRICS_REV, idleGateMs: gateMs } : {}),
@@ -7525,6 +7605,25 @@ async function buildDashboardRows(): Promise<any[]> {
 				},
 				// new metric fields (defaulted so aggregation is safe on legacy rows)
 				areaSeconds: s.areaSeconds || {},
+				// Menu dwell. Solo and demo saves reach the roll-up through THIS
+				// projection, not through metricsView, so anything the summary reads
+				// has to be lifted out of the snapshot here or it aggregates as empty
+				// for the desktop audience — which is most of it.
+				menuSeconds: s.menuSeconds || {},
+				menuOpens: s.menuOpens || {},
+				menuMeasured: !!s.menuMeasured,
+				// The highlights wall sorts on this one, so it has to survive the
+				// projection too — recomputed rather than defaulted to 0, because a
+				// snapshot from a client that predates the field still carries the map.
+				menuTotalSeconds:
+					s.menuTotalSeconds ??
+					Math.round(Object.values((s.menuSeconds || {}) as Record<string, number>).reduce((a, b) => a + (b || 0), 0)),
+				menuTotalOpens:
+					s.menuTotalOpens ??
+					Object.values((s.menuOpens || {}) as Record<string, number>).reduce((a, b) => a + (b || 0), 0),
+				menuMinutes: s.menuMinutes || {},
+				menuShareOfPlay: s.menuShareOfPlay ?? null,
+				mostUsedMenu: s.mostUsedMenu || null,
 				sessionLengths: s.sessionLengths || {},
 				creationMs: s.creationMs || 0,
 				creationSeconds: s.creationSeconds ?? (s.creationMs ? round1(s.creationMs / 1000) : null),
@@ -8260,6 +8359,49 @@ async function metricsRollup(target?: any): Promise<{
 			mostTimeArea: Object.entries(areaSecondsTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
 		};
 
+		// Time-in-menus: the same sum across saves, plus how often each menu was
+		// opened. `measuredSaves` is the denominator that matters — saves recorded
+		// before this metric existed contribute nothing, and averaging over every
+		// save would report a drop in menu use that never happened.
+		const menuSecondsTotals: Record<string, number> = {};
+		const menuOpensTotals: Record<string, number> = {};
+		let menuMeasuredSaves = 0;
+		let menuPlaySecondsOfMeasured = 0;
+		for (const v of timed) {
+			const ms = (v.menuSeconds || {}) as Record<string, number>;
+			const mo = (v.menuOpens || {}) as Record<string, number>;
+			if (v.menuMeasured) {
+				menuMeasuredSaves++;
+				menuPlaySecondsOfMeasured += v.playSeconds || 0;
+			}
+			for (const [k, sec] of Object.entries(ms)) menuSecondsTotals[k] = (menuSecondsTotals[k] || 0) + (sec || 0);
+			for (const [k, n] of Object.entries(mo)) menuOpensTotals[k] = (menuOpensTotals[k] || 0) + (n || 0);
+		}
+		const totalMenuSeconds = Object.values(menuSecondsTotals).reduce((a, b) => a + b, 0);
+		const menuMinutesTotals: Record<string, number> = {};
+		for (const [k, sec] of Object.entries(menuSecondsTotals)) menuMinutesTotals[k] = Math.round(sec / 60);
+		const menuDwell = {
+			measuredSaves: menuMeasuredSaves,
+			totalSeconds: Math.round(totalMenuSeconds),
+			totalMinutes: Math.round(totalMenuSeconds / 60),
+			totalOpens: Object.values(menuOpensTotals).reduce((a, b) => a + b, 0),
+			byMenuSeconds: menuSecondsTotals,
+			byMenuMinutes: menuMinutesTotals,
+			byMenuOpens: menuOpensTotals,
+			mostUsedMenu: Object.entries(menuSecondsTotals).sort((a, b) => b[1] - a[1])[0]?.[0] || null,
+			// Share of play time spent in a menu, over the saves that measured it.
+			shareOfPlayPct:
+				menuPlaySecondsOfMeasured > 0 ? round1((totalMenuSeconds / menuPlaySecondsOfMeasured) * 100) : null,
+			// Mean seconds per open, per menu: separates "a menu people live in"
+			// from "a menu people check constantly and leave".
+			secondsPerOpen: Object.fromEntries(
+				Object.entries(menuSecondsTotals).map(([k, sec]) => [
+					k,
+					menuOpensTotals[k] ? round1(sec / menuOpensTotals[k]) : null,
+				]),
+			),
+		};
+
 		// Session-length distribution: sum each save's finished-session histogram.
 		//
 		// This is a SUBSET and the name hides it. A save only contributes buckets for
@@ -8748,6 +8890,7 @@ async function metricsRollup(target?: any): Promise<{
 					tutorialStepHistogram: tutorialTally,
 				},
 				areaDwell,
+				menuDwell,
 				// Kept verbatim so existing readers (this repo's dashboard included)
 				// don't break; `sessionLengths` is the same buckets plus the coverage
 				// they were always missing.

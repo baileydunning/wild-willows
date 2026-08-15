@@ -587,8 +587,22 @@ export const api = {
 	// src/state.tsx). The server stamps it on the metrics blob so a dashboard can
 	// tell which definition of "play time" a row was recorded under, instead of
 	// silently averaging two of them together.
-	heartbeat: (idleGateMs?: number) =>
-		session((playerId) => post<any>('/Heartbeat/', { playerId, language: getLocale(), edition: EDITION, idleGateMs })),
+	// `panel` is the menu open at the moment of the beat (null out in the world);
+	// the server credits the beat's elapsed time to it the same way it credits
+	// area dwell. `panelOpens` carries the opens counted since the last beat that
+	// landed, so counting them costs no request of its own. Both from
+	// src/menuMetrics.ts.
+	heartbeat: (idleGateMs?: number, panel?: string | null, panelOpens?: Record<string, number>) =>
+		session((playerId) =>
+			post<any>('/Heartbeat/', {
+				playerId,
+				language: getLocale(),
+				edition: EDITION,
+				idleGateMs,
+				panel: panel || null,
+				...(panelOpens ? { panelOpens } : {}),
+			}),
+		),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		session((playerId) => post<any>('/AppendFeed/', { playerId, entries })),
 	recalc: (biomeId: string) => session((playerId) => post<any>('/RecalcBiome/', { playerId, biomeId })),

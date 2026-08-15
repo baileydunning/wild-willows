@@ -137,7 +137,7 @@
 			"overviewEmpty": "No animals have come back yet. Build homes and they will start to arrive. Check back here to see everyone.",
 			"upsell": "Write up the {biome} Field Guide. It opens the whole page for each animal here. Look in Tools.",
 			"upsellExpanded": "Write up the Bigger {biome} Guide. It says exactly what each animal here is waiting for. Look in Tools.",
-			"guessPrompt": "Guess first! Which one do you think the {name} needs most?",
+			"guessPrompt": "Guess first! Which one do you think it needs most?",
 			"guessSkip": "Skip — just show the list",
 			"guessCorrect": "Yes! The {name} is the thing it needs most.",
 			"guessWrong": "Not this time. It needs the {name} most.",

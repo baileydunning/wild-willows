@@ -335,7 +335,7 @@
 			"one": "Source",
 			"other": "Sources ({count})"
 		},
-		"guessPrompt": "Before you look — from that hint, which of these do you think the {name} is really waiting for?",
+		"guessPrompt": "Before you look — from that hint, which of these do you think this one is really waiting for?",
 		"guessSkip": "Just show me the list",
 		"guessCorrect": "You called it: the {name} is the piece this one can't do without.",
 		"guessWrong": "Close, but it's the {name} this one can't do without.",

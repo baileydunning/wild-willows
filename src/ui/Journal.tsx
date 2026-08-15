@@ -194,9 +194,12 @@ function GuessPrompt({
 	const { data } = useGame();
 	return (
 		<div className="small req-guess">
+			{/* Never name the animal here. This prompt only ever shows for one the
+			    player hasn't discovered, and the entry above it is deliberately
+			    headed "Unknown insect" — naming the species in the question would
+			    give away the very thing the rest of the card is withholding. */}
 			<p className="req-guess-q">
-				<Icon name="sparkle" size={12} />{' '}
-				{t('panels.journal.guessPrompt', { name: content('animal', animal.id, 'name', animal.name) })}
+				<Icon name="sparkle" size={12} /> {t('panels.journal.guessPrompt')}
 			</p>
 			<div className="req-guess-options">
 				{options.map((id) => (

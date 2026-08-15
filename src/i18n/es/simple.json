@@ -137,7 +137,7 @@
 			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos.",
 			"upsell": "Redacta la Guía de Campo de {biome}. Abre la ficha completa de cada animal de aquí. Búscala en Herramientas.",
 			"upsellExpanded": "Redacta la Guía Grande de {biome}. Dice exactamente qué espera cada animal de aquí. Búscala en Herramientas.",
-			"guessPrompt": "¡Adivina primero! ¿Cuál crees que necesita más el {name}?",
+			"guessPrompt": "¡Adivina primero! ¿Cuál crees que necesita más?",
 			"guessSkip": "Saltar — muéstrame la lista",
 			"guessCorrect": "¡Sí! El {name} es lo que más necesita.",
 			"guessWrong": "Esta vez no. Lo que más necesita es el {name}.",

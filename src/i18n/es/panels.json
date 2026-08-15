@@ -335,7 +335,7 @@
 			"one": "Fuente",
 			"other": "Fuentes ({count})"
 		},
-		"guessPrompt": "Antes de mirar: según esa pista, ¿cuál de estos crees que espera de verdad el {name}?",
+		"guessPrompt": "Antes de mirar: según esa pista, ¿cuál de estos crees que espera de verdad?",
 		"guessSkip": "Muéstrame la lista sin más",
 		"guessCorrect": "Lo acertaste: el {name} es la pieza sin la que este animal no puede vivir.",
 		"guessWrong": "Casi, pero es el {name} lo que este animal no puede dejar de tener.",

@@ -611,6 +611,14 @@
 				border: 1px solid #e2c481;
 				cursor: help;
 			}
+			/* Menu dwell. Deliberately quieter than hlconv — it is context on a card,
+			   not a result worth celebrating like a demo→full conversion. */
+			.hltag.hlmenu {
+				color: #4a5b6b;
+				background: #eef2f6;
+				border: 1px solid #d5dee6;
+				cursor: help;
+			}
 			.hledi {
 				font-size: 0.6rem;
 				font-weight: 700;
@@ -2377,8 +2385,23 @@
 					label: 'Biomes restored',
 					val: (p) => n(p.biomeSummary && p.biomeSummary.biomesFullyRestored),
 				},
+				{ key: 'menus', label: 'Time in menus', val: (p) => hlMenuSeconds(p) },
 			];
 			const HL_SORT = { key: 'playtime' };
+
+			/* Seconds this caretaker has spent in menus.
+			 *
+			 * menuTotalSeconds is what the server sends, but a row written before
+			 * menu dwell shipped carries neither it nor the per-menu map, so fall
+			 * back to summing the map and then to 0. Zero here means "never
+			 * measured" as often as it means "never opened a menu" — which is what
+			 * menuMeasured is for, and why the card prints nothing at all rather
+			 * than a confident 0% when the flag is false. */
+			function hlMenuSeconds(p) {
+				if (!p) return 0;
+				if (p.menuTotalSeconds != null) return n(p.menuTotalSeconds);
+				return Object.values(p.menuSeconds || {}).reduce((a, v) => a + n(v), 0);
+			}
 
 			/* Minutes since a caretaker was last active.
 			 *
@@ -2572,6 +2595,19 @@
 							barRows(objToEntries(areaMin), { cls: 'sky', fmtNum: (v) => `${fmt(v)}m` }),
 						)
 					: '';
+				// Menu time overlaps area time, so this reads as a share of play
+				// rather than as the remainder of the card above.
+				const menuMin =
+					p.menuMinutes && Object.keys(p.menuMinutes).length
+						? p.menuMinutes
+						: Object.fromEntries(Object.entries(p.menuSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+				const menuCard = Object.keys(menuMin).length
+					? cardTitled(
+							'Time in menus',
+							p.menuShareOfPlay != null ? `${p.menuShareOfPlay}% of play time` : null,
+							barRows(objToEntries(menuMin), { cls: 'gold', fmtNum: (v) => `${fmt(v)}m` }),
+						)
+					: '';
 
 				const recent = (ach.recent || []).slice(0, 8);
 				const recCard = recent.length
@@ -2622,11 +2658,13 @@
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
-					(areaCard
-						? `<div class="grid two" style="margin-top:.8rem">${areaCard}${recCard}</div>`
-						: recCard
-							? `<div style="margin-top:.8rem">${recCard}</div>`
-							: '') +
+					// Where the time went, side by side: the world on the left, the
+					// menus on the right. They overlap rather than partition, which is
+					// why the menu card names its own share of play time.
+					(areaCard || menuCard
+						? `<div class="grid two" style="margin-top:.8rem">${areaCard}${menuCard}</div>`
+						: '') +
+					(recCard ? `<div style="margin-top:.8rem">${recCard}</div>` : '') +
 					(prefsCard
 						? `<div class="grid two" style="margin-top:.8rem">${onboard}${prefsCard}</div>`
 						: `<div style="margin-top:.8rem">${onboard}</div>`) +
@@ -3467,6 +3505,7 @@
 					assignSup((p) => p.totalActions, 'Most active');
 					assignSup((p) => p.achievements && p.achievements.earned, 'Most achievements');
 					assignSup((p) => p.biomeSummary && p.biomeSummary.biomesFullyRestored, 'Most restored');
+					assignSup((p) => hlMenuSeconds(p), 'Most time in menus');
 
 					const stat = (v, l) => `<div class="hlstat"><b>${v}</b><span>${l}</span></div>`;
 					// "Active now" uses the same 5-minute window as the Overview KPI, so the two
@@ -3494,12 +3533,24 @@
 							 * be legible on the card — otherwise the order looks arbitrary. The
 							 * "Active now" pill already says it for the top of that list, so it
 							 * isn't printed twice, and the stats grid stays a clean 3 × 2. */
+							/* Menu dwell rides here rather than in the stats grid below: that
+							 * grid is a deliberate 3 x 2, and a seventh stat would leave a
+							 * ragged row on every card to carry one number. Only shown when
+							 * the save actually reported menu time — printing "0% in menus"
+							 * for a save that predates the metric would be a measurement gap
+							 * dressed up as a finding. The full per-menu breakdown is one
+							 * click away in the modal. */
+							const menuSecs = hlMenuSeconds(p);
+							const menuTag =
+								p.menuMeasured && menuSecs > 0
+									? `<span class="hltag hlmenu" title="${fmtDur(menuSecs)} in menus${p.mostUsedMenu ? `, most of it in ${esc(p.mostUsedMenu)}` : ''} — overlaps time in the world, not subtracted from it. Click for the full breakdown.">${p.menuShareOfPlay != null ? `${p.menuShareOfPlay}%` : fmtDur(menuSecs)} in menus</span>`
+									: '';
 							const since = hlSinceMinutes(p);
 							const sinceTag =
 								sortCfg.key === 'recent' && !live
 									? `<span class="hltag hlsince" title="Time since this caretaker was last active">${isFinite(since) ? `${fmtSince(since)} ago` : 'last played unknown'}</span>`
 									: '';
-							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${menuTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
@@ -3815,6 +3866,51 @@
 								`${fmt(totalMin)}m total · most time in ${esc(ad.mostTimeArea || objToEntries(byAreaMin)[0][0])}`,
 								barRows(objToEntries(byAreaMin), { cls: 'sky', fmtNum: (v) => `${fmt(v)}m` }),
 							),
+						),
+					);
+				}
+
+				/* ---- Time in menus ---- */
+				// Menu time OVERLAPS area time (a player reading the journal in the
+				// forest is in both), so this is a share of play time, not the
+				// remainder of the panel above it. Only saves that have reported it
+				// count toward the share — old rows would otherwise drag it to zero.
+				const md = s.menuDwell || {};
+				const byMenuMin =
+					md.byMenuMinutes && Object.keys(md.byMenuMinutes).length
+						? md.byMenuMinutes
+						: Object.fromEntries(Object.entries(md.byMenuSeconds || {}).map(([k, v]) => [k, Math.round(n(v) / 60)]));
+				if (Object.keys(byMenuMin).length) {
+					const menuTotalMin =
+						md.totalMinutes != null
+							? n(md.totalMinutes)
+							: Object.values(byMenuMin).reduce((a, v) => a + n(v), 0);
+					const share = md.shareOfPlayPct != null ? `${md.shareOfPlayPct}% of play time` : 'share not yet measurable';
+					const spo = md.secondsPerOpen || {};
+					const opens = md.byMenuOpens || {};
+					out.push(
+						sec(
+							'Time in menus',
+							'which menus caretakers live in, and which they only glance at',
+							cardTitled(
+								'Minutes per menu',
+								`${fmt(menuTotalMin)}m total · ${esc(share)} · most time in ${esc(md.mostUsedMenu || objToEntries(byMenuMin)[0][0])}`,
+								barRows(objToEntries(byMenuMin), { cls: 'sky', fmtNum: (v) => `${fmt(v)}m` }),
+							) +
+								cardTitled(
+									'Opens per menu',
+									`${fmt(md.totalOpens)} opens across ${fmt(md.measuredSaves)} saves reporting menu time`,
+									barRows(objToEntries(opens), { cls: 'gold', fmtNum: (v) => fmt(v) }) +
+										`<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.5rem">Seconds per open: ` +
+										esc(
+											objToEntries(spo)
+												.filter(([, v]) => v != null)
+												.slice(0, 6)
+												.map(([k, v]) => `${k} ${v}s`)
+												.join(' · ') || '—',
+										) +
+										`. A menu with many opens and few seconds each is being checked, not read.</div>`,
+								),
 						),
 					);
 				}

@@ -40,6 +40,7 @@ import { coalesceAfter, cancelCoalesced } from './perf';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId } from './types';
+import { notePanelOpen, resetPanelOpens, settlePanelOpens, snapshotPanelOpens } from './menuMetrics';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -220,8 +221,37 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [demoNudge, setDemoNudge] = useState(false);
 	const [goalsUnlocked, setGoalsUnlocked] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-	const [panel, setPanel] = useState<PanelId>(null);
-	const [helpOpen, setHelpOpen] = useState(false);
+	const [panel, setPanelState] = useState<PanelId>(null);
+	// Which menu is open, readable from the heartbeat without making the beat
+	// re-arm every time a panel changes (a dependency on `panel` would restart the
+	// interval on every open, and a player flicking between menus would then never
+	// complete one). Written on every set so the beat always reads the live value.
+	const panelRef = useRef<PanelId>(null);
+	panelRef.current = panel;
+	// Count the transition INTO a menu, not every set: closing a panel, or code
+	// re-asserting the one already open, is not someone opening a menu.
+	//
+	// Counted here rather than inside the state updater on purpose. A setState
+	// updater has to be pure — React is free to call it more than once for a
+	// single update (it does exactly that under StrictMode) — and a counter
+	// incremented in there would report two opens for every one. The ref is
+	// written eagerly as well as on render, so two setPanel calls in the same
+	// tick still count one open.
+	const setPanel = useCallback((p: PanelId) => {
+		if (p && p !== panelRef.current) notePanelOpen(p);
+		panelRef.current = p;
+		setPanelState(p);
+	}, []);
+	// The help overlay isn't a PanelId, but to a player it is a menu like any
+	// other, so it reports its own dwell and opens under the id 'help'.
+	const [helpOpen, setHelpOpenState] = useState(false);
+	const helpOpenRef = useRef(false);
+	helpOpenRef.current = helpOpen;
+	const setHelpOpen = useCallback((b: boolean) => {
+		if (b && !helpOpenRef.current) notePanelOpen('help');
+		helpOpenRef.current = b;
+		setHelpOpenState(b);
+	}, []);
 	const [activeChestId, setActiveChestId] = useState<string | null>(null);
 	const [animalCardId, setAnimalCardId] = useState<string | null>(null);
 	const [placementObjectId, setPlacementObjectId] = useState<string | null>(null);
@@ -840,6 +870,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.shared.state = null;
 		setPanel(null);
 		setPlacementObjectId(null);
+		resetPanelOpens(); // unsent menu opens belong to the save that made them
 		setDemoNudge(false); // a soft prompt belongs to the save it was raised over
 		setGoalsUnlocked(false);
 		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
@@ -940,10 +971,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			// Send buffered feed lines on the same beat, so an active player costs
 			// one feed write per heartbeat instead of one every six seconds.
 			void flushFeed();
+			// Menu dwell + opens ride the beat (see src/menuMetrics.ts). The opens
+			// are only cleared once the beat lands, so a dropped request re-sends
+			// them rather than losing them.
+			const opens = snapshotPanelOpens();
+			// A panel wins over the help overlay when somehow both are up: the panel
+			// is the thing in front, and one beat can only be credited once.
+			const openMenu = panelRef.current || (helpOpenRef.current ? 'help' : null);
 			api
-				.heartbeat(HEARTBEAT_IDLE_MS)
+				.heartbeat(HEARTBEAT_IDLE_MS, openMenu, opens)
 				.then((r: any) => {
 					if (!r) return;
+					settlePanelOpens(opens);
 					// The preserve kept living while the game was closed: the heartbeat is
 					// where "time passed" lands (matured plants, health gains, arrivals).
 					const wb = r.welcomeBack;
