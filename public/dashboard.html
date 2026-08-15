@@ -3202,9 +3202,10 @@
 				 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
 				 * these are site numbers, not game numbers.
 				 *
-				 * Built here (it needs `LANDING`), but pushed LAST — see the bottom of this
-				 * function. These are site numbers rather than game numbers, so they sit below
-				 * everything about the game itself. */
+				 * Built here (it needs `LANDING`) and pushed just below the Overview — see
+				 * the push a little further down. Site numbers rather than game numbers,
+				 * but they are the ones upstream of everything else on the page, so they
+				 * read first rather than last. */
 				let landingSection = '';
 				if (LANDING && LANDING.totals) {
 					const lt = LANDING.totals;
@@ -3336,6 +3337,15 @@
 					`</div>`
 				);
 			}
+
+				/* ---- Landing page (site traffic, not game numbers) ----
+				 * Straight after the Overview, ahead of Engagement and the First five
+				 * milestones card inside it. It used to sit at the very bottom, which
+				 * read as an afterthought and buried the number upstream of every other
+				 * number on this page: how many people arrived at all. Top to bottom the
+				 * page is now a funnel — who turned up, who played, how far they got —
+				 * rather than the game's internals with the traffic tacked on the end. */
+				if (landingSection) out.push(landingSection);
 
 			/* ---- Engagement KPIs ---- */
 				out.push(
@@ -4020,9 +4030,6 @@
 
 				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
-
-				/* ---- Landing page (site traffic, not game numbers) ---- */
-				if (landingSection) out.push(landingSection);
 
 				/* ---- Problems mode ----
 				 * When it is on, the page IS the failure panels — everything above is

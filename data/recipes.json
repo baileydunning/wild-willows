@@ -1242,8 +1242,8 @@
       "category": "habitat",
       "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 60,
-        "label": "Restore Willow Meadow to 60% health"
+        "minHealth": 40,
+        "label": "Restore Willow Meadow to 40% health"
       },
       "output": {
         "itemId": "brush-pile",
