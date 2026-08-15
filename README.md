@@ -6,7 +6,7 @@ A cozy nature-restoration life sim. You've set up camp at the edge of a damaged 
 
 Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 (database, API resources, seeded data). **The hosted Harper is endpoints only** — it serves no static files; the game UI ships inside the desktop app (locally, Vite serves it and proxies API calls to Harper). All art — terrain, objects, animals, the player, and journal thumbnails — is procedurally generated from simple shapes at boot, so the game ships with zero asset files.
 
-> **Source available, not open source.** © 2026 Bailey Dunning. The code is here to be read, studied and learned from — see [NOTICE.md](NOTICE.md) for what that does and doesn't allow, and [LICENSE.md](LICENSE.md) for the terms ([PolyForm Strict 1.0.0](https://polyformproject.org/licenses/strict/1.0.0)). Running, distributing or building on it needs written permission; ask and it may well be yes.
+> **Source available, not open source.** © 2026 Bailey Dunning, all rights reserved. The code is here to be read, studied and learned from — no licence to use it is granted. See [NOTICE.md](NOTICE.md) for what that does and doesn't allow. Running, building, distributing or deriving from it needs written permission; ask and it may well be yes.
 
 ---
 

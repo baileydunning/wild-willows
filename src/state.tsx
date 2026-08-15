@@ -335,14 +335,26 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[toast],
 	);
 
-	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
-	// them buffered for the next flush.
-	const flushFeed = useCallback(() => {
+	/**
+	 * Push any buffered feed lines to Harper.
+	 *
+	 * RETURNS A PROMISE, and any caller about to read the feed back has to await
+	 * it. Exporting a save is the one that matters: the exporter reads `FeedEntry`
+	 * rows straight out of the database, so a fire-and-forget flush raced its own
+	 * export — two requests in flight at once, and when the export won, the save
+	 * the player carried into the full game was missing exactly the lines the
+	 * flush existed to keep. The ambient callers (the timer, tab-hide, unload)
+	 * have nothing to order themselves against and let it run in the background.
+	 *
+	 * Best-effort on failure: the batch is spliced out and DROPPED rather than put
+	 * back, so an offline stretch cannot grow the buffer without bound. A lost
+	 * feed line is one missing sentence of scrollback; a buffer that grows forever
+	 * is a leak in a game people leave open for hours.
+	 */
+	const flushFeed = useCallback(async (): Promise<void> => {
 		if (!getPlayerId() || feedBuffer.current.length === 0) return;
 		const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
-		// best-effort: if it fails (e.g. offline, or the feed table isn't there yet),
-		// just drop the batch rather than growing the buffer without bound
-		api.appendFeed(batch).catch(() => undefined);
+		await api.appendFeed(batch).catch(() => undefined);
 	}, []);
 
 	// Definitions load once, before login (the character creator needs them). In
@@ -376,7 +388,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setDemoComplete(true);
 		setDemoNudge(false); // the hard-stop supersedes the soft prompt; never stack them
 		reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
-		flushFeed(); // persist buffered feed so an export captures it
+		// Kicked off here so the lines are on their way before the popup's export
+		// button can be pressed; exportDemo awaits a flush of its own regardless, so
+		// a slow append cannot leave them behind.
+		void flushFeed();
 	}, [flushFeed]);
 
 	// Forest time cap — accumulate wall-clock only while the caretaker is actually
@@ -805,7 +820,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const logout = useCallback(() => {
-		flushFeed(); // persist any unsaved feed lines before we drop the session
+		void flushFeed(); // persist any unsaved feed lines before we drop the session
 		exitSolo(); // tear down any in-app solo world + reset transport (no-op on web)
 		setPlayerId(null);
 		setState(null);
@@ -846,7 +861,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// any moment mid-play, and a feed line still sitting in the buffer would be
 	// missing from the copy they carry across.
 	const exportDemo = useCallback(async (): Promise<string | null> => {
-		flushFeed();
+		// AWAITED, not fired and forgotten: the exporter reads the feed rows out of
+		// the database, so letting the append race the export is how the carried
+		// save loses its most recent lines.
+		await flushFeed();
 		try {
 			const out = await exportDemoSave();
 			if (!out) return null;
@@ -908,7 +926,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (Date.now() - lastInputAt.current > HEARTBEAT_IDLE_MS) return;
 			// Send buffered feed lines on the same beat, so an active player costs
 			// one feed write per heartbeat instead of one every six seconds.
-			flushFeed();
+			void flushFeed();
 			api
 				.heartbeat(HEARTBEAT_IDLE_MS)
 				.then((r: any) => {
@@ -1064,17 +1082,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// ones from the last few seconds of a session that ended in a hard crash.
 	useEffect(() => {
 		if (!sessionPlayerId) return;
-		const id = window.setInterval(flushFeed, FEED_FLUSH_MS);
+		// Ambient flushes: nothing reads the feed back straight afterwards, so these
+		// stay fire-and-forget. `onUnload` deliberately ignores the promise — a page
+		// being torn down will not wait for one.
+		const onUnload = () => void flushFeed();
+		const id = window.setInterval(onUnload, FEED_FLUSH_MS);
 		const onHide = () => {
-			if (document.visibilityState === 'hidden') flushFeed();
+			if (document.visibilityState === 'hidden') void flushFeed();
 		};
 		document.addEventListener('visibilitychange', onHide);
-		window.addEventListener('beforeunload', flushFeed);
+		window.addEventListener('beforeunload', onUnload);
 		return () => {
 			window.clearInterval(id);
 			document.removeEventListener('visibilitychange', onHide);
-			window.removeEventListener('beforeunload', flushFeed);
-			flushFeed();
+			window.removeEventListener('beforeunload', onUnload);
+			void flushFeed();
 		};
 	}, [sessionPlayerId, flushFeed]);
 

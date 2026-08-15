@@ -5553,61 +5553,81 @@ export class ExportDemoSave extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId } = await bodyOf(data);
 		const id = slugId(String(playerId || ''));
-		const t = db();
-		const player = id ? await safeGet(t.Player, id) : null;
-		if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404, 'server.err.noSaveWithName');
-		if (readMetrics(player)?.edition !== 'demo')
-			throw new GameError(tr('server.err.notDemoSave'), 403, 'server.err.notDemoSave');
+		if (!id) throw new GameError(tr('server.err.noSaveWithName'), 404, 'server.err.noSaveWithName');
 
-		const wid = worldOf(player);
-		// Reset edition to 'full' on the exported copy: the player is carrying this
-		// into the paid game, so it should report as a full-game save (Heartbeat
-		// keeps 'demo' sticky otherwise).
+		// The WHOLE snapshot is taken under the player's lock, reads included.
 		//
-		// Flipping that flag used to be ALL this did, which erased the most
-		// interesting thing that had ever happened to the save: after import it was
-		// indistinguishable from one that started in the full game, so "played the
-		// demo, liked it, bought it, carried their meadow across" — the single
-		// clearest signal the demo is doing its job — left no trace anywhere. Stamp
-		// the milestone and freeze how far they had got, so the save can report it
-		// about itself from then on.
-		const prevMetrics = readMetrics(player) || {};
-		const atExport = metricsView(player);
-		const exportedPlayer = {
-			...player,
-			metrics: encodeMetrics({
-				...prevMetrics,
-				edition: 'full',
-				convertedFromDemoAt: Date.now(),
-				demoPlaySeconds: atExport.playSeconds,
-				demoSessions: atExport.sessions,
-				demoActions: atExport.totalActions,
-			}),
-		};
+		// This endpoint reads nine tables one after another, and without the lock
+		// there is nothing stopping a gameplay request landing in the middle of that
+		// — the client does not serialize its fetches. Worse, withPlayerLock BUFFERS
+		// Player patches and only writes them out as the lock releases, so a
+		// half-overlapped action is visible in exactly the wrong order: PlaceObject
+		// decrements `craftedItems` inside the lock and writes the Placement row
+		// immediately, so an export threading between them captures a Player who
+		// still owns the brush pile AND a Placement of the brush pile already in the
+		// ground. Import that save into the full game and the item has been
+		// duplicated.
+		//
+		// Taking the lock costs a moment of waiting on a button press the player
+		// makes once, and buys a snapshot that is consistent with itself — which is
+		// the entire point of a save they are carrying between games.
+		return withPlayerLock(id, async () => {
+			const t = db();
+			const player = await safeGet(t.Player, id);
+			if (!player) throw new GameError(tr('server.err.noSaveWithName'), 404, 'server.err.noSaveWithName');
+			if (readMetrics(player)?.edition !== 'demo')
+				throw new GameError(tr('server.err.notDemoSave'), 403, 'server.err.notDemoSave');
 
-		const save = {
-			meta: {
-				playerId: id,
-				name: player.name || 'Caretaker',
-				appearance: player.appearance || {},
-				createdAt: player.createdAt || Date.now(),
-				updatedAt: Date.now(),
-			},
-			// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
-			// cleanly.
-			data: {
-				Player: [exportedPlayer],
-				PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
-				BiomeState: await byWorld(t.BiomeState, wid),
-				Chest: await byWorld(t.Chest, wid),
-				Placement: await byWorld(t.Placement, wid),
-				Discovery: await byWorld(t.Discovery, wid),
-				NodeState: await byWorld(t.NodeState, wid),
-				TerrainTile: await byWorld(t.TerrainTile, wid),
-				FeedEntry: await byWorld(t.FeedEntry, wid),
-			},
-		};
-		return { ok: true, ...save };
+			const wid = worldOf(player);
+			// Reset edition to 'full' on the exported copy: the player is carrying this
+			// into the paid game, so it should report as a full-game save (Heartbeat
+			// keeps 'demo' sticky otherwise).
+			//
+			// Flipping that flag used to be ALL this did, which erased the most
+			// interesting thing that had ever happened to the save: after import it was
+			// indistinguishable from one that started in the full game, so "played the
+			// demo, liked it, bought it, carried their meadow across" — the single
+			// clearest signal the demo is doing its job — left no trace anywhere. Stamp
+			// the milestone and freeze how far they had got, so the save can report it
+			// about itself from then on.
+			const prevMetrics = readMetrics(player) || {};
+			const atExport = metricsView(player);
+			const exportedPlayer = {
+				...player,
+				metrics: encodeMetrics({
+					...prevMetrics,
+					edition: 'full',
+					convertedFromDemoAt: Date.now(),
+					demoPlaySeconds: atExport.playSeconds,
+					demoSessions: atExport.sessions,
+					demoActions: atExport.totalActions,
+				}),
+			};
+
+			const save = {
+				meta: {
+					playerId: id,
+					name: player.name || 'Caretaker',
+					appearance: player.appearance || {},
+					createdAt: player.createdAt || Date.now(),
+					updatedAt: Date.now(),
+				},
+				// Keys mirror src/solo/localDb.ts DYNAMIC_TABLES so loadSoloGame hydrates
+				// cleanly.
+				data: {
+					Player: [exportedPlayer],
+					PlayerAchievement: await byPlayer(t.PlayerAchievement, id),
+					BiomeState: await byWorld(t.BiomeState, wid),
+					Chest: await byWorld(t.Chest, wid),
+					Placement: await byWorld(t.Placement, wid),
+					Discovery: await byWorld(t.Discovery, wid),
+					NodeState: await byWorld(t.NodeState, wid),
+					TerrainTile: await byWorld(t.TerrainTile, wid),
+					FeedEntry: await byWorld(t.FeedEntry, wid),
+				},
+			};
+			return { ok: true, ...save };
+		});
 	}
 }
 
