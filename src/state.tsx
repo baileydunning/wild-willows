@@ -17,11 +17,13 @@ import {
 	exportDemoSave,
 } from './api';
 import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
+import { watchDemoNudge } from './demoNudge';
 import { flushFeedbackQueue } from './feedback';
+import { serialRun } from './serialRun';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { reportSaveIncident } from './solo/saveIncident';
-import { reportCharacterCreated, reportDemoComplete, reportSaveResumed } from './solo/appOpen';
+import { reportCharacterCreated, reportDemoComplete, reportDemoNudge, reportSaveResumed } from './solo/appOpen';
 import { bridge } from './game/bridge';
 import { unlockedRecipeIds } from './recipes';
 import { applyTerraformResult } from './terraformPatch';
@@ -32,11 +34,13 @@ import {
 	applyMoveResult,
 	applyPlaceResult,
 	applyPlantResult,
+	withHeldTaskProgress,
 } from './actionPatch';
 import { coalesceAfter, cancelCoalesced } from './perf';
 import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } from './ui/narrative';
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId } from './types';
+import { notePanelOpen, resetPanelOpens, settlePanelOpens, snapshotPanelOpens } from './menuMetrics';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -62,8 +66,17 @@ interface Ctx {
 	demoBackend: 'pending' | 'harper' | 'solo';
 	demoComplete: boolean;
 	dismissDemo: () => void;
-	/** Download the finished demo save for import into the full game; resolves to
-	 *  the filename on success, null on failure. */
+	/** itch demo only: the soft "are you done playing?" prompt is up — raised on
+	 *  idleness or on coming back from being away, dismissible, and nothing to do
+	 *  with the hard-stop above. */
+	demoNudge: boolean;
+	dismissDemoNudge: () => void;
+	/** The one-time "now the goals are yours" hand-off, raised when the last
+	 *  starter goal is claimed. */
+	goalsUnlocked: boolean;
+	dismissGoalsUnlocked: () => void;
+	/** Download the demo save for import into the full game; resolves to the
+	 *  filename on success, null on failure. */
 	exportDemo: () => Promise<string | null>;
 	panel: PanelId;
 	setPanel: (p: PanelId) => void;
@@ -82,7 +95,14 @@ interface Ctx {
 	pushLog: (icon: string, text: string, notable?: boolean) => void;
 	selectedTool: string;
 	setSelectedTool: (toolId: string) => void;
-	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') => Promise<void>;
+	terraform: (
+		area: string,
+		x: number,
+		y: number,
+		action: 'dig' | 'water' | 'clear',
+		/** the tile type this command was decided against — see api.terraform */
+		expect?: string | null,
+	) => Promise<void>;
 	plant: (area: string, x: number, y: number, plantId: string) => Promise<void>;
 	setTutorialStep: (step: number) => void;
 	startNew: (name: string, passcode: string, appearance: Appearance, creationMs?: number) => Promise<void>;
@@ -169,6 +189,28 @@ const RECALC_COALESCE_MS = 1200;
 // safety net for lines buffered between beats — not a second, faster cadence.
 const FEED_FLUSH_MS = 30_000;
 
+/**
+ * Remember, per save, that the "now the goals are yours" hand-off has been seen,
+ * and report whether this is the first time. Storage is best-effort: if it's
+ * unavailable (private mode), we show the modal — a player who has finished ten
+ * starter goals and is never told the board is theirs is the worse failure.
+ */
+const GOALS_UNLOCKED_KEY = 'wild-willows:goals-unlocked-seen';
+
+function markGoalsUnlockedSeen(playerId: string | undefined): boolean {
+	if (!playerId) return false;
+	try {
+		const raw = localStorage.getItem(GOALS_UNLOCKED_KEY);
+		const seen: string[] = raw ? JSON.parse(raw) : [];
+		if (Array.isArray(seen) && seen.includes(playerId)) return false;
+		const next = [...(Array.isArray(seen) ? seen : []), playerId].slice(-20);
+		localStorage.setItem(GOALS_UNLOCKED_KEY, JSON.stringify(next));
+		return true;
+	} catch {
+		return true;
+	}
+}
+
 export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [data, setData] = useState<GameData | null>(null);
 	const [state, setState] = useState<GameState | null>(null);
@@ -176,9 +218,40 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// itch demo: resolved backend (Harper vs offline solo) + the 5-animal gate.
 	const [demoBackend, setDemoBackend] = useState<'pending' | 'harper' | 'solo'>(DEMO ? 'pending' : 'harper');
 	const [demoComplete, setDemoComplete] = useState(false);
+	const [demoNudge, setDemoNudge] = useState(false);
+	const [goalsUnlocked, setGoalsUnlocked] = useState(false);
 	const [saveStatus, setSaveStatus] = useState<SaveStatus>('idle');
-	const [panel, setPanel] = useState<PanelId>(null);
-	const [helpOpen, setHelpOpen] = useState(false);
+	const [panel, setPanelState] = useState<PanelId>(null);
+	// Which menu is open, readable from the heartbeat without making the beat
+	// re-arm every time a panel changes (a dependency on `panel` would restart the
+	// interval on every open, and a player flicking between menus would then never
+	// complete one). Written on every set so the beat always reads the live value.
+	const panelRef = useRef<PanelId>(null);
+	panelRef.current = panel;
+	// Count the transition INTO a menu, not every set: closing a panel, or code
+	// re-asserting the one already open, is not someone opening a menu.
+	//
+	// Counted here rather than inside the state updater on purpose. A setState
+	// updater has to be pure — React is free to call it more than once for a
+	// single update (it does exactly that under StrictMode) — and a counter
+	// incremented in there would report two opens for every one. The ref is
+	// written eagerly as well as on render, so two setPanel calls in the same
+	// tick still count one open.
+	const setPanel = useCallback((p: PanelId) => {
+		if (p && p !== panelRef.current) notePanelOpen(p);
+		panelRef.current = p;
+		setPanelState(p);
+	}, []);
+	// The help overlay isn't a PanelId, but to a player it is a menu like any
+	// other, so it reports its own dwell and opens under the id 'help'.
+	const [helpOpen, setHelpOpenState] = useState(false);
+	const helpOpenRef = useRef(false);
+	helpOpenRef.current = helpOpen;
+	const setHelpOpen = useCallback((b: boolean) => {
+		if (b && !helpOpenRef.current) notePanelOpen('help');
+		helpOpenRef.current = b;
+		setHelpOpenState(b);
+	}, []);
 	const [activeChestId, setActiveChestId] = useState<string | null>(null);
 	const [animalCardId, setAnimalCardId] = useState<string | null>(null);
 	const [placementObjectId, setPlacementObjectId] = useState<string | null>(null);
@@ -293,15 +366,38 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[toast],
 	);
 
-	// Push any buffered feed lines to Harper. Best-effort: on failure we just keep
-	// them buffered for the next flush.
-	const flushFeed = useCallback(() => {
-		if (!getPlayerId() || feedBuffer.current.length === 0) return;
-		const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
-		// best-effort: if it fails (e.g. offline, or the feed table isn't there yet),
-		// just drop the batch rather than growing the buffer without bound
-		api.appendFeed(batch).catch(() => undefined);
-	}, []);
+	/**
+	 * Push any buffered feed lines to Harper.
+	 *
+	 * RETURNS A PROMISE, and any caller about to read the feed back has to await
+	 * it. Exporting a save is the one that matters: the exporter reads `FeedEntry`
+	 * rows straight out of the database, so a fire-and-forget flush raced its own
+	 * export — and when the export won, the save the player carried into the full
+	 * game was missing exactly the lines the flush existed to keep.
+	 *
+	 * SERIALIZED (see serialRun), which is what makes awaiting it mean anything.
+	 * Emptying the buffer and then awaiting the write reads as awaitable and is
+	 * not: a second caller arriving mid-write finds an empty buffer and returns
+	 * straight away, while the first request is still on the wire. That is not
+	 * hypothetical here — the heartbeat flushes without awaiting, and the demo's
+	 * hard-stop fires one at the exact moment the export button appears. Chaining
+	 * makes `await flushFeed()` mean "every line queued before or during this call
+	 * has landed", rather than "the array is empty right now".
+	 *
+	 * Best-effort on failure: the batch is spliced out and DROPPED rather than put
+	 * back, so an offline stretch cannot grow the buffer without bound. A lost
+	 * feed line is one missing sentence of scrollback; a buffer that grows forever
+	 * is a leak in a game people leave open for hours.
+	 */
+	const flushFeed = useMemo(
+		() =>
+			serialRun(async () => {
+				if (!getPlayerId() || feedBuffer.current.length === 0) return;
+				const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
+				await api.appendFeed(batch).catch(() => undefined);
+			}),
+		[],
+	);
 
 	// Definitions load once, before login (the character creator needs them). In
 	// the itch demo we first probe the hosted Harper: on success we play against
@@ -332,8 +428,13 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// dismiss (see dismissDemo). We flush the feed so an export captures the latest.
 	const finishDemo = useCallback(() => {
 		setDemoComplete(true);
+		setDemoNudge(false); // the hard-stop supersedes the soft prompt; never stack them
 		reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
-		flushFeed(); // persist buffered feed so an export captures it
+		// Kicked off here so the lines are on their way before the popup's export
+		// button can be pressed. Not awaited, and it does not need to be: flushes are
+		// serialized, so the export's own `await flushFeed()` waits for THIS one to
+		// land before it reads the feed back.
+		void flushFeed();
 	}, [flushFeed]);
 
 	// Forest time cap — accumulate wall-clock only while the caretaker is actually
@@ -359,6 +460,35 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}, 1000);
 		return () => clearInterval(id);
 	}, [finishDemo]);
+
+	// Demo re-engagement prompt: raised once, when a player stops playing without
+	// finishing (window untouched for five minutes, or back after a spell away).
+	// See src/demoNudge.ts for the two signals and why they're the ones worth
+	// watching; the prompt itself is src/ui/DemoNudge.tsx.
+	//
+	// `demoNudgeShown` makes it once-per-page-load rather than once-per-watcher:
+	// the effect re-attaches whenever the demo save changes hands (new game after a
+	// logout, say), and a second prompt in one sitting reads as nagging even when
+	// the first one was answered ten minutes earlier.
+	//
+	// The dependency is the player ID, NOT `state`. `state` is a fresh object after
+	// every action and every background refresh, so depending on it would tear the
+	// watcher down and rebuild it — resetting the idle clock — several times a
+	// minute, and the five-minute mark would never arrive.
+	const demoNudgeShown = useRef(false);
+	const demoSavePlayerId = state?.player?.id ?? null;
+	useEffect(() => {
+		if (!DEMO || !demoSavePlayerId || demoComplete || demoNudgeShown.current) return;
+		return watchDemoNudge((reason) => {
+			demoNudgeShown.current = true;
+			setDemoNudge(true);
+			reportDemoNudge('shown'); // metrics: the prompt's funnel starts here
+			pushLog('target', t(reason === 'idle' ? 'app.feed.demoNudgeIdle' : 'app.feed.demoNudgeReturned'));
+		});
+	}, [demoSavePlayerId, demoComplete]);
+
+	const dismissDemoNudge = useCallback(() => setDemoNudge(false), []);
+	const dismissGoalsUnlocked = useCallback(() => setGoalsUnlocked(false), []);
 
 	useEffect(() => {
 		bridge.shared.state = state;
@@ -523,10 +653,17 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [state, toast, pushLog]);
 
-	// Starters graduation: when the last of the three fixed starters clears off the
-	// board, cheer the player on to design their own goals — once, as a toast and a
-	// feed line. We only fire on the present→absent transition we actually witnessed
-	// this session, so returning saves that finished long ago stay quiet.
+	// Starters graduation: when the last of the ten starter goals clears off the
+	// board, hand the board over — a toast, a feed line, and the one-time modal
+	// that actually explains what just became possible (src/ui/GoalsUnlocked.tsx).
+	// We only fire on the present→absent transition we actually witnessed this
+	// session, so returning saves that finished long ago stay quiet.
+	//
+	// The modal is additionally pinned to the save in localStorage. The transition
+	// alone is nearly enough — it happens once per save — but "nearly" is doing
+	// real work there: a co-op member watching someone else claim the last one, or
+	// any future path that briefly empties the board, would re-open a modal the
+	// player has already read and dismissed. Once means once.
 	useEffect(() => {
 		const tasks = state?.dailyTasks?.tasks;
 		if (!tasks) return;
@@ -536,6 +673,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		if (before && !present) {
 			toast(t('app.toast.startersDone'), 'unlock');
 			pushLog('target', t('app.feed.startersDone'), true);
+			if (markGoalsUnlockedSeen(state?.player?.id)) setGoalsUnlocked(true);
 		}
 	}, [state, toast, pushLog, t]);
 
@@ -575,9 +713,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		saveTimer.current = window.setTimeout(() => setSaveStatus('idle'), 1800);
 	}, []);
 
+	// One funnel for every state the app adopts — server snapshots and optimistic
+	// patches alike. The held-materials pass runs here rather than inside each
+	// patcher so a goal like "gather 10 seeds" tracks the basket no matter which
+	// action moved it (gathering, harvesting, a chest transfer, spending on a
+	// craft). On a server snapshot it's a no-op: the numbers already agree.
 	const adoptState = useCallback((s: GameState) => {
-		setState(s);
-		bridge.shared.state = s;
+		const next = withHeldTaskProgress(s);
+		setState(next);
+		bridge.shared.state = next;
 		bridge.emit('world-dirty');
 	}, []);
 
@@ -719,13 +863,16 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const logout = useCallback(() => {
-		flushFeed(); // persist any unsaved feed lines before we drop the session
+		void flushFeed(); // persist any unsaved feed lines before we drop the session
 		exitSolo(); // tear down any in-app solo world + reset transport (no-op on web)
 		setPlayerId(null);
 		setState(null);
 		bridge.shared.state = null;
 		setPanel(null);
 		setPlacementObjectId(null);
+		resetPanelOpens(); // unsent menu opens belong to the save that made them
+		setDemoNudge(false); // a soft prompt belongs to the save it was raised over
+		setGoalsUnlocked(false);
 		setLog([]); // clear the on-screen feed; it re-seeds from Harper on next login
 		setFeedLog([]);
 		feedSeeded.current = false;
@@ -750,9 +897,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		logout();
 	}, [logout]);
 
-	// Export the finished demo save as a file the full downloadable game can
-	// import (Import Save on its title screen). Returns the filename on success.
+	// Export the demo save as a file the full downloadable game can import (Import
+	// Save on its title screen). Returns the filename on success.
+	//
+	// Flushes the buffered feed first. The hard-stop path already did that when it
+	// finished the demo, but the soft prompt (src/ui/DemoNudge.tsx) can export at
+	// any moment mid-play, and a feed line still sitting in the buffer would be
+	// missing from the copy they carry across.
 	const exportDemo = useCallback(async (): Promise<string | null> => {
+		// AWAITED, not fired and forgotten: the exporter reads the feed rows out of
+		// the database, so letting the append race the export is how the carried
+		// save loses its most recent lines.
+		await flushFeed();
 		try {
 			const out = await exportDemoSave();
 			if (!out) return null;
@@ -769,7 +925,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		} catch {
 			return null;
 		}
-	}, []);
+	}, [flushFeed]);
 
 	// Heartbeat: while a save is open, ping the server on a timer so it can
 	// accrue play time and session counts. Best-effort, and skipped in two cases
@@ -814,11 +970,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (Date.now() - lastInputAt.current > HEARTBEAT_IDLE_MS) return;
 			// Send buffered feed lines on the same beat, so an active player costs
 			// one feed write per heartbeat instead of one every six seconds.
-			flushFeed();
+			void flushFeed();
+			// Menu dwell + opens ride the beat (see src/menuMetrics.ts). The opens
+			// are only cleared once the beat lands, so a dropped request re-sends
+			// them rather than losing them.
+			const opens = snapshotPanelOpens();
+			// A panel wins over the help overlay when somehow both are up: the panel
+			// is the thing in front, and one beat can only be credited once.
+			const openMenu = panelRef.current || (helpOpenRef.current ? 'help' : null);
 			api
-				.heartbeat(HEARTBEAT_IDLE_MS)
+				.heartbeat(HEARTBEAT_IDLE_MS, openMenu, opens)
 				.then((r: any) => {
 					if (!r) return;
+					settlePanelOpens(opens);
 					// The preserve kept living while the game was closed: the heartbeat is
 					// where "time passed" lands (matured plants, health gains, arrivals).
 					const wb = r.welcomeBack;
@@ -970,17 +1134,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// ones from the last few seconds of a session that ended in a hard crash.
 	useEffect(() => {
 		if (!sessionPlayerId) return;
-		const id = window.setInterval(flushFeed, FEED_FLUSH_MS);
+		// Ambient flushes: nothing reads the feed back straight afterwards, so these
+		// stay fire-and-forget. `onUnload` deliberately ignores the promise — a page
+		// being torn down will not wait for one.
+		const onUnload = () => void flushFeed();
+		const id = window.setInterval(onUnload, FEED_FLUSH_MS);
 		const onHide = () => {
-			if (document.visibilityState === 'hidden') flushFeed();
+			if (document.visibilityState === 'hidden') void flushFeed();
 		};
 		document.addEventListener('visibilitychange', onHide);
-		window.addEventListener('beforeunload', flushFeed);
+		window.addEventListener('beforeunload', onUnload);
 		return () => {
 			window.clearInterval(id);
 			document.removeEventListener('visibilitychange', onHide);
-			window.removeEventListener('beforeunload', flushFeed);
-			flushFeed();
+			window.removeEventListener('beforeunload', onUnload);
+			void flushFeed();
 		};
 	}, [sessionPlayerId, flushFeed]);
 
@@ -1100,9 +1268,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const terraform = useCallback(
-		(area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
+		(area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
 			act(
-				() => api.terraform(area, x, y, action),
+				() => api.terraform(area, x, y, action, expect),
 				(r) => {
 					if (action === 'dig') {
 						if (r?.dug) {
@@ -1441,6 +1609,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						pushLog('sparkle', t('app.feed.taskReward', { items: gainedTxt }), true);
 					}
 				},
+				{
+					// The response already carries the board as it stands AFTER the claim —
+					// finished goal gone, next one in its place — so paint it now instead
+					// of waiting out a full GameState round trip. Claiming and then
+					// watching nothing happen for a beat reads as the game not having
+					// registered the click. The trailing reconcile still runs for
+					// everything else the claim touched (achievements, unlocks).
+					apply: (r, prev) =>
+						r?.dailyTasks && r?.inventory
+							? { ...prev, dailyTasks: r.dailyTasks, player: { ...prev.player, inventory: r.inventory } }
+							: null,
+				},
 			),
 		[act, data, toast, pushLog],
 	);
@@ -1513,8 +1693,21 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, state, toast, canAffordCraft],
 	);
 
+	// The area change in flight, if any. Stepping through a door is a round trip
+	// (sync the position, refetch the snapshot, then rebuild the scene), and every
+	// door is a thing you can click twice — or click and then press the interact
+	// key on — before the first trip lands. Each extra request re-ran the whole
+	// transition, and the duplicate that arrived AFTER the scene had already moved
+	// asked it to travel from the meadow to the meadow, which the spawn rules read
+	// as "arrived from a neighbouring biome" and answered with the trail gate. So
+	// the caretaker stepped out of their house and was yanked across the meadow.
+	//
+	// One transition at a time, and none at all to where we already are.
+	const areaChanging = useRef<string | null>(null);
 	const changeArea = useCallback(
 		async (area: string) => {
+			if (areaChanging.current || (bridge.shared.state?.player.area ?? state?.player.area) === area) return;
+			areaChanging.current = area;
 			try {
 				setSaveStatus('saving');
 				await api.syncPlayer(state?.player.x ?? 0, state?.player.y ?? 0, area);
@@ -1526,6 +1719,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			} catch (e: any) {
 				setSaveStatus('idle');
 				toast(e.message || t('app.error.cannotGoThere'), 'error');
+			} finally {
+				areaChanging.current = null;
 			}
 		},
 		[state, markSaved, toast, adoptState],
@@ -1583,6 +1778,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
+			demoNudge,
+			dismissDemoNudge,
+			goalsUnlocked,
+			dismissGoalsUnlocked,
 			exportDemo,
 			panel,
 			setPanel,
@@ -1640,6 +1839,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			demoBackend,
 			demoComplete,
 			dismissDemo,
+			demoNudge,
+			dismissDemoNudge,
+			goalsUnlocked,
+			dismissGoalsUnlocked,
 			exportDemo,
 			panel,
 			helpOpen,

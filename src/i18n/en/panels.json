@@ -104,7 +104,6 @@
 		"restoreFirst": "Restore {biome} to {health}% health first (now {current}%)",
 		"fullyUpgraded": "Fully upgraded.",
 		"upgrade": "Upgrade",
-		"note": "Upgrades use materials from your basket and chests.",
 		"gearTitle": "Caretaker Gear",
 		"gearNote": "Gear you've crafted stays yours for good — switch each piece on or off any time.",
 		"gearOn": "On",
@@ -208,7 +207,7 @@
 		"unknownFirst": "Unknown first",
 		"searchPlaceholder": "Search by name, kind, or role…",
 		"searchAria": "Search the field guide",
-		"upsell": "Upgrade your field guide to Tier {tier} to read the full info card — ecology, diet, and food-web links — for {biome}. See the Tools panel.",
+		"upsell": "Write up the {biome} Field Guide to read the full page for every animal here — their role, what they eat and are eaten by, when they're about, and the habitat they keep. See the Tools menu.",
 		"noMatch": "No animals match your search.",
 		"overviewEmpty": "No animals have returned yet. Restore habitat and they'll start arriving — check back here to see everyone who's home.",
 		"comfort": {
@@ -312,7 +311,7 @@
 		"historyForward": "Forward along your journal trail",
 		"addGoal": "Add 'attract this animal' to your goals",
 		"animalReqUnknown": "Another {kind} needs to return first",
-		"lockedCard": "Upgrade your field guide to Tier {tier} to read this animal's full entry — its ecological role, diet, and food-web links.",
+		"lockedCard": "Write up the {biome} Field Guide to read this animal's full entry — its ecological role, diet, and food-web links.",
 		"stage": {
 			"eggs": "(eggs)",
 			"young": "(young)",
@@ -330,6 +329,19 @@
 			"mesopredator": "The middle of the web. It hunts the small animals and holds their numbers down, and it is hunted in turn by whatever sits above it. Take the top away and a mid predator multiplies until the small animals are gone — which is the roundabout reason apex predators matter to plants.",
 			"apex-predator": "It hunts at the top, and nothing here hunts it back. Its return is usually the last piece of a restored area, because it needs everything underneath it to be abundant first. Once it settles it leans on the mid predators, which takes the pressure off the small animals and, further down, off the plants.",
 			"wildlife": "A role the guide has not classified yet. It still counts as an animal living here, but it has not been slotted into the web."
+		},
+		"upsellExpanded": "Write up the Expanded {biome} Guide to see exactly what each animal here is waiting for — in this journal and on the goals you set. See the Tools menu.",
+		"sourcesTitle": {
+			"one": "Source",
+			"other": "Sources ({count})"
+		},
+		"guessPrompt": "Before you look — from that hint, which of these do you think this one is really waiting for?",
+		"guessSkip": "Just show me the list",
+		"guessCorrect": "You called it: the {name} is the piece this one can't do without.",
+		"guessWrong": "Close, but it's the {name} this one can't do without.",
+		"guessTally": {
+			"one": "{correct} of {count} read right so far.",
+			"other": "{correct} of {count} read right so far."
 		}
 	},
 	"achievements": {
@@ -364,7 +376,8 @@
 			"animalOne": "Bring back the {animal}.",
 			"animalAll": "Bring back the {animals}.",
 			"animalAny": "Bring back the {animals}.",
-			"animalChain": "Bring back the {first}, plus one of: {any}."
+			"animalChain": "Bring back the {first}, plus one of: {any}.",
+			"journals": "Write up every area's field guide, and the expanded edition of each."
 		},
 		"progress": "Progress: {value}"
 	},
@@ -431,13 +444,13 @@
 		},
 		"journal": {
 			"title": "Open your field journal",
-			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel.",
-			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has its own field guide: the basic entry always shows, but full diet, shelter, and return hints unlock once you gather that area’s materials and upgrade its guide in the Tools panel."
+			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for.",
+			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for."
 		},
 		"tools": {
 			"title": "Tools & upgrades",
-			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel, watering can, or field journal — higher tiers gather more, shape more, and reveal the next area’s field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"map": {
 			"title": "Open the Preserve map",
@@ -475,8 +488,8 @@
 		},
 		"grasshopper": {
 			"title": "Welcome your first neighbor",
-			"text": "A grasshopper returns at 8% health with a patch down. Click it to record it in your journal — that's the whole loop!",
-			"touch": "A grasshopper returns at 8% health with a patch down. Tap it to record it in your journal — that's the whole loop!"
+			"text": "A grasshopper returns at 8% health with a patch down. Click it to record it in your journal — that's the whole loop! It also earns your first achievement, ★ First Friend.",
+			"touch": "A grasshopper returns at 8% health with a patch down. Tap it to record it in your journal — that's the whole loop! It also earns your first achievement, ★ First Friend."
 		},
 		"star": {
 			"title": "Your first star",
@@ -484,9 +497,9 @@
 			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →"
 		},
 		"goals": {
-			"title": "Set your own goals",
-			"text": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way.",
-			"touch": "The board at the left is your task list. Start with these first goals — gather seeds, craft something, welcome the grasshopper home. Once they're done, you set your own goals to play the preserve your way."
+			"title": "Your goals, up here",
+			"text": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
+			"touch": "The board in the top-right corner is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",
@@ -496,18 +509,18 @@
 		"demoNote": "This is the free demo — restore the meadow to unlock the forest, then explore. The demo wraps up after your first 10 minutes in the forest.",
 		"menus": {
 			"title": "Your menus, up top",
-			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements), Build (basket, crafting, tools, goals), and World (the Preserve map, weather). Each one explains itself the first time you open it.",
-			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements), Build (basket, crafting, tools, goals), and World (map, weather). Each one explains itself the first time you open it."
+			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it.",
+			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it."
 		},
 		"toolbelt": {
 			"title": "Your toolbelt",
-			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and higher tiers gather more, shape more, and reveal the next area's field guide. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go.",
+			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"navigate": {
 			"title": "Find your way around",
-			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Press H anytime for help.",
-			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Below it is your goal board: starter tasks now, and goals you set yourself later. Tap the ? button anytime for help."
+			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Press H anytime for help.",
+			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Tap the ? button anytime for help."
 		},
 		"moreAnimals": {
 			"title": "Bring the meadow home",
@@ -626,7 +639,7 @@
 		"creature": "creature",
 		"rewardNote": "Finishing any goal grants a small bundle of materials — claim it on the board.",
 		"moreNote": "You can hold 3 goals at a time — 6 once the whole preserve is unlocked. Tip: you can also add a goal for a specific animal from its field-journal entry, or a specific item to craft from the crafting menu — look for the target button.",
-		"startersIntro": "Your goals live here. Right now these are your first tasks — finish them to earn their rewards.",
+		"startersIntro": "Your goals live here. To begin with, the preserve sets them for you: ten starter goals that show you around, three on the board at a time. Finish one to claim its reward and the next takes its place. Once you’ve worked through all ten, this is where you design your own.",
 		"unlockHint": "Once you finish these, you'll be able to set goals of your own.",
 		"added": "added",
 		"alreadyAdded": "Already a goal",

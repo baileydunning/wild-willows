@@ -706,12 +706,10 @@
       "points": 30,
       "hidden": false,
       "icon": "ach-open-book",
-      "flavor": "Every guide filled in, every animal's secrets unlocked. You don't just host wildlife now — you understand it.",
-      "hint": "Complete every area's field guide.",
+      "flavor": "Twelve books on the shelf — a guide to every area and the annotated edition beside it. You don't just host wildlife now, you understand it.",
+      "hint": "Write up every area's field guide, and its expanded edition.",
       "req": {
-        "t": "tool",
-        "id": "field-journal",
-        "n": 7
+        "t": "journals"
       }
     },
     {

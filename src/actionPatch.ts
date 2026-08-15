@@ -72,11 +72,16 @@ export function applyCollectResult(r: any, prev: GameState, area: string): GameS
 	const id = `${wid}:${area}:${r.nodeId}`;
 	const nodeStates = (prev.nodeStates || []).filter((n) => n.id !== id);
 	nodeStates.push({ id, harvestedAt: r.harvestedAt });
-	return {
+	const next: GameState = {
 		...prev,
 		player: { ...prev.player, inventory: r.inventory },
 		nodeStates,
 	};
+	// Credit the pickup to any gather-counting goal right away. `gained` is what
+	// the server actually granted (basket room can trim it), so the local number
+	// and the server's lifetime tally stay in step.
+	const gained = Number(r.gained?.[r.resourceId ?? ''] ?? 0);
+	return r.resourceId && gained > 0 ? withEventTaskProgress(next, 'gather', gained, String(r.resourceId)) : next;
 }
 
 /**
@@ -115,7 +120,9 @@ export function applyPlaceResult(r: any, prev: GameState): GameState | null {
 		placements: withPlacement(prev, r.placement as Placement),
 		player: { ...prev.player, craftedItems: r.craftedItems },
 	};
-	return withBiomeState(prev, next, r);
+	// One thing is now standing in the world — credit it to the build goal on this
+	// frame, not on the next sync.
+	return withBiomeState(prev, withEventTaskProgress(next, 'place', 1), r);
 }
 
 /**
@@ -163,4 +170,72 @@ export function applyMoveResult(r: any, prev: GameState): GameState | null {
 	if (broadChange(r)) return null;
 	if (!r.placement) return null;
 	return { ...prev, placements: withPlacement(prev, r.placement as Placement) };
+}
+
+/**
+ * Keep "how much of this are you holding" goals honest between syncs.
+ *
+ * Every optimistic patch above rewrites the inventory (or the chests) and leaves
+ * the task board exactly as the server last sent it, so the opening goal — gather
+ * 10 seeds — sat at 0/10 while seeds visibly piled up in the basket, until the
+ * trailing reconcile fetched a fresh board a moment later. A counter that lags
+ * the thing it counts reads as broken, and it is the FIRST number a new player
+ * watches.
+ *
+ * Only goals the server tagged with a `resourceId` are touched, and they're
+ * recomputed the same way the server does it (basket + every chest, minus the
+ * goal's baseline). Everything else is left alone: a board is server truth, and
+ * guessing at progress rules the client doesn't own is how the two drift.
+ */
+export function withHeldTaskProgress(next: GameState): GameState {
+	const block = next.dailyTasks;
+	if (!block?.tasks?.length) return next;
+	const held = (id: string) =>
+		(next.player?.inventory?.[id] || 0) + (next.chests || []).reduce((sum, c) => sum + (c.contents?.[id] || 0), 0);
+	let moved = false;
+	const tasks = block.tasks.map((t) => {
+		// A monotonic goal counts gathering, not holding — spending its materials
+		// must not walk the bar backwards, so it is credited at the pickup instead
+		// (withEventTaskProgress) and left alone here.
+		if (!t.resourceId || t.monotonic) return t;
+		const progress = Math.max(0, Math.min(t.target, held(t.resourceId) - (t.base || 0)));
+		if (progress === t.progress) return t;
+		moved = true;
+		return { ...t, progress };
+	});
+	return moved ? { ...next, dailyTasks: { ...block, tasks } } : next;
+}
+
+/**
+ * Credit an action to any goal that counts that action.
+ *
+ * These goals measure what has been DONE — seeds gathered, things placed in the
+ * world — rather than what is currently held or standing, and the server keeps a
+ * lifetime tally for each. Mirroring the act locally is what makes the bar move
+ * on the same frame as the act itself: the player watched themselves pick the
+ * seed up or put the thing down, so a counter that waits for the next sync reads
+ * as the game not having noticed. Only ever upward, exactly like the number it
+ * is mirroring.
+ *
+ * `resourceId` narrows a 'gather' credit to one material; a goal that doesn't
+ * name one takes any.
+ */
+export function withEventTaskProgress(
+	next: GameState,
+	event: 'gather' | 'place',
+	amount: number,
+	resourceId?: string,
+): GameState {
+	const block = next.dailyTasks;
+	if (!block?.tasks?.length || amount <= 0) return next;
+	let moved = false;
+	const tasks = block.tasks.map((t) => {
+		if (t.event !== event) return t;
+		if (t.resourceId && t.resourceId !== resourceId) return t;
+		const progress = Math.min(t.target, t.progress + amount);
+		if (progress === t.progress) return t;
+		moved = true;
+		return { ...t, progress };
+	});
+	return moved ? { ...next, dailyTasks: { ...block, tasks } } : next;
 }

@@ -24,6 +24,15 @@ export const DEMO_FOREST_MINUTES = 10;
 /** Same limit in milliseconds (accumulated wall-clock while in the forest). */
 export const DEMO_FOREST_MS = DEMO_FOREST_MINUTES * 60 * 1000;
 
+// Where a demo player goes to buy the game. Both stores sell the SAME full
+// game, so both are offered rather than guessed at: the browser demo runs inside
+// itch's iframe (where the itch page is one click away and already familiar),
+// but a Mac player who found the demo elsewhere would rather have the App Store
+// build than a DMG. Any link out of the demo must open in a NEW tab — inside the
+// itch embed, navigating the frame itself would replace the running game.
+export const STORE_ITCH_URL = 'https://bai13y.itch.io/wild-willows';
+export const STORE_MAS_URL = 'https://apps.apple.com/us/app/wild-willows/id6787300760?mt=12';
+
 /** Which product a metrics report belongs to, so dashboards can split demo vs
  *  paid players. Rides on heartbeats, app-open pings, and solo metric uplinks.
  *  Build-time only — a dev preview toggle (below) never tags real metrics. */

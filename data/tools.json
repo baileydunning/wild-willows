@@ -181,25 +181,26 @@
 			]
 		},
 		{
-			"id": "field-journal",
-			"name": "Field Journal",
-			"description": "For observing animals and recording who has returned. Each area has its own field guide — gather that area's materials to upgrade and unlock its full entries and return hints.",
+			"id": "journal-meadow",
+			"name": "Willow Meadow Field Guide",
+			"journalBiome": "meadow",
+			"description": "Your notes on Willow Meadow, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
 			"shape": "journal1",
 			"tiers": [
 				{
 					"tier": 1,
-					"name": "Field Journal",
-					"effect": "Observe and log who has returned. Upgrade with each area's materials to read its full field entries and return hints.",
+					"name": "Willow Meadow Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
 					"shape": "journal1"
 				},
 				{
 					"tier": 2,
 					"name": "Willow Meadow Field Guide",
-					"effect": "Read full entries and return hints for Willow Meadow animals.",
-					"shape": "journal2",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-meadow",
 					"materials": {
-						"seeds": 4,
 						"fiber": 3,
+						"seeds": 4,
 						"wildflowers": 2
 					},
 					"requires": {
@@ -208,9 +209,39 @@
 				},
 				{
 					"tier": 3,
+					"name": "Willow Meadow Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-meadow-expanded",
+					"materials": {
+						"branches": 4,
+						"fiber": 6,
+						"seeds": 8,
+						"wildflowers": 4
+					},
+					"requires": {
+						"biome": "meadow"
+					}
+				}
+			]
+		},
+		{
+			"id": "journal-forest",
+			"name": "Old Hollow Forest Field Guide",
+			"journalBiome": "forest",
+			"description": "Your notes on Old Hollow Forest, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+			"shape": "journal1",
+			"tiers": [
+				{
+					"tier": 1,
+					"name": "Old Hollow Forest Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+					"shape": "journal1"
+				},
+				{
+					"tier": 2,
 					"name": "Old Hollow Forest Field Guide",
-					"effect": "Read full entries and return hints for Old Hollow Forest animals.",
-					"shape": "journal3",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-forest",
 					"materials": {
 						"moss": 4,
 						"mushrooms": 2,
@@ -221,28 +252,88 @@
 					}
 				},
 				{
-					"tier": 4,
-					"name": "Rushwater Wetland Field Guide",
-					"effect": "Read full entries and return hints for Rushwater Wetland animals.",
-					"shape": "journal4",
+					"tier": 3,
+					"name": "Old Hollow Forest Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-forest-expanded",
 					"materials": {
-						"reeds": 4,
+						"bark": 4,
+						"moss": 8,
+						"mushrooms": 4,
+						"pinecones": 4
+					},
+					"requires": {
+						"biome": "forest"
+					}
+				}
+			]
+		},
+		{
+			"id": "journal-wetland",
+			"name": "Rushwater Wetland Field Guide",
+			"journalBiome": "wetland",
+			"description": "Your notes on Rushwater Wetland, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+			"shape": "journal1",
+			"tiers": [
+				{
+					"tier": 1,
+					"name": "Rushwater Wetland Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+					"shape": "journal1"
+				},
+				{
+					"tier": 2,
+					"name": "Rushwater Wetland Field Guide",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-wetland",
+					"materials": {
+						"clay": 2,
 						"mud": 2,
-						"clay": 2
+						"reeds": 4
 					},
 					"requires": {
 						"biome": "wetland"
 					}
 				},
 				{
-					"tier": 5,
-					"name": "Redstone Scrubland Field Guide",
-					"effect": "Read full entries and return hints for Redstone Scrubland animals.",
-					"shape": "journal5",
+					"tier": 3,
+					"name": "Rushwater Wetland Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-wetland-expanded",
 					"materials": {
+						"clay": 4,
+						"clean-water": 4,
+						"mud": 4,
+						"reeds": 8
+					},
+					"requires": {
+						"biome": "wetland"
+					}
+				}
+			]
+		},
+		{
+			"id": "journal-desert",
+			"name": "Redstone Scrubland Field Guide",
+			"journalBiome": "desert",
+			"description": "Your notes on Redstone Scrubland, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+			"shape": "journal1",
+			"tiers": [
+				{
+					"tier": 1,
+					"name": "Redstone Scrubland Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+					"shape": "journal1"
+				},
+				{
+					"tier": 2,
+					"name": "Redstone Scrubland Field Guide",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-desert",
+					"materials": {
+						"agave-nectar": 1,
 						"cactus-fruit": 2,
 						"sand": 3,
-						"agave-nectar": 1,
 						"sunstone": 1
 					},
 					"requires": {
@@ -250,10 +341,41 @@
 					}
 				},
 				{
-					"tier": 6,
+					"tier": 3,
+					"name": "Redstone Scrubland Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-desert-expanded",
+					"materials": {
+						"agave-nectar": 2,
+						"cactus-fruit": 4,
+						"geode": 2,
+						"sand": 6,
+						"sunstone": 2
+					},
+					"requires": {
+						"biome": "desert"
+					}
+				}
+			]
+		},
+		{
+			"id": "journal-alpine",
+			"name": "Graywind Heights Field Guide",
+			"journalBiome": "alpine",
+			"description": "Your notes on Graywind Heights, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+			"shape": "journal1",
+			"tiers": [
+				{
+					"tier": 1,
+					"name": "Graywind Heights Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+					"shape": "journal1"
+				},
+				{
+					"tier": 2,
 					"name": "Graywind Heights Field Guide",
-					"effect": "Read full entries and return hints for Graywind Heights animals.",
-					"shape": "journal6",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-alpine",
 					"materials": {
 						"alpine-flowers": 3,
 						"lichen": 2,
@@ -264,14 +386,59 @@
 					}
 				},
 				{
-					"tier": 7,
-					"name": "Master Naturalist's Guide",
-					"effect": "Read full entries and return hints for Pelican Shore animals — the complete field guide.",
-					"shape": "journal7",
+					"tier": 3,
+					"name": "Graywind Heights Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-alpine-expanded",
 					"materials": {
-						"shells": 3,
+						"alpine-flowers": 6,
+						"juniper-berries": 3,
+						"lichen": 4,
+						"quartz-crystal": 2
+					},
+					"requires": {
+						"biome": "alpine"
+					}
+				}
+			]
+		},
+		{
+			"id": "journal-coastal",
+			"name": "Pelican Shore Field Guide",
+			"journalBiome": "coastal",
+			"description": "Your notes on Pelican Shore, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+			"shape": "journal1",
+			"tiers": [
+				{
+					"tier": 1,
+					"name": "Pelican Shore Pocket Notes",
+					"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+					"shape": "journal1"
+				},
+				{
+					"tier": 2,
+					"name": "Pelican Shore Field Guide",
+					"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+					"shape": "guide-coastal",
+					"materials": {
 						"driftwood": 2,
-						"sand": 2
+						"sand": 2,
+						"shells": 3
+					},
+					"requires": {
+						"biome": "coastal"
+					}
+				},
+				{
+					"tier": 3,
+					"name": "Pelican Shore Expanded Guide",
+					"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+					"shape": "guide-coastal-expanded",
+					"materials": {
+						"driftwood": 4,
+						"pearl": 1,
+						"sand": 4,
+						"shells": 6
 					},
 					"requires": {
 						"biome": "coastal"

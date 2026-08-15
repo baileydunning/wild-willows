@@ -178,8 +178,8 @@
 				"name": "Willow Meadow Reborn"
 			},
 			"naturalist": {
-				"flavor": "Every guide filled in, every animal's secrets unlocked. You don't just host wildlife now — you understand it.",
-				"hint": "Complete every area's field guide.",
+				"flavor": "Twelve books on the shelf — a guide to every area and the annotated edition beside it. You don't just host wildlife now, you understand it.",
+				"hint": "Write up every area's field guide, and its expanded edition.",
 				"name": "Naturalist"
 			},
 			"open-road": {
@@ -2766,6 +2766,10 @@
 				"description": "A clear pool ringed with reeds — open sunlit water in the middle, and stems running from the bottom right up past the surface.",
 				"name": "Dragonfly Pond"
 			},
+			"driftwood-bench": {
+				"description": "A bench built from what the winter storms delivered, set above the wrack line so the next winter has to work harder to take it back.",
+				"name": "Driftwood Bench"
+			},
 			"driftwood-pile": {
 				"description": "A tangle of sun-bleached driftwood, silver-grey and hollow-sounding, with damp shade under the lowest pieces.",
 				"name": "Driftwood Pile"
@@ -2874,6 +2878,10 @@
 				"description": "A clay pot of meadow flowers to brighten your camp.",
 				"name": "Potted Flowers"
 			},
+			"forest-reading-bench": {
+				"description": "A plank bench gone soft green along its north edge. The moss is not neglect; it is the only thing here that will not give you splinters.",
+				"name": "Forest Reading Bench"
+			},
 			"forest-restoration-kit": {
 				"description": "Seed mixes, fiber twine, and trail tools to open the overgrown forest path. Crafting it helps unlock Old Hollow Forest.",
 				"name": "Forest Restoration Kit"
@@ -2910,6 +2918,10 @@
 				"description": "Vivid blue alpine gentians, low against the wind.",
 				"name": "Alpine Gentian"
 			},
+			"geode-sun-court": {
+				"description": "A ring of split geodes set crystal-face up around a swept floor. At noon the whole court throws light back at you; at dusk it goes quiet and violet.",
+				"name": "Geode Sun Court"
+			},
 			"goat-cliff-ledge": {
 				"description": "A narrow shelf cut across a near-vertical face, scraped bare and dusty and no wider than a doormat. Ground far steeper than anything else would attempt.",
 				"name": "Goat Cliff Ledge"
@@ -2929,6 +2941,10 @@
 			"gravel-path": {
 				"description": "Crunchy gravel underfoot — keeps boots off the new growth.",
 				"name": "Gravel Path"
+			},
+			"graywind-rest-bench": {
+				"description": "A stone bench in the lee of the ridge, put where the wind is not. Ten steps either side and you would not be able to hear yourself think.",
+				"name": "Graywind Rest Bench"
 			},
 			"grizzly-dig-slope": {
 				"description": "A high bank of loose, root-threaded earth soft enough to be torn open, with the turned soil left in heaps.",
@@ -2974,6 +2990,10 @@
 				"description": "A stand of tall snags and crowns carrying a dozen bulky stick platforms, all within sight of one another. A rookery is a colony, not a single structure — one platform on its own is not the same thing.",
 				"name": "Heron Rookery"
 			},
+			"heron-watch-arch": {
+				"description": "A reed-bound arch framing the open water. Stand under it and stay still; herons mind a moving outline far more than a standing one.",
+				"name": "Heron Watch Arch"
+			},
 			"hidden-grass-nest": {
 				"description": "A thick tussock left standing in a damp hollow, with the middle pressed down into a deep cup you would walk past without seeing.",
 				"name": "Hidden Grass Nest"
@@ -2997,6 +3017,10 @@
 			"hollow-log": {
 				"description": "A fallen log carefully opened out down the middle into a dry, close chamber with an entrance at one end.",
 				"name": "Hollow Log"
+			},
+			"hollow-trail-marker": {
+				"description": "A carved marker for the paths through the deep stand, where every direction is the same brown column and you have already been wrong once.",
+				"name": "Hollow Trail Marker"
 			},
 			"home-aquarium": {
 				"description": "A glass tank of darting little fish.",
@@ -3146,6 +3170,10 @@
 				"description": "A weathered boulder crusted with map lichen. It grows roughly a millimetre every ten years, quietly crumbling the rock into the first grains of alpine soil.",
 				"name": "Lichen Boulder"
 			},
+			"lichen-cairn-trail": {
+				"description": "A line of cairns for the stretch above the last trees. Built tall on purpose: the ones that matter are the ones still showing after snow.",
+				"name": "Lichen Cairn Trail"
+			},
 			"lily-pool": {
 				"description": "Still, clean water blanketed edge to edge with lily pads, with cool shaded water underneath them.",
 				"name": "Lily Pool"
@@ -3178,9 +3206,17 @@
 				"description": "Golden marsh marigolds ringing the seepy shallows in spring, out before almost anything else. A reliable sign that the wet-meadow edge is working.",
 				"name": "Marsh Marigold"
 			},
+			"meadow-lantern-row": {
+				"description": "Lanterns strung low along a path on a woven cord. Hung at knee height on purpose — high lights wash out the meadow and the moths never settle.",
+				"name": "Meadow Lantern Row"
+			},
 			"meadow-mushroom-ring": {
 				"description": "A curved arc of pale button caps pushing up through damp grass thatch after rain. The ring is the edge of a fungus growing outward underground, and it can be older than every plant around it.",
 				"name": "Meadow Mushroom Ring"
+			},
+			"meadow-overlook-bench": {
+				"description": "A second bench, set at the far edge of the meadow facing back the way you came. Best an hour before dusk, when the grass goes gold and the bees are still up.",
+				"name": "Meadow Overlook Bench"
 			},
 			"medium-chest": {
 				"description": "A sturdier chest. Holds 250 materials.",
@@ -3294,6 +3330,10 @@
 				"description": "A rock stack or islet standing off the coast, with deep water all around and no way onto it on foot. Nothing that walks can reach it.",
 				"name": "Offshore Nesting Island"
 			},
+			"old-hollow-arch": {
+				"description": "A bent-branch arch at the mouth of the oldest trees. It marks nothing, holds nothing up, and everyone slows down walking under it anyway.",
+				"name": "Old Hollow Arch"
+			},
 			"old-woodpecker-cavity": {
 				"description": "A round chiselled hole in a dead trunk, cut seasons ago and left empty since. The entrance is still clean-edged and the chamber below is dry.",
 				"name": "Old Woodpecker Cavity"
@@ -3366,6 +3406,10 @@
 				"description": "A dense bed of overlapping bloom, planned so that something is always open from the first warm week to the last. Nectar and pollen, all season, in one place.",
 				"name": "Pollinator Garden"
 			},
+			"pollinator-waystation": {
+				"description": "A raised bed of nectar plants set deliberately in the open, halfway between two flowering patches, so a short-range bee can cross ground it otherwise could not.",
+				"name": "Pollinator Waystation"
+			},
 			"poppy-patch": {
 				"description": "Field poppies, an old European farm weed. Lovely in a garden bed; they are not part of a native prairie planting.",
 				"name": "Poppy Patch"
@@ -3394,9 +3438,17 @@
 				"description": "A carved stone bowl that catches rainwater and holds it. Precious out here, and rarely full for long.",
 				"name": "Rain Basin"
 			},
+			"redstone-waymarker": {
+				"description": "A stacked marker on the ridge line, sited to be visible from the wash below — where the walls are high, the sun is overhead, and every bend looks like the last.",
+				"name": "Redstone Waymarker"
+			},
 			"reed-bed": {
 				"description": "Dense replanted reeds standing in shallow water, thick enough to walk into and lose sight of the bank.",
 				"name": "Reed Bed"
+			},
+			"reed-weavers-bench": {
+				"description": "A low bench with a reed-woven seat, set back far enough from the water that a heron will still work the shallows in front of you.",
+				"name": "Reed Weaver's Bench"
 			},
 			"rippled-sand-bed": {
 				"description": "Clean sand below the low tide line, combed into even ridges by a current gentle enough to leave them standing.",
@@ -3429,6 +3481,10 @@
 			"rotting-log-crumble": {
 				"description": "A soft, damp, half-rotted log going back to soil, crumbling apart when you lift it. Under it the air stays wet all day, whatever the weather is doing above.",
 				"name": "Crumbling Log"
+			},
+			"rushwater-boardwalk-rail": {
+				"description": "A railed run of boardwalk over soft ground. The rail is the point: it keeps feet on the planks, and marsh that nobody walks on knits back together fast.",
+				"name": "Rushwater Boardwalk Rail"
 			},
 			"saguaro": {
 				"description": "A columnar giant that stores months of rain in its pleated stem, swelling and shrinking with the season. Flowers at the crown, fruit in June, and a trunk soft enough to cut into.",
@@ -3494,6 +3550,10 @@
 				"description": "A shallow scrape hollowed out in the deep shade under a shrub, down to cool soil. Ten degrees cooler than the open ground a metre away.",
 				"name": "Shade Form"
 			},
+			"shade-ramada": {
+				"description": "An open-sided roof on posts, no walls. Walls would trap the afternoon heat; a roof and a through-breeze drop the ground beneath it by a startling amount.",
+				"name": "Shade Ramada"
+			},
 			"shaded-rock-shelter": {
 				"description": "Stacked slabs with a cool dark gap — shelter from the midday sun.",
 				"name": "Shaded Rock Shelter"
@@ -3521,6 +3581,10 @@
 			"shore-stick-nest": {
 				"description": "A bulky platform of salt-bleached sticks wedged in a high fork, added to and patched every season.",
 				"name": "Stick Nest"
+			},
+			"shore-waymark": {
+				"description": "A driftwood post with a sea-glass eye set into the head. It catches the low sun and tells you where the path leaves the sand.",
+				"name": "Shore Waymark"
 			},
 			"shrub": {
 				"description": "A young native shrub — quick, dense cover at knee height. But a meadow is a grassland, and letting shrubs spread across it turns it into something else entirely.",
@@ -3642,6 +3706,10 @@
 				"description": "A bright line of weatherworn flags strung between cairns, snapping in the alpine wind.",
 				"name": "Summit Prayer Flags"
 			},
+			"summit-sundial": {
+				"description": "A quartz gnomon on a stone plate. Runs fast in summer and is useless in cloud, which up here is most of the interesting weather.",
+				"name": "Summit Sundial"
+			},
 			"sun-totem": {
 				"description": "A carved sandstone totem crowned with a desert crystal.",
 				"name": "Sun Totem"
@@ -3709,6 +3777,10 @@
 			"tidepool": {
 				"description": "A restored rocky pool that keeps a pocket of the sea behind when the tide drops. Only ever a pocket — it warms, it goes salty, and it waits.",
 				"name": "Tidepool"
+			},
+			"tidewatchers-arch": {
+				"description": "Two storm-cured trunks leaned into an arch above the high-tide line. Twice a day the water comes almost to the feet of it, and twice a day it does not.",
+				"name": "Tidewatcher's Arch"
 			},
 			"toad-upland-burrow": {
 				"description": "A borrowed tunnel in damp ground above a breeding pool, below the frost line and above the water table. Somewhere to sit out eight months of the year.",
@@ -4112,6 +4184,9 @@
 			"dragonfly-pond": {
 				"name": "Dragonfly Pond"
 			},
+			"driftwood-bench": {
+				"name": "Driftwood Bench"
+			},
 			"driftwood-pile": {
 				"name": "Driftwood Pile"
 			},
@@ -4193,6 +4268,9 @@
 			"flower-vase": {
 				"name": "Potted Flowers"
 			},
+			"forest-reading-bench": {
+				"name": "Forest Reading Bench"
+			},
 			"forest-restoration-kit": {
 				"name": "Forest Restoration Kit"
 			},
@@ -4214,6 +4292,9 @@
 			"gazebo": {
 				"name": "Gazebo"
 			},
+			"geode-sun-court": {
+				"name": "Geode Sun Court"
+			},
 			"goat-cliff-ledge": {
 				"name": "Goat Cliff Ledge"
 			},
@@ -4228,6 +4309,9 @@
 			},
 			"gravel-path": {
 				"name": "Gravel Path"
+			},
+			"graywind-rest-bench": {
+				"name": "Graywind Rest Bench"
 			},
 			"grizzly-dig-slope": {
 				"name": "Dig Slope"
@@ -4262,6 +4346,9 @@
 			"heron-rookery": {
 				"name": "Heron Rookery"
 			},
+			"heron-watch-arch": {
+				"name": "Heron Watch Arch"
+			},
 			"hidden-grass-nest": {
 				"name": "Hidden Grass Nest"
 			},
@@ -4279,6 +4366,9 @@
 			},
 			"hollow-log": {
 				"name": "Hollow Log"
+			},
+			"hollow-trail-marker": {
+				"name": "Hollow Trail Marker"
 			},
 			"home-aquarium": {
 				"name": "Aquarium"
@@ -4391,6 +4481,9 @@
 			"lichen-boulder": {
 				"name": "Lichen Boulder"
 			},
+			"lichen-cairn-trail": {
+				"name": "Lichen Cairn Trail"
+			},
 			"lily-pool": {
 				"name": "Lily Pool"
 			},
@@ -4409,8 +4502,14 @@
 			"marsh-log": {
 				"name": "Marsh Log"
 			},
+			"meadow-lantern-row": {
+				"name": "Meadow Lantern Row"
+			},
 			"meadow-mushroom-ring": {
 				"name": "Meadow Mushroom Ring"
+			},
+			"meadow-overlook-bench": {
+				"name": "Meadow Overlook Bench"
 			},
 			"medium-chest": {
 				"name": "Medium Chest"
@@ -4481,6 +4580,9 @@
 			"offshore-nesting-island": {
 				"name": "Offshore Nesting Island"
 			},
+			"old-hollow-arch": {
+				"name": "Old Hollow Arch"
+			},
 			"old-woodpecker-cavity": {
 				"name": "Old Woodpecker Cavity"
 			},
@@ -4529,8 +4631,14 @@
 			"pollinator-garden": {
 				"name": "Pollinator Garden"
 			},
+			"pollinator-waystation": {
+				"name": "Pollinator Waystation"
+			},
 			"protected-sand-gravel-flat": {
 				"name": "Sheltered Sand-Gravel Flat"
+			},
+			"puffball-turf-ring": {
+				"name": "Puffball Ring"
 			},
 			"quartz-lantern": {
 				"name": "Quartz Lantern"
@@ -4538,8 +4646,14 @@
 			"rain-basin": {
 				"name": "Rain Basin"
 			},
+			"redstone-waymarker": {
+				"name": "Redstone Waymarker"
+			},
 			"reed-bed": {
 				"name": "Reed Bed"
+			},
+			"reed-weavers-bench": {
+				"name": "Reed Weaver's Bench"
 			},
 			"rippled-sand-bed": {
 				"name": "Rippled Sand"
@@ -4564,6 +4678,9 @@
 			},
 			"rotting-log-crumble": {
 				"name": "Crumbling Log"
+			},
+			"rushwater-boardwalk-rail": {
+				"name": "Rushwater Boardwalk Rail"
 			},
 			"saguaro": {
 				"name": "Saguaro"
@@ -4598,6 +4715,9 @@
 			"sedge-tussock": {
 				"name": "Sedge Tussock"
 			},
+			"sedge-tussock-nest": {
+				"name": "Meadow Sedge Tussock"
+			},
 			"seed-larder-burrow": {
 				"name": "Seed Larder Burrow"
 			},
@@ -4606,6 +4726,9 @@
 			},
 			"shade-form-scrape": {
 				"name": "Shade Form"
+			},
+			"shade-ramada": {
+				"name": "Shade Ramada"
 			},
 			"shaded-rock-shelter": {
 				"name": "Shaded Rock Shelter"
@@ -4624,6 +4747,9 @@
 			},
 			"shore-stick-nest": {
 				"name": "Stick Nest"
+			},
+			"shore-waymark": {
+				"name": "Shore Waymark"
 			},
 			"shrub": {
 				"name": "Shrub"
@@ -4712,6 +4838,9 @@
 			"summit-prayer-flags": {
 				"name": "Summit Prayer Flags"
 			},
+			"summit-sundial": {
+				"name": "Summit Sundial"
+			},
 			"sun-totem": {
 				"name": "Sun Totem"
 			},
@@ -4759,6 +4888,9 @@
 			},
 			"tidepool": {
 				"name": "Tidepool"
+			},
+			"tidewatchers-arch": {
+				"name": "Tidewatcher's Arch"
 			},
 			"toad-upland-burrow": {
 				"name": "Toad Upland Burrow"
@@ -4834,6 +4966,9 @@
 			},
 			"wooden-bridge": {
 				"name": "Wooden Bridge"
+			},
+			"wooden-fence": {
+				"name": "Wooden Fence"
 			},
 			"woodland-pool": {
 				"name": "Woodland Pool"
@@ -4978,37 +5113,111 @@
 					}
 				}
 			},
-			"field-journal": {
-				"description": "For observing animals and recording who has returned. Each area has its own field guide — gather that area's materials to upgrade and unlock its full entries and return hints.",
-				"name": "Field Journal",
+			"journal-alpine": {
+				"description": "Your notes on Graywind Heights, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Graywind Heights Field Guide",
 				"tiers": {
 					"1": {
-						"effect": "Observe and log who has returned. Upgrade with each area's materials to read its full field entries and return hints.",
-						"name": "Field Journal"
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Graywind Heights Pocket Notes"
 					},
 					"2": {
-						"effect": "Read full entries and return hints for Willow Meadow animals.",
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+						"name": "Graywind Heights Field Guide"
+					},
+					"3": {
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Graywind Heights Expanded Guide"
+					}
+				}
+			},
+			"journal-coastal": {
+				"description": "Your notes on Pelican Shore, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Pelican Shore Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Pelican Shore Pocket Notes"
+					},
+					"2": {
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+						"name": "Pelican Shore Field Guide"
+					},
+					"3": {
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Pelican Shore Expanded Guide"
+					}
+				}
+			},
+			"journal-desert": {
+				"description": "Your notes on Redstone Scrubland, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Redstone Scrubland Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Redstone Scrubland Pocket Notes"
+					},
+					"2": {
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+						"name": "Redstone Scrubland Field Guide"
+					},
+					"3": {
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Redstone Scrubland Expanded Guide"
+					}
+				}
+			},
+			"journal-forest": {
+				"description": "Your notes on Old Hollow Forest, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Old Hollow Forest Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Old Hollow Forest Pocket Notes"
+					},
+					"2": {
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
+						"name": "Old Hollow Forest Field Guide"
+					},
+					"3": {
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Old Hollow Forest Expanded Guide"
+					}
+				}
+			},
+			"journal-meadow": {
+				"description": "Your notes on Willow Meadow, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Willow Meadow Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Willow Meadow Pocket Notes"
+					},
+					"2": {
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
 						"name": "Willow Meadow Field Guide"
 					},
 					"3": {
-						"effect": "Read full entries and return hints for Old Hollow Forest animals.",
-						"name": "Old Hollow Forest Field Guide"
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Willow Meadow Expanded Guide"
+					}
+				}
+			},
+			"journal-wetland": {
+				"description": "Your notes on Rushwater Wetland, bound up as you fill them in. The field guide opens each returned neighbour’s full page; the expanded edition spells out exactly what everyone still missing is waiting for.",
+				"name": "Rushwater Wetland Field Guide",
+				"tiers": {
+					"1": {
+						"effect": "Names, sketches and a caretaker’s hint for every neighbour of this place.",
+						"name": "Rushwater Wetland Pocket Notes"
 					},
-					"4": {
-						"effect": "Read full entries and return hints for Rushwater Wetland animals.",
+					"2": {
+						"effect": "Opens the full page for every animal here: role, food web, when to spot them, and the habitat they keep.",
 						"name": "Rushwater Wetland Field Guide"
 					},
-					"5": {
-						"effect": "Read full entries and return hints for Redstone Scrubland animals.",
-						"name": "Redstone Scrubland Field Guide"
-					},
-					"6": {
-						"effect": "Read full entries and return hints for Graywind Heights animals.",
-						"name": "Graywind Heights Field Guide"
-					},
-					"7": {
-						"effect": "Read full entries and return hints for Pelican Shore animals — the complete field guide.",
-						"name": "Master Naturalist's Guide"
+					"3": {
+						"effect": "Spells out exactly what every animal here is waiting for — habitat, health, water, and weather — in the journal and on your goals.",
+						"name": "Rushwater Wetland Expanded Guide"
 					}
 				}
 			},

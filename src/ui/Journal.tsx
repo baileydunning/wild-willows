@@ -1,12 +1,20 @@
 import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
+import { customGoalsUnlocked, guideToolId, hasGuide, hasExpandedGuide } from '../types';
 import { animalSpriteDataUri } from '../game/textures';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { journalNav, type JournalLoc } from './journalNav';
 import { effort } from './journalSort';
+import { guessFor, guessOptions, guessTally, recordGuess, signatureObject, useFieldGuesses } from '../fieldGuess';
+
+/** A habitat object's display name, localized, falling back to its id. */
+function objectName(data: GameData | null | undefined, id: string) {
+	const o = data?.habitatObjects.find((oo) => oo.id === id);
+	return o ? content('habitatObject', o.id, 'name', o.name) : id;
+}
 
 /** Shared back/forward pair for the journal panel and animal cards. */
 function HistoryNav({ go }: { go: (loc: JournalLoc | undefined) => void }) {
@@ -164,8 +172,66 @@ export function activityNotes(animal: AnimalDef): { icon: string; text: string }
 	return notes;
 }
 
+/**
+ * The one question the expanded guide asks before it answers.
+ *
+ * Shown once per still-missing animal: the habitat hint is already on screen,
+ * so the player has what they need to reason from. Getting it wrong costs
+ * nothing and reveals the same list — the point is that they committed to an
+ * answer first, which is what makes the list stick.
+ */
+function GuessPrompt({
+	animal,
+	answer,
+	options,
+	onDone,
+}: {
+	animal: AnimalDef;
+	answer: string;
+	options: string[];
+	onDone: () => void;
+}) {
+	const { data } = useGame();
+	return (
+		<div className="small req-guess">
+			{/* Never name the animal here. This prompt only ever shows for one the
+			    player hasn't discovered, and the entry above it is deliberately
+			    headed "Unknown insect" — naming the species in the question would
+			    give away the very thing the rest of the card is withholding. */}
+			<p className="req-guess-q">
+				<Icon name="sparkle" size={12} /> {t('panels.journal.guessPrompt')}
+			</p>
+			<div className="req-guess-options">
+				{options.map((id) => (
+					<button
+						key={id}
+						className="req-guess-option"
+						onClick={() => {
+							recordGuess(animal.id, id === answer ? 'correct' : 'wrong');
+							onDone();
+						}}
+					>
+						{objectName(data, id)}
+					</button>
+				))}
+			</div>
+			<button
+				className="link req-guess-skip"
+				onClick={() => {
+					recordGuess(animal.id, 'skipped');
+					onDone();
+				}}
+			>
+				{t('panels.journal.guessSkip')}
+			</button>
+		</div>
+	);
+}
+
 function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }) {
 	const { data, state } = useGame();
+	useFieldGuesses(); // repaint this card the moment a guess is recorded
+	const [answered, setAnswered] = useState(false);
 	const seen = new Set((state?.discoveries || []).map((d) => d.animalId));
 	const req = animal.requirements || {};
 	const condLine = conditionsLine(animal);
@@ -186,9 +252,47 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 			</div>
 		);
 	}
+	// Ask before answering — but only for an animal that hasn't arrived yet (there
+	// is nothing to predict once it's standing in front of you) and only once.
+	const answer = signatureObject(req);
+	const outcome = guessFor(animal.id);
+	// Wrong answers are drawn from habitat that belongs in the same biome, so a
+	// wrong pick is wrong about ecology rather than about what's craftable here.
+	const options = answer
+		? guessOptions(
+				animal.id,
+				answer,
+				req.objects || {},
+				(data?.habitatObjects || [])
+					.filter((o) => (o.biomes || []).includes(animal.biome) && o.placement !== 'indoor')
+					.map((o) => o.id),
+			)
+		: [];
+	// A biome with nothing else to offer can't pose a real question — in that case
+	// fall straight through to the list rather than asking a one-option riddle.
+	if (answer && options.length >= 3 && !outcome && !answered && !seen.has(animal.id)) {
+		return (
+			<div className="small req-details">
+				<div className="muted">{t('panels.journal.hint', { hint })}</div>
+				<GuessPrompt animal={animal} answer={answer} options={options} onDone={() => setAnswered(true)} />
+			</div>
+		);
+	}
+	const tally = guessTally();
 	return (
 		<div className="small req-details">
 			<div className="muted">{t('panels.journal.hint', { hint })}</div>
+			{outcome && outcome !== 'skipped' && answer ? (
+				<p className={`req-guess-result ${outcome}`}>
+					<Icon name={outcome === 'correct' ? 'check' : 'leaf'} size={12} />{' '}
+					{outcome === 'correct'
+						? t('panels.journal.guessCorrect', { name: objectName(data, answer) })
+						: t('panels.journal.guessWrong', { name: objectName(data, answer) })}{' '}
+					<span className="muted">
+						{t('panels.journal.guessTally', { correct: tally.correct, count: tally.attempted })}
+					</span>
+				</p>
+			) : null}
 			<ul>
 				{req.minHealth ? <li>{t('panels.journal.minHealth', { value: req.minHealth })}</li> : null}
 				{req.minBalance ? <li>{t('panels.journal.minBalance', { value: req.minBalance })}</li> : null}
@@ -233,6 +337,39 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 				) : null}
 			</ul>
 		</div>
+	);
+}
+
+/**
+ * Where this entry's facts come from. Every animal record carries a `sources`
+ * array (Animal Diversity Web, NPS, US FWS, Cornell Lab and friends) and until
+ * now nothing rendered it. Collapsed by default so it never competes with the
+ * writing, but present on every full entry: a game that makes factual claims
+ * should be able to show its work, and teachers ask.
+ *
+ * The links carry target="_blank"; Electron's setWindowOpenHandler
+ * (electron/main.js) sends http(s) out to the system browser, so following one
+ * doesn't navigate the game away.
+ */
+function SourceList({ animal }: { animal: AnimalDef }) {
+	const { t } = useI18n();
+	const sources = animal.sources || [];
+	if (!sources.length) return null;
+	return (
+		<details className="card-sources">
+			<summary>
+				<Icon name="journal" size={12} /> {t('panels.journal.sourcesTitle', { count: sources.length })}
+			</summary>
+			<ul>
+				{sources.map((s) => (
+					<li key={s.url}>
+						<a href={s.url} target="_blank" rel="noopener noreferrer">
+							{s.name}
+						</a>
+					</li>
+				))}
+			</ul>
+		</details>
 	);
 }
 
@@ -319,6 +456,9 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 		void addGoal({ kind: 'attract', animalId: animal.id, target: 1 });
 	};
 	const alreadyGoal = (state?.customGoals || []).some((g) => g.kind === 'attract' && g.animalId === animal.id);
+	// No "set this as a goal" button until the player has actually unlocked
+	// goal-setting — see customGoalsUnlocked().
+	const canSetGoals = customGoalsUnlocked(state);
 	if (!disc) {
 		return (
 			<div className="journal-entry entry-unknown">
@@ -330,15 +470,17 @@ function JournalEntry({ animal, disc, full }: { animal: AnimalDef; disc?: Discov
 					<span className="muted small">({content('animal', animal.id, 'rarity', animal.rarity)})</span>
 					<RequirementHints animal={animal} full={full} />
 				</div>
-				<button
-					className="icon-btn subtle add-goal-btn"
-					disabled={alreadyGoal}
-					title={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
-					aria-label={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
-					onClick={addAttractGoal}
-				>
-					<Icon name="target" size={14} />
-				</button>
+				{canSetGoals && (
+					<button
+						className="icon-btn subtle add-goal-btn"
+						disabled={alreadyGoal}
+						title={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
+						aria-label={alreadyGoal ? t('panels.goals.alreadyAdded') : t('panels.journal.addGoal')}
+						onClick={addAttractGoal}
+					>
+						<Icon name="target" size={14} />
+					</button>
+				)}
 			</div>
 		);
 	}
@@ -670,16 +812,20 @@ export function JournalPanel() {
 
 	const tabBiome = biomes.find((b) => b.id === tab);
 	const tabBiomeName = tabBiome ? content('biome', tabBiome.id, 'name', tabBiome.name) : undefined;
-	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = (tabBiome?.order || 1) + 1;
-	const full = guideTier >= needTier;
-	const tierName = (tier: number) => {
-		const n = data.tools.find((tl) => tl.id === 'field-journal')?.tiers.find((tt) => tt.tier === tier)?.name;
-		return n ? content('tool', 'field-journal', `tiers.${tier}.name`, n) : undefined;
+	// Two gates, one per book: the field guide opens the animal pages, the
+	// expanded edition spells out what each animal is waiting for.
+	const tools = state.player.tools;
+	const full = !!tabBiome && hasGuide(tools, tabBiome.id);
+	const expanded = !!tabBiome && hasExpandedGuide(tools, tabBiome.id);
+	/** The name a guide is PRINTED under, owned or not — this is the heading of a
+	 *  section of the journal, not a receipt for what the player has bought. */
+	const guideName = (toolId: string) => {
+		const n = data.tools.find((tl) => tl.id === toolId)?.tiers.find((tt) => tt.tier === 2)?.name;
+		return n ? content('tool', toolId, 'tiers.2.name', n) : undefined;
 	};
 	const tabGuideName = isOverview
 		? t('panels.journal.title')
-		: tierName(needTier) ||
+		: (tabBiome && guideName(guideToolId(tabBiome.id))) ||
 			t('panels.journal.fieldGuide', { biome: tabBiomeName || t('panels.journal.fieldFallback') });
 	const totalReturned = state.discoveries.length;
 
@@ -795,10 +941,18 @@ export function JournalPanel() {
 						)}
 					</div>
 
+					{/* One line at a time, and always the NEXT book: offering both at once
+					    turns a nudge into a price list. */}
 					{!isOverview && !full && (
 						<div className="guide-upsell small">
 							<Icon name="lock" size={13} />
-							<span>{t('panels.journal.upsell', { tier: needTier, biome: tabBiomeName || '' })}</span>
+							<span>{t('panels.journal.upsell', { biome: tabBiomeName || '' })}</span>
+						</div>
+					)}
+					{!isOverview && full && !expanded && (
+						<div className="guide-upsell small">
+							<Icon name="lock" size={13} />
+							<span>{t('panels.journal.upsellExpanded', { biome: tabBiomeName || '' })}</span>
 						</div>
 					)}
 
@@ -813,7 +967,7 @@ export function JournalPanel() {
 							{animals.length === 0 && <p className="muted small">{t('panels.journal.noMatch')}</p>}
 							<div className="entry-list">
 								{animals.map((a) => (
-									<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={full} />
+									<JournalEntry key={a.id} animal={a} disc={discs.get(a.id)} full={expanded} />
 								))}
 							</div>
 						</>
@@ -927,9 +1081,10 @@ export function AnimalCard() {
 	if (!animal) return null;
 	const returnedIds = new Set(state.discoveries.map((d) => d.animalId));
 	const neighbors = disc ? neighborsNote(animal, data.animals, returnedIds) : null;
-	const guideTier = state.player.tools?.['field-journal'] || 1;
-	const needTier = (data.biomes.find((b) => b.id === animal.biome)?.order || 1) + 1;
-	const full = guideTier >= needTier;
+	// The card IS the thing the field guide buys — role, food web, when they're
+	// about, the habitat they keep. (The exact requirements are the expanded
+	// edition's, and they live on the list entry, not here.)
+	const full = hasGuide(state.player.tools, animal.biome);
 	const cardBiome = data.biomes.find((b) => b.id === animal.biome);
 	const biomeName = cardBiome ? content('biome', cardBiome.id, 'name', cardBiome.name) : undefined;
 	const animalName = content('animal', animal.id, 'name', animal.name);
@@ -1073,6 +1228,7 @@ export function AnimalCard() {
 								<Icon name="leaf" size={14} /> <b>{t('panels.journal.fieldNote')}</b>{' '}
 								{content('animal', animal.id, 'fact', animal.fact)}
 							</p>
+							<SourceList animal={animal} />
 							<button className="link" onClick={backToJournal}>
 								{t('panels.journal.backToJournal')}
 							</button>
@@ -1080,7 +1236,7 @@ export function AnimalCard() {
 					) : (
 						<>
 							<p className="muted">
-								<Icon name="lock" size={14} /> {t('panels.journal.lockedCard', { tier: needTier })}
+								<Icon name="lock" size={14} /> {t('panels.journal.lockedCard', { biome: biomeName || '' })}
 							</p>
 							<button className="link" onClick={backToJournal}>
 								{t('panels.journal.backToJournal')}

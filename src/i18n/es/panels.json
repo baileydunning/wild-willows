@@ -104,7 +104,6 @@
 		"restoreFirst": "Restaura primero {biome} al {health}% de salud (ahora {current}%)",
 		"fullyUpgraded": "Mejora completa.",
 		"upgrade": "Mejorar",
-		"note": "Las mejoras usan materiales de tu cesta y tus cofres.",
 		"gearTitle": "Equipo de cuidador",
 		"gearNote": "El equipo que has fabricado es tuyo para siempre — activa o desactiva cada pieza cuando quieras.",
 		"gearOn": "Activado",
@@ -208,7 +207,7 @@
 		"unknownFirst": "Desconocidos primero",
 		"searchPlaceholder": "Buscar por nombre, tipo o rol…",
 		"searchAria": "Buscar en la guía de campo",
-		"upsell": "Mejora tu guía de campo al nivel {tier} para leer la ficha completa — ecología, dieta y vínculos de la red trófica — de {biome}. Mira el panel de Herramientas.",
+		"upsell": "Redacta la Guía de campo de {biome} para leer la página completa de cada animal de aquí: su papel, qué come y quién lo come, cuándo se deja ver y el hábitat que ocupa. Consulta el menú de Herramientas.",
 		"noMatch": "Ningún animal coincide con tu búsqueda.",
 		"overviewEmpty": "Todavía no ha regresado ningún animal. Restaura hábitat y empezarán a llegar — vuelve aquí para ver a todos los que ya están en casa.",
 		"comfort": {
@@ -312,7 +311,7 @@
 		"historyForward": "Avanzar por tu recorrido del diario",
 		"addGoal": "Añadir 'atraer a este animal' a tus objetivos",
 		"animalReqUnknown": "Primero debe regresar otro {kind}",
-		"lockedCard": "Mejora tu guía de campo al nivel {tier} para leer la entrada completa de este animal — su rol ecológico, su dieta y sus vínculos en la red trófica.",
+		"lockedCard": "Redacta la Guía de campo de {biome} para leer la ficha completa de este animal: su papel ecológico, su dieta y sus vínculos en la red trófica.",
 		"stage": {
 			"eggs": "(huevos)",
 			"young": "(crías)",
@@ -330,6 +329,19 @@
 			"mesopredator": "El centro de la red. Caza a los animales pequeños y mantiene bajos sus números, y a su vez es cazado por lo que esté por encima. Quita la cima y un depredador medio se multiplica hasta acabar con los animales pequeños: esa es la razón indirecta por la que los superdepredadores les importan a las plantas.",
 			"apex-predator": "Caza en lo más alto, y aquí nada lo caza a él. Su regreso suele ser la última pieza de un área restaurada, porque necesita que todo lo que tiene debajo sea abundante primero. Cuando se asienta, presiona a los depredadores medios, lo que alivia a los animales pequeños y, más abajo, a las plantas.",
 			"wildlife": "Un papel que la guía todavía no ha clasificado. Cuenta igual como animal que vive aquí, pero aún no tiene sitio asignado en la red."
+		},
+		"upsellExpanded": "Redacta la Guía Ampliada de {biome} para ver exactamente qué espera cada animal de aquí, en este diario y en las metas que te propongas. Consulta el menú de Herramientas.",
+		"sourcesTitle": {
+			"one": "Fuente",
+			"other": "Fuentes ({count})"
+		},
+		"guessPrompt": "Antes de mirar: según esa pista, ¿cuál de estos crees que espera de verdad?",
+		"guessSkip": "Muéstrame la lista sin más",
+		"guessCorrect": "Lo acertaste: el {name} es la pieza sin la que este animal no puede vivir.",
+		"guessWrong": "Casi, pero es el {name} lo que este animal no puede dejar de tener.",
+		"guessTally": {
+			"one": "{correct} de {count} acertados hasta ahora.",
+			"other": "{correct} de {count} acertados hasta ahora."
 		}
 	},
 	"achievements": {
@@ -364,7 +376,8 @@
 			"animalOne": "Trae de vuelta a {animal}.",
 			"animalAll": "Trae de vuelta a {animals}.",
 			"animalAny": "Trae de vuelta a {animals}.",
-			"animalChain": "Trae de vuelta a {first}, y a uno de: {any}."
+			"animalChain": "Trae de vuelta a {first}, y a uno de: {any}.",
+			"journals": "Redacta la guía de campo de cada zona y la edición ampliada de cada una."
 		},
 		"progress": "Progreso: {value}"
 	},
@@ -431,13 +444,13 @@
 		},
 		"journal": {
 			"title": "Abre tu diario de campo",
-			"text": "Presiona J para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía de campo: la entrada básica siempre se muestra, pero la dieta completa, el refugio y las pistas de regreso se desbloquean cuando recolectas los materiales de esa área y mejoras su guía en el panel de Herramientas.",
-			"touch": "Toca el botón del diario para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía de campo: la entrada básica siempre se muestra, pero la dieta completa, el refugio y las pistas de regreso se desbloquean cuando recolectas los materiales de esa área y mejoras su guía en el panel de Herramientas."
+			"text": "Presiona J para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno.",
+			"touch": "Toca el botón del diario para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno."
 		},
 		"tools": {
 			"title": "Herramientas y mejoras",
-			"text": "Presiona T para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala, regadera o diario de campo — los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
-			"touch": "Toca el botón de herramientas para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala, regadera o diario de campo — los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
+			"text": "Presiona T para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
+			"touch": "Toca el botón de herramientas para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
 		},
 		"map": {
 			"title": "Abre el mapa de la Reserva",
@@ -475,8 +488,8 @@
 		},
 		"grasshopper": {
 			"title": "Da la bienvenida a tu primer vecino",
-			"text": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Haz clic en él para anotarlo en tu diario: ¡ese es todo el ciclo!",
-			"touch": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Tócalo para anotarlo en tu diario: ¡ese es todo el ciclo!"
+			"text": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Haz clic en él para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo.",
+			"touch": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Tócalo para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo."
 		},
 		"star": {
 			"title": "Tu primera estrella",
@@ -484,9 +497,9 @@
 			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
 		},
 		"goals": {
-			"title": "Fija tus propios objetivos",
-			"text": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera.",
-			"touch": "El tablero de la izquierda es tu lista de tareas. Empieza con estos primeros objetivos — recolecta semillas, fabrica algo, dale la bienvenida al saltamontes. Cuando los completes, fijas tus propios objetivos para jugar la reserva a tu manera."
+			"title": "Tus objetivos, aquí arriba",
+			"text": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera.",
+			"touch": "El tablero de la esquina superior derecha es tu lista de objetivos. Hay diez objetivos iniciales que completar, tres en el tablero a la vez: completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando termines los diez, fijas tus propios objetivos y juegas la reserva a tu manera."
 		},
 		"home": {
 			"title": "Siéntete como en casa",
@@ -496,18 +509,18 @@
 		"demoNote": "Esta es la demo gratuita: restaura el prado para desbloquear el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque.",
 		"menus": {
 			"title": "Tus menús, arriba",
-			"text": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros), Construir (cesta, fabricación, herramientas, objetivos) y Mundo (el mapa de la Reserva, el clima). Cada uno se explica solo la primera vez que lo abres.",
-			"touch": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario, logros), Construir (cesta, fabricación, herramientas, objetivos) y Mundo (mapa, clima). Cada uno se explica solo la primera vez que lo abres."
+			"text": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres.",
+			"touch": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres."
 		},
 		"toolbelt": {
 			"title": "Tu cinturón de herramientas",
-			"text": "Tu cinturón está abajo: 1 cesta para recolectar, 2 pala para moldear la tierra, 3 regadera para el agua. Pulsa T para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una; los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
-			"touch": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. Toca el botón de herramientas para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una; los niveles más altos recolectan más, moldean más y revelan la guía de campo del área siguiente. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
+			"text": "Tu cinturón está abajo: 1 cesta para recolectar, 2 pala para moldear la tierra, 3 regadera para el agua. Pulsa T para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
+			"touch": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. Toca el botón de herramientas para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
 		},
 		"navigate": {
 			"title": "Orientarte en la pantalla",
-			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Pulsa H para ayuda.",
-			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Debajo está tu tablero de objetivos: tareas sencillas al principio y metas que tú fijas después. Toca el botón ? para ayuda."
+			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Pulsa H para ayuda.",
+			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Toca el botón ? para ayuda."
 		},
 		"moreAnimals": {
 			"title": "Devuelve la vida a la pradera",
@@ -626,7 +639,7 @@
 		"creature": "animal",
 		"rewardNote": "Completar cualquier objetivo otorga un pequeño paquete de materiales — recláma­lo en el tablero.",
 		"moreNote": "Puedes tener 3 objetivos a la vez — 6 cuando toda la reserva esté desbloqueada. Consejo: también puedes añadir un objetivo para un animal concreto desde su entrada del diario de campo, o un objeto concreto para fabricar desde el menú de fabricación — busca el botón de diana.",
-		"startersIntro": "Tus objetivos están aquí. Por ahora, estas son tus primeras tareas: complétalas para ganar sus recompensas.",
+		"startersIntro": "Tus objetivos están aquí. Al principio la reserva te los propone: diez objetivos iniciales que te enseñan el juego, tres en el tablero a la vez. Completa uno para reclamar su recompensa y el siguiente ocupa su lugar. Cuando hayas hecho los diez, aquí diseñarás los tuyos.",
 		"unlockHint": "Cuando completes estas, podrás fijar tus propios objetivos.",
 		"added": "añadido",
 		"alreadyAdded": "Ya es un objetivo",

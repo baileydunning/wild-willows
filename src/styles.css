@@ -60,6 +60,18 @@
 	--sil-known-bg: #dedbd2;
 	--sil-ink: #f0e8d4;
 
+	/* Width of the top-left column — the area card, the goal board and the feed,
+	   sized together so their edges line up rather than each card shrinking to its
+	   own longest line.
+
+	   It is set per language, because what it really measures is TEXT. The widest
+	   thing the column has to hold on one line is a goal like "10 animals back in
+	   Old Hollow Forest", and the Spanish for that is a good deal longer. Sizing
+	   for Spanish everywhere would leave English padded out with empty card, so
+	   English gets the tighter column and any language that needs more says so
+	   below (see the :lang rule). */
+	--hud-left-w: 324px;
+
 	/* Tells the browser which way to render the controls it draws itself: select
 	   popups, scrollbars, range tracks, the native colour picker. Without it those
 	   stay stubbornly white in dark mode. */
@@ -78,6 +90,17 @@
 
 	--font-display: var(--font-storybook-display);
 	--font-body: var(--font-storybook-body);
+}
+
+/* Spanish needs about half again the room for the same goal line — measured, not
+   guessed, and most of the difference is the place names themselves ("Old Hollow
+   Forest" against "Bosque de la Vieja Hondonada"). Matching that exactly would
+   want a column past 400px, which is no longer a corner of the screen, so this
+   buys back most of it and leaves the single longest line to wrap. `lang` on
+   <html> is kept in step with the chosen language in src/i18n/index.ts, so the
+   column resizes the moment the player switches. */
+:root:lang(es) {
+	--hud-left-w: 372px;
 }
 
 * {
@@ -2757,6 +2780,99 @@ input {
 	margin: 3px 0 0 18px;
 	padding: 0;
 }
+
+/* "Before you look" — the one prediction the expanded guide asks for before it
+   prints an animal's habitat checklist. Sits where the checklist will appear,
+   so answering it doesn't shift the rest of the entry around. */
+.req-guess {
+	margin-top: 6px;
+	padding: 8px 10px;
+	border: 1px dashed var(--green);
+	border-radius: 10px;
+	background: rgba(122, 154, 106, 0.08);
+}
+.req-guess-q {
+	margin: 0 0 7px;
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+}
+.req-guess-q svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+	color: var(--green);
+}
+.req-guess-options {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 6px;
+}
+.req-guess-option {
+	border: 1px solid var(--line);
+	border-radius: 999px;
+	background: var(--surface-float-solid);
+	padding: 4px 11px;
+	cursor: pointer;
+	font: inherit;
+	color: inherit;
+}
+.req-guess-option:hover,
+.req-guess-option:focus-visible {
+	border-color: var(--green);
+	background: rgba(122, 154, 106, 0.16);
+}
+.req-guess-skip {
+	margin-top: 7px;
+	font-size: 0.92em;
+}
+.req-guess-result {
+	margin: 5px 0 0;
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+	flex-wrap: wrap;
+}
+.req-guess-result svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+.req-guess-result.correct {
+	color: #44704e;
+}
+.req-guess-result.correct svg {
+	color: var(--green);
+}
+.req-guess-result.wrong {
+	color: #7d5f1e;
+}
+
+/* Where an entry's facts came from. Collapsed by default — present on every
+   full entry, but never competing with the writing above it. */
+.card-sources {
+	margin: 8px 0 4px;
+	font-size: 0.92em;
+}
+.card-sources summary {
+	cursor: pointer;
+	color: var(--ink-soft);
+	display: flex;
+	align-items: center;
+	gap: 5px;
+}
+.card-sources summary::marker {
+	color: var(--ink-soft);
+}
+.card-sources ul {
+	margin: 5px 0 0 18px;
+	padding: 0;
+}
+.card-sources li {
+	margin: 2px 0;
+}
+.card-sources a {
+	color: var(--green);
+}
+
 .animal-card .panel-body p {
 	margin: 8px 0;
 }
@@ -3563,7 +3679,12 @@ kbd {
 	display: flex;
 	flex-direction: column;
 	gap: 3px;
-	max-width: 320px;
+	/* Same column width as the biome card and the goal board above it, from the
+	   same variable — the left edge of the screen reads as one column, and the
+	   longest feed line ends where the panels end instead of stopping short of
+	   them at some unrelated width. Bubbles still size to their own text, so short
+	   lines stay short; this is the ceiling they share. */
+	max-width: var(--hud-left-w, 324px);
 	pointer-events: none;
 }
 .activity-scroll {
@@ -4526,6 +4647,17 @@ kbd {
 
 /* ---------- Today's Tasks (collapsible on-screen board) ---------- */
 /* the left column stacks the biome card and the task board */
+/* The left column is a FIXED width, not a content-sized one.
+   344px is measured, not guessed: it is the narrowest width at which every
+   English goal line — the longest being "Welcome the grasshopper home" sharing
+   its row with a Claim button, and the unlock checklist's "10 animals back in
+   Willow Meadow (1 now)" — sits on ONE line, plus a few px of slack for font
+   fallback. Longer translations still wrap; the rows are built for it.
+   Both children stretch to it, so the biome card no longer changes shape when
+   the goal board underneath it opens, closes, or swaps in a longer goal — the
+   column used to size itself to whichever child was widest, which made the card
+   above visibly jump every time the board was toggled. Text inside the board
+   wraps instead of pushing the column wider. */
 .hud-left-col {
 	position: absolute;
 	top: 12px;
@@ -4535,6 +4667,7 @@ kbd {
 	flex-direction: column;
 	gap: 8px;
 	align-items: stretch;
+	width: var(--hud-left-w, 324px);
 }
 .hud-left-col .hud-top-left {
 	position: static;
@@ -4686,7 +4819,9 @@ kbd {
 	display: inline-flex;
 	align-items: center;
 	gap: 5px;
+	/* stays pill-shaped rather than stretching to the column's fixed width */
 	align-self: flex-start;
+	width: auto;
 	padding: 5px 11px;
 	font-size: calc(12.5px * var(--ui-scale));
 	font-weight: 700;
@@ -4711,7 +4846,7 @@ kbd {
 }
 @media (max-width: 900px) {
 	.hud-left-col {
-		max-width: 46vw;
+		width: min(var(--hud-left-w, 324px), 46vw);
 	}
 	.tasks-row-text {
 		font-size: calc(11.5px * var(--ui-scale));
@@ -5168,6 +5303,15 @@ kbd {
 }
 [data-theme='dark'] .fact {
 	color: #92b899; /*  7.42 */
+}
+[data-theme='dark'] .req-guess {
+	background: rgba(146, 184, 153, 0.09);
+}
+[data-theme='dark'] .req-guess-result.correct {
+	color: #92b899; /*  7.42 */
+}
+[data-theme='dark'] .req-guess-result.wrong {
+	color: #dfc189; /*  7.62 */
 }
 [data-theme='dark'] .web-chip-forage {
 	border-color: #635a3c;
@@ -5858,6 +6002,99 @@ kbd {
 	border-radius: 50%;
 	background: var(--tint-leaf-strong);
 	color: var(--green);
+}
+
+/* ── "Are you done playing?" — the demo's soft prompt (src/ui/DemoNudge.tsx) ─ */
+/* Borrows the hard-stop popup's card so the two read as the same voice, but it
+   is a suggestion, not an ending: dimmer backdrop, and it goes away. */
+.demo-nudge-backdrop {
+	/* Under the hard-stop popup's z-index, above everything else. */
+	z-index: 89;
+}
+.demo-nudge-card {
+	gap: 6px;
+}
+.demo-nudge-stores {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 12px;
+}
+/* The store links are anchors, not buttons — inside itch's iframe a real
+   `target="_blank"` link is the reliable way out of the frame, where
+   window.open() is at the mercy of popup blocking. So they need the base button
+   paint that `button {}` gives their neighbours. */
+a.demo-nudge-store {
+	text-decoration: none;
+	font-family: var(--font-body);
+	background: var(--cream);
+	color: var(--ink);
+	cursor: pointer;
+	margin-top: 0;
+	transition:
+		transform 0.08s ease,
+		background 0.15s ease;
+}
+a.demo-nudge-store:hover {
+	background: var(--paper-2);
+	transform: translateY(-1px);
+}
+a.demo-nudge-store.primary {
+	background: var(--green);
+	color: var(--on-accent);
+}
+a.demo-nudge-store.primary:hover {
+	background: var(--green-deep);
+}
+.demo-nudge-anytime {
+	margin: 12px 0 0;
+	max-width: 32ch;
+}
+.demo-nudge-card .demo-nudge-dismiss {
+	margin-top: 10px;
+	font-size: calc(15px * var(--ui-scale));
+	padding: 8px 16px;
+}
+
+/* ── "Now the goals are yours" — the one-time starter-chain hand-off ─────── */
+.goals-unlocked-backdrop {
+	position: fixed;
+	z-index: 88;
+}
+.goals-unlocked-card {
+	width: 480px;
+	max-width: 92vw;
+	padding: 26px 26px 24px;
+	align-items: center;
+	text-align: center;
+	gap: 4px;
+}
+.goals-unlocked-card h2 {
+	justify-content: center;
+	margin: 6px 0 2px;
+}
+.goals-unlocked-card p {
+	color: var(--ink);
+	line-height: 1.5;
+	margin: 6px 0;
+}
+.goals-unlocked-icon {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	width: 58px;
+	height: 58px;
+	border-radius: 50%;
+	background: var(--tint-leaf-strong);
+	color: var(--green);
+}
+.goals-unlocked-actions {
+	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 14px;
 }
 
 /* ── Contextual hint banner (first time a menu opens / you enter home) ───── */

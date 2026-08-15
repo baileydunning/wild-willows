@@ -115,6 +115,7 @@ describe('player highlights sort', () => {
 			'actions',
 			'achievements',
 			'restored',
+			'menus',
 		]);
 		for (const o of HL_SORTS) expect(o.label, `${o.key} has no label`).toBeTruthy();
 		expect(DASHBOARD).toContain("const HL_SORT = { key: 'playtime' };");
@@ -193,9 +194,31 @@ describe('superlative badges', () => {
 		expect(DASHBOARD).not.toMatch(/supTags\[\s*i\s*\]/);
 	});
 
-	it('still awards all four superlatives', () => {
-		for (const label of ['Most playtime', 'Most active', 'Most achievements', 'Most restored']) {
+	it('still awards every superlative', () => {
+		for (const label of ['Most playtime', 'Most active', 'Most achievements', 'Most restored', 'Most time in menus']) {
 			expect(DASHBOARD, `${label} badge missing`).toContain(`'${label}'`);
 		}
+	});
+
+	// Menu dwell arrived after this wall did, so most rows in hand predate it.
+	// Sorting on a field that half the payload doesn't carry is exactly where a
+	// comparator goes quietly incoherent, so the reader is pinned here.
+	describe('time in menus', () => {
+		const MENU_ROWS = [
+			{ id: 'reader', playerId: 'p-r', playSeconds: 3000, menuTotalSeconds: 1200, menuMeasured: true },
+			{ id: 'skimmer', playerId: 'p-s', playSeconds: 3000, menuTotalSeconds: 60, menuMeasured: true },
+			// Older client: carries the per-menu map but not the total.
+			{ id: 'map-only', playerId: 'p-m', playSeconds: 3000, menuSeconds: { journal: 300, goals: 100 } },
+			// Predates the metric entirely.
+			{ id: 'legacy', playerId: 'p-l', playSeconds: 3000 },
+		];
+
+		it('ranks by menu time, summing the map when the total is missing', () => {
+			expect(orderBy('menus', MENU_ROWS)).toEqual(['reader', 'map-only', 'skimmer', 'legacy']);
+		});
+
+		it('treats a save that never reported menu time as zero, not as unknown-first', () => {
+			expect(orderBy('menus', MENU_ROWS).at(-1)).toBe('legacy');
+		});
 	});
 });

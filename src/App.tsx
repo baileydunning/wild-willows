@@ -35,6 +35,8 @@ import { GoalsPanel } from './ui/GoalsPanel';
 import { DevPanel } from './ui/DevPanel';
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
+import { DemoNudge } from './ui/DemoNudge';
+import { GoalsUnlocked } from './ui/GoalsUnlocked';
 import { Icon, ObjectIcon, ResourceIcon } from './ui/icons';
 import { journalNav } from './ui/journalNav';
 
@@ -269,7 +271,9 @@ function GameScreen() {
 				}
 				// destructive actions on a watered bed (clear / flood) confirm first
 				if (p.confirm && !window.confirm(p.confirm)) return;
-				game.terraform(p.area, p.x, p.y, p.action);
+				// p.expect carries the tile this click was aimed at, so the server can
+				// refuse it if the ground has changed since (see api.terraform).
+				game.terraform(p.area, p.x, p.y, p.action, p.expect);
 			}),
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
 			bridge.on('harvest-placement', (p: any) => game.harvest(p.placementId)),
@@ -312,6 +316,18 @@ function GameScreen() {
 				// hint appears OVER that menu, so if Esc closed both at once there was
 				// no way to dismiss the hint and keep reading the menu it describes.
 				// One press, one thing.
+				//
+				// The demo's "are you done playing?" prompt is first because it sits over
+				// everything else. It joins this chain rather than listening for Escape
+				// itself, for exactly the reason above — as does the goals hand-off.
+				if (game.demoNudge) {
+					game.dismissDemoNudge();
+					return;
+				}
+				if (game.goalsUnlocked) {
+					game.dismissGoalsUnlocked();
+					return;
+				}
 				if (devOpen) {
 					setDevOpen(false);
 					return;
@@ -600,6 +616,10 @@ function Root() {
 		<>
 			{state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
+			<GoalsUnlocked />
+			{/* The soft prompt renders first so the hard-stop popup, if both were ever
+			    somehow up at once, is the one on top. */}
+			<DemoNudge />
 			<DemoCompleteModal />
 		</>
 	);

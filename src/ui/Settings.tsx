@@ -663,7 +663,7 @@ export function KeybindingControls() {
 }
 
 export function SettingsPanel() {
-	const { state, setPanel, notify, refresh, logout } = useGame();
+	const { state, setPanel, notify, refresh, logout, exportDemo } = useGame();
 	const { t, locale } = useI18n();
 	const defaults: Appearance = {
 		skin: '#eec39a',
@@ -718,12 +718,25 @@ export function SettingsPanel() {
 		}
 	};
 
-	// Export the active solo save to a downloadable JSON file — the whole world
-	// plus the caretaker's name and look — so the player has an offline backup.
+	// Export the active save to a downloadable JSON file — the whole world plus the
+	// caretaker's name and look — so the player has an offline backup.
+	//
+	// The demo takes the other road. Its save can live on the hosted Harper rather
+	// than in a local slot (see DEMO_WEB_BACKEND), where the solo exporter would
+	// find nothing to write, so it goes through the game's own demo export, which
+	// handles either backend. Same button, same file, and it means "you can do this
+	// any time from Settings" — which the demo's prompt now tells people — is true
+	// for every demo player rather than only the offline ones.
 	const exportSave = async () => {
 		setExporting(true);
 		setError(null);
 		try {
+			if (DEMO) {
+				const name = await exportDemo();
+				if (!name) setError(t('app.settings.errExport'));
+				else notify(t('app.settings.saveExported'));
+				return;
+			}
 			const out = await exportActiveSolo();
 			if (!out) {
 				setError(t('app.settings.errExport'));
@@ -862,12 +875,17 @@ export function SettingsPanel() {
 					</h3>
 					<KeybindingControls />
 
-					{isSolo && (
+					{(isSolo || DEMO) && (
 						<>
 							<h3>
 								<Icon name="download" size={15} /> {t('app.settings.exportSaveTitle')}
 							</h3>
-							<p className="muted small">{t('app.settings.exportSaveHint')}</p>
+							{/* The demo's copy points at the full game's Import Save rather than
+							    at "another computer" — carrying the meadow across is the whole
+							    reason a demo player exports anything. */}
+							<p className="muted small">
+								{DEMO ? t('app.settings.exportSaveHintDemo') : t('app.settings.exportSaveHint')}
+							</p>
 							<div className="form-actions end">
 								<button className="big-btn primary" onClick={exportSave} disabled={exporting}>
 									<Icon name="download" size={15} />{' '}

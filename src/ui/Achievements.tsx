@@ -52,6 +52,11 @@ export function AchievementsPanel() {
 				});
 			case 'tools':
 				return t('panels.achievements.req.tools', { n: req.n });
+			// Every area's guide, written up through its expanded edition. Counted
+			// from the biome list rather than a number in the data, so adding an area
+			// can't leave this quietly asking for the old total.
+			case 'journals':
+				return t('panels.achievements.req.journals');
 			case 'tool':
 				return t('panels.achievements.req.tool', { n: req.n, tool: toolName(req.id) });
 			case 'biomesAtHealth':
@@ -122,6 +127,11 @@ export function AchievementsPanel() {
 			case 'tools': {
 				const ids = ['basket', 'shovel', 'watering-can'];
 				return { cur: ids.filter((i) => (tools[i] || 1) >= req.n).length, target: ids.length };
+			}
+			case 'journals': {
+				// Written all the way up — through the expanded edition — for every area.
+				const books = data.biomes.map((b) => `journal-${b.id}`);
+				return { cur: books.filter((i) => (tools[i] || 1) >= 3).length, target: books.length };
 			}
 			case 'biomesAtHealth':
 				return { cur: bs.filter((s) => Math.round(s.health) >= req.h).length, target: req.n };

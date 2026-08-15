@@ -18,7 +18,7 @@
 				"touch": "Toca el botón del martillo para crear. Usa tu cesta desde cualquier lugar. Vamos a construir la casa del saltamontes."
 			},
 			"toolbelt": {
-				"text": "Tus herramientas están abajo. La 1 es la cesta para recoger. La 2 es la pala para cavar. La 3 es la regadera. Pulsa T para abrir Herramientas. Ahí gastas materiales para mejorarlas. Las mejores recogen y cavan más. También abren la guía de la siguiente zona.",
+				"text": "Tus herramientas están abajo. La 1 es la cesta para recoger. La 2 es la pala para cavar. La 3 es la regadera. Pulsa T para abrir Herramientas. Ahí gastas materiales para mejorarlas. Las mejores recogen y cavan más. La guía de esta zona está en la misma página.",
 				"touch": "Tus herramientas están abajo. La cesta recoge. La pala cava. La regadera riega. Toca el botón de herramientas para mejorarlas. Las mejores recogen y cavan más."
 			},
 			"tools": {
@@ -26,8 +26,8 @@
 				"touch": "Toca el botón de herramientas. Gasta materiales para mejorar tu cesta, tu pala, tu regadera o tu diario. Algunas mejoras se abren cuando la tierra sana."
 			},
 			"journal": {
-				"text": "Pulsa J para abrir tu diario. Muestra cada animal que puede volver a cada zona. También muestra quién ya volvió. Cada zona tiene su guía. La ficha básica siempre se ve. La comida, el refugio y las pistas se abren cuando recoges cosas de esa zona y mejoras su guía.",
-				"touch": "Toca el botón del diario. Muestra cada animal que puede volver a cada zona y quién ya volvió. La comida, el refugio y las pistas se abren cuando recoges cosas de esa zona y mejoras su guía."
+				"text": "Pulsa J para abrir tu diario. Muestra cada animal que puede volver a cada zona. También muestra quién ya volvió. Cada zona tiene una guía. Redáctala una vez para abrir la ficha completa de cada animal. Redáctala otra vez para ver qué espera cada animal. Eso se hace en Herramientas.",
+				"touch": "Toca el botón del diario. Muestra cada animal que puede volver a cada zona y quién ya volvió. Cada zona tiene una guía. Redáctala una vez para abrir la ficha completa. Redáctala otra vez para ver qué espera cada animal. Eso se hace en Herramientas."
 			},
 			"map": {
 				"text": "Pulsa M para abrir la Reserva. Muestra la salud de cada zona y sus animales. Muestra qué necesitas para abrir la siguiente. También puedes viajar a zonas que ya visitaste. Toca el icono de caminar en su fila.",
@@ -133,8 +133,22 @@
 		"journal": {
 			"comfortGrows": "La comodidad sube con buenos hogares. Pon más de lo que le gusta, como {items}, y se quedará.",
 			"foodWebIntro": "Las filas de arriba comen a las de abajo. Encontraste {returned} de {total}. Construye más hogares para ver el resto.",
-			"lockedCard": "Mejora tu guía al nivel {tier} para leer la ficha completa. Muestra su papel, su comida y a quién come.",
-			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos."
+			"lockedCard": "Redacta la Guía de Campo de {biome} para leer la ficha completa. Muestra su papel, su comida y a quién come.",
+			"overviewEmpty": "Todavía no volvió ningún animal. Construye hogares y empezarán a llegar. Vuelve aquí para verlos.",
+			"upsell": "Redacta la Guía de Campo de {biome}. Abre la ficha completa de cada animal de aquí. Búscala en Herramientas.",
+			"upsellExpanded": "Redacta la Guía Grande de {biome}. Dice exactamente qué espera cada animal de aquí. Búscala en Herramientas.",
+			"guessPrompt": "¡Adivina primero! ¿Cuál crees que necesita más?",
+			"guessSkip": "Saltar — muéstrame la lista",
+			"guessCorrect": "¡Sí! El {name} es lo que más necesita.",
+			"guessWrong": "Esta vez no. Lo que más necesita es el {name}.",
+			"guessTally": {
+				"one": "Has acertado {correct} de {count}.",
+				"other": "Has acertado {correct} de {count}."
+			},
+			"sourcesTitle": {
+				"one": "De dónde viene esto",
+				"other": "De dónde viene esto ({count})"
+			}
 		},
 		"home": {
 			"buildIntro": "Tu casa aún es una tienda. Elige un estilo para volverla una casa. Cada estilo usa sus materiales y fija tu aspecto para siempre. Cada uno da un bono que crece con cada mejora.",
@@ -145,9 +159,7 @@
 		"inventory": {
 			"kitsNote": "Los kits no se ponen en el suelo y no se pueden tirar. Lo que cuenta es hacerlos."
 		},
-		"tools": {
-			"note": "Las mejoras usan materiales de tu cesta y de tus cofres."
-		},
+		"tools": {},
 		"chest": {
 			"basketFull": "Tu cesta está llena. Guarda algo o tíralo primero."
 		},
@@ -225,7 +237,9 @@
 			"feedbackRejected": "El servidor no pudo recibir esa nota. Inténtalo más tarde."
 		},
 		"demo": {
-			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales."
+			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales.",
+			"nudgeBody": "Sin prisa. Tu prado sigue justo donde lo dejaste. Si ya terminaste por ahora, puedes llevártelo: descarga tu partida y el juego completo la abrirá desde aquí.",
+			"nudgeSavedBody": "El archivo está en tus descargas. Consigue el juego completo, elige Importar partida en su primera pantalla y sigue desde aquí, con cinco zonas más por sanar."
 		},
 		"kbGate": {
 			"body3": ", y llegar a tu cesta, tus herramientas y tu diario con teclas. Por eso no funciona solo en un móvil o una tableta.",
@@ -277,7 +291,8 @@
 				"unlock": "Haz lo que aparece en la lista para abrir esta zona.",
 				"health": "Sana la tierra. Planta, riega y pon hogares hasta que la zona mejore.",
 				"biomeAnimals": "Construye un hogar para cada animal de aquí hasta que estén todos."
-			}
+			},
+			"upgradeGuide": "Redacta la Guía Grande de esta zona en Herramientas para ver la lista exacta."
 		},
 		"nextbiome": {
 			"hint": "Marca cada cosa de abajo para abrir {biome}."
@@ -2427,33 +2442,118 @@
 					}
 				}
 			},
-			"field-journal": {
-				"description": "Para observar animales y anotar quién ha vuelto. Cada zona tiene su guía. Recoge materiales de esa zona para mejorarla y abrir sus fichas completas.",
-				"tiers": {
-					"2": {
-						"effect": "Muestra la ficha completa de los animales de Pradera Sauce. También dice cómo traer de vuelta a cada uno."
-					},
-					"3": {
-						"effect": "Muestra la ficha completa de los animales de Bosque Hondo. También dice cómo traer de vuelta a cada uno."
-					},
-					"4": {
-						"effect": "Muestra la ficha completa de los animales de Humedal Juncal. También dice cómo traer de vuelta a cada uno."
-					},
-					"5": {
-						"effect": "Muestra la ficha completa de los animales de Matorral Roca Roja. También dice cómo traer de vuelta a cada uno."
-					},
-					"6": {
-						"effect": "Muestra la ficha completa de los animales de Alturas Vientogris. También dice cómo traer de vuelta a cada uno."
-					},
-					"7": {
-						"effect": "Muestra la ficha completa de los animales de Costa Pelícano y cómo traer de vuelta a cada uno. La guía queda completa."
-					}
-				}
-			},
 			"watering-can": {
 				"tiers": {
 					"2": {
 						"effect": "Lleva 2 de agua a la vez. El suelo seco sana más rápido."
+					}
+				}
+			},
+			"journal-meadow": {
+				"description": "Tus notas sobre Pradera Sauce. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Pradera Sauce",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Pradera Sauce.",
+						"name": "Apuntes de Bolsillo de Pradera Sauce"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Pradera Sauce"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Pradera Sauce"
+					}
+				}
+			},
+			"journal-forest": {
+				"description": "Tus notas sobre Bosque Hondo. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Bosque Hondo",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Bosque Hondo.",
+						"name": "Apuntes de Bolsillo de Bosque Hondo"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Bosque Hondo"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Bosque Hondo"
+					}
+				}
+			},
+			"journal-wetland": {
+				"description": "Tus notas sobre Humedal Juncal. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Humedal Juncal",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Humedal Juncal.",
+						"name": "Apuntes de Bolsillo de Humedal Juncal"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Humedal Juncal"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Humedal Juncal"
+					}
+				}
+			},
+			"journal-desert": {
+				"description": "Tus notas sobre Matorral Roca Roja. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Matorral Roca Roja",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Matorral Roca Roja.",
+						"name": "Apuntes de Bolsillo de Matorral Roca Roja"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Matorral Roca Roja"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Matorral Roca Roja"
+					}
+				}
+			},
+			"journal-alpine": {
+				"description": "Tus notas sobre Alturas Vientogris. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Alturas Vientogris",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Alturas Vientogris.",
+						"name": "Apuntes de Bolsillo de Alturas Vientogris"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Alturas Vientogris"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Alturas Vientogris"
+					}
+				}
+			},
+			"journal-coastal": {
+				"description": "Tus notas sobre Costa Pelícano. Redáctalas una vez para abrir la ficha completa de cada animal de allí. Redáctalas otra vez para ver qué espera cada animal.",
+				"name": "Guía de Campo de Costa Pelícano",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, dibujos y una pista de cada animal de Costa Pelícano.",
+						"name": "Apuntes de Bolsillo de Costa Pelícano"
+					},
+					"2": {
+						"effect": "Muestra la ficha completa de cada animal de aquí. Su papel, su comida, cuándo sale y el hogar que le gusta.",
+						"name": "Guía de Campo de Costa Pelícano"
+					},
+					"3": {
+						"effect": "Dice exactamente qué espera cada animal de aquí. En el diario y en tus metas.",
+						"name": "Guía Grande de Costa Pelícano"
 					}
 				}
 			}

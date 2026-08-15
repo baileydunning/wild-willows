@@ -63,7 +63,7 @@
 		"habitatGoalAdded": "Added its habitat to your goals — see the board (G)",
 		"goalAlready": "That's already one of your goals",
 		"goalLimit": "You can hold {max} goals at once — finish or remove one first",
-		"goalStartersFirst": "Finish your first three goals before adding more.",
+		"goalStartersFirst": "Work through all ten starter goals before adding your own.",
 		"joinRequest": "{name} wants to join — press U to let them in",
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
@@ -71,6 +71,8 @@
 		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
 	},
 	"feed": {
+		"demoNudgeIdle": "The preserve waited quietly while you were away.",
+		"demoNudgeReturned": "Welcome back — the preserve kept growing without you.",
 		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}.",
 		"achievementUnlocked": "Achievement unlocked: {name}. {flavor}",
 		"taskComplete": "Daily task complete: {text}",
@@ -361,6 +363,7 @@
 		"deleteForever": "Delete forever",
 		"errDelete": "Could not delete the save",
 		"exportSaveTitle": "Back up this save",
+		"exportSaveHintDemo": "Download this preserve — world, journal, progress, and your caretaker’s name and look — as a single file. The full game’s Import Save picks it up exactly where you left off.",
 		"exportSaveHint": "Download a copy of this preserve — world, journal, progress, and your caretaker’s name and look — as a single file. Keep it as a backup or move it to another computer.",
 		"exportSave": "Export save",
 		"exporting": "Exporting…",
@@ -482,6 +485,14 @@
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
 		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
 	},
+	"goalsUnlocked": {
+		"title": "Now the goals are yours",
+		"body": "That's all ten starter goals done — you've gathered, crafted, watered, planted, welcomed a neighbour home, filled in your journal, and built a house. From here you decide what the preserve works toward.",
+		"how": "Open the board (G) and pick what to aim for: a particular animal to welcome, a thing to craft, a tool to upgrade, a biome to restore, or your home to furnish.",
+		"shortcut": "You can also set one straight from the thing itself — look for the target button on an animal's journal entry, or on a recipe in the crafting menu.",
+		"openButton": "Set my first goal",
+		"laterButton": "Maybe later"
+	},
 	"demo": {
 		"doneTitle": "Thanks for playing the Wild Willows demo!",
 		"doneBody": "That's the end of the free demo — thank you for restoring a corner of the preserve. The full game opens five more biomes to restore, deeper crafting, seasons and weather, a field journal to fill, and many more neighbors to bring home.",
@@ -491,6 +502,15 @@
 		"exportButton": "Download my save",
 		"exporting": "Preparing…",
 		"exportDone": "Saved — check your downloads",
-		"exportFail": "Couldn't export the save. Try again?"
+		"exportFail": "Couldn't export the save. Try again?",
+		"nudgeTitle": "Are you done playing?",
+		"nudgeBody": "No rush — your meadow is right where you left it. If you're finishing up, take your progress with you: download your save and the full game can pick it up exactly here.",
+		"nudgeAnytime": "You can download your save any time from Settings (O).",
+		"nudgeKeepPlaying": "Keep playing",
+		"nudgeSavedTitle": "Your meadow is saved!",
+		"nudgeSavedBody": "The save file is in your downloads. Get the full game, choose Import Save on its title screen, and carry on right where you left off — with five more biomes to restore.",
+		"nudgeBackToGame": "Back to the demo",
+		"storeItch": "Get it on itch.io",
+		"storeMas": "Get it on the Mac App Store"
 	}
 }

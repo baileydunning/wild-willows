@@ -2,6 +2,7 @@ import { useMemo, useState } from 'react';
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
 import type { CustomGoal, CustomGoalKind } from '../types';
+import { customGoalsUnlocked } from '../types';
 import { recipeUnlocked } from '../recipes';
 import { Icon } from './icons';
 
@@ -148,7 +149,7 @@ export function GoalsPanel() {
 	const pickedKinds = new Set(active.map((g) => g.kind));
 	// You design your own goals only after finishing the three starters, and can
 	// hold just one home goal (build or upgrade) at a time.
-	const startersDone = !(state.dailyTasks?.tasks || []).some((tk) => tk.id.startsWith('start-'));
+	const startersDone = customGoalsUnlocked(state);
 	// System goals to surface read-only at the top of the menu: the pinned
 	// next-biome guidance, and the three starters until they're claimed.
 	const fixedTasks = (state.dailyTasks?.tasks || []).filter(

@@ -115,6 +115,55 @@ export function blocksGateTrail(tx: number, ty: number, g: GateGeom): boolean {
 	return false;
 }
 
+// ---------------------------------------------------------------- arrivals
+
+/** Which rule decides where an arrival in `area` puts the caretaker. */
+export type ArrivalKind =
+	/** Not a crossing at all — leave them exactly where they stand. */
+	| 'in-place'
+	/** Stepped back out of the home — right in front of the camp tent door. */
+	| 'camp-door'
+	/** Stepped out of a trail tent — right in front of where it's pitched. */
+	| 'tent-door'
+	/** Walked in from the neighbour to the west — appear on the west edge. */
+	| 'west-edge'
+	/** Walked in from the neighbour to the east — appear on the east edge. */
+	| 'east-edge'
+	/** Nothing recognisable to go on. */
+	| 'default';
+
+/**
+ * Which rule decides where an arrival in `area` from `from` lands.
+ *
+ * The 'in-place' case is the one with teeth. Stepping through a door is a round
+ * trip — save the position, refetch the snapshot, then rebuild the scene — and
+ * every door is a thing you can click twice before the first trip lands. A
+ * duplicate that arrives AFTER the scene has already moved asks it to travel
+ * from the meadow to the meadow, and without this case that fell through to the
+ * bottom rule, which reads an unrecognised pair as "came in from a neighbour"
+ * and answers with the trail gate on the far edge of the map. That is the bug a
+ * playtester reported as "I walk out of my house and get yanked to the trail
+ * sign": the first transition was right, and a second one to where they already
+ * stood threw them across the meadow.
+ *
+ * Arriving where you already are is not an arrival. Stand still.
+ */
+export function arrivalKind(
+	area: string,
+	from: string,
+	order: readonly string[],
+	/** Is there a trail tent pitched in `area` to have stepped out of? */
+	hasTent = false,
+): ArrivalKind {
+	if (area === from) return 'in-place';
+	if (area === 'meadow' && from === 'home') return 'camp-door';
+	if (from === `tent-${area}` && hasTent) return 'tent-door';
+	const ai = order.indexOf(area);
+	const fi = order.indexOf(from);
+	if (ai < 0 || fi < 0) return 'default';
+	return fi < ai ? 'west-edge' : 'east-edge';
+}
+
 // ------------------------------------------------------------ tween hygiene
 
 /**

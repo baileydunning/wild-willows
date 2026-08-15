@@ -3522,6 +3522,78 @@
 			"rippled-sand-bed": {
 				"name": "Arena Ondulada",
 				"description": "Arena limpia por debajo de la línea de marea baja, peinada en crestas parejas por una corriente lo bastante suave para dejarlas en pie."
+			},
+			"meadow-overlook-bench": {
+				"description": "Un segundo banco, en el extremo del prado y mirando por donde viniste. Mejor una hora antes del anochecer, cuando la hierba se vuelve dorada y las abejas siguen despiertas.",
+				"name": "Banco del Mirador del Prado"
+			},
+			"pollinator-waystation": {
+				"description": "Un arriate elevado de plantas de néctar puesto a propósito en campo abierto, a medio camino entre dos manchas floridas, para que una abeja de corto alcance cruce un terreno que de otro modo no podría.",
+				"name": "Parada para Polinizadores"
+			},
+			"meadow-lantern-row": {
+				"description": "Faroles colgados bajos a lo largo de un sendero en un cordel trenzado. A la altura de la rodilla a propósito: las luces altas deslumbran el prado y las polillas nunca se posan.",
+				"name": "Hilera de Faroles del Prado"
+			},
+			"forest-reading-bench": {
+				"description": "Un banco de tablones con el borde norte teñido de verde suave. El musgo no es descuido: es lo único aquí que no te va a clavar astillas.",
+				"name": "Banco de Lectura del Bosque"
+			},
+			"hollow-trail-marker": {
+				"description": "Un mojón tallado para los senderos de la arboleda profunda, donde cada dirección es la misma columna parda y ya te has equivocado una vez.",
+				"name": "Mojón del Sendero de la Hondonada"
+			},
+			"old-hollow-arch": {
+				"description": "Un arco de ramas curvadas a la entrada de los árboles más viejos. No señala nada ni sostiene nada, y aun así todo el mundo afloja el paso al cruzarlo.",
+				"name": "Arco de la Vieja Hondonada"
+			},
+			"reed-weavers-bench": {
+				"description": "Un banco bajo con asiento de junco tejido, lo bastante retirado del agua como para que una garza siga faenando en la orilla delante de ti.",
+				"name": "Banco del Tejedor de Juncos"
+			},
+			"rushwater-boardwalk-rail": {
+				"description": "Un tramo de pasarela con baranda sobre terreno blando. La baranda es lo importante: mantiene los pies en los tablones, y la marisma que nadie pisa se recompone rápido.",
+				"name": "Pasarela con Baranda de Aguajunco"
+			},
+			"heron-watch-arch": {
+				"description": "Un arco atado con juncos que enmarca el agua abierta. Ponte debajo y quédate quieto: a las garzas les molesta mucho más una silueta que se mueve que una parada.",
+				"name": "Arco del Otero de Garzas"
+			},
+			"shade-ramada": {
+				"description": "Un techo sobre postes, sin paredes. Las paredes atraparían el calor de la tarde; un techo y una brisa que pase bajan la temperatura del suelo una barbaridad.",
+				"name": "Ramada de Sombra"
+			},
+			"redstone-waymarker": {
+				"description": "Un mojón apilado en la línea de la cresta, colocado para verse desde el cauce de abajo, donde las paredes son altas, el sol cae a plomo y cada recodo parece el anterior.",
+				"name": "Señal de Piedra Roja"
+			},
+			"geode-sun-court": {
+				"description": "Un círculo de geodas partidas con la cara de cristal hacia arriba en torno a un suelo barrido. A mediodía el patio entero te devuelve la luz; al anochecer se queda callado y violeta.",
+				"name": "Patio Solar de Geodas"
+			},
+			"graywind-rest-bench": {
+				"description": "Un banco de piedra al abrigo de la cresta, puesto donde no llega el viento. Diez pasos a un lado o a otro y no te oirías ni pensar.",
+				"name": "Banco de Descanso de Vientogrís"
+			},
+			"lichen-cairn-trail": {
+				"description": "Una fila de hitos para el tramo por encima de los últimos árboles. Altos a propósito: los que sirven son los que siguen asomando tras la nevada.",
+				"name": "Sendero de Hitos de Liquen"
+			},
+			"summit-sundial": {
+				"description": "Un gnomon de cuarzo sobre una losa de piedra. Adelanta en verano y no sirve de nada con nubes, que aquí arriba es casi todo el tiempo interesante.",
+				"name": "Reloj de Sol de la Cumbre"
+			},
+			"driftwood-bench": {
+				"description": "Un banco hecho con lo que trajeron las tormentas de invierno, puesto por encima de la línea de algas para que al invierno siguiente le cueste más llevárselo.",
+				"name": "Banco de Madera de Deriva"
+			},
+			"shore-waymark": {
+				"description": "Un poste de madera de deriva con un ojo de vidrio marino encajado en la cabeza. Atrapa el sol bajo y te dice por dónde el sendero deja la arena.",
+				"name": "Baliza de la Orilla"
+			},
+			"tidewatchers-arch": {
+				"description": "Dos troncos curtidos por el temporal apoyados en arco sobre la línea de pleamar. Dos veces al día el agua le llega casi a los pies, y dos veces al día no.",
+				"name": "Arco del Vigía de Mareas"
 			}
 		},
 		"recipe": {
@@ -4475,6 +4547,60 @@
 			},
 			"rippled-sand-bed": {
 				"name": "Arena Ondulada"
+			},
+			"meadow-overlook-bench": {
+				"name": "Banco del Mirador del Prado"
+			},
+			"pollinator-waystation": {
+				"name": "Parada para Polinizadores"
+			},
+			"meadow-lantern-row": {
+				"name": "Hilera de Faroles del Prado"
+			},
+			"forest-reading-bench": {
+				"name": "Banco de Lectura del Bosque"
+			},
+			"hollow-trail-marker": {
+				"name": "Mojón del Sendero de la Hondonada"
+			},
+			"old-hollow-arch": {
+				"name": "Arco de la Vieja Hondonada"
+			},
+			"reed-weavers-bench": {
+				"name": "Banco del Tejedor de Juncos"
+			},
+			"rushwater-boardwalk-rail": {
+				"name": "Pasarela con Baranda de Aguajunco"
+			},
+			"heron-watch-arch": {
+				"name": "Arco del Otero de Garzas"
+			},
+			"shade-ramada": {
+				"name": "Ramada de Sombra"
+			},
+			"redstone-waymarker": {
+				"name": "Señal de Piedra Roja"
+			},
+			"geode-sun-court": {
+				"name": "Patio Solar de Geodas"
+			},
+			"graywind-rest-bench": {
+				"name": "Banco de Descanso de Vientogrís"
+			},
+			"lichen-cairn-trail": {
+				"name": "Sendero de Hitos de Liquen"
+			},
+			"summit-sundial": {
+				"name": "Reloj de Sol de la Cumbre"
+			},
+			"driftwood-bench": {
+				"name": "Banco de Madera de Deriva"
+			},
+			"shore-waymark": {
+				"name": "Baliza de la Orilla"
+			},
+			"tidewatchers-arch": {
+				"name": "Arco del Vigía de Mareas"
 			}
 		},
 		"resource": {
@@ -4616,40 +4742,6 @@
 					}
 				}
 			},
-			"field-journal": {
-				"description": "Para observar animales y registrar quién ha regresado. Cada área tiene su propia guía de campo: recolecta los materiales de esa área para mejorarla y desbloquear sus entradas completas y pistas de regreso.",
-				"name": "Diario de Campo",
-				"tiers": {
-					"1": {
-						"effect": "Observa y registra quién ha regresado. Mejóralo con los materiales de cada área para leer sus entradas de campo completas y pistas de regreso.",
-						"name": "Diario de Campo"
-					},
-					"2": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de la Pradera de los Sauces.",
-						"name": "Guía de Campo de la Pradera de los Sauces"
-					},
-					"3": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Bosque de la Vieja Hondonada.",
-						"name": "Guía de Campo del Bosque de la Vieja Hondonada"
-					},
-					"4": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Humedal de los Juncos.",
-						"name": "Guía de Campo del Humedal de los Juncos"
-					},
-					"5": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales del Matorral de Piedra Roja.",
-						"name": "Guía de Campo del Matorral de Piedra Roja"
-					},
-					"6": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de las Cumbres del Viento Gris.",
-						"name": "Guía de Campo de las Cumbres del Viento Gris"
-					},
-					"7": {
-						"effect": "Lee las entradas completas y pistas de regreso de los animales de la Costa del Pelícano: la guía de campo completa.",
-						"name": "Guía del Naturalista Maestro"
-					}
-				}
-			},
 			"shovel": {
 				"description": "Para cavar con cuidado piedras, arcilla y arena, y preparar el terreno de restauración.",
 				"name": "Pala Básica",
@@ -4691,6 +4783,114 @@
 					"4": {
 						"effect": "Recoge 4 de agua a la vez: inunda canales enteros en unos pocos viajes.",
 						"name": "Cántaro Atrapanubes"
+					}
+				}
+			},
+			"journal-meadow": {
+				"description": "Tus notas sobre la Pradera de los Sauces, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Pradera de los Sauces",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de la Pradera de los Sauces.",
+						"name": "Apuntes de Bolsillo de Pradera de los Sauces"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Pradera de los Sauces"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Pradera de los Sauces"
+					}
+				}
+			},
+			"journal-forest": {
+				"description": "Tus notas sobre el Bosque de la Vieja Hondonada, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Bosque de la Vieja Hondonada",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Bosque de la Vieja Hondonada.",
+						"name": "Apuntes de Bolsillo de Bosque de la Vieja Hondonada"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Bosque de la Vieja Hondonada"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Bosque de la Vieja Hondonada"
+					}
+				}
+			},
+			"journal-wetland": {
+				"description": "Tus notas sobre el Humedal de Aguas Juncosas, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Humedal de Aguas Juncosas",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Humedal de Aguas Juncosas.",
+						"name": "Apuntes de Bolsillo de Humedal de Aguas Juncosas"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Humedal de Aguas Juncosas"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Humedal de Aguas Juncosas"
+					}
+				}
+			},
+			"journal-desert": {
+				"description": "Tus notas sobre el Matorral de Piedra Roja, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Matorral de Piedra Roja",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de el Matorral de Piedra Roja.",
+						"name": "Apuntes de Bolsillo de Matorral de Piedra Roja"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Matorral de Piedra Roja"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Matorral de Piedra Roja"
+					}
+				}
+			},
+			"journal-alpine": {
+				"description": "Tus notas sobre las Alturas de Viento Gris, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Alturas de Viento Gris",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de las Alturas de Viento Gris.",
+						"name": "Apuntes de Bolsillo de Alturas de Viento Gris"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Alturas de Viento Gris"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Alturas de Viento Gris"
+					}
+				}
+			},
+			"journal-coastal": {
+				"description": "Tus notas sobre la Costa del Pelícano, encuadernadas a medida que las llenas. La guía de campo abre la ficha completa de cada vecino que ha regresado; la edición ampliada detalla exactamente qué espera cada uno de los que aún faltan.",
+				"name": "Guía de Campo de Costa del Pelícano",
+				"tiers": {
+					"1": {
+						"effect": "Nombres, bocetos y una pista de cuidador para cada vecino de la Costa del Pelícano.",
+						"name": "Apuntes de Bolsillo de Costa del Pelícano"
+					},
+					"2": {
+						"effect": "Abre la ficha completa de cada animal de aquí: su papel, la red trófica, cuándo se deja ver y el hábitat que ocupa.",
+						"name": "Guía de Campo de Costa del Pelícano"
+					},
+					"3": {
+						"effect": "Detalla exactamente qué espera cada animal de aquí — hábitat, salud, agua y clima — en el diario y en tus metas.",
+						"name": "Guía Ampliada de Costa del Pelícano"
 					}
 				}
 			}

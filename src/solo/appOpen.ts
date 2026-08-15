@@ -20,7 +20,7 @@ function endpoint(): string {
 }
 
 async function send(
-	phase: 'open' | 'created' | 'resumed' | 'demo_done' | 'kb_gate',
+	phase: 'open' | 'created' | 'resumed' | 'demo_done' | 'demo_nudge' | 'kb_gate',
 	extra: Record<string, any> = {},
 ): Promise<void> {
 	try {
@@ -83,6 +83,22 @@ export function reportSaveResumed(): void {
  *  when the player dismisses the thank-you popup. */
 export function reportDemoComplete(): void {
 	void send('demo_done');
+}
+
+/**
+ * The demo's "are you done playing?" prompt, reported as a three-step funnel:
+ * 'shown' when it goes up, 'exported' when a save is downloaded from it, 'store'
+ * when a buy link is followed.
+ *
+ * Device-scoped and sticky server-side, so it outlives the demo save (which the
+ * hard-stop deletes) and answers the only question worth asking about an
+ * interruption: did it produce exports and store visits that the quiet paths —
+ * the Settings button, the end-of-demo popup — were not producing on their own.
+ * If `shown` climbs and the other two don't, the prompt is a tax rather than a
+ * conversion, and it should be softened or dropped.
+ */
+export function reportDemoNudge(step: 'shown' | 'exported' | 'store'): void {
+	void send('demo_nudge', { nudgeStep: step });
 }
 
 /**

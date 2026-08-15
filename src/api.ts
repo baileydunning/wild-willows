@@ -569,8 +569,13 @@ export const api = {
 	observe: (animalId: string) => session((playerId) => post<any>('/ObserveAnimal/', { playerId, animalId })),
 	claimTask: (taskId: string) => session((playerId) => post<any>('/ClaimTask/', { playerId, taskId })),
 	setGoals: (goals: any[]) => session((playerId) => post<any>('/SetGoals/', { playerId, goals })),
-	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear') =>
-		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action })),
+	// `expect` is the tile type the click was decided against ('tilled', 'watered',
+	// … or null for bare ground). The server refuses the command if the tile has
+	// since become something else, so a second click sent while the first is still
+	// in flight can't escalate a bed the player only meant to water into open
+	// water. Leaving it undefined means "don't check".
+	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
+		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action, expect })),
 	plant: (area: string, x: number, y: number, plantId: string) =>
 		session((playerId) => post<any>('/Plant/', { playerId, area, x, y, plantId })),
 	harvest: (placementId: string) => session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),
@@ -582,8 +587,22 @@ export const api = {
 	// src/state.tsx). The server stamps it on the metrics blob so a dashboard can
 	// tell which definition of "play time" a row was recorded under, instead of
 	// silently averaging two of them together.
-	heartbeat: (idleGateMs?: number) =>
-		session((playerId) => post<any>('/Heartbeat/', { playerId, language: getLocale(), edition: EDITION, idleGateMs })),
+	// `panel` is the menu open at the moment of the beat (null out in the world);
+	// the server credits the beat's elapsed time to it the same way it credits
+	// area dwell. `panelOpens` carries the opens counted since the last beat that
+	// landed, so counting them costs no request of its own. Both from
+	// src/menuMetrics.ts.
+	heartbeat: (idleGateMs?: number, panel?: string | null, panelOpens?: Record<string, number>) =>
+		session((playerId) =>
+			post<any>('/Heartbeat/', {
+				playerId,
+				language: getLocale(),
+				edition: EDITION,
+				idleGateMs,
+				panel: panel || null,
+				...(panelOpens ? { panelOpens } : {}),
+			}),
+		),
 	appendFeed: (entries: { icon: string; text: string; at: number }[]) =>
 		session((playerId) => post<any>('/AppendFeed/', { playerId, entries })),
 	recalc: (biomeId: string) => session((playerId) => post<any>('/RecalcBiome/', { playerId, biomeId })),
