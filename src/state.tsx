@@ -19,6 +19,7 @@ import {
 import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
 import { watchDemoNudge } from './demoNudge';
 import { flushFeedbackQueue } from './feedback';
+import { serialRun } from './serialRun';
 import { t, content, onLocaleChange } from './i18n';
 import { pokeMetricsUplink } from './solo/metricsUplink';
 import { reportSaveIncident } from './solo/saveIncident';
@@ -341,21 +342,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	 * RETURNS A PROMISE, and any caller about to read the feed back has to await
 	 * it. Exporting a save is the one that matters: the exporter reads `FeedEntry`
 	 * rows straight out of the database, so a fire-and-forget flush raced its own
-	 * export — two requests in flight at once, and when the export won, the save
-	 * the player carried into the full game was missing exactly the lines the
-	 * flush existed to keep. The ambient callers (the timer, tab-hide, unload)
-	 * have nothing to order themselves against and let it run in the background.
+	 * export — and when the export won, the save the player carried into the full
+	 * game was missing exactly the lines the flush existed to keep.
+	 *
+	 * SERIALIZED (see serialRun), which is what makes awaiting it mean anything.
+	 * Emptying the buffer and then awaiting the write reads as awaitable and is
+	 * not: a second caller arriving mid-write finds an empty buffer and returns
+	 * straight away, while the first request is still on the wire. That is not
+	 * hypothetical here — the heartbeat flushes without awaiting, and the demo's
+	 * hard-stop fires one at the exact moment the export button appears. Chaining
+	 * makes `await flushFeed()` mean "every line queued before or during this call
+	 * has landed", rather than "the array is empty right now".
 	 *
 	 * Best-effort on failure: the batch is spliced out and DROPPED rather than put
 	 * back, so an offline stretch cannot grow the buffer without bound. A lost
 	 * feed line is one missing sentence of scrollback; a buffer that grows forever
 	 * is a leak in a game people leave open for hours.
 	 */
-	const flushFeed = useCallback(async (): Promise<void> => {
-		if (!getPlayerId() || feedBuffer.current.length === 0) return;
-		const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
-		await api.appendFeed(batch).catch(() => undefined);
-	}, []);
+	const flushFeed = useMemo(
+		() =>
+			serialRun(async () => {
+				if (!getPlayerId() || feedBuffer.current.length === 0) return;
+				const batch = feedBuffer.current.splice(0, feedBuffer.current.length);
+				await api.appendFeed(batch).catch(() => undefined);
+			}),
+		[],
+	);
 
 	// Definitions load once, before login (the character creator needs them). In
 	// the itch demo we first probe the hosted Harper: on success we play against
@@ -389,8 +401,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		setDemoNudge(false); // the hard-stop supersedes the soft prompt; never stack them
 		reportDemoComplete(); // metrics: demo completion (device-scoped + sticky)
 		// Kicked off here so the lines are on their way before the popup's export
-		// button can be pressed; exportDemo awaits a flush of its own regardless, so
-		// a slow append cannot leave them behind.
+		// button can be pressed. Not awaited, and it does not need to be: flushes are
+		// serialized, so the export's own `await flushFeed()` waits for THIS one to
+		// land before it reads the feed back.
 		void flushFeed();
 	}, [flushFeed]);
 
