@@ -53,11 +53,11 @@
 				"text": "Pulsa N para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. La guía muestra qué pasa en todas partes. También explica cómo el clima y la estación cambian tu zona. Mira el cielo. El clima raro puede dejar cosas raras para recoger.",
 				"touch": "Toca el botón de la nube para abrir la guía del Clima. Cada zona tiene su clima. Cambia solo y se mueve con las estaciones. Mira el cielo. El clima raro puede dejar cosas raras para recoger."
 			},
-			"demoNote": "Esta es la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque."
+			"demoNote": "Esta es la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina 10 minutos después de que se abra el bosque."
 		},
 		"help": {
 			"intro": "Un ciclo tranquilo. Recoge cosas. Hazlas hogares para animales. Ponlas en el suelo. Los animales vuelven a casa.",
-			"demoNote": "Estás en la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina tras tus primeros 10 minutos en el bosque. Tu partida sirve en el juego completo.",
+			"demoNote": "Estás en la demo gratis. Sana el prado para abrir el bosque y luego explóralo. La demo termina 10 minutos después de que se abra el bosque. Tu partida sirve en el juego completo.",
 			"keys": {
 				"click": "Mira un animal. O abre el menú de algo que pusiste para moverlo, girarlo o recogerlo.",
 				"rotate": "Gira un cuarto de vuelta lo que estás poniendo.",

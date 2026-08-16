@@ -420,10 +420,12 @@ function GameScreen() {
 	);
 }
 
-/** DEMO only: the hard-stop popup shown when the demo limit is reached (10 minutes
- *  in the forest, which the player unlocks by restoring the meadow first).
- *  It blocks all play; the save has already been deleted, so closing it drops
- *  the player back at the title screen with nothing to continue. */
+/** DEMO only: the hard-stop popup shown when the demo budget is spent (10 minutes
+ *  of play after the forest unlocks, which the player earns by restoring the
+ *  meadow first). It blocks all play, and it comes back on the next load if the
+ *  budget is still spent — the save is only deleted when this is DISMISSED, so
+ *  reloading past it used to be a way to keep playing. Closing it drops the
+ *  player back at the title screen with nothing to continue. */
 function DemoCompleteModal() {
 	const { demoComplete, dismissDemo, exportDemo } = useGame();
 	const { t } = useI18n();

@@ -10,6 +10,7 @@ import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
+import { clearDemoBudget } from './demoBudget';
 import { adaptiveInterval, ewma } from './perf';
 import { CHANNEL } from './platform';
 import { bridge } from './game/bridge';
@@ -654,6 +655,10 @@ export async function deleteDemoSave(): Promise<void> {
 	}
 	forgetSave('solo');
 	clearDemoSaveHome(); // the demo save is gone; the next one picks its own store
+	// ...and so is its budget. A spent budget left behind would be keyed to a player
+	// id that no longer exists (readDemoBudgetMs ignores it), but leaving a dead
+	// entry in storage invites exactly the mistake it's guarding against.
+	clearDemoBudget();
 }
 
 /** Export the active solo save as a downloadable file. Flushes any pending

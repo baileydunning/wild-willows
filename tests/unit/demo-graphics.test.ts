@@ -14,8 +14,6 @@ const loadDetect = async (demo: boolean) => {
 	vi.doMock('../../src/demo', () => ({
 		DEMO: demo,
 		DEMO_FOREST_BIOME: 'forest',
-		DEMO_FOREST_MINUTES: 10,
-		DEMO_FOREST_MS: 600000,
 		EDITION: demo ? 'demo' : 'full',
 		DEMO_WEB_BACKEND: 'harper',
 	}));
