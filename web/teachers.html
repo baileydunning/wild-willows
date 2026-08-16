@@ -29,9 +29,13 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap"></noscript>
+<!-- Quicksand at the three weights this page actually uses (body 500, headings
+     700, chips 600). Weight 400 was requested and never used — a whole woff2 per
+     mobile visit for nothing. The `preload as=style` fetched the same stylesheet
+     the media=print link already fetches, at high priority, for a page whose
+     first paint is text; the media=print swap alone is already non-blocking. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <script type="application/ld+json">
 {
@@ -488,6 +492,33 @@ body.lb-open{overflow:hidden}
 
 /* section anchors clear the sticky nav */
 section[id]{scroll-margin-top:66px}
+
+/* ---------- mobile critical path -----------------------------------------
+   This page is 15,000px of lesson plan, and on a throttled phone the browser
+   was laying out and painting all of it before it could show the first screen.
+   Everything below the intro is skipped until it is near the viewport.
+   contain-intrinsic-size holds a placeholder height so the scrollbar and the
+   in-page anchors (the lesson jumps to #model, #downloads and #faq) stay
+   honest; the values are the sections' real heights at 412px wide, measured and
+   then trimmed 7% for the margins that collapse differently under containment,
+   so the scroll height barely moves as sections resolve. */
+#teaches,#lesson,#discussion,#model,#downloads,#copies,#beyond,#practical,#faq,#get{content-visibility:auto}
+#teaches{contain-intrinsic-size:auto 1428px}
+#lesson{contain-intrinsic-size:auto 2308px}
+#discussion{contain-intrinsic-size:auto 1087px}
+#model{contain-intrinsic-size:auto 1441px}
+#downloads{contain-intrinsic-size:auto 1754px}
+#copies{contain-intrinsic-size:auto 561px}
+#beyond{contain-intrinsic-size:auto 1402px}
+#practical{contain-intrinsic-size:auto 1396px}
+#faq{contain-intrinsic-size:auto 1128px}
+#get{contain-intrinsic-size:auto 420px}
+
+/* The hero's fireflies and stars are decoration, and on a slow device they were
+   animating while the browser was still trying to paint the first screen. Hold
+   them until the page has loaded; `body.ready` is set on the load event. */
+.star,.fly{animation-play-state:paused}
+body.ready .star,body.ready .fly{animation-play-state:running}
 </style>
 </head>
 <body>
@@ -902,9 +933,26 @@ section[id]{scroll-margin-top:66px}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
-  try{
-    if(!sessionStorage.getItem('ww_edu_seen')){sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page');}
-  }catch(e){track('click','edu-page');}
+  /* The once-per-session page ping used to fire while the page was still
+     painting, opening a connection and taking uplink from the first screen.
+     Nothing about it is time-sensitive, so it waits for idle after load — the
+     timeout keeps it honest on tabs that never go idle, and pagehide catches
+     the teacher who leaves before either fires. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_edu_seen'))return;
+      sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page');
+    }catch(e){track('click','edu-page');}
+  }
+  function schedulePageView(){
+    if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+    else setTimeout(sendPageView,500);
+  }
+  window.addEventListener('load',function(){document.body.classList.add('ready');});
+  if(document.readyState==='complete')schedulePageView();
+  else window.addEventListener('load',schedulePageView);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));

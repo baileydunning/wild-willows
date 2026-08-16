@@ -27,12 +27,19 @@
 <meta name="twitter:description" content="Bring a broken wild place back to life, one plant, one pond, one animal at a time. Real animals, real habitat, six biomes to bring back.">
 <meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
 
-<link rel="preload" as="image" href="/img/willow-meadow-restored-fd8908b9.webp" fetchpriority="high">
+<link rel="preload" as="image" href="/img/willow-meadow-restored-fd8908b9.webp"
+      imagesrcset="/img/willow-meadow-restored-720w-a7313ee4.webp 720w, /img/willow-meadow-restored-fd8908b9.webp 1160w"
+      imagesizes="(max-width:640px) 100vw, 900px" fetchpriority="high">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap"></noscript>
+<!-- Quicksand at the three weights the page actually uses. 400 was requested and
+     never used (body is 500, headings 700, chips 600) — a whole woff2 downloaded
+     for nothing on every mobile visit. The `preload as=style` alongside the
+     media=print link was fetching the same stylesheet twice at high priority,
+     racing the hero image for a 1.6 Mbps pipe; the media=print swap alone is
+     already non-blocking, so the preload only cost us LCP. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <script type="application/ld+json">
 {
@@ -377,6 +384,31 @@ body.lb-open{overflow:hidden}
 .school-cta .fine{margin:.65rem 0 0;font-size:.84rem;color:var(--ink-faint);line-height:1.5}
 .school-cta .fine a{color:var(--green-deep)}
 @media(max-width:820px){.edu{grid-template-columns:1fr}.school{grid-template-columns:1fr;padding:1.4rem 1.35rem}}
+
+/* ---------- mobile critical path -----------------------------------------
+   Everything below the hero is skipped for layout and paint until it is near
+   the viewport. The page is one long scroll of big screenshots, and on a
+   throttled phone the browser was laying out and painting all of it before it
+   could show the top. contain-intrinsic-size gives each skipped section a
+   placeholder height so the scrollbar and anchor links stay honest; the values
+   are the sections' real heights at 412px wide, measured and then trimmed 7%
+   for the margins that collapse differently under containment, so the scroll
+   height barely moves as sections resolve. */
+#look,#reviews,#everyone,#educators,#soundtrack,#updates,#faq,#get{content-visibility:auto}
+#look{contain-intrinsic-size:auto 3815px}
+#reviews{contain-intrinsic-size:auto 1615px}
+#everyone{contain-intrinsic-size:auto 1904px}
+#educators{contain-intrinsic-size:auto 934px}
+#soundtrack{contain-intrinsic-size:auto 270px}
+#updates{contain-intrinsic-size:auto 447px}
+#faq{contain-intrinsic-size:auto 961px}
+#get{contain-intrinsic-size:auto 365px}
+
+/* The hero's fireflies and stars are decoration, and on a slow device they were
+   animating while the browser was still trying to paint the first screen. Hold
+   them until the page has loaded; `body.ready` is set on the load event. */
+.star,.fly{animation-play-state:paused}
+body.ready .star,body.ready .fly{animation-play-state:running}
 </style>
 </head>
 <body>
@@ -432,7 +464,7 @@ body.lb-open{overflow:hidden}
       <a class="btn btn-night" href="https://bai13y.itch.io/wild-willows" rel="noopener" data-track="itch">Get it on itch.io</a>
     </div>
     <p class="platline">macOS<span>·</span>Windows<span>·</span>Linux<span>·</span>English &amp; Español<span>·</span>works fully offline</p>
-    <img decoding="async" class="hero-shot" data-cap="Willow Meadow, brought back" width="1160" height="725" fetchpriority="high" src="/img/willow-meadow-restored-fd8908b9.webp" alt="Wild Willows gameplay in Willow Meadow: the caretaker standing in a restored meadow of trees, berry bushes, wildflowers and ponds, with a rabbit, a bluebird and a frog nearby.">
+    <img decoding="async" class="hero-shot" data-cap="Willow Meadow, brought back" width="1160" height="725" fetchpriority="high" src="/img/willow-meadow-restored-fd8908b9.webp" srcset="/img/willow-meadow-restored-720w-a7313ee4.webp 720w, /img/willow-meadow-restored-fd8908b9.webp 1160w" sizes="(max-width:640px) 100vw, 900px" alt="Wild Willows gameplay in Willow Meadow: the caretaker standing in a restored meadow of trees, berry bushes, wildflowers and ponds, with a rabbit, a bluebird and a frog nearby.">
   </div>
 </header>
 
@@ -711,6 +743,7 @@ body.lb-open{overflow:hidden}
 
 <script>
 (function(){
+  window.addEventListener('load',function(){document.body.classList.add('ready');});
   /* ------------------------------------------------ theme player */
   var a=document.getElementById('ppAudio'),b=document.getElementById('ppBtn'),
       bar=document.getElementById('ppBar'),fill=document.getElementById('ppFill'),
@@ -742,10 +775,26 @@ body.lb-open{overflow:hidden}
     }catch(e){}
   }
   var firstVisit=false;
-  try{
-    if(!localStorage.getItem('ww_seen')){firstVisit=true;localStorage.setItem('ww_seen','1');}
-    if(!sessionStorage.getItem('ww_visit')){sessionStorage.setItem('ww_visit','1');track('visit');}
-  }catch(e){track('visit');}
+  /* The visit ping used to fire while the page was still painting, opening a
+     connection and taking uplink from the hero image on a phone. Nothing about
+     a page view is time-sensitive, so it waits for idle after load — the
+     timeout keeps it honest on tabs that never go idle, and pagehide catches
+     the visitor who leaves before either fires. */
+  function sendVisit(){
+    if(sendVisit.done)return; sendVisit.done=true;
+    try{
+      if(!localStorage.getItem('ww_seen')){firstVisit=true;localStorage.setItem('ww_seen','1');}
+      if(sessionStorage.getItem('ww_visit'))return;
+      sessionStorage.setItem('ww_visit','1');track('visit');
+    }catch(e){track('visit');}
+  }
+  function scheduleVisit(){
+    if(window.requestIdleCallback)requestIdleCallback(sendVisit,{timeout:3000});
+    else setTimeout(sendVisit,500);
+  }
+  if(document.readyState==='complete')scheduleVisit();
+  else window.addEventListener('load',scheduleVisit);
+  window.addEventListener('pagehide',sendVisit);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
