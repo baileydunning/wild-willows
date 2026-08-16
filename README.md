@@ -1,6 +1,6 @@
 # Wild Willows 🌿
 
-A cozy nature-restoration life sim. You've set up camp at the edge of a damaged nature preserve: gather fallen materials, craft and plant habitat, shape the land biome by biome — and real animals return when the habitat truly supports them.
+A cozy nature-restoration life sim. You've set up camp at the edge of a damaged nature preserve: gather fallen materials, craft and plant habitat, shape the land biome by biome — and real animals return when the habitat truly supports them. See more at [wildwillows.app](https://wildwillows.app).
 
 Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 (database, API resources, seeded data). Harper is the source of truth — every action is validated server-side; the browser never computes game state on its own. All art — terrain, objects, animals, the player, and journal thumbnails — is procedurally generated from simple shapes at boot, so the game ships with zero asset files.
 
@@ -102,18 +102,6 @@ Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (c
 ## Controls
 
 WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **O** today's tasks board · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, and pickups animate into your basket. The **?** button (or **H**) opens How to Play with the full reference.
-
-## Co-op multiplayer
-
-> **Hidden in v1.** Co-op is gated behind a build flag and off in the shipped solo-only build. The code is intact and tested — see [CONTRIBUTING.md](CONTRIBUTING.md#re-enabling-co-op-later). When enabled, the title screen shows a Solo/Co-op toggle.
-
-At **New Game** you choose **Solo** or **Co-op**. A save is bound to one world for its lifetime.
-
-- **Host** creates a shared preserve and a 6-character **join code**. **Join** verifies a code, sends a request to the host, lets you build your character while the host reviews, then drops you into a **waiting room** until they approve — the host gets a popup with Approve / Deny. When you're let in, the world feed announces *"{name} joined the preserve!"*.
-- **What's shared vs. personal.** The world — biomes, terrain, placements, plants, chests, returning animals, biome health, the activity feed — is shared by everyone in it. Your **basket, tools, field journal, appearance, position, and achievements stay personal**. (Exception: *world* achievements like **First Friend** are earned by **all** members at once.)
-- **Live presence.** Other players appear as their own caretakers and move smoothly; other world changes (placing, terraforming, collecting) sync on a short timer.
-- **People menu (U)** shows the join code to copy, who's currently here, and the host's pending requests. A **Co-op** badge by the area name marks a shared world, and the guided tutorial adapts: the host's first step teaches inviting, a joiner's just welcomes them.
-- Up to **6 caretakers** per preserve.
 
 ## Localization
 
