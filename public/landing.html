@@ -139,10 +139,28 @@ svg{display:block}
 .brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
 .brand svg{width:27px;height:27px;flex:none}
 .nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
-.nav .links a{color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
-.nav .links a:hover{color:var(--green-deep)}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white — barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
-@media(max-width:740px){.nav .links a.hide-sm{display:none}}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar — it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768–834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about — 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
 
 /* ---------- hero: the title screen's dusk ---------- */
 /* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
