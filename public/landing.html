@@ -301,6 +301,23 @@ section{padding:3.4rem 0}
 .post .oops{display:none;font-size:.88rem;color:var(--clay);font-weight:600;margin:.3rem 0 0}
 .post.is-done form{display:none}.post.is-done .done{display:flex}
 
+/* Updates: the mailing-list postcard and the subreddit card, side by side once
+   there is room for two columns, stacked below that. Both are the same .post
+   card on purpose — they are the same ask ("stay in touch"), so they should read
+   as two halves of one thing rather than a feature and an afterthought. */
+/* Stretched, not start-aligned: the two cards carry different amounts of copy,
+   and a short card next to a tall one reads as one of them being unfinished. */
+.updates-grid{display:grid;gap:1.1rem;max-width:620px;margin:0 auto}
+@media(min-width:960px){.updates-grid{grid-template-columns:1fr 1fr;max-width:none}}
+.updates-grid>.post{max-width:none;margin:0}
+.post .cta{margin:1rem 0 .55rem}
+.post .cta .btn{width:100%}
+@media(min-width:420px){.post .cta .btn{width:auto}}
+.post .sub-list{list-style:none;padding:0;margin:.4rem 0 0}
+.post .sub-list li{display:flex;gap:.55rem;align-items:flex-start;margin:.42rem 0;
+  color:var(--ink-soft);font-size:.95rem;line-height:1.45}
+.post .sub-list svg{width:15px;height:15px;flex:none;margin-top:.25rem;color:var(--green)}
+
 /* FAQ: field-guide entries */
 .faq{max-width:46rem;margin:0 auto}
 details{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--r);padding:.05rem 1.15rem;margin:0 0 .65rem;box-shadow:0 2px 3px rgba(52,58,40,.05)}
@@ -400,7 +417,10 @@ body.lb-open{overflow:hidden}
 #everyone{contain-intrinsic-size:auto 1904px}
 #educators{contain-intrinsic-size:auto 934px}
 #soundtrack{contain-intrinsic-size:auto 270px}
-#updates{contain-intrinsic-size:auto 447px}
+/* Two cards now (mailing list + subreddit): side by side above 960px, stacked
+   below it. The stacked case is the taller one, and this is only the estimate
+   used before the section has ever been rendered. */
+#updates{contain-intrinsic-size:auto 620px}
 #faq{contain-intrinsic-size:auto 961px}
 #get{contain-intrinsic-size:auto 365px}
 
@@ -672,6 +692,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 </div></section>
 
 <section id="updates"><div class="wrap">
+  <div class="updates-grid">
   <div class="post" id="mlPost">
     <div class="stamp" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg></div>
     <h3>Letters from the preserve</h3>
@@ -684,6 +705,26 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     <div class="done" id="mlDone"><svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" style="flex:none;margin-top:2px"><path d="M5 12.6l4.2 4.2L19 7" stroke="#4a7c59" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>You're on the list. First letter arrives when the next update lands.</span></div>
     <p class="oops" id="mlOops"></p>
     <p class="fine">Game updates only. No spam, never shared, unsubscribe with one reply.</p>
+  </div>
+
+  <!-- The subreddit. Sits beside the mailing list because it is the same ask
+       from the other direction: the letter is me talking to you, this is the
+       room where caretakers talk to each other. The link is tracked as
+       `reddit` (see LANDING_CLICK_TARGETS in server/resources.ts) so it shows
+       up as its own series in the dashboard's Clicks by link, rather than
+       falling into "other". -->
+  <div class="post" id="redditPost">
+    <div class="stamp" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M6.6 8.2h10.8v6.4H12l-3.6 2.7v-2.7H6.6z" fill="#d8eec2"/></svg></div>
+    <h3>The caretakers' circle</h3>
+    <p class="intro">There's a subreddit for the game at <a href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit"><b>r/wildwillows</b></a>. It's where people post the meadows they've brought back and work out which habitat coaxes which animal home.</p>
+    <ul class="sub-list">
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Screenshots of restored biomes, and the builds behind them</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Questions about habitat, species and what unlocks what</span></li>
+      <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Bug reports, feature wishes and what I'm working on next</span></li>
+    </ul>
+    <p class="cta"><a class="btn btn-go" href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit">Join r/wildwillows</a></p>
+    <p class="fine">Free to read without an account. You only need one to post.</p>
+  </div>
   </div>
 </div></section>
 
@@ -724,6 +765,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
   <div class="foot-links">
     <a href="https://apps.apple.com/us/app/wild-willows/id6787300760?mt=12" rel="noopener" data-track="appstore">App Store</a>
     <a href="https://bai13y.itch.io/wild-willows" rel="noopener" data-track="itch">itch.io</a>
+    <a href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit">r/wildwillows</a>
     <a href="/privacy.html" data-track="privacy">Privacy</a>
     <a href="/age-rating.html">Age suitability</a>
     <a href="/support.html" data-track="support">Support</a>

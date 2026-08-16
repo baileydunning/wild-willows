@@ -20,7 +20,10 @@
 				--accent: #4a7c46;
 				--accent-dark: #35602f;
 				--accent-soft: #dceccf;
-				--gold: #d9a441;
+				/* The third series colour. Was a gold (#d9a441) and read as a warning
+				   next to the greens; it is a light sage now, one step brighter than
+				   --accent so the two stay distinguishable side by side in a donut. */
+				--gold: #7fb069;
 				--sky: #6ea8c8;
 				--rose: #d77b8f;
 				--rule: #dfe0cf;
@@ -394,7 +397,7 @@
 				background: linear-gradient(90deg, #8cc0da, var(--sky));
 			}
 			.fill.gold {
-				background: linear-gradient(90deg, #e6bd62, var(--gold));
+				background: linear-gradient(90deg, #a8d18d, var(--gold));
 			}
 			.fill.rose {
 				background: linear-gradient(90deg, #e5a0af, var(--rose));
@@ -611,14 +614,6 @@
 				border: 1px solid #e2c481;
 				cursor: help;
 			}
-			/* Menu dwell. Deliberately quieter than hlconv — it is context on a card,
-			   not a result worth celebrating like a demo→full conversion. */
-			.hltag.hlmenu {
-				color: #4a5b6b;
-				background: #eef2f6;
-				border: 1px solid #d5dee6;
-				cursor: help;
-			}
 			.hledi {
 				font-size: 0.6rem;
 				font-weight: 700;
@@ -627,9 +622,13 @@
 				border-radius: 999px;
 				padding: 0.1rem 0.45rem;
 			}
+			/* Demo is a FILLED sage chip, full a tinted one. They used to differ by hue
+			   (gold-on-cream vs green-on-green); now that the demo series is sage
+			   everywhere else — donut, legend, vs-table bars — the chips have to agree
+			   with it, so the two are told apart by fill weight rather than colour. */
 			.hledi.demo {
-				color: #a9781c;
-				background: #f6e8c9;
+				color: #ffffff;
+				background: var(--gold);
 			}
 			.hledi.full {
 				color: var(--accent-dark);
@@ -666,6 +665,57 @@
 				font-size: 0.64rem;
 				color: var(--faint);
 			}
+			/* Starter-chain progress, under the stats grid.
+			 *
+			 * A bar rather than a seventh stat: the grid is a deliberate 3 × 2 and the
+			 * interesting thing about "6 of 10" is how far along the line it sits, not
+			 * the digit. Full width so the fill is comparable card to card. */
+			.hlchain {
+				display: flex;
+				align-items: center;
+				gap: 0.45rem;
+				margin-top: 0.6rem;
+			}
+			.hlchain .lab {
+				font-size: 0.64rem;
+				color: var(--faint);
+				white-space: nowrap;
+			}
+			.hlchain .track {
+				flex: 1;
+				min-width: 0;
+				height: 5px;
+				border-radius: 999px;
+				background: var(--bg2);
+				overflow: hidden;
+			}
+			.hlchain .fill {
+				display: block;
+				height: 100%;
+				border-radius: 999px;
+				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+			}
+			.hlchain .num {
+				font-size: 0.64rem;
+				font-weight: 700;
+				color: var(--muted);
+				font-variant-numeric: tabular-nums;
+				white-space: nowrap;
+			}
+			/* Finished the chain: the number goes the accent colour so a completed
+			   board reads at a glance without the bar having to be measured. */
+			.hlchain.done .num {
+				color: var(--accent-dark);
+			}
+			/* A pre-chain save. Its step is inferred, not observed, so the bar is
+			   drawn hollow rather than claiming a full ten out of ten. */
+			.hlchain.legacy .fill {
+				background: repeating-linear-gradient(
+					135deg,
+					var(--accent-soft) 0 5px,
+					transparent 5px 10px
+				);
+			}
 			.hlcard {
 				cursor: pointer;
 			}
@@ -694,6 +744,20 @@
 			/* The sort control sits inside the highlights card, above the grid. */
 			.hlpick {
 				margin-bottom: 0.9rem;
+			}
+			/* The pager sits below the grid, in the same pill idiom as the sort. */
+			.hlpager {
+				margin-top: 1rem;
+				justify-content: center;
+			}
+			.hlpager .dbtn[disabled] {
+				opacity: 0.4;
+				cursor: default;
+			}
+			.hlgap {
+				color: var(--faint);
+				padding: 0 0.1rem;
+				user-select: none;
 			}
 			.hlpicklabel {
 				font-weight: 700;
@@ -1178,8 +1242,10 @@
 				gap: 0.8rem;
 				align-items: baseline;
 			}
+			/* Demo number: the same sage the demo half of the bar below it is drawn in,
+			   darkened just enough to pass as body text on a white card. */
 			.vsrow .vd {
-				color: #a9781c;
+				color: #4f7f3c;
 				font-weight: 700;
 			}
 			.vsrow .vf {
@@ -1196,7 +1262,7 @@
 			.vsrow .vbar i {
 				display: block;
 				height: 100%;
-				background: linear-gradient(90deg, #e6bd62, var(--gold));
+				background: linear-gradient(90deg, #a8d18d, var(--gold));
 				border-radius: 999px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -1988,7 +2054,7 @@
 				};
 			}
 			function vsTable(rows, demo, full) {
-				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:#d9a441"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>`;
+				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:#7fb069"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>`;
 				const body = rows
 					.map((row) => {
 						const dv = demo[row.key],
@@ -2123,6 +2189,23 @@
 				homesBuilt: 'Homes built',
 			};
 
+			/* Counters that are tallies rather than actions, and are not shown.
+			 *
+			 * `gathered:<resource>` is a LIFETIME per-resource total that rides along
+			 * with resourcesCollected — the server already keeps it out of
+			 * totalActions for exactly that reason (META_COUNTER_PREFIX in
+			 * server/resources.ts). Drawn in the action breakdowns it was worse than
+			 * redundant: one row per resource, all of them double-counting the
+			 * "Resources collected" row directly above, and between them they crowded
+			 * the real actions out of a top-17 chart. Still recorded, still in the
+			 * payload, just not charted. */
+			const HIDDEN_COUNTER_PREFIXES = ['gathered:'];
+			const isHiddenCounter = (key) => HIDDEN_COUNTER_PREFIXES.some((p) => String(key).startsWith(p));
+			/** objToEntries, minus the tally counters above. */
+			function actionEntries(obj) {
+				return objToEntries(obj).filter(([k]) => !isHiddenCounter(k));
+			}
+
 			/* Compact duration: minutes under an hour, else "Xh Ym". */
 			function fmtDur(sec) {
 				const m = Math.round(n(sec) / 60);
@@ -2185,17 +2268,30 @@
 			 * health), not something attributable to a day, so a picker that appeared to
 			 * scope the whole report would be answering a question the data can't. */
 			const DAY_RANGE = { preset: '30', from: '', to: '' };
+			/* The same control, over the landing page's own day rows. Its own state
+			 * object rather than a shared one: the two charts answer different
+			 * questions (saves created vs site visits) and are read at different
+			 * zooms, so moving one has no business moving the other. */
+			const LANDING_DAY_RANGE = { preset: '30', from: '', to: '' };
 
-			function visibleDays(daily) {
-				const days = (daily && daily.days) || [];
+			/** Window a sorted `[{day: 'YYYY-MM-DD', …}]` list down to a range. */
+			function sliceDays(days, range) {
+				days = days || [];
 				if (!days.length) return [];
-				if (DAY_RANGE.preset === 'custom') {
-					const from = DAY_RANGE.from || days[0].day;
-					const to = DAY_RANGE.to || days[days.length - 1].day;
+				if (range.preset === 'custom') {
+					const from = range.from || days[0].day;
+					const to = range.to || days[days.length - 1].day;
 					return days.filter((d) => d.day >= from && d.day <= to);
 				}
-				if (DAY_RANGE.preset === 'all') return days;
-				return days.slice(-Number(DAY_RANGE.preset));
+				if (range.preset === 'all') return days;
+				return days.slice(-Number(range.preset));
+			}
+
+			function visibleDays(daily) {
+				return sliceDays((daily && daily.days) || [], DAY_RANGE);
+			}
+			function visibleLandingDays() {
+				return sliceDays((LANDING && LANDING.days) || [], LANDING_DAY_RANGE);
 			}
 
 			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
@@ -2277,34 +2373,51 @@
 				{ key: 'all', label: 'All' },
 			];
 
+			/* The preset pills + From/To pair, shared by every per-day chart.
+			 *
+			 * `scope` names the range object the click and change handlers should
+			 * mutate, so two of these can sit on the same page without one moving the
+			 * other. The date inputs show the window that is ACTUALLY on screen,
+			 * whichever way it was chosen — they used to fall back to the whole
+			 * dataset's first and last day whenever a preset was active, so clicking
+			 * "7d" drew seven columns above two dates three months apart, and on a
+			 * fresh instance (no firstDay/lastDay) they showed nothing at all. Reading
+			 * the bounds off the rendered days means the pickers and the chart cannot
+			 * disagree, and picking a preset then nudging one date starts from where
+			 * you were rather than from the beginning of time. */
+			function dayRangePicker(scope, range, shown, limits, label) {
+				limits = limits || {};
+				const firstShown = (shown[0] && shown[0].day) || limits.first || '';
+				const lastShown = (shown[shown.length - 1] && shown[shown.length - 1].day) || limits.last || '';
+				const bounds = `min="${esc(limits.first || firstShown)}" max="${esc(limits.last || lastShown)}"`;
+				return (
+					`<div class="dpick" role="group" aria-label="${esc(label || 'Date range')}">` +
+					DAY_PRESETS.map(
+						(p) =>
+							`<button type="button" class="dbtn${range.preset === p.key ? ' on' : ''}" data-range="${p.key}" data-range-scope="${scope}" aria-pressed="${range.preset === p.key ? 'true' : 'false'}">${p.label}</button>`,
+					).join('') +
+					`<span class="dsep"></span>` +
+					`<label>From <input type="date" class="dinput" data-range-from data-range-scope="${scope}" value="${esc(firstShown)}" ${bounds}></label>` +
+					`<label>To <input type="date" class="dinput" data-range-to data-range-scope="${scope}" value="${esc(lastShown)}" ${bounds}></label>` +
+					`</div>`
+				);
+			}
+
 			function dailyHTML(s) {
 				const daily = s.daily;
 				if (!daily || !daily.days || !daily.days.length) return '';
 				const shown = visibleDays(daily);
 				const totalNew = shown.reduce((a, d) => a + n(d.created), 0);
 				const busiest = shown.slice().sort((a, b) => n(b.created) - n(a.created))[0];
-				/* The date inputs show the window that is ACTUALLY on screen, whichever
-				 * way it was chosen. They used to fall back to the whole dataset's
-				 * first and last day whenever a preset was active, so clicking "7d"
-				 * drew seven columns above two dates three months apart — and on a
-				 * fresh instance, where firstDay/lastDay are absent, they showed
-				 * nothing at all. Reading the bounds off the rendered days means the
-				 * pickers and the chart cannot disagree, and picking a preset then
-				 * nudging one date starts from where you were rather than from the
-				 * beginning of time. */
-				const firstShown = (shown[0] && shown[0].day) || daily.firstDay || '';
-				const lastShown = (shown[shown.length - 1] && shown[shown.length - 1].day) || daily.lastDay || '';
-				const bounds = `min="${esc(daily.firstDay || firstShown)}" max="${esc(daily.lastDay || lastShown)}"`;
-				const picker =
-					`<div class="dpick">` +
-					DAY_PRESETS.map(
-						(p) =>
-							`<button type="button" class="dbtn${DAY_RANGE.preset === p.key ? ' on' : ''}" data-range="${p.key}">${p.label}</button>`,
-					).join('') +
-					`<span class="dsep"></span>` +
-					`<label>From <input type="date" class="dinput" data-range-from value="${esc(firstShown)}" ${bounds}></label>` +
-					`<label>To <input type="date" class="dinput" data-range-to value="${esc(lastShown)}" ${bounds}></label>` +
-					`</div>`;
+				/* The pickers' min/max come from the payload's own firstDay/lastDay when
+				 * it has them — those can reach further back than the rows it shipped. */
+				const picker = dayRangePicker(
+					'daily',
+					DAY_RANGE,
+					shown,
+					{ first: daily.firstDay, last: daily.lastDay },
+					'Date range for new caretakers per day',
+				);
 				const sub = shown.length
 					? `${fmt(totalNew)} new in ${fmt(shown.length)} ${shown.length === 1 ? 'day' : 'days'}` +
 						(busiest && busiest.created ? ` · busiest ${esc(busiest.day)} with ${fmt(busiest.created)}` : '')
@@ -2388,6 +2501,21 @@
 				{ key: 'menus', label: 'Time in menus', val: (p) => hlMenuSeconds(p) },
 			];
 			const HL_SORT = { key: 'playtime' };
+
+			/* The wall is paged rather than printed whole.
+			 *
+			 * Every qualifying caretaker used to be drawn at once. That is fine at
+			 * thirty and a scroll bar with no bottom at three thousand — each card
+			 * carries an inline avatar SVG, so the cost of the section grew with the
+			 * player base and landed entirely on the browser. Forty is the page size:
+			 * a round number that fills a few rows at every column count the grid
+			 * uses (2, 3 and 4 across), so no page ends in a lonely single card.
+			 *
+			 * `page` is clamped at render rather than trusted, because everything
+			 * upstream of it can change the number of pages without touching it —
+			 * refreshing, switching edition, moving the version filter. */
+			const HL_PAGE_SIZE = 40;
+			const HL_PAGE = { index: 0 };
 
 			/* Seconds this caretaker has spent in menus.
 			 *
@@ -2582,11 +2710,15 @@
 						.join('')}</div>`,
 				);
 
-				const totalActs = Object.values(counts).reduce((a, b) => a + n(b), 0);
+				// Summed over the rows that are actually drawn, so the header count and
+				// the bars under it cannot disagree — the gathered:* tallies are
+				// excluded from both (see HIDDEN_COUNTER_PREFIXES).
+				const actionRows = actionEntries(counts);
+				const totalActs = actionRows.reduce((a, e) => a + n(e[1]), 0);
 				const actionsCard = cardTitled(
 					'Everything they did',
 					`${fmt(totalActs)} actions`,
-					barRows(objToEntries(counts), { labelMap: ACTION_LABELS }),
+					barRows(actionRows, { labelMap: ACTION_LABELS }),
 				);
 				const areaCard = Object.keys(areaMin).length
 					? cardTitled(
@@ -3240,10 +3372,8 @@
 				 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
 				 * these are site numbers, not game numbers.
 				 *
-				 * Built here (it needs `LANDING`) and pushed just below the Overview — see
-				 * the push a little further down. Site numbers rather than game numbers,
-				 * but they are the ones upstream of everything else on the page, so they
-				 * read first rather than last. */
+				 * Built here (it needs `LANDING`) and pushed under Engagement — see the
+				 * push a little further down. */
 				let landingSection = '';
 				if (LANDING && LANDING.totals) {
 					const lt = LANDING.totals;
@@ -3262,6 +3392,7 @@
 						'pdf-guide': 'Educator guide (click)',
 						'pdf-worksheets': 'Worksheets (click)',
 						'school-copy': 'Classroom copy request',
+						reddit: 'Reddit community',
 						other: 'Other',
 					};
 					/* The primary CTA reported `demo` while it pointed at itch's storefront,
@@ -3290,8 +3421,23 @@
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
-					const dayCols = {};
-					for (const d of ldays.slice(-14)) dayCols[String(d.day).slice(5)] = n(d.visits);
+					/* Daily visits used to be a fixed last-14-days histogram wedged into
+					 * the two-up grid beside "Clicks by link". It now gets the same
+					 * control — and the same dense day-column chart — as New caretakers
+					 * per day: presets plus a From/To pair, scoped to this chart only.
+					 * Full width for the same reason that one is: ninety columns do not
+					 * fit in half a card. */
+					const lShown = visibleLandingDays();
+					const lTotal = lShown.reduce((a, d) => a + n(d.visits), 0);
+					const lBusiest = lShown.slice().sort((a, b) => n(b.visits) - n(a.visits))[0];
+					const lPicker = dayRangePicker('landing', LANDING_DAY_RANGE, lShown, {}, 'Date range for daily visits');
+					const lSub = lShown.length
+						? `${fmt(lTotal)} ${lTotal === 1 ? 'visit' : 'visits'} in ${fmt(lShown.length)} ${lShown.length === 1 ? 'day' : 'days'}` +
+							(lBusiest && lBusiest.visits ? ` · busiest ${esc(lBusiest.day)} with ${fmt(lBusiest.visits)}` : '')
+						: 'no days in this range';
+					const dailyVisitsCard = ldays.length
+						? `<div style="margin-top:.8rem">${lPicker}${cardTitled('Daily visits', lSub, dayCols(lShown, 'visits'))}</div>`
+						: '';
 					landingSection = sec(
 						'Landing page',
 						'wildwillows.app — visits, link clicks & mailing list',
@@ -3319,13 +3465,13 @@
 								'all-time',
 								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
-							cardTitled('Daily visits', `last ${Object.keys(dayCols).length || 0} days`, histCols(dayCols)) +
-							`</div>` +
 							cardTitled(
 								'Classroom PDFs',
 								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
 								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
-							),
+							) +
+							`</div>` +
+							dailyVisitsCard,
 					);
 				}
 
@@ -3364,6 +3510,14 @@
 					.join('');
 				// A top five drawn from four saves is not a top five. Say the base.
 				const missing = n(cov.savesWithAchievements) - n(cov.savesWithTimestamps);
+				/* Idle windows are counted in "Caretakers" and excluded from every
+				 * duration beside it — the server drops them (see achEarnedBy in
+				 * server/resources.ts) because time-to-earn is wall clock, and a window
+				 * left open over lunch stamps a first-session milestone hours after the
+				 * save began. Said out loud, because a Caretakers column that does not
+				 * match the column the median was drawn from is otherwise just a
+				 * discrepancy the reader has to invent an explanation for. */
+				const idleSkipped = n(cov.idleSkipped);
 				return (
 					`<div class="card" style="margin-top:.8rem"><h3>First five milestones<span class="tag">most earned · time from starting the save</span></h3>` +
 					`<table class="tbl"><thead><tr><th>Achievement</th><th class="num">Caretakers</th><th class="num">Median</th>` +
@@ -3372,20 +3526,22 @@
 						? `<p class="emptynote">Based on ${fmt(cov.savesWithTimestamps)} of ${fmt(cov.savesWithAchievements)} saves. ` +
 							`The other ${fmt(missing)} last reported before per-achievement timestamps existed, so they count for nothing here until they next sync.</p>`
 						: '') +
+					(idleSkipped > 0
+						? `<p class="emptynote">Median, mean and range exclude ${fmt(idleSkipped)} ${idleSkipped === 1 ? 'save that was' : 'saves that were'} ` +
+							`left open rather than played — the clock kept running while nobody did, so the durations on those are hours of nothing. ` +
+							`They still count under Caretakers: the milestone was earned, it just can't say how long it took.</p>`
+						: '') +
 					`</div>`
 				);
 			}
 
-				/* ---- Landing page (site traffic, not game numbers) ----
-				 * Straight after the Overview, ahead of Engagement and the First five
-				 * milestones card inside it. It used to sit at the very bottom, which
-				 * read as an afterthought and buried the number upstream of every other
-				 * number on this page: how many people arrived at all. Top to bottom the
-				 * page is now a funnel — who turned up, who played, how far they got —
-				 * rather than the game's internals with the traffic tacked on the end. */
-				if (landingSection) out.push(landingSection);
-
-			/* ---- Engagement KPIs ---- */
+			/* ---- Engagement KPIs ----
+			 * Ahead of the Landing page section. Both used to be the other way round,
+			 * on the argument that the page should read as a funnel from arrivals
+			 * down. In practice the game numbers are what this dashboard is opened
+			 * for, and site traffic — visits, link clicks, mailing list — is a
+			 * different subject that was interrupting the run from Overview into how
+			 * people actually play. Landing page still sits high, just below this. */
 				out.push(
 					sec(
 						'Engagement',
@@ -3405,6 +3561,15 @@
 					),
 				);
 
+				/* ---- Landing page (site traffic, not game numbers) ----
+				 * Built further up (it needs LANDING, which loads separately) and
+				 * pushed here, under Engagement. It sat at the very bottom once, which
+				 * read as an afterthought and buried the number upstream of every other
+				 * number on this page: how many people arrived at all. High but not
+				 * first is the compromise — the game numbers lead, the traffic follows
+				 * immediately. */
+				if (landingSection) out.push(landingSection);
+
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
 				const demoPlayers = players.filter((p) => edOf(p) === 'demo');
@@ -3415,7 +3580,7 @@
 				const playersDonut = donut(
 					[
 						{ label: 'Full', value: edSum.full != null ? edSum.full : fStat.count, color: '#4a7c46' },
-						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#d9a441' },
+						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#7fb069' },
 					].filter((x) => x.value),
 				);
 				const vsRows = [
@@ -3511,7 +3676,18 @@
 					// "Active now" uses the same 5-minute window as the Overview KPI, so the two
 					// always agree about who is currently playing.
 					const isActiveNow = (p) => p.minutesSinceActive != null && n(p.minutesSinceActive) <= 5;
-					const cards = top
+
+					/* Page the wall. Superlatives and the sort are computed over the WHOLE
+					 * set above, so a badge still names the true leader and paging never
+					 * changes who "Most playtime" belongs to — only which forty cards are
+					 * drawn. Clamped here rather than where it is set, because the page
+					 * count moves whenever a filter or a refresh changes the row count. */
+					const pageCount = Math.max(1, Math.ceil(top.length / HL_PAGE_SIZE));
+					HL_PAGE.index = Math.min(Math.max(0, HL_PAGE.index), pageCount - 1);
+					const pageStart = HL_PAGE.index * HL_PAGE_SIZE;
+					const pageRows = top.slice(pageStart, pageStart + HL_PAGE_SIZE);
+
+					const cards = pageRows
 						.map((p) => {
 							const bs = p.biomeSummary || {};
 							const edi = p.edition === 'demo' ? 'demo' : 'full';
@@ -3533,36 +3709,57 @@
 							 * be legible on the card — otherwise the order looks arbitrary. The
 							 * "Active now" pill already says it for the top of that list, so it
 							 * isn't printed twice, and the stats grid stays a clean 3 × 2. */
-							/* Menu dwell rides here rather than in the stats grid below: that
-							 * grid is a deliberate 3 x 2, and a seventh stat would leave a
-							 * ragged row on every card to carry one number. Only shown when
-							 * the save actually reported menu time — printing "0% in menus"
-							 * for a save that predates the metric would be a measurement gap
-							 * dressed up as a finding. The full per-menu breakdown is one
-							 * click away in the modal. */
-							const menuSecs = hlMenuSeconds(p);
-							const menuTag =
-								p.menuMeasured && menuSecs > 0
-									? `<span class="hltag hlmenu" title="${fmtDur(menuSecs)} in menus${p.mostUsedMenu ? `, most of it in ${esc(p.mostUsedMenu)}` : ''} — overlaps time in the world, not subtracted from it. Click for the full breakdown.">${p.menuShareOfPlay != null ? `${p.menuShareOfPlay}%` : fmtDur(menuSecs)} in menus</span>`
-									: '';
+							/* No menu-dwell pill here. It was the one tag on the card that
+							 * qualified itself rather than saying something — "12% in menus"
+							 * needs the whole tooltip to mean anything, and it rode on every
+							 * card at once. The number itself is not gone: the wall can still
+							 * be sorted by it, "Most time in menus" is still awarded, the
+							 * per-menu breakdown is still in the modal one click away, and the
+							 * site-wide "Time in menus" panel is untouched. */
 							const since = hlSinceMinutes(p);
 							const sinceTag =
 								sortCfg.key === 'recent' && !live
 									? `<span class="hltag hlsince" title="Time since this caretaker was last active">${isFinite(since) ? `${fmtSince(since)} ago` : 'last played unknown'}</span>`
 									: '';
-							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${menuTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
+							/* How far into the ten-goal starter chain this save got.
+							 *
+							 * Drawn only for rows that carry `starterTotal` — a snapshot
+							 * uplinked before the chain existed reports starterStep 0, and a
+							 * bar pinned at 0/10 would read as "this player did nothing"
+							 * rather than "this save predates the measurement". Same reason
+							 * the funnel above excludes them from its denominator.
+							 *
+							 * A pre-chain save (`starterLegacy`) finished the old three-goal
+							 * opening and is reported as complete by the server so it doesn't
+							 * aggregate as stalled. Its bar is hatched and reads "pre-chain"
+							 * rather than "10/10", because that ten was inferred. */
+							const stTotal = n(p.starterTotal);
+							const stStep = Math.max(0, Math.min(n(p.starterStep), stTotal));
+							const stPct = stTotal ? (stStep / stTotal) * 100 : 0;
+							const chainRow = stTotal
+								? `<div class="hlchain${p.starterDone ? ' done' : ''}${p.starterLegacy ? ' legacy' : ''}" title="${
+										p.starterLegacy
+											? 'Started before the ten-goal chain shipped — it finished the old three-goal opening, so its step is inferred rather than observed.'
+											: `Claimed ${stStep} of the ${stTotal} starter goals${p.starterDone ? ' — chain finished' : ''}`
+									}"><span class="lab">Starter</span><span class="track"><span class="fill" style="width:${stPct}%"></span></span><span class="num">${
+										p.starterLegacy ? 'pre-chain' : `${stStep}/${stTotal}`
+									}</span></div>`
+								: '';
+							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
 								stat(fmt(n(p.totalActions)), 'actions'),
 								stat(`${n(p.achievements && p.achievements.earned)}★`, 'achievements'),
 								stat(fmt(n(bs.totalAnimalsReturned)), 'animals'),
 								stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'biomes'),
-							].join('')}</div></div></div>`;
+							].join('')}</div>${chainRow}</div></div>`;
 						})
 						.join('');
 					/* Sort control. Same pill group as the per-day chart's presets, and like
-					 * that one it only reorders what is already on screen — the set of cards
-					 * shown never changes, so nothing can hide behind a sort. */
+					 * that one it only reorders what is already on screen — the set of
+					 * cards shown never changes, so nothing can hide behind a sort. It
+					 * does send you back to page one, because staying on page 4 of a
+					 * re-ranked list means landing somewhere arbitrary. */
 					const picker =
 						`<div class="dpick hlpick" role="group" aria-label="Sort player highlights">` +
 						`<span class="hlpicklabel">Sort by</span>` +
@@ -3571,13 +3768,59 @@
 								`<button type="button" class="dbtn${HL_SORT.key === o.key ? ' on' : ''}" data-hlsort="${o.key}" aria-pressed="${HL_SORT.key === o.key ? 'true' : 'false'}">${o.label}</button>`,
 						).join('') +
 						`</div>`;
+					/* Pager. Only drawn when there is more than one page — a single
+					 * "Page 1 of 1" with two dead arrows is furniture, not a control.
+					 * The page numbers are buttons rather than a dropdown so the shape of
+					 * the list (how many pages there are) is visible without opening
+					 * anything; past nine pages the run is windowed around the current
+					 * one with the first and last always reachable. */
+					const pager = (() => {
+						if (pageCount < 2) return '';
+						const btn = (i, label, disabled) =>
+							`<button type="button" class="dbtn${!disabled && i === HL_PAGE.index ? ' on' : ''}" data-hlpage="${i}"${disabled ? ' disabled' : ''}${
+								label ? '' : ` aria-label="Page ${i + 1}"`
+							} aria-pressed="${i === HL_PAGE.index ? 'true' : 'false'}">${label || i + 1}</button>`;
+						const WINDOW = 9;
+						let nums = [];
+						if (pageCount <= WINDOW) {
+							for (let i = 0; i < pageCount; i++) nums.push(i);
+						} else {
+							const half = Math.floor((WINDOW - 2) / 2);
+							let lo = Math.max(1, HL_PAGE.index - half);
+							let hi = Math.min(pageCount - 2, lo + (WINDOW - 3));
+							lo = Math.max(1, hi - (WINDOW - 3));
+							nums.push(0);
+							for (let i = lo; i <= hi; i++) nums.push(i);
+							nums.push(pageCount - 1);
+						}
+						const body = nums
+							.map((i, k) => {
+								// A gap in the run gets an ellipsis, so a jump from 1 to 14 does
+								// not read as though the pages in between do not exist.
+								const gap = k > 0 && i - nums[k - 1] > 1 ? `<span class="hlgap">…</span>` : '';
+								return gap + btn(i, null, false);
+							})
+							.join('');
+						return (
+							`<div class="dpick hlpager" role="group" aria-label="Player highlights pages">` +
+							btn(HL_PAGE.index - 1, '‹ Prev', HL_PAGE.index === 0) +
+							body +
+							btn(HL_PAGE.index + 1, 'Next ›', HL_PAGE.index === pageCount - 1) +
+							`</div>`
+						);
+					})();
+					const firstShownRank = top.length ? pageStart + 1 : 0;
+					const lastShownRank = pageStart + pageRows.length;
 					charSection = sec(
 						'Player highlights',
 						`everyone who played more than 5 min · ${top.length} caretakers` +
 							(idleHidden ? ` · ${fmt(idleHidden)} idle ${idleHidden === 1 ? 'window' : 'windows'} hidden` : '') +
 							` · sorted by ${sortCfg.label.toLowerCase()}` +
+							(pageCount > 1
+								? ` · showing ${fmt(firstShownRank)}–${fmt(lastShownRank)} (page ${HL_PAGE.index + 1} of ${pageCount})`
+								: '') +
 							` · click a card for the full breakdown`,
-						`<div class="card">${picker}<div class="hlgrid">${cards}</div></div>`,
+						`<div class="card">${picker}<div class="hlgrid">${cards}</div>${pager}</div>`,
 					);
 				}
 
@@ -3832,7 +4075,12 @@
 									kpi(n(P.avgUnlockedBiomes), 'Avg biomes unlocked'),
 								].join(
 									'',
-								)}</div><div style="margin-top:.4rem" class="bars"><div class="bar"><span class="lab">Most loved</span><span class="track"><span class="fill gold" style="width:100%"></span></span><span class="num" style="text-transform:capitalize">${esc(P.mostPopularArea || '—')}</span></div></div>`,
+								/* "Most loved" used to sit here as a full-width bar. It was a bar
+								   chart of one category drawn at 100% — the bar carried no
+								   information, and "most loved" was really "most dwelt in", which
+								   the Time by area panel below answers properly and with the
+								   minutes behind it. */
+								)}</div>`,
 							) +
 							cardTitled(
 								'Tutorial completion',
@@ -3948,7 +4196,7 @@
 					sec(
 						'What caretakers do',
 						'every tracked action, all-time',
-						card(barRows(objToEntries(acts).slice(0, 17), { labelMap: ACTION_LABELS })),
+						card(barRows(actionEntries(acts).slice(0, 17), { labelMap: ACTION_LABELS })),
 					),
 				);
 
@@ -4823,14 +5071,23 @@
 				}
 			});
 
-			// Date-range presets for the per-day chart. Redraws from the payload already
-			// in hand — no refetch.
+			/* Which range object a picker drives. Keyed by the `data-range-scope`
+			 * dayRangePicker() stamps on every control it builds, so a second chart is
+			 * a new entry here and nothing else. An unrecognised scope is ignored
+			 * rather than defaulting to the first one — silently moving the wrong
+			 * chart is worse than doing nothing. */
+			const DAY_RANGE_SCOPES = { daily: DAY_RANGE, landing: LANDING_DAY_RANGE };
+			const rangeFor = (el) => DAY_RANGE_SCOPES[el && el.getAttribute('data-range-scope')] || null;
+
+			// Date-range presets for the per-day charts. Redraws from the payload
+			// already in hand — no refetch.
 			rootEl.addEventListener('click', (e) => {
 				const btn = e.target.closest && e.target.closest('.dbtn[data-range]');
-				if (!btn) return;
-				DAY_RANGE.preset = btn.getAttribute('data-range');
-				DAY_RANGE.from = '';
-				DAY_RANGE.to = '';
+				const range = rangeFor(btn);
+				if (!range) return;
+				range.preset = btn.getAttribute('data-range');
+				range.from = '';
+				range.to = '';
 				rerender();
 			});
 			// The Problems range. Unlike the chart's picker this one REFETCHES, because
@@ -4857,41 +5114,71 @@
 				}
 				load();
 			});
-			// Typing a date switches the control to a custom range. Handled on 'change'
-			// so a half-typed year doesn't blank the chart mid-keystroke.
+			// Typing a date switches that control to a custom range. Handled on
+			// 'change' so a half-typed year doesn't blank the chart mid-keystroke.
+			// Scoped on data-range-scope, so the Problems picker's inputs — same
+			// .dinput class, different state object — no longer fall through here.
 			rootEl.addEventListener('change', (e) => {
 				const el = e.target;
-				if (!el || !el.classList || !el.classList.contains('dinput')) return;
+				if (!el || !el.hasAttribute) return;
+				if (!el.hasAttribute('data-range-from') && !el.hasAttribute('data-range-to')) return;
+				const scope = el.getAttribute('data-range-scope');
+				const range = rangeFor(el);
+				if (!range) return;
 				const daily = (LAST_DATA && LAST_DATA.summary && LAST_DATA.summary.daily) || {};
-				if (DAY_RANGE.preset !== 'custom') {
+				if (range.preset !== 'custom') {
 					// Seed the other end from what is on screen, so changing one date
 					// doesn't silently widen the range back to everything.
-					const shown = visibleDays(daily);
-					DAY_RANGE.from = shown.length ? shown[0].day : daily.firstDay || '';
-					DAY_RANGE.to = shown.length ? shown[shown.length - 1].day : daily.lastDay || '';
-					DAY_RANGE.preset = 'custom';
+					const shown = scope === 'landing' ? visibleLandingDays() : visibleDays(daily);
+					const fallbackFirst = scope === 'landing' ? '' : daily.firstDay || '';
+					const fallbackLast = scope === 'landing' ? '' : daily.lastDay || '';
+					range.from = shown.length ? shown[0].day : fallbackFirst;
+					range.to = shown.length ? shown[shown.length - 1].day : fallbackLast;
+					range.preset = 'custom';
 				}
-				if (el.hasAttribute('data-range-from')) DAY_RANGE.from = el.value;
-				if (el.hasAttribute('data-range-to')) DAY_RANGE.to = el.value;
+				if (el.hasAttribute('data-range-from')) range.from = el.value;
+				if (el.hasAttribute('data-range-to')) range.to = el.value;
 				// An inverted range is a slip, not an instruction — swap rather than
 				// showing an empty chart.
-				if (DAY_RANGE.from && DAY_RANGE.to && DAY_RANGE.from > DAY_RANGE.to) {
-					const t = DAY_RANGE.from;
-					DAY_RANGE.from = DAY_RANGE.to;
-					DAY_RANGE.to = t;
+				if (range.from && range.to && range.from > range.to) {
+					const t = range.from;
+					range.from = range.to;
+					range.to = t;
 				}
 				rerender();
 			});
 
 			// Player highlights sort. Reorders the rows already in hand — no refetch,
-			// and no change to which caretakers are shown.
+			// and no change to which caretakers are shown. Back to page one: page 4 of
+			// a freshly re-ranked list is an arbitrary place to be standing.
 			rootEl.addEventListener('click', (e) => {
 				const btn = e.target.closest && e.target.closest('.dbtn[data-hlsort]');
 				if (!btn) return;
 				const key = btn.getAttribute('data-hlsort');
 				if (!HL_SORTS.some((o) => o.key === key) || HL_SORT.key === key) return;
 				HL_SORT.key = key;
+				HL_PAGE.index = 0;
 				rerender();
+			});
+
+			/* Player highlights pager. Redraws from the rows in hand, then scrolls the
+			 * section header back into view — without that, clicking "Next" at the
+			 * bottom of a forty-card grid leaves you at the bottom of the NEXT forty
+			 * with no sign anything happened.
+			 *
+			 * The section is looked up AFTER the rerender, not before: rerender()
+			 * replaces #root's markup wholesale, so the element the click came from is
+			 * detached by the time there is anything to scroll to. */
+			rootEl.addEventListener('click', (e) => {
+				const btn = e.target.closest && e.target.closest('.dbtn[data-hlpage]');
+				if (!btn || btn.disabled) return;
+				const next = Number(btn.getAttribute('data-hlpage'));
+				if (!isFinite(next) || next < 0 || next === HL_PAGE.index) return;
+				HL_PAGE.index = next;
+				rerender();
+				const grid = document.querySelector('.hlgrid');
+				const section = grid && grid.closest('section');
+				if (section) section.scrollIntoView({ block: 'start', behavior: 'smooth' });
 			});
 
 			rootEl.addEventListener('click', (e) => {

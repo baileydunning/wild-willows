@@ -8281,14 +8281,32 @@ async function metricsRollup(target?: any): Promise<{
 		 * reported because they differ — a save whose snapshot predates this field
 		 * counts for neither, and one with no usable creation time counts for
 		 * popularity but not for pacing. */
+		/* Idle windows are counted for POPULARITY but never for PACING.
+		 *
+		 * "Time to earn" is wall-clock from the save's creation, so a window left
+		 * open over a lunch break stamps a first-session achievement hours after
+		 * the save began — nobody played for those hours. One such save was enough
+		 * to turn a range that should have read "34s – 6m" into "34s – 11h 12m",
+		 * and it dragged the mean with it. Two things make it safe to drop them
+		 * here specifically: the row already carries the same `idle` flag the rest
+		 * of this endpoint filters on (so the definition of idle does not fork),
+		 * and the popularity count is untouched — an abandoned window still earned
+		 * the achievement, it just cannot say how long it took.
+		 *
+		 * The rows dropped are counted, not silently discarded: `timingIdleSkipped`
+		 * rides along in the coverage block so the card can say what the numbers
+		 * are drawn from. */
 		const achEarnedBy = new Map<string, { players: number; times: number[] }>();
+		let timingIdleSkipped = 0;
 		for (const v of withAch) {
 			const map = v.achievements.earnedAt;
 			if (!map || typeof map !== 'object') continue;
+			if (v.idle) timingIdleSkipped++;
 			for (const [id, at] of Object.entries(map)) {
 				let e = achEarnedBy.get(id);
 				if (!e) achEarnedBy.set(id, (e = { players: 0, times: [] }));
 				e.players++;
+				if (v.idle) continue; // popularity yes, duration no — see above
 				const ms = Number(at) - Number(v.createdAt || 0);
 				// Guard both ends: a missing createdAt yields an absurd age, and clock
 				// skew on a client-stamped timestamp can put an achievement before the
@@ -8325,6 +8343,8 @@ async function metricsRollup(target?: any): Promise<{
 			savesWithAchievements: withAch.length,
 			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length)
 				.length,
+			// Counted in `players`, excluded from every duration — see above.
+			idleSkipped: timingIdleSkipped,
 		};
 
 		const achievementsSummary = {
@@ -11103,6 +11123,10 @@ const LANDING_CLICK_TARGETS = new Set([
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
+	// The subreddit card in the landing page's Updates section, and the matching
+	// footer link. Its own target rather than "other" so the dashboard can say how
+	// many people the page actually sends to the community.
+	'reddit',
 ]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
@@ -11145,7 +11169,17 @@ async function buildLandingStats(): Promise<any> {
 	} catch {
 		/* keep the counter sum */
 	}
-	const days = rows.slice(-60).map((r: any) => ({
+	/* How many day-rows ride along with the totals.
+	 *
+	 * Was 60, chosen when the dashboard drew a fixed last-14-days histogram off
+	 * the tail of this list. That chart now has the same preset row as New
+	 * caretakers per day — 7d / 30d / 90d / All — and a 90d preset reading a
+	 * 60-day payload silently shows 60 days under a "90d" pill, which is the
+	 * kind of wrong that never announces itself. Sized to cover the widest
+	 * preset with room to spare; these are eight small numbers per day, so the
+	 * payload cost of the extra two months is trivial. */
+	const LANDING_DAYS_RETURNED = 180;
+	const days = rows.slice(-LANDING_DAYS_RETURNED).map((r: any) => ({
 		day: r.day,
 		visits: r.visits || 0,
 		uniques: r.uniques || 0,
