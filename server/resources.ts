@@ -9316,7 +9316,6 @@ export class ServerHealth extends DashboardEndpoint {
 				'DashboardPage',
 				'dashboard',
 				'ListFeedback',
-				'ListMailingList',
 				'SystemProbe',
 			].map(norm),
 		);
@@ -11083,20 +11082,18 @@ export class AppOpen extends PublicEndpoint {
 	}
 }
 
-// ---------------------------------------------------------------- landing page: mailing list + analytics
-// The marketing landing page (GET /) hosts a mailing-list signup form and
-// sends anonymous, aggregate-only usage pings. Same shape as the rest of this
-// file:
-//  • MailingListSignup rows carry emails (PII), so — exactly like Feedback —
-//    the table is never exported and reads go through the admin-only
-//    ListMailingList (raw Resource → Harper default super-user permissions).
+// ---------------------------------------------------------------- landing page: analytics
+// The marketing landing page (GET /) sends anonymous, aggregate-only usage
+// pings. Nothing here is personal data, and nothing here ever was after the
+// mailing list was removed: the form, the MailingListSignup table and the
+// admin-only ListMailingList reader all went with it, so the landing page now
+// collects no email address by any route. The subreddit is the follow-along
+// channel in its place.
 //  • LandingStat keeps ONE row per UTC day (`day:YYYY-MM-DD`) of plain
-//    counters; the public LandingStats rollup only ever returns those counts,
-//    never emails. Increments are read-modify-write like AppOpen — fine at
+//    counters. Increments are read-modify-write like AppOpen — fine at
 //    landing-page traffic, and analytics losing the odd count to a rare race
 //    is acceptable by design.
 
-const MAIL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Click targets the landing page reports (data-track attributes). Anything
 // else collapses into "other" so junk can't mint unbounded counter keys.
 const LANDING_CLICK_TARGETS = new Set([
@@ -11151,23 +11148,15 @@ async function buildLandingStats(): Promise<any> {
 	const totals = {
 		visits: 0,
 		uniques: 0,
-		signups: 0,
 		clicks: {} as Record<string, number>,
 		downloads: {} as Record<string, number>,
 	};
 	for (const r of rows) {
 		totals.visits += r.visits || 0;
 		totals.uniques += r.uniques || 0;
-		totals.signups += r.signups || 0;
 		for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
 		for (const [k, v] of Object.entries(r.downloads || {}))
 			totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
-	}
-	let signupCount = totals.signups;
-	try {
-		if (t.MailingListSignup) signupCount = (await allOf(t.MailingListSignup)).length;
-	} catch {
-		/* keep the counter sum */
 	}
 	/* How many day-rows ride along with the totals.
 	 *
@@ -11183,7 +11172,6 @@ async function buildLandingStats(): Promise<any> {
 		day: r.day,
 		visits: r.visits || 0,
 		uniques: r.uniques || 0,
-		signups: r.signups || 0,
 		clicks: r.clicks || {},
 		totalClicks: sumValues(r.clicks),
 		downloads: r.downloads || {},
@@ -11194,7 +11182,6 @@ async function buildLandingStats(): Promise<any> {
 		today: landingDay(now),
 		totals: {
 			...totals,
-			signups: signupCount,
 			totalClicks: sumValues(totals.clicks),
 			totalDownloads: sumValues(totals.downloads),
 		},
@@ -11248,7 +11235,6 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 			day,
 			visits: Number(stored?.visits) || 0,
 			uniques: Number(stored?.uniques) || 0,
-			signups: Number(stored?.signups) || 0,
 			clicks: countMap(stored?.clicks),
 			downloads: countMap(stored?.downloads),
 		};
@@ -11268,71 +11254,6 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
 	await bumpLandingStat((r) => {
 		r.downloads[which] = (r.downloads[which] || 0) + 1;
 	});
-}
-
-/**
- * POST /JoinMailingList/ {email, source?, website?} — add one address to the
- * update list, deduped by normalized email (id `ml:${email}`), so double
- * submits and re-signups never create duplicate rows. `website` is the form's
- * honeypot field: it's visually hidden, so a non-empty value means a bot —
- * we answer ok:true and store nothing. The response is {ok:true} whether the
- * address was new or already present, so the endpoint can't be used to probe
- * who is subscribed.
- */
-export class JoinMailingList extends PublicEndpoint {
-	async post(data: any) {
-		const body = await bodyOf(data);
-		if (String(body.website || '').trim()) return { ok: true }; // honeypot — bot, drop silently
-		const email = String(body.email || '')
-			.trim()
-			.toLowerCase()
-			.slice(0, 254);
-		if (!email || !MAIL_EMAIL_RE.test(email))
-			throw new GameError(tr('server.err.mailBadEmail'), 400, 'server.err.mailBadEmail');
-		const source =
-			String(body.source || 'landing')
-				.toLowerCase()
-				.replace(/[^a-z0-9-]/g, '')
-				.slice(0, 24) || 'landing';
-		const table = (db() as any).MailingListSignup;
-		if (!table) throw new GameError(tr('server.err.dbStarting'), 503, 'server.err.dbStarting');
-		const id = `ml:${email}`;
-		const existing = await safeGet(table, id);
-		if (!existing) {
-			await table.put({
-				id,
-				email,
-				source,
-				language:
-					String(body.lang || body.language || '')
-						.trim()
-						.toLowerCase()
-						.slice(0, 12) || null,
-				createdAt: Date.now(),
-			});
-			await bumpLandingStat((r) => {
-				r.signups = (r.signups || 0) + 1;
-			});
-		}
-		return { ok: true };
-	}
-}
-
-/**
- * GET /ListMailingList/ — every mailing-list signup, newest first.
- *
- * Deliberately extends the raw Resource (NOT PublicEndpoint), so Harper's
- * default permissions apply: only an authenticated super user can read it.
- * These rows are email addresses, which must never be public (same rule as
- * ListFeedback).
- */
-export class ListMailingList extends Resource {
-	async get() {
-		const table = (db() as any).MailingListSignup;
-		const rows: any[] = table ? await allOf(table) : [];
-		rows.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
-		return { count: rows.length, signups: rows };
-	}
 }
 
 /**
@@ -11821,14 +11742,13 @@ export class SaveHealth extends DashboardEndpoint {
 /**
  * GET /LandingStats/ — aggregate-only rollup of the landing page's daily
  * counters, consumed by the /dashboard "Landing page" section. Returns per-day
- * rows (last 60 days) plus lifetime totals. The signup total is the REAL deduped
- * row count from MailingListSignup (the per-day counter is also summed, but the
- * table is the source of truth if they ever drift). No emails or any other PII
- * ever leave through this endpoint.
+ * rows (see LANDING_DAYS_RETURNED) plus lifetime totals: visits, first-time
+ * visitors, outbound link clicks and classroom-PDF downloads. Counts only —
+ * there is no personal data anywhere behind this endpoint to leak.
  *
  * ADMIN ONLY. Nothing here is sensitive — it is counts, and it stayed harmless
  * when it was public. It moves behind auth because its only reader is /dashboard
- * and a business metric (visits, signups, conversion) is not something to hand
+ * and a business metric (visits, clicks, conversion) is not something to hand
  * to anyone who asks. POST /LandingEvent/ stays public: the landing page has to
  * be able to write to it.
  */

@@ -3365,12 +3365,14 @@
 					);
 				}
 
-				/* ---- Landing page (site traffic + mailing list) ----
-				 * Fed by the public GET /LandingStats/ rollup (aggregate counters only —
-				 * mailing-list emails stay behind the admin-only ListMailingList). Loaded
-				 * best-effort alongside /Metrics/; the section simply doesn't render if the
-				 * endpoint isn't deployed yet. Unaffected by the version/edition filters —
-				 * these are site numbers, not game numbers.
+				/* ---- Landing page (site traffic) ----
+				 * Fed by the GET /LandingStats/ rollup — visits, first-time visitors,
+				 * outbound link clicks and classroom-PDF downloads. Counts only; the
+				 * mailing list that used to contribute a signups series here is gone,
+				 * table and all. Loaded best-effort alongside /Metrics/; the section
+				 * simply doesn't render if the endpoint isn't deployed yet. Unaffected
+				 * by the version/edition filters — these are site numbers, not game
+				 * numbers.
 				 *
 				 * Built here (it needs `LANDING`) and pushed under Engagement — see the
 				 * push a little further down. */
@@ -3440,13 +3442,13 @@
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app — visits, link clicks & mailing list',
+						'wildwillows.app — visits, link clicks & classroom PDFs',
 						`<div class="grid kpis">${[
 							kpi(fmt(lt.visits), 'Visits', `${fmt(lt.uniques)} first-time visitors`),
 							kpi(
 								`<span class="accent">${fmt(todayRow.visits)}</span>`,
 								'Visits today',
-								`${fmt(todayRow.totalClicks)} clicks · ${fmt(todayRow.signups)} signups today`,
+								`${fmt(todayRow.totalClicks)} link ${n(todayRow.totalClicks) === 1 ? 'click' : 'clicks'} today`,
 							),
 							kpi(fmt(lt.totalClicks), 'Link clicks', 'store, demo & theme buttons'),
 							kpi(
@@ -3454,11 +3456,9 @@
 								'PDF downloads',
 								`${fmt(dl.guide)} guide · ${fmt(dl.worksheets)} worksheets`,
 							),
-							kpi(
-								`<span class="accent">${fmt(lt.signups)}</span>`,
-								'Mailing list',
-								'signups all-time · emails visible only to admin',
-							),
+							// A "Mailing list" tile stood here. The list is gone — signup form,
+							// MailingListSignup table and the admin-only reader — so there is no
+							// number behind it any more, not even a frozen one.
 						].join('')}</div><div class="grid two" style="margin-top:.8rem">` +
 							cardTitled(
 								'Clicks by link',

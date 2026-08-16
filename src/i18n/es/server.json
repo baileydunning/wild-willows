@@ -130,7 +130,6 @@
 		"feedbackEmpty": "Escribe algo primero, por favor",
 		"feedbackTooLong": "Los comentarios están limitados a {max} caracteres",
 		"feedbackBadEmail": "Ese correo de respuesta no parece válido — déjalo en blanco si no quieres respuesta",
-		"mailBadEmail": "Ese correo no parece correcto — revísalo e inténtalo de nuevo",
 		"clientIdRequired": "se requiere clientId",
 		"snapshotRequired": "se requiere snapshot",
 		"snapshotTooLarge": "snapshot demasiado grande",

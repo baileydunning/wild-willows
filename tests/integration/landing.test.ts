@@ -1,11 +1,15 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { freshWorld, type World } from './harness';
 
-// Landing-page endpoints: JoinMailingList stores deduped signup emails
-// (read back only via the admin-only ListMailingList — it extends the raw
-// Resource, like ListFeedback), and LandingEvent aggregates anonymous
-// visit/click beacons into per-day LandingStat rows that the public
-// LandingStats rollup (and the /dashboard landing section) reads.
+// Landing-page endpoints: LandingEvent aggregates anonymous visit/click
+// beacons into per-day LandingStat rows that the LandingStats rollup (and the
+// /dashboard landing section) reads, and the two classroom PDFs count their own
+// downloads server-side.
+//
+// A JoinMailingList / ListMailingList pair used to be covered here too. Both
+// endpoints and the MailingListSignup table behind them were removed — the site
+// collects no email address by any route now, so there is nothing left to test
+// and nothing left that could leak one.
 
 let w: World;
 
@@ -13,62 +17,8 @@ beforeEach(async () => {
 	w = await freshWorld();
 });
 
-describe('JoinMailingList', () => {
-	it('stores a signup, normalizing and deduping by email', async () => {
-		const r = await w.post('JoinMailingList', { email: '  Fan@Example.COM ', source: 'landing' });
-		expect(r.ok).toBe(true);
-
-		// same address, different casing — must not create a second row,
-		// and must not reveal that the address already existed
-		const again = await w.post('JoinMailingList', { email: 'fan@example.com' });
-		expect(again).toEqual({ ok: true });
-
-		const rows = [];
-		for await (const row of w.db.MailingListSignup.search()) rows.push(row);
-		expect(rows).toHaveLength(1);
-		expect(rows[0].email).toBe('fan@example.com');
-		expect(rows[0].source).toBe('landing');
-		expect(rows[0].createdAt).toBeGreaterThan(0);
-	});
-
-	it('rejects a missing or malformed email', async () => {
-		await expect(w.post('JoinMailingList', {})).rejects.toThrow();
-		await expect(w.post('JoinMailingList', { email: 'not-an-email' })).rejects.toThrow();
-		const rows = [];
-		for await (const row of w.db.MailingListSignup.search()) rows.push(row);
-		expect(rows).toHaveLength(0);
-	});
-
-	it('silently drops honeypot (bot) submissions', async () => {
-		const r = await w.post('JoinMailingList', { email: 'bot@spam.example', website: 'https://spam.example' });
-		expect(r.ok).toBe(true);
-		const rows = [];
-		for await (const row of w.db.MailingListSignup.search()) rows.push(row);
-		expect(rows).toHaveLength(0);
-	});
-});
-
-describe('ListMailingList', () => {
-	it('returns all signups, newest first', async () => {
-		await w.post('JoinMailingList', { email: 'a@example.com' });
-		await new Promise((r) => setTimeout(r, 5)); // force distinct createdAt ordering
-		await w.post('JoinMailingList', { email: 'b@example.com' });
-
-		const out = await w.get('ListMailingList');
-		expect(out.count).toBe(2);
-		expect(out.signups[0].email).toBe('b@example.com');
-		expect(out.signups[1].email).toBe('a@example.com');
-	});
-
-	it('is empty when nobody has signed up', async () => {
-		const out = await w.get('ListMailingList');
-		expect(out.count).toBe(0);
-		expect(out.signups).toEqual([]);
-	});
-});
-
 describe('LandingEvent + LandingStats', () => {
-	it('aggregates visits, uniques, clicks and signups into per-day rows', async () => {
+	it('aggregates visits, uniques and clicks into per-day rows', async () => {
 		await w.post('LandingEvent', { type: 'visit', first: true });
 		await w.post('LandingEvent', { type: 'visit' });
 		await w.post('LandingEvent', { type: 'click', target: 'itch' });
@@ -76,7 +26,6 @@ describe('LandingEvent + LandingStats', () => {
 		await w.post('LandingEvent', { type: 'click', target: 'appstore' });
 		// junk target must collapse into "other", not mint a new counter key
 		await w.post('LandingEvent', { type: 'click', target: 'weird<script>' });
-		await w.post('JoinMailingList', { email: 'fan@example.com' });
 
 		const out = await w.get('LandingStats');
 		expect(out.totals.visits).toBe(2);
@@ -85,7 +34,9 @@ describe('LandingEvent + LandingStats', () => {
 		expect(out.totals.clicks.appstore).toBe(1);
 		expect(out.totals.clicks.other).toBe(1);
 		expect(out.totals.totalClicks).toBe(4);
-		expect(out.totals.signups).toBe(1);
+		// The rollup carries no signup series at all now, not a zeroed one.
+		expect(out.totals.signups).toBeUndefined();
+		expect(out.days[0].signups).toBeUndefined();
 		expect(out.days).toHaveLength(1);
 		expect(out.days[0].visits).toBe(2);
 		expect(out.days[0].totalClicks).toBe(4);
@@ -119,10 +70,18 @@ describe('LandingEvent + LandingStats', () => {
 		expect(out.totals.clicks.other).toBeUndefined();
 	});
 
-	it('never exposes emails through the public rollup', async () => {
-		await w.post('JoinMailingList', { email: 'secret@example.com' });
-		const out = await w.get('LandingStats');
-		expect(JSON.stringify(out)).not.toContain('secret@example.com');
+	// The mailing list is gone: no endpoint to post an address to, no table for
+	// one to land in. Asserted rather than assumed, because a half-removal that
+	// left JoinMailingList reachable would quietly start collecting PII again
+	// behind a landing page that no longer asks for it.
+	it('has no mailing-list surface left to collect an address', async () => {
+		// Wrapped in a thunk rather than awaited directly: the harness resolves the
+		// endpoint class synchronously, so a missing one throws where it is called
+		// instead of handing back a rejected promise.
+		await expect(
+			Promise.resolve().then(() => w.post('JoinMailingList', { email: 'secret@example.com' })),
+		).rejects.toThrow(/No endpoint named JoinMailingList/);
+		expect(w.db.MailingListSignup).toBeUndefined();
 	});
 
 	it('accepts unknown ping types without throwing or writing', async () => {

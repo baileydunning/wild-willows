@@ -213,7 +213,6 @@ const TABLES = [
 	'Feedback',
 	'SoloMetrics',
 	'AppOpen',
-	'MailingListSignup',
 	'LandingStat',
 	'PlayerNameIndex',
 	'SaveIncident',
