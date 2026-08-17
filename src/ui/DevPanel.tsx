@@ -4,6 +4,7 @@ import { useGame } from '../state';
 import { animalSpriteDataUri } from '../game/textures';
 import { bridge } from '../game/bridge';
 import { Icon } from './icons';
+import { clearBrowserSaves } from '../solo/saves';
 import { WEATHER_TYPES, SEASONS, weatherType, seasonStyle } from '../weather';
 
 /**
@@ -417,12 +418,17 @@ export function DevPanel({ onClose }: { onClose: () => void }) {
 									)
 								)
 									return;
-								try {
-									localStorage.clear();
-								} catch {
-									/* ignore */
-								}
-								location.reload();
+								// Saves live in IndexedDB now (see src/solo/saves.ts), so
+								// localStorage.clear() alone no longer matches what this
+								// button's confirmation promises. Clear both, then reload.
+								void clearBrowserSaves().finally(() => {
+									try {
+										localStorage.clear();
+									} catch {
+										/* ignore */
+									}
+									location.reload();
+								});
 							}}
 						>
 							<Icon name="close" size={13} /> Reset local storage

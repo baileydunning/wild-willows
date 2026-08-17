@@ -6,6 +6,7 @@ import {
 	applyMoveResult,
 	applyPlaceResult,
 	applyPlantResult,
+	applyRemoveResult,
 } from '../../src/actionPatch';
 import type { GameState } from '../../src/types';
 
@@ -200,5 +201,150 @@ describe('purity', () => {
 		applyCraftResult({ ok: true, craftedItems: {}, inventory: {}, chests: [] }, prev);
 		applyMoveResult({ ok: true, placement: placement({ x: 99 }) }, prev);
 		expect(JSON.stringify(prev)).toBe(frozen);
+	});
+});
+
+describe('applyRemoveResult', () => {
+	const prev = () =>
+		base({
+			placements: [placement(), placement({ id: 'pl2', objectId: 'bench', x: 9 })] as any,
+			chests: [
+				{ id: 'pl9', area: 'meadow', x: 1, y: 1, contents: { wood: 4 } },
+				{ id: 'pl8', area: 'meadow', x: 2, y: 1, contents: { stone: 1 } },
+			] as any,
+		});
+
+	it('drops the placement and returns a crafted object to the pouch', () => {
+		const next = applyRemoveResult(
+			{ ok: true, removed: 'pl1', craftedItems: { bench: 2 }, refunded: null, inventory: { wood: 2 } },
+			prev(),
+		);
+		expect(next?.placements.map((p) => p.id)).toEqual(['pl2']);
+		expect(next?.player.craftedItems).toEqual({ bench: 2 });
+		expect(next?.player.inventory).toEqual({ wood: 2 });
+	});
+
+	it('applies a refund that fitted in the basket', () => {
+		const next = applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl1',
+				craftedItems: { bench: 1 },
+				refunded: { seed: 1 },
+				inventory: { wood: 2, seed: 1 },
+				chestPatches: [],
+				removedChestId: null,
+			},
+			prev(),
+		);
+		expect(next?.player.inventory).toEqual({ wood: 2, seed: 1 });
+		expect(next?.chests).toEqual(prev().chests);
+	});
+
+	it('applies refund spill to the chests it actually landed in, by id', () => {
+		const next = applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl1',
+				craftedItems: { bench: 1 },
+				refunded: { wood: 6 },
+				inventory: { wood: 8 },
+				chestPatches: [{ id: 'pl8', contents: { stone: 1, wood: 4 } }],
+				removedChestId: null,
+			},
+			prev(),
+		);
+		expect(next?.chests.find((c) => c.id === 'pl8')?.contents).toEqual({ stone: 1, wood: 4 });
+		// the untouched chest is left exactly as it was
+		expect(next?.chests.find((c) => c.id === 'pl9')?.contents).toEqual({ wood: 4 });
+	});
+
+	it('drops a chest row when the chest itself is picked up', () => {
+		// The Chest record shares the Placement id — remove one and both go.
+		const next = applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl9',
+				craftedItems: { bench: 2 },
+				refunded: null,
+				inventory: { wood: 2 },
+				chestPatches: [],
+				removedChestId: 'pl9',
+			},
+			prev(),
+		);
+		expect(next?.chests.map((c) => c.id)).toEqual(['pl8']);
+	});
+
+	it('never invents a chest a patch names but the world does not have', () => {
+		const next = applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl1',
+				craftedItems: { bench: 1 },
+				refunded: { wood: 1 },
+				inventory: { wood: 2 },
+				chestPatches: [{ id: 'ghost', contents: { wood: 99 } }],
+				removedChestId: null,
+			},
+			prev(),
+		);
+		expect(next?.chests.map((c) => c.id)).toEqual(['pl9', 'pl8']);
+	});
+
+	it('folds in a recalculated biome', () => {
+		const next = applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl1',
+				craftedItems: { bench: 2 },
+				refunded: null,
+				inventory: { wood: 2 },
+				biomeState: { biomeId: 'meadow', health: 9 },
+			},
+			prev(),
+		);
+		expect(next?.biomeStates).toEqual([
+			{ biomeId: 'meadow', health: 9 },
+			{ biomeId: 'forest', health: 5 },
+		]);
+	});
+
+	it('refuses when an animal came home or a biome unlocked', () => {
+		const r = { ok: true, removed: 'pl1', craftedItems: {}, inventory: {} };
+		expect(applyRemoveResult({ ...r, newAnimals: [{ animalId: 'frog' }] }, prev())).toBeNull();
+		expect(applyRemoveResult({ ...r, unlockedBiomes: [{ id: 'forest' }] }, prev())).toBeNull();
+		expect(applyRemoveResult({ ...r, ok: false }, prev())).toBeNull();
+	});
+
+	it('refuses a refund it cannot place, rather than losing the materials', () => {
+		// A response without the delta fields predates them; patching it would drop
+		// the refund until the next sync, so the full refetch has to happen.
+		expect(
+			applyRemoveResult(
+				{ ok: true, removed: 'pl1', craftedItems: {}, inventory: { wood: 2 }, refunded: { wood: 1 } },
+				prev(),
+			),
+		).toBeNull();
+		expect(applyRemoveResult({ ok: true, removed: 'pl1', craftedItems: {} }, prev())).toBeNull();
+		expect(applyRemoveResult({ ok: true, craftedItems: {}, inventory: {} }, prev())).toBeNull();
+	});
+
+	it('does not mutate the previous state', () => {
+		const p = prev();
+		const before = JSON.stringify(p);
+		applyRemoveResult(
+			{
+				ok: true,
+				removed: 'pl1',
+				craftedItems: { bench: 2 },
+				refunded: { wood: 1 },
+				inventory: { wood: 3 },
+				chestPatches: [{ id: 'pl8', contents: { stone: 2 } }],
+				removedChestId: null,
+			},
+			p,
+		);
+		expect(JSON.stringify(p)).toBe(before);
 	});
 });

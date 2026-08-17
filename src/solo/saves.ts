@@ -36,6 +36,142 @@ const hasDesktopSaves = () => !!bridge()?.saves;
 
 const LS_PREFIX = 'wild-willows:solo-save:';
 
+// ---- browser storage: IndexedDB, with localStorage as the fallback ----
+//
+// The desktop build writes real files through the bridge and is unaffected by
+// everything below. The BROWSER build (the itch demo, `npm run browser`, local
+// web dev) used `localStorage`, which is wrong for this data on two counts:
+//
+//  • It is SYNCHRONOUS. `setItem` blocks the main thread for the whole write, and
+//    autosave fires after actions, so every save was a hitch in the middle of
+//    play that got worse as the save grew.
+//  • It has a hard ~5 MB per-origin quota, and several engines store strings as
+//    UTF-16 — so the real ceiling is closer to 2.5 MB of ASCII JSON. This file's
+//    own callers describe a long save as "megabytes of JSON". A player who hit
+//    that got a QuotaExceededError mid-session and every save from then on was
+//    lost, which is the worst possible time to find out.
+//
+// IndexedDB is asynchronous and has no comparable quota. It is also absent in
+// some environments — private browsing on some engines, sandboxed iframes, and
+// the unit-test environment — so every operation below degrades to exactly the
+// localStorage behaviour it replaces rather than failing. `indexedSoloSaves() === null` is the
+// normal, supported state, not an error path.
+
+const SOLO_SAVE_DB = 'wild-willows';
+const SOLO_SAVE_STORE = 'solo-saves';
+
+/** Resolves to an open database, or null when IndexedDB is unusable here. */
+let openHandle: Promise<IDBDatabase | null> | null = null;
+
+function openSaveDb(): Promise<IDBDatabase | null> {
+	if (openHandle) return openHandle;
+	openHandle = new Promise<IDBDatabase | null>((resolve) => {
+		let req: IDBOpenDBRequest;
+		try {
+			if (typeof indexedDB === 'undefined' || !indexedDB) return resolve(null);
+			req = indexedDB.open(SOLO_SAVE_DB, 1);
+		} catch {
+			return resolve(null); // SecurityError in a sandboxed frame, etc.
+		}
+		req.onupgradeneeded = () => {
+			const db = req.result;
+			if (!db.objectStoreNames.contains(SOLO_SAVE_STORE)) db.createObjectStore(SOLO_SAVE_STORE);
+		};
+		req.onsuccess = () => resolve(req.result);
+		req.onerror = () => resolve(null);
+		// Another tab is holding an old version open. Falling back beats hanging the
+		// load menu on a tab the player may not even remember having open.
+		req.onblocked = () => resolve(null);
+	});
+	return openHandle;
+}
+
+/** Run one transaction, resolving to `fallback` on any failure. */
+function saveStoreRun<T>(
+	db: IDBDatabase,
+	mode: IDBTransactionMode,
+	fallback: T,
+	body: (store: IDBObjectStore) => IDBRequest,
+): Promise<T> {
+	return new Promise<T>((resolve) => {
+		let req: IDBRequest;
+		try {
+			const tx = db.transaction(SOLO_SAVE_STORE, mode);
+			tx.onabort = () => resolve(fallback);
+			req = body(tx.objectStore(SOLO_SAVE_STORE));
+		} catch {
+			return resolve(fallback);
+		}
+		req.onsuccess = () => resolve(req.result as T);
+		req.onerror = () => resolve(fallback);
+	});
+}
+
+const saveStoreGet = (db: IDBDatabase, id: string) =>
+	saveStoreRun<string | null>(db, 'readonly', null, (st) => st.get(id));
+const saveStoreKeys = (db: IDBDatabase) =>
+	saveStoreRun<IDBValidKey[]>(db, 'readonly', [], (st) => st.getAllKeys()).then((ks) => ks.map(String));
+const saveStoreDelete = (db: IDBDatabase, id: string) =>
+	saveStoreRun<unknown>(db, 'readwrite', null, (st) => st.delete(id));
+
+/** Write, reporting whether it actually landed so the caller can fall back. */
+async function saveStorePut(db: IDBDatabase, id: string, contents: string): Promise<boolean> {
+	const sentinel = Symbol('failed');
+	const out = await saveStoreRun<unknown>(db, 'readwrite', sentinel, (st) => st.put(contents, id));
+	return out !== sentinel;
+}
+
+/** Keys still sitting in localStorage, if there is a localStorage at all. */
+function localSlotIds(): string[] {
+	const ids: string[] = [];
+	try {
+		if (typeof localStorage === 'undefined') return ids;
+		for (let i = 0; i < localStorage.length; i++) {
+			const k = localStorage.key(i);
+			if (k?.startsWith(LS_PREFIX)) ids.push(k.slice(LS_PREFIX.length));
+		}
+	} catch {
+		/* storage disabled */
+	}
+	return ids;
+}
+
+/**
+ * Open the database and, once per page load, move any localStorage saves into it.
+ *
+ * The order here is the whole safety argument: a save is written to IndexedDB,
+ * READ BACK, and compared byte-for-byte before the localStorage copy is dropped.
+ * Anything short of an exact match leaves the original exactly where it is, so
+ * the failure mode of this migration is a save that lives in both places — which
+ * costs quota and nothing else, because reads prefer IndexedDB and `listSlotIds`
+ * unions the two.
+ *
+ * Clearing the localStorage copy is not tidiness: it is the point. Reclaiming
+ * that quota is what stops a returning player from hitting the 5 MB ceiling on a
+ * save that has already outgrown it.
+ */
+let indexedSoloSavesReady: Promise<IDBDatabase | null> | null = null;
+function indexedSoloSaves(): Promise<IDBDatabase | null> {
+	if (indexedSoloSavesReady) return indexedSoloSavesReady;
+	indexedSoloSavesReady = (async () => {
+		const db = await openSaveDb();
+		if (!db) return null;
+		for (const id of localSlotIds()) {
+			try {
+				const raw = localStorage.getItem(LS_PREFIX + id);
+				if (raw == null) continue;
+				if (!(await saveStorePut(db, id, raw))) continue;
+				if ((await saveStoreGet(db, id)) !== raw) continue; // not verified — keep the original
+				localStorage.removeItem(LS_PREFIX + id);
+			} catch {
+				/* leave this slot in localStorage; it stays readable either way */
+			}
+		}
+		return db;
+	})();
+	return indexedSoloSavesReady;
+}
+
 export const newSlotId = () => {
 	try {
 		return crypto.randomUUID();
@@ -49,7 +185,14 @@ export const newSlotId = () => {
 async function readRawText(slotId: string): Promise<string | null> {
 	try {
 		if (hasDesktopSaves()) return (await bridge()!.saves!.read(slotId)) || null;
-		return localStorage.getItem(LS_PREFIX + slotId);
+		const saves = await indexedSoloSaves();
+		if (saves) {
+			const hit = await saveStoreGet(saves, slotId);
+			// A miss is not proof of absence: migration may have been interrupted, or
+			// this slot may predate it. Fall through to localStorage before giving up.
+			if (hit != null) return hit;
+		}
+		return typeof localStorage === 'undefined' ? null : localStorage.getItem(LS_PREFIX + slotId);
 	} catch {
 		return null;
 	}
@@ -133,6 +276,12 @@ async function writeRawJson(slotId: string, contents: string): Promise<void> {
 		await bridge()!.saves!.write(slotId, contents);
 		return;
 	}
+	const saves = await indexedSoloSaves();
+	if (saves && (await saveStorePut(saves, slotId, contents))) return;
+	// No IndexedDB, or the write did not land. localStorage is the same storage
+	// this used to be, with the same quota — so a throw here is the same
+	// QuotaExceededError the caller already handles (api.ts reports it and shows a
+	// save-error toast), not a new failure mode.
 	localStorage.setItem(LS_PREFIX + slotId, contents);
 }
 
@@ -144,12 +293,14 @@ async function listSlotIds(): Promise<string[]> {
 			return [];
 		}
 	}
-	const ids: string[] = [];
-	for (let i = 0; i < localStorage.length; i++) {
-		const k = localStorage.key(i);
-		if (k?.startsWith(LS_PREFIX)) ids.push(k.slice(LS_PREFIX.length));
-	}
-	return ids;
+	// The UNION of both stores, de-duplicated. If a migration was interrupted —
+	// the tab closed mid-loop — some slots are in IndexedDB and some are still in
+	// localStorage, and a load menu that showed only one of the two would look
+	// like the game had eaten half the player's saves.
+	const saves = await indexedSoloSaves();
+	const ids = new Set<string>(localSlotIds());
+	if (saves) for (const id of await saveStoreKeys(saves)) ids.add(id);
+	return [...ids];
 }
 
 // ---- public API ----
@@ -216,14 +367,49 @@ let lastPersistedSlot: string | null = null;
 
 export async function deleteSave(slotId: string): Promise<void> {
 	try {
-		if (hasDesktopSaves()) await bridge()!.saves!.remove(slotId);
-		else localStorage.removeItem(LS_PREFIX + slotId);
+		if (hasDesktopSaves()) {
+			await bridge()!.saves!.remove(slotId);
+			return;
+		}
+		// BOTH stores, unconditionally. A slot that exists in each (an interrupted
+		// migration) must not come back from the dead because only one copy was
+		// removed — "I deleted this save and it reappeared" is worse than a failed
+		// delete, and listSlotIds would surface the survivor immediately.
+		const saves = await indexedSoloSaves();
+		if (saves) await saveStoreDelete(saves, slotId);
+		if (typeof localStorage !== 'undefined') localStorage.removeItem(LS_PREFIX + slotId);
 	} catch {
 		/* ignore */
 	}
 }
 
-export const soloSavesAvailable = () => hasDesktopSaves() || typeof localStorage !== 'undefined';
+/**
+ * Remove every browser-stored save, from BOTH stores.
+ *
+ * Exists because `localStorage.clear()` stopped meaning "clear the saves" the
+ * moment they moved to IndexedDB. The dev panel's reset button says, in the
+ * confirmation the developer reads, that browser-stored saves are also cleared —
+ * so it has to call this, or the button quietly stops doing half of what it
+ * promises and leaves saves behind that the reset was meant to remove.
+ *
+ * Desktop saves are files owned by the bridge and are deliberately untouched.
+ */
+export async function clearBrowserSaves(): Promise<void> {
+	try {
+		const saves = await indexedSoloSaves();
+		if (saves) for (const id of await saveStoreKeys(saves)) await saveStoreDelete(saves, id);
+	} catch {
+		/* ignore */
+	}
+	try {
+		if (typeof localStorage !== 'undefined') for (const id of localSlotIds()) localStorage.removeItem(LS_PREFIX + id);
+	} catch {
+		/* ignore */
+	}
+}
+
+export const soloSavesAvailable = () =>
+	hasDesktopSaves() || typeof indexedDB !== 'undefined' || typeof localStorage !== 'undefined';
 
 // ---- export / import (single-file backups) ----
 //
@@ -299,7 +485,10 @@ const hex32 = (n: number) => (n >>> 0).toString(16).padStart(8, '0');
  *  same digest, without allocating a second copy of a save that can be megabytes. */
 function signPayload(payload: string): string {
 	const prefix = SIG_SECRET + ' ';
-	const [a, b, c, d] = hashFinish(hashMix(hashMix([H1_SEED, H2_SEED], prefix), payload), prefix.length + payload.length);
+	const [a, b, c, d] = hashFinish(
+		hashMix(hashMix([H1_SEED, H2_SEED], prefix), payload),
+		prefix.length + payload.length,
+	);
 	return hex32(a) + hex32(b) + hex32(c) + hex32(d);
 }
 
@@ -321,7 +510,12 @@ function keystreamPrefix(nonce: string): { state: [number, number]; len: number 
 
 /** One 16-byte keystream block, written straight into `out` at `at`.
  *  Takes the pre-folded prefix so only the counter's few digits are hashed here. */
-function keystreamBlockInto(pre: { state: [number, number]; len: number }, counter: number, out: Uint8Array, at: number) {
+function keystreamBlockInto(
+	pre: { state: [number, number]; len: number },
+	counter: number,
+	out: Uint8Array,
+	at: number,
+) {
 	const c = String(counter);
 	const [a, b, c3, d] = hashFinish(hashMix([pre.state[0], pre.state[1]], c), pre.len + c.length);
 	const words = [a, b, c3, d];

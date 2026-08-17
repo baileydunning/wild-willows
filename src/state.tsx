@@ -35,6 +35,7 @@ import {
 	applyMoveResult,
 	applyPlaceResult,
 	applyPlantResult,
+	applyRemoveResult,
 	withHeldTaskProgress,
 } from './actionPatch';
 import { coalesceAfter, cancelCoalesced } from './perf';
@@ -1487,6 +1488,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					}
 					bridge.emit('audio-sfx', { id: 'pickup' });
 				},
+				{ apply: applyRemoveResult },
 			),
 		[act, data, pushLog],
 	);

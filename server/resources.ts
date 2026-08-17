@@ -640,6 +640,8 @@ class RollupCache<T> {
 	private inFlightVersion = -1;
 	/** Last time a reader actually took this value — drives idle eviction. */
 	private readAt = 0;
+	/** What `identity()` answered when the held value was built. */
+	private builtFrom: unknown = undefined;
 
 	constructor(
 		private readonly ttlMs: number,
@@ -650,6 +652,21 @@ class RollupCache<T> {
 		 * generous multiple so a dashboard left open on a slow refresh never pays.
 		 */
 		private readonly retainMs = Math.max(ttlMs * 20, 5 * 60_000),
+		/**
+		 * What the cached value was derived FROM. A cache is only valid for the
+		 * database it scanned, and `invalidate()` cannot express that: it is called
+		 * by the endpoints that WRITE, so it never fires when the underlying
+		 * database is REPLACED wholesale rather than written to.
+		 *
+		 * That is not hypothetical. The integration harness loads this module once
+		 * and swaps in a brand-new empty world before each test, so a rollup built
+		 * during one test would otherwise be served intact to the next — a test
+		 * asserting "nothing has happened yet" reading back the previous test's
+		 * devices. Comparing identity lets the cache notice on its own, which beats
+		 * exporting a reset hook that only the tests call and that production
+		 * therefore never exercises.
+		 */
+		private readonly identity: () => unknown = () => null,
 	) {
 		// Unref'd so this timer is never the reason the process stays alive, and
 		// guarded because the same class is bundled into the in-app solo backend,
@@ -674,17 +691,26 @@ class RollupCache<T> {
 		const now = Date.now();
 		if (now - this.readAt < this.retainMs) return;
 		this.value = null;
+		this.builtFrom = undefined;
 		this.at = 0;
 		this.stale = false;
 	}
 
 	async get(now: number): Promise<T> {
-		if (this.value !== null && !this.stale && now - this.at < this.ttlMs) {
-			this.readAt = now;
-			return this.value;
-		}
 		this.readAt = now;
+		if (this.value !== null && !this.stale && now - this.at < this.ttlMs && this.sameSource()) return this.value;
 		return this.refresh();
+	}
+
+	/** True when the held value came from the source we would read now. */
+	private sameSource(): boolean {
+		try {
+			return this.identity() === this.builtFrom;
+		} catch {
+			// identity() reads the database, which throws while Harper is starting.
+			// Unknowable is not the same as unchanged — rebuild rather than serve.
+			return false;
+		}
 	}
 
 	private refresh(): Promise<T> {
@@ -695,8 +721,15 @@ class RollupCache<T> {
 		const p = (async () => {
 			// Never run two scans at once; queue behind whatever is already going.
 			if (prior) await prior.catch(() => {});
+			let source: unknown = null;
+			try {
+				source = this.identity();
+			} catch {
+				/* database unavailable — sameSource() simply rebuilds next time */
+			}
 			const v = await this.build();
 			this.value = v;
+			this.builtFrom = source;
 			this.at = Date.now();
 			// Only call it fresh if nothing was written while the scan ran. If
 			// something was, this result may predate it and the next read rebuilds.
@@ -842,7 +875,8 @@ async function markWorldKeyed(worldId: string, playerId: string): Promise<void> 
  */
 function noteKeyedWorlds(player: any): void {
 	if ((player?.keyRev || 0) >= KEY_REV && player?.id) rememberKeyed(keyedWorlds, player.id);
-	for (const [wid, rev] of Object.entries(player?.keyRevs || {})) if ((rev as number) >= KEY_REV) rememberKeyed(keyedWorlds, wid);
+	for (const [wid, rev] of Object.entries(player?.keyRevs || {}))
+		if ((rev as number) >= KEY_REV) rememberKeyed(keyedWorlds, wid);
 }
 
 async function worldIsKeyed(worldId: string, playerId?: string): Promise<boolean> {
@@ -6830,7 +6864,30 @@ export class RemoveObject extends PublicEndpoint {
 				playerId,
 				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
 			);
-			return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
+			// `inventory` and the chest delta ride along so the client can patch this
+			// action locally instead of refetching the whole world after it.
+			//
+			// Removing was the last of the build-loop verbs still on the full-refetch
+			// path, and it sits directly beside placing in the tidy-up loop: pick a
+			// thing up, put it down somewhere better. Placing patched; removing
+			// re-downloaded every placement AND the entire terrain array, which grows
+			// by a row on every dig the player has ever made.
+			//
+			// A DELTA rather than the whole `chests` array CraftItem returns, because
+			// everything here is already in hand — no second read of the chest table
+			// just to describe a change we performed ourselves. `chestPatches` covers
+			// refund spill; `removedChestId` covers taking a chest away, which deletes
+			// its row and is the one case where dropping a chest client-side matters.
+			return {
+				ok: true,
+				removed: placementId,
+				craftedItems,
+				refunded,
+				inventory,
+				chestPatches: [...chestUpdates].map(([id, contents]) => ({ id, contents })),
+				removedChestId: chest ? placementId : null,
+				...(recalc || {}),
+			};
 		});
 	}
 }
@@ -8025,7 +8082,7 @@ function markDemoConversions(rows: any[]): any[] {
 	});
 }
 
-const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows);
+const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows, undefined, () => db());
 
 /**
  * The acquisition funnel's source rows, cached on the same terms as the
@@ -8038,10 +8095,15 @@ const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboard
  * player rows and acquisition rows go stale together rather than one refreshing
  * under the other.
  */
-const appOpenCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, async () => {
-	const t = db();
-	return t.AppOpen ? await allOf(t.AppOpen) : [];
-});
+const appOpenCache = new RollupCache<any[]>(
+	DASHBOARD_CACHE_MS,
+	async () => {
+		const t = db();
+		return t.AppOpen ? await allOf(t.AppOpen) : [];
+	},
+	undefined,
+	() => db(),
+);
 
 /** Numeric segments of a version string, e.g. "0.2.10+build" → [0, 2, 10]. */
 function versionSegments(s: string): number[] {
@@ -11562,7 +11624,7 @@ async function buildLandingStats(): Promise<any> {
 	};
 }
 
-const landingStatsCache = new RollupCache<any>(LANDING_STATS_CACHE_MS, buildLandingStats);
+const landingStatsCache = new RollupCache<any>(LANDING_STATS_CACHE_MS, buildLandingStats, undefined, () => db());
 
 /** Copy a stored `{ key: count }` map into a fresh, plain, sane object. Anything
  *  that isn't a finite positive number is dropped rather than carried forward. */

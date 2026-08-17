@@ -75,6 +75,10 @@ const harperProxy = Object.fromEntries(
 	harperEndpoints.map((name) => [`/${name}`, { target: HARPER_TARGET, changeOrigin: true, secure: false }]),
 );
 
+/** UI modules that App.tsx loads on demand rather than importing statically.
+ *  Keep in step with the lazyPanel declarations at the top of src/App.tsx. */
+const LAZY_UI_MODULES = /\/src\/ui\/(Panels|Journal|Achievements|GoalsPanel|DevPanel)\.[jt]sx?$/;
+
 export default defineConfig({
 	plugins: [react()],
 	// Relative asset paths so the same build works BOTH served at Harper's root
@@ -160,6 +164,15 @@ export default defineConfig({
 					 * for PhaserGame), which is a behaviour change and wants its own pass. */
 					if (path.includes('/src/i18n/')) return 'i18n';
 					if (path.includes('/src/game/')) return 'game';
+					// The panels App.tsx code-splits (see lazyPanel there) must be left
+					// UNASSIGNED so Rollup can give each its own chunk. A manualChunks
+					// rule wins over dynamic-import splitting, so folding these into 'ui'
+					// silently undid the split: they left the entry chunk, landed in
+					// 'ui' — and 'ui' is a static dependency of the entry anyway, because
+					// HUD, Toolbelt, Welcome and Settings live beside them and are
+					// imported eagerly. Net effect was one 760 KB chunk still downloaded
+					// up front. Returning undefined here is what actually defers them.
+					if (LAZY_UI_MODULES.test(path)) return undefined;
 					if (path.includes('/src/ui/')) return 'ui';
 					return undefined;
 				},

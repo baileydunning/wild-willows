@@ -173,6 +173,53 @@ export function applyMoveResult(r: any, prev: GameState): GameState | null {
 }
 
 /**
+ * `POST /RemoveObject/` -> `{ ok, removed, craftedItems, refunded, inventory,
+ *                             chestPatches, removedChestId, ...recalc }`.
+ *
+ * The counterpart to applyPlaceResult, and the last of the build-loop verbs to
+ * get one. Two shapes arrive through here and both are handled, because they are
+ * the same action from the player's side — pick that up:
+ *
+ *  • Picking up a CRAFTED object returns it to the crafted-items pouch
+ *    (`craftedItems`), leaving raw materials alone.
+ *  • Digging up a PLANT refunds its materials instead (`refunded`), which lands
+ *    in the basket and, when the basket is full, spills into chests. That is why
+ *    the server now sends `inventory` and a `chestPatches` delta: without them
+ *    this case could not be reconstructed and had to bail.
+ *
+ * Taking away a chest deletes its row as well as its placement, so
+ * `removedChestId` drops it here too — otherwise the chest panel would keep
+ * offering a container that no longer exists until the next full sync.
+ *
+ * `chestPatches` is applied by id and never appends: a patch names a chest that
+ * already existed, and inventing one from a response would be exactly the kind of
+ * client-side guess rule 2 above forbids.
+ */
+export function applyRemoveResult(r: any, prev: GameState): GameState | null {
+	if (broadChange(r)) return null;
+	if (!r.removed || !r.craftedItems || !r.inventory) return null;
+	// An older server (or a replayed response) that predates the delta fields
+	// cannot describe a refund, so refuse rather than drop the refunded materials
+	// on the floor until the next sync.
+	if (r.refunded && !Array.isArray(r.chestPatches)) return null;
+
+	let chests = prev.chests || [];
+	if (r.removedChestId) chests = chests.filter((c) => c.id !== r.removedChestId);
+	if (r.chestPatches?.length) {
+		const byId = new Map<string, any>(r.chestPatches.map((c: any) => [c.id, c.contents]));
+		chests = chests.map((c) => (byId.has(c.id) ? { ...c, contents: byId.get(c.id) } : c));
+	}
+
+	const next: GameState = {
+		...prev,
+		placements: (prev.placements || []).filter((p) => p.id !== r.removed),
+		chests,
+		player: { ...prev.player, craftedItems: r.craftedItems, inventory: r.inventory },
+	};
+	return withBiomeState(prev, next, r);
+}
+
+/**
  * Keep "how much of this are you holding" goals honest between syncs.
  *
  * Every optimistic patch above rewrites the inventory (or the chests) and leaves
