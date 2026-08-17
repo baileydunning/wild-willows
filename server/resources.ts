@@ -4960,6 +4960,210 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	};
 }
 
+// ------------------------------------------------------------- rate limiting
+//
+// There was none, at any layer, and the endpoints that most needed it are the
+// ones anyone can reach: LoginPlayer runs scrypt, CreatePlayer writes nine rows,
+// the telemetry endpoints mint permanent rows from client-supplied keys. Caps on
+// individual operations bound what ONE request costs; nothing bounded how many
+// requests one caller could make.
+//
+// This is the ORIGIN limiter, and it is the one that matters. The Cloudflare
+// Worker in workers/play.js has its own (see there), but Harper's own hostname
+// is reachable directly, so an edge-only limit is something an attacker simply
+// routes around. Anything enforced here holds regardless of how the request
+// arrived.
+//
+// NOT APPLIED TO THE IN-APP SOLO BACKEND. `getContext()` returning nothing is
+// this file's established signal for "no HTTP request — the renderer is calling
+// the game logic directly" (see GameData, which uses it to decide whether to
+// build an HTTP envelope at all). Solo play is one player driving their own
+// process; rate limiting it would be nonsense, and reusing the existing signal
+// means there is no second way of detecting solo that could drift from the first.
+
+interface TokenBucket {
+	tokens: number;
+	at: number;
+}
+
+/**
+ * Per-tier budgets, in requests per minute, with a burst allowance.
+ *
+ * Sized against what the GAME does, not against what feels tidy. A busy player
+ * lands maybe 60 actions a minute and heartbeats twice; 600 leaves an order of
+ * magnitude of headroom so nobody legitimate ever sees a 429. The strict tiers
+ * are the ones where a single request is expensive or writes a permanent row.
+ */
+const RATE_TIERS = {
+	/** scrypt on every call — the most expensive thing an anonymous caller can trigger. */
+	auth: { perMinute: 10, burst: 5 },
+	/** Writes a permanent row from an anonymous caller. */
+	report: { perMinute: 20, burst: 10 },
+	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~5 minutes. */
+	telemetry: { perMinute: 60, burst: 30 },
+	/** Developer tools. Already gated to one save; this bounds the rest. */
+	dev: { perMinute: 60, burst: 30 },
+	/** Ordinary gameplay writes. Deliberately generous — see above. */
+	action: { perMinute: 600, burst: 120 },
+	/** Reads that touch the database. */
+	read: { perMinute: 300, burst: 100 },
+} as const;
+
+type RateTier = keyof typeof RATE_TIERS;
+
+/**
+ * How much slack the shared fallback bucket gets when a caller cannot be
+ * identified. It has to hold every such request at once, so it is sized as a
+ * whole-service ceiling rather than a per-caller one: high enough that real
+ * aggregate traffic never reaches it, low enough to still cap a flood.
+ */
+const RATE_UNKEYED_MULTIPLIER = 50;
+
+/**
+ * How much of a tier's per-caller budget the whole service may spend at once.
+ *
+ * This is the backstop against forged client addresses — see the note in
+ * rateLimit. Deliberately loose: at 200x the auth tier it is 2,000 logins a
+ * minute across every player, which no real population reaches and which still
+ * bounds a scripted flood to something the node survives.
+ */
+const RATE_GLOBAL_MULTIPLIER = 200;
+
+/** Buckets are cheap, but there is one per (tier, caller) and callers are
+ *  attacker-supplied — so the map itself needs a ceiling and a sweep. */
+const RATE_BUCKET_MAX = 20_000;
+const rateBuckets = new Map<string, TokenBucket>();
+
+{
+	// Drop buckets that have been idle long enough to have refilled completely;
+	// forgetting one of those is free, because a full bucket and no bucket behave
+	// identically. Unref'd so it never holds the process open.
+	const sweep: any = setInterval(() => {
+		const cutoff = Date.now() - 5 * 60_000;
+		for (const [k, b] of rateBuckets) if (b.at < cutoff) rateBuckets.delete(k);
+	}, 60_000);
+	if (typeof sweep?.unref === 'function') sweep.unref();
+}
+
+/**
+ * The caller's address, from whichever header the hop in front of us set.
+ *
+ * `cf-connecting-ip` is the one that is present in production (the Worker proxies
+ * through Cloudflare, which sets it on the subrequest) and the one an outside
+ * caller cannot forge, because Cloudflare overwrites it. The others are fallbacks
+ * for a different deployment shape; `x-forwarded-for` is a list, and only its
+ * FIRST entry is the original client.
+ */
+function clientAddress(headers: any): string | null {
+	if (!headers || typeof headers.get !== 'function') return null;
+	for (const name of ['cf-connecting-ip', 'true-client-ip', 'x-real-ip']) {
+		const v = headers.get(name);
+		if (v) return String(v).trim().slice(0, 64);
+	}
+	const fwd = headers.get('x-forwarded-for');
+	if (fwd) {
+		const first = String(fwd).split(',')[0]?.trim();
+		if (first) return first.slice(0, 64);
+	}
+	return null;
+}
+
+/** Warn once, not per request, if no header ever identifies a caller. */
+let warnedNoClientAddress = false;
+
+/**
+ * Charge one request against `tier`. Throws 429 when the bucket is empty.
+ *
+ * Returns silently — without charging anything — when there is no HTTP context,
+ * which is the in-app solo backend. See the block comment above.
+ */
+function rateLimit(res: any, tier: RateTier): void {
+	const headers: any = res?.getContext?.()?.headers;
+	if (!headers || typeof headers.get !== 'function') return; // solo / internal caller
+	const limits = RATE_TIERS[tier];
+	const addr = clientAddress(headers);
+	if (!addr && !warnedNoClientAddress) {
+		warnedNoClientAddress = true;
+		console.error(
+			'rate limit: no client-address header on an HTTP request (looked for cf-connecting-ip, true-client-ip, x-real-ip, x-forwarded-for) — falling back to a shared per-tier budget',
+		);
+	}
+	// An unidentifiable caller shares one deliberately roomy bucket per tier. That
+	// keeps a header-shape surprise in production from turning into a 429 for every
+	// player at once, while still leaving a ceiling in place.
+	const perMinute = addr ? limits.perMinute : limits.perMinute * RATE_UNKEYED_MULTIPLIER;
+	const burst = addr ? limits.burst : limits.burst * RATE_UNKEYED_MULTIPLIER;
+	const now = Date.now();
+
+	// TWO buckets, and the second is what makes the first worth having.
+	//
+	// A per-caller bucket is only as good as the caller's identity, and here that
+	// identity is a header. The Worker sets it honestly, but Harper's hostname is
+	// reachable directly, so someone who skips the Worker can put whatever they
+	// like in it — and a fresh forged address every request means a fresh full
+	// bucket every request. There is no fix for that without a shared secret
+	// between the edge and the origin, which is infrastructure this does not have.
+	//
+	// So the per-caller bucket does the useful, precise job (one bad actor cannot
+	// spoil it for everyone), and a service-wide bucket per tier sits behind it as
+	// the thing forged addresses cannot get around. Sized so real aggregate traffic
+	// never approaches it: the ceiling exists to bound a flood, not to shape
+	// ordinary load.
+	const caller = takeToken(`${tier}:${addr || '@shared'}`, perMinute, burst, now, false);
+	const global = takeToken(
+		`${tier}:@global`,
+		limits.perMinute * RATE_GLOBAL_MULTIPLIER,
+		limits.burst * RATE_GLOBAL_MULTIPLIER,
+		now,
+		false,
+	);
+	if (!caller || !global) throw new GameError(tr('server.err.tooManyRequests'), 429, 'server.err.tooManyRequests');
+	// Only spend once BOTH have room, so a rejected request never quietly drains
+	// the other bucket — otherwise a caller being turned away by one limit would
+	// still be eating the budget of the other.
+	takeToken(`${tier}:${addr || '@shared'}`, perMinute, burst, now, true);
+	takeToken(
+		`${tier}:@global`,
+		limits.perMinute * RATE_GLOBAL_MULTIPLIER,
+		limits.burst * RATE_GLOBAL_MULTIPLIER,
+		now,
+		true,
+	);
+}
+
+/**
+ * Refill a bucket and report whether it has a token. With `spend`, take it.
+ *
+ * Refills continuously rather than in fixed windows: a window lets a caller spend
+ * a full budget at the very end of one and the whole of the next immediately
+ * after, which is twice the intended rate at exactly the wrong moment.
+ */
+function takeToken(key: string, perMinute: number, burst: number, now: number, spend: boolean): boolean {
+	let bucket = rateBuckets.get(key);
+	if (!bucket) {
+		if (rateBuckets.size >= RATE_BUCKET_MAX) {
+			// At the ceiling, drop the oldest entry rather than refuse the request:
+			// running out of bookkeeping space must not become a way to get a 429.
+			const oldest = rateBuckets.keys().next();
+			if (!oldest.done) rateBuckets.delete(oldest.value);
+		}
+		bucket = { tokens: burst, at: now };
+		rateBuckets.set(key, bucket);
+	}
+	const refill = ((now - bucket.at) / 60_000) * perMinute;
+	bucket.tokens = Math.min(burst, bucket.tokens + refill);
+	bucket.at = now;
+	if (bucket.tokens < 1) return false;
+	if (spend) bucket.tokens -= 1;
+	return true;
+}
+
+/** The tier an endpoint class declares, defaulting to ordinary gameplay. */
+function tierOf(res: any): RateTier {
+	const declared = res?.constructor?.rateTier;
+	return declared && declared in RATE_TIERS ? (declared as RateTier) : 'action';
+}
+
 /**
  * Ceiling on a request body, in bytes of re-serialized JSON.
  *
@@ -4980,7 +5184,12 @@ const MAX_BODY_BYTES = 128 * 1024;
  * The stringify is one pass over an object we already hold, and every real body
  * is tens of bytes, so this is nothing on the gameplay path.
  */
-async function bodyOf(data: any) {
+async function bodyOf(data: any, res?: any) {
+	// Charged here because every POST handler in the file goes through this
+	// function — one place to enforce it, and no endpoint can be added later that
+	// quietly misses it. GETs are charged explicitly at the few that read the
+	// database (they have no body to parse).
+	if (res) rateLimit(res, tierOf(res));
 	const body = await data;
 	if (!body || typeof body !== 'object')
 		throw new GameError(tr('server.err.bodyRequired'), 400, 'server.err.bodyRequired');
@@ -5515,8 +5724,9 @@ export class GameData extends PublicEndpoint {
 
 /** POST /CreatePlayer/ {name, passcode, appearance} — start a brand-new save. */
 export class CreatePlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data);
+		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data, this);
 		const ed: 'demo' | 'full' = edition === 'demo' ? 'demo' : 'full';
 		const cleanName = String(name || '').trim();
 		if (cleanName.length < 2 || cleanName.length > 24)
@@ -5785,8 +5995,9 @@ async function resolveByNameAndPasscode(
 }
 
 export class DeletePlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode } = await bodyOf(data);
+		const { name, passcode } = await bodyOf(data, this);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
 			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409, 'server.err.saveUnreadable');
@@ -5828,8 +6039,9 @@ export class DeletePlayer extends PublicEndpoint {
  * an already-gone save returns ok.
  */
 export class DeleteDemoSave extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const id = slugId(String(playerId || ''));
 		const t = db();
 		const player = id ? await safeGet(t.Player, id) : null;
@@ -5862,8 +6074,9 @@ export class DeleteDemoSave extends PublicEndpoint {
  * passcode-free. The client encrypts the result into the standard save envelope.
  */
 export class ExportDemoSave extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const id = slugId(String(playerId || ''));
 		if (!id) throw new GameError(tr('server.err.noSaveWithName'), 404, 'server.err.noSaveWithName');
 
@@ -5949,8 +6162,9 @@ export class ExportDemoSave extends PublicEndpoint {
  * (re-hashed with a fresh salt) is stored.
  */
 export class ChangePasscode extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId, currentPasscode, newPasscode } = await bodyOf(data);
+		const { playerId, currentPasscode, newPasscode } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		if (!(await verifyPasscode(player, currentPasscode)))
 			throw new GameError(tr('server.err.passcodeMismatch'), 403, 'server.err.passcodeMismatch');
@@ -5965,8 +6179,9 @@ export class ChangePasscode extends PublicEndpoint {
 
 /** POST /LoginPlayer/ {name, passcode} — load an existing save. */
 export class LoginPlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
+		const { name, passcode, tzOffsetMinutes } = await bodyOf(data, this);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
 			// 409, not 404: the save is on disk and unreadable. A 404 sends the player
@@ -6016,6 +6231,8 @@ export class LoginPlayer extends PublicEndpoint {
 /** GET /GameState/<playerId> — create-or-load the player and return everything. */
 export class GameState extends PublicEndpoint {
 	async get() {
+		// No body on a GET, so this is charged here rather than through bodyOf.
+		rateLimit(this, 'read');
 		const playerId = String(this.getId() || '');
 		await requirePlayer(playerId);
 		// note: GET handlers must not write — invalid areas are normalized in snapshot()
@@ -6039,7 +6256,7 @@ export class GameState extends PublicEndpoint {
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		await ensureSoloWorld(player);
 		return { ok: true, activeWorldId: player.id, worlds: [] };
@@ -6049,7 +6266,7 @@ export class MyWorlds extends PublicEndpoint {
 /** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId} */
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data);
+		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6187,7 +6404,7 @@ export class CollectResource extends PublicEndpoint {
 /** POST /ChestTransfer/ {playerId, chestId, resourceId, qty, direction: 'deposit'|'withdraw'} */
 export class ChestTransfer extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, chestId, resourceId, qty, direction } = await bodyOf(data);
+		const { playerId, chestId, resourceId, qty, direction } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6243,7 +6460,7 @@ export class ChestTransfer extends PublicEndpoint {
  */
 export class DiscardItem extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, kind, id, qty } = await bodyOf(data);
+		const { playerId, kind, id, qty } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -6276,7 +6493,7 @@ export class DiscardItem extends PublicEndpoint {
 /** POST /CraftItem/ {playerId, recipeId} — uses inventory + all of the player's chests. */
 export class CraftItem extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, recipeId } = await bodyOf(data);
+		const { playerId, recipeId } = await bodyOf(data, this);
 		// Read-modify-write on the player row — see withPlayerLock. Without this a
 		// double-click either loses one craft's output or pays for one and makes two.
 		return withPlayerLock(playerId, () => this.craft(playerId, recipeId));
@@ -6417,7 +6634,7 @@ function isRotatable(def: any): boolean {
 /** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
+		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6588,7 +6805,7 @@ export class PlaceObject extends PublicEndpoint {
  */
 export class Plant extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		// Read-modify-write on the player row, exactly like CraftItem: consumeMaterials
 		// checks the seed is affordable, then debits the player and any chests it drew
 		// from in separate awaits. Unlocked, a double-click on "plant" could pass the
@@ -6598,7 +6815,7 @@ export class Plant extends PublicEndpoint {
 	}
 
 	private async plant(data: any) {
-		const { playerId, area, x, y, plantId } = await bodyOf(data);
+		const { playerId, area, x, y, plantId } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -6685,7 +6902,7 @@ function harvestReadyAt(def: any, placement: any): number | null {
  */
 export class HarvestPlacement extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId } = await bodyOf(data);
+		const { playerId, placementId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6727,7 +6944,7 @@ export class HarvestPlacement extends PublicEndpoint {
 /** POST /UpdateAppearance/ {playerId, appearance} — restyle your caretaker anytime. */
 export class UpdateAppearance extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, appearance } = await bodyOf(data);
+		const { playerId, appearance } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const clean = sanitizeAppearance(appearance);
 		await patchPlayer(playerId, { appearance: clean });
@@ -6739,7 +6956,7 @@ export class UpdateAppearance extends PublicEndpoint {
 /** POST /MoveObject/ {playerId, placementId, x, y} — relocate a placed object within its area. */
 export class MoveObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId, x, y, rotation } = await bodyOf(data);
+		const { playerId, placementId, x, y, rotation } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
@@ -6801,7 +7018,7 @@ export class MoveObject extends PublicEndpoint {
 /** POST /RemoveObject/ {playerId, placementId} — returns the object to your crafted items. */
 export class RemoveObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId } = await bodyOf(data);
+		const { playerId, placementId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -6922,7 +7139,7 @@ export class RemoveObject extends PublicEndpoint {
 /** POST /UpgradeTool/ {playerId, toolId} */
 export class UpgradeTool extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, toolId } = await bodyOf(data);
+		const { playerId, toolId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6976,7 +7193,7 @@ export class UpgradeTool extends PublicEndpoint {
 /** POST /UpgradeHome/ {playerId, track} — level up one of the four home tracks. */
 export class UpgradeHome extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, track } = await bodyOf(data);
+		const { playerId, track } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -7035,7 +7252,7 @@ const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
@@ -7062,7 +7279,7 @@ const isHexColor = (c: any) => typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a
 /** POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?}} — recolor the home interior (paint tool, built homes only). */
 export class SetHomeColors extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, colors } = await bodyOf(data);
+		const { playerId, colors } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const home = homeOf(player) as any;
@@ -7081,7 +7298,7 @@ export class SetHomeColors extends PublicEndpoint {
 /** POST /SetPlacementColor/ {playerId, placementId, color} — recolor one placed item (paint tool). */
 export class SetPlacementColor extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId, color } = await bodyOf(data);
+		const { playerId, placementId, color } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		if (!(homeOf(player) as any).styleLocked)
@@ -7103,7 +7320,7 @@ export class SetPlacementColor extends PublicEndpoint {
  */
 export class SetHomeStyle extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		// Same read-modify-write as Plant/CraftItem — this spends materials through
 		// consumeMaterials. The `styleLocked` check above is itself part of the
 		// race: two concurrent requests can both read an unlocked home, both pass,
@@ -7112,7 +7329,7 @@ export class SetHomeStyle extends PublicEndpoint {
 	}
 
 	private async setStyle(data: any) {
-		const { playerId, style } = await bodyOf(data);
+		const { playerId, style } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const styleDef = HOME_STYLES[style];
@@ -7150,7 +7367,7 @@ export class SetHomeStyle extends PublicEndpoint {
 /** POST /ObserveAnimal/ {playerId, animalId} — record an observation in the field journal. */
 export class ObserveAnimal extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, animalId } = await bodyOf(data);
+		const { playerId, animalId } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -7178,7 +7395,7 @@ export class ObserveAnimal extends PublicEndpoint {
  */
 export class ClaimTask extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, taskId } = await bodyOf(data);
+		const { playerId, taskId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -7285,7 +7502,7 @@ export class ClaimTask extends PublicEndpoint {
  */
 export class SetGoals extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, goals } = await bodyOf(data);
+		const { playerId, goals } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const t = db();
 		const d = await defs();
@@ -7351,7 +7568,7 @@ export class SetGoals extends PublicEndpoint {
  */
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, action, expect } = await bodyOf(data);
+		const { playerId, area, x, y, action, expect } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -7511,7 +7728,7 @@ export class Terraform extends PublicEndpoint {
 /** POST /RecalcBiome/ {playerId, biomeId} — explicit recalculation (also runs on every placement). */
 export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId } = await bodyOf(data);
+		const { playerId, biomeId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
 		await awardWorldAchievements(worldOf(player), playerId, {
@@ -7525,7 +7742,7 @@ export class RecalcBiome extends PublicEndpoint {
 /** POST /SyncPlayer/ {playerId, x, y, area} — persist position (the save point for movement). */
 export class SyncPlayer extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		// Read-modify-write on two accumulating fields: `visitedBiomes` is rebuilt
 		// from the row it just read, and `tutorialStep` is kept as a high-water mark.
 		// Position sync fires on a timer, so it interleaves with real actions
@@ -7535,7 +7752,7 @@ export class SyncPlayer extends PublicEndpoint {
 	}
 
 	private async sync(data: any) {
-		const { playerId, x, y, area, tutorialStep } = await bodyOf(data);
+		const { playerId, x, y, area, tutorialStep } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -7610,7 +7827,7 @@ export class SyncPlayer extends PublicEndpoint {
  */
 export class AppendFeed extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, entries } = await bodyOf(data);
+		const { playerId, entries } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 		const t = db();
@@ -7696,7 +7913,7 @@ function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): bo
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		// The heartbeat is a read-modify-write of the metrics blob, and it fires
 		// every 30 s for every player whether or not they touched anything — so it
 		// was both the most frequent unlocked writer in the file and the one most
@@ -7718,7 +7935,7 @@ export class Heartbeat extends PublicEndpoint {
 	}
 
 	private async beat(data: any) {
-		const { playerId, language, edition, idleGateMs, panel, panelOpens } = await bodyOf(data);
+		const { playerId, language, edition, idleGateMs, panel, panelOpens } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -8181,6 +8398,7 @@ function compareVersions(a: string, b: string): number {
  */
 export class Metrics extends PublicEndpoint {
 	async get(target?: any) {
+		rateLimit(this, 'read');
 		const t = db();
 		// `target` is Harper's RequestTarget (a URLSearchParams subclass): it carries
 		// the path id and any ?query parameters.
@@ -10399,8 +10617,9 @@ function metricsListRow(r: any) {
 const DEV_PLAYER_SLUG = 'bailey-test';
 
 export class DevTools extends PublicEndpoint {
+	static rateTier = 'dev'; // developer tools
 	async post(data: any) {
-		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data);
+		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -11283,8 +11502,9 @@ function sanitizeFeedbackMetrics(raw: any): Record<string, string> {
 }
 
 export class SubmitFeedback extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const message = String(body.message || '').trim();
 		if (!message) throw new GameError(tr('server.err.feedbackEmpty'), 400, 'server.err.feedbackEmpty');
 		if (message.length > FEEDBACK_MAX_CHARS)
@@ -11339,8 +11559,9 @@ const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
  * same preserve updates the same row forever and renamed saves don't fork.
  */
 export class SyncMetrics extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const clientId = String(body.clientId || '')
 			.trim()
 			.slice(0, 64);
@@ -11411,8 +11632,9 @@ export class SyncMetrics extends PublicEndpoint {
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const deviceId = String(body.deviceId || '')
 			.trim()
 			.slice(0, 64);
@@ -11747,8 +11969,9 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
  * Always answers ok:true — analytics never gets to break the page.
  */
 export class LandingEvent extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
 		if (!type) return { ok: true }; // unknown ping — accept and drop
 		if (type === 'visit') {
@@ -11784,8 +12007,9 @@ export class LandingEvent extends PublicEndpoint {
  * the one the player already hit.
  */
 export class ReportSaveIncident extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const table = String(body.table || 'Player').slice(0, 40);
 		const recordId = String(body.recordId || '').slice(0, 120);
 		if (!recordId) return { ok: true };
@@ -11827,8 +12051,9 @@ export class ReportSaveIncident extends PublicEndpoint {
  * the player typed — a crash report must never become a way to exfiltrate a save.
  */
 export class ReportClientError extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const message = String(body.message || '')
 			.replace(/\s+/g, ' ')
 			.trim()
@@ -11906,7 +12131,7 @@ export class ClearProblem extends DashboardEndpoint {
 	}
 
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const kind = body?.kind;
 		const table = typeof kind === 'string' ? CLEARABLE.get(kind) : undefined;
 		if (!table) return { ok: false, error: 'kind must be "refusal" or "crash"', deleted: 0 };
@@ -11983,7 +12208,7 @@ export class DeleteSoloMetrics extends DashboardEndpoint {
 	}
 
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		// Batch-capable so the UI can grow a multi-select later without a second
 		// endpoint, capped so it can never become an unbounded delete loop inside
 		// one request. Lower than ClearProblem's 500: that clears counters, this
