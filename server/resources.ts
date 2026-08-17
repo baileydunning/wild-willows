@@ -232,6 +232,32 @@ function hash32(str: string): number {
 	return h >>> 0;
 }
 
+/**
+ * A 64-bit content hash, as two independent FNV-style passes, base36-encoded.
+ *
+ * `hash32` is fine for a bucket key but far too narrow to validate a cache: a
+ * collision there would answer 304 for a world that HAS changed, and the player
+ * reads that as "the game lost what I just did" — silently, with no error to
+ * follow. 64 bits puts an accidental collision out of reach.
+ *
+ * Deliberately NOT node:crypto's createHash: this module is bundled into the
+ * renderer for the in-app solo backend, and src/solo/cryptoShim.ts provides only
+ * randomBytes / scryptSync / timingSafeEqual. Importing anything else from
+ * node:crypto would fail to resolve in the web build.
+ */
+function hash64(str: string): string {
+	let a = 0x811c9dc5;
+	let b = 0x9dc5811c;
+	for (let i = 0; i < str.length; i++) {
+		const c = str.charCodeAt(i);
+		a ^= c;
+		a = Math.imul(a, 0x01000193);
+		b ^= c + i;
+		b = Math.imul(b, 0x85ebca6b);
+	}
+	return (a >>> 0).toString(36) + (b >>> 0).toString(36);
+}
+
 function seededRng(seed: number): () => number {
 	let a = seed >>> 0;
 	return () => {
@@ -860,7 +886,7 @@ function rememberKeyed(set: Set<string>, key: string): void {
  * The KEY_REV a world has reached, read off the acting player's row.
  *
  * A solo world's id IS the player's id, so the marker is simply `keyRev`. A save
- * that last played in a pre-0.3 co-op world still carries a `w_…` worldId, and
+ * that last played in a pre-0.3 shared world still carries a `w_…` worldId, and
  * there is no Player row under that id — patching one would create a junk row and
  * the lookup would answer 0 forever, so byWorld would pay for the legacy full
  * scan on every read for the rest of that save's life. Those worlds record their
@@ -1110,6 +1136,44 @@ async function byWorld(table: any, worldId: string): Promise<any[]> {
 	return rows;
 }
 
+/**
+ * Tables whose ids carry the area as the SECOND key segment, `${wid}:${area}:…`.
+ *
+ * `NodeState` (`${wid}:${biomeId}:${nodeId}`) has the same shape and would work
+ * here the day something reads nodes per biome — but nothing does today (the
+ * snapshot wants every area, `Rest` deletes every area, and `CollectResource` is
+ * a point read), and its rows carry no `area` field, so the legacy fallback below
+ * could not filter them. Add it when there is a reader, not before.
+ */
+const AREA_KEYED = new Set(['TerrainTile']);
+
+/**
+ * Bounded scan of ONE area's run inside one world.
+ *
+ * `byWorld` already narrows a scan from "every save in the database" to "this
+ * world"; this narrows it again to "this area of this world", which is what the
+ * per-biome callers actually wanted — every one of them was reading all six
+ * biomes' rows and then throwing five sixths away in JS. Same mechanism, one
+ * more segment of prefix: `${wid}:${area}:` is still a `starts_with` over the
+ * primary key, so it inherits every property the key contract above argues for.
+ *
+ * Falls back to the world scan plus a JS filter when the world has not been
+ * migrated (its rows may still be under the old id scheme, where a narrower
+ * prefix would silently return fewer rows than exist — the exact failure the
+ * legacy merge in byWorld exists to prevent).
+ *
+ * The `area` field is checked even on the fast path. It is nearly free, and it
+ * means a row whose id segment ever disagrees with its own `area` — a legacy row
+ * healed in place, a hand-edited record — cannot leak into another area's view.
+ */
+async function byArea(table: any, worldId: string, area: string): Promise<any[]> {
+	const matches = (r: any) => r?.area === area;
+	if (!area || !AREA_KEYED.has(tableName(table)) || !(await worldIsKeyed(worldId)))
+		return (await byWorld(table, worldId)).filter(matches);
+	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
+	return (await scanPrefix(table, `${worldId}:${area}:`)).filter((r: any) => own(r) && matches(r));
+}
+
 /** Single record by id, scoped to one world. */
 async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
 	// Point read first — under KEY_REV 3 the id already carries the world prefix,
@@ -1136,8 +1200,8 @@ async function findTerrainAt(table: any, worldId: string, area: string, x: numbe
 	// terraform does at least one) into a single point read.
 	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
 	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
-	const rows = await byWorld(table, worldId);
-	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
+	const rows = await byArea(table, worldId, area);
+	return rows.find((r: any) => r.x === x && r.y === y) || null;
 }
 
 /**
@@ -1161,7 +1225,7 @@ async function findDiscovery(table: any, worldId: string, animalId: string): Pro
 /**
  * Per-save setup on login and character creation. Idempotent.
  *
- * Named for the co-op era, when it built a "world of one" and a membership row.
+ * Named for an earlier design, when it built a "world of one" and a membership row.
  * Both are gone; what remains is the `worldId` compat field and the key-contract
  * migration. Kept under the old name because every login path calls it — renaming
  * it belongs with the Phase 4 cleanup, not here.
@@ -1284,7 +1348,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 	const d = await defs();
 	let touched = 0;
 
-	// ---- Discovery rows. World-owned, so this covers every member of a co-op world.
+	// ---- Discovery rows. World-owned, so this covers every save in the world.
 	const rows = await byWorld(t.Discovery, worldId);
 	const stale = rows.filter((r: any) => ANIMAL_ALIASES.has(r?.animalId));
 	if (stale.length) {
@@ -1563,15 +1627,24 @@ async function recalcRepairedBiomes(worldId: string, playerId: string, d: any): 
 	const t = db();
 	const states = await byWorld(t.BiomeState, worldId);
 	const open = states.filter((b: any) => b.unlocked && d.biome.get(b.biomeId)).map((b: any) => b.biomeId);
+	// One Discovery read for the whole sweep, lent to every recalc and to the
+	// achievement pass — this loop used to re-read the world's discoveries once
+	// per unlocked biome, and then once more on the way out.
+	const discoveries = await byWorld(t.Discovery, worldId);
 	const newAnimals: any[] = [];
 	const freshBiomeStates: any[] = [];
 	for (const biomeId of open) {
-		const r = await recalcBiome(worldId, playerId, biomeId);
+		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries });
 		newAnimals.push(...(r.newAnimals || []));
 		if (r.biomeState) freshBiomeStates.push(r.biomeState);
 	}
 	if (newAnimals.length || freshBiomeStates.length)
-		await awardWorldAchievements(worldId, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+		await awardWorldAchievements(worldId, playerId, {
+			addDiscoveries: newAnimals,
+			freshBiomeStates,
+			biomeStates: states,
+			discoveries,
+		});
 }
 
 /**
@@ -1900,7 +1973,7 @@ function homeRoom(player: any) {
 // A pitched trail tent (one per wild biome) opens into its own little interior
 // — area id `tent-<biome>` — that's decorated exactly like the home, just
 // tent-sized (the starter home footprint, so only `homeMin` 1 furniture fits).
-// Interiors are world-shared, like the home, so co-op partners share the camp.
+// Interiors are world-shared, like the home.
 const TENT_INNER = { w: 6, h: 5 };
 /** The wild-biome id a tent-interior area belongs to, or null if `area` isn't one. */
 function tentBiomeOf(area: any): string | null {
@@ -3224,6 +3297,8 @@ async function recalcBiome(
 		player?: any;
 		addTerrain?: any[];
 		removeTerrainIds?: string[];
+		/** The world's Discovery rows, if the caller has already read them. */
+		discoveries?: any[];
 	} = {},
 ) {
 	const t = db();
@@ -3244,7 +3319,7 @@ async function recalcBiome(
 
 	// terraformed ground: each watered bed adds +1 health (capped) — tending the
 	// soil itself matters, not just the objects on it
-	let terrain = (await byWorld(t.TerrainTile, wid)).filter((tt) => tt.area === biomeId);
+	let terrain = await byArea(t.TerrainTile, wid, biomeId);
 	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
 	for (const at of opts.addTerrain || []) {
 		if (at.area !== biomeId) continue;
@@ -3282,7 +3357,11 @@ async function recalcBiome(
 					dayPhase: dayPhaseAt(wxTime),
 				};
 
-	const discoveries = await byWorld(t.Discovery, wid);
+	// Read once per REQUEST, not once per call: an action that recalculates a
+	// biome almost always awards achievements straight afterwards, and both passes
+	// want the same world-wide Discovery set. The caller reads it and lends it to
+	// both (see the awardWorldAchievements calls in the action endpoints).
+	const discoveries = opts.discoveries ?? (await byWorld(t.Discovery, wid));
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
 	// The land only heals as far as its returned life allows: health plateaus at
 	// each HEALTH_CAPS milestone until enough of this biome's animals are home.
@@ -3597,7 +3676,7 @@ async function recipeUnlockContext(
 		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
 	}
 	const placements = needPlaced ? (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId) : [];
-	const terrain = needWater ? (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId) : [];
+	const terrain = needWater ? await byArea(t.TerrainTile, wid, biomeId) : [];
 	const achievements = needAchievements ? await earnedAchievementIds(player.id) : new Set<string>();
 	const biomeHealth: Record<string, number> = {};
 	for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
@@ -3782,7 +3861,7 @@ interface TaskCtx {
 	terrain?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
-	 *  only from these, never the wider co-op roam set, so tasks stay specific to
+	 *  only from these, never the wider roam set, so tasks stay specific to
 	 *  what you've unlocked and the shown reward matches what's granted on claim. */
 	unlockedBiomes?: string[];
 }
@@ -3925,7 +4004,7 @@ function dailyTasksFor(
 	const dayKey = playerDayKey(player, now);
 	const endsAt = (dayKey + 1) * DAY_MS + TASK_RESET_HOUR * 3_600_000 - tzMs(player);
 	const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-	// Personal unlocked biomes only — NOT the co-op roam-expanded set the snapshot
+	// Personal unlocked biomes only — NOT the roam-expanded set the snapshot
 	// may carry — so the pool matches on both the snapshot and claim paths.
 	const unlocked: string[] = ctx.unlockedBiomes?.length
 		? ctx.unlockedBiomes
@@ -4911,12 +4990,12 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			byPlayer(t.PlayerAchievement, playerId),
 			readFeed(wid),
 		]);
-	// The player's OWN unlocked biomes, before any co-op roam expansion below —
+	// The player's OWN unlocked biomes, before any roam expansion below —
 	// daily tasks & their rewards are scoped to these so you never get items from
 	// (or tasks about) a biome you haven't personally unlocked.
 	const personalUnlocked = [...(player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow'])];
-	// In a co-op world, a player can roam any biome a world-mate has unlocked, so
-	// the snapshot reflects the union of personal + world-unlocked biomes.
+	// In a world whose id is not the player's own, the snapshot reflects the union
+	// of personally-unlocked and world-unlocked biomes.
 	if (player && wid !== player.id) {
 		const unlocked = new Set(player.unlockedBiomes || ['meadow']);
 		for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
@@ -4999,7 +5078,7 @@ const RATE_TIERS = {
 	auth: { perMinute: 10, burst: 5 },
 	/** Writes a permanent row from an anonymous caller. */
 	report: { perMinute: 20, burst: 10 },
-	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~5 minutes. */
+	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~3 minutes. */
 	telemetry: { perMinute: 60, burst: 30 },
 	/** Developer tools. Already gated to one save; this bounds the rest. */
 	dev: { perMinute: 60, burst: 30 },
@@ -5387,8 +5466,8 @@ async function awardAchievements(
 	try {
 		const t = db();
 		const d = await defs();
-		// safeGet (not raw .get): achievement fan-out reads every member of a co-op
-		// world, so one member left with an undecodable record must not throw a
+		// safeGet (not raw .get): achievement fan-out reads every save in the world,
+		// so one row left undecodable must not throw a
 		// storage-layer decode error on every action. safeGet force-decodes, purges
 		// the corrupt row, and returns null → this player is simply skipped.
 		const player = opts.player && opts.player.id === playerId ? opts.player : await safeGet(t.Player, playerId);
@@ -5403,11 +5482,11 @@ async function awardAchievements(
 		// the reads are identical, so the only thing the second pass bought was
 		// latency. `opts` was always the place for this; the addDiscoveries /
 		// freshBiomeStates folding below exists for exactly the same reason.
-		let [biomeStates, discoveries, terrain] = await Promise.all([
+		let [biomeStates, discoveries] = await Promise.all([
 			opts.biomeStates ?? byWorld(t.BiomeState, wid),
 			opts.discoveries ?? byWorld(t.Discovery, wid),
-			opts.terrain ?? byWorld(t.TerrainTile, wid),
 		]);
+		// TerrainTile is deliberately NOT read here — see the water() note below.
 		// Never mutate an array the caller lent us — the folding below pushes.
 		if (opts.biomeStates) biomeStates = biomeStates.slice();
 		if (opts.discoveries) discoveries = discoveries.slice();
@@ -5424,7 +5503,30 @@ async function awardAchievements(
 
 		const stateByBiome = new Map(biomeStates.map((b: any) => [b.biomeId, b]));
 		const discById = new Map(discoveries.map((x: any) => [x.animalId, x]));
+
+		/**
+		 * water() is resolved in a SECOND pass, and usually never.
+		 *
+		 * This function used to read every TerrainTile in the world, on every
+		 * action, so that `ctx.water(b)` could answer a question exactly one
+		 * achievement asks — `wetland-lakemaker`, about exactly one biome, and only
+		 * until it is earned. On a well-built save that is thousands of rows read to
+		 * evaluate a trigger that has already fired.
+		 *
+		 * So the first pass runs every unearned trigger with a water() that records
+		 * which biomes were asked about and returns nothing. Any trigger that TOUCHED
+		 * water is set aside undecided — not awarded and not rejected, because a zero
+		 * could flip it either way — and only if something was set aside do we read
+		 * terrain, for those biomes alone, and re-run just those triggers.
+		 *
+		 * Generic on purpose: no achievement id is hard-coded, so a new water-based
+		 * achievement costs nothing to add and keeps this optimisation.
+		 */
+		const NO_WATER = { tiles: 0, lake: 0, river: 0 };
 		const waterCache = new Map<string, { tiles: number; lake: number; river: number }>();
+		const askedAbout = new Set<string>();
+		let probing = true;
+		let touchedWater = false;
 
 		const unlockedSet = new Set(player.unlockedBiomes || []);
 
@@ -5445,28 +5547,53 @@ async function awardAchievements(
 			craftedDistinct: Object.keys(player.craftedEver || {}).length,
 			tutorialStep: player.tutorialStep || 0,
 			water: (b) => {
-				// player-shaped water only — seeded starting channels don't earn Lakemaker
-				if (!waterCache.has(b))
-					waterCache.set(
-						b,
-						analyzeWater(
-							terrain.filter((tt: any) => tt.area === b),
-							true,
-						),
-					);
-				return waterCache.get(b)!;
+				if (probing) {
+					askedAbout.add(b);
+					touchedWater = true;
+					return NO_WATER;
+				}
+				return waterCache.get(b) ?? NO_WATER;
 			},
 			biomesAtHealth: (h) => biomeStates.filter((b: any) => (b.health || 0) >= h).length,
 			unlockedHealthy: (h) =>
 				biomeStates.filter((b: any) => unlockedSet.has(b.biomeId)).every((b: any) => (b.health || 0) >= h),
 		};
 
-		const now = Date.now();
-		const newly: any[] = [];
+		// Pass 1: everything that can be decided without touching terrain.
+		const won = new Set<string>();
+		const undecided: any[] = [];
 		for (const def of d.achievements) {
 			if (earned.has(def.id)) continue;
 			const trigger = ACHIEVEMENT_TRIGGERS[def.id];
-			if (!trigger || !trigger(ctx)) continue;
+			if (!trigger) continue;
+			touchedWater = false;
+			const fired = trigger(ctx);
+			// Asked about water: its answer was a placeholder, so decide it in pass 2
+			// rather than trusting a result that may be a false negative — or, for a
+			// trigger phrased the other way round, a false positive.
+			if (touchedWater) undecided.push(def);
+			else if (fired) won.add(def.id);
+		}
+
+		// Pass 2: only if something asked, and only for the biomes it asked about.
+		if (undecided.length) {
+			probing = false;
+			for (const b of askedAbout) {
+				// player-shaped water only — seeded starting channels don't earn Lakemaker
+				const tiles = opts.terrain
+					? opts.terrain.filter((tt: any) => tt.area === b)
+					: await byArea(t.TerrainTile, wid, b);
+				waterCache.set(b, analyzeWater(tiles, true));
+			}
+			for (const def of undecided) if (ACHIEVEMENT_TRIGGERS[def.id](ctx)) won.add(def.id);
+		}
+
+		// Written in definition order regardless of which pass decided them, so the
+		// client's "newly earned" list reads the same way it always has.
+		const now = Date.now();
+		const newly: any[] = [];
+		for (const def of d.achievements) {
+			if (!won.has(def.id)) continue;
 			await t.PlayerAchievement.put({
 				id: `${playerId}:${def.id}`,
 				playerId,
@@ -5600,7 +5727,7 @@ export class DashboardAuth extends DashboardEndpoint {
 
 /**
  * GET /Version/ — the stamp baked into this bundle at build time (app version +
- * build timestamp, generated by scripts/build-pages.mjs). deploy-coop.sh polls
+ * build timestamp, generated by scripts/build-pages.mjs). deploy.sh polls
  * this on every public entry point after deploying and fails loudly if any node
  * is still serving an older bundle.
  */
@@ -5613,7 +5740,7 @@ export class Version extends PublicEndpoint {
 /** GET /GameData/ — all static definitions (biomes, animals, recipes, …).
  *
  * This is by far the largest response the game sends (~300 KB of JSON) and web /
- * demo / co-op clients fetch it once at open, before login. On the HOSTED Harper
+ * demo clients fetch it once at open, before login. On the HOSTED Harper
  * we make it cheap two ways:
  *
  *  1. Revalidation. The payload is fully determined by the build (buildStamp),
@@ -5679,12 +5806,116 @@ function compressedGameData(json: string, enc: 'br' | 'gzip'): Uint8Array {
 	if (enc === 'br') {
 		if (!cache.br)
 			cache.br = brotliCompressSync(buf, {
-				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+				params: {
+					[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+					[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+				},
 			});
 		return cache.br as Uint8Array;
 	}
 	if (!cache.gzip) cache.gzip = gzipSync(buf, { level: 6 });
 	return cache.gzip as Uint8Array;
+}
+
+/**
+ * The brotli quality every compressed body on the HTTP path uses — JSON and the
+ * inlined HTML pages alike.
+ *
+ * Node's DEFAULT is 11, and on a fully-restored world's 363 KB snapshot that
+ * costs **over a second of CPU per request** to save ~1 KB over q5 — a denial of
+ * service you inflict on yourself, one request at a time. Measured on that
+ * snapshot: q4 → 14.5 KB in 1.9 ms · q5 → 10.5 KB in 3.0 ms · q9 → 10.0 KB in
+ * 94 ms · q11 → 9.3 KB in 1035 ms. q5 is the knee of that curve and it is what
+ * GameData has always used. Re-measure before changing it; `bare
+ * brotliCompressSync(buf)` is not the same thing and must not be used here.
+ */
+const BROTLI_QUALITY = 5;
+
+/** The content-encoding this client will accept, or null for identity. */
+function negotiateEncoding(accept: string): 'br' | 'gzip' | null {
+	if (/\bbr\b/.test(accept)) return 'br';
+	if (/\bgzip\b/.test(accept)) return 'gzip';
+	return null;
+}
+
+/**
+ * Compress a JSON body. UNCACHED, unlike compressedGameData above — this is for
+ * per-player bodies that are different on every call, where a cache would only
+ * be a leak whose size tracks the number of players (the failure mode called out
+ * on RollupCache).
+ */
+function compressJson(json: string, enc: 'br' | 'gzip'): Uint8Array {
+	const buf = nodeBuffer.from(json, 'utf8');
+	if (enc === 'br')
+		return brotliCompressSync(buf, {
+			params: {
+				[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+				[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+			},
+		});
+	return gzipSync(buf, { level: 6 });
+}
+
+/**
+ * Turn a game-state snapshot into a compressed, revalidatable HTTP response.
+ *
+ * WHY: `GET /GameState/` is the largest response the game sends after GameData,
+ * it is fetched every few actions, and — unlike GameData — it has no fixed size.
+ * It grows with the world: ~4 KB on a new save, ~89 KB mid-game, ~363 KB on a
+ * fully-restored one, all of it uncompressed, because Harper's REST path does not
+ * compress resource responses. A browser player re-syncing every fourth action
+ * was pulling that down ten times a minute. Brotli takes the 363 KB case to
+ * ~10.5 KB for 3 ms of CPU.
+ *
+ * THE ETAG IS THE BODY, not a revision counter. `serverTime` is the only field
+ * that changes on every call, and no client reads it — it is declared in
+ * src/types.ts and referenced nowhere else in src/. Everything else in the
+ * snapshot is a pure function of stored state: weather derives from accrued play
+ * time on the player row, the daily-task board from that row and the UTC day. So
+ * hashing the rest of the body and comparing it to If-None-Match is correct by
+ * construction — there is no write path that can forget to bump a counter,
+ * because there is no counter. That matters more than the bytes it saves: a
+ * stale 304 here would hand a player back a world without the thing they just
+ * built, which is indistinguishable from data loss.
+ */
+function snapshotResponse(reqHeaders: any, state: any) {
+	const { serverTime, ...stable } = state;
+	const stableJson = JSON.stringify(stable);
+	const etag = `W/"gs-${hash64(stableJson)}"`;
+	// Splice serverTime back on rather than stringifying a third of a megabyte
+	// twice. Key order is not significant to JSON.parse, and `stable` is never
+	// empty — but fall back to the honest path if it somehow is.
+	const json =
+		stableJson.length > 2
+			? `${stableJson.slice(0, -1)},"serverTime":${Number(serverTime) || 0}}`
+			: JSON.stringify(state);
+
+	const headers: Record<string, string> = {
+		'content-type': 'application/json; charset=utf-8',
+		// `private` because this is ONE player's save. The browser demo reaches this
+		// through a Cloudflare Worker, and any shared cache that stored a `public`
+		// copy could hand one player's world to whoever asked next. `no-cache` means
+		// "cache it, but revalidate every time" — which is exactly what the ETag is
+		// for; it does NOT mean "don't cache".
+		'cache-control': 'private, no-cache',
+		etag,
+		vary: 'Accept-Encoding',
+	};
+
+	// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
+	const norm = (s: string) => s.replace(/^W\//, '').trim();
+	const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
+	if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
+		// An EXPLICITLY empty body. Harper serializes the whole returned object into
+		// the response body when `body` is absent (finalizeResponse in its REST
+		// layer), so leaving it undefined ships `{"status":304,…}` as the payload of
+		// a response that is defined to have none.
+		return { status: 304, headers, body: nodeBuffer.alloc(0) };
+	}
+
+	const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
+	if (!enc) return { status: 200, headers, body: json };
+	return { status: 200, headers: { ...headers, 'content-encoding': enc }, body: compressJson(json, enc) };
 }
 
 export class GameData extends PublicEndpoint {
@@ -5710,7 +5941,9 @@ export class GameData extends PublicEndpoint {
 		const norm = (s: string) => s.replace(/^W\//, '').trim();
 		const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
 		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
-			return { status: 304, headers: { etag, 'cache-control': cacheControl } };
+			// Explicitly empty — see the note in snapshotResponse: without this Harper
+			// serializes the envelope itself into the body of a 304.
+			return { status: 304, headers: { etag, 'cache-control': cacheControl }, body: nodeBuffer.alloc(0) };
 		}
 
 		const headers: Record<string, string> = {
@@ -5719,14 +5952,11 @@ export class GameData extends PublicEndpoint {
 			etag,
 			vary: 'Accept-Encoding',
 		};
-		const accept = String(reqHeaders.get('accept-encoding') || '');
+		const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
 		let body: string | Uint8Array = json;
-		if (/\bbr\b/.test(accept)) {
-			headers['content-encoding'] = 'br';
-			body = compressedGameData(json, 'br');
-		} else if (/\bgzip\b/.test(accept)) {
-			headers['content-encoding'] = 'gzip';
-			body = compressedGameData(json, 'gzip');
+		if (enc) {
+			headers['content-encoding'] = enc;
+			body = compressedGameData(json, enc);
 		}
 		return { status: 200, headers, body };
 	}
@@ -6054,7 +6284,7 @@ export class DeletePlayer extends PublicEndpoint {
 		const t = db();
 		let removed = 0;
 		// Delete the player's own solo world (id === playerId) and personal records.
-		// Co-op worlds they merely belong to are left intact for the other members.
+		// Rows under a world id that is not their own are left intact.
 		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
 			for (const rec of await byWorld(table, playerId)) {
 				await table.delete(rec.id);
@@ -6249,8 +6479,8 @@ export class LoginPlayer extends PublicEndpoint {
 		});
 		// Back-fill the solo "world of one" for saves made before multiplayer (this
 		// also realigns the meadow to the current camp offset), then resume whichever
-		// world this player was last active in (their solo world by default, or a
-		// co-op world they had joined — this is how you log back in to co-op).
+		// world this player was last active in (their solo world by default, or any
+		// other world id their row still points at).
 		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
 		let active = player.worldId || playerId;
 		try {
@@ -6272,7 +6502,15 @@ export class LoginPlayer extends PublicEndpoint {
 	}
 }
 
-/** GET /GameState/<playerId> — create-or-load the player and return everything. */
+/** GET /GameState/<playerId> — create-or-load the player and return everything.
+ *
+ * Compressed and revalidatable on the HTTP path — see snapshotResponse for what
+ * the ETag is and why it is safe. IMPORTANT, same contract as GameData: with no
+ * request context this returns the PLAIN OBJECT. That path is the in-app solo
+ * backend (src/solo/backend.ts), which uses the return value as the data and runs
+ * in a browser where node:zlib is a no-op shim — and it is also how the
+ * integration harness calls this endpoint.
+ */
 export class GameState extends PublicEndpoint {
 	async get() {
 		// No body on a GET, so this is charged here rather than through bodyOf.
@@ -6280,23 +6518,26 @@ export class GameState extends PublicEndpoint {
 		const playerId = String(this.getId() || '');
 		await requirePlayer(playerId);
 		// note: GET handlers must not write — invalid areas are normalized in snapshot()
-		return snapshot(playerId);
+		const state = await snapshot(playerId);
+		const reqHeaders: any = (this.getContext?.() as any)?.headers;
+		if (!reqHeaders || typeof reqHeaders.get !== 'function') return state;
+		return snapshotResponse(reqHeaders, state);
 	}
 }
 
 /**
- * COMPAT: `MyWorlds` outlives co-op.
+ * COMPAT: `MyWorlds` serves clients this build no longer ships.
  *
- * Deleting it looked safe — co-op is behind a false flag — but `api.myWorlds()`
- * is called UNGATED in three core solo paths (startNewSolo, resumeSolo,
- * continueLast). In continueLast the catch rethrows, and `isMissingSaveError` is
- * `status === 404`, so a missing endpoint would break the Continue button AND
- * call `forgetSave()`, dropping the player's save pointer. The solo backend
+ * The current client does not call it. Older shipped builds do, and they call it
+ * UNGATED on three core paths (startNewSolo, resumeSolo, continueLast). In
+ * continueLast the catch rethrows, and `isMissingSaveError` is `status === 404`,
+ * so removing the endpoint would not just break their Continue button — it would
+ * call `forgetSave()` and drop the player's save pointer. The solo backend
  * returns 404 for an unknown endpoint too, so desktop would break the same way.
  *
- * So it stays, answering the only shape the client reads: one solo world, which
- * is the player themselves. Remove in Phase 4, together with the client calls —
- * gated on /MetricsSummary/ showing no clients below 0.3.0 for 30 days.
+ * So it stays, answering the only shape those clients read: one world, which is
+ * the player themselves. SAFE TO DELETE once /MetricsSummary/ shows no clients
+ * below 0.3.0 for 30 days — check that before removing it, not after.
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
@@ -6828,14 +7069,19 @@ export class PlaceObject extends PublicEndpoint {
 				return { ok: true, placement, craftedItems };
 			}
 
+			// Read the world's discoveries ONCE and lend them to both passes; the
+			// recalc and the achievement sweep were each reading the same rows.
+			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
 				addPlacements: [placement],
 				player: { ...player, craftedItems },
+				discoveries,
 			});
 			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
+				discoveries,
 			});
 			return { ok: true, placement, craftedItems, ...recalc };
 		});
@@ -6911,15 +7157,18 @@ export class Plant extends PublicEndpoint {
 		};
 		await t.Placement.put(placement);
 
+		const discoveries = await byWorld(t.Discovery, wid);
 		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			removeTerrainIds: [bed.id],
 			player: { ...player, inventory },
+			discoveries,
 		});
 		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
+			discoveries,
 		});
 		return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || undefined, ...recalc };
 	}
@@ -7139,18 +7388,20 @@ export class RemoveObject extends PublicEndpoint {
 			}
 
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
-			const recalc =
-				placement.area !== 'home' && !tentBiomeOf(placement.area)
-					? await recalcBiome(wid, playerId, placement.area, {
-							removeIds: [placementId],
-							player: { ...player, craftedItems, inventory },
-						})
-					: null;
+			const outdoors = placement.area !== 'home' && !tentBiomeOf(placement.area);
+			const discoveries = outdoors ? await byWorld(t.Discovery, wid) : undefined;
+			const recalc = outdoors
+				? await recalcBiome(wid, playerId, placement.area, {
+						removeIds: [placementId],
+						player: { ...player, craftedItems, inventory },
+						discoveries,
+					})
+				: null;
 			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(
 				wid,
 				playerId,
-				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
+				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState], discoveries } : {},
 			);
 			// `inventory` and the chest delta ride along so the client can patch this
 			// action locally instead of refetching the whole world after it.
@@ -7743,10 +7994,12 @@ export class Terraform extends PublicEndpoint {
 				throw new GameError(tr('server.err.badTerraformAction'), 400, 'server.err.badTerraformAction');
 			}
 
+			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
 				addTerrain: tile ? [tile] : [],
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
+				discoveries,
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -7763,6 +8016,7 @@ export class Terraform extends PublicEndpoint {
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
+				discoveries,
 			});
 			return { ok: true, tile, removedId, dug, inventory, ...recalc };
 		});
@@ -7774,10 +8028,13 @@ export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, biomeId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
-		const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
-		await awardWorldAchievements(worldOf(player), playerId, {
+		const wid = worldOf(player);
+		const discoveries = await byWorld(db().Discovery, wid);
+		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries });
+		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalcResult.newAnimals,
 			freshBiomeStates: [recalcResult.biomeState],
+			discoveries,
 		});
 		return { ok: true, ...recalcResult };
 	}
@@ -7850,7 +8107,7 @@ export class SyncPlayer extends PublicEndpoint {
 			// before the starting-terrain feature existed (e.g. wetlands already open).
 			if (STARTING_TERRAIN[area]) {
 				const wid = worldOf(player);
-				const hasTerrain = (await byWorld(t.TerrainTile, wid)).some((tt) => tt.area === area);
+				const hasTerrain = (await byArea(t.TerrainTile, wid, area)).length > 0;
 				if (!hasTerrain) {
 					await seedStartingTerrain(wid, playerId, area);
 					await recalcBiome(wid, playerId, area, { player });
@@ -8100,9 +8357,14 @@ export class Heartbeat extends PublicEndpoint {
 			const toRecalc = longAway ? [...unlockedIds] : [...crossed].filter((b) => unlockedIds.has(b));
 
 			let healthGain = 0;
+			// One read for the whole sweep — see recalcRepairedBiomes. Skipped entirely
+			// when there is nothing to recalculate, which is what MOST heartbeats are:
+			// reading it unconditionally would put a world-wide Discovery scan on a
+			// timer that fires every 30 seconds for every player.
+			const discoveries = toRecalc.length ? await byWorld(t.Discovery, wid) : undefined;
 			for (const biomeId of toRecalc) {
 				const before = biomeStates.find((b: any) => b.biomeId === biomeId)?.health || 0;
-				const r = await recalcBiome(wid, playerId, biomeId, { player });
+				const r = await recalcBiome(wid, playerId, biomeId, { player, discoveries });
 				healthGain += Math.max(0, (r.biomeState?.health || 0) - before);
 				newAnimals.push(...(r.newAnimals || []));
 				freshBiomeStates.push(r.biomeState);
@@ -8116,6 +8378,7 @@ export class Heartbeat extends PublicEndpoint {
 					freshBiomeStates,
 					player,
 					biomeStates,
+					discoveries,
 				});
 				awarded = true;
 			}
@@ -8498,7 +8761,7 @@ function metricsRollupMoved() {
  * full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
  * rolls up every reporting player — split by `edition` (demo/full)
  * and `platform` (web/desktop) below — without touching the live
- * Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+ * Player/BiomeState tables. (Hosted web players report
  * server-side and would stay out of this rollup.)
  */
 async function metricsRollup(target?: any): Promise<{
@@ -10489,10 +10752,10 @@ export class SystemProbe extends Resource {
 			return { present: true, keys: keys.slice(0, 40), clusterish, detail };
 		});
 
-		// Node skew, checked the way deploy-coop.sh already checks it: ask both
+		// Node skew, checked the way deploy.sh already checks it: ask both
 		// public entry points what build they are serving. This needs no credentials
 		// and no operations API — GET /Version/ is public and already exists — and a
-		// mismatch is exactly what deploy-coop.sh calls "a stale component or broken
+		// mismatch is exactly what deploy.sh calls "a stale component or broken
 		// replication". Done server-side so there is no cross-origin problem, with a
 		// short timeout so a wedged peer cannot hang this request.
 		await step('node build skew', async () => {
@@ -11144,7 +11407,7 @@ export class DevTools extends PublicEndpoint {
 					if (d.object.get(pl.objectId)?.isChest) continue;
 					await t.Placement.delete(pl.id);
 				}
-				for (const tt of (await byWorld(t.TerrainTile, wid)).filter((x) => x.area === ar)) {
+				for (const tt of await byArea(t.TerrainTile, wid, ar)) {
 					await t.TerrainTile.delete(tt.id);
 				}
 
@@ -11597,7 +11860,7 @@ export class ListFeedback extends Resource {
 // save's derived metrics view here (see src/solo/metricsUplink.ts) — best
 // effort, whenever a connection exists — and the row is upserted per save
 // slot. The global roll-up (/MetricsSummary/ + /MetricsPlayers/) then reports
-// solo players alongside the hosted (web/co-op) ones.
+// solo players alongside the hosted web ones.
 
 const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
 
@@ -12549,7 +12812,10 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
 		if (!entry.br) {
 			const buf = nodeBuffer.from(html, 'utf8');
 			entry.br = brotliCompressSync(buf, {
-				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+				params: {
+					[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+					[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+				},
 			});
 		}
 		return entry.br as Uint8Array;

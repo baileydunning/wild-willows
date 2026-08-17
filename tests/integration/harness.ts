@@ -1,6 +1,6 @@
 // Integration harness: drives the REAL built server bundle (resources.js)
 // against an in-memory stand-in for Harper's `databases` / `Resource`. This is
-// the same technique as scripts/coop-harness.mjs, refactored so every test gets
+// the same technique as the old standalone smoke harness, refactored so every test gets
 // a clean world (fresh tables) while the server module itself is imported once.
 //
 // Why the bundle and not the TS source? It's exactly what `harper deploy` ships,
@@ -334,9 +334,11 @@ export interface World {
 	 * Like get(), but with an HTTP request context carrying `headers` — for the
 	 * endpoints that content-negotiate or answer If-None-Match. Endpoint names here
 	 * are the URL-path exports ('' for the landing page, 'og-image', …), not class
-	 * names, so pass them exactly as they appear in the export map.
+	 * names, so pass them exactly as they appear in the export map. `id` addresses
+	 * an id-bearing endpoint (GameState), which is otherwise unreachable with
+	 * headers in scope.
 	 */
-	fetch<T = any>(cls: string, headers?: Record<string, string>): Promise<T>;
+	fetch<T = any>(cls: string, headers?: Record<string, string>, id?: string): Promise<T>;
 	/**
 	 * A POST carrying an HTTP request context, so `headers` are in scope inside the
 	 * handler. Needed because plain `post()` deliberately supplies NO context —
@@ -412,12 +414,12 @@ export async function freshWorld(): Promise<World> {
 		},
 		// Same call, but with a request context in scope. Header lookup is
 		// case-insensitive, like a real Headers object.
-		fetch: (cls, headers) => {
+		fetch: (cls, headers, id) => {
 			const lower: Record<string, string> = {};
 			for (const [k, v] of Object.entries(headers || {})) lower[k.toLowerCase()] = v;
-			const r = inst(cls);
+			const r = inst(cls, id);
 			r._ctx = { headers: { get: (k: string) => lower[String(k).toLowerCase()] ?? null } };
-			return r.get(new URLSearchParams());
+			return r.get(targetFor(id));
 		},
 		postWith: (cls, body, headers) => {
 			const lower: Record<string, string> = {};

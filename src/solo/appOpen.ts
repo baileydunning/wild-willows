@@ -1,6 +1,6 @@
 // Acquisition funnel ping (opens → characters created). Fires directly at the
 // hosted Harper (POST /AppOpen/), independent of the game transport, so it works
-// for web AND desktop solo/co-op alike — the hosted /Metrics/ dashboard then
+// for web AND desktop solo alike — the hosted /Metrics/ dashboard then
 // reports how many people opened the app, how many went on to create a
 // character (vs bounced), and how many characters each person makes.
 //

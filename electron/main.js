@@ -5,8 +5,8 @@
  *
  * Solo play runs entirely in-app (the same game logic, against local save files
  * in userData/saves), so the desktop app loads the BUNDLED web build straight
- * from disk and needs no server and no network to play solo. Co-op talks to the
- * hosted Harper over HTTPS from the renderer (see src/api.ts COOP_BASE_URL).
+ * from disk and needs no server and no network to play solo. Telemetry reaches
+ * the hosted Harper over HTTPS from the renderer (see src/api.ts HOSTED_BASE_URL).
  */
 
 const { app, BrowserWindow, shell, ipcMain } = require('electron');

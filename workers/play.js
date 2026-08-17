@@ -35,7 +35,7 @@ const HARPER = 'https://wild.willows.harperfabric.com';
  * absent — every dashboard and admin endpoint, which are the ones that carry
  * players' feedback emails, mailing-list addresses and server internals:
  *   DashboardAuth · MetricsSummary · MetricsPlayers · ServerHealth · SystemProbe
- *   ListFeedback · ListMailingList · ClearProblem · GameplayHealth · SaveHealth
+ *   ListFeedback · ClearProblem · GameplayHealth · SaveHealth
  *   LandingStats
  * They are reachable on Harper's own hostname behind its auth, which is where
  * they belong. Adding one here would publish it to the open internet.
@@ -52,7 +52,6 @@ const PROXIED = new Set([
 	'SyncPlayer',
 	'Heartbeat',
 	'RecalcBiome',
-	'BiomeSnapshot',
 	// actions
 	'CollectResource',
 	'CraftItem',

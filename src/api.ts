@@ -1,9 +1,9 @@
 // Client for the game API. Every persisted action goes through these calls.
 //
 // Transport: on the web the frontend talks to its own origin (the deployed
-// Harper). On the desktop build there are two backends — SOLO runs the same
-// server logic in-app against local save files (fully offline, see src/solo),
-// and CO-OP talks to the hosted Harper. `transport` selects which is live.
+// Harper). On the desktop build play is SOLO — the same server logic runs
+// in-app against local save files, fully offline (see src/solo). `transport`
+// selects which is live.
 
 import type { Appearance, GameData, GameState } from './types';
 import { t, getLocale } from './i18n';
@@ -18,19 +18,20 @@ import { reportClientError, reportFetchFailure } from './clientErrors';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
-// Hosted Harper for desktop co-op. (Web builds ignore this and use their own
-// origin.) Override-able later via Settings if needed.
+// The hosted Harper, for builds that are not themselves served by it — the
+// desktop app and the itch demo. (A plain web build ignores this and uses its
+// own origin.) Override-able later via Settings if needed.
 //
 // The URL is baked into every shipped build (it's also what the metrics
 // uplink, app-open ping, feedback, save-incident and client-error reporters
 // use), so moving hosts must not mean stranding installed copies. Owning the
 // name makes that a DNS change instead of a release. Do NOT put the vendor
 // hostname back here.
-export const COOP_BASE_URL = 'https://wildwillows.app';
+export const HOSTED_BASE_URL = 'https://wildwillows.app';
 
 const isDesktop = !!(globalThis as any).wildWillowsDesktop?.isDesktop;
 
-export type Transport = 'web' | 'solo' | 'coop';
+export type Transport = 'web' | 'solo';
 // Desktop defaults to solo so the title screen + solo play work with no network;
 // the web build normally uses its own origin. The itch demo defaults to the
 // offline solo backend too (passwordless, no accounts) unless it's explicitly
@@ -328,11 +329,12 @@ export function getPlayerId(): string | null {
 	return currentPlayerId;
 }
 
-export type SaveMode = 'solo' | 'coop';
+export type SaveMode = 'solo';
 const modeKey = (mode: SaveMode) => `${STORAGE_KEY}:${mode}`;
 
-// The last save is remembered per mode, so the title screen's "Continue" only
-// offers the most recent save that matches the Solo/Co-op toggle.
+// The last save is written under a mode-scoped key AND a legacy "most recent"
+// key, so the title screen's "Continue" resolves either shape. Only one mode
+// exists, but the two-key layout is what installed copies already hold.
 export function rememberSave(playerId: string, name: string, mode: SaveMode = 'solo') {
 	try {
 		const rec = JSON.stringify({ playerId, name, mode });
@@ -369,13 +371,13 @@ export function lastSave(mode?: SaveMode): { playerId: string; name: string; mod
  * itself served by Harper; desktop and the itch DEMO are both cross-origin.
  *
  * Exported because src/feedback.ts used to keep its own copy of this rule that
- * had never learned about the demo: `IS_DESKTOP ? COOP_BASE_URL : ''` sent demo
+ * had never learned about the demo: `IS_DESKTOP ? HOSTED_BASE_URL : ''` sent demo
  * players' feedback to the itch origin, where it 404'd and was thrown away.
  * Deliberately NOT the same as the base `request()` picks — that one is about
  * gameplay transport and has the local/solo short-circuit ahead of it.
  */
 export function hostedBase(): string {
-	if (isDesktop) return COOP_BASE_URL;
+	if (isDesktop) return HOSTED_BASE_URL;
 	// Served from a host WE control (wildwillows.app, play.wildwillows.app): post
 	// same-origin. On play.* the Cloudflare Worker forwards these paths to Harper
 	// server-side, so the browser never makes a cross-origin request and there is
@@ -388,7 +390,7 @@ export function hostedBase(): string {
 	// itch's iframe (or anywhere else): has to go cross-origin to Harper, which
 	// DOES require Harper to allow that origin. '' is the plain web build, which
 	// Harper serves itself.
-	return DEMO_WEB ? COOP_BASE_URL : '';
+	return DEMO_WEB ? HOSTED_BASE_URL : '';
 }
 
 /**
@@ -421,7 +423,6 @@ export function forgetSave(mode?: SaveMode) {
 		} else {
 			localStorage.removeItem(STORAGE_KEY);
 			localStorage.removeItem(modeKey('solo'));
-			localStorage.removeItem(modeKey('coop'));
 		}
 	} catch {
 		/* ignore */
@@ -433,9 +434,8 @@ export function forgetSave(mode?: SaveMode) {
 //
 // Authoritative solo guard: desktop solo play is fully offline, so if a solo save
 // is the active session (soloSlot set), EVERY call is served in-app — gameplay must
-// never leak to the hosted Harper even if `transport` was somehow left stale. Co-op
-// clears soloSlot (exitSolo/logout run before any co-op flow), so this only ever
-// fires for genuine solo play; co-op still routes to the server as intended.
+// never leak to the hosted Harper even if `transport` was somehow left stale.
+// exitSolo/logout clear soloSlot, so this only ever fires for genuine solo play.
 const isLocalCall = (path: string) =>
 	transport === 'solo' || (isDesktop && (soloSlot != null || path.startsWith('/GameData')));
 
@@ -458,22 +458,22 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		return res.body as T;
 	}
 
-	// --- web (same origin) or desktop co-op / demo (hosted Harper) ---
+	// --- web (same origin) or demo (hosted Harper) ---
 	// The itch demo is served cross-origin from the hosted Harper, so its web
-	// calls target COOP_BASE_URL too (only reached in Harper mode; the solo
+	// calls target HOSTED_BASE_URL too (only reached in Harper mode; the solo
 	// fallback routes through the local branch above).
 	// hostedBase() is the single rule for "where does the hosted server live from
 	// here": absolute for desktop and for itch's iframe, SAME-ORIGIN on our own
 	// hosts, where the Worker proxies to Harper. Using it here too means gameplay,
 	// telemetry and the boot probe cannot disagree about the origin — which they
 	// did when this line had its own copy of the rule.
-	const base = (transport === 'coop' && isDesktop) || DEMO_WEB ? hostedBase() : '';
+	const base = DEMO_WEB ? hostedBase() : '';
 	// fetch() REJECTS (rather than resolving with a status) only when the request
 	// never reached a server at all: no connection, DNS, CORS, or the machine going
 	// to sleep mid-request. The browser's wording for that is "Failed to fetch" —
 	// "Load failed" in Safari — which used to travel straight to a toast and told
 	// the player nothing about what was wrong or what to do. Name it here, once,
-	// where every web and co-op call passes through.
+	// where every networked call passes through.
 	let res: Response;
 	try {
 		res = await fetch(base + path, {

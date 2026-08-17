@@ -64,7 +64,7 @@ jobs:
           # the Mac App Store and nothing else does — so the channel gets stamped
           # in at build time here. See detectChannel() in src/platform.ts.
           #
-          # Deliberately NOT set in itch-demo.yml: that one artifact is served from
+          # Deliberately NOT set in web-demo.yml: that one artifact is served from
           # BOTH itch and play.wildwillows.app, and its own hostname tells them
           # apart at runtime. Stamping it would make it lie on one of the two.
           # The MAS workflows stamp 'mas' as a fallback, but process.mas already

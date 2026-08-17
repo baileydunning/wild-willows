@@ -409,7 +409,7 @@
 								""
 							]
 						},
-						"description": "Place a crafted object into a biome (x/y are tile coords 1–28 / 1–18). Triggers a biome recalc; response includes biomeState and any newAnimals that returned."
+						"description": "Place a crafted object into a biome (x/y are tile coords bounded by the area's own grid (data/biomes.json → grid): 1..cols-2 / 1..rows-2). Triggers a biome recalc; response includes biomeState and any newAnimals that returned."
 					}
 				},
 				{
@@ -490,7 +490,7 @@
 								""
 							]
 						},
-						"description": "Upgrade a tool to the next tier. toolId: basket, shovel, watering-can, field-journal. May require biome health and materials."
+						"description": "Upgrade a tool to the next tier. toolId: basket, shovel, watering-can, or journal-<area> (journal-meadow, journal-forest, \u2026). May require biome health and materials."
 					}
 				}
 			]
@@ -522,7 +522,7 @@
 								""
 							]
 						},
-						"description": "Shape the ground. action: 'dig' (prepare a soil bed, needs shovel), 'water' (tilled→watered uses 1 water, watered→open water uses 2), 'clear' (remove the tile)."
+						"description": "Shape the ground. action: 'dig' (prepare a soil bed, needs shovel), 'water' (1 water either way: tilled→watered, watered→open water), 'clear' (remove the tile)."
 					}
 				},
 				{
@@ -751,7 +751,7 @@
 								}
 							]
 						},
-						"description": "Aggregate analytics (SUPER-USER ONLY — send Harper admin basic auth). Reads EXCLUSIVELY from the SoloMetrics table (populated by POST /SyncMetrics/); hosted web/co-op players are intentionally out of scope. Returns `source: 'solo-metrics'`, `filters`, a `summary` (audience, languages, platforms, operatingSystems, versions, engagement, retention, funnel, progression + tutorialStepHistogram, areaDwell, sessionLengths, creation, appearancePopularity, timeToFirstAction, acquisition, demoCompletion, settings, actionTotals, achievements) and a `players` PAGING HINT — `{total, endpoint, maxLimit}`, not the rows themselves. The rows live on GET /MetricsPlayers/.\n\nThis replaces the old public `GET /Metrics/`, which returned the aggregates AND a record for every player (names, activity timestamps, OS, accessibility preferences, behaviour) to anyone who asked. That URL now answers 404 with a pointer here.\n\nFilters (all optional, all also accepted by /MetricsPlayers/): `exclude` omits saves by display name, case-insensitive, repeatable and/or comma-separated (`?exclude=Bailey&exclude=QA` or `?exclude=Bailey,QA`); the names actually dropped are echoed in `summary.excludedNames`. `version` plus `versionMode=min` scopes to a build (or that build and newer). `edition=demo|full`, `platform=web|desktop`. `idle=exclude` drops windows left open rather than played, from the time-based aggregates only.\n\n`excludeDevice=<deviceId>` (repeatable and/or comma-separated) drops devices from the ACQUISITION funnel only — `exclude=` filters saves, and the funnel reads AppOpen rows, which carry no save name. Use it to keep your own development launches out of `totalOpens` / `totalCharactersCreated`. `summary.acquisition.deviceRoster` lists the busiest devices (pre-exclusion, each flagged `excluded`) so you can find yours; `summary.acquisition.excludedDevices` reports what was removed."
+						"description": "Aggregate analytics (SUPER-USER ONLY — send Harper admin basic auth). Reads EXCLUSIVELY from the SoloMetrics table (populated by POST /SyncMetrics/); hosted web players are intentionally out of scope. Returns `source: 'solo-metrics'`, `filters`, a `summary` (audience, languages, platforms, operatingSystems, versions, engagement, retention, funnel, progression + tutorialStepHistogram, areaDwell, sessionLengths, creation, appearancePopularity, timeToFirstAction, acquisition, demoCompletion, settings, actionTotals, achievements) and a `players` PAGING HINT — `{total, endpoint, maxLimit}`, not the rows themselves. The rows live on GET /MetricsPlayers/.\n\nThis replaces the old public `GET /Metrics/`, which returned the aggregates AND a record for every player (names, activity timestamps, OS, accessibility preferences, behaviour) to anyone who asked. That URL now answers 404 with a pointer here.\n\nFilters (all optional, all also accepted by /MetricsPlayers/): `exclude` omits saves by display name, case-insensitive, repeatable and/or comma-separated (`?exclude=Bailey&exclude=QA` or `?exclude=Bailey,QA`); the names actually dropped are echoed in `summary.excludedNames`. `version` plus `versionMode=min` scopes to a build (or that build and newer). `edition=demo|full`, `platform=web|desktop`. `idle=exclude` drops windows left open rather than played, from the time-based aggregates only.\n\n`excludeDevice=<deviceId>` (repeatable and/or comma-separated) drops devices from the ACQUISITION funnel only — `exclude=` filters saves, and the funnel reads AppOpen rows, which carry no save name. Use it to keep your own development launches out of `totalOpens` / `totalCharactersCreated`. `summary.acquisition.deviceRoster` lists the busiest devices (pre-exclusion, each flagged `excluded`) so you can find yours; `summary.acquisition.excludedDevices` reports what was removed."
 					}
 				},
 				{

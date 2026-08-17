@@ -5,7 +5,7 @@ import { freshWorld, appearance, type World } from './harness';
 //
 // World-owned rows (TerrainTile, BiomeState, Discovery) are keyed by a composite
 // id built from the *current* worldId (`${wid}:${…}`). But a save whose world was
-// given a distinct id after the fact (co-op-era migration) can carry rows that
+// given a distinct id after the fact (an early key migration) can carry rows that
 // still encode the old playerId (`${playerId}:${…}`) while their worldId column
 // points at the new world. Those rows are found by `byWorld` (so they render and
 // count) but a reconstructed-id lookup misses them — the server then acts as if
@@ -16,7 +16,7 @@ import { freshWorld, appearance, type World } from './harness';
 // the legacy row. They fail against the pre-fix reconstructed-id lookups.
 
 let w: World;
-const NEWW = 'world-co-op-xyz'; // a world id deliberately different from the playerId
+const NEWW = 'world-distinct-xyz'; // a world id deliberately different from the playerId
 
 /** Point the player (and its world-owned rows) at a new world id, WITHOUT
  *  re-keying the rows — i.e. their ids stay in the legacy `${playerId}:…` form. */

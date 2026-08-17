@@ -20,7 +20,7 @@ Needs Node 24+ and Harper v5 (`npm install -g harper`). Full setup, testing, dep
 
 > **Keyboard required.** Wild Willows is a keyboard game (WASD/arrows to roam, letter keys for panels, number keys for tools), so it gates to devices with a keyboard.
 
-**v1 ships solo-only and fully offline** — the desktop app runs the same server logic in-app against local save files, with no server, no account, and nothing to install on first run. Co-op is complete and tested but hidden behind a build flag.
+**v1 ships solo-only and fully offline** — the desktop app runs the same server logic in-app against local save files, with no server, no account, and nothing to install on first run. The browser demo is server-validated: it plays against the hosted Harper.
 
 ---
 
@@ -30,12 +30,12 @@ Needs Node 24+ and Harper v5 (`npm install -g harper`). Full setup, testing, dep
 - **150 animals** — **25 per biome**, each with diet, shelter, a real-world fact, and habitat return requirements. Every animal has a **unique, procedurally-built sprite** composed from its species traits (quills for a porcupine, antlers for a deer, long legs for a heron, a domed shell for a turtle, claws for a crab…), so no two read alike.
 - **385 habitat objects** and **355 recipes** across habitat, structures & decor, paths, storage, camp comforts, and restoration kits. Plantable flowers/grasses/trees are **planted, not crafted**, so 341 of the recipes are craftable items and the remaining 14 are the plant set.
 - **Unlockable crafting** — most recipes start locked and unlock one at a time as a biome recovers (health crossed, a keystone animal welcomed), with a clear "New Crafting Recipe Unlocked" callout. New caretakers begin with a handful of starter recipes (Grass Patch + a few) and **almost no materials** — the first job is to gather.
-- **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 60% and you've crafted a Medium Chest first.
+- **Three chest sizes** — Small (**120**), Medium (**250**), and a Large Chest (**500**) that unlocks later, once Redstone Scrubland is restored to 25% and you've crafted a Medium Chest first.
 - **38 gatherable resources**, including biome-exclusive ones (geode and agave nectar in the desert; quartz crystal, obsidian, pine nuts, lichen, juniper berries, and packed snow in the alpine) and **5 weather-gated rarities** that only surface during the right weather. Node generation **guarantees every resource appears** in its biome.
-- **4 tools** with deep upgrade tracks (basket/shovel/watering can each have 4 tiers; the field journal has 7 — a baseline plus one guide per area).
+- **Three upgradeable tools** (basket / shovel / watering can, 4 tiers each) plus **six field guides** — one per area, three steps each (pocket notes → field guide → expanded guide).
 - **50 achievements** for restoration milestones, food-web moments (keystones, predators, ecosystem engineers), gathering/crafting/terraforming mastery, and preserve-wide progress (no hidden ones; locked entries show a non-spoilery hint). The first, **First Friend**, is earned the moment you welcome the grasshopper home — and the **grasshopper is always the first animal to return anywhere**. All are server-validated and shown in a dedicated **Achievements** menu (**K**).
 - **A home you can step inside, decorate, and upgrade.** Walk up to your camp tent in Willow Meadow and press **E** to step inside. Decorate with indoor-only **"camp comfort"** items — sleeping bag, rug, lamp, house plant, hammock, string lights, armchair, fireplace, bookshelf and more. First you **build** your home in one of three styles — **Log Cabin** (wood), **Meadow Cottage** (fiber & flowers), or **Stone Hearth** (stone) — which sets its look for good, then upgrade along four tracks: **Space**, **Comfort** (a flat carry-capacity perk), **Furnishings**, and **Warmth**. Some bigger pieces need a proper house, not the starter tent.
-- **Daily tasks** — a small rotating board of three light goals per real (UTC) day (gather / craft / place / water / plant / observe), with small material rewards drawn from your unlocked biomes. Collapses with **O** and disappears once everything's claimed.
+- **Daily tasks** — a small rotating board of three light goals per day, rolling over at **4 a.m. local time** (gather / craft / place / water / plant / observe), with small material rewards drawn from your unlocked biomes. Collapses from the board itself and disappears once everything's claimed.
 - **A living, biome-specific feed.** A corner activity feed narrates everything you do, and notable beats persist to a **Feed** menu (**F**); toasts are reserved for the big moments. Each biome has **50+ randomized lines** (ecology, atmosphere, coexistence, fun facts) that surface over time, always specific to the area you're in, many gated to that biome's recovery, the animals back there, or the habitat you've built.
 
 ## How animals return
@@ -44,25 +44,25 @@ On every change the biome is recalculated:
 
 - **Health** = a baseline plus the health value of placed objects and tended soil/open-water bonuses, on a gentle curve toward 100. The ground visibly greens (or warms, in the desert) as it rises.
 - **Ecological balance** measures how complete the **food web** is: how many of the biome's animals have returned, how many of its **predators / top-of-chain species** are back (they depend on prey, so a biome of herbivores correctly reads as unbalanced), and **trophic breadth** — how many different animal *kinds* are represented. By design it **cannot reach 100% until every animal in the biome is back**.
-- Each animal has **return requirements**: minimum health, sometimes balance, specific habitat objects, sometimes water features, and sometimes other animals already back. Every biome has a quick **early ramp** — the meadow grasshopper returns at just 15% health with a single Grass Patch — with the rest hardened to need a real mix of *planting and crafting*.
-- **Water-dwellers need terraformed water.** Shaping open-water tiles with the watering can forms ponds, **lakes** (a large connected body), and **rivers** (a long connected channel). The snapping turtle (lake), belted kingfisher (river), and bittern (open water) only return once you've shaped the right water.
+- Each animal has **return requirements**: minimum health, sometimes balance, specific habitat objects, sometimes water features, and sometimes other animals already back. Every biome has a quick **early ramp** — the meadow grasshopper returns at just 8% health with a single Grass Patch — with the rest hardened to need a real mix of *planting and crafting*.
+- **Water-dwellers need terraformed water.** Shaping open-water tiles with the watering can forms ponds, **lakes** (a large connected body), and **rivers** (a long connected channel). The snapping turtle needs a **lake**; the kingfisher and other water-dwellers need a run of **open water**. (Rivers are measured and shown, but no animal currently asks for one.)
 - **Plants must mature.** A freshly planted habitat is a sprout and doesn't count until it has fully grown in — and the moment it matures the biome re-checks, so anything now eligible arrives on its own.
 - Animals return **one at a time** per change, so a biome fills with visitors gradually.
 - Returned animals get a **comfort level**; remove key habitat and they become "rarely seen," but they're never owned, captured, or lost like pets.
 
 ## Biomes, restoration kits & progression
 
-Restore each biome to unlock the next. There's **one restoration kit per area** — each craftable only once, but available **right away** (no health gate), so the real bar is the health + animals, not the kit. Every unlock needs the gating biome at **80% health**, with progressively steeper animal counts:
+Restore each biome to unlock the next. There are **five restoration kits**, one per unlockable area, each craftable only once and each unlocking partway up the gating biome's health track (45% for the Forest kit, 65% for the rest) — so the real bar is the health + animals, not the kit. The first unlock needs the meadow at **60%**; every later one needs the gating biome at **80% health**, with progressively steeper animal counts:
 
 | Unlock | Requirements |
 |---|---|
-| Old Hollow Forest | Meadow **80%** · **10** meadow animals · Forest Restoration Kit |
+| Old Hollow Forest | Meadow **60%** · **10** meadow animals · Forest Restoration Kit |
 | Rushwater Wetland | Forest **80%** · **10** forest animals · **25 total animals** · Wetland Restoration Kit |
 | Redstone Scrubland (desert) | Wetland **80%** · **13** wetland animals · **45 total** · Scrubland Restoration Kit |
 | Graywind Heights (alpine) | Desert **80%** · **15** desert animals · **65 total** · Alpine Restoration Kit |
 | Pelican Shore (coastal) | Alpine **80%** · **17** alpine animals · **85 total** · Migration Path Marker |
 
-All targets stay attainable — every one of a biome's 25 animals can return by 80% health. Areas connect by trail gates, and you spawn at the correct edge when you travel; a forward trail shows a **trail sign** until its destination is unlocked, then becomes an open gate. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded on first entry. **Redstone Scrubland** is dry by design: you can ready soil beds but **cannot flood it** into open water. **Graywind Heights** rises into an **impassable, snow-capped range** along its skyline (the map extends downward by the same number of rows, so its restorable floor stays full size) and carries exclusive resources feeding alpine-only crafts like the Crystal Snowmelt Spring, Pika Haypile, Whitebark Seed Cache, Crystal Cairn, and Obsidian Totem.
+All targets stay attainable — every one of a biome's 25 animals can return by 80% health. Areas connect by trail gates, and you spawn at the correct edge when you travel; a forward trail shows a **trail sign** until its destination is unlocked, then becomes an open gate. **Rushwater Wetland opens partly pre-shaped** — channels, a pond, and watered beds are seeded on first entry. **Redstone Scrubland** is dry by design: you can ready soil beds but **cannot flood it** into open water. **Graywind Heights** rises into an **impassable, snow-capped range** along its skyline (the map extends downward by the same number of rows, so its restorable floor stays full size) and carries exclusive resources feeding alpine-only crafts like the Pika Haypile and the Obsidian Totem.
 
 ## Tools
 
@@ -71,7 +71,7 @@ Four tools, each upgraded with materials gated on biome progress. Higher tiers g
 - **Gathering Basket** (4 tiers) — carry capacity 200 → 800.
 - **Shovel** (4 tiers) — prepare beds, shape mud banks/burrows, dig more per swing.
 - **Watering Can** (4 tiers) — collect 1 → 4 water per fill.
-- **Field Journal** (7 tiers) — a baseline journal plus a dedicated field guide for each area. The baseline shows each animal's basic entry and comfort, but the **full diet, shelter, fact, and return hints stay locked** until you gather that area's own materials and upgrade its guide — so even the meadow's full entries are earned, not free.
+- **Field guides** — one per area, three steps each (pocket notes → field guide → expanded guide). The first step shows each animal's basic entry and comfort, but the **full diet, shelter, fact, and return hints stay locked** until you gather that area's own materials and upgrade its guide — so even the meadow's full entries are earned, not free.
 
 ## Crafting, planting & terraforming
 
@@ -85,13 +85,13 @@ Resource nodes are scattered per area, with the mix **randomized per player** (d
 
 ## Weather & seasons
 
-Every biome has its own **weather**, changing about every ten **minutes of play** — the calendar advances from accrued play time, not the wall clock, so a world you leave for a week is exactly where you left it. There's deliberately **no day/night cycle**.
+Every biome has its own **weather**, changing about every twelve **minutes of play** — the calendar advances from accrued play time, not the wall clock, so a world you leave for a week is exactly where you left it. A gentle **day/night cycle** runs on the same clock: dawn → day → dusk → night, each an equal quarter, tinted over the world and eased between rather than snapped.
 
 - **Seasons** cycle spring → summer → autumn → winter (a few play-days each), biasing which weather a biome rolls and subtly tinting the ground.
 - **Seven weather types** — clear, cloudy, rain, storm, fog, snow, heat — each with a full-screen colour wash and, for rain/storm and snow, falling **particle** weather (pre-warmed on biome entry so you arrive mid-storm). A HUD chip shows the current weather + season.
-- **Weather & Seasons guide (M)** is an educational panel: for the biome you're standing in it explains, in plain language grounded in **credible sources** (USGS, NOAA/NWS, NPS, US FWS, EPA, university extension, Britannica, Audubon, Smithsonian), **how the current weather and season shape that biome** — desert rain waking spadefoot toads, alpine snowpack as a slow-release "water tower," forest "fog drip," storm-cast kelp wrack feeding the beach. It also shows a short cross-preserve **forecast** (Now / Next / Later) per biome. The weather-gated resources are intentionally **not** listed — finding them is a surprise.
+- **Weather & Seasons guide (N)** is an educational panel: for the biome you're standing in it explains, in plain language grounded in **credible sources** (USGS, NOAA/NWS, NPS, US FWS, EPA, university extension, Britannica, Audubon, Smithsonian), **how the current weather and season shape that biome** — desert rain waking spadefoot toads, alpine snowpack as a slow-release "water tower," forest "fog drip," storm-cast kelp wrack feeding the beach. It also shows a short cross-preserve **forecast** (Now / Next / Later) per biome. The weather-gated resources are intentionally **not** listed — finding them is a surprise.
 - **Weather-gated gather nodes.** While the right weather is active, a biome sprouts a couple of nodes for a unique material: rain → **Rainwater**, desert storm → **Stormglass** (fused like fulgurite), snow → **Frostflower**, fog → **Morning Dew**, desert heat → **Sunstone**. The pairing is biome-specific, and the server re-checks the live weather before granting one.
-- **They're functional, not just collectibles.** Each crafts into bespoke decor with real restoration value — **Rain Basin** (a water source), **Sunstone Cairn** (shelter), **Frostflower Planter** (plant), plus a **Dewlit Lantern**, **Stormglass Lantern**, and two home pieces. Three uncommon animals want a weather build to settle: the **Chuckwalla** basks on a Sunstone Cairn, the **White-tailed Ptarmigan** wants a Frostflower Planter in bloom, and the **Western Meadowlark** drinks from a Rain Basin.
+- **They're functional, not just collectibles.** Each crafts into bespoke decor with real restoration value — **Rain Basin** (a water source), **Sunstone Cairn** (shelter), **Frostflower Planter** (plant), plus a **Dewlit Lantern**, **Stormglass Lantern**, and two home pieces. They earn their keep as habitat, not as trophies.
 
 ## Field journal
 
@@ -101,7 +101,7 @@ Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (c
 
 ## Controls
 
-WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **O** today's tasks board · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, and pickups animate into your basket. The **?** button (or **H**) opens How to Play with the full reference.
+WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **M** preserve map · **N** weather & seasons guide · **T** tools & upgrades · **G** goals · **O** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, and pickups animate into your basket. The **?** button (or **H**) opens How to Play with the full reference.
 
 ## Localization
 
@@ -113,4 +113,4 @@ Anonymous per-save-slot gameplay metrics, plus an optional email only if you sub
 
 ---
 
-**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) — local setup, testing, deploying to Harper, desktop/Steam/Mac App Store builds, code signing, the database schema, the API reference, systems internals, metrics, and known limitations.
+**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) — local setup, testing, deploying to Harper, desktop/Steam/Mac App Store builds, code signing, the database schema, the API reference, systems internals, metrics, and notes & simplifications.

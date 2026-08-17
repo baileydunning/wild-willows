@@ -2,7 +2,7 @@
 
 /**
  * Minimal, context-isolated bridge. The game talks to its backends over the
- * normal API surface (in-app for solo, hosted Harper for co-op), so it needs
+ * normal API surface (in-app for solo, hosted Harper otherwise), so it needs
  * little from here — just desktop niceties and the local save-file store that
  * solo play persists to (userData/saves, handled in the main process).
  */

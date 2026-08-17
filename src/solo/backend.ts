@@ -1,6 +1,6 @@
 // The in-app solo backend. It runs the REAL game server logic
 // (server/resources.ts) inside the app, against an in-memory LocalDb, so solo
-// play needs no Harper server and works fully offline. Co-op is unaffected — it
+// play needs no Harper server and works fully offline. Hosted play is unaffected — it
 // still talks to the hosted Harper over HTTP (see src/api.ts).
 //
 // How the reuse works: server/resources.ts expects two Harper globals,

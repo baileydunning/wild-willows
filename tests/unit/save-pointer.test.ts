@@ -82,20 +82,13 @@ describe('the remembered save survives everything except a real 404', () => {
 		onContinueFailure({ status: 404, message: 'no save with that id' });
 		expect(lastSave('solo')).toBeNull();
 	});
-
-	it('leaves the co-op pointer alone when the solo one is cleared', () => {
-		rememberSave('coop-player', 'Coop', 'coop');
-		onContinueFailure({ status: 404 });
-		expect(lastSave('solo')).toBeNull();
-		expect(lastSave('coop')).toMatchObject({ playerId: 'coop-player' });
-	});
 });
 
 describe('forgetSave(mode) actually forgets', () => {
-	// rememberSave writes the record TWICE — to the per-mode key and to a legacy
-	// "most recent" key that carries the same mode tag. forgetSave(mode) only
-	// cleared the first, and lastSave(mode) falls back to the second whenever the
-	// tag matches, so the save came straight back. That made every mode-scoped
+	// rememberSave writes the record TWICE — to the mode-scoped key and to a
+	// legacy "most recent" key that carries the same mode tag. forgetSave(mode)
+	// only cleared the first, and lastSave(mode) falls back to the second whenever
+	// the tag matches, so the save came straight back. That made every scoped
 	// forget a silent no-op, including the one after a demo is finished and its
 	// server-side save really has been deleted — leaving a Continue button that
 	// could only ever fail.
@@ -109,20 +102,6 @@ describe('forgetSave(mode) actually forgets', () => {
 		expect(lastSave()).toBeNull(); // the legacy copy is gone too
 	});
 
-	it('clears a co-op save without touching an unrelated solo save', () => {
-		rememberSave('solo-1', 'Solo', 'solo');
-		rememberSave('coop-1', 'Coop', 'coop');
-		forgetSave('coop');
-		expect(lastSave('coop')).toBeNull();
-		expect(lastSave('solo')).toMatchObject({ playerId: 'solo-1' });
-	});
-
-	it('leaves the legacy record alone when it belongs to the OTHER mode', () => {
-		rememberSave('coop-1', 'Coop', 'coop'); // legacy copy is now tagged coop
-		forgetSave('solo');
-		expect(lastSave('coop')).toMatchObject({ playerId: 'coop-1' });
-	});
-
 	it('still clears an untagged legacy record as solo (old saves)', () => {
 		localStorage.setItem('wild-willows:last-save', JSON.stringify({ playerId: 'old', name: 'Old' }));
 		expect(lastSave('solo')).toMatchObject({ playerId: 'old' });
@@ -132,10 +111,8 @@ describe('forgetSave(mode) actually forgets', () => {
 
 	it('forgetSave() with no mode still clears everything', () => {
 		rememberSave('solo-1', 'Solo', 'solo');
-		rememberSave('coop-1', 'Coop', 'coop');
 		forgetSave();
 		expect(lastSave('solo')).toBeNull();
-		expect(lastSave('coop')).toBeNull();
 		expect(lastSave()).toBeNull();
 	});
 });

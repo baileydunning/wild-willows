@@ -10,7 +10,7 @@
 // Deliberately client-only. A guess is a note the player made to themselves
 // about a page they were reading, not game progress: it grants nothing, gates
 // nothing, and the server neither knows nor cares. That keeps it out of the
-// save format and off the co-op wire, and means a cleared entry costs the
+// save format and off the wire, and means a cleared entry costs the
 // player nothing but the chance to guess again.
 //
 // Mirrors prefs.ts: localStorage-backed, guarded for non-DOM environments

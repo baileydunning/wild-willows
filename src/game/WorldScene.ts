@@ -3331,7 +3331,7 @@ export class WorldScene extends Phaser.Scene {
 	private computeNodes(): NodeDef[] {
 		const biome = this.biomeDef();
 		if (!biome) return [];
-		// Seed node layout by the WORLD id (not the player) so everyone in a co-op
+		// Seed node layout by the WORLD id (not the player) so every session in one
 		// world sees the same nodes in the same spots. Solo worldId === playerId, so
 		// solo layouts are unchanged.
 		const wid = (bridge.shared.state as any)?.worldId || bridge.shared.state?.player.id || 'anon';
@@ -3464,7 +3464,7 @@ export class WorldScene extends Phaser.Scene {
 		// Weather-gated gather nodes: while a special weather is active in this biome
 		// (rain, storm, snow, fog, heat) a couple of spots for its unique resource
 		// appear, then vanish when the weather turns over. Positions are seeded by
-		// world+biome+weather so co-op players find them in the same places.
+		// world+biome+weather so they land in the same places every visit.
 		const wxType = liveWeatherType(this.worldId, this.area, bridge.shared.state?.weather);
 		const wxRes = gatherResourceFor(bridge.shared.data?.resources, this.area, wxType);
 		if (wxRes) {

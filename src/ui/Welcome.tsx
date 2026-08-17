@@ -327,7 +327,7 @@ export function WelcomeScreen() {
 	};
 
 	// On desktop, point the API at the right backend for the selected mode BEFORE
-	// any call fires: solo → in-app/offline, co-op → hosted Harper. (Web ignores
+	// any call fires: solo → in-app/offline, web → hosted Harper. (Web ignores
 	// this and always uses its own origin.)
 	useEffect(() => {
 		if (IS_DESKTOP) setTransport('solo');

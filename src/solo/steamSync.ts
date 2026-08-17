@@ -1,7 +1,7 @@
 // Desktop only: periodically push the active player's metrics to the main
 // process, which maps them onto Steam Stats/Achievements (electron/metrics-sync).
 //
-// The renderer owns the live game state now (solo runs in-app; co-op talks to
+// The renderer owns the live game state now (solo runs in-app; hosted play talks to
 // the hosted Harper), so this is where the numbers come from. Everything no-ops
 // when there's no desktop bridge or no Steam.
 

@@ -64,7 +64,7 @@ export function gatherFeedbackMetrics(state: GameState | null): Record<string, a
 		platform: IS_DESKTOP ? 'desktop' : 'web',
 		channel: CHANNEL, // itch / mas / direct / dev — which channel it came from
 		os: detectOS(), // mac / windows / linux / …
-		mode: getTransport(), // solo | coop | web
+		mode: getTransport(), // solo | web
 		userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown',
 	};
 	const p: any = state?.player;

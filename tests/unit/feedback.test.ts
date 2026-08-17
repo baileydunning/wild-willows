@@ -133,7 +133,7 @@ describe('gatherFeedbackMetrics', () => {
 // Regression: players couldn't submit feedback at all.
 //
 // Two independent faults, both in postFeedback:
-//   1. The base URL was `IS_DESKTOP ? COOP_BASE_URL : ''`, which had never
+//   1. The base URL was `IS_DESKTOP ? HOSTED_BASE_URL : ''`, which had never
 //      learned about the itch DEMO — a WEB build served cross-origin. Demo
 //      feedback POSTed to the itch origin, which serves static files, so it
 //      404'd every time.

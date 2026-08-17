@@ -21,8 +21,8 @@ describe('transport + playerId state', () => {
 		expect(getTransport()).toBe('web');
 		setTransport('solo');
 		expect(getTransport()).toBe('solo');
-		setTransport('coop');
-		expect(getTransport()).toBe('coop');
+		setTransport('web');
+		expect(getTransport()).toBe('web');
 	});
 
 	it('round-trips the current player id', () => {
@@ -96,40 +96,28 @@ describe('calling the api with no session', () => {
 	});
 });
 
-describe('save memory (per-mode "Continue")', () => {
-	it('remembers and reads back the last save for a mode', () => {
+describe('save memory ("Continue")', () => {
+	it('remembers and reads back the last save', () => {
 		rememberSave('p1', 'Sam', 'solo');
 		expect(lastSave('solo')).toMatchObject({ playerId: 'p1', name: 'Sam', mode: 'solo' });
 	});
 
-	it('keeps solo and co-op saves separate', () => {
-		rememberSave('p1', 'Solo Sam', 'solo');
-		rememberSave('p2', 'Coop Cam', 'coop');
-		expect(lastSave('solo')).toMatchObject({ playerId: 'p1', mode: 'solo' });
-		expect(lastSave('coop')).toMatchObject({ playerId: 'p2', mode: 'coop' });
-	});
-
 	it('treats an untagged legacy save as solo', () => {
-		// Simulate a save written before per-mode tracking existed.
+		// Simulate a save written before the mode tag existed.
 		localStorage.setItem('wild-willows:last-save', JSON.stringify({ playerId: 'old', name: 'Legacy' }));
 		expect(lastSave('solo')).toMatchObject({ playerId: 'old' });
-		expect(lastSave('coop')).toBeNull();
 	});
 
-	it('forgetSave(mode) clears only that mode', () => {
+	it('forgetSave(mode) clears the mode-scoped save', () => {
 		rememberSave('p1', 'Solo Sam', 'solo');
-		rememberSave('p2', 'Coop Cam', 'coop');
 		forgetSave('solo');
 		expect(lastSave('solo')).toBeNull();
-		expect(lastSave('coop')).toMatchObject({ playerId: 'p2' });
 	});
 
 	it('forgetSave() with no mode clears everything', () => {
 		rememberSave('p1', 'Solo Sam', 'solo');
-		rememberSave('p2', 'Coop Cam', 'coop');
 		forgetSave();
 		expect(lastSave('solo')).toBeNull();
-		expect(lastSave('coop')).toBeNull();
 		expect(lastSave()).toBeNull();
 	});
 
