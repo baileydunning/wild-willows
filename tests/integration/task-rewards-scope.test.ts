@@ -3,10 +3,10 @@ import { freshWorld, appearance, type World } from './harness';
 import { readFileSync } from 'node:fs';
 
 // Daily-task rewards & gather targets must be drawn only from the biomes the
-// player has PERSONALLY unlocked — never the wider co-op roam set — and the
+// player has PERSONALLY unlocked — never the wider roam set — and the
 // reward shown on the board must equal the reward granted on claim.
 //
-// The trap: a save whose worldId differs from its playerId (co-op, or a legacy
+// The trap: a save whose worldId differs from its playerId (a legacy
 // world-id divergence) hits the snapshot's roam-expansion, which widens
 // unlockedBiomes to every world-unlocked biome. Before the fix the board was
 // generated from that widened set while ClaimTask used the personal set, so the

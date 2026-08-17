@@ -1,6 +1,6 @@
 // Integration harness: drives the REAL built server bundle (resources.js)
 // against an in-memory stand-in for Harper's `databases` / `Resource`. This is
-// the same technique as scripts/coop-harness.mjs, refactored so every test gets
+// the same technique as the old standalone smoke harness, refactored so every test gets
 // a clean world (fresh tables) while the server module itself is imported once.
 //
 // Why the bundle and not the TS source? It's exactly what `harper deploy` ships,

@@ -860,7 +860,7 @@ function rememberKeyed(set: Set<string>, key: string): void {
  * The KEY_REV a world has reached, read off the acting player's row.
  *
  * A solo world's id IS the player's id, so the marker is simply `keyRev`. A save
- * that last played in a pre-0.3 co-op world still carries a `w_…` worldId, and
+ * that last played in a pre-0.3 shared world still carries a `w_…` worldId, and
  * there is no Player row under that id — patching one would create a junk row and
  * the lookup would answer 0 forever, so byWorld would pay for the legacy full
  * scan on every read for the rest of that save's life. Those worlds record their
@@ -1161,7 +1161,7 @@ async function findDiscovery(table: any, worldId: string, animalId: string): Pro
 /**
  * Per-save setup on login and character creation. Idempotent.
  *
- * Named for the co-op era, when it built a "world of one" and a membership row.
+ * Named for an earlier design, when it built a "world of one" and a membership row.
  * Both are gone; what remains is the `worldId` compat field and the key-contract
  * migration. Kept under the old name because every login path calls it — renaming
  * it belongs with the Phase 4 cleanup, not here.
@@ -1284,7 +1284,7 @@ async function migrateAnimalAliases(worldId: string, playerId: string): Promise<
 	const d = await defs();
 	let touched = 0;
 
-	// ---- Discovery rows. World-owned, so this covers every member of a co-op world.
+	// ---- Discovery rows. World-owned, so this covers every save in the world.
 	const rows = await byWorld(t.Discovery, worldId);
 	const stale = rows.filter((r: any) => ANIMAL_ALIASES.has(r?.animalId));
 	if (stale.length) {
@@ -1900,7 +1900,7 @@ function homeRoom(player: any) {
 // A pitched trail tent (one per wild biome) opens into its own little interior
 // — area id `tent-<biome>` — that's decorated exactly like the home, just
 // tent-sized (the starter home footprint, so only `homeMin` 1 furniture fits).
-// Interiors are world-shared, like the home, so co-op partners share the camp.
+// Interiors are world-shared, like the home.
 const TENT_INNER = { w: 6, h: 5 };
 /** The wild-biome id a tent-interior area belongs to, or null if `area` isn't one. */
 function tentBiomeOf(area: any): string | null {
@@ -3782,7 +3782,7 @@ interface TaskCtx {
 	terrain?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
-	 *  only from these, never the wider co-op roam set, so tasks stay specific to
+	 *  only from these, never the wider roam set, so tasks stay specific to
 	 *  what you've unlocked and the shown reward matches what's granted on claim. */
 	unlockedBiomes?: string[];
 }
@@ -3925,7 +3925,7 @@ function dailyTasksFor(
 	const dayKey = playerDayKey(player, now);
 	const endsAt = (dayKey + 1) * DAY_MS + TASK_RESET_HOUR * 3_600_000 - tzMs(player);
 	const rng = seededRng(hash32(`tasks:${wid}:${dayKey}`));
-	// Personal unlocked biomes only — NOT the co-op roam-expanded set the snapshot
+	// Personal unlocked biomes only — NOT the roam-expanded set the snapshot
 	// may carry — so the pool matches on both the snapshot and claim paths.
 	const unlocked: string[] = ctx.unlockedBiomes?.length
 		? ctx.unlockedBiomes
@@ -4911,12 +4911,12 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 			byPlayer(t.PlayerAchievement, playerId),
 			readFeed(wid),
 		]);
-	// The player's OWN unlocked biomes, before any co-op roam expansion below —
+	// The player's OWN unlocked biomes, before any roam expansion below —
 	// daily tasks & their rewards are scoped to these so you never get items from
 	// (or tasks about) a biome you haven't personally unlocked.
 	const personalUnlocked = [...(player?.unlockedBiomes?.length ? player.unlockedBiomes : ['meadow'])];
-	// In a co-op world, a player can roam any biome a world-mate has unlocked, so
-	// the snapshot reflects the union of personal + world-unlocked biomes.
+	// In a world whose id is not the player's own, the snapshot reflects the union
+	// of personally-unlocked and world-unlocked biomes.
 	if (player && wid !== player.id) {
 		const unlocked = new Set(player.unlockedBiomes || ['meadow']);
 		for (const bs of biomeStates) if (bs.unlocked) unlocked.add(bs.biomeId);
@@ -5387,8 +5387,8 @@ async function awardAchievements(
 	try {
 		const t = db();
 		const d = await defs();
-		// safeGet (not raw .get): achievement fan-out reads every member of a co-op
-		// world, so one member left with an undecodable record must not throw a
+		// safeGet (not raw .get): achievement fan-out reads every save in the world,
+		// so one row left undecodable must not throw a
 		// storage-layer decode error on every action. safeGet force-decodes, purges
 		// the corrupt row, and returns null → this player is simply skipped.
 		const player = opts.player && opts.player.id === playerId ? opts.player : await safeGet(t.Player, playerId);
@@ -5600,7 +5600,7 @@ export class DashboardAuth extends DashboardEndpoint {
 
 /**
  * GET /Version/ — the stamp baked into this bundle at build time (app version +
- * build timestamp, generated by scripts/build-pages.mjs). deploy-coop.sh polls
+ * build timestamp, generated by scripts/build-pages.mjs). deploy.sh polls
  * this on every public entry point after deploying and fails loudly if any node
  * is still serving an older bundle.
  */
@@ -5613,7 +5613,7 @@ export class Version extends PublicEndpoint {
 /** GET /GameData/ — all static definitions (biomes, animals, recipes, …).
  *
  * This is by far the largest response the game sends (~300 KB of JSON) and web /
- * demo / co-op clients fetch it once at open, before login. On the HOSTED Harper
+ * demo clients fetch it once at open, before login. On the HOSTED Harper
  * we make it cheap two ways:
  *
  *  1. Revalidation. The payload is fully determined by the build (buildStamp),
@@ -6054,7 +6054,7 @@ export class DeletePlayer extends PublicEndpoint {
 		const t = db();
 		let removed = 0;
 		// Delete the player's own solo world (id === playerId) and personal records.
-		// Co-op worlds they merely belong to are left intact for the other members.
+		// Rows under a world id that is not their own are left intact.
 		for (const table of [t.Placement, t.Chest, t.BiomeState, t.Discovery, t.NodeState, t.TerrainTile, t.FeedEntry]) {
 			for (const rec of await byWorld(table, playerId)) {
 				await table.delete(rec.id);
@@ -6249,8 +6249,8 @@ export class LoginPlayer extends PublicEndpoint {
 		});
 		// Back-fill the solo "world of one" for saves made before multiplayer (this
 		// also realigns the meadow to the current camp offset), then resume whichever
-		// world this player was last active in (their solo world by default, or a
-		// co-op world they had joined — this is how you log back in to co-op).
+		// world this player was last active in (their solo world by default, or any
+		// other world id their row still points at).
 		// Guarded so a not-yet-migrated instance still logs you in (solo) rather than erroring.
 		let active = player.worldId || playerId;
 		try {
@@ -6285,18 +6285,18 @@ export class GameState extends PublicEndpoint {
 }
 
 /**
- * COMPAT: `MyWorlds` outlives co-op.
+ * COMPAT: `MyWorlds` serves clients this build no longer ships.
  *
- * Deleting it looked safe — co-op is behind a false flag — but `api.myWorlds()`
- * is called UNGATED in three core solo paths (startNewSolo, resumeSolo,
- * continueLast). In continueLast the catch rethrows, and `isMissingSaveError` is
- * `status === 404`, so a missing endpoint would break the Continue button AND
- * call `forgetSave()`, dropping the player's save pointer. The solo backend
+ * The current client does not call it. Older shipped builds do, and they call it
+ * UNGATED on three core paths (startNewSolo, resumeSolo, continueLast). In
+ * continueLast the catch rethrows, and `isMissingSaveError` is `status === 404`,
+ * so removing the endpoint would not just break their Continue button — it would
+ * call `forgetSave()` and drop the player's save pointer. The solo backend
  * returns 404 for an unknown endpoint too, so desktop would break the same way.
  *
- * So it stays, answering the only shape the client reads: one solo world, which
- * is the player themselves. Remove in Phase 4, together with the client calls —
- * gated on /MetricsSummary/ showing no clients below 0.3.0 for 30 days.
+ * So it stays, answering the only shape those clients read: one world, which is
+ * the player themselves. SAFE TO DELETE once /MetricsSummary/ shows no clients
+ * below 0.3.0 for 30 days — check that before removing it, not after.
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
@@ -8498,7 +8498,7 @@ function metricsRollupMoved() {
  * full snapshot here (see SyncMetrics + src/solo/metricsUplink.ts). So this
  * rolls up every reporting player — split by `edition` (demo/full)
  * and `platform` (web/desktop) below — without touching the live
- * Player/BiomeState tables. (Full hosted web/co-op, if ever added, report
+ * Player/BiomeState tables. (Hosted web players report
  * server-side and would stay out of this rollup.)
  */
 async function metricsRollup(target?: any): Promise<{
@@ -10489,10 +10489,10 @@ export class SystemProbe extends Resource {
 			return { present: true, keys: keys.slice(0, 40), clusterish, detail };
 		});
 
-		// Node skew, checked the way deploy-coop.sh already checks it: ask both
+		// Node skew, checked the way deploy.sh already checks it: ask both
 		// public entry points what build they are serving. This needs no credentials
 		// and no operations API — GET /Version/ is public and already exists — and a
-		// mismatch is exactly what deploy-coop.sh calls "a stale component or broken
+		// mismatch is exactly what deploy.sh calls "a stale component or broken
 		// replication". Done server-side so there is no cross-origin problem, with a
 		// short timeout so a wedged peer cannot hang this request.
 		await step('node build skew', async () => {
@@ -11597,7 +11597,7 @@ export class ListFeedback extends Resource {
 // save's derived metrics view here (see src/solo/metricsUplink.ts) — best
 // effort, whenever a connection exists — and the row is upserted per save
 // slot. The global roll-up (/MetricsSummary/ + /MetricsPlayers/) then reports
-// solo players alongside the hosted (web/co-op) ones.
+// solo players alongside the hosted web ones.
 
 const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
 

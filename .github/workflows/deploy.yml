@@ -1,7 +1,7 @@
 name: Deploy to Harper
 
-# Builds the co-op web + server bundle and deploys it to the hosted Harper at
-# wild.willows.harperfabric.com. The heavy lifting is ./deploy-coop.sh — the
+# Builds the server bundle and deploys it to the hosted Harper at
+# wild.willows.harperfabric.com. The heavy lifting is ./deploy.sh — the
 # same script used for manual deploys — so there is exactly one deploy recipe.
 # (Deploy pattern modeled on HarperFast/nextjs-example's build-and-deploy.yml:
 # configure a local Harper for the CLI, then `harper deploy` to the target.)
@@ -18,22 +18,17 @@ name: Deploy to Harper
 
 on:
   workflow_dispatch:
-    inputs:
-      coop_enabled:
-        description: 'Build with co-op enabled (Solo/Co-op toggle + multiplayer UI)'
-        type: boolean
-        default: true
   push:
     tags: ['deploy-*']
 
 # Never run two deploys at once; a queued deploy waits for the active one.
 concurrency:
-  group: deploy-coop
+  group: deploy-harper
   cancel-in-progress: false
 
 jobs:
   deploy:
-    name: Build & deploy co-op server
+    name: Build & deploy server
     runs-on: ubuntu-latest
     steps:
       # fetch-depth: 0 — NOT the default 1. scripts/build-pages.mjs dates each
@@ -63,16 +58,14 @@ jobs:
           OPERATIONSAPI_NETWORK_PORT: 9925
         run: npx harper install
 
-      # deploy-coop.sh builds, stages the ~3 MB component, and runs
+      # deploy.sh builds, stages the ~3 MB component, and runs
       # `harper deploy` against wild.willows.harperfabric.com.
       - name: Build & deploy
         env:
           HARPER_PW: ${{ secrets.HARPER_PASSWORD }}
           HARPER_USER: ${{ secrets.HARPER_USERNAME }}
           TARGET_URL: ${{ secrets.TARGET_URL }}
-          # Manual runs expose a checkbox; tag deploys default to co-op ON.
-          COOP_ENABLED: ${{ (github.event_name == 'workflow_dispatch' && inputs.coop_enabled == false) && 'false' || 'true' }}
         run: |
           export PATH="$PWD/node_modules/.bin:$PATH"
           # `bash` rather than ./ so the deploy never breaks on the exec bit
-          bash ./deploy-coop.sh
+          bash ./deploy.sh

@@ -3,7 +3,7 @@
 // Runs for SOLO play (desktop + the demo's offline fallback), which has no
 // server-side metrics otherwise, AND for the browser DEMO in Harper mode, so
 // demo players land in the same dashboard as everyone else (see shouldUplink()).
-// Full web/co-op are already recorded server-side and don't uplink. The mirror
+// Hosted web play is already recorded server-side and doesn't uplink. The mirror
 // image of steamSync.ts, but over the network.
 //
 // Strictly best-effort: a failed send is dropped — each report is a full snapshot
@@ -70,7 +70,7 @@ function endpoint(): string {
 /** Should the active session uplink to SoloMetrics? Solo (desktop + demo's
  *  offline fallback) always does — it has no server-side metrics otherwise. The
  *  browser DEMO also does even in Harper mode, so demo players land in the same
- *  dashboard as everyone else. Full web/co-op are already recorded server-side. */
+ *  dashboard as everyone else. Hosted web play is already recorded server-side. */
 function shouldUplink(): boolean {
 	const t = getTransport();
 	return t === 'solo' || (DEMO && t === 'web');
@@ -80,7 +80,7 @@ function shouldUplink(): boolean {
  *  attempted for a real session (pid present; solo also needs its slot), false if
  *  there's nothing to send yet (so the startup poke knows to retry). */
 async function reportOnce(): Promise<boolean> {
-	if (!shouldUplink()) return false; // full web/co-op already report on the server
+	if (!shouldUplink()) return false; // hosted web play already reports on the server
 	const pid = getPlayerId();
 	if (!pid) return false; // no session yet — caller retries
 	const slot = getSoloSlot();

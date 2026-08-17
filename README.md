@@ -20,7 +20,7 @@ Needs Node 24+ and Harper v5 (`npm install -g harper`). Full setup, testing, dep
 
 > **Keyboard required.** Wild Willows is a keyboard game (WASD/arrows to roam, letter keys for panels, number keys for tools), so it gates to devices with a keyboard.
 
-**v1 ships solo-only and fully offline** — the desktop app runs the same server logic in-app against local save files, with no server, no account, and nothing to install on first run. Co-op is complete and tested but hidden behind a build flag.
+**v1 ships solo-only and fully offline** — the desktop app runs the same server logic in-app against local save files, with no server, no account, and nothing to install on first run. The browser demo is server-validated: it plays against the hosted Harper.
 
 ---
 
@@ -101,7 +101,7 @@ Grouped by biome, the journal shows each animal's actual **sprite thumbnail** (c
 
 ## Controls
 
-WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **O** today's tasks board · **U** People (co-op worlds only) · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, and pickups animate into your basket. The **?** button (or **H**) opens How to Play with the full reference.
+WASD / arrows to move · **E** / Space to interact · **1–4** select tools (basket · shovel · watering can · paint) · **B** basket · **J** journal · **K** achievements · **F** activity feed · **C** crafting · **P** preserve map · **M** weather & seasons guide · **T** tools & upgrades · **O** today's tasks board · **G** settings · **H** How to Play · click animals to observe · Shift+click a placed object to pick it up · Esc closes menus / cancels placement. Gathering spots glow, the nearest interactable gets a pulsing ring, and pickups animate into your basket. The **?** button (or **H**) opens How to Play with the full reference.
 
 ## Localization
 
@@ -113,4 +113,4 @@ Anonymous per-save-slot gameplay metrics, plus an optional email only if you sub
 
 ---
 
-**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) — local setup, testing, deploying to Harper, desktop/Steam/Mac App Store builds, code signing, the database schema, the API reference, systems internals, metrics, and known limitations.
+**Developer documentation:** [CONTRIBUTING.md](CONTRIBUTING.md) — local setup, testing, deploying to Harper, desktop/Steam/Mac App Store builds, code signing, the database schema, the API reference, systems internals, metrics, and notes & simplifications.

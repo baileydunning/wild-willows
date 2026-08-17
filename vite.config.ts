@@ -9,16 +9,17 @@ const APP_VERSION: string =
 	JSON.parse(readFileSync(fileURLToPath(new URL('./package.json', import.meta.url)), 'utf8')).version || '0.0.0';
 
 // API endpoints exposed by Harper custom resources — proxied to the Harper
-// instance during `npm run dev:web` development AND by `vite preview` (the
-// co-op E2E suite drives the built app through preview, with the API proxied
-// to a live Harper). Harper is ENDPOINTS ONLY — it serves no static files —
+// instance during `npm run dev:web` development AND by `vite preview` (the E2E
+// suites drive the built app through preview, with the API proxied to a live
+// Harper). Harper is ENDPOINTS ONLY — it serves no static files —
 // so this proxy is the only way the web UI reaches it. Keep this list in sync
 // with the exported classes in server/resources.ts.
-const HARPER_TARGET = process.env.COOP_BASE_URL || 'https://localhost:9926';
+const HARPER_TARGET = process.env.HARPER_BASE_URL || 'https://localhost:9926';
 const harperEndpoints = [
 	// game data + saves
 	'GameData',
 	'GameState',
+	'Version',
 	'CreatePlayer',
 	'LoginPlayer',
 	'DeletePlayer',
@@ -28,6 +29,7 @@ const harperEndpoints = [
 	'UpdateAppearance',
 	// core loop
 	'CollectResource',
+	'HarvestPlacement',
 	'ChestTransfer',
 	'CraftItem',
 	'DiscardItem',
@@ -42,6 +44,7 @@ const harperEndpoints = [
 	'Plant',
 	'Rest',
 	'ClaimTask',
+	'SetGoals',
 	'Heartbeat',
 	'AppendFeed',
 	// home
@@ -49,23 +52,16 @@ const harperEndpoints = [
 	'SetHomeStyle',
 	'SetHomeColors',
 	'SetPlacementColor',
-	// co-op
+	// legacy — no current client calls this, but builds older than 0.3.0 do.
+	// See the COMPAT note on MyWorlds in server/resources.ts.
 	'MyWorlds',
-	'CreateWorld',
-	'JoinWorld',
-	'SwitchWorld',
-	'LeaveWorld',
-	'WorldRoster',
-	'CheckWorldCode',
-	'RequestJoin',
-	'JoinRequestStatus',
-	'PendingJoinRequests',
-	'ResolveJoin',
-	'Presence',
-	// telemetry, feedback, dashboards, dev
+	// telemetry, feedback, dev
 	'Metrics',
 	'SubmitFeedback',
 	'SyncMetrics',
+	'AppOpen',
+	'ReportClientError',
+	'ReportSaveIncident',
 	'DevTools',
 ];
 
@@ -81,7 +77,7 @@ const LAZY_UI_MODULES = /\/src\/ui\/(Panels|Journal|Achievements|GoalsPanel|DevP
 export default defineConfig({
 	plugins: [react()],
 	// Relative asset paths so the same build works BOTH served at Harper's root
-	// (web/co-op) and loaded straight from disk (file://) in the desktop app.
+	// and loaded straight from disk (file://) in the desktop app.
 	base: './',
 	// The solo backend reuses the server logic, which imports `node:crypto` and
 	// `node:zlib`. In the browser bundle we swap in tiny local stand-ins (see
@@ -97,7 +93,6 @@ export default defineConfig({
 	define: {
 		__BUILD_TIME__: JSON.stringify(new Date().toISOString()),
 		__APP_VERSION__: JSON.stringify(APP_VERSION),
-		// Co-op (hosted-Harper multiplayer) is OFF by default for the solo-only
 		// Browser-playable itch DEMO build. Build with DEMO=true npm run build:web:
 		// the client talks to the hosted Harper (falling back to the in-app solo
 		// backend if it's unreachable) and hard-stops after 5 animals return to the
@@ -182,7 +177,7 @@ export default defineConfig({
 		port: 5173,
 		proxy: harperProxy,
 	},
-	// `vite preview` (solo + co-op E2E, and quick local checks of the built app)
+	// `vite preview` (the E2E suites, and quick local checks of the built app)
 	// gets the same proxy explicitly — don't rely on it inheriting server.proxy.
 	preview: {
 		port: 4173,

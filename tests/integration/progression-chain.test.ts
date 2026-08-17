@@ -145,7 +145,7 @@ describe('walking the unlock chain end to end', () => {
 			// the "a new area is open" card on screen.
 			expect((res.unlockedBiomes || []).map((b: any) => b.id)).toContain(biome.id);
 
-			// ...and it stuck. The world's BiomeState is authoritative for co-op; the
+			// ...and it stuck. The world's BiomeState is authoritative; the
 			// player's own list is what opens their action gates immediately.
 			const after = await w.get('GameState', pid);
 			expect(after.biomeStates.find((b: any) => b.biomeId === biome.id)?.unlocked).toBe(true);

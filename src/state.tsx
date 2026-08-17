@@ -15,6 +15,7 @@ import {
 	resolveDemoBackend,
 	deleteDemoSave,
 	exportDemoSave,
+	type SaveMode,
 } from './api';
 import { DEMO, DEMO_FOREST_BIOME } from './demo';
 import { DEMO_BUDGET_MS, readDemoBudgetMs, watchDemoBudget } from './demoBudget';
@@ -109,7 +110,7 @@ interface Ctx {
 	setTutorialStep: (step: number) => void;
 	startNew: (name: string, passcode: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	startLogin: (name: string, passcode: string) => Promise<void>;
-	continueLast: (mode?: 'solo' | 'coop') => Promise<void>;
+	continueLast: (mode?: SaveMode) => Promise<void>;
 	// Desktop solo: no passcode, local save slots.
 	startNewSolo: (name: string, appearance: Appearance, creationMs?: number) => Promise<void>;
 	loadSoloSlot: (slotId: string) => Promise<void>;
@@ -291,7 +292,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// and seed the in-memory log from the saved feed once per login.
 	const feedBuffer = useRef<{ icon: string; text: string; at: number }[]>([]);
 	const feedSeeded = useRef(false);
-	// true while a local mutation is running, so the co-op poll won't refresh over it
+	// true while a local mutation is running, so a refresh won't overwrite it
 	const actionInFlight = useRef(false);
 
 	// The message currently on screen, so an identical one doesn't stack behind it.
@@ -700,8 +701,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	//
 	// The modal is additionally pinned to the save in localStorage. The transition
 	// alone is nearly enough — it happens once per save — but "nearly" is doing
-	// real work there: a co-op member watching someone else claim the last one, or
-	// any future path that briefly empties the board, would re-open a modal the
+	// real work there: any future path that briefly empties the board would
+	// re-open a modal the
 	// player has already read and dismissed. Once means once.
 	useEffect(() => {
 		const tasks = state?.dailyTasks?.tasks;
@@ -856,7 +857,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const continueLast = useCallback(
-		async (mode?: 'solo' | 'coop') => {
+		async (mode?: SaveMode) => {
 			const last = lastSave(mode);
 			if (!last) throw new Error(t('app.error.noPreviousSave'));
 			setPlayerId(last.playerId);

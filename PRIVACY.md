@@ -52,9 +52,9 @@ Gameplay snapshots are kept so long-term trends stay visible; each save slot has
 
 Wild Willows is suitable for all ages. I do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact me and I will delete it.
 
-## The web and co-op versions
+## The browser version
 
-If you play the browser version (or a future co-op build), your save lives on my server instead of your device: the save name, a passcode (stored only as a salted scrypt hash, never in plaintext), your caretaker's appearance, and your world state. Co-op worlds additionally share world state and live player positions with the other members of that world. Everything else in this policy — no ads, no tracking, no sharing — applies identically.
+If you play the browser version, your save lives on my server instead of your device: the save name, a passcode (stored only as a salted scrypt hash, never in plaintext), your caretaker's appearance, and your world state. Everything else in this policy — no ads, no tracking, no sharing — applies identically.
 
 ## Changes to this policy
 

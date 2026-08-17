@@ -21,7 +21,7 @@ interface StepDef {
 	done: (args: { state: any; flags: Flags }) => boolean;
 }
 
-// The four named phases of the new-caretaker arc. Co-op intro steps fold into
+// The four named phases of the new-caretaker arc. Intro steps fold into
 // chapter 1. Labels live in panels.tutorial.chapters.*.
 const CHAPTERS = [
 	'panels.tutorial.chapters.moveGather',

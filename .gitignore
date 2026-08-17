@@ -1,6 +1,6 @@
 # note: web/ (built frontend), resources.js (built backend), and server/pages.ts
 # (policy HTML inlined from public/ by scripts/build-pages.mjs) are committed on
-# purpose — the desktop build packages web/ as-is, deploy-coop.sh ships the
+# purpose — the desktop build packages web/ as-is, deploy.sh ships the
 # committed resources.js, and the integration tests import it directly.
 node_modules/
 *.log

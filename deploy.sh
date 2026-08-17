@@ -3,7 +3,7 @@ set -euo pipefail
 
 # Deploys the server component (ENDPOINTS ONLY — no static web/ build; the game
 # UI ships in the desktop app) to the hosted Harper. Used two ways:
-#   • locally:  ./deploy-coop.sh          (prompts for the Harper password)
+#   • locally:  ./deploy.sh               (prompts for the Harper password)
 #   • from CI:  .github/workflows/deploy.yml sets HARPER_PW from GitHub
 #                secrets and runs this same script, so there is exactly one
 #                deploy recipe.

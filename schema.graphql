@@ -4,7 +4,7 @@
 #  • Definition/seed tables (below) have a FIXED set of typed columns. They're
 #    seeded from data/*.json and never change shape, so the typed (structon)
 #    encoding is safe and lets us keep helpful @indexed columns.
-#  • Mutable game-state and co-op tables declare ONLY `id @primaryKey`. Every
+#  • Mutable game-state tables declare ONLY `id @primaryKey`. Every
 #    other field is dynamic, so Harper stores the record as a flexible map rather
 #    than the positional structon encoding. This is deliberate: adding/removing
 #    fields on a positional-encoded table left old AND new rows undecodable

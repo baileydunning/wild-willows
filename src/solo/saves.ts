@@ -531,7 +531,7 @@ export const soloSavesAvailable = () =>
 // solo, offline game, so the key necessarily ships inside the client and someone
 // determined who digs it out can still decrypt. It stops the easy paths (reading
 // the file, hand-editing values, "export, bump the numbers, re-import") and
-// catches corruption. Real competitive integrity lives on the server (co-op).
+// catches corruption. Real integrity lives on the server, for hosted play.
 const SAVE_APP_TAG = 'wild-willows';
 const SAVE_FORMAT_VERSION = 1;
 const SIG_SECRET = 'wild-willows/solo-save/sig/v1';

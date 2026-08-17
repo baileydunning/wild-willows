@@ -6,7 +6,7 @@
 // FUNCTION of (worldId, time). Same inputs -> same weather, forever.
 //
 // Why this shape:
-//  • Co-op is free — everyone in a world derives identical weather from the
+//  • Deterministic — every client in a world derives identical weather from the
 //    shared worldId + serverTime; no syncing, no shared mutable weather row.
 //  • Solo offline works identically — the same function runs in-app.
 //  • No new tables, no RNG state to persist, trivially testable (pass any t).

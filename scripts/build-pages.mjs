@@ -105,7 +105,7 @@ const ogImageB64 = readFileSync(join(root, 'public/og-image.jpg')).toString('bas
 out += `/** Base64 of public/og-image.jpg — served by the og-image endpoint. */\nexport const ogImageB64: string = ${JSON.stringify(ogImageB64)};\n\n`;
 
 // Unique stamp for THIS build, baked into the bundle and served by the
-// GET /Version/ endpoint. deploy-coop.sh compares the served stamp against the
+// GET /Version/ endpoint. deploy.sh compares the served stamp against the
 // staged bundle after deploying, so a node that silently kept the old
 // component fails the deploy instead of quietly serving stale code.
 const buildStamp = `${JSON.parse(readFileSync(join(root, 'package.json'), 'utf8')).version}+${new Date().toISOString()}`;
