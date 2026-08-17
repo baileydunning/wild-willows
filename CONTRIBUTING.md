@@ -33,7 +33,7 @@ Three layers of tests, all run in CI on every PR and push to `main` (`.github/wo
 | Layer | Tool | Location | Covers | Needs a server? |
 |---|---|---|---|---|
 | Unit | Vitest | `tests/unit/` | Pure logic: recipe unlock gating, the local-save DB, save/transport helpers | No |
-| Integration | Vitest | `tests/integration/` | The **real** built server (`resources.js`) against an in-memory Harper mock — create/login, gather, craft, place, key migration, endpoint auth | No |
+| Integration | Vitest | `tests/integration/` | The **real** built server (`resources.js`) against an in-memory Harper mock — create/login, gather, craft, place, key migration, endpoint auth, response transport | No |
 | E2E (solo) | Playwright | `tests/e2e/` | The production web build in offline solo mode: title, character creation, entering the world, Continue, plus the offline UI regressions (`button-hover`, `journal-overflow`) | No (`vite preview`) |
 | E2E (i18n) | Playwright | `tests/e2e/i18n-render.spec.ts` | The same offline preview booted in English, Spanish and plain-language mode, checking every interface string resolved and fits | No (`vite preview`) |
 
@@ -249,7 +249,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /CreatePlayer/` · `POST /LoginPlayer/` · `POST /DeletePlayer/` | Create / load / delete a save (name + passcode) |
 | `POST /DeleteDemoSave/` · `POST /ExportDemoSave/` | Demo-only, passcode-free: delete or export a demo save — both refuse anything not tagged `edition:'demo'`, so a real save can't be touched |
 | `POST /ChangePasscode/` · `POST /UpdateAppearance/` | Change a save's passcode (current one must match) / restyle your caretaker anytime |
-| `GET /GameState/<playerId>` | Full state snapshot |
+| `GET /GameState/<playerId>` | Full state snapshot. Like `GameData` it is **brotli/gzip-compressed** on the HTTP path and answers `If-None-Match` — but its ETag is a hash of the body rather than the build stamp, because this payload is per-player and unbounded: ~4 KB on a new save, ~95 KB mid-demo, **363 KB → 10.5 KB** on a fully-restored world. The in-app solo backend receives the same data as a plain object |
 | `POST /CollectResource/` | Gather from a node (cooldown, basket capacity, tool-tier yield 1–4) |
 | `POST /ChestTransfer/` | Deposit / withdraw with capacity enforced |
 | `POST /CraftItem/` | Craft from basket + all chests; restoration kits are one-time |
@@ -287,6 +287,15 @@ Tables are deliberately **not** exported over REST — everything flows through 
 ## Systems internals
 
 Design-level descriptions of these systems live in the [README](README.md); what follows is how they're implemented.
+
+### Response compression & revalidation
+
+Harper's REST path does not compress resource responses, so the two large ones compress themselves (`server/resources.ts`, `snapshotResponse` and `GameData`). Both share one contract, and it matters: **with no HTTP request context they return the plain object.** That path is the in-app solo backend, which uses the return value as the data and runs in a browser where `node:zlib` is a no-op shim — and it is also how `tests/integration/harness.ts` calls them.
+
+- **Brotli quality is pinned to 5** (`BROTLI_QUALITY`). Node's default is 11, which on a 363 KB snapshot costs **over a second of CPU per request** to save ~1 KB over q5. Measured on that snapshot: q4 → 14.5 KB / 1.9 ms · q5 → 10.5 KB / 3.0 ms · q9 → 10.0 KB / 94 ms · q11 → 9.3 KB / 1035 ms. Never call bare `brotliCompressSync(buf)` on a request path.
+- **`GameData`'s ETag is the build stamp** and its compressed forms are cached, because the catalog is identical for every client and changes only on deploy.
+- **`GameState`'s ETag is a 64-bit hash of the body** (`hash64`), and nothing is cached — a per-player cache here would be one whose size tracks the player count. `serverTime` is excluded from the hash because it changes on every call and no client reads it; everything else in the snapshot is a pure function of stored state, which is what makes the tag safe **without a revision counter**. That was the point: a counter can be forgotten on a new write path, and a stale 304 would hand a player back a world missing the thing they just built — data loss, with no error to follow. `tests/integration/gamestate-transport.test.ts` pins it.
+- **A 304 carries an explicitly empty body.** Harper serializes the whole returned object into the response body when `body` is absent (`finalizeResponse` in its REST layer), so leaving it undefined ships `{"status":304,…}` as the payload of a response defined to have none.
 
 ### Biome recalculation
 

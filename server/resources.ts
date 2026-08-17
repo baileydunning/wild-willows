@@ -232,6 +232,32 @@ function hash32(str: string): number {
 	return h >>> 0;
 }
 
+/**
+ * A 64-bit content hash, as two independent FNV-style passes, base36-encoded.
+ *
+ * `hash32` is fine for a bucket key but far too narrow to validate a cache: a
+ * collision there would answer 304 for a world that HAS changed, and the player
+ * reads that as "the game lost what I just did" — silently, with no error to
+ * follow. 64 bits puts an accidental collision out of reach.
+ *
+ * Deliberately NOT node:crypto's createHash: this module is bundled into the
+ * renderer for the in-app solo backend, and src/solo/cryptoShim.ts provides only
+ * randomBytes / scryptSync / timingSafeEqual. Importing anything else from
+ * node:crypto would fail to resolve in the web build.
+ */
+function hash64(str: string): string {
+	let a = 0x811c9dc5;
+	let b = 0x9dc5811c;
+	for (let i = 0; i < str.length; i++) {
+		const c = str.charCodeAt(i);
+		a ^= c;
+		a = Math.imul(a, 0x01000193);
+		b ^= c + i;
+		b = Math.imul(b, 0x85ebca6b);
+	}
+	return (a >>> 0).toString(36) + (b >>> 0).toString(36);
+}
+
 function seededRng(seed: number): () => number {
 	let a = seed >>> 0;
 	return () => {
@@ -5679,12 +5705,116 @@ function compressedGameData(json: string, enc: 'br' | 'gzip'): Uint8Array {
 	if (enc === 'br') {
 		if (!cache.br)
 			cache.br = brotliCompressSync(buf, {
-				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+				params: {
+					[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+					[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+				},
 			});
 		return cache.br as Uint8Array;
 	}
 	if (!cache.gzip) cache.gzip = gzipSync(buf, { level: 6 });
 	return cache.gzip as Uint8Array;
+}
+
+/**
+ * The brotli quality every compressed body on the HTTP path uses — JSON and the
+ * inlined HTML pages alike.
+ *
+ * Node's DEFAULT is 11, and on a fully-restored world's 363 KB snapshot that
+ * costs **over a second of CPU per request** to save ~1 KB over q5 — a denial of
+ * service you inflict on yourself, one request at a time. Measured on that
+ * snapshot: q4 → 14.5 KB in 1.9 ms · q5 → 10.5 KB in 3.0 ms · q9 → 10.0 KB in
+ * 94 ms · q11 → 9.3 KB in 1035 ms. q5 is the knee of that curve and it is what
+ * GameData has always used. Re-measure before changing it; `bare
+ * brotliCompressSync(buf)` is not the same thing and must not be used here.
+ */
+const BROTLI_QUALITY = 5;
+
+/** The content-encoding this client will accept, or null for identity. */
+function negotiateEncoding(accept: string): 'br' | 'gzip' | null {
+	if (/\bbr\b/.test(accept)) return 'br';
+	if (/\bgzip\b/.test(accept)) return 'gzip';
+	return null;
+}
+
+/**
+ * Compress a JSON body. UNCACHED, unlike compressedGameData above — this is for
+ * per-player bodies that are different on every call, where a cache would only
+ * be a leak whose size tracks the number of players (the failure mode called out
+ * on RollupCache).
+ */
+function compressJson(json: string, enc: 'br' | 'gzip'): Uint8Array {
+	const buf = nodeBuffer.from(json, 'utf8');
+	if (enc === 'br')
+		return brotliCompressSync(buf, {
+			params: {
+				[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+				[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+			},
+		});
+	return gzipSync(buf, { level: 6 });
+}
+
+/**
+ * Turn a game-state snapshot into a compressed, revalidatable HTTP response.
+ *
+ * WHY: `GET /GameState/` is the largest response the game sends after GameData,
+ * it is fetched every few actions, and — unlike GameData — it has no fixed size.
+ * It grows with the world: ~4 KB on a new save, ~89 KB mid-game, ~363 KB on a
+ * fully-restored one, all of it uncompressed, because Harper's REST path does not
+ * compress resource responses. A browser player re-syncing every fourth action
+ * was pulling that down ten times a minute. Brotli takes the 363 KB case to
+ * ~10.5 KB for 3 ms of CPU.
+ *
+ * THE ETAG IS THE BODY, not a revision counter. `serverTime` is the only field
+ * that changes on every call, and no client reads it — it is declared in
+ * src/types.ts and referenced nowhere else in src/. Everything else in the
+ * snapshot is a pure function of stored state: weather derives from accrued play
+ * time on the player row, the daily-task board from that row and the UTC day. So
+ * hashing the rest of the body and comparing it to If-None-Match is correct by
+ * construction — there is no write path that can forget to bump a counter,
+ * because there is no counter. That matters more than the bytes it saves: a
+ * stale 304 here would hand a player back a world without the thing they just
+ * built, which is indistinguishable from data loss.
+ */
+function snapshotResponse(reqHeaders: any, state: any) {
+	const { serverTime, ...stable } = state;
+	const stableJson = JSON.stringify(stable);
+	const etag = `W/"gs-${hash64(stableJson)}"`;
+	// Splice serverTime back on rather than stringifying a third of a megabyte
+	// twice. Key order is not significant to JSON.parse, and `stable` is never
+	// empty — but fall back to the honest path if it somehow is.
+	const json =
+		stableJson.length > 2
+			? `${stableJson.slice(0, -1)},"serverTime":${Number(serverTime) || 0}}`
+			: JSON.stringify(state);
+
+	const headers: Record<string, string> = {
+		'content-type': 'application/json; charset=utf-8',
+		// `private` because this is ONE player's save. The browser demo reaches this
+		// through a Cloudflare Worker, and any shared cache that stored a `public`
+		// copy could hand one player's world to whoever asked next. `no-cache` means
+		// "cache it, but revalidate every time" — which is exactly what the ETag is
+		// for; it does NOT mean "don't cache".
+		'cache-control': 'private, no-cache',
+		etag,
+		vary: 'Accept-Encoding',
+	};
+
+	// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
+	const norm = (s: string) => s.replace(/^W\//, '').trim();
+	const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
+	if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
+		// An EXPLICITLY empty body. Harper serializes the whole returned object into
+		// the response body when `body` is absent (finalizeResponse in its REST
+		// layer), so leaving it undefined ships `{"status":304,…}` as the payload of
+		// a response that is defined to have none.
+		return { status: 304, headers, body: nodeBuffer.alloc(0) };
+	}
+
+	const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
+	if (!enc) return { status: 200, headers, body: json };
+	return { status: 200, headers: { ...headers, 'content-encoding': enc }, body: compressJson(json, enc) };
 }
 
 export class GameData extends PublicEndpoint {
@@ -5710,7 +5840,9 @@ export class GameData extends PublicEndpoint {
 		const norm = (s: string) => s.replace(/^W\//, '').trim();
 		const ifNoneMatch = String(reqHeaders.get('if-none-match') || '');
 		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
-			return { status: 304, headers: { etag, 'cache-control': cacheControl } };
+			// Explicitly empty — see the note in snapshotResponse: without this Harper
+			// serializes the envelope itself into the body of a 304.
+			return { status: 304, headers: { etag, 'cache-control': cacheControl }, body: nodeBuffer.alloc(0) };
 		}
 
 		const headers: Record<string, string> = {
@@ -5719,14 +5851,11 @@ export class GameData extends PublicEndpoint {
 			etag,
 			vary: 'Accept-Encoding',
 		};
-		const accept = String(reqHeaders.get('accept-encoding') || '');
+		const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
 		let body: string | Uint8Array = json;
-		if (/\bbr\b/.test(accept)) {
-			headers['content-encoding'] = 'br';
-			body = compressedGameData(json, 'br');
-		} else if (/\bgzip\b/.test(accept)) {
-			headers['content-encoding'] = 'gzip';
-			body = compressedGameData(json, 'gzip');
+		if (enc) {
+			headers['content-encoding'] = enc;
+			body = compressedGameData(json, enc);
 		}
 		return { status: 200, headers, body };
 	}
@@ -6272,7 +6401,15 @@ export class LoginPlayer extends PublicEndpoint {
 	}
 }
 
-/** GET /GameState/<playerId> — create-or-load the player and return everything. */
+/** GET /GameState/<playerId> — create-or-load the player and return everything.
+ *
+ * Compressed and revalidatable on the HTTP path — see snapshotResponse for what
+ * the ETag is and why it is safe. IMPORTANT, same contract as GameData: with no
+ * request context this returns the PLAIN OBJECT. That path is the in-app solo
+ * backend (src/solo/backend.ts), which uses the return value as the data and runs
+ * in a browser where node:zlib is a no-op shim — and it is also how the
+ * integration harness calls this endpoint.
+ */
 export class GameState extends PublicEndpoint {
 	async get() {
 		// No body on a GET, so this is charged here rather than through bodyOf.
@@ -6280,7 +6417,10 @@ export class GameState extends PublicEndpoint {
 		const playerId = String(this.getId() || '');
 		await requirePlayer(playerId);
 		// note: GET handlers must not write — invalid areas are normalized in snapshot()
-		return snapshot(playerId);
+		const state = await snapshot(playerId);
+		const reqHeaders: any = (this.getContext?.() as any)?.headers;
+		if (!reqHeaders || typeof reqHeaders.get !== 'function') return state;
+		return snapshotResponse(reqHeaders, state);
 	}
 }
 
@@ -12549,7 +12689,10 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
 		if (!entry.br) {
 			const buf = nodeBuffer.from(html, 'utf8');
 			entry.br = brotliCompressSync(buf, {
-				params: { [zlibConstants.BROTLI_PARAM_QUALITY]: 5, [zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length },
+				params: {
+					[zlibConstants.BROTLI_PARAM_QUALITY]: BROTLI_QUALITY,
+					[zlibConstants.BROTLI_PARAM_SIZE_HINT]: buf.length,
+				},
 			});
 		}
 		return entry.br as Uint8Array;
