@@ -44,6 +44,7 @@
 		"readability": "node scripts/readability.mjs"
 	},
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only). NOTE (electron-builder 26+): mac.notarize is now a boolean — the notary team ID JB4CT3MZ6L moved to the APPLE_TEAM_ID env var, which CI must set alongside APPLE_ID and APPLE_APP_SPECIFIC_PASSWORD.",
+	"harperComment": "`harper` is pinned EXACTLY (no caret) to the version the hosted cluster runs — 5.1.26. It is a devDependency, but it is not a normal one: tests/integration/harness.ts drives the real built resources.js through harper's own msgpackr copy, so the record encoding these tests exercise has to be the encoding production uses, and `harper dev .` is only a useful local server if it behaves like the deployed one. A caret broke exactly that. `^5.1.15` silently resolved to 5.2.2, which meant local dev and CI were testing against a Harper the cluster does not run — and 5.2 deprecates allowRead/allowUpdate/allowCreate/allowDelete, which is the whole authorization model in server/resources.ts (PublicEndpoint and DashboardEndpoint). Raise this pin when the cluster is upgraded, not before, and read the 5.2 notes first: the deprecated hooks fail OPEN, and tests/integration/metrics-split.test.ts asserts on allowRead() directly rather than through dispatch, so it would stay green while the dashboard endpoints stopped being protected.",
 	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the co-op E2E harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). Co-op (hosted Harper) is hidden behind COOP_ENABLED in src/features.ts; flip it on and move `harper` back to `dependencies` if you ship co-op.",
 	"dependencies": {
 		"steamworks.js": "^0.4.0"
@@ -58,7 +59,7 @@
 		"electron": "^43.2.0",
 		"electron-builder": "^26.15.3",
 		"esbuild": "^0.28.1",
-		"harper": "^5.1.15",
+		"harper": "5.1.26",
 		"jsdom": "^30.0.1",
 		"phaser": "^3.90.0",
 		"prettier": "^3.9.5",
