@@ -272,7 +272,6 @@
 			"basketFullHarvest": "Your basket is full. Make room before you pick this.",
 			"dbStarting": "The preserve is starting up. Restart Harper if this keeps happening.",
 			"noRoomRefund": "No room for the materials you get back. Make space in your basket or a chest first.",
-			"snapshotPathId": "Add a player id to the path, like this: /BiomeSnapshot/<playerId>",
 			"worldFullClosed": "This preserve is full. It already has its {max} players and is closed.",
 			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed."
 		},

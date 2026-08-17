@@ -815,29 +815,6 @@
 						},
 						"description": "Live per-player metrics view, computed on the fly from the player's own game state (playtime, sessions, action counts, activation, achievements, biome health). This is exactly the view a solo client derives and uploads via POST /SyncMetrics/, so it must always read live game tables — not SoloMetrics.\n\nStill PUBLIC: the game client reads its own view through it, and knowing the save's UUID is the capability, the same as /GameState/{playerId}."
 					}
-				},
-				{
-					"name": "Biome Snapshot (area images)",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{baseUrl}}/BiomeSnapshot/{{playerId}}",
-							"host": [
-								"{{baseUrl}}"
-							],
-							"path": [
-								"BiomeSnapshot",
-								"{{playerId}}"
-							]
-						},
-						"description": "Generated SVG postcards of each unlocked area, rendered live from current placements + terrain. Each entry has `image` (base64 data URI — paste into a browser address bar or an <img src> to view) and `svg` (raw markup). Ground is tinted by biome health; placed objects show as colored markers."
-					}
 				}
 			]
 		},

@@ -109,7 +109,6 @@ const PUBLIC = [
 	// --- content + static pages the stores and search engines fetch.
 	'GameData',
 	'Version',
-	'BiomeSnapshot',
 	'home',
 	'privacy',
 	'age-rating',

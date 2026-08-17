@@ -272,7 +272,6 @@
 			"basketFullHarvest": "Tu cesta está llena. Haz sitio antes de recoger.",
 			"dbStarting": "La reserva está arrancando. Reinicia Harper si sigue así.",
 			"noRoomRefund": "No hay sitio para los materiales que vuelven. Haz espacio en tu cesta o en un cofre.",
-			"snapshotPathId": "Añade un id de jugador a la ruta, así: /BiomeSnapshot/<playerId>",
 			"worldFullClosed": "Esta reserva está llena. Ya tiene sus {max} jugadores y está cerrada.",
 			"worldFullJoined": "Esta reserva está llena. Entraron {max} jugadores y está cerrada."
 		},

@@ -64,7 +64,6 @@ const harperEndpoints = [
 	'Presence',
 	// telemetry, feedback, dashboards, dev
 	'Metrics',
-	'BiomeSnapshot',
 	'SubmitFeedback',
 	'SyncMetrics',
 	'DevTools',

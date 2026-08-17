@@ -119,7 +119,6 @@
 		"badTerraformAction": "action must be 'dig', 'water', or 'clear'",
 		"notExplorable": "{biome} is part of the preserve plan but not explorable yet",
 		"noSaveWithId": "No save found with that id",
-		"snapshotPathId": "Add a player id to the path: /BiomeSnapshot/<playerId>",
 		"meadowCannotLock": "The starting meadow cannot be locked",
 		"unknownAnimal": "Unknown animal: {animal}",
 		"cannotPopulate": "Cannot populate {area}",

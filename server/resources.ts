@@ -2672,86 +2672,17 @@ function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf
 	return false;
 }
 
-const TERRAIN_COLORS: Record<string, string> = {
-	tilled: '#8a6a48',
-	watered: '#6b4f33',
-	water: '#5d96c8',
-};
-
-/** Linear blend between two #rrggbb colors (t = 0 → a, 1 → b). */
-function lerpHex(a: string, b: string, t: number): string {
-	const pa = parseInt(a.slice(1), 16);
-	const pb = parseInt(b.slice(1), 16);
-	const mix = (sh: number) => {
-		const ca = (pa >> sh) & 255;
-		const cb = (pb >> sh) & 255;
-		return Math.round(ca + (cb - ca) * clamp(t, 0, 1));
-	};
-	return '#' + [mix(16), mix(8), mix(0)].map((n) => n.toString(16).padStart(2, '0')).join('');
-}
-
-const svgEscape = (s: string) =>
-	String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-/** Render a top-down schematic of one area as an SVG string. */
-function renderBiomeSVG(d: any, biome: any, health: number, placements: any[], terrain: any[]): string {
-	const cell = 16;
-	const pad = 8;
-	const labelH = 22;
-	const grid = areaGrid(d, biome?.id || '');
-	const W = grid.cols * cell + pad * 2;
-	const H = grid.rows * cell + pad * 2 + labelH;
-	const damaged = biome?.palette?.damaged || '#b9a37c';
-	const healthy = biome?.palette?.healthy || '#8fbf6f';
-	const ground = lerpHex(damaged, healthy, health / 100);
-	const groundDark = lerpHex(damaged, healthy, (health / 100) * 0.8);
-	const px = (x: number) => pad + x * cell;
-	const py = (y: number) => pad + y * cell;
-
-	const parts: string[] = [];
-	parts.push(`<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${ground}"/>`);
-	// faint checkerboard for a bit of ground texture
-	for (let gy = 0; gy < grid.rows; gy++) {
-		for (let gx = 0; gx < grid.cols; gx++) {
-			if ((gx + gy) % 2 === 0) {
-				parts.push(
-					`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`,
-				);
-			}
-		}
-	}
-	for (const tt of terrain) {
-		const c = TERRAIN_COLORS[tt.type];
-		if (!c) continue;
-		parts.push(`<rect x="${px(tt.x)}" y="${py(tt.y)}" width="${cell}" height="${cell}" rx="3" fill="${c}"/>`);
-	}
-	for (const p of placements) {
-		const def = d.object.get(p.objectId);
-		const c = def?.color || '#6b5a3a';
-		parts.push(
-			`<circle cx="${px(p.x) + cell / 2}" cy="${py(p.y) + cell / 2}" r="${cell * 0.42}" fill="${c}" stroke="#2b3321" stroke-opacity="0.35"/>`,
-		);
-	}
-	parts.push(`<rect x="0" y="${H - labelH}" width="${W}" height="${labelH}" fill="#2b3321" opacity="0.55"/>`);
-	parts.push(
-		`<text x="${pad}" y="${H - 7}" font-family="sans-serif" font-size="12" fill="#fdfaf0">${svgEscape(biome?.name || 'Area')} — ${health}% health · ${placements.length} placed</text>`,
-	);
-	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${parts.join('')}</svg>`;
-}
-
-function svgDataUri(svg: string): string {
-	// Buffer is a Node global in the Harper runtime; reach it via globalThis so
-	// we don't need @types/node just for this.
-	const B = (globalThis as any).Buffer;
-	return 'data:image/svg+xml;base64,' + B.from(svg, 'utf8').toString('base64');
-}
-
 /**
- * Gather per-biome restoration metrics for a player. With `images: true` each
- * unlocked biome also gets a `snapshot` data URI rendered from its current
- * placements and terrain.
+ * Gather per-biome restoration metrics for a player: health, balance, animals
+ * returned, unlock state.
+ *
+ * This used to take an `images: true` option that rendered each unlocked area to
+ * an SVG "postcard". Nothing ever passed it — the only caller is GET
+ * /Metrics/<playerId>, which asks for numbers — and the renderer it drove was
+ * reachable unauthenticated through BiomeSnapshot, where it rebuilt several
+ * hundred KB of markup per request with no cache. Both are gone.
  */
-async function biomeMetrics(playerId: string, opts: { images?: boolean; player?: any } = {}) {
+async function biomeMetrics(playerId: string, opts: { player?: any } = {}) {
 	const t = db();
 	const d = await defs();
 	// BiomeState / Placement / TerrainTile are WORLD-keyed, so `byPlayer` cannot
@@ -2763,8 +2694,6 @@ async function biomeMetrics(playerId: string, opts: { images?: boolean; player?:
 	const wid = player ? worldOf(player) : playerId;
 	const states = await byWorld(t.BiomeState, wid);
 	const byId = new Map(states.map((s) => [s.biomeId, s]));
-	const placements = opts.images ? await byWorld(t.Placement, wid) : [];
-	const terrain = opts.images ? await byWorld(t.TerrainTile, wid) : [];
 
 	const biomes = d.biomes.map((b: any) => {
 		const s: any = byId.get(b.id) || {};
@@ -2777,12 +2706,6 @@ async function biomeMetrics(playerId: string, opts: { images?: boolean; player?:
 			unlocked: !!s.unlocked,
 			explorable: !!b.explorable,
 		};
-		if (opts.images && s.unlocked) {
-			const pls = placements.filter((p) => p.area === b.id);
-			const ter = terrain.filter((tt) => tt.area === b.id);
-			entry.placements = pls.length;
-			entry.snapshot = svgDataUri(renderBiomeSVG(d, b, entry.health, pls, ter));
-		}
 		return entry;
 	});
 
@@ -10337,47 +10260,6 @@ function metricsListRow(r: any) {
 		avgHealth: r.biomeSummary?.avgHealth ?? null,
 		appearance: r.appearance,
 	};
-}
-
-/**
- * GET /BiomeSnapshot/<playerId> — generated SVG "postcards" of each unlocked
- * area, returned both as a base64 data URI (`image`) and raw markup (`svg`).
- * Rendered live from the player's current placements and terrain.
- */
-export class BiomeSnapshot extends PublicEndpoint {
-	async get() {
-		const id = String((this as any).getId?.() || '').trim();
-		if (!id) throw new GameError(tr('server.err.snapshotPathId'), 400, 'server.err.snapshotPathId');
-		const { player } = await requirePlayer(id);
-		const t = db();
-		const d = await defs();
-		// These three are the largest tables in the database and all three are
-		// WORLD-keyed, so `byPlayer` could not use their prefix and fell through to
-		// a full scan apiece — on a PUBLIC endpoint whose only gate is knowing a
-		// player id, and which then SVG-renders whatever it read. `byWorld` returns
-		// the identical rows from the bounded range this world already occupies.
-		const wid = worldOf(player);
-		const states = (await byWorld(t.BiomeState, wid)).filter((s) => s.unlocked);
-		const placements = await byWorld(t.Placement, wid);
-		const terrain = await byWorld(t.TerrainTile, wid);
-
-		const areas = states.map((s) => {
-			const biome = d.biome.get(s.biomeId);
-			const pls = placements.filter((p) => p.area === s.biomeId);
-			const ter = terrain.filter((tt) => tt.area === s.biomeId);
-			const svg = renderBiomeSVG(d, biome, s.health || 0, pls, ter);
-			return {
-				area: s.biomeId,
-				name: biome?.name || s.biomeId,
-				health: s.health || 0,
-				placements: pls.length,
-				image: svgDataUri(svg),
-				svg,
-			};
-		});
-
-		return { ok: true, playerId: id, areas };
-	}
 }
 
 /**

@@ -119,7 +119,6 @@
 		"badTerraformAction": "action debe ser 'dig', 'water' o 'clear'",
 		"notExplorable": "{biome} es parte del plan de la reserva, pero aún no se puede explorar",
 		"noSaveWithId": "No se encontró ninguna partida con ese id",
-		"snapshotPathId": "Agrega un id de jugador a la ruta: /BiomeSnapshot/<playerId>",
 		"meadowCannotLock": "La pradera inicial no se puede bloquear",
 		"unknownAnimal": "Animal desconocido: {animal}",
 		"cannotPopulate": "No se puede poblar {area}",

@@ -52,7 +52,6 @@ const PROXIED = new Set([
 	'SyncPlayer',
 	'Heartbeat',
 	'RecalcBiome',
-	'BiomeSnapshot',
 	// actions
 	'CollectResource',
 	'CraftItem',
