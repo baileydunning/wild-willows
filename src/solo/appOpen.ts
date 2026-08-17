@@ -20,7 +20,7 @@ function endpoint(): string {
 }
 
 async function send(
-	phase: 'open' | 'created' | 'resumed' | 'demo_done' | 'demo_nudge' | 'kb_gate',
+	phase: 'open' | 'created' | 'resumed' | 'demo_done' | 'demo_nudge' | 'demo_end' | 'kb_gate',
 	extra: Record<string, any> = {},
 ): Promise<void> {
 	try {
@@ -99,6 +99,30 @@ export function reportDemoComplete(): void {
  */
 export function reportDemoNudge(step: 'shown' | 'exported' | 'store'): void {
 	void send('demo_nudge', { nudgeStep: step });
+}
+
+/**
+ * The end-of-demo popup (DemoCompleteModal in src/App.tsx), as the two things a
+ * player can do from it besides leave: 'exported' when the save is downloaded,
+ * 'store' when a buy link is followed.
+ *
+ * Its own phase rather than more `demo_nudge` steps, because the two screens are
+ * asked opposite questions. The nudge interrupts play and has to justify the
+ * interruption; this one IS the ending and has to justify its own design. Mixing
+ * their store clicks into one number would have hidden exactly the finding that
+ * prompted this: for months the end screen had no buy link at all, and the nudge
+ * funnel looked fine the whole time because it was carrying every click by
+ * itself.
+ *
+ * There is no 'shown' step. The screen's own denominator already exists as
+ * `demoCompletion.reachedGoal` — every device that reaches the budget reports
+ * `demo_done` — so a third flag would only be a second, drift-prone copy of it.
+ *
+ * Device-scoped and sticky server-side, like the nudge's, so it outlives the
+ * demo save this screen deletes on dismiss.
+ */
+export function reportDemoEnd(step: 'exported' | 'store'): void {
+	void send('demo_end', { endStep: step });
 }
 
 /**

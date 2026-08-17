@@ -496,7 +496,16 @@
 	"demo": {
 		"doneTitle": "Thanks for playing the Wild Willows demo!",
 		"doneBody": "That's the end of the free demo — thank you for restoring a corner of the preserve. The full game opens five more biomes to restore, deeper crafting, seasons and weather, a field journal to fill, and many more neighbors to bring home.",
-		"doneCta": "Grab the full game to keep restoring the preserve.",
+		"recapAnimals": {
+			"one": "animal home",
+			"other": "animals home"
+		},
+		"recapWeb": "of the food web",
+		"recapLine": "{returned} of the preserve’s {total} species are back. The rest are still out there.",
+		"doneCtaSaved": "Your meadow is in your downloads. The full game is a one-time $7 — choose Import Save on its title screen and pick up right here.",
+		"leaveWarn": "Leaving deletes this meadow — it can't be recovered. Download it first and the full game can open it.",
+		"doneButtonConfirm": "Leave without my save",
+		"doneCta": "Keep restoring the preserve — the full game is a one-time $7. No ads, no in-app purchases.",
 		"doneButton": "Back to title",
 		"exportHint": "Downloaded the full game? Save your meadow here, then Import Save on its title screen to pick up right where you left off.",
 		"exportButton": "Download my save",

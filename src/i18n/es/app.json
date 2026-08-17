@@ -496,7 +496,16 @@
 	"demo": {
 		"doneTitle": "¡Gracias por jugar la demo de Wild Willows!",
 		"doneBody": "Aquí termina la demo gratuita: gracias por restaurar un rincón de la reserva. El juego completo abre cinco biomas más para restaurar, fabricación más profunda, estaciones y clima, un diario de campo por completar y muchos más vecinos a los que traer de vuelta.",
-		"doneCta": "Consigue el juego completo para seguir restaurando la reserva.",
+		"recapAnimals": {
+			"one": "animal en casa",
+			"other": "animales en casa"
+		},
+		"recapWeb": "de la red alimentaria",
+		"recapLine": "{returned} de las {total} especies de la reserva han vuelto. Las demás siguen ahí fuera.",
+		"doneCtaSaved": "Tu pradera está en tus descargas. El juego completo cuesta 7 $, pago único: elige Importar partida en su pantalla de inicio y continúa justo aquí.",
+		"leaveWarn": "Si sales, esta pradera se borra y no se puede recuperar. Descárgala primero y el juego completo podrá abrirla.",
+		"doneButtonConfirm": "Salir sin mi partida",
+		"doneCta": "Sigue restaurando la reserva: el juego completo cuesta 7 $, pago único. Sin anuncios ni compras dentro de la app.",
 		"doneButton": "Volver al inicio",
 		"exportHint": "¿Descargaste el juego completo? Guarda tu prado aquí y luego usa Importar partida en su pantalla de inicio para continuar justo donde lo dejaste.",
 		"exportButton": "Descargar mi partida",

@@ -238,6 +238,9 @@
 		},
 		"demo": {
 			"doneBody": "That is the end of the free demo. Thank you for healing a corner of the preserve. The full game opens five more areas to heal. It also adds deeper crafting, seasons and weather, a journal to fill, and many more animals to bring home.",
+			"recapLine": "You brought {returned} of the preserve’s {total} animals home. The rest are still out there.",
+			"doneCtaSaved": "Your meadow is saved on your computer. The full game costs $7, one time. Pick Import Save on its first screen and keep going from here.",
+			"leaveWarn": "If you leave, this meadow is deleted. You cannot get it back. Download it first.",
 			"nudgeBody": "No rush. Your meadow is right where you left it. If you are done for now, you can take it with you: download your save, and the full game can start it again from here.",
 			"nudgeSavedBody": "The save file is in your downloads. Get the full game, pick Import Save on its first screen, and keep going from here — with five more areas to heal."
 		},

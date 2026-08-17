@@ -6057,6 +6057,96 @@ a.demo-nudge-store.primary:hover {
 	padding: 8px 16px;
 }
 
+/* The same store pair on the hard-stop popup. It borrows .demo-nudge-store for
+   the anchor paint (see above) and only adjusts the spacing: on the end screen
+   the buy buttons sit under the pitch line rather than under a body paragraph,
+   so they need less air above them. */
+/* The personalised recap: two figures, a bar, and one line of context. Sits
+   between the generic body copy and the export box, because it is the part of
+   the ending that is about THIS player rather than about the game. */
+.demo-done-recap {
+	width: 100%;
+	margin: 10px 0 2px;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 8px;
+}
+.demo-done-figures {
+	display: flex;
+	justify-content: center;
+	gap: 28px;
+}
+.demo-done-figure {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	line-height: 1.15;
+}
+.demo-done-figure b {
+	font-family: var(--font-display, inherit);
+	font-size: 2em;
+	color: var(--green-deep);
+	font-variant-numeric: tabular-nums;
+}
+.demo-done-figure span {
+	font-size: 0.82em;
+	color: var(--ink-soft);
+}
+/* The food-web bar. Reads as "how much is left", which is the whole point of
+   putting a small percentage in front of someone at the end of a demo. */
+.demo-done-webbar {
+	width: 100%;
+	max-width: 260px;
+	height: 7px;
+	border-radius: 999px;
+	background: var(--tint-leaf-strong);
+	overflow: hidden;
+}
+.demo-done-webbar i {
+	display: block;
+	height: 100%;
+	border-radius: 999px;
+	background: var(--green);
+}
+.demo-done-card .demo-done-recap-line {
+	margin: 0;
+	font-size: 0.88em;
+	color: var(--ink-soft);
+	max-width: 34ch;
+}
+.demo-done-stores {
+	margin-top: 8px;
+}
+/* The card gives every .big-btn a 14px top margin, which the store anchors do
+   not want: they are a PAIR, and at this card width they wrap to two rows, so
+   the margin stacked on top of the flex gap and split them into two unrelated
+   buttons. Specificity has to match `.demo-done-card .big-btn` to beat it —
+   `a.demo-nudge-store { margin-top: 0 }` alone is one class short and loses. */
+.demo-done-card .demo-nudge-store {
+	margin-top: 0;
+}
+/* The exit, demoted. It was the card's only `primary` button — the loudest
+   thing on the screen was the one that ends the demo and deletes the save. */
+.demo-done-card .demo-done-leave {
+	margin-top: 12px;
+	font-size: calc(15px * var(--ui-scale));
+	padding: 8px 16px;
+}
+/* Shown only on the first press of the exit when nothing has been downloaded.
+   Warm rather than alarming: this is a last chance, not an error — the player
+   has done nothing wrong and may well mean it.
+   Selector carries the card class because `.demo-done-card p` sets the body ink
+   and would otherwise out-specify a bare `.demo-done-warn`, silently rendering
+   the warning as ordinary text. */
+.demo-done-card .demo-done-warn {
+	margin: 12px 0 0;
+	max-width: 34ch;
+	font-size: 0.9em;
+	font-weight: 600;
+	color: var(--danger-solid);
+}
+
 /* ── "Now the goals are yours" — the one-time starter-chain hand-off ─────── */
 .goals-unlocked-backdrop {
 	position: fixed;

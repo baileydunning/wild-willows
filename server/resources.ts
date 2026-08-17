@@ -8711,6 +8711,22 @@ async function metricsRollup(target?: any): Promise<{
 			exportPct: nudgeShown ? Math.round((nudgeExported / nudgeShown) * 100) : 0,
 			storePct: nudgeShown ? Math.round((nudgeStore / nudgeShown) * 100) : 0,
 		};
+		/* The end-of-demo popup, as its own funnel off the SAME denominator the
+		 * completion rate uses: every device that reaches the hard-stop sees this
+		 * screen, so `reachedGoal` is how many were shown it and needs no separate
+		 * flag. Read `storePct` next to demoNudge.storePct — the two screens are
+		 * asking the same question of the same people at different moments, and
+		 * until the popup had a store link at all, the nudge's number was the only
+		 * one moving. */
+		const endExported = demoDevices.filter((o) => o.demoEndExported).length;
+		const endStore = demoDevices.filter((o) => o.demoEndStore).length;
+		const demoEnd = {
+			shown: demoFinished,
+			exported: endExported,
+			storeClicked: endStore,
+			exportPct: demoFinished ? Math.round((endExported / demoFinished) * 100) : 0,
+			storePct: demoFinished ? Math.round((endStore / demoFinished) * 100) : 0,
+		};
 		const demoCompletion = {
 			demoInstalls: demoDevices.length,
 			createdCharacter: demoConverted,
@@ -8718,6 +8734,7 @@ async function metricsRollup(target?: any): Promise<{
 			// completion rate among demo players who actually made a character
 			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
 			nudge: demoNudge,
+			endScreen: demoEnd,
 		};
 		// demo vs paid split of installs (edition is stamped on each AppOpen row).
 		const editionSplit: Record<string, number> = {};
@@ -10948,6 +10965,11 @@ export class SyncMetrics extends PublicEndpoint {
  *                     nudgeStep 'shown' | 'exported' | 'store'. Same rule as the
  *                     gate: describes a launch that already pinged, so it is NOT
  *                     counted toward opens.
+ *   phase "demo_end" — the end-of-demo popup, with endStep 'exported' | 'store'.
+ *                     Kept apart from demo_nudge because the two screens answer
+ *                     different questions and used to be conflated; the popup's
+ *                     denominator is reachedDemoGoal, so it needs no 'shown'.
+ *                     Not counted toward opens either.
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
@@ -10966,9 +10988,11 @@ export class AppOpen extends PublicEndpoint {
 						? 'demo_done'
 						: body.phase === 'demo_nudge'
 							? 'demo_nudge'
-							: body.phase === 'kb_gate'
-								? 'kb_gate'
-								: 'open';
+							: body.phase === 'demo_end'
+								? 'demo_end'
+								: body.phase === 'kb_gate'
+									? 'kb_gate'
+									: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -11060,6 +11084,19 @@ export class AppOpen extends PublicEndpoint {
 			demoNudgeExported: existing?.demoNudgeExported || (phase === 'demo_nudge' && body.nudgeStep === 'exported'),
 			demoNudgeStore: existing?.demoNudgeStore || (phase === 'demo_nudge' && body.nudgeStep === 'store'),
 			demoNudgeAt: existing?.demoNudgeAt || (phase === 'demo_nudge' ? now : 0),
+			/* The end-of-demo popup (DemoCompleteModal in src/App.tsx), same idea,
+			 * two flags. No `shown` twin: reachedDemoGoal above already IS the
+			 * screen's denominator — every device that reaches the budget reports
+			 * demo_done and then sees this popup — so a third flag would be a second
+			 * copy of that number, free to drift from it.
+			 *
+			 * Separate from the nudge's flags on purpose. They were one funnel while
+			 * the end screen had no store link at all, which meant the nudge's
+			 * store-click rate was silently carrying every click in the demo and
+			 * looked healthy for it. */
+			demoEndExported: existing?.demoEndExported || (phase === 'demo_end' && body.endStep === 'exported'),
+			demoEndStore: existing?.demoEndStore || (phase === 'demo_end' && body.endStep === 'store'),
+			demoEndAt: existing?.demoEndAt || (phase === 'demo_end' ? now : 0),
 			/* The keyboard gate. Both sticky, and deliberately so: this is the one
 			 * question a device answers ONCE and then keeps answering differently.
 			 * A phone that was turned away in March is still a phone that was turned

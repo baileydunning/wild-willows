@@ -3830,6 +3830,7 @@
 				const fun = s.funnel || {};
 				const dc = s.demoCompletion || {};
 				const dn = dc.nudge || {};
+				const de = dc.endScreen || {};
 				/* ---- Where they came from ----
 				 * Devices and conversion per channel. Sorted by conversion, not by
 				 * size, because size is the number you can't trust across channels:
@@ -3952,6 +3953,29 @@
 											),
 											kpi(pct(dn.storePct), 'Went to a store', `${fmt(dn.storeClicked)} clicked through`),
 										].join('')}</div>`
+									: '') +
+								/* The end-of-demo popup, off the SAME denominator as "Finished"
+								 * above — everyone who reaches the hard-stop sees it, so it has
+								 * no "shown" of its own to report.
+								 *
+								 * Drawn directly under the prompt's row so the two store rates
+								 * sit next to each other. They were a single funnel until this
+								 * screen got a buy link at all, which is exactly why the
+								 * prompt's number looked healthy: it was carrying every store
+								 * click in the demo by itself. */
+								(n(dc.reachedGoal)
+									? `<h4 class="sub-h" style="margin-top:1rem">End-of-demo screen</h4>` +
+										`<div class="grid three">${[
+											kpi(fmt(de.shown != null ? de.shown : dc.reachedGoal), 'Reached it', 'everyone who finished'),
+											kpi(
+												`<span class="accent">${pct(de.exportPct)}</span>`,
+												'Saved their meadow',
+												`${fmt(de.exported)} exported from the popup`,
+											),
+											kpi(pct(de.storePct), 'Went to a store', `${fmt(de.storeClicked)} clicked through`),
+										].join('')}</div>` +
+										`<p class="emptynote">The buy links were added to this screen after launch — it had none at all before that. ` +
+										`A flat zero from builds that predate them is a measurement gap, not a finding.</p>`
 									: ''),
 						)
 					: '';

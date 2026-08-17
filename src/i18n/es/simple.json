@@ -238,6 +238,9 @@
 		},
 		"demo": {
 			"doneBody": "Aquí termina la demo gratis. Gracias por sanar un rincón de la reserva. El juego completo abre cinco zonas más. También añade más creación, estaciones y clima, un diario para llenar y muchos más animales.",
+			"recapLine": "Trajiste a casa {returned} de los {total} animales de la reserva. Los demás siguen ahí fuera.",
+			"doneCtaSaved": "Tu pradera está guardada en tu computadora. El juego completo cuesta 7 $, una sola vez. Elige Importar partida en su primera pantalla y sigue desde aquí.",
+			"leaveWarn": "Si sales, esta pradera se borra. No la puedes recuperar. Descárgala primero.",
 			"nudgeBody": "Sin prisa. Tu prado sigue justo donde lo dejaste. Si ya terminaste por ahora, puedes llevártelo: descarga tu partida y el juego completo la abrirá desde aquí.",
 			"nudgeSavedBody": "El archivo está en tus descargas. Consigue el juego completo, elige Importar partida en su primera pantalla y sigue desde aquí, con cinco zonas más por sanar."
 		},
