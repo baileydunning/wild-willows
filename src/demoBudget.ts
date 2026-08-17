@@ -33,7 +33,7 @@
 // and reloading a tab is that hole.
 
 /** Minutes of play after the forest unlocks before the demo hard-stops. */
-export const DEMO_BUDGET_MINUTES = 10;
+export const DEMO_BUDGET_MINUTES = 15;
 
 /** Same limit in milliseconds. */
 export const DEMO_BUDGET_MS = DEMO_BUDGET_MINUTES * 60 * 1000;
@@ -109,7 +109,7 @@ export interface DemoBudgetOptions {
 	/**
 	 * True while the clock should run: the forest is unlocked and the player is
 	 * actually here. The caller owns that judgement — it reads live game state and
-	 * the same input-idle gate the heartbeat uses, so that "10 minutes of play"
+	 * the same input-idle gate the heartbeat uses, so that "15 minutes of play"
 	 * means the same thing the dashboard's play time means.
 	 */
 	running: () => boolean;

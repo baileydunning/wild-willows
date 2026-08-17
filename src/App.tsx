@@ -557,7 +557,7 @@ function GameScreen() {
 	);
 }
 
-/** DEMO only: the hard-stop popup shown when the demo budget is spent (10 minutes
+/** DEMO only: the hard-stop popup shown when the demo budget is spent (15 minutes
  *  of play after the forest unlocks, which the player earns by restoring the
  *  meadow first). It blocks all play, and it comes back on the next load if the
  *  budget is still spent — the save is only deleted when this is DISMISSED, so

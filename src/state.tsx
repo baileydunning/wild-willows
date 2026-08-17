@@ -462,7 +462,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// The post-unlock budget. It runs while the forest is open, the tab is on screen,
 	// and someone has touched the game within HEARTBEAT_IDLE_MS — the same gate the
-	// heartbeat credits play time under, so the ten minutes the demo grants and
+	// heartbeat credits play time under, so the fifteen minutes the demo grants and
 	// the play time the dashboard reports are measuring the same thing.
 	//
 	// Read live off the bridge rather than from `state`, so unlocking the forest
