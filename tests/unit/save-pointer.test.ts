@@ -82,7 +82,6 @@ describe('the remembered save survives everything except a real 404', () => {
 		onContinueFailure({ status: 404, message: 'no save with that id' });
 		expect(lastSave('solo')).toBeNull();
 	});
-
 });
 
 describe('forgetSave(mode) actually forgets', () => {
