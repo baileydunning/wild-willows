@@ -327,6 +327,10 @@ English catalogs live in `src/i18n/en/` split by area: `app.json` (shell, HUD, t
 
 World-owned state is keyed by `worldId` — declared at the end of each table and un-indexed, so the column could be added without rewriting existing rows — and every per-world read is a bounded `starts_with` range over the primary key rather than a table scan (see the KEY_REV contract at the top of `schema.graphql`). Single-player is modelled as a private "world of one" whose id equals the player's id, which is why `worldId` and `playerId` are the same value on every row a current save writes.
 
+**Per-area reads go one segment further.** `TerrainTile` ids are `${wid}:${area}:${x}:${y}`, so a caller that only wants one biome scans `${wid}:${area}:` (`byArea`) instead of reading all six and filtering in JS. `NodeState` has the same key shape and would work the same way the day something reads nodes per biome — nothing does today, and its rows carry no `area` field for the legacy fallback to filter on, so it is deliberately left out. `Placement` **cannot** do this: its id (`${wid}:pl_…`) carries no area, so every per-biome placement read is still a whole-world scan. That is the last O(world) read on the action path and it needs a KEY_REV 4 migration to fix.
+
+**One request reads a row once.** A world-mutating action recalculates the biome and then awards achievements, and both passes want the same world-wide `Discovery` set — so the endpoint reads it and lends it to both (`recalcBiome`'s `opts.discoveries`, `awardAchievements`' `opts.discoveries`). The achievement pass no longer reads `TerrainTile` at all up front: exactly one trigger asks about terrain (`wetland-lakemaker`, about one biome, until it is earned), so triggers run once with a `water()` that records which biomes were asked about, and only if something asked does a second pass read those areas and re-run just those triggers. `tests/integration/read-amplification.test.ts` holds all of this in place with assertions on row counts — the kind of regression that breaks nothing and just makes the game more expensive the more of it a player has built.
+
 ---
 
 ## Metrics & analytics

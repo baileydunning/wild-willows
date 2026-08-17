@@ -1136,6 +1136,44 @@ async function byWorld(table: any, worldId: string): Promise<any[]> {
 	return rows;
 }
 
+/**
+ * Tables whose ids carry the area as the SECOND key segment, `${wid}:${area}:…`.
+ *
+ * `NodeState` (`${wid}:${biomeId}:${nodeId}`) has the same shape and would work
+ * here the day something reads nodes per biome — but nothing does today (the
+ * snapshot wants every area, `Rest` deletes every area, and `CollectResource` is
+ * a point read), and its rows carry no `area` field, so the legacy fallback below
+ * could not filter them. Add it when there is a reader, not before.
+ */
+const AREA_KEYED = new Set(['TerrainTile']);
+
+/**
+ * Bounded scan of ONE area's run inside one world.
+ *
+ * `byWorld` already narrows a scan from "every save in the database" to "this
+ * world"; this narrows it again to "this area of this world", which is what the
+ * per-biome callers actually wanted — every one of them was reading all six
+ * biomes' rows and then throwing five sixths away in JS. Same mechanism, one
+ * more segment of prefix: `${wid}:${area}:` is still a `starts_with` over the
+ * primary key, so it inherits every property the key contract above argues for.
+ *
+ * Falls back to the world scan plus a JS filter when the world has not been
+ * migrated (its rows may still be under the old id scheme, where a narrower
+ * prefix would silently return fewer rows than exist — the exact failure the
+ * legacy merge in byWorld exists to prevent).
+ *
+ * The `area` field is checked even on the fast path. It is nearly free, and it
+ * means a row whose id segment ever disagrees with its own `area` — a legacy row
+ * healed in place, a hand-edited record — cannot leak into another area's view.
+ */
+async function byArea(table: any, worldId: string, area: string): Promise<any[]> {
+	const matches = (r: any) => r?.area === area;
+	if (!area || !AREA_KEYED.has(tableName(table)) || !(await worldIsKeyed(worldId)))
+		return (await byWorld(table, worldId)).filter(matches);
+	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
+	return (await scanPrefix(table, `${worldId}:${area}:`)).filter((r: any) => own(r) && matches(r));
+}
+
 /** Single record by id, scoped to one world. */
 async function findInWorld(table: any, worldId: string, id: string): Promise<any | null> {
 	// Point read first — under KEY_REV 3 the id already carries the world prefix,
@@ -1162,8 +1200,8 @@ async function findTerrainAt(table: any, worldId: string, area: string, x: numbe
 	// terraform does at least one) into a single point read.
 	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
 	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
-	const rows = await byWorld(table, worldId);
-	return rows.find((r: any) => r.area === area && r.x === x && r.y === y) || null;
+	const rows = await byArea(table, worldId, area);
+	return rows.find((r: any) => r.x === x && r.y === y) || null;
 }
 
 /**
@@ -1589,15 +1627,24 @@ async function recalcRepairedBiomes(worldId: string, playerId: string, d: any): 
 	const t = db();
 	const states = await byWorld(t.BiomeState, worldId);
 	const open = states.filter((b: any) => b.unlocked && d.biome.get(b.biomeId)).map((b: any) => b.biomeId);
+	// One Discovery read for the whole sweep, lent to every recalc and to the
+	// achievement pass — this loop used to re-read the world's discoveries once
+	// per unlocked biome, and then once more on the way out.
+	const discoveries = await byWorld(t.Discovery, worldId);
 	const newAnimals: any[] = [];
 	const freshBiomeStates: any[] = [];
 	for (const biomeId of open) {
-		const r = await recalcBiome(worldId, playerId, biomeId);
+		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries });
 		newAnimals.push(...(r.newAnimals || []));
 		if (r.biomeState) freshBiomeStates.push(r.biomeState);
 	}
 	if (newAnimals.length || freshBiomeStates.length)
-		await awardWorldAchievements(worldId, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+		await awardWorldAchievements(worldId, playerId, {
+			addDiscoveries: newAnimals,
+			freshBiomeStates,
+			biomeStates: states,
+			discoveries,
+		});
 }
 
 /**
@@ -3250,6 +3297,8 @@ async function recalcBiome(
 		player?: any;
 		addTerrain?: any[];
 		removeTerrainIds?: string[];
+		/** The world's Discovery rows, if the caller has already read them. */
+		discoveries?: any[];
 	} = {},
 ) {
 	const t = db();
@@ -3270,7 +3319,7 @@ async function recalcBiome(
 
 	// terraformed ground: each watered bed adds +1 health (capped) — tending the
 	// soil itself matters, not just the objects on it
-	let terrain = (await byWorld(t.TerrainTile, wid)).filter((tt) => tt.area === biomeId);
+	let terrain = await byArea(t.TerrainTile, wid, biomeId);
 	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
 	for (const at of opts.addTerrain || []) {
 		if (at.area !== biomeId) continue;
@@ -3308,7 +3357,11 @@ async function recalcBiome(
 					dayPhase: dayPhaseAt(wxTime),
 				};
 
-	const discoveries = await byWorld(t.Discovery, wid);
+	// Read once per REQUEST, not once per call: an action that recalculates a
+	// biome almost always awards achievements straight afterwards, and both passes
+	// want the same world-wide Discovery set. The caller reads it and lends it to
+	// both (see the awardWorldAchievements calls in the action endpoints).
+	const discoveries = opts.discoveries ?? (await byWorld(t.Discovery, wid));
 	const returnedIds = new Set(discoveries.map((x) => x.animalId));
 	// The land only heals as far as its returned life allows: health plateaus at
 	// each HEALTH_CAPS milestone until enough of this biome's animals are home.
@@ -3623,7 +3676,7 @@ async function recipeUnlockContext(
 		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
 	}
 	const placements = needPlaced ? (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId) : [];
-	const terrain = needWater ? (await byWorld(t.TerrainTile, wid)).filter((tt: any) => tt.area === biomeId) : [];
+	const terrain = needWater ? await byArea(t.TerrainTile, wid, biomeId) : [];
 	const achievements = needAchievements ? await earnedAchievementIds(player.id) : new Set<string>();
 	const biomeHealth: Record<string, number> = {};
 	for (const s of states) biomeHealth[s.biomeId] = s.health || 0;
@@ -5429,11 +5482,11 @@ async function awardAchievements(
 		// the reads are identical, so the only thing the second pass bought was
 		// latency. `opts` was always the place for this; the addDiscoveries /
 		// freshBiomeStates folding below exists for exactly the same reason.
-		let [biomeStates, discoveries, terrain] = await Promise.all([
+		let [biomeStates, discoveries] = await Promise.all([
 			opts.biomeStates ?? byWorld(t.BiomeState, wid),
 			opts.discoveries ?? byWorld(t.Discovery, wid),
-			opts.terrain ?? byWorld(t.TerrainTile, wid),
 		]);
+		// TerrainTile is deliberately NOT read here — see the water() note below.
 		// Never mutate an array the caller lent us — the folding below pushes.
 		if (opts.biomeStates) biomeStates = biomeStates.slice();
 		if (opts.discoveries) discoveries = discoveries.slice();
@@ -5450,7 +5503,30 @@ async function awardAchievements(
 
 		const stateByBiome = new Map(biomeStates.map((b: any) => [b.biomeId, b]));
 		const discById = new Map(discoveries.map((x: any) => [x.animalId, x]));
+
+		/**
+		 * water() is resolved in a SECOND pass, and usually never.
+		 *
+		 * This function used to read every TerrainTile in the world, on every
+		 * action, so that `ctx.water(b)` could answer a question exactly one
+		 * achievement asks — `wetland-lakemaker`, about exactly one biome, and only
+		 * until it is earned. On a well-built save that is thousands of rows read to
+		 * evaluate a trigger that has already fired.
+		 *
+		 * So the first pass runs every unearned trigger with a water() that records
+		 * which biomes were asked about and returns nothing. Any trigger that TOUCHED
+		 * water is set aside undecided — not awarded and not rejected, because a zero
+		 * could flip it either way — and only if something was set aside do we read
+		 * terrain, for those biomes alone, and re-run just those triggers.
+		 *
+		 * Generic on purpose: no achievement id is hard-coded, so a new water-based
+		 * achievement costs nothing to add and keeps this optimisation.
+		 */
+		const NO_WATER = { tiles: 0, lake: 0, river: 0 };
 		const waterCache = new Map<string, { tiles: number; lake: number; river: number }>();
+		const askedAbout = new Set<string>();
+		let probing = true;
+		let touchedWater = false;
 
 		const unlockedSet = new Set(player.unlockedBiomes || []);
 
@@ -5471,28 +5547,53 @@ async function awardAchievements(
 			craftedDistinct: Object.keys(player.craftedEver || {}).length,
 			tutorialStep: player.tutorialStep || 0,
 			water: (b) => {
-				// player-shaped water only — seeded starting channels don't earn Lakemaker
-				if (!waterCache.has(b))
-					waterCache.set(
-						b,
-						analyzeWater(
-							terrain.filter((tt: any) => tt.area === b),
-							true,
-						),
-					);
-				return waterCache.get(b)!;
+				if (probing) {
+					askedAbout.add(b);
+					touchedWater = true;
+					return NO_WATER;
+				}
+				return waterCache.get(b) ?? NO_WATER;
 			},
 			biomesAtHealth: (h) => biomeStates.filter((b: any) => (b.health || 0) >= h).length,
 			unlockedHealthy: (h) =>
 				biomeStates.filter((b: any) => unlockedSet.has(b.biomeId)).every((b: any) => (b.health || 0) >= h),
 		};
 
-		const now = Date.now();
-		const newly: any[] = [];
+		// Pass 1: everything that can be decided without touching terrain.
+		const won = new Set<string>();
+		const undecided: any[] = [];
 		for (const def of d.achievements) {
 			if (earned.has(def.id)) continue;
 			const trigger = ACHIEVEMENT_TRIGGERS[def.id];
-			if (!trigger || !trigger(ctx)) continue;
+			if (!trigger) continue;
+			touchedWater = false;
+			const fired = trigger(ctx);
+			// Asked about water: its answer was a placeholder, so decide it in pass 2
+			// rather than trusting a result that may be a false negative — or, for a
+			// trigger phrased the other way round, a false positive.
+			if (touchedWater) undecided.push(def);
+			else if (fired) won.add(def.id);
+		}
+
+		// Pass 2: only if something asked, and only for the biomes it asked about.
+		if (undecided.length) {
+			probing = false;
+			for (const b of askedAbout) {
+				// player-shaped water only — seeded starting channels don't earn Lakemaker
+				const tiles = opts.terrain
+					? opts.terrain.filter((tt: any) => tt.area === b)
+					: await byArea(t.TerrainTile, wid, b);
+				waterCache.set(b, analyzeWater(tiles, true));
+			}
+			for (const def of undecided) if (ACHIEVEMENT_TRIGGERS[def.id](ctx)) won.add(def.id);
+		}
+
+		// Written in definition order regardless of which pass decided them, so the
+		// client's "newly earned" list reads the same way it always has.
+		const now = Date.now();
+		const newly: any[] = [];
+		for (const def of d.achievements) {
+			if (!won.has(def.id)) continue;
 			await t.PlayerAchievement.put({
 				id: `${playerId}:${def.id}`,
 				playerId,
@@ -6968,14 +7069,19 @@ export class PlaceObject extends PublicEndpoint {
 				return { ok: true, placement, craftedItems };
 			}
 
+			// Read the world's discoveries ONCE and lend them to both passes; the
+			// recalc and the achievement sweep were each reading the same rows.
+			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
 				addPlacements: [placement],
 				player: { ...player, craftedItems },
+				discoveries,
 			});
 			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
+				discoveries,
 			});
 			return { ok: true, placement, craftedItems, ...recalc };
 		});
@@ -7051,15 +7157,18 @@ export class Plant extends PublicEndpoint {
 		};
 		await t.Placement.put(placement);
 
+		const discoveries = await byWorld(t.Discovery, wid);
 		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			removeTerrainIds: [bed.id],
 			player: { ...player, inventory },
+			discoveries,
 		});
 		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
+			discoveries,
 		});
 		return { ok: true, placement, inventory, usedFrom, perkGrowth: headStart || undefined, ...recalc };
 	}
@@ -7279,18 +7388,20 @@ export class RemoveObject extends PublicEndpoint {
 			}
 
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
-			const recalc =
-				placement.area !== 'home' && !tentBiomeOf(placement.area)
-					? await recalcBiome(wid, playerId, placement.area, {
-							removeIds: [placementId],
-							player: { ...player, craftedItems, inventory },
-						})
-					: null;
+			const outdoors = placement.area !== 'home' && !tentBiomeOf(placement.area);
+			const discoveries = outdoors ? await byWorld(t.Discovery, wid) : undefined;
+			const recalc = outdoors
+				? await recalcBiome(wid, playerId, placement.area, {
+						removeIds: [placementId],
+						player: { ...player, craftedItems, inventory },
+						discoveries,
+					})
+				: null;
 			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
 			await awardWorldAchievements(
 				wid,
 				playerId,
-				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
+				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState], discoveries } : {},
 			);
 			// `inventory` and the chest delta ride along so the client can patch this
 			// action locally instead of refetching the whole world after it.
@@ -7883,10 +7994,12 @@ export class Terraform extends PublicEndpoint {
 				throw new GameError(tr('server.err.badTerraformAction'), 400, 'server.err.badTerraformAction');
 			}
 
+			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
 				addTerrain: tile ? [tile] : [],
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
+				discoveries,
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -7903,6 +8016,7 @@ export class Terraform extends PublicEndpoint {
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
+				discoveries,
 			});
 			return { ok: true, tile, removedId, dug, inventory, ...recalc };
 		});
@@ -7914,10 +8028,13 @@ export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, biomeId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
-		const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
-		await awardWorldAchievements(worldOf(player), playerId, {
+		const wid = worldOf(player);
+		const discoveries = await byWorld(db().Discovery, wid);
+		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries });
+		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalcResult.newAnimals,
 			freshBiomeStates: [recalcResult.biomeState],
+			discoveries,
 		});
 		return { ok: true, ...recalcResult };
 	}
@@ -7990,7 +8107,7 @@ export class SyncPlayer extends PublicEndpoint {
 			// before the starting-terrain feature existed (e.g. wetlands already open).
 			if (STARTING_TERRAIN[area]) {
 				const wid = worldOf(player);
-				const hasTerrain = (await byWorld(t.TerrainTile, wid)).some((tt) => tt.area === area);
+				const hasTerrain = (await byArea(t.TerrainTile, wid, area)).length > 0;
 				if (!hasTerrain) {
 					await seedStartingTerrain(wid, playerId, area);
 					await recalcBiome(wid, playerId, area, { player });
@@ -8240,9 +8357,14 @@ export class Heartbeat extends PublicEndpoint {
 			const toRecalc = longAway ? [...unlockedIds] : [...crossed].filter((b) => unlockedIds.has(b));
 
 			let healthGain = 0;
+			// One read for the whole sweep — see recalcRepairedBiomes. Skipped entirely
+			// when there is nothing to recalculate, which is what MOST heartbeats are:
+			// reading it unconditionally would put a world-wide Discovery scan on a
+			// timer that fires every 30 seconds for every player.
+			const discoveries = toRecalc.length ? await byWorld(t.Discovery, wid) : undefined;
 			for (const biomeId of toRecalc) {
 				const before = biomeStates.find((b: any) => b.biomeId === biomeId)?.health || 0;
-				const r = await recalcBiome(wid, playerId, biomeId, { player });
+				const r = await recalcBiome(wid, playerId, biomeId, { player, discoveries });
 				healthGain += Math.max(0, (r.biomeState?.health || 0) - before);
 				newAnimals.push(...(r.newAnimals || []));
 				freshBiomeStates.push(r.biomeState);
@@ -8256,6 +8378,7 @@ export class Heartbeat extends PublicEndpoint {
 					freshBiomeStates,
 					player,
 					biomeStates,
+					discoveries,
 				});
 				awarded = true;
 			}
@@ -11284,7 +11407,7 @@ export class DevTools extends PublicEndpoint {
 					if (d.object.get(pl.objectId)?.isChest) continue;
 					await t.Placement.delete(pl.id);
 				}
-				for (const tt of (await byWorld(t.TerrainTile, wid)).filter((x) => x.area === ar)) {
+				for (const tt of await byArea(t.TerrainTile, wid, ar)) {
 					await t.TerrainTile.delete(tt.id);
 				}
 
