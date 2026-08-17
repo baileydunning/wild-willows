@@ -293,16 +293,10 @@ section{padding:3.4rem 0}
 /* mailing list: a postcard from the preserve */
 .post{max-width:620px;margin:0 auto;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
   box-shadow:var(--shadow);padding:1.7rem 1.8rem;position:relative}
-.post .stamp{position:absolute;top:1rem;right:1.1rem;width:52px;height:60px;border:2px dashed #cbbf9b;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;background:#fbf7ea;transform:rotate(3deg)}
-.post .stamp svg{width:30px;height:30px}
-.post h3,.post .intro{padding-right:74px}
-@media(max-width:520px){
-  .post .stamp{width:44px;height:50px}
-  .post .stamp svg{width:24px;height:24px}
-  .post h3{padding-right:58px}
-  .post .intro{padding-right:0}
-}
+/* The dashed "stamp" in the top-right corner is gone, and so is everything that
+   existed to make room for it: the 74px right padding on the heading and intro,
+   and the 520px media query that shrank the stamp and unwound that padding
+   again. Nothing else in this sheet referenced them. */
 .post p{color:var(--ink-soft);font-size:.99rem}
 .post form{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0 .4rem}
 .post input[type=email]{flex:1;min-width:210px;font-family:var(--f);font-size:1rem;font-weight:500;color:var(--ink);
