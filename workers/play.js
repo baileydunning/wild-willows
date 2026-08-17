@@ -88,12 +88,58 @@ const PROXIED = new Set([
 	'ReportSaveIncident',
 ]);
 
+/**
+ * Edge rate limiting — a first line, explicitly not the boundary.
+ *
+ * BEST EFFORT, and worth being honest about why: this state lives in one isolate.
+ * Cloudflare runs many, in many locations, and recycles them freely, so a
+ * determined attacker spread across colos sees a much higher effective limit than
+ * the numbers below suggest. It is here because it is nearly free and it absorbs
+ * the common case — one script hammering one endpoint from one place — before any
+ * of it reaches Harper.
+ *
+ * The real enforcement is at the origin (rateLimit in server/resources.ts), which
+ * holds no matter how a request arrives. Nothing here should ever be relied on as
+ * the only thing standing in front of an endpoint.
+ */
+const EDGE_LIMIT_PER_MINUTE = 300;
+const EDGE_BURST = 120;
+const EDGE_MAX_KEYS = 5000;
+const edgeBuckets = new Map();
+
+function edgeAllows(ip, now) {
+	if (!ip) return true; // cannot attribute it — let the origin decide
+	let b = edgeBuckets.get(ip);
+	if (!b) {
+		// Cheap guard so the map cannot grow without bound inside a long-lived
+		// isolate; dropping the oldest entry only ever grants someone a fresh
+		// budget, which is the safe direction to fail.
+		if (edgeBuckets.size >= EDGE_MAX_KEYS) {
+			const oldest = edgeBuckets.keys().next();
+			if (!oldest.done) edgeBuckets.delete(oldest.value);
+		}
+		b = { tokens: EDGE_BURST, at: now };
+		edgeBuckets.set(ip, b);
+	}
+	b.tokens = Math.min(EDGE_BURST, b.tokens + ((now - b.at) / 60000) * EDGE_LIMIT_PER_MINUTE);
+	b.at = now;
+	if (b.tokens < 1) return false;
+	b.tokens -= 1;
+	return true;
+}
+
 export default {
 	async fetch(request, env) {
 		const url = new URL(request.url);
 		const first = url.pathname.split('/').filter(Boolean)[0];
 
 		if (PROXIED.has(first)) {
+			if (!edgeAllows(request.headers.get('cf-connecting-ip'), Date.now())) {
+				return new Response(JSON.stringify({ title: 'Too many requests' }), {
+					status: 429,
+					headers: { 'content-type': 'application/json', 'retry-after': '10' },
+				});
+			}
 			const target = new URL(url.pathname + url.search, HARPER);
 			// Forward method and body; fetch sets Host/SNI from the target URL.
 			// Deliberately NOT forwarding the whole header set — cookies and client
@@ -103,6 +149,19 @@ export default {
 				const v = request.headers.get(h);
 				if (v) headers.set(h, v);
 			}
+			// The client's address, forwarded deliberately. Harper rate-limits per
+			// caller (see rateLimit in server/resources.ts) and this is the only thing
+			// that tells one caller from another — without it every request through
+			// this Worker looks like the same anonymous client and shares one bucket.
+			//
+			// `cf-connecting-ip` on the INBOUND request is set by Cloudflare and
+			// cannot be spoofed by the browser, so what we forward is trustworthy.
+			// What the origin cannot know is whether a request reached it through
+			// this Worker at all — Harper's hostname is directly reachable — which is
+			// why the origin also keeps a service-wide ceiling that does not depend
+			// on this header being honest.
+			const clientIp = request.headers.get('cf-connecting-ip');
+			if (clientIp) headers.set('cf-connecting-ip', clientIp);
 			try {
 				return await fetch(target, {
 					method: request.method,

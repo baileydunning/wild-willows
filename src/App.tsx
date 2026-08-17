@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { api } from './api';
 import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusicActive } from './audio';
 import { bridge } from './game/bridge';
@@ -16,25 +16,160 @@ import { HelpModal } from './ui/Help';
 import { ColorblindFilters } from './ui/ColorblindFilters';
 import { HUD, Toasts } from './ui/HUD';
 import { Confetti } from './ui/Confetti';
-import { AnimalCard, JournalPanel } from './ui/Journal';
-import { AchievementsPanel } from './ui/Achievements';
 import { MobileControls } from './ui/MobileControls';
-import {
-	BiomesPanel,
-	ChestPanel,
-	CraftingPanel,
-	HomePanel,
-	InventoryPanel,
-	MaterialsPanel,
-	ToolsPanel,
-	WeatherPanel,
-} from './ui/Panels';
 import { SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
 import { CoachTips, dismissCoachTip } from './ui/CoachTips';
-import { GoalsPanel } from './ui/GoalsPanel';
-import { DevPanel } from './ui/DevPanel';
+
+/* ---------------------------------------------------------------- lazy panels
+ *
+ * Every panel below is mounted only while it is open (`{panel === 'x' && …}`),
+ * but it was IMPORTED unconditionally — so all ~4,200 lines of panel UI were
+ * downloaded and parsed before the title screen could paint, including for a
+ * player who bounces off the character creator without ever opening one.
+ *
+ * Split by module, not by component: Rollup gives one chunk per dynamic import
+ * specifier, so the eight `./ui/Panels` entries below collapse into a single
+ * chunk fetched once, and the rest resolve from the module cache after that.
+ *
+ * Only modules NOTHING eager imports are listed here, because a lazy wrapper
+ * around a module something else already pulls in creates a chunk without
+ * removing a byte. That is why `./ui/Settings` is still a static import above:
+ * Welcome.tsx — the title screen, and the first thing rendered — uses its
+ * appearance and accessibility controls in the character creator, so the module
+ * ships eagerly no matter how SettingsPanel is imported. Splitting the shared
+ * controls out into their own module would fix that, but it moves ~350 of its
+ * 1,015 lines for a real refactor's worth of risk; left alone deliberately.
+ *
+ * Panels that render UNCONDITIONALLY and manage their own open state internally
+ * (HelpModal, GoalsUnlocked, DemoNudge) are also left eager on purpose — their
+ * chunk would be fetched at boot anyway, gaining only an extra request. */
+
+/**
+ * A code-split panel that renders SYNCHRONOUSLY once its chunk is in memory.
+ *
+ * This is React.lazy's job, and React.lazy cannot do it. `lazy()` does not call
+ * its loader until the component is first RENDERED — so even with the module
+ * already fetched and sitting in the module cache, the first render still
+ * suspends: React throws the thenable, commits the Suspense fallback, and swaps
+ * the real panel in on the following tick. With `fallback={null}` that is one
+ * frame of nothing. Opening a panel over the world hides it, which is why it
+ * looked fine at first; going from one panel STRAIGHT to another does not,
+ * because the panel being read blanks out before its replacement appears.
+ *
+ * This was measured, not reasoned about: rendering a fully warmed `lazy()`
+ * component yields an empty first frame, and the component below yields the
+ * panel. Pre-fetching the module does not help, because the suspend happens
+ * regardless of whether the promise is already resolved.
+ *
+ * So keep the dynamic import — the chunk still leaves the entry bundle — and
+ * hold the resolved component in a module-level slot. `useState`'s initializer
+ * reads that slot during the first render, so a warmed panel is on screen in the
+ * very commit that opened it: no boundary, no fallback, nothing to flash. A
+ * panel opened before warming finished renders null for a tick exactly as it
+ * would have anyway, and warmPanelChunks makes that window small.
+ */
+function lazyPanel<P extends object>(load: () => Promise<ComponentType<P>>) {
+	let Loaded: ComponentType<any> | null = null;
+	let inFlight: Promise<void> | null = null;
+
+	const preload = (): Promise<void> => {
+		if (!inFlight) {
+			inFlight = load()
+				.then((C) => {
+					Loaded = C as ComponentType<any>;
+				})
+				.catch(() => {
+					// Let a failed fetch be retried when the panel is next opened,
+					// rather than wedging it closed for the rest of the session.
+					inFlight = null;
+				});
+		}
+		return inFlight;
+	};
+
+	return Object.assign(
+		(props: P) => {
+			const [Ready, setReady] = useState<ComponentType<any> | null>(() => Loaded);
+			useEffect(() => {
+				if (Ready) return;
+				let alive = true;
+				void preload().then(() => {
+					if (alive && Loaded) setReady(() => Loaded);
+				});
+				return () => {
+					alive = false;
+				};
+			}, [Ready]);
+			return Ready ? <Ready {...props} /> : null;
+		},
+		{ preload },
+	);
+}
+
+const InventoryPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.InventoryPanel));
+const ChestPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.ChestPanel));
+const CraftingPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.CraftingPanel));
+const ToolsPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.ToolsPanel));
+const BiomesPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.BiomesPanel));
+const HomePanel = lazyPanel(() => import('./ui/Panels').then((m) => m.HomePanel));
+const WeatherPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.WeatherPanel));
+const MaterialsPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.MaterialsPanel));
+const JournalPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.JournalPanel));
+const AnimalCard = lazyPanel(() => import('./ui/Journal').then((m) => m.AnimalCard));
+const AchievementsPanel = lazyPanel(() => import('./ui/Achievements').then((m) => m.AchievementsPanel));
+const GoalsPanel = lazyPanel(() => import('./ui/GoalsPanel').then((m) => m.GoalsPanel));
+const DevPanel = lazyPanel(() => import('./ui/DevPanel').then((m) => m.DevPanel));
+
+/**
+ * Fetch the panel chunks in the background, before anyone asks for one.
+ *
+ * Splitting them out kept ~4,200 lines off the critical path to first paint, but
+ * it moved the download to the moment a panel OPENS — the one moment it must not
+ * happen. Warming during the first idle window (the title screen alone buys
+ * seconds of it, while the player reads save slots) means every panel is already
+ * resolved by the time one is opened, and lazyPanel renders a resolved panel in
+ * the same commit as the click.
+ *
+ * Honest about the trade: the bytes are still fetched for everyone, including a
+ * player who never opens a panel. What splitting buys is a faster first paint and
+ * parse, not less bandwidth.
+ *
+ * DevPanel is deliberately absent: it is dev-only, reached by a secret key
+ * sequence, and there is no reason to spend a request on it during play.
+ */
+const WARM_PANELS = [
+	InventoryPanel,
+	ChestPanel,
+	CraftingPanel,
+	ToolsPanel,
+	BiomesPanel,
+	HomePanel,
+	WeatherPanel,
+	MaterialsPanel,
+	JournalPanel,
+	AnimalCard,
+	AchievementsPanel,
+	GoalsPanel,
+];
+
+function warmPanelChunks(): void {
+	for (const panel of WARM_PANELS) void panel.preload();
+}
+
+/** Run `fn` when the browser is next idle, or soon, wherever requestIdleCallback
+ *  isn't available. Returns its own canceller so a quick unmount doesn't leave a
+ *  timer holding a reference to a screen that is gone. */
+function onIdle(fn: () => void, timeout = 2000): () => void {
+	const w = window as any;
+	if (typeof w.requestIdleCallback === 'function') {
+		const id = w.requestIdleCallback(fn, { timeout });
+		return () => w.cancelIdleCallback?.(id);
+	}
+	const id = window.setTimeout(fn, 200);
+	return () => window.clearTimeout(id);
+}
 import { KeyboardGate } from './ui/KeyboardGate';
 import { WelcomeScreen } from './ui/Welcome';
 import { DemoNudge } from './ui/DemoNudge';
@@ -422,7 +557,7 @@ function GameScreen() {
 	);
 }
 
-/** DEMO only: the hard-stop popup shown when the demo budget is spent (10 minutes
+/** DEMO only: the hard-stop popup shown when the demo budget is spent (15 minutes
  *  of play after the forest unlocks, which the player earns by restoring the
  *  meadow first). It blocks all play, and it comes back on the next load if the
  *  budget is still spent — the save is only deleted when this is DISMISSED, so
@@ -600,6 +735,12 @@ function Root() {
 	const sfxEnabled = prefs.sfxEnabled;
 	const sfxVolume = prefs.sfxVolume;
 	const musicVolume = prefs.musicVolume;
+
+	// Warm the lazily-split panel chunks once the app is up and the browser has a
+	// spare moment — see warmPanelChunks. Mounted at Root, not GameScreen, so the
+	// fetch happens while the player is still on the title screen rather than
+	// competing with the first frames of play.
+	useEffect(() => onIdle(warmPanelChunks), []);
 
 	// Keep audio listeners and browser-gesture unlock in one place.
 	useEffect(() => {

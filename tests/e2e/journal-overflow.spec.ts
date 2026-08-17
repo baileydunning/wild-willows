@@ -29,7 +29,9 @@ test.beforeEach(async ({ page }) => {
 async function journalWithOwl(page: import('@playwright/test').Page) {
 	await page.goto('/');
 	await page.getByRole('button', { name: 'New Game' }).click();
-	await page.getByPlaceholder('Caretaker name').fill('Overflow Tester');
+	// DevTools is gated to `bailey_test` saves, and this fixture spawns an animal
+	// through the dev panel — see the note in tests/e2e/solo.spec.ts.
+	await page.getByPlaceholder('Caretaker name').fill('bailey_test');
 	await page.getByRole('button', { name: 'Begin restoring' }).click();
 	await expect(page.locator('.game-screen')).toBeVisible({ timeout: 30_000 });
 

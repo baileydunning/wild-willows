@@ -53,11 +53,11 @@
 				"text": "Press N to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. The guide shows what is happening everywhere. It also explains how weather and season shape the area you are in. Watch the sky. Odd weather can leave rare stuff to gather while it lasts.",
 				"touch": "Tap the cloud button to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. Watch the sky. Odd weather can leave rare stuff to gather while it lasts."
 			},
-			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends 10 minutes after the forest opens."
+			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends 15 minutes after the forest opens."
 		},
 		"help": {
 			"intro": "A calm loop. Gather stuff. Craft it into homes for animals. Place it on the land. Then animals come home.",
-			"demoNote": "You are playing the free demo. Heal the meadow to open the forest, then look around. The demo ends 10 minutes after the forest opens. Your save works in the full game.",
+			"demoNote": "You are playing the free demo. Heal the meadow to open the forest, then look around. The demo ends 15 minutes after the forest opens. Your save works in the full game.",
 			"keys": {
 				"click": "Look at an animal. Or open a placed item’s menu to move, turn, or pick it up.",
 				"rotate": "Turn the thing you are placing a quarter turn.",
@@ -272,7 +272,6 @@
 			"basketFullHarvest": "Your basket is full. Make room before you pick this.",
 			"dbStarting": "The preserve is starting up. Restart Harper if this keeps happening.",
 			"noRoomRefund": "No room for the materials you get back. Make space in your basket or a chest first.",
-			"snapshotPathId": "Add a player id to the path, like this: /BiomeSnapshot/<playerId>",
 			"worldFullClosed": "This preserve is full. It already has its {max} players and is closed.",
 			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed."
 		},

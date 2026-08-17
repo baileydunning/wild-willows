@@ -12,7 +12,11 @@ beforeEach(async () => {
 });
 
 async function stocked(): Promise<string> {
-	const pid = (await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance })).playerId;
+	// DevTools is gated to bailey_test saves (DEV_PLAYER_SLUG in
+	// server/resources.ts). These fixtures drive DevTools to set up state, so
+	// they are exactly the saves that gate is for — named accordingly rather
+	// than given a bypass, so the tests exercise the shipped rule.
+	const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 	await w.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 200 });
 	await w.post('DevTools', { playerId: pid, action: 'unlock-recipes', value: true });
 	return pid;
@@ -71,7 +75,7 @@ describe('object rotation is gated to sensible objects', () => {
 
 describe('dev weather/season override', () => {
 	it('forces weather + season in the snapshot, then clears back to live', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Ivy', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'set-weather', value: { type: 'storm' } });
 		let s = await w.get('GameState', pid);
 		expect(s.weather.override.type).toBe('storm');

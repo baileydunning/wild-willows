@@ -503,6 +503,24 @@ async function safeGet(table: any, id: string): Promise<any | null> {
 async function toArray(iterable: any, label = '?'): Promise<any[]> {
 	const out: any[] = [];
 	let dropped = 0;
+	// Fast path for the in-app solo backend, where LocalTable.search() hands back a
+	// plain array rather than a cursor. `for await` over a sync iterable is legal
+	// but not free: it wraps every element in a resolved promise and awaits it, so
+	// a snapshot's six table reads cost one microtask turn PER ROW — thousands of
+	// them on a built-out save, on the same thread that draws the frame. A sync
+	// loop over an array we already hold is identical in behaviour (same null
+	// handling, same drop accounting) and skips all of it.
+	if (Array.isArray(iterable)) {
+		for (const item of iterable) {
+			if (item == null) {
+				dropped++;
+				continue;
+			}
+			out.push(item);
+		}
+		if (dropped) console.error(`scan of ${label}: ${dropped} undecodable record(s) omitted from results`);
+		return out;
+	}
 	try {
 		for await (const item of iterable) {
 			// Harper yields null in place of a record it couldn't decode (it logs and
@@ -557,9 +575,23 @@ async function findCounterRow(table: any, id: string): Promise<any | null> {
 	if (!table || typeof table.search !== 'function') return null;
 	const direct = await safeGet(table, id);
 	if (direct) return direct;
-	// Null: EITHER genuinely absent OR a cold-instance miss. Only a scan can tell
-	// the two apart, and only the second one is dangerous.
-	const rows = await toArray(table.search({}), tableName(table));
+	// Null: EITHER genuinely absent OR a cold-instance miss. Only a range read can
+	// tell the two apart, and only the second one is dangerous.
+	//
+	// This used to be an UNBOUNDED scan, which made the guard quadratic on the one
+	// table where the caller picks the key: AppOpen is keyed `dev:${deviceId}` from
+	// the request body, so a novel device id always misses, always scanned, and the
+	// table it scanned had one row per device id ever seen. N invented ids cost
+	// ~N²/2 row reads, and every row is permanent.
+	//
+	// A `starts_with` on the FULL id is bounded to the rows sharing that exact
+	// prefix — normally one — while keeping the property the scan was here for:
+	// Harper compiles it to `primaryStore.getRange`, the same store-level read that
+	// an unbounded scan makes, so it cannot be colder or less ready than the scan it
+	// replaces. (See the KEY_REV note; this is that argument applied to a single
+	// key.) The exact-id filter below still runs, because a prefix read can also
+	// return `dev:abc123` when asked for `dev:abc`.
+	const rows = await scanPrefix(table, id);
 	return rows.find((r: any) => r?.id === id) || null;
 }
 
@@ -596,6 +628,21 @@ async function findCounterRow(table: any, id: string): Promise<any | null> {
  * refreshing would be faster still, but it's the same read-your-own-write
  * sacrifice. If /dashboard ever gets heavy enough for the wait to show up in the
  * p95, returning `this.value` from get() when one exists is the one-line change.
+ *
+ * RETENTION, which is a separate axis from staleness and used not to exist here.
+ * `ttlMs` only decides when the held value stops being SERVED; it never decided
+ * when it stops being HELD. So the dashboard rollup — one fully parsed metrics
+ * snapshot per reporting save — sat in the heap of every worker forever after a
+ * single page load, whether or not anyone ever looked again. That is the one
+ * cache in this file whose size tracks the number of players, so it is the one
+ * that turns "more saves" into an out-of-memory rather than a slow query.
+ *
+ * `retainMs` fixes that without touching the read path: a value nobody has read
+ * for that long is dropped, and the next reader simply pays for a rebuild it was
+ * going to pay for anyway (it was already past `ttlMs` and would have rebuilt).
+ * Eviction is therefore FREE in served latency — it can only ever discard a
+ * value that was already too stale to serve. The sweep runs off an unref'd
+ * timer so it never holds the process open.
  */
 class RollupCache<T> {
 	private value: T | null = null;
@@ -605,11 +652,42 @@ class RollupCache<T> {
 	private version = 0;
 	private inFlight: Promise<T> | null = null;
 	private inFlightVersion = -1;
+	/** Last time a reader actually took this value — drives idle eviction. */
+	private readAt = 0;
+	/** What `identity()` answered when the held value was built. */
+	private builtFrom: unknown = undefined;
 
 	constructor(
 		private readonly ttlMs: number,
 		private readonly build: () => Promise<T>,
-	) {}
+		/**
+		 * Drop the held value after this long with no reads. Must be >= ttlMs or
+		 * eviction would throw away values that are still servable; defaults to a
+		 * generous multiple so a dashboard left open on a slow refresh never pays.
+		 */
+		private readonly retainMs = Math.max(ttlMs * 20, 5 * 60_000),
+		/**
+		 * What the cached value was derived FROM. A cache is only valid for the
+		 * database it scanned, and `invalidate()` cannot express that: it is called
+		 * by the endpoints that WRITE, so it never fires when the underlying
+		 * database is REPLACED wholesale rather than written to.
+		 *
+		 * That is not hypothetical. The integration harness loads this module once
+		 * and swaps in a brand-new empty world before each test, so a rollup built
+		 * during one test would otherwise be served intact to the next — a test
+		 * asserting "nothing has happened yet" reading back the previous test's
+		 * devices. Comparing identity lets the cache notice on its own, which beats
+		 * exporting a reset hook that only the tests call and that production
+		 * therefore never exercises.
+		 */
+		private readonly identity: () => unknown = () => null,
+	) {
+		// Unref'd so this timer is never the reason the process stays alive, and
+		// guarded because the same class is bundled into the in-app solo backend,
+		// where `setInterval` exists but `unref` does not.
+		const timer: any = setInterval(() => this.evictIfIdle(), Math.max(this.retainMs, 60_000));
+		if (typeof timer?.unref === 'function') timer.unref();
+	}
 
 	/** The underlying table changed. Cheap: no scan, no allocation, no await. */
 	invalidate(): void {
@@ -617,9 +695,36 @@ class RollupCache<T> {
 		this.version++;
 	}
 
+	/**
+	 * Release the held value if nobody has read it recently. Only ever discards
+	 * something that is already past its TTL, so no reader is made to wait that
+	 * wasn't already going to.
+	 */
+	private evictIfIdle(): void {
+		if (this.value === null || this.inFlight) return;
+		const now = Date.now();
+		if (now - this.readAt < this.retainMs) return;
+		this.value = null;
+		this.builtFrom = undefined;
+		this.at = 0;
+		this.stale = false;
+	}
+
 	async get(now: number): Promise<T> {
-		if (this.value !== null && !this.stale && now - this.at < this.ttlMs) return this.value;
+		this.readAt = now;
+		if (this.value !== null && !this.stale && now - this.at < this.ttlMs && this.sameSource()) return this.value;
 		return this.refresh();
+	}
+
+	/** True when the held value came from the source we would read now. */
+	private sameSource(): boolean {
+		try {
+			return this.identity() === this.builtFrom;
+		} catch {
+			// identity() reads the database, which throws while Harper is starting.
+			// Unknowable is not the same as unchanged — rebuild rather than serve.
+			return false;
+		}
 	}
 
 	private refresh(): Promise<T> {
@@ -630,8 +735,15 @@ class RollupCache<T> {
 		const p = (async () => {
 			// Never run two scans at once; queue behind whatever is already going.
 			if (prior) await prior.catch(() => {});
+			let source: unknown = null;
+			try {
+				source = this.identity();
+			} catch {
+				/* database unavailable — sameSource() simply rebuilds next time */
+			}
 			const v = await this.build();
 			this.value = v;
+			this.builtFrom = source;
 			this.at = Date.now();
 			// Only call it fresh if nothing was written while the scan ran. If
 			// something was, this result may predate it and the next read rebuilds.
@@ -718,6 +830,33 @@ async function scanPrefix(table: any, prefix: string): Promise<any[]> {
 const keyedWorlds = new Set<string>();
 
 /**
+ * How many "already migrated" answers one of these memo sets will hold.
+ *
+ * The answers are permanently true, so forgetting one is only ever a cost, never
+ * a correctness problem: the next read re-derives it from the player row. What
+ * forgetting buys is a ceiling. These sets gain an entry per world (or per save)
+ * this worker has ever touched and previously dropped none, which made them grow
+ * with the size of the player base for the lifetime of the process — small per
+ * entry, but unbounded, which is the property that matters.
+ */
+const KEYED_MEMO_MAX = 20_000;
+
+/**
+ * Remember a permanently-true migration answer, bounded. At the cap the oldest
+ * insertion is dropped (JS Sets iterate in insertion order, so `.next()` is the
+ * oldest key) — a plain FIFO rather than a true LRU, which is the right trade
+ * here because every entry is equally cheap to re-derive.
+ */
+function rememberKeyed(set: Set<string>, key: string): void {
+	if (set.has(key)) return;
+	if (set.size >= KEYED_MEMO_MAX) {
+		const oldest = set.values().next();
+		if (!oldest.done) set.delete(oldest.value);
+	}
+	set.add(key);
+}
+
+/**
  * The KEY_REV a world has reached, read off the acting player's row.
  *
  * A solo world's id IS the player's id, so the marker is simply `keyRev`. A save
@@ -749,15 +888,16 @@ async function markWorldKeyed(worldId: string, playerId: string): Promise<void> 
  * the migration again. Called wherever we hold a player, which is every endpoint.
  */
 function noteKeyedWorlds(player: any): void {
-	if ((player?.keyRev || 0) >= KEY_REV && player?.id) keyedWorlds.add(player.id);
-	for (const [wid, rev] of Object.entries(player?.keyRevs || {})) if ((rev as number) >= KEY_REV) keyedWorlds.add(wid);
+	if ((player?.keyRev || 0) >= KEY_REV && player?.id) rememberKeyed(keyedWorlds, player.id);
+	for (const [wid, rev] of Object.entries(player?.keyRevs || {}))
+		if ((rev as number) >= KEY_REV) rememberKeyed(keyedWorlds, wid);
 }
 
 async function worldIsKeyed(worldId: string, playerId?: string): Promise<boolean> {
 	if (!worldId) return false;
 	if (keyedWorlds.has(worldId)) return true;
 	if ((await keyRevOf(worldId, playerId)) >= KEY_REV) {
-		keyedWorlds.add(worldId);
+		rememberKeyed(keyedWorlds, worldId);
 		return true;
 	}
 	return false;
@@ -781,7 +921,7 @@ async function migrateWorldKeys(worldId: string, playerId?: string): Promise<voi
 	const t = db();
 	const owner = playerId || worldId;
 	if ((await keyRevOf(worldId, owner)) >= KEY_REV) {
-		keyedWorlds.add(worldId);
+		rememberKeyed(keyedWorlds, worldId);
 		return;
 	}
 	const prefix = `${worldId}:`;
@@ -824,7 +964,7 @@ async function migrateWorldKeys(worldId: string, playerId?: string): Promise<voi
 		}
 
 		await markWorldKeyed(worldId, owner);
-		keyedWorlds.add(worldId);
+		rememberKeyed(keyedWorlds, worldId);
 	} catch (e: any) {
 		// A failed migration must never break the action that triggered it — the
 		// world stays unmigrated and byWorld keeps using the legacy merge path,
@@ -845,7 +985,7 @@ async function migrateWorldKeys(worldId: string, playerId?: string): Promise<voi
  * not the player's, so they still need the unbounded scan — but every one of
  * them is a cold path, and none is reached from snapshot() or a gameplay action.
  */
-async function byPlayer(table: any, playerId: string): Promise<any[]> {
+async function byPlayer(table: any, playerId: string, opts: { player?: any } = {}): Promise<any[]> {
 	// Defensive: if a table isn't available yet (e.g. a newly added schema table on
 	// an instance that hasn't been restarted), treat it as empty rather than throwing
 	// — a missing optional table must never break a full state read / refresh.
@@ -853,14 +993,63 @@ async function byPlayer(table: any, playerId: string): Promise<any[]> {
 	const own = (r: any) => r?.playerId === playerId;
 	if (tableName(table) === 'PlayerAchievement') {
 		const rows = (await scanPrefix(table, `${playerId}:`)).filter(own);
-		// Achievement ids have always been player-prefixed, but a save that predates
-		// that is cheap to rescue and impossible to detect any other way: only fall
-		// back when the bounded read came up empty, so the cost is paid by saves
-		// with no achievements yet (a scan of a table that is, for them, tiny).
 		if (rows.length) return rows;
-		return (await toArray(table.search({}), tableName(table))).filter(own);
+		// An empty bounded read is ambiguous: it means EITHER this save has earned
+		// nothing yet (overwhelmingly the common case) OR it predates player-prefixed
+		// achievement ids. The legacy rescue below can only tell them apart with an
+		// unbounded scan of every achievement row of every save in the database.
+		//
+		// That scan used to run unconditionally on the empty case, and the comment
+		// justifying it — "the cost is paid by saves with no achievements yet, a
+		// scan of a table that is, for them, tiny" — had it backwards: the table is
+		// small for THEM, not small. awardAchievements reaches this on essentially
+		// every gameplay action, so a brand-new save made every one of its actions
+		// cost a scan proportional to the whole player base. That is precisely the
+		// coupling the KEY_REV 3 work existed to remove, left in place on the one
+		// path most likely to be someone's first ten minutes with the game.
+		//
+		// So gate it on the same kind of marker the world re-keying uses. Any save
+		// created at or after KEY_REV 3 provably has no legacy rows and skips the
+		// scan outright; only a genuinely old save with nothing under its prefix
+		// pays, and it pays once, because the rescue marks it on the way through.
+		if (await achievementsAreKeyed(playerId, opts.player)) return rows;
+		const legacy = (await toArray(table.search({}), tableName(table))).filter(own);
+		// Memoize WITHOUT writing. byPlayer is reached from snapshot() and from
+		// Metrics, both GET handlers, and a GET in this file must not write — so the
+		// marker here is process-local only. That is enough to kill the pathology:
+		// the scan drops from once per ACTION to at most once per save per worker,
+		// and a save created from here on never reaches it at all, because
+		// createPlayerRecords stamps `achKeyRev` at birth.
+		rememberKeyed(achKeyedPlayers, playerId);
+		return legacy;
 	}
 	return (await toArray(table.search({}), tableName(table))).filter(own);
+}
+
+/**
+ * Saves this worker has confirmed carry no pre-KEY_REV_3 achievement rows.
+ * One-way and permanent, like `keyedWorlds`, so a positive answer is memoizable;
+ * bounded by `rememberKeyed` so it can't grow with the player base.
+ */
+const achKeyedPlayers = new Set<string>();
+
+/**
+ * True when `playerId` is known to have no legacy (un-prefixed) achievement rows,
+ * so the empty-result rescue scan in byPlayer can be skipped.
+ *
+ * Two ways to know: this worker has already checked, or the save carries the
+ * marker `createPlayerRecords` stamps at birth. Both are permanently true once
+ * true, so neither answer ever has to be re-derived.
+ */
+async function achievementsAreKeyed(playerId: string, known?: any): Promise<boolean> {
+	if (achKeyedPlayers.has(playerId)) return true;
+	const player = known && known.id === playerId ? known : await getPlayer(playerId);
+	if (!player) return false;
+	if ((player.achKeyRev || 0) >= KEY_REV) {
+		rememberKeyed(achKeyedPlayers, playerId);
+		return true;
+	}
+	return false;
 }
 
 /**
@@ -990,7 +1179,7 @@ async function ensureSoloWorld(player: any, opts: { freshGrid?: boolean } = {}):
 	// migration, which is a no-op after the first time.
 	if (opts.freshGrid && !player.keyRev) {
 		await patchPlayer(player.id, { keyRev: KEY_REV });
-		keyedWorlds.add(soloId);
+		rememberKeyed(keyedWorlds, soloId);
 		return;
 	}
 	await migrateWorldKeys(soloId, player.id);
@@ -2497,92 +2686,28 @@ function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf
 	return false;
 }
 
-const TERRAIN_COLORS: Record<string, string> = {
-	tilled: '#8a6a48',
-	watered: '#6b4f33',
-	water: '#5d96c8',
-};
-
-/** Linear blend between two #rrggbb colors (t = 0 → a, 1 → b). */
-function lerpHex(a: string, b: string, t: number): string {
-	const pa = parseInt(a.slice(1), 16);
-	const pb = parseInt(b.slice(1), 16);
-	const mix = (sh: number) => {
-		const ca = (pa >> sh) & 255;
-		const cb = (pb >> sh) & 255;
-		return Math.round(ca + (cb - ca) * clamp(t, 0, 1));
-	};
-	return '#' + [mix(16), mix(8), mix(0)].map((n) => n.toString(16).padStart(2, '0')).join('');
-}
-
-const svgEscape = (s: string) =>
-	String(s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
-
-/** Render a top-down schematic of one area as an SVG string. */
-function renderBiomeSVG(d: any, biome: any, health: number, placements: any[], terrain: any[]): string {
-	const cell = 16;
-	const pad = 8;
-	const labelH = 22;
-	const grid = areaGrid(d, biome?.id || '');
-	const W = grid.cols * cell + pad * 2;
-	const H = grid.rows * cell + pad * 2 + labelH;
-	const damaged = biome?.palette?.damaged || '#b9a37c';
-	const healthy = biome?.palette?.healthy || '#8fbf6f';
-	const ground = lerpHex(damaged, healthy, health / 100);
-	const groundDark = lerpHex(damaged, healthy, (health / 100) * 0.8);
-	const px = (x: number) => pad + x * cell;
-	const py = (y: number) => pad + y * cell;
-
-	const parts: string[] = [];
-	parts.push(`<rect x="0" y="0" width="${W}" height="${H}" rx="10" fill="${ground}"/>`);
-	// faint checkerboard for a bit of ground texture
-	for (let gy = 0; gy < grid.rows; gy++) {
-		for (let gx = 0; gx < grid.cols; gx++) {
-			if ((gx + gy) % 2 === 0) {
-				parts.push(
-					`<rect x="${px(gx)}" y="${py(gy)}" width="${cell}" height="${cell}" fill="${groundDark}" opacity="0.22"/>`,
-				);
-			}
-		}
-	}
-	for (const tt of terrain) {
-		const c = TERRAIN_COLORS[tt.type];
-		if (!c) continue;
-		parts.push(`<rect x="${px(tt.x)}" y="${py(tt.y)}" width="${cell}" height="${cell}" rx="3" fill="${c}"/>`);
-	}
-	for (const p of placements) {
-		const def = d.object.get(p.objectId);
-		const c = def?.color || '#6b5a3a';
-		parts.push(
-			`<circle cx="${px(p.x) + cell / 2}" cy="${py(p.y) + cell / 2}" r="${cell * 0.42}" fill="${c}" stroke="#2b3321" stroke-opacity="0.35"/>`,
-		);
-	}
-	parts.push(`<rect x="0" y="${H - labelH}" width="${W}" height="${labelH}" fill="#2b3321" opacity="0.55"/>`);
-	parts.push(
-		`<text x="${pad}" y="${H - 7}" font-family="sans-serif" font-size="12" fill="#fdfaf0">${svgEscape(biome?.name || 'Area')} — ${health}% health · ${placements.length} placed</text>`,
-	);
-	return `<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">${parts.join('')}</svg>`;
-}
-
-function svgDataUri(svg: string): string {
-	// Buffer is a Node global in the Harper runtime; reach it via globalThis so
-	// we don't need @types/node just for this.
-	const B = (globalThis as any).Buffer;
-	return 'data:image/svg+xml;base64,' + B.from(svg, 'utf8').toString('base64');
-}
-
 /**
- * Gather per-biome restoration metrics for a player. With `images: true` each
- * unlocked biome also gets a `snapshot` data URI rendered from its current
- * placements and terrain.
+ * Gather per-biome restoration metrics for a player: health, balance, animals
+ * returned, unlock state.
+ *
+ * This used to take an `images: true` option that rendered each unlocked area to
+ * an SVG "postcard". Nothing ever passed it — the only caller is GET
+ * /Metrics/<playerId>, which asks for numbers — and the renderer it drove was
+ * reachable unauthenticated through BiomeSnapshot, where it rebuilt several
+ * hundred KB of markup per request with no cache. Both are gone.
  */
-async function biomeMetrics(playerId: string, opts: { images?: boolean } = {}) {
+async function biomeMetrics(playerId: string, opts: { player?: any } = {}) {
 	const t = db();
 	const d = await defs();
-	const states = await byPlayer(t.BiomeState, playerId);
+	// BiomeState / Placement / TerrainTile are WORLD-keyed, so `byPlayer` cannot
+	// use their prefix and degrades to a full scan of the whole table — three of
+	// them, on a path GET /Metrics/<playerId> reaches on every read. Resolve the
+	// world once and use the bounded read instead; for a solo save the world id IS
+	// the player id, so this returns the same rows by a much cheaper route.
+	const player = opts.player && opts.player.id === playerId ? opts.player : await getPlayer(playerId);
+	const wid = player ? worldOf(player) : playerId;
+	const states = await byWorld(t.BiomeState, wid);
 	const byId = new Map(states.map((s) => [s.biomeId, s]));
-	const placements = opts.images ? await byPlayer(t.Placement, playerId) : [];
-	const terrain = opts.images ? await byPlayer(t.TerrainTile, playerId) : [];
 
 	const biomes = d.biomes.map((b: any) => {
 		const s: any = byId.get(b.id) || {};
@@ -2595,12 +2720,6 @@ async function biomeMetrics(playerId: string, opts: { images?: boolean } = {}) {
 			unlocked: !!s.unlocked,
 			explorable: !!b.explorable,
 		};
-		if (opts.images && s.unlocked) {
-			const pls = placements.filter((p) => p.area === b.id);
-			const ter = terrain.filter((tt) => tt.area === b.id);
-			entry.placements = pls.length;
-			entry.snapshot = svgDataUri(renderBiomeSVG(d, b, entry.health, pls, ter));
-		}
 		return entry;
 	});
 
@@ -2649,6 +2768,15 @@ async function createPlayerRecords(
 		// not in the dark. Sleeping later advances this offset the same way.
 		clockOffsetMs: nextPhaseAt(0, 'day'),
 		worldId: playerId, // start in your own private solo world (world of one)
+		// Born on the current key contract, on both axes. `keyRev` says this world's
+		// rows are already prefixed, so migrateWorldKeys never scans for it;
+		// `achKeyRev` says the same for PlayerAchievement, which is what lets
+		// byPlayer skip its legacy-rescue scan for a save that has simply not earned
+		// anything yet. Without the second marker every action taken by a brand-new
+		// save — the first ten minutes of the game, for everyone — full-scanned every
+		// achievement row in the database looking for legacy rows that cannot exist.
+		keyRev: KEY_REV,
+		achKeyRev: KEY_REV,
 		area: 'meadow',
 		x: 24.5, // spawn right beside the camp crafting station
 		y: 6.5,
@@ -4832,10 +4960,258 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	};
 }
 
-async function bodyOf(data: any) {
+// ------------------------------------------------------------- rate limiting
+//
+// There was none, at any layer, and the endpoints that most needed it are the
+// ones anyone can reach: LoginPlayer runs scrypt, CreatePlayer writes nine rows,
+// the telemetry endpoints mint permanent rows from client-supplied keys. Caps on
+// individual operations bound what ONE request costs; nothing bounded how many
+// requests one caller could make.
+//
+// This is the ORIGIN limiter, and it is the one that matters. The Cloudflare
+// Worker in workers/play.js has its own (see there), but Harper's own hostname
+// is reachable directly, so an edge-only limit is something an attacker simply
+// routes around. Anything enforced here holds regardless of how the request
+// arrived.
+//
+// NOT APPLIED TO THE IN-APP SOLO BACKEND. `getContext()` returning nothing is
+// this file's established signal for "no HTTP request — the renderer is calling
+// the game logic directly" (see GameData, which uses it to decide whether to
+// build an HTTP envelope at all). Solo play is one player driving their own
+// process; rate limiting it would be nonsense, and reusing the existing signal
+// means there is no second way of detecting solo that could drift from the first.
+
+interface TokenBucket {
+	tokens: number;
+	at: number;
+}
+
+/**
+ * Per-tier budgets, in requests per minute, with a burst allowance.
+ *
+ * Sized against what the GAME does, not against what feels tidy. A busy player
+ * lands maybe 60 actions a minute and heartbeats twice; 600 leaves an order of
+ * magnitude of headroom so nobody legitimate ever sees a 429. The strict tiers
+ * are the ones where a single request is expensive or writes a permanent row.
+ */
+const RATE_TIERS = {
+	/** scrypt on every call — the most expensive thing an anonymous caller can trigger. */
+	auth: { perMinute: 10, burst: 5 },
+	/** Writes a permanent row from an anonymous caller. */
+	report: { perMinute: 20, burst: 10 },
+	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~5 minutes. */
+	telemetry: { perMinute: 60, burst: 30 },
+	/** Developer tools. Already gated to one save; this bounds the rest. */
+	dev: { perMinute: 60, burst: 30 },
+	/** Ordinary gameplay writes. Deliberately generous — see above. */
+	action: { perMinute: 600, burst: 120 },
+	/** Reads that touch the database. */
+	read: { perMinute: 300, burst: 100 },
+} as const;
+
+type RateTier = keyof typeof RATE_TIERS;
+
+/**
+ * How much slack the shared fallback bucket gets when a caller cannot be
+ * identified. It has to hold every such request at once, so it is sized as a
+ * whole-service ceiling rather than a per-caller one: high enough that real
+ * aggregate traffic never reaches it, low enough to still cap a flood.
+ */
+const RATE_UNKEYED_MULTIPLIER = 50;
+
+/**
+ * How much of a tier's per-caller budget the whole service may spend at once.
+ *
+ * This is the backstop against forged client addresses — see the note in
+ * rateLimit. Deliberately loose: at 200x the auth tier it is 2,000 logins a
+ * minute across every player, which no real population reaches and which still
+ * bounds a scripted flood to something the node survives.
+ */
+const RATE_GLOBAL_MULTIPLIER = 200;
+
+/** Buckets are cheap, but there is one per (tier, caller) and callers are
+ *  attacker-supplied — so the map itself needs a ceiling and a sweep. */
+const RATE_BUCKET_MAX = 20_000;
+const rateBuckets = new Map<string, TokenBucket>();
+
+{
+	// Drop buckets that have been idle long enough to have refilled completely;
+	// forgetting one of those is free, because a full bucket and no bucket behave
+	// identically. Unref'd so it never holds the process open.
+	const sweep: any = setInterval(() => {
+		const cutoff = Date.now() - 5 * 60_000;
+		for (const [k, b] of rateBuckets) if (b.at < cutoff) rateBuckets.delete(k);
+	}, 60_000);
+	if (typeof sweep?.unref === 'function') sweep.unref();
+}
+
+/**
+ * The caller's address, from whichever header the hop in front of us set.
+ *
+ * `cf-connecting-ip` is the one that is present in production (the Worker proxies
+ * through Cloudflare, which sets it on the subrequest) and the one an outside
+ * caller cannot forge, because Cloudflare overwrites it. The others are fallbacks
+ * for a different deployment shape; `x-forwarded-for` is a list, and only its
+ * FIRST entry is the original client.
+ */
+function clientAddress(headers: any): string | null {
+	if (!headers || typeof headers.get !== 'function') return null;
+	for (const name of ['cf-connecting-ip', 'true-client-ip', 'x-real-ip']) {
+		const v = headers.get(name);
+		if (v) return String(v).trim().slice(0, 64);
+	}
+	const fwd = headers.get('x-forwarded-for');
+	if (fwd) {
+		const first = String(fwd).split(',')[0]?.trim();
+		if (first) return first.slice(0, 64);
+	}
+	return null;
+}
+
+/** Warn once, not per request, if no header ever identifies a caller. */
+let warnedNoClientAddress = false;
+
+/**
+ * Charge one request against `tier`. Throws 429 when the bucket is empty.
+ *
+ * Returns silently — without charging anything — when there is no HTTP context,
+ * which is the in-app solo backend. See the block comment above.
+ */
+function rateLimit(res: any, tier: RateTier): void {
+	const headers: any = res?.getContext?.()?.headers;
+	if (!headers || typeof headers.get !== 'function') return; // solo / internal caller
+	// ONCE PER REQUEST, not once per call. The endpoint instance is per-request, so
+	// it is the right place to remember. Four endpoints (Heartbeat, Plant,
+	// SetHomeStyle, SyncPlayer) are a thin `post` that takes the player lock and
+	// hands off to a private method, and BOTH halves call bodyOf — which charged
+	// those requests twice and silently halved their budget. Marking the instance
+	// fixes it for those and for any future endpoint that reads its body more than
+	// once, which is a much easier invariant to keep than "call bodyOf exactly one
+	// time".
+	if (res.__rateCharged) return;
+	res.__rateCharged = true;
+	const limits = RATE_TIERS[tier];
+	const addr = clientAddress(headers);
+	if (!addr && !warnedNoClientAddress) {
+		warnedNoClientAddress = true;
+		console.error(
+			'rate limit: no client-address header on an HTTP request (looked for cf-connecting-ip, true-client-ip, x-real-ip, x-forwarded-for) — falling back to a shared per-tier budget',
+		);
+	}
+	// An unidentifiable caller shares one deliberately roomy bucket per tier. That
+	// keeps a header-shape surprise in production from turning into a 429 for every
+	// player at once, while still leaving a ceiling in place.
+	const perMinute = addr ? limits.perMinute : limits.perMinute * RATE_UNKEYED_MULTIPLIER;
+	const burst = addr ? limits.burst : limits.burst * RATE_UNKEYED_MULTIPLIER;
+	const now = Date.now();
+
+	// TWO buckets, and the second is what makes the first worth having.
+	//
+	// A per-caller bucket is only as good as the caller's identity, and here that
+	// identity is a header. The Worker sets it honestly, but Harper's hostname is
+	// reachable directly, so someone who skips the Worker can put whatever they
+	// like in it — and a fresh forged address every request means a fresh full
+	// bucket every request. There is no fix for that without a shared secret
+	// between the edge and the origin, which is infrastructure this does not have.
+	//
+	// So the per-caller bucket does the useful, precise job (one bad actor cannot
+	// spoil it for everyone), and a service-wide bucket per tier sits behind it as
+	// the thing forged addresses cannot get around. Sized so real aggregate traffic
+	// never approaches it: the ceiling exists to bound a flood, not to shape
+	// ordinary load.
+	const caller = takeToken(`${tier}:${addr || '@shared'}`, perMinute, burst, now, false);
+	const global = takeToken(
+		`${tier}:@global`,
+		limits.perMinute * RATE_GLOBAL_MULTIPLIER,
+		limits.burst * RATE_GLOBAL_MULTIPLIER,
+		now,
+		false,
+	);
+	if (!caller || !global) throw new GameError(tr('server.err.tooManyRequests'), 429, 'server.err.tooManyRequests');
+	// Only spend once BOTH have room, so a rejected request never quietly drains
+	// the other bucket — otherwise a caller being turned away by one limit would
+	// still be eating the budget of the other.
+	takeToken(`${tier}:${addr || '@shared'}`, perMinute, burst, now, true);
+	takeToken(
+		`${tier}:@global`,
+		limits.perMinute * RATE_GLOBAL_MULTIPLIER,
+		limits.burst * RATE_GLOBAL_MULTIPLIER,
+		now,
+		true,
+	);
+}
+
+/**
+ * Refill a bucket and report whether it has a token. With `spend`, take it.
+ *
+ * Refills continuously rather than in fixed windows: a window lets a caller spend
+ * a full budget at the very end of one and the whole of the next immediately
+ * after, which is twice the intended rate at exactly the wrong moment.
+ */
+function takeToken(key: string, perMinute: number, burst: number, now: number, spend: boolean): boolean {
+	let bucket = rateBuckets.get(key);
+	if (!bucket) {
+		if (rateBuckets.size >= RATE_BUCKET_MAX) {
+			// At the ceiling, drop the oldest entry rather than refuse the request:
+			// running out of bookkeeping space must not become a way to get a 429.
+			const oldest = rateBuckets.keys().next();
+			if (!oldest.done) rateBuckets.delete(oldest.value);
+		}
+		bucket = { tokens: burst, at: now };
+		rateBuckets.set(key, bucket);
+	}
+	const refill = ((now - bucket.at) / 60_000) * perMinute;
+	bucket.tokens = Math.min(burst, bucket.tokens + refill);
+	bucket.at = now;
+	if (bucket.tokens < 1) return false;
+	if (spend) bucket.tokens -= 1;
+	return true;
+}
+
+/** The tier an endpoint class declares, defaulting to ordinary gameplay. */
+function tierOf(res: any): RateTier {
+	const declared = res?.constructor?.rateTier;
+	return declared && declared in RATE_TIERS ? (declared as RateTier) : 'action';
+}
+
+/**
+ * Ceiling on a request body, in bytes of re-serialized JSON.
+ *
+ * Comfortably above every legitimate body in the game: the largest are
+ * AppendFeed (FEED_CAP=100 lines x 500 chars, ~50 KB) and SyncMetrics
+ * (METRICS_SNAPSHOT_MAX_BYTES=24 KB plus its scalars). 128 KB leaves room for
+ * both to grow without ever coming near it.
+ */
+const MAX_BODY_BYTES = 128 * 1024;
+
+/**
+ * Be honest about what this bounds. Harper has already parsed the request by the
+ * time a handler runs, so this cannot protect against the parse — that cost is
+ * sunk. What it does stop is the durable half: a body this size being PERSISTED,
+ * iterated key-by-key, or copied into a cached rollup, which is where an
+ * oversized request turns from one slow moment into a permanent one.
+ *
+ * The stringify is one pass over an object we already hold, and every real body
+ * is tens of bytes, so this is nothing on the gameplay path.
+ */
+async function bodyOf(data: any, res?: any) {
+	// Charged here because every POST handler in the file goes through this
+	// function — one place to enforce it, and no endpoint can be added later that
+	// quietly misses it. GETs are charged explicitly at the few that read the
+	// database (they have no body to parse).
+	if (res) rateLimit(res, tierOf(res));
 	const body = await data;
 	if (!body || typeof body !== 'object')
 		throw new GameError(tr('server.err.bodyRequired'), 400, 'server.err.bodyRequired');
+	let bytes = 0;
+	try {
+		bytes = JSON.stringify(body)?.length ?? 0;
+	} catch {
+		// Circular or otherwise unserializable — it cannot be stored either, so
+		// refuse it here rather than further in.
+		throw new GameError(tr('server.err.bodyTooLarge'), 413, 'server.err.bodyTooLarge');
+	}
+	if (bytes > MAX_BODY_BYTES) throw new GameError(tr('server.err.bodyTooLarge'), 413, 'server.err.bodyTooLarge');
 	return body;
 }
 
@@ -4939,8 +5315,11 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 };
 
 /** Read the achievement ids a player has already earned. */
-async function earnedAchievementIds(playerId: string): Promise<Set<string>> {
-	const rows = await byPlayer(db().PlayerAchievement, playerId);
+async function earnedAchievementIds(playerId: string, player?: any): Promise<Set<string>> {
+	// `player` is passed through purely so byPlayer's legacy-key check can answer
+	// from a row the caller already holds instead of re-reading it. Every gameplay
+	// action reaches here via awardAchievements.
+	const rows = await byPlayer(db().PlayerAchievement, playerId, { player });
 	return new Set(rows.map((r: any) => r.achievementId));
 }
 
@@ -4995,7 +5374,15 @@ async function achievementMetrics(playerId: string) {
  */
 async function awardAchievements(
 	playerId: string,
-	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
+	opts: {
+		addDiscoveries?: any[];
+		freshBiomeStates?: any[];
+		/** Rows the caller has already read this request — see the note below. */
+		player?: any;
+		biomeStates?: any[];
+		discoveries?: any[];
+		terrain?: any[];
+	} = {},
 ): Promise<any[]> {
 	try {
 		const t = db();
@@ -5004,17 +5391,26 @@ async function awardAchievements(
 		// world, so one member left with an undecodable record must not throw a
 		// storage-layer decode error on every action. safeGet force-decodes, purges
 		// the corrupt row, and returns null → this player is simply skipped.
-		const player = await safeGet(t.Player, playerId);
+		const player = opts.player && opts.player.id === playerId ? opts.player : await safeGet(t.Player, playerId);
 		if (!player) return [];
-		const earned = await earnedAchievementIds(playerId);
+		const earned = await earnedAchievementIds(playerId, player);
 		// achievement context comes from the world the player is acting in
 		const wid = worldOf(player);
 
+		// Reuse whatever the caller already read. These three scans are bounded per
+		// world, but the heartbeat and several actions had ALREADY read the same
+		// rows moments earlier in the same request and were paying for them twice —
+		// the reads are identical, so the only thing the second pass bought was
+		// latency. `opts` was always the place for this; the addDiscoveries /
+		// freshBiomeStates folding below exists for exactly the same reason.
 		let [biomeStates, discoveries, terrain] = await Promise.all([
-			byWorld(t.BiomeState, wid),
-			byWorld(t.Discovery, wid),
-			byWorld(t.TerrainTile, wid),
+			opts.biomeStates ?? byWorld(t.BiomeState, wid),
+			opts.discoveries ?? byWorld(t.Discovery, wid),
+			opts.terrain ?? byWorld(t.TerrainTile, wid),
 		]);
+		// Never mutate an array the caller lent us — the folding below pushes.
+		if (opts.biomeStates) biomeStates = biomeStates.slice();
+		if (opts.discoveries) discoveries = discoveries.slice();
 
 		// fold in this-request writes the searches above can't see yet
 		for (const ad of opts.addDiscoveries || []) {
@@ -5094,7 +5490,7 @@ async function awardAchievements(
 async function awardWorldAchievements(
 	wid: string,
 	actorId: string,
-	opts: { addDiscoveries?: any[]; freshBiomeStates?: any[] } = {},
+	opts: Parameters<typeof awardAchievements>[1] = {},
 ): Promise<any[]> {
 	// One player owns one world, so there is nobody else to evaluate. The wrapper
 	// stays because every world-mutating call site already routes through it.
@@ -5338,8 +5734,9 @@ export class GameData extends PublicEndpoint {
 
 /** POST /CreatePlayer/ {name, passcode, appearance} — start a brand-new save. */
 export class CreatePlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data);
+		const { name, passcode, appearance, tzOffsetMinutes, creationMs, edition } = await bodyOf(data, this);
 		const ed: 'demo' | 'full' = edition === 'demo' ? 'demo' : 'full';
 		const cleanName = String(name || '').trim();
 		if (cleanName.length < 2 || cleanName.length > 24)
@@ -5417,7 +5814,15 @@ async function indexPlayerName(name: string, playerId: string): Promise<void> {
 		if (!id) return;
 		const row = (await safeGet(t.PlayerNameIndex, id)) || { id, playerIds: [] };
 		const ids: string[] = Array.isArray(row.playerIds) ? row.playerIds : [];
-		if (!ids.includes(playerId)) await t.PlayerNameIndex.put({ ...row, id, playerIds: [...ids, playerId] });
+		if (ids.includes(playerId)) return;
+		// Append, then trim from the FRONT. The array is append-ordered, login reads
+		// it newest-first, and the row is rewritten whole on every append — so an
+		// uncapped array is both O(N²) to build and unbounded to read. Dropping the
+		// oldest ids keeps the row a fixed size without ever evicting the entries a
+		// login is most likely to want.
+		const next = [...ids, playerId];
+		const trimmed = next.length > PLAYER_NAME_INDEX_MAX ? next.slice(next.length - PLAYER_NAME_INDEX_MAX) : next;
+		await t.PlayerNameIndex.put({ ...row, id, playerIds: trimmed });
 	} catch (e: any) {
 		console.error('player name index write failed —', e?.message || e);
 	}
@@ -5438,16 +5843,41 @@ async function unindexPlayerName(name: string, playerId: string): Promise<void> 
 }
 
 /** Ids recorded under a name slug. Empty when the index is absent/unreadable. */
-async function indexedIdsFor(name: string): Promise<string[]> {
+/**
+ * Ids indexed under a name, or NULL when the name has never been indexed.
+ *
+ * The distinction is load-bearing. An empty array means "we have looked, and
+ * nothing uses this name"; null means "we have never looked". Only the second
+ * justifies the unbounded scan in resolveByNameAndPasscode — without the
+ * difference, every login attempt for a name that does not exist re-ran that
+ * scan, which is exactly the request an attacker repeats.
+ */
+async function indexedIdsFor(name: string): Promise<string[] | null> {
 	try {
 		const t = db() as any;
-		if (!t.PlayerNameIndex) return [];
+		if (!t.PlayerNameIndex) return null;
 		const id = slugId(String(name || ''));
-		if (!id) return [];
+		if (!id) return null;
 		const row = await safeGet(t.PlayerNameIndex, id);
-		return Array.isArray(row?.playerIds) ? row.playerIds : [];
+		if (!row) return null;
+		return Array.isArray(row.playerIds) ? row.playerIds : [];
 	} catch {
-		return [];
+		return null;
+	}
+}
+
+/** Record that a name has been looked up, even when nothing was found under it,
+ *  so the scan behind it happens at most once per name. */
+async function markNameIndexed(name: string, ids: string[]): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		if (await safeGet(t.PlayerNameIndex, id)) return; // known already; indexPlayerName owns updates
+		await t.PlayerNameIndex.put({ id, playerIds: ids.slice(0, PLAYER_NAME_INDEX_MAX) });
+	} catch (e: any) {
+		console.error('player name index mark failed —', e?.message || e);
 	}
 }
 
@@ -5463,6 +5893,38 @@ async function indexedIdsFor(name: string): Promise<string[]> {
  * `nameSeen` keeps the old 404-vs-403 split: no save by that name at all, versus
  * a save whose passcode did not match.
  */
+/**
+ * How many same-name saves one login attempt will run scrypt against.
+ *
+ * Applies to BOTH candidate sources — the name index and the legacy scan — because
+ * the expensive path is the indexed one and capping only the other achieved
+ * nothing. Well above any plausible number of real saves sharing an exact name;
+ * past it, the oldest same-name saves are not reachable by name login, which is
+ * the deliberate trade against letting one request own the event loop.
+ */
+const LOGIN_SCAN_CANDIDATE_MAX = 12;
+
+/**
+ * Wall-clock ceiling on passcode hashing for one login attempt.
+ *
+ * The count cap is a proxy; this bounds the thing that actually hurts. scryptSync
+ * is ~36 ms and blocks the whole node, so this is roughly a dozen checks — and it
+ * holds even if scrypt gets slower, the box is loaded, or the parameters change,
+ * none of which a count cap would notice.
+ */
+const LOGIN_HASH_BUDGET_MS = 500;
+
+/**
+ * How many ids one PlayerNameIndex row will hold.
+ *
+ * The row is rewritten whole on every append, so an uncapped array is O(N²) write
+ * bytes to build and an unbounded read on every login for that name. Kept far
+ * above LOGIN_SCAN_CANDIDATE_MAX so the index is never the thing that decides
+ * which saves are reachable — the hash cap is, and it is the one documented as
+ * making that trade.
+ */
+const PLAYER_NAME_INDEX_MAX = 200;
+
 async function resolveByNameAndPasscode(
 	name: any,
 	passcode: any,
@@ -5477,9 +5939,31 @@ async function resolveByNameAndPasscode(
 	// Point-read each indexed id BEFORE falling back to a scan. safeGet salvages
 	// an undecodable row here; the scan below never can, so this ordering is what
 	// keeps a corrupt save recoverable.
+	//
+	// THE HASHING IS CAPPED HERE, and this loop is the one that needed it. An
+	// earlier attempt capped only the fallback scan below, which is the branch that
+	// cannot be reached once a name is indexed — so the guard sat on the cheap path
+	// while the expensive one ran unbounded. `verifyPasscode` is scryptSync:
+	// ~36 ms and SYNCHRONOUS, so it blocks every other request on the node, not
+	// just this one. Uncapped, that is 36 ms x however many saves share the name —
+	// and since CreatePlayer is public and same-name saves are deliberately
+	// allowed, the caller can grow that number themselves. 1,000 saves named
+	// "willow" turned one ~60-byte POST into ~36 seconds of dead server.
+	//
+	// Newest first: someone actively logging in is far likelier to be on a recent
+	// save than on the oldest row that ever used the name.
 	let indexSeen = false;
 	let unreadable = false;
-	for (const pid of await indexedIdsFor(name)) {
+	const indexedIds = await indexedIdsFor(name);
+	const hashOrder = (indexedIds ?? []).slice().reverse();
+	if (hashOrder.length > LOGIN_SCAN_CANDIDATE_MAX) {
+		console.error(
+			`login for "${wanted}": ${hashOrder.length} indexed saves share this name, checking the ${LOGIN_SCAN_CANDIDATE_MAX} most recent`,
+		);
+	}
+	const deadline = Date.now() + LOGIN_HASH_BUDGET_MS;
+	let hashed = 0;
+	for (const pid of hashOrder) {
 		const p = await safeGet(db().Player, pid);
 		if (!p) {
 			// Nothing decoded, but the bytes are on disk: this save exists and we
@@ -5489,24 +5973,75 @@ async function resolveByNameAndPasscode(
 			continue;
 		}
 		indexSeen = true;
+		// Two independent bounds. The count cap is the predictable one; the wall-clock
+		// budget is the one that actually bounds the harm, because it is measured in
+		// the units that hurt (blocked event loop) rather than in a proxy for them.
+		// Whichever trips first wins.
+		if (hashed >= LOGIN_SCAN_CANDIDATE_MAX || Date.now() > deadline) {
+			console.error(`login for "${wanted}": passcode check truncated after ${hashed} candidate(s)`);
+			break;
+		}
+		hashed++;
 		if (await verifyPasscode(p, passcode)) return { player: p, nameSeen: true };
 	}
-	const candidates = (await allOf(db().Player)).filter(
-		(p: any) =>
-			String(p?.name || '')
-				.trim()
-				.toLowerCase() === wanted,
-	);
-	for (const c of candidates) {
-		if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
+	// Last-resort scan for a save the name index never learned about — a save from
+	// before the index existed. Reached only when the name is in no index row at
+	// all, which after the back-fill below happens at most ONCE per name for the
+	// lifetime of the database.
+	//
+	// That back-fill is the point. This scan is the only unbounded read on the
+	// login path and it is reached precisely when a login FAILS, so leaving it
+	// repeatable would mean an unauthenticated caller could re-trigger a full
+	// Player scan by POSTing an unknown name over and over. Writing what it finds
+	// into PlayerNameIndex means the second attempt for that name takes the bounded
+	// path above instead. Deleting the scan outright would be simpler and is
+	// tempting, but it is what still finds a legacy save, and locking someone out
+	// of their world is worse than one scan.
+	//
+	// Gated on the index row being ABSENT, not on the lookup returning nothing. A
+	// name nobody uses gets an empty row written below, so a second attempt with
+	// the same made-up name takes the cheap path — otherwise repeating it re-ran a
+	// full Player scan every time, which is the request worth repeating.
+	let candidates: any[] = [];
+	if (indexedIds === null) {
+		candidates = (await allOf(db().Player)).filter(
+			(p: any) =>
+				String(p?.name || '')
+					.trim()
+					.toLowerCase() === wanted,
+		);
+		// Heal the index before hashing, so this name never needs the scan again —
+		// including when the passcode is wrong, which is the case an attacker repeats.
+		if (candidates.length) {
+			for (const c of candidates) if (c?.id) await indexPlayerName(String(c.name || name), c.id);
+		} else {
+			await markNameIndexed(name, []);
+		}
+		const ordered = candidates
+			.slice()
+			.sort((a: any, b: any) => (b?.createdAt || 0) - (a?.createdAt || 0))
+			.slice(0, LOGIN_SCAN_CANDIDATE_MAX);
+		if (candidates.length > ordered.length) {
+			console.error(
+				`login scan for "${wanted}": ${candidates.length} name matches, hashing the ${ordered.length} most recent`,
+			);
+		}
+		for (const c of ordered) {
+			if (Date.now() > deadline) {
+				console.error(`login scan for "${wanted}": passcode check truncated on the time budget`);
+				break;
+			}
+			if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
+		}
 	}
 	if (slug && !legacy && existsRaw(db().Player, slug)) unreadable = true;
 	return { player: null, nameSeen: !!legacy || indexSeen || candidates.length > 0, unreadable };
 }
 
 export class DeletePlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode } = await bodyOf(data);
+		const { name, passcode } = await bodyOf(data, this);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
 			if (found.unreadable) throw new GameError(tr('server.err.saveUnreadable'), 409, 'server.err.saveUnreadable');
@@ -5548,8 +6083,9 @@ export class DeletePlayer extends PublicEndpoint {
  * an already-gone save returns ok.
  */
 export class DeleteDemoSave extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const id = slugId(String(playerId || ''));
 		const t = db();
 		const player = id ? await safeGet(t.Player, id) : null;
@@ -5582,8 +6118,9 @@ export class DeleteDemoSave extends PublicEndpoint {
  * passcode-free. The client encrypts the result into the standard save envelope.
  */
 export class ExportDemoSave extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const id = slugId(String(playerId || ''));
 		if (!id) throw new GameError(tr('server.err.noSaveWithName'), 404, 'server.err.noSaveWithName');
 
@@ -5669,8 +6206,9 @@ export class ExportDemoSave extends PublicEndpoint {
  * (re-hashed with a fresh salt) is stored.
  */
 export class ChangePasscode extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { playerId, currentPasscode, newPasscode } = await bodyOf(data);
+		const { playerId, currentPasscode, newPasscode } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		if (!(await verifyPasscode(player, currentPasscode)))
 			throw new GameError(tr('server.err.passcodeMismatch'), 403, 'server.err.passcodeMismatch');
@@ -5685,8 +6223,9 @@ export class ChangePasscode extends PublicEndpoint {
 
 /** POST /LoginPlayer/ {name, passcode} — load an existing save. */
 export class LoginPlayer extends PublicEndpoint {
+	static rateTier = 'auth'; // scrypt runs on this path
 	async post(data: any) {
-		const { name, passcode, tzOffsetMinutes } = await bodyOf(data);
+		const { name, passcode, tzOffsetMinutes } = await bodyOf(data, this);
 		const found = await resolveByNameAndPasscode(name, passcode);
 		if (!found.player) {
 			// 409, not 404: the save is on disk and unreadable. A 404 sends the player
@@ -5736,6 +6275,8 @@ export class LoginPlayer extends PublicEndpoint {
 /** GET /GameState/<playerId> — create-or-load the player and return everything. */
 export class GameState extends PublicEndpoint {
 	async get() {
+		// No body on a GET, so this is charged here rather than through bodyOf.
+		rateLimit(this, 'read');
 		const playerId = String(this.getId() || '');
 		await requirePlayer(playerId);
 		// note: GET handlers must not write — invalid areas are normalized in snapshot()
@@ -5759,7 +6300,7 @@ export class GameState extends PublicEndpoint {
  */
 export class MyWorlds extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		await ensureSoloWorld(player);
 		return { ok: true, activeWorldId: player.id, worlds: [] };
@@ -5769,7 +6310,7 @@ export class MyWorlds extends PublicEndpoint {
 /** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId} */
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data);
+		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -5833,7 +6374,16 @@ export class CollectResource extends PublicEndpoint {
 					'server.err.resourceNotInBiome',
 				);
 			}
-			if (!nodeId || typeof nodeId !== 'string')
+			// Shape-check, not just presence. This string goes straight into a primary
+			// key (`${wid}:${biomeId}:${nodeId}`) and the row is never deleted, so an
+			// unvalidated value is a client-controlled, permanent key in this world's
+			// range — the same hazard the menu-metrics allowlist exists to prevent
+			// ("the key space of a stored map should never be whatever a client decides
+			// to send"), except here it also inflates every byWorld(NodeState) read the
+			// snapshot makes, forever. computeNodes mints `n0…nN`, so the real client
+			// is comfortably inside this; a colon is excluded outright because it is
+			// the key delimiter the whole scoping contract rests on.
+			if (!nodeId || typeof nodeId !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(nodeId))
 				throw new GameError(tr('server.err.nodeIdRequired'), 400, 'server.err.nodeIdRequired');
 
 			// node regeneration cooldown — shared across the world so two players can't
@@ -5898,7 +6448,7 @@ export class CollectResource extends PublicEndpoint {
 /** POST /ChestTransfer/ {playerId, chestId, resourceId, qty, direction: 'deposit'|'withdraw'} */
 export class ChestTransfer extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, chestId, resourceId, qty, direction } = await bodyOf(data);
+		const { playerId, chestId, resourceId, qty, direction } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -5954,7 +6504,7 @@ export class ChestTransfer extends PublicEndpoint {
  */
 export class DiscardItem extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, kind, id, qty } = await bodyOf(data);
+		const { playerId, kind, id, qty } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -5987,7 +6537,7 @@ export class DiscardItem extends PublicEndpoint {
 /** POST /CraftItem/ {playerId, recipeId} — uses inventory + all of the player's chests. */
 export class CraftItem extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, recipeId } = await bodyOf(data);
+		const { playerId, recipeId } = await bodyOf(data, this);
 		// Read-modify-write on the player row — see withPlayerLock. Without this a
 		// double-click either loses one craft's output or pays for one and makes two.
 		return withPlayerLock(playerId, () => this.craft(playerId, recipeId));
@@ -6128,7 +6678,7 @@ function isRotatable(def: any): boolean {
 /** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data);
+		const { playerId, objectId, area, x, y, rotation } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6299,7 +6849,17 @@ export class PlaceObject extends PublicEndpoint {
  */
 export class Plant extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, plantId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
+		// Read-modify-write on the player row, exactly like CraftItem: consumeMaterials
+		// checks the seed is affordable, then debits the player and any chests it drew
+		// from in separate awaits. Unlocked, a double-click on "plant" could pass the
+		// affordability check twice against the same inventory and plant two seeds for
+		// the price of one.
+		return withPlayerLock(playerId, () => this.plant(data));
+	}
+
+	private async plant(data: any) {
+		const { playerId, area, x, y, plantId } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -6386,7 +6946,7 @@ function harvestReadyAt(def: any, placement: any): number | null {
  */
 export class HarvestPlacement extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId } = await bodyOf(data);
+		const { playerId, placementId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6428,7 +6988,7 @@ export class HarvestPlacement extends PublicEndpoint {
 /** POST /UpdateAppearance/ {playerId, appearance} — restyle your caretaker anytime. */
 export class UpdateAppearance extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, appearance } = await bodyOf(data);
+		const { playerId, appearance } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const clean = sanitizeAppearance(appearance);
 		await patchPlayer(playerId, { appearance: clean });
@@ -6440,7 +7000,7 @@ export class UpdateAppearance extends PublicEndpoint {
 /** POST /MoveObject/ {playerId, placementId, x, y} — relocate a placed object within its area. */
 export class MoveObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId, x, y, rotation } = await bodyOf(data);
+		const { playerId, placementId, x, y, rotation } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
@@ -6502,7 +7062,7 @@ export class MoveObject extends PublicEndpoint {
 /** POST /RemoveObject/ {playerId, placementId} — returns the object to your crafted items. */
 export class RemoveObject extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId } = await bodyOf(data);
+		const { playerId, placementId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -6592,7 +7152,30 @@ export class RemoveObject extends PublicEndpoint {
 				playerId,
 				recalc ? { addDiscoveries: recalc.newAnimals, freshBiomeStates: [recalc.biomeState] } : {},
 			);
-			return { ok: true, removed: placementId, craftedItems, refunded, ...(recalc || {}) };
+			// `inventory` and the chest delta ride along so the client can patch this
+			// action locally instead of refetching the whole world after it.
+			//
+			// Removing was the last of the build-loop verbs still on the full-refetch
+			// path, and it sits directly beside placing in the tidy-up loop: pick a
+			// thing up, put it down somewhere better. Placing patched; removing
+			// re-downloaded every placement AND the entire terrain array, which grows
+			// by a row on every dig the player has ever made.
+			//
+			// A DELTA rather than the whole `chests` array CraftItem returns, because
+			// everything here is already in hand — no second read of the chest table
+			// just to describe a change we performed ourselves. `chestPatches` covers
+			// refund spill; `removedChestId` covers taking a chest away, which deletes
+			// its row and is the one case where dropping a chest client-side matters.
+			return {
+				ok: true,
+				removed: placementId,
+				craftedItems,
+				refunded,
+				inventory,
+				chestPatches: [...chestUpdates].map(([id, contents]) => ({ id, contents })),
+				removedChestId: chest ? placementId : null,
+				...(recalc || {}),
+			};
 		});
 	}
 }
@@ -6600,7 +7183,7 @@ export class RemoveObject extends PublicEndpoint {
 /** POST /UpgradeTool/ {playerId, toolId} */
 export class UpgradeTool extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, toolId } = await bodyOf(data);
+		const { playerId, toolId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6654,7 +7237,7 @@ export class UpgradeTool extends PublicEndpoint {
 /** POST /UpgradeHome/ {playerId, track} — level up one of the four home tracks. */
 export class UpgradeHome extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, track } = await bodyOf(data);
+		const { playerId, track } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const { player } = await requirePlayer(playerId);
@@ -6713,7 +7296,7 @@ const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
@@ -6740,7 +7323,7 @@ const isHexColor = (c: any) => typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a
 /** POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?}} — recolor the home interior (paint tool, built homes only). */
 export class SetHomeColors extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, colors } = await bodyOf(data);
+		const { playerId, colors } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const home = homeOf(player) as any;
@@ -6759,7 +7342,7 @@ export class SetHomeColors extends PublicEndpoint {
 /** POST /SetPlacementColor/ {playerId, placementId, color} — recolor one placed item (paint tool). */
 export class SetPlacementColor extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, placementId, color } = await bodyOf(data);
+		const { playerId, placementId, color } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		if (!(homeOf(player) as any).styleLocked)
@@ -6781,7 +7364,16 @@ export class SetPlacementColor extends PublicEndpoint {
  */
 export class SetHomeStyle extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, style } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
+		// Same read-modify-write as Plant/CraftItem — this spends materials through
+		// consumeMaterials. The `styleLocked` check above is itself part of the
+		// race: two concurrent requests can both read an unlocked home, both pass,
+		// and both pay.
+		return withPlayerLock(playerId, () => this.setStyle(data));
+	}
+
+	private async setStyle(data: any) {
+		const { playerId, style } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const styleDef = HOME_STYLES[style];
@@ -6819,7 +7411,7 @@ export class SetHomeStyle extends PublicEndpoint {
 /** POST /ObserveAnimal/ {playerId, animalId} — record an observation in the field journal. */
 export class ObserveAnimal extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, animalId } = await bodyOf(data);
+		const { playerId, animalId } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -6847,7 +7439,7 @@ export class ObserveAnimal extends PublicEndpoint {
  */
 export class ClaimTask extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, taskId } = await bodyOf(data);
+		const { playerId, taskId } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -6954,7 +7546,7 @@ export class ClaimTask extends PublicEndpoint {
  */
 export class SetGoals extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, goals } = await bodyOf(data);
+		const { playerId, goals } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const t = db();
 		const d = await defs();
@@ -7020,7 +7612,7 @@ export class SetGoals extends PublicEndpoint {
  */
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, action, expect } = await bodyOf(data);
+		const { playerId, area, x, y, action, expect } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -7180,7 +7772,7 @@ export class Terraform extends PublicEndpoint {
 /** POST /RecalcBiome/ {playerId, biomeId} — explicit recalculation (also runs on every placement). */
 export class RecalcBiome extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId } = await bodyOf(data);
+		const { playerId, biomeId } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const recalcResult = await recalcBiome(worldOf(player), playerId, biomeId);
 		await awardWorldAchievements(worldOf(player), playerId, {
@@ -7194,7 +7786,17 @@ export class RecalcBiome extends PublicEndpoint {
 /** POST /SyncPlayer/ {playerId, x, y, area} — persist position (the save point for movement). */
 export class SyncPlayer extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, x, y, area, tutorialStep } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
+		// Read-modify-write on two accumulating fields: `visitedBiomes` is rebuilt
+		// from the row it just read, and `tutorialStep` is kept as a high-water mark.
+		// Position sync fires on a timer, so it interleaves with real actions
+		// constantly; unlocked, a concurrent write could drop a just-visited biome or
+		// walk the tutorial backwards.
+		return withPlayerLock(playerId, () => this.sync(data));
+	}
+
+	private async sync(data: any) {
+		const { playerId, x, y, area, tutorialStep } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -7269,7 +7871,7 @@ export class SyncPlayer extends PublicEndpoint {
  */
 export class AppendFeed extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, entries } = await bodyOf(data);
+		const { playerId, entries } = await bodyOf(data, this);
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 		const t = db();
@@ -7355,7 +7957,29 @@ function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): bo
  */
 export class Heartbeat extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, language, edition, idleGateMs, panel, panelOpens } = await bodyOf(data);
+		const { playerId } = await bodyOf(data, this);
+		// The heartbeat is a read-modify-write of the metrics blob, and it fires
+		// every 30 s for every player whether or not they touched anything — so it
+		// was both the most frequent unlocked writer in the file and the one most
+		// likely to interleave with a real action. Two things follow from taking the
+		// lock, and the second is the reason it matters at this scale:
+		//
+		//  • Correctness. `prev` is read at the top and written back at the bottom;
+		//    a bumpMetrics from a concurrent gather landing in between was silently
+		//    discarded, because this beat's `...prev` spread reinstates the older
+		//    counts wholesale.
+		//  • Write volume. Inside the lock, patchPlayer BUFFERS (see the note on
+		//    pendingPlayerPatch) and flushes once at release. The beat used to write
+		//    the metrics blob here, again from repairSave, and a THIRD time from
+		//    recalcBiome's bumpMetrics — three separate writes of the same row, per
+		//    player, per 30 s. Against the write allowance this endpoint's cost is
+		//    what caps how many people can play at once, so collapsing three into
+		//    one raises that ceiling directly.
+		return withPlayerLock(String(playerId || ''), () => this.beat(data));
+	}
+
+	private async beat(data: any) {
+		const { playerId, language, edition, idleGateMs, panel, panelOpens } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
@@ -7455,6 +8079,7 @@ export class Heartbeat extends PublicEndpoint {
 		await migrateWorldKeys(wid, playerId);
 		await repairSave(wid, playerId, d, { player });
 		let welcomeBack: any = null;
+		let awarded = false;
 		const newAnimals: any[] = [];
 		const freshBiomeStates: any[] = [];
 		try {
@@ -7483,7 +8108,16 @@ export class Heartbeat extends PublicEndpoint {
 				freshBiomeStates.push(r.biomeState);
 			}
 			if (newAnimals.length || freshBiomeStates.length) {
-				await awardWorldAchievements(wid, playerId, { addDiscoveries: newAnimals, freshBiomeStates });
+				// Hand over the rows this pass already read. Without this the
+				// achievement pass re-read BiomeState for the same world microseconds
+				// after the loop above finished with it.
+				await awardWorldAchievements(wid, playerId, {
+					addDiscoveries: newAnimals,
+					freshBiomeStates,
+					player,
+					biomeStates,
+				});
+				awarded = true;
 			}
 			if (longAway) {
 				const matured = placements.filter((p) => {
@@ -7503,7 +8137,18 @@ export class Heartbeat extends PublicEndpoint {
 			console.error('heartbeat growth pass skipped:', e); // growth must never break the heartbeat
 		}
 
-		await awardAchievements(playerId); // session-count achievements (e.g. A Familiar Face)
+		// Session-count achievements (e.g. A Familiar Face). This ran on EVERY beat,
+		// and each run costs three world scans plus an achievement read — for a
+		// player who is standing still, which is most beats. Two guards, and neither
+		// can lose an award:
+		//
+		//  • Only the first beat of a session can change a session count, so a beat
+		//    that isn't one has nothing new to evaluate. Anything else an achievement
+		//    keys on is driven by an ACTION, and every action already awards on its
+		//    own way through.
+		//  • If the growth pass above already awarded, it evaluated the same context
+		//    a moment ago and there is nothing left for a second pass to find.
+		if (newSession && !awarded) await awardAchievements(playerId, { player });
 		return {
 			ok: true,
 			metrics: metricsView({ ...player, metrics }),
@@ -7725,7 +8370,28 @@ function markDemoConversions(rows: any[]): any[] {
 	});
 }
 
-const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows);
+const dashboardCache = new RollupCache<any[]>(DASHBOARD_CACHE_MS, buildDashboardRows, undefined, () => db());
+
+/**
+ * The acquisition funnel's source rows, cached on the same terms as the
+ * dashboard rollup they are read alongside.
+ *
+ * AppOpen holds one row per install for the lifetime of the game, so the scan
+ * cost tracks total installs — the largest and fastest-growing table on the
+ * analytics path, and the only one that was being re-scanned per request. Sharing
+ * DASHBOARD_CACHE_MS keeps the two halves of a single dashboard render coherent:
+ * player rows and acquisition rows go stale together rather than one refreshing
+ * under the other.
+ */
+const appOpenCache = new RollupCache<any[]>(
+	DASHBOARD_CACHE_MS,
+	async () => {
+		const t = db();
+		return t.AppOpen ? await allOf(t.AppOpen) : [];
+	},
+	undefined,
+	() => db(),
+);
 
 /** Numeric segments of a version string, e.g. "0.2.10+build" → [0, 2, 10]. */
 function versionSegments(s: string): number[] {
@@ -7776,6 +8442,7 @@ function compareVersions(a: string, b: string): number {
  */
 export class Metrics extends PublicEndpoint {
 	async get(target?: any) {
+		rateLimit(this, 'read');
 		const t = db();
 		// `target` is Harper's RequestTarget (a URLSearchParams subclass): it carries
 		// the path id and any ?query parameters.
@@ -7787,7 +8454,7 @@ export class Metrics extends PublicEndpoint {
 		if (!player) throw new GameError(tr('server.err.noSaveWithId'), 404, 'server.err.noSaveWithId');
 		// Per-player lookup includes full biome health numbers (no rendered
 		// area snapshots — those were removed).
-		const bm = await biomeMetrics(id);
+		const bm = await biomeMetrics(id, { player });
 		const view = metricsView(player);
 		return {
 			player: {
@@ -8645,7 +9312,15 @@ async function metricsRollup(target?: any): Promise<{
 		// (that filters saves, and these rows are devices); `?excludeDevice=` does.
 		let openRows: any[] = [];
 		try {
-			openRows = await allOf(t.AppOpen);
+			// Cached, NOT a bare `allOf`. AppOpen is keyed `dev:<deviceId>` — one row
+			// per install, forever, never one per day — so this scan grows with every
+			// person who has ever launched the game and never shrinks. It sat inside
+			// metricsRollup but OUTSIDE dashboardCache, so unlike every other read on
+			// this path it was paid in full on every /MetricsSummary/ hit and on every
+			// page of /MetricsPlayers/, including the auto-refresh. It uses the same
+			// RollupCache the rest of the dashboard already relies on, invalidated by
+			// the same AppOpen writes that already call dashboardCache.invalidate().
+			openRows = await appOpenCache.get(now);
 		} catch {
 			/* AppOpen table not created yet */
 		}
@@ -9954,41 +10629,6 @@ function metricsListRow(r: any) {
 }
 
 /**
- * GET /BiomeSnapshot/<playerId> — generated SVG "postcards" of each unlocked
- * area, returned both as a base64 data URI (`image`) and raw markup (`svg`).
- * Rendered live from the player's current placements and terrain.
- */
-export class BiomeSnapshot extends PublicEndpoint {
-	async get() {
-		const id = String((this as any).getId?.() || '').trim();
-		if (!id) throw new GameError(tr('server.err.snapshotPathId'), 400, 'server.err.snapshotPathId');
-		await requirePlayer(id);
-		const t = db();
-		const d = await defs();
-		const states = (await byPlayer(t.BiomeState, id)).filter((s) => s.unlocked);
-		const placements = await byPlayer(t.Placement, id);
-		const terrain = await byPlayer(t.TerrainTile, id);
-
-		const areas = states.map((s) => {
-			const biome = d.biome.get(s.biomeId);
-			const pls = placements.filter((p) => p.area === s.biomeId);
-			const ter = terrain.filter((tt) => tt.area === s.biomeId);
-			const svg = renderBiomeSVG(d, biome, s.health || 0, pls, ter);
-			return {
-				area: s.biomeId,
-				name: biome?.name || s.biomeId,
-				health: s.health || 0,
-				placements: pls.length,
-				image: svgDataUri(svg),
-				svg,
-			};
-		});
-
-		return { ok: true, playerId: id, areas };
-	}
-}
-
-/**
  * POST /DevTools/ {playerId, action, ...args} — testing helpers for development.
  * Not part of normal play; the client only exposes these behind a hidden dev panel.
  * Actions: 'seed-water' (reseed an area's starting terrain), 'clear-terrain',
@@ -9999,15 +10639,39 @@ export class BiomeSnapshot extends PublicEndpoint {
  * 'populate-biome' (build a fully-restored showcase biome for screenshots/video),
  * 'set-weather' (force weather/season for filming; value {type?,season?} or clear).
  */
-const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
+/**
+ * The only save DevTools will act on, as a name slug.
+ *
+ * Restored as a REAL gate. A constant with this name existed here before and was
+ * never referenced — the comment beside it said dev tools were restricted to one
+ * save while the handler checked nothing, so every action below (including
+ * `restart-game`, which deletes a save's entire world, and `populate-biome`,
+ * which is ~250 writes in one request) was reachable by anyone who knew a player
+ * id. CreatePlayer is public, so "knowing a player id" meant one POST, and
+ * workers/play.js proxies DevTools straight from the public site.
+ *
+ * Matched on the slug of the save's NAME rather than its id, because ids carry a
+ * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
+ * because slugId normalises the ways the name gets typed — `bailey_test`,
+ * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
+ * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
+ * not qualify. Several saves can share the name, which is the intended way to
+ * have more than one test world.
+ */
+const DEV_PLAYER_SLUG = 'bailey-test';
 
 export class DevTools extends PublicEndpoint {
+	static rateTier = 'dev'; // developer tools
 	async post(data: any) {
-		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data);
-		// No username gate — the hidden panel is reached via a secret key sequence.
+		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data, this);
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		// The gate. Checked after requirePlayer so an unknown id still reads as 404
+		// rather than telling a caller which ids exist, and BEFORE the switch so no
+		// action can write anything on a save that isn't a test save.
+		if (slugId(String(player?.name || '')) !== DEV_PLAYER_SLUG)
+			throw new GameError(tr('server.err.devToolsRestricted'), 403, 'server.err.devToolsRestricted');
 		const log: string[] = [];
 
 		switch (action) {
@@ -10843,9 +11507,52 @@ const FEEDBACK_MAX_CHARS = 4000;
  * feedback. Returns ok:true once the row is durably stored, which is the
  * client's cue to drop its local offline-queue copy.
  */
+/** Caps on the diagnostic blob attached to a piece of feedback. */
+const FEEDBACK_METRICS_MAX_KEYS = 40;
+const FEEDBACK_METRICS_MAX_VALUE_CHARS = 500;
+
+/**
+ * Flatten the client's diagnostic context into a bounded, all-scalar map.
+ *
+ * This was the one place in the file where a client-supplied OBJECT was stored
+ * verbatim. `message` was capped at 4,000 characters and `replyTo` at 200, but
+ * `metrics` had no byte cap, key cap or depth cap — so an anonymous POST could
+ * write an arbitrarily large structure into the Feedback table permanently, and
+ * ListFeedback later reads that table whole. Every sibling endpoint already does
+ * something like this (SyncMetrics measures its snapshot, LandingEvent rebuilds
+ * counters through an allowlist); feedback was simply missed.
+ *
+ * Scalars only, and stringified: gatherFeedbackMetrics in src/feedback.ts sends a
+ * flat map of strings and numbers, so nothing real is lost, and a nested object
+ * can no longer smuggle depth past the key cap. Anything dropped is dropped
+ * silently on purpose — a player reporting a bug must not have the report
+ * refused because their client sent one field too many.
+ */
+function sanitizeFeedbackMetrics(raw: any): Record<string, string | number | boolean> {
+	const out: Record<string, string | number | boolean> = {};
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+	let kept = 0;
+	for (const [k, v] of Object.entries(raw)) {
+		if (kept >= FEEDBACK_METRICS_MAX_KEYS) break;
+		if (v === null || v === undefined) continue;
+		const t = typeof v;
+		if (t !== 'string' && t !== 'number' && t !== 'boolean') continue;
+		const key = String(k).slice(0, 60);
+		if (!key) continue;
+		// Numbers and booleans keep their type. Only strings need truncating, and
+		// they are the only ones that can be large — stringifying everything was
+		// tidier to write and quietly turned `playMinutes: 42` into `'42'` for
+		// anything reading a feedback row back.
+		out[key] = t === 'string' ? (v as string).slice(0, FEEDBACK_METRICS_MAX_VALUE_CHARS) : (v as number | boolean);
+		kept++;
+	}
+	return out;
+}
+
 export class SubmitFeedback extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const message = String(body.message || '').trim();
 		if (!message) throw new GameError(tr('server.err.feedbackEmpty'), 400, 'server.err.feedbackEmpty');
 		if (message.length > FEEDBACK_MAX_CHARS)
@@ -10860,8 +11567,7 @@ export class SubmitFeedback extends PublicEndpoint {
 				.slice(0, 200) || null;
 		if (replyTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo))
 			throw new GameError(tr('server.err.feedbackBadEmail'), 400, 'server.err.feedbackBadEmail');
-		const metrics =
-			body.metrics && typeof body.metrics === 'object' && !Array.isArray(body.metrics) ? body.metrics : {};
+		const metrics = sanitizeFeedbackMetrics(body.metrics);
 		const queuedAt = Number(body.queuedAt) || null;
 
 		const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
@@ -10901,8 +11607,9 @@ const METRICS_SNAPSHOT_MAX_BYTES = 24_000;
  * same preserve updates the same row forever and renamed saves don't fork.
  */
 export class SyncMetrics extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const clientId = String(body.clientId || '')
 			.trim()
 			.slice(0, 64);
@@ -10973,8 +11680,9 @@ export class SyncMetrics extends PublicEndpoint {
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const deviceId = String(body.deviceId || '')
 			.trim()
 			.slice(0, 64);
@@ -11114,7 +11822,13 @@ export class AppOpen extends PublicEndpoint {
 			keyboardGatedAt: existing?.keyboardGatedAt || (phase === 'kb_gate' ? now : 0),
 			updatedAt: now,
 		});
+		// Both caches, because the acquisition rows now have their own. Invalidation
+		// is deliberately cheap (a flag and a counter — no scan, no await), and this
+		// is what keeps read-your-own-write true for the funnel: a ping followed by a
+		// dashboard read must show the ping, which is exactly what the keyboard-gate
+		// and menu-metrics integration tests assert.
 		dashboardCache.invalidate(); // acquisition numbers changed — refresh on the next read
+		appOpenCache.invalidate();
 		return { ok: true };
 	}
 }
@@ -11226,7 +11940,7 @@ async function buildLandingStats(): Promise<any> {
 	};
 }
 
-const landingStatsCache = new RollupCache<any>(LANDING_STATS_CACHE_MS, buildLandingStats);
+const landingStatsCache = new RollupCache<any>(LANDING_STATS_CACHE_MS, buildLandingStats, undefined, () => db());
 
 /** Copy a stored `{ key: count }` map into a fresh, plain, sane object. Anything
  *  that isn't a finite positive number is dropped rather than carried forward. */
@@ -11303,8 +12017,9 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
  * Always answers ok:true — analytics never gets to break the page.
  */
 export class LandingEvent extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client telemetry
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
 		if (!type) return { ok: true }; // unknown ping — accept and drop
 		if (type === 'visit') {
@@ -11340,8 +12055,9 @@ export class LandingEvent extends PublicEndpoint {
  * the one the player already hit.
  */
 export class ReportSaveIncident extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const table = String(body.table || 'Player').slice(0, 40);
 		const recordId = String(body.recordId || '').slice(0, 120);
 		if (!recordId) return { ok: true };
@@ -11383,8 +12099,9 @@ export class ReportSaveIncident extends PublicEndpoint {
  * the player typed — a crash report must never become a way to exfiltrate a save.
  */
 export class ReportClientError extends PublicEndpoint {
+	static rateTier = 'report'; // writes a permanent row for an anonymous caller
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const message = String(body.message || '')
 			.replace(/\s+/g, ' ')
 			.trim()
@@ -11462,7 +12179,7 @@ export class ClearProblem extends DashboardEndpoint {
 	}
 
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		const kind = body?.kind;
 		const table = typeof kind === 'string' ? CLEARABLE.get(kind) : undefined;
 		if (!table) return { ok: false, error: 'kind must be "refusal" or "crash"', deleted: 0 };
@@ -11539,7 +12256,7 @@ export class DeleteSoloMetrics extends DashboardEndpoint {
 	}
 
 	async post(data: any) {
-		const body = await bodyOf(data);
+		const body = await bodyOf(data, this);
 		// Batch-capable so the UI can grow a multi-select later without a second
 		// endpoint, capped so it can never become an unbounded delete loop inside
 		// one request. Lower than ClearProblem's 500: that clears counters, this

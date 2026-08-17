@@ -64,7 +64,6 @@ const harperEndpoints = [
 	'Presence',
 	// telemetry, feedback, dashboards, dev
 	'Metrics',
-	'BiomeSnapshot',
 	'SubmitFeedback',
 	'SyncMetrics',
 	'DevTools',
@@ -74,6 +73,10 @@ const harperEndpoints = [
 const harperProxy = Object.fromEntries(
 	harperEndpoints.map((name) => [`/${name}`, { target: HARPER_TARGET, changeOrigin: true, secure: false }]),
 );
+
+/** UI modules that App.tsx loads on demand rather than importing statically.
+ *  Keep in step with the lazyPanel declarations at the top of src/App.tsx. */
+const LAZY_UI_MODULES = /\/src\/ui\/(Panels|Journal|Achievements|GoalsPanel|DevPanel)\.[jt]sx?$/;
 
 export default defineConfig({
 	plugins: [react()],
@@ -146,6 +149,30 @@ export default defineConfig({
 					const path = id.replace(/\\/g, '/');
 					if (path.includes('/node_modules/phaser/')) return 'phaser';
 					if (/\/node_modules\/(react|react-dom|scheduler)\//.test(path)) return 'react';
+					/* The same cacheability argument, applied to our own code.
+					 *
+					 * `src/game/` is ~14k lines dominated by textures.ts (8.6k lines of
+					 * procedural texture generation) and WorldScene.ts, and it changes on a
+					 * completely different schedule from `src/ui/`. Left together in the
+					 * entry chunk, editing a panel's copy re-downloaded every texture
+					 * routine, and vice versa. `src/i18n/` is the strongest case of all: it
+					 * is several hundred KB of JSON that changes only when strings change.
+					 *
+					 * Same caveat as above — this buys cacheability, not size. Cutting the
+					 * bytes needs lazy loading (React.lazy for the panels, a dynamic import
+					 * for PhaserGame), which is a behaviour change and wants its own pass. */
+					if (path.includes('/src/i18n/')) return 'i18n';
+					if (path.includes('/src/game/')) return 'game';
+					// The panels App.tsx code-splits (see lazyPanel there) must be left
+					// UNASSIGNED so Rollup can give each its own chunk. A manualChunks
+					// rule wins over dynamic-import splitting, so folding these into 'ui'
+					// silently undid the split: they left the entry chunk, landed in
+					// 'ui' — and 'ui' is a static dependency of the entry anyway, because
+					// HUD, Toolbelt, Welcome and Settings live beside them and are
+					// imported eagerly. Net effect was one 760 KB chunk still downloaded
+					// up front. Returning undefined here is what actually defers them.
+					if (LAZY_UI_MODULES.test(path)) return undefined;
+					if (path.includes('/src/ui/')) return 'ui';
 					return undefined;
 				},
 			},

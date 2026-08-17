@@ -8,7 +8,7 @@
 import type { Appearance, GameData, GameState } from './types';
 import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
-import { persist as persistSolo, type SaveMeta } from './solo/saves';
+import { persist as persistSolo, persistOnUnload, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
 import { clearDemoBudget } from './demoBudget';
 import { adaptiveInterval, ewma } from './perf';
@@ -295,10 +295,28 @@ export async function flushSoloSave(): Promise<void> {
 }
 
 if (typeof window !== 'undefined') {
-	window.addEventListener('beforeunload', () => void flushSoloSave());
+	// TWO different flushes, because the page is in two different states.
+	//
+	// While the page is merely HIDDEN it is still alive, so the ordinary async
+	// write runs and lands in IndexedDB as usual. `visibilitychange` is also the
+	// one that actually fires on mobile, where a tab is backgrounded rather than
+	// closed.
 	document.addEventListener('visibilitychange', () => {
 		if (document.visibilityState === 'hidden') void flushSoloSave();
 	});
+	// On the way OUT there is no time to await anything: an IndexedDB transaction
+	// started here is queued and then thrown away with the page. `void
+	// flushSoloSave()` used to work only because localStorage.setItem is
+	// synchronous and completed inside the handler. So the unload path writes a
+	// synchronous mirror instead, which the next load folds back in.
+	// `pagehide` as well as `beforeunload`: Safari does not reliably fire the
+	// latter, and it is the one that matters for a phone locking mid-session.
+	const parkNow = () => {
+		const slot = getSoloSlot();
+		if (slot) persistOnUnload(slot);
+	};
+	window.addEventListener('beforeunload', parkNow);
+	window.addEventListener('pagehide', parkNow);
 }
 
 let currentPlayerId: string | null = null;

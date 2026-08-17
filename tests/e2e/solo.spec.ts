@@ -41,6 +41,15 @@ async function skipTutorial(page: Page) {
 	await expect(page.locator('.tutorial-card')).toHaveCount(0);
 }
 
+/** The caretaker name DevTools accepts.
+ *
+ *  The endpoint is gated to `bailey_test` saves (DEV_PLAYER_SLUG in
+ *  server/resources.ts), so any test that reaches late-game state through the
+ *  dev panel has to be one. Named rather than bypassed, so these exercise the
+ *  rule that ships. Tests that do not touch the dev panel keep their descriptive
+ *  names — those names are part of what they assert. */
+const DEV_SAVE = 'bailey_test';
+
 /** The hidden dev panel (Cmd/Ctrl + Shift + Backspace), used to reach late-game
  *  state without playing the hours it costs. */
 async function openDevPanel(page: Page) {
@@ -178,7 +187,7 @@ test('opening the rest of the preserve lights the whole trail', async ({ page })
 	// The client half of the progression story: the server's unlock chain is
 	// walked in tests/integration/progression-chain.test.ts, but nothing proved
 	// the map, the travel UI and the save file agree once it has been.
-	await newSolo(page, 'Trailblazer');
+	await newSolo(page, DEV_SAVE);
 
 	await openDevPanel(page);
 	await page.getByRole('button', { name: 'Unlock all biomes' }).click();
@@ -194,7 +203,7 @@ test('opening the rest of the preserve lights the whole trail', async ({ page })
 test('a restored area survives a reload', async ({ page }) => {
 	// Solo saves live in localStorage; a save that does not reload is the worst
 	// bug this game can have, and the one players report as "it forgot me".
-	await newSolo(page, 'Persistent Pat');
+	await newSolo(page, DEV_SAVE);
 
 	await openDevPanel(page);
 	await page.getByRole('button', { name: 'Unlock all biomes' }).click();
@@ -202,7 +211,7 @@ test('a restored area survives a reload', async ({ page }) => {
 	await page.keyboard.press('Escape');
 
 	await page.goto('/');
-	await page.getByRole('button', { name: /Continue as Persistent Pat/ }).click();
+	await page.getByRole('button', { name: new RegExp(`Continue as ${DEV_SAVE}`) }).click();
 	await expect(page.locator('.game-screen')).toBeVisible({ timeout: 30_000 });
 
 	await page.keyboard.press('m');
@@ -212,7 +221,7 @@ test('a restored area survives a reload', async ({ page }) => {
 });
 
 test('the journal fills in as animals come home', async ({ page }) => {
-	await newSolo(page, 'Journal Keeper');
+	await newSolo(page, DEV_SAVE);
 
 	// The field guide lists every animal of the biome you're standing in from the
 	// start — the ones you haven't met are silhouettes, so the page reads as a

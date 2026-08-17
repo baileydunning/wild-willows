@@ -36,6 +36,197 @@ const hasDesktopSaves = () => !!bridge()?.saves;
 
 const LS_PREFIX = 'wild-willows:solo-save:';
 
+// ---- browser storage: IndexedDB, with localStorage as the fallback ----
+//
+// The desktop build writes real files through the bridge and is unaffected by
+// everything below. The BROWSER build (the itch demo, `npm run browser`, local
+// web dev) used `localStorage`, which is wrong for this data on two counts:
+//
+//  • It is SYNCHRONOUS. `setItem` blocks the main thread for the whole write, and
+//    autosave fires after actions, so every save was a hitch in the middle of
+//    play that got worse as the save grew.
+//  • It has a hard ~5 MB per-origin quota, and several engines store strings as
+//    UTF-16 — so the real ceiling is closer to 2.5 MB of ASCII JSON. This file's
+//    own callers describe a long save as "megabytes of JSON". A player who hit
+//    that got a QuotaExceededError mid-session and every save from then on was
+//    lost, which is the worst possible time to find out.
+//
+// IndexedDB is asynchronous and has no comparable quota. It is also absent in
+// some environments — private browsing on some engines, sandboxed iframes, and
+// the unit-test environment — so every operation below degrades to exactly the
+// localStorage behaviour it replaces rather than failing. `indexedSoloSaves() === null` is the
+// normal, supported state, not an error path.
+
+/**
+ * The IndexedDB database and object store the saves live in.
+ *
+ * These two strings are PERSISTED SCHEMA, not internal naming: they are what a
+ * browser looks the data up by, and what shows in devtools under Application →
+ * IndexedDB. Renaming either after a player has migrated does not move their
+ * saves, it hides them — the rows stay under the old store, which nothing reads
+ * any more. So they are settled here, before this ships, and should not be
+ * touched again afterwards.
+ *
+ * `IndexedSoloSave` is PascalCase to match how stores are named everywhere else
+ * in this project (`Player`, `SoloMetrics`, `AppOpen` in schema.graphql), even
+ * though those are Harper tables on the server and this is a browser store on
+ * the player's own machine. The two never meet: solo saves are local files or
+ * local browser storage by design, and the server has no table for them.
+ */
+/**
+ * Where a save is parked when the page is going away RIGHT NOW.
+ *
+ * IndexedDB has no synchronous API, and an unload handler cannot wait: the
+ * transaction is queued and the page is destroyed before it commits. That did
+ * not matter while saves lived in localStorage, because `setItem` is
+ * synchronous — `beforeunload` fired, the write landed inside the handler, and
+ * the fact that nothing awaited the promise was invisible. Moving to IndexedDB
+ * turned that accident into lost progress on every close.
+ *
+ * So the last write on the way out goes to localStorage, synchronously, under
+ * this key, and the next load folds it into IndexedDB and deletes it. The copy
+ * is transient — one save, for the moments between closing and reopening — so it
+ * does not reintroduce the quota problem that motivated the move. If it does
+ * exceed quota the throw is caught, and the loss is the last few seconds, which
+ * is exactly the exposure that existed before.
+ */
+const MIRROR_PREFIX = 'wild-willows:solo-save-pending:';
+
+const SOLO_SAVE_DB = 'wild-willows';
+const SOLO_SAVE_STORE = 'IndexedSoloSave';
+
+/** Resolves to an open database, or null when IndexedDB is unusable here. */
+let openHandle: Promise<IDBDatabase | null> | null = null;
+
+function openSaveDb(): Promise<IDBDatabase | null> {
+	if (openHandle) return openHandle;
+	openHandle = new Promise<IDBDatabase | null>((resolve) => {
+		let req: IDBOpenDBRequest;
+		try {
+			if (typeof indexedDB === 'undefined' || !indexedDB) return resolve(null);
+			req = indexedDB.open(SOLO_SAVE_DB, 1);
+		} catch {
+			return resolve(null); // SecurityError in a sandboxed frame, etc.
+		}
+		req.onupgradeneeded = () => {
+			const db = req.result;
+			if (!db.objectStoreNames.contains(SOLO_SAVE_STORE)) db.createObjectStore(SOLO_SAVE_STORE);
+		};
+		req.onsuccess = () => resolve(req.result);
+		req.onerror = () => resolve(null);
+		// Another tab is holding an old version open. Falling back beats hanging the
+		// load menu on a tab the player may not even remember having open.
+		req.onblocked = () => resolve(null);
+	});
+	return openHandle;
+}
+
+/** Run one transaction, resolving to `fallback` on any failure. */
+function saveStoreRun<T>(
+	db: IDBDatabase,
+	mode: IDBTransactionMode,
+	fallback: T,
+	body: (store: IDBObjectStore) => IDBRequest,
+): Promise<T> {
+	return new Promise<T>((resolve) => {
+		let req: IDBRequest;
+		try {
+			const tx = db.transaction(SOLO_SAVE_STORE, mode);
+			tx.onabort = () => resolve(fallback);
+			req = body(tx.objectStore(SOLO_SAVE_STORE));
+		} catch {
+			return resolve(fallback);
+		}
+		req.onsuccess = () => resolve(req.result as T);
+		req.onerror = () => resolve(fallback);
+	});
+}
+
+const saveStoreGet = (db: IDBDatabase, id: string) =>
+	saveStoreRun<string | null>(db, 'readonly', null, (st) => st.get(id));
+const saveStoreKeys = (db: IDBDatabase) =>
+	saveStoreRun<IDBValidKey[]>(db, 'readonly', [], (st) => st.getAllKeys()).then((ks) => ks.map(String));
+const saveStoreDelete = (db: IDBDatabase, id: string) =>
+	saveStoreRun<unknown>(db, 'readwrite', null, (st) => st.delete(id));
+
+/** Write, reporting whether it actually landed so the caller can fall back. */
+async function saveStorePut(db: IDBDatabase, id: string, contents: string): Promise<boolean> {
+	const sentinel = Symbol('failed');
+	const out = await saveStoreRun<unknown>(db, 'readwrite', sentinel, (st) => st.put(contents, id));
+	return out !== sentinel;
+}
+
+/** Keys still sitting in localStorage, if there is a localStorage at all. */
+function idsUnder(prefix: string): string[] {
+	const ids: string[] = [];
+	try {
+		if (typeof localStorage === 'undefined') return ids;
+		for (let i = 0; i < localStorage.length; i++) {
+			const k = localStorage.key(i);
+			if (k?.startsWith(prefix)) ids.push(k.slice(prefix.length));
+		}
+	} catch {
+		/* storage disabled */
+	}
+	return ids;
+}
+
+/** Saves still sitting in localStorage proper, awaiting migration. */
+const localSlotIds = (): string[] => idsUnder(LS_PREFIX);
+
+/** Saves parked by the last unload, awaiting fold-in. */
+const mirrorSlotIds = (): string[] => idsUnder(MIRROR_PREFIX);
+
+/**
+ * Open the database and, once per page load, move any localStorage saves into it.
+ *
+ * The order here is the whole safety argument: a save is written to IndexedDB,
+ * READ BACK, and compared byte-for-byte before the localStorage copy is dropped.
+ * Anything short of an exact match leaves the original exactly where it is, so
+ * the failure mode of this migration is a save that lives in both places — which
+ * costs quota and nothing else, because reads prefer IndexedDB and `listSlotIds`
+ * unions the two.
+ *
+ * Clearing the localStorage copy is not tidiness: it is the point. Reclaiming
+ * that quota is what stops a returning player from hitting the 5 MB ceiling on a
+ * save that has already outgrown it.
+ */
+let indexedSoloSavesReady: Promise<IDBDatabase | null> | null = null;
+function indexedSoloSaves(): Promise<IDBDatabase | null> {
+	if (indexedSoloSavesReady) return indexedSoloSavesReady;
+	indexedSoloSavesReady = (async () => {
+		const db = await openSaveDb();
+		if (!db) return null;
+		for (const id of localSlotIds()) {
+			try {
+				const raw = localStorage.getItem(LS_PREFIX + id);
+				if (raw == null) continue;
+				if (!(await saveStorePut(db, id, raw))) continue;
+				if ((await saveStoreGet(db, id)) !== raw) continue; // not verified — keep the original
+				localStorage.removeItem(LS_PREFIX + id);
+			} catch {
+				/* leave this slot in localStorage; it stays readable either way */
+			}
+		}
+		// Then anything the last unload parked. A mirror is by definition NEWER than
+		// what is in IndexedDB — it was written on the way out, after the last
+		// autosave — so it wins, and is dropped only once it has been read back.
+		for (const id of mirrorSlotIds()) {
+			try {
+				const raw = localStorage.getItem(MIRROR_PREFIX + id);
+				if (raw == null) continue;
+				if (!(await saveStorePut(db, id, raw))) continue;
+				if ((await saveStoreGet(db, id)) !== raw) continue;
+				localStorage.removeItem(MIRROR_PREFIX + id);
+			} catch {
+				/* keep it — reads prefer it until it lands */
+			}
+		}
+		return db;
+	})();
+	return indexedSoloSavesReady;
+}
+
 export const newSlotId = () => {
 	try {
 		return crypto.randomUUID();
@@ -46,17 +237,98 @@ export const newSlotId = () => {
 
 // ---- low-level slot IO (desktop bridge or localStorage) ----
 
+async function readRawText(slotId: string): Promise<string | null> {
+	try {
+		if (hasDesktopSaves()) return (await bridge()!.saves!.read(slotId)) || null;
+		// Open FIRST — that is what folds any parked mirror into IndexedDB and
+		// clears it. Reading the mirror before this would return the right bytes but
+		// leave it lying there forever, so every later read would keep preferring a
+		// copy that was supposed to be transient.
+		const saves = await indexedSoloSaves();
+		// Still here means the fold could not land (quota, a failed write). The
+		// mirror is by definition the newest copy of this slot, so it outranks
+		// IndexedDB rather than being skipped.
+		if (typeof localStorage !== 'undefined') {
+			const pending = localStorage.getItem(MIRROR_PREFIX + slotId);
+			if (pending != null) return pending;
+		}
+		if (saves) {
+			const hit = await saveStoreGet(saves, slotId);
+			// A miss is not proof of absence: migration may have been interrupted, or
+			// this slot may predate it. Fall through to localStorage before giving up.
+			if (hit != null) return hit;
+		}
+		return typeof localStorage === 'undefined' ? null : localStorage.getItem(LS_PREFIX + slotId);
+	} catch {
+		return null;
+	}
+}
+
 async function readRaw(slotId: string): Promise<SaveFile | null> {
 	try {
-		if (hasDesktopSaves()) {
-			const raw = await bridge()!.saves!.read(slotId);
-			return raw ? JSON.parse(raw) : null;
-		}
-		const raw = localStorage.getItem(LS_PREFIX + slotId);
+		const raw = await readRawText(slotId);
 		return raw ? JSON.parse(raw) : null;
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Just the `meta` half of a slot, without parsing the save body.
+ *
+ * `persist` writes the file as `{"meta":<meta>,"data":<data>}` — meta first and
+ * small, data last and potentially megabytes — so the header can be sliced off
+ * and parsed on its own. The load menu only ever wants the header, and parsing
+ * every slot in full to read a name and a timestamp meant opening the save list
+ * cost a full JSON.parse of every save on disk, on the title screen, serially.
+ *
+ * The slice is a brace-matched scan rather than a search for `,"data":`, because
+ * a save whose NAME contained that text would otherwise cut in the wrong place.
+ * Anything unexpected falls back to the full parse, so a file written by an older
+ * build (or by hand) still reads correctly — this is an optimization, never a
+ * format requirement.
+ */
+async function readMeta(slotId: string): Promise<SaveMeta | null> {
+	const raw = await readRawText(slotId);
+	if (!raw) return null;
+	const head = '{"meta":';
+	if (raw.startsWith(head)) {
+		const end = matchingBraceEnd(raw, head.length);
+		if (end > 0) {
+			try {
+				return JSON.parse(raw.slice(head.length, end)) as SaveMeta;
+			} catch {
+				/* fall through to the full parse */
+			}
+		}
+	}
+	try {
+		return (JSON.parse(raw) as SaveFile)?.meta ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/** Index just past the object that starts at `from`, or -1. String-aware, so a
+ *  brace or a backslash inside a save name can't throw off the count. */
+function matchingBraceEnd(s: string, from: number): number {
+	if (s[from] !== '{') return -1;
+	let depth = 0;
+	let inStr = false;
+	let esc = false;
+	for (let i = from; i < s.length; i++) {
+		const ch = s[i];
+		if (inStr) {
+			if (esc) esc = false;
+			else if (ch === '\\') esc = true;
+			else if (ch === '"') inStr = false;
+			continue;
+		}
+		if (ch === '"') inStr = true;
+		else if (ch === '{') depth++;
+		else if (ch === '}' && --depth === 0) return i + 1;
+	}
+	return -1;
 }
 
 async function writeRaw(slotId: string, file: SaveFile): Promise<void> {
@@ -70,6 +342,12 @@ async function writeRawJson(slotId: string, contents: string): Promise<void> {
 		await bridge()!.saves!.write(slotId, contents);
 		return;
 	}
+	const saves = await indexedSoloSaves();
+	if (saves && (await saveStorePut(saves, slotId, contents))) return;
+	// No IndexedDB, or the write did not land. localStorage is the same storage
+	// this used to be, with the same quota — so a throw here is the same
+	// QuotaExceededError the caller already handles (api.ts reports it and shows a
+	// save-error toast), not a new failure mode.
 	localStorage.setItem(LS_PREFIX + slotId, contents);
 }
 
@@ -81,12 +359,14 @@ async function listSlotIds(): Promise<string[]> {
 			return [];
 		}
 	}
-	const ids: string[] = [];
-	for (let i = 0; i < localStorage.length; i++) {
-		const k = localStorage.key(i);
-		if (k?.startsWith(LS_PREFIX)) ids.push(k.slice(LS_PREFIX.length));
-	}
-	return ids;
+	// The UNION of both stores, de-duplicated. If a migration was interrupted —
+	// the tab closed mid-loop — some slots are in IndexedDB and some are still in
+	// localStorage, and a load menu that showed only one of the two would look
+	// like the game had eaten half the player's saves.
+	const saves = await indexedSoloSaves();
+	const ids = new Set<string>([...localSlotIds(), ...mirrorSlotIds()]);
+	if (saves) for (const id of await saveStoreKeys(saves)) ids.add(id);
+	return [...ids];
 }
 
 // ---- public API ----
@@ -94,11 +374,11 @@ async function listSlotIds(): Promise<string[]> {
 /** Every solo save, newest first, for the load menu. */
 export async function listSaves(): Promise<SaveMeta[]> {
 	const ids = await listSlotIds();
-	const metas: SaveMeta[] = [];
-	for (const id of ids) {
-		const f = await readRaw(id);
-		if (f?.meta) metas.push({ ...f.meta, slotId: id });
-	}
+	// Header-only reads, and concurrent rather than serial — the menu wants a name
+	// and a timestamp per slot, not the worlds behind them.
+	const metas = (await Promise.all(ids.map(async (id) => ({ id, meta: await readMeta(id) }))))
+		.filter((r): r is { id: string; meta: SaveMeta } => !!r.meta)
+		.map(({ id, meta }) => ({ ...meta, slotId: id }));
 	return metas.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 
@@ -146,6 +426,39 @@ export async function persist(meta: SaveMeta): Promise<void> {
 	lastPersistedSlot = meta.slotId;
 }
 
+/**
+ * Park the active save synchronously, for the moment the page is closing.
+ *
+ * `persist()` is async all the way down and cannot finish during unload — see
+ * MIRROR_PREFIX. This is the same serialization, written straight to
+ * localStorage with no await anywhere in the path, so it completes inside the
+ * event handler or not at all.
+ *
+ * Desktop is deliberately untouched: its writes go through the bridge, which
+ * behaved this way before IndexedDB existed and is not what changed.
+ */
+export function persistOnUnload(meta: SaveMeta): void {
+	if (hasDesktopSaves() || typeof localStorage === 'undefined') return;
+	try {
+		const dataJson = serializeActiveSaveJson();
+		if (dataJson === null) return;
+		const player = activeSaveRow('Player', meta.playerId);
+		const updated: SaveMeta = {
+			...meta,
+			name: player?.name ?? meta.name,
+			appearance: player?.appearance ?? meta.appearance,
+			updatedAt: Date.now(),
+		};
+		localStorage.setItem(
+			MIRROR_PREFIX + meta.slotId,
+			'{"meta":' + JSON.stringify(updated) + ',"data":' + dataJson + '}',
+		);
+	} catch {
+		// Quota, or storage disabled. The loss is the seconds since the last
+		// autosave — the same exposure this had before, not a new one.
+	}
+}
+
 // Guard state for the no-op skip above. Slot is tracked too, so saving into a
 // different slot always writes even when the world hasn't changed.
 let lastPersistedVersion = -1;
@@ -153,14 +466,55 @@ let lastPersistedSlot: string | null = null;
 
 export async function deleteSave(slotId: string): Promise<void> {
 	try {
-		if (hasDesktopSaves()) await bridge()!.saves!.remove(slotId);
-		else localStorage.removeItem(LS_PREFIX + slotId);
+		if (hasDesktopSaves()) {
+			await bridge()!.saves!.remove(slotId);
+			return;
+		}
+		// BOTH stores, unconditionally. A slot that exists in each (an interrupted
+		// migration) must not come back from the dead because only one copy was
+		// removed — "I deleted this save and it reappeared" is worse than a failed
+		// delete, and listSlotIds would surface the survivor immediately.
+		const saves = await indexedSoloSaves();
+		if (saves) await saveStoreDelete(saves, slotId);
+		if (typeof localStorage !== 'undefined') {
+			localStorage.removeItem(LS_PREFIX + slotId);
+			localStorage.removeItem(MIRROR_PREFIX + slotId);
+		}
 	} catch {
 		/* ignore */
 	}
 }
 
-export const soloSavesAvailable = () => hasDesktopSaves() || typeof localStorage !== 'undefined';
+/**
+ * Remove every browser-stored save, from BOTH stores.
+ *
+ * Exists because `localStorage.clear()` stopped meaning "clear the saves" the
+ * moment they moved to IndexedDB. The dev panel's reset button says, in the
+ * confirmation the developer reads, that browser-stored saves are also cleared —
+ * so it has to call this, or the button quietly stops doing half of what it
+ * promises and leaves saves behind that the reset was meant to remove.
+ *
+ * Desktop saves are files owned by the bridge and are deliberately untouched.
+ */
+export async function clearBrowserSaves(): Promise<void> {
+	try {
+		const saves = await indexedSoloSaves();
+		if (saves) for (const id of await saveStoreKeys(saves)) await saveStoreDelete(saves, id);
+	} catch {
+		/* ignore */
+	}
+	try {
+		if (typeof localStorage !== 'undefined') {
+			for (const id of localSlotIds()) localStorage.removeItem(LS_PREFIX + id);
+			for (const id of mirrorSlotIds()) localStorage.removeItem(MIRROR_PREFIX + id);
+		}
+	} catch {
+		/* ignore */
+	}
+}
+
+export const soloSavesAvailable = () =>
+	hasDesktopSaves() || typeof indexedDB !== 'undefined' || typeof localStorage !== 'undefined';
 
 // ---- export / import (single-file backups) ----
 //
@@ -184,10 +538,28 @@ const SIG_SECRET = 'wild-willows/solo-save/sig/v1';
 const ENC_SECRET = 'wild-willows/solo-save/enc/v1';
 
 /** Two-lane FNV-1a-style mix into four 32-bit words. Deterministic, synchronous,
- *  dependency-free; the shared primitive under both the tag and the keystream. */
-function hash128(s: string): [number, number, number, number] {
-	let h1 = 0x811c9dc5 >>> 0;
-	let h2 = 0xc2b2ae35 >>> 0;
+ *  dependency-free; the shared primitive under both the tag and the keystream.
+ *
+ *  Split into a resumable mix + a finish so callers can hash A THEN B without
+ *  building the string `A + B` first. The digest is bit-for-bit what the old
+ *  single-string version produced — the mix is a plain left-to-right fold and the
+ *  only length-dependent step is the final `h1 ^ len`, which now takes the summed
+ *  length — so every save exported before this change still verifies and decrypts.
+ *  Two hot paths needed it:
+ *
+ *   • signPayload was concatenating a full copy of a multi-megabyte payload onto
+ *     its secret just to hash it, doubling peak memory and walking it twice.
+ *   • keystreamBlock rebuilds `${ENC_SECRET}|${nonce}|${counter}` and hashes all
+ *     ~50 characters of it once per SIXTEEN output bytes — about three inner
+ *     iterations per byte of save. Only the counter changes between blocks, so
+ *     the constant prefix can be folded once and resumed per block. */
+const H1_SEED = 0x811c9dc5 >>> 0;
+const H2_SEED = 0xc2b2ae35 >>> 0;
+
+/** Fold `s` into a running two-lane state. */
+function hashMix(state: [number, number], s: string): [number, number] {
+	let h1 = state[0];
+	let h2 = state[1];
 	for (let i = 0; i < s.length; i++) {
 		const c = s.charCodeAt(i);
 		h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
@@ -195,17 +567,33 @@ function hash128(s: string): [number, number, number, number] {
 		h1 ^= h1 >>> 15;
 		h2 ^= h2 >>> 13;
 	}
-	h1 = (h1 ^ s.length) >>> 0;
+	return [h1, h2];
+}
+
+/** Close out a running state over `len` total input characters. */
+function hashFinish(state: [number, number], len: number): [number, number, number, number] {
+	const h1 = (state[0] ^ len) >>> 0;
+	const h2 = state[1];
 	const h3 = Math.imul(h1 ^ h2, 0x27d4eb2f) >>> 0;
 	const h4 = (h1 + h2) >>> 0;
 	return [h1, h2, h3, h4];
 }
 
+function hash128(s: string): [number, number, number, number] {
+	return hashFinish(hashMix([H1_SEED, H2_SEED], s), s.length);
+}
+
 const hex32 = (n: number) => (n >>> 0).toString(16).padStart(8, '0');
 
-/** Keyed integrity tag over a plaintext payload, as 128-bit hex. */
+/** Keyed integrity tag over a plaintext payload, as 128-bit hex.
+ *  Streams the secret and the payload separately rather than concatenating them —
+ *  same digest, without allocating a second copy of a save that can be megabytes. */
 function signPayload(payload: string): string {
-	const [a, b, c, d] = hash128(SIG_SECRET + ' ' + payload);
+	const prefix = SIG_SECRET + ' ';
+	const [a, b, c, d] = hashFinish(
+		hashMix(hashMix([H1_SEED, H2_SEED], prefix), payload),
+		prefix.length + payload.length,
+	);
 	return hex32(a) + hex32(b) + hex32(c) + hex32(d);
 }
 
@@ -219,39 +607,64 @@ function tagsMatch(a: string, b: string): boolean {
 
 // ---- keystream cipher (hash-based CTR) + base64 ----
 
-function keystreamBlock(nonce: string, counter: number): Uint8Array {
-	const [a, b, c, d] = hash128(`${ENC_SECRET}|${nonce}|${counter}`);
-	const out = new Uint8Array(16);
-	const words = [a, b, c, d];
-	for (let i = 0; i < 4; i++) {
-		out[i * 4] = words[i] & 0xff;
-		out[i * 4 + 1] = (words[i] >>> 8) & 0xff;
-		out[i * 4 + 2] = (words[i] >>> 16) & 0xff;
-		out[i * 4 + 3] = (words[i] >>> 24) & 0xff;
-	}
-	return out;
+/** The per-nonce constant half of the keystream input, folded once. */
+function keystreamPrefix(nonce: string): { state: [number, number]; len: number } {
+	const prefix = `${ENC_SECRET}|${nonce}|`;
+	return { state: hashMix([H1_SEED, H2_SEED], prefix), len: prefix.length };
 }
 
-/** XOR bytes against the nonce-seeded keystream (encrypt and decrypt are identical). */
+/** One 16-byte keystream block, written straight into `out` at `at`.
+ *  Takes the pre-folded prefix so only the counter's few digits are hashed here. */
+function keystreamBlockInto(
+	pre: { state: [number, number]; len: number },
+	counter: number,
+	out: Uint8Array,
+	at: number,
+) {
+	const c = String(counter);
+	const [a, b, c3, d] = hashFinish(hashMix([pre.state[0], pre.state[1]], c), pre.len + c.length);
+	const words = [a, b, c3, d];
+	for (let i = 0; i < 4; i++) {
+		const o = at + i * 4;
+		if (o >= out.length) return;
+		out[o] = words[i] & 0xff;
+		if (o + 1 < out.length) out[o + 1] = (words[i] >>> 8) & 0xff;
+		if (o + 2 < out.length) out[o + 2] = (words[i] >>> 16) & 0xff;
+		if (o + 3 < out.length) out[o + 3] = (words[i] >>> 24) & 0xff;
+	}
+}
+
+/** XOR bytes against the nonce-seeded keystream (encrypt and decrypt are identical).
+ *  Generates the stream a block at a time into a scratch buffer instead of
+ *  re-deriving a fresh Uint8Array per 16 bytes; byte-for-byte the same output. */
 function xorKeystream(bytes: Uint8Array, nonce: string): Uint8Array {
 	const out = new Uint8Array(bytes.length);
-	let block = keystreamBlock(nonce, 0);
-	let counter = 0;
-	let bi = 0;
-	for (let i = 0; i < bytes.length; i++) {
-		if (bi >= block.length) {
-			block = keystreamBlock(nonce, ++counter);
-			bi = 0;
-		}
-		out[i] = bytes[i] ^ block[bi++];
+	const pre = keystreamPrefix(nonce);
+	const block = new Uint8Array(16);
+	for (let i = 0; i < bytes.length; i += 16) {
+		keystreamBlockInto(pre, i >> 4, block, 0);
+		const end = Math.min(16, bytes.length - i);
+		for (let j = 0; j < end; j++) out[i + j] = bytes[i + j] ^ block[j];
 	}
 	return out;
 }
 
+/** Base64 in chunks.
+ *  This used to build the binary string one character at a time —
+ *  `bin += String.fromCharCode(bytes[i])` — which on a save the code elsewhere
+ *  describes as "megabytes of JSON" is a million-iteration rope concat on the
+ *  main thread, and it sat behind the demo's Export button: the last screen a
+ *  demo player sees and the game's single best conversion moment. Chunking with
+ *  `String.fromCharCode.apply` does the same work in ~1/8000th the iterations;
+ *  the chunk is kept well under the argument-count limit that makes `apply`
+ *  throw on large arrays. */
 function bytesToB64(bytes: Uint8Array): string {
-	let bin = '';
-	for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-	return btoa(bin);
+	const CHUNK = 8192;
+	const parts: string[] = [];
+	for (let i = 0; i < bytes.length; i += CHUNK) {
+		parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK) as unknown as number[]));
+	}
+	return btoa(parts.join(''));
 }
 
 function b64ToBytes(b64: string): Uint8Array {
