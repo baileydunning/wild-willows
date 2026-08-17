@@ -57,8 +57,24 @@ const LS_PREFIX = 'wild-willows:solo-save:';
 // localStorage behaviour it replaces rather than failing. `indexedSoloSaves() === null` is the
 // normal, supported state, not an error path.
 
+/**
+ * The IndexedDB database and object store the saves live in.
+ *
+ * These two strings are PERSISTED SCHEMA, not internal naming: they are what a
+ * browser looks the data up by, and what shows in devtools under Application →
+ * IndexedDB. Renaming either after a player has migrated does not move their
+ * saves, it hides them — the rows stay under the old store, which nothing reads
+ * any more. So they are settled here, before this ships, and should not be
+ * touched again afterwards.
+ *
+ * `IndexedSoloSave` is PascalCase to match how stores are named everywhere else
+ * in this project (`Player`, `SoloMetrics`, `AppOpen` in schema.graphql), even
+ * though those are Harper tables on the server and this is a browser store on
+ * the player's own machine. The two never meet: solo saves are local files or
+ * local browser storage by design, and the server has no table for them.
+ */
 const SOLO_SAVE_DB = 'wild-willows';
-const SOLO_SAVE_STORE = 'solo-saves';
+const SOLO_SAVE_STORE = 'IndexedSoloSave';
 
 /** Resolves to an open database, or null when IndexedDB is unusable here. */
 let openHandle: Promise<IDBDatabase | null> | null = null;
