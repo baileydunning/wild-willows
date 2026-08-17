@@ -83,6 +83,7 @@
         { "@type": "Question", "name": "What is Wild Willows?", "acceptedAnswer": { "@type": "Answer", "text": "Wild Willows is a cozy nature-restoration life sim. You set up camp at the edge of a damaged nature preserve, then gather materials, craft and plant real habitat, and shape the land. As each biome recovers, real animal species find their way home." } },
         { "@type": "Question", "name": "Is Wild Willows free?", "acceptedAnswer": { "@type": "Answer", "text": "There is a free demo you can play right in your browser at play.wildwillows.app. The full game is a one-time purchase on the Mac App Store and on itch.io." } },
         { "@type": "Question", "name": "What platforms is it on?", "acceptedAnswer": { "@type": "Answer", "text": "The full game is on the Mac App Store (macOS) and on itch.io for macOS, Windows, and Linux. A free browser demo is at play.wildwillows.app." } },
+        { "@type": "Question", "name": "How long does Wild Willows take to play?", "acceptedAnswer": { "@type": "Answer", "text": "Speed-running it, all 150 animals can be brought back in about 3 to 4 hours. Most people do not play it that way, and for most cozy players that number runs closer to 10 to 15 hours. Either way nothing shuts the door at the end: the preserve is still yours after the last biome recovers, with 355 recipes to keep building with. There is no clock and no way to fail, so you can put it down for a month and pick it straight back up." } },
         { "@type": "Question", "name": "What languages does Wild Willows support?", "acceptedAnswer": { "@type": "Answer", "text": "English and Spanish. You can switch language on the title screen or in Settings at any time." } },
         { "@type": "Question", "name": "Does Wild Willows have accessibility options?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Dark mode or system-matching appearance, a high-contrast theme, three colorblind modes (red-green, blue-yellow, black and white), five interface fonts, four text sizes, reduce motion, a low graphics-quality mode for older machines, simpler wording, an interaction highlight, fully rebindable keys, and separate music and sound-effect toggles with their own volume sliders." } },
         { "@type": "Question", "name": "Is there any combat or a way to lose?", "acceptedAnswer": { "@type": "Answer", "text": "No. There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted or lost, and nothing ever dies." } },
@@ -205,6 +206,19 @@ svg{display:block}
 section{padding:3.4rem 0}
 .head{max-width:46rem;margin:0 auto 2rem;text-align:center}
 .head p{color:var(--ink-soft);font-size:1.04rem}
+/* The deeper cream. Every OTHER section carries it, strictly alternating from
+   the hero down to the final CTA:
+
+     about · soundtrack · look · stats-strip · reviews · everyone · educators ·
+     updates · faq
+     plain ·   band    · plain·   band      · plain  ·  band   ·  plain  ·
+     band ·  plain
+
+   It used to run reviews → everyone → educators → updates all on plain paper,
+   four full-height sections deep, which read as one undifferentiated scroll —
+   the bands were doing nothing for the stretch of the page that needed them
+   most. Adding a section in the middle of that run means flipping every band
+   after it, not just adding one; check the whole sequence, not the neighbour. */
 .band{background:var(--paper-deep)}
 
 /* intro note */
@@ -279,16 +293,10 @@ section{padding:3.4rem 0}
 /* the subreddit card: a postcard from the preserve */
 .post{max-width:620px;margin:0 auto;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
   box-shadow:var(--shadow);padding:1.7rem 1.8rem;position:relative}
-.post .stamp{position:absolute;top:1rem;right:1.1rem;width:52px;height:60px;border:2px dashed #cbbf9b;border-radius:6px;
-  display:flex;align-items:center;justify-content:center;background:#fbf7ea;transform:rotate(3deg)}
-.post .stamp svg{width:30px;height:30px}
-.post h3,.post .intro{padding-right:74px}
-@media(max-width:520px){
-  .post .stamp{width:44px;height:50px}
-  .post .stamp svg{width:24px;height:24px}
-  .post h3{padding-right:58px}
-  .post .intro{padding-right:0}
-}
+/* The dashed "stamp" in the top-right corner is gone, and so is everything that
+   existed to make room for it: the 74px right padding on the heading and intro,
+   and the 520px media query that shrank the stamp and unwound that padding
+   again. Nothing else in this sheet referenced them. */
 .post p{color:var(--ink-soft);font-size:.99rem}
 .post .fine{font-size:.8rem;color:var(--ink-faint);margin:0}
 .post .cta{margin:1rem 0 .55rem}
@@ -398,8 +406,8 @@ body.lb-open{overflow:hidden}
 #everyone{contain-intrinsic-size:auto 1904px}
 #educators{contain-intrinsic-size:auto 934px}
 #soundtrack{contain-intrinsic-size:auto 270px}
-#updates{contain-intrinsic-size:auto 400px}
-#faq{contain-intrinsic-size:auto 961px}
+#updates{contain-intrinsic-size:auto 623px}
+#faq{contain-intrinsic-size:auto 1032px}
 #get{contain-intrinsic-size:auto 365px}
 
 /* The hero's fireflies and stars are decoration, and on a slow device they were
@@ -418,7 +426,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     <a class="hide-sm" href="#reviews">Reviews</a>
     <a class="hide-sm" href="#everyone">Accessibility</a>
     <a class="hide-sm" href="/teachers" data-track="edu-nav">For teachers</a>
-    <a class="hide-sm" href="#updates">Updates</a>
+    <a class="hide-sm" href="#updates">Community</a>
     <a class="hide-sm" href="#faq">FAQ</a>
     <a class="btn btn-go" href="#get" data-track="get-nav">Get the game</a>
   </div>
@@ -591,7 +599,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
   </div>
 </div></section>
 
-<section id="everyone"><div class="wrap">
+<section class="band" id="everyone"><div class="wrap">
   <div class="head">
     <h2>Made to be played by more people</h2>
   </div>
@@ -669,7 +677,18 @@ body.ready .star,body.ready .fly{animation-play-state:running}
   </div>
 </div></section>
 
-<section id="updates"><div class="wrap">
+<section class="band" id="updates"><div class="wrap">
+  <!-- Every other section on this page opens with a centred .head (h2 + one
+       line of subhead) and then its content. This one used to jump straight to
+       the postcard, so the page's rhythm broke for one section and the document
+       outline skipped from the h2s around it to an h3 inside a card. The .head
+       below restores both. The card carries no heading of its own — the h2 is
+       three lines above it and names the same thing, so a second one only
+       repeated the subreddit's name twice in a row. -->
+  <div class="head">
+    <h2>Community</h2>
+    <p>Development updates, questions, and whatever people have built &mdash; all in one place.</p>
+  </div>
   <!-- The subreddit, on its own. This slot used to hold a mailing-list signup
        card as well; both were removed (form, MailingListSignup table and the
        admin-only ListMailingList reader) so the site now collects no email
@@ -678,9 +697,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
        server/resources.ts) so it shows up as its own series in the dashboard's
        Clicks by link rather than falling into "other". -->
   <div class="post" id="redditPost">
-    <div class="stamp" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M6.6 8.2h10.8v6.4H12l-3.6 2.7v-2.7H6.6z" fill="#d8eec2"/></svg></div>
-    <h3>Community</h3>
-    <p class="intro">The game has a subreddit at <a href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit"><b>r/wildwillows</b></a>. It's where I post development updates and answer questions, and anyone can post there too.</p>
+    <p class="intro">The game's subreddit is at <a href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit"><b>r/wildwillows</b></a>. It's where I post development updates and answer questions, and anyone can post there too.</p>
     <ul class="sub-list">
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Update posts: what shipped, what's next, what changed</span></li>
       <li><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7" stroke="currentColor" stroke-width="2.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg><span>Questions about habitat, species and what unlocks what</span></li>
@@ -691,12 +708,13 @@ body.ready .star,body.ready .fly{animation-play-state:running}
   </div>
 </div></section>
 
-<section class="band" id="faq"><div class="wrap">
+<section id="faq"><div class="wrap">
   <div class="head"><h2>Good to know</h2></div>
   <div class="faq">
     <details open><summary>What is Wild Willows?</summary><p>A cozy nature-restoration life sim. You set up camp at the edge of a damaged nature preserve, then gather materials, craft and plant real habitat, and shape the land. As each biome recovers, real animal species find their way home.</p></details>
     <details><summary>Is Wild Willows free?</summary><p>There's a free demo you can play right in your browser at <a href="https://play.wildwillows.app/" data-track="play">play.wildwillows.app</a>. The full game is a one-time purchase on the Mac App Store and on itch.io. No ads, no in-app purchases, no loot boxes.</p></details>
     <details><summary>What platforms is it on?</summary><p>The full game is on the Mac App Store for macOS, and on itch.io for macOS, Windows, and Linux. The free browser demo is at <a href="https://play.wildwillows.app/" data-track="play">play.wildwillows.app</a>. Nothing to download.</p></details>
+    <details><summary>How long does it take to play?</summary><p>If you speed-run the game, all 150 animals can be brought back in about <b>3&ndash;4 hours</b>. Most people don't play it that way though, and for most cozy players that number runs closer to <b>10&ndash;15 hours</b>. Either way nothing shuts the door at the end: the preserve is still yours after the last biome recovers, with 355 recipes to keep building with. There's no clock and no way to fail, so you can put it down for a month and pick it straight back up.</p></details>
     <details><summary>What languages does it support?</summary><p>English and Spanish. You can switch language on the title screen or in Settings at any time.</p></details>
     <details><summary>Does it have accessibility options?</summary><p>A lot of them, all in one Settings screen and all changeable mid-game: dark mode (or follow your system), high contrast, three colorblind modes, five interface fonts, four text sizes, reduce motion, a low graphics-quality mode for older machines, simpler wording, an interaction highlight, fully rebindable keys, and separate music and sound-effect toggles with their own volumes. The full list is in <a href="#everyone">Made to be played by more people</a>.</p></details>
     <details><summary>Is there any combat or a way to lose?</summary><p>No. There's no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted, captured, or lost, and nothing ever dies.</p></details>

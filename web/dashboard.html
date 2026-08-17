@@ -3459,7 +3459,14 @@
 							// A "Mailing list" tile stood here. The list is gone — signup form,
 							// MailingListSignup table and the admin-only reader — so there is no
 							// number behind it any more, not even a frozen one.
-						].join('')}</div><div class="grid two" style="margin-top:.8rem">` +
+						].join('')}</div>` +
+							// Daily visits sits directly under the KPI row, above the two-up
+							// grid: the KPIs answer "how many, all-time and today", and the
+							// day columns are the shape behind those same numbers, so they
+							// read together. Clicks by link and Classroom PDFs are the
+							// breakdown of WHERE people went, which follows from that.
+							dailyVisitsCard +
+							`<div class="grid two" style="margin-top:.8rem">` +
 							cardTitled(
 								'Clicks by link',
 								'all-time',
@@ -3470,8 +3477,7 @@
 								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
 								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
 							) +
-							`</div>` +
-							dailyVisitsCard,
+							`</div>`,
 					);
 				}
 
@@ -3953,60 +3959,78 @@
 											),
 											kpi(pct(dn.storePct), 'Went to a store', `${fmt(dn.storeClicked)} clicked through`),
 										].join('')}</div>`
-									: '') +
-								/* The end-of-demo popup, off the SAME denominator as "Finished"
-								 * above — everyone who reaches the hard-stop sees it, so it has
-								 * no "shown" of its own to report.
-								 *
-								 * Drawn directly under the prompt's row so the two store rates
-								 * sit next to each other. They were a single funnel until this
-								 * screen got a buy link at all, which is exactly why the
-								 * prompt's number looked healthy: it was carrying every store
-								 * click in the demo by itself. */
-								(n(dc.reachedGoal)
-									? `<h4 class="sub-h" style="margin-top:1rem">End-of-demo screen</h4>` +
-										`<div class="grid three">${[
-											kpi(fmt(de.shown != null ? de.shown : dc.reachedGoal), 'Reached it', 'everyone who finished'),
-											kpi(
-												`<span class="accent">${pct(de.exportPct)}</span>`,
-												'Saved their meadow',
-												`${fmt(de.exported)} exported from the popup`,
-											),
-											kpi(pct(de.storePct), 'Went to a store', `${fmt(de.storeClicked)} clicked through`),
-										].join('')}</div>` +
-										`<p class="emptynote">The buy links were added to this screen after launch — it had none at all before that. ` +
-										`A flat zero from builds that predate them is a measurement gap, not a finding.</p>`
 									: ''),
 						)
 					: '';
 
-				/* ---- Carried over from the demo ----
-				 * "Finished the demo" measures the demo. THIS measures whether the demo
-				 * sells the game: they bought it and brought their meadow across, which
-				 * is a stronger statement than either an install or a completion. Its
-				 * own card because burying it in a completion funnel undersells it. */
+				/* ---- The end of the demo ----
+				 * Two halves of one moment, so one card. The end-of-demo screen is the
+				 * hard stop where the buy links live; "carried over" is who acted on them
+				 * and brought their meadow across. They used to sit apart — the screen
+				 * buried inside Demo completion, the carry-over in a card of its own —
+				 * which put a store-click rate and the purchases it produced on opposite
+				 * sides of the grid, where nobody could read one against the other.
+				 *
+				 * "Finished the demo" measures the demo. The carry-over measures whether
+				 * the demo SELLS the game, which is a stronger statement than either an
+				 * install or a completion — hence its own headline row rather than a
+				 * footnote to a completion funnel.
+				 *
+				 * Gated per BLOCK, not per card. The screen's numbers need only that
+				 * somebody finished the demo; hanging them off a completed purchase would
+				 * hide the funnel exactly when it matters most — before the first sale,
+				 * when the open question is whether the screen converts at all. */
 				const cvs = s.conversions || {};
-				const convCard = cvs.demoToFull
-					? cardTitled(
-							'Carried over from the demo',
-							'bought the game and imported their save',
-							`<div class="grid three">${[
-								kpi(
-									`<span class="accent">${fmt(cvs.demoToFull)}</span>`,
-									cvs.demoToFull === 1 ? 'Caretaker' : 'Caretakers',
-									cvs.inferred
-										? `${fmt(cvs.inferred)} matched to their demo save${cvs.stamped ? `, ${fmt(cvs.stamped)} stamped at export` : ''}`
-										: 'stamped when the save was exported',
-								),
-								kpi(pct(cvs.ratePct), 'Of demo saves', `${fmt(cvs.demoSavesSeen)} demo saves reported in`),
-								kpi(
-									`${fmt(cvs.avgDemoMinutesBeforeBuying)}<small>m</small>`,
-									'Demo play first',
-									'average, before carrying over',
-								),
-							].join('')}</div>`,
-						)
+				/* Off the SAME denominator as "Finished the demo" in Demo completion:
+				 * everyone who reaches the hard stop sees this screen, so it has no
+				 * "shown" of its own to report. It and the "are you done playing?" prompt
+				 * were a single funnel until this screen got a buy link at all, which is
+				 * exactly why the prompt's number used to look healthy: it was carrying
+				 * every store click in the demo by itself. */
+				const endScreenBlock = n(dc.reachedGoal)
+					? `<div class="grid three">${[
+							kpi(fmt(de.shown != null ? de.shown : dc.reachedGoal), 'Reached it', 'everyone who finished'),
+							kpi(
+								`<span class="accent">${pct(de.exportPct)}</span>`,
+								'Saved their meadow',
+								`${fmt(de.exported)} exported from the popup`,
+							),
+							kpi(pct(de.storePct), 'Went to a store', `${fmt(de.storeClicked)} clicked through`),
+						].join('')}</div>` +
+						`<p class="emptynote">The buy links were added to this screen after launch — it had none at all before that. ` +
+						`A flat zero from builds that predate them is a measurement gap, not a finding.</p>`
 					: '';
+				const carriedBlock = cvs.demoToFull
+					? `<div class="grid three">${[
+							kpi(
+								`<span class="accent">${fmt(cvs.demoToFull)}</span>`,
+								cvs.demoToFull === 1 ? 'Caretaker' : 'Caretakers',
+								cvs.inferred
+									? `${fmt(cvs.inferred)} matched to their demo save${cvs.stamped ? `, ${fmt(cvs.stamped)} stamped at export` : ''}`
+									: 'stamped when the save was exported',
+							),
+							kpi(pct(cvs.ratePct), 'Of demo saves', `${fmt(cvs.demoSavesSeen)} demo saves reported in`),
+							kpi(
+								`${fmt(cvs.avgDemoMinutesBeforeBuying)}<small>m</small>`,
+								'Demo play first',
+								'average, before carrying over',
+							),
+						].join('')}</div>`
+					: '';
+				const convCard =
+					endScreenBlock || carriedBlock
+						? cardTitled(
+								'The end of the demo',
+								'the hard stop, and who came across',
+								(endScreenBlock ? `<h4 class="sub-h">End-of-demo screen</h4>${endScreenBlock}` : '') +
+									(carriedBlock
+										? // No top margin when this is the only block in the card, so a
+											// lone carry-over row doesn't float below its own heading.
+											`<h4 class="sub-h"${endScreenBlock ? ' style="margin-top:1rem"' : ''}>Carried over from the demo</h4>` +
+											carriedBlock
+										: ''),
+							)
+						: '';
 				// Every activation signal we have. "Created" is the entry point (always first
 				// and largest); the rest are sorted by count so the funnel always reads
 				// top-down. They're independent booleans, not strict prerequisites, so sorting
