@@ -36508,6 +36508,10 @@ function snapshotResponse(reqHeaders, state) {
   if (!enc) return { status: 200, headers, body: json };
   return { status: 200, headers: { ...headers, "content-encoding": enc }, body: compressJson(json, enc) };
 }
+var GAME_DATA_CORS = {
+  "access-control-allow-origin": "*",
+  "access-control-allow-methods": "GET, HEAD"
+};
 var GameData = class extends PublicEndpoint {
   async get() {
     const { obj, json, etag } = await gameDataCached();
@@ -36517,13 +36521,18 @@ var GameData = class extends PublicEndpoint {
     const norm = (s) => s.replace(/^W\//, "").trim();
     const ifNoneMatch = String(reqHeaders.get("if-none-match") || "");
     if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
-      return { status: 304, headers: { etag, "cache-control": cacheControl }, body: nodeBuffer.alloc(0) };
+      return {
+        status: 304,
+        headers: { etag, "cache-control": cacheControl, ...GAME_DATA_CORS },
+        body: nodeBuffer.alloc(0)
+      };
     }
     const headers = {
       "content-type": "application/json; charset=utf-8",
       "cache-control": cacheControl,
       etag,
-      vary: "Accept-Encoding"
+      vary: "Accept-Encoding",
+      ...GAME_DATA_CORS
     };
     const enc = negotiateEncoding(String(reqHeaders.get("accept-encoding") || ""));
     let body = json;

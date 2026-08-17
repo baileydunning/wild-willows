@@ -1,0 +1,310 @@
+/* Wild Willows — <ww-runner> styles.
+ *
+ * Inlined into both classroom student pages by scripts/build-pages.mjs alongside
+ * ww-runner.js. Everything is scoped under .wwr so it cannot leak into the page
+ * around it, and nothing here depends on the host page's own stylesheet — the
+ * two student pages should be able to diverge visually without breaking the
+ * component they share.
+ *
+ * Colour values are literals rather than custom properties on purpose: the
+ * runner is also what a student sees inside the downloaded project preview, and
+ * a variable inherited from a page that is no longer there would render it
+ * unreadable.
+ */
+
+.wwr {
+	display: block;
+	margin: 1.5rem 0;
+	border: 1px solid #d5dcc9;
+	border-radius: 10px;
+	overflow: hidden;
+	background: #fbfcf7;
+	font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ toolbar */
+
+.wwr-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.4rem 0.6rem;
+	background: #eef2e5;
+	border-bottom: 1px solid #d5dcc9;
+	flex-wrap: wrap;
+}
+
+.wwr-label {
+	font-weight: 600;
+	color: #3f5136;
+	font-size: 0.85rem;
+}
+
+.wwr-spacer {
+	flex: 1 1 auto;
+}
+
+.wwr-tabs {
+	display: flex;
+	gap: 0.25rem;
+}
+
+.wwr-tab {
+	font: inherit;
+	font-size: 0.82rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	padding: 0.25rem 0.7rem;
+	border: 1px solid transparent;
+	border-radius: 6px;
+	background: transparent;
+	color: #5a6b52;
+	cursor: pointer;
+}
+
+.wwr-tab:hover {
+	background: #e2e9d5;
+}
+
+.wwr-tab.is-active {
+	background: #fbfcf7;
+	border-color: #d5dcc9;
+	color: #2f3d29;
+	font-weight: 600;
+}
+
+.wwr-btn {
+	font: inherit;
+	font-size: 0.82rem;
+	padding: 0.3rem 0.75rem;
+	border: 1px solid #c3cdb4;
+	border-radius: 6px;
+	background: #fbfcf7;
+	color: #3f5136;
+	cursor: pointer;
+	white-space: nowrap;
+}
+
+.wwr-btn:hover {
+	background: #fff;
+	border-color: #9fb38c;
+}
+
+.wwr-run {
+	background: #4a7c59;
+	border-color: #3f6b4c;
+	color: #fff;
+	font-weight: 600;
+}
+
+.wwr-run:hover {
+	background: #558c66;
+	border-color: #3f6b4c;
+}
+
+/* Unrun edits: only appears in manual mode, where the whole point is that the
+ * student decides when to run. A pulse rather than a colour change alone, so it
+ * reads as "there is something to do" at a glance. */
+.wwr-run.is-dirty {
+	animation: wwr-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wwr-pulse {
+	50% {
+		box-shadow: 0 0 0 4px rgba(74, 124, 89, 0.22);
+	}
+}
+
+/* -------------------------------------------------------------------- panes */
+
+.wwr-body {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	min-height: 240px;
+}
+
+/* One-file examples in the lesson are usually short; side-by-side keeps the
+ * cause and its effect in one eyeful, which is the entire teaching device. */
+.wwr--single .wwr-body {
+	min-height: 180px;
+}
+
+.wwr-panes {
+	border-right: 1px solid #d5dcc9;
+	min-width: 0;
+}
+
+.wwr-editor {
+	display: flex;
+	height: 100%;
+	background: #fdfdfa;
+}
+
+.wwr-gutter {
+	flex: 0 0 auto;
+	padding: 0.6rem 0.4rem 0.6rem 0.6rem;
+	margin: 0;
+	text-align: right;
+	color: #a8b39c;
+	background: #f4f6ed;
+	border-right: 1px solid #e6ead9;
+	white-space: pre;
+	overflow: hidden;
+	user-select: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.wwr-code {
+	flex: 1 1 auto;
+	border: 0;
+	outline: 0;
+	resize: none;
+	padding: 0.6rem;
+	background: transparent;
+	color: #26301f;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+	tab-size: 2;
+	min-height: 180px;
+	white-space: pre;
+	overflow: auto;
+}
+
+.wwr-code:focus {
+	background: #fff;
+	box-shadow: inset 0 0 0 2px rgba(74, 124, 89, 0.35);
+}
+
+/* ------------------------------------------------------------ output column */
+
+.wwr-out {
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	background: #fff;
+}
+
+.wwr-preview {
+	flex: 1 1 auto;
+	width: 100%;
+	border: 0;
+	background: #fff;
+	min-height: 180px;
+}
+
+.wwr-console {
+	border-top: 1px solid #e6ead9;
+	background: #f7f8f2;
+	max-height: 40%;
+	display: flex;
+	flex-direction: column;
+}
+
+.wwr-console-head {
+	padding: 0.25rem 0.6rem;
+	font-size: 0.72rem;
+	letter-spacing: 0.04em;
+	text-transform: uppercase;
+	color: #7d8a74;
+	border-bottom: 1px solid #e6ead9;
+}
+
+.wwr-console-lines {
+	margin: 0;
+	padding: 0.4rem 0.6rem;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: #3a4633;
+	white-space: pre-wrap;
+	word-break: break-word;
+	min-height: 3.2em;
+}
+
+.wwr-console-line + .wwr-console-line {
+	border-top: 1px dotted #e2e6d8;
+	padding-top: 0.2rem;
+	margin-top: 0.2rem;
+}
+
+.wwr-console-line.is-warn {
+	color: #8a6d1f;
+}
+
+.wwr-console-line.is-error {
+	color: #9c3b2e;
+}
+
+/* -------------------------------------------------------------- error panel */
+
+/* Warm, not alarming. A red siren teaches beginners that errors are failures;
+ * they are the normal state of writing code, and the panel should read like
+ * help rather than punishment. */
+.wwr-error {
+	border-top: 1px solid #edd9b8;
+	background: #fdf6e8;
+	padding: 0.7rem 0.9rem;
+}
+
+.wwr-error-title {
+	font-weight: 700;
+	color: #7a4f16;
+	margin-bottom: 0.3rem;
+}
+
+.wwr-error-msg {
+	display: block;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	color: #6b4a2a;
+	background: #f7ecd8;
+	border-radius: 4px;
+	padding: 0.25rem 0.45rem;
+	margin-bottom: 0.4rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wwr-error-help {
+	margin: 0;
+	color: #52412c;
+	font-size: 0.92rem;
+	line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ failure */
+
+/* If the component itself throws, the static fallback markup inside the element
+ * stays visible and readable. The lesson degrades to a normal article rather
+ * than to a row of empty boxes. */
+.wwr--failed .wwr-body {
+	display: none;
+}
+
+/* ------------------------------------------------------------- small screens */
+
+@media (max-width: 820px) {
+	.wwr-body {
+		grid-template-columns: 1fr;
+	}
+
+	.wwr-panes {
+		border-right: 0;
+		border-bottom: 1px solid #d5dcc9;
+	}
+
+	.wwr-code,
+	.wwr-preview {
+		min-height: 150px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-run.is-dirty {
+		animation: none;
+		box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.3);
+	}
+}

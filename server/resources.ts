@@ -5918,6 +5918,40 @@ function snapshotResponse(reqHeaders: any, state: any) {
 	return { status: 200, headers: { ...headers, 'content-encoding': enc }, body: compressJson(json, enc) };
 }
 
+/**
+ * CORS for GET /GameData/ — deliberately wide open, and safe to be.
+ *
+ * This catalog is public, unauthenticated, byte-identical for every caller and
+ * already fetched by anonymous browsers before login. `*` therefore exposes
+ * nothing that a plain URL does not, and — critically — it is credential-less:
+ * `*` and `Access-Control-Allow-Credentials` are mutually exclusive by spec, so
+ * no cookie or auth header can ever ride along on a cross-origin read.
+ *
+ * It is here for the classroom pages (/learn/code-builder), which need it in
+ * three places the same-origin case never exercised:
+ *   1. The preview iframe is `sandbox="allow-scripts"` WITHOUT `allow-same-origin`,
+ *      so student code runs on an OPAQUE origin. Without this header the only fix
+ *      is granting `allow-same-origin`, which would hand student JS the parent page.
+ *   2. Downloaded projects run from `file://` (`Origin: null`).
+ *   3. Anywhere a student continues afterwards — CodePen, a school Google Site.
+ * CONTRIBUTING.md already notes the packaged app's `file://` origin needs this too.
+ *
+ * MUST be on the 304 path as well: a cross-origin client that already holds the
+ * ETag revalidates, and a 304 without these headers is a CORS failure — i.e. the
+ * lesson would work on first load and mysteriously break on every reload after.
+ *
+ * Scoped to THIS endpoint by construction (a const, not middleware). It must
+ * never spread to GameState or anything under DashboardEndpoint: those are
+ * per-player or admin, and same-origin policy is what is currently protecting them.
+ */
+const GAME_DATA_CORS: Record<string, string> = {
+	'access-control-allow-origin': '*',
+	// No `access-control-allow-headers`/`-methods`: the lesson teaches bare
+	// `fetch(url)` with no custom headers, which is a CORS-simple request and is
+	// never preflighted. Nothing here answers OPTIONS, and nothing needs to.
+	'access-control-allow-methods': 'GET, HEAD',
+};
+
 export class GameData extends PublicEndpoint {
 	async get() {
 		const { obj, json, etag } = await gameDataCached();
@@ -5943,7 +5977,11 @@ export class GameData extends PublicEndpoint {
 		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
 			// Explicitly empty — see the note in snapshotResponse: without this Harper
 			// serializes the envelope itself into the body of a 304.
-			return { status: 304, headers: { etag, 'cache-control': cacheControl }, body: nodeBuffer.alloc(0) };
+			return {
+				status: 304,
+				headers: { etag, 'cache-control': cacheControl, ...GAME_DATA_CORS },
+				body: nodeBuffer.alloc(0),
+			};
 		}
 
 		const headers: Record<string, string> = {
@@ -5951,6 +5989,7 @@ export class GameData extends PublicEndpoint {
 			'cache-control': cacheControl,
 			etag,
 			vary: 'Accept-Encoding',
+			...GAME_DATA_CORS,
 		};
 		const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
 		let body: string | Uint8Array = json;
