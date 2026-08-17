@@ -575,9 +575,23 @@ async function findCounterRow(table: any, id: string): Promise<any | null> {
 	if (!table || typeof table.search !== 'function') return null;
 	const direct = await safeGet(table, id);
 	if (direct) return direct;
-	// Null: EITHER genuinely absent OR a cold-instance miss. Only a scan can tell
-	// the two apart, and only the second one is dangerous.
-	const rows = await toArray(table.search({}), tableName(table));
+	// Null: EITHER genuinely absent OR a cold-instance miss. Only a range read can
+	// tell the two apart, and only the second one is dangerous.
+	//
+	// This used to be an UNBOUNDED scan, which made the guard quadratic on the one
+	// table where the caller picks the key: AppOpen is keyed `dev:${deviceId}` from
+	// the request body, so a novel device id always misses, always scanned, and the
+	// table it scanned had one row per device id ever seen. N invented ids cost
+	// ~N²/2 row reads, and every row is permanent.
+	//
+	// A `starts_with` on the FULL id is bounded to the rows sharing that exact
+	// prefix — normally one — while keeping the property the scan was here for:
+	// Harper compiles it to `primaryStore.getRange`, the same store-level read that
+	// an unbounded scan makes, so it cannot be colder or less ready than the scan it
+	// replaces. (See the KEY_REV note; this is that argument applied to a single
+	// key.) The exact-id filter below still runs, because a prefix read can also
+	// return `dev:abc123` when asked for `dev:abc`.
+	const rows = await scanPrefix(table, id);
 	return rows.find((r: any) => r?.id === id) || null;
 }
 
@@ -4946,10 +4960,39 @@ async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	};
 }
 
+/**
+ * Ceiling on a request body, in bytes of re-serialized JSON.
+ *
+ * Comfortably above every legitimate body in the game: the largest are
+ * AppendFeed (FEED_CAP=100 lines x 500 chars, ~50 KB) and SyncMetrics
+ * (METRICS_SNAPSHOT_MAX_BYTES=24 KB plus its scalars). 128 KB leaves room for
+ * both to grow without ever coming near it.
+ */
+const MAX_BODY_BYTES = 128 * 1024;
+
+/**
+ * Be honest about what this bounds. Harper has already parsed the request by the
+ * time a handler runs, so this cannot protect against the parse — that cost is
+ * sunk. What it does stop is the durable half: a body this size being PERSISTED,
+ * iterated key-by-key, or copied into a cached rollup, which is where an
+ * oversized request turns from one slow moment into a permanent one.
+ *
+ * The stringify is one pass over an object we already hold, and every real body
+ * is tens of bytes, so this is nothing on the gameplay path.
+ */
 async function bodyOf(data: any) {
 	const body = await data;
 	if (!body || typeof body !== 'object')
 		throw new GameError(tr('server.err.bodyRequired'), 400, 'server.err.bodyRequired');
+	let bytes = 0;
+	try {
+		bytes = JSON.stringify(body)?.length ?? 0;
+	} catch {
+		// Circular or otherwise unserializable — it cannot be stored either, so
+		// refuse it here rather than further in.
+		throw new GameError(tr('server.err.bodyTooLarge'), 413, 'server.err.bodyTooLarge');
+	}
+	if (bytes > MAX_BODY_BYTES) throw new GameError(tr('server.err.bodyTooLarge'), 413, 'server.err.bodyTooLarge');
 	return body;
 }
 
@@ -5551,7 +5594,15 @@ async function indexPlayerName(name: string, playerId: string): Promise<void> {
 		if (!id) return;
 		const row = (await safeGet(t.PlayerNameIndex, id)) || { id, playerIds: [] };
 		const ids: string[] = Array.isArray(row.playerIds) ? row.playerIds : [];
-		if (!ids.includes(playerId)) await t.PlayerNameIndex.put({ ...row, id, playerIds: [...ids, playerId] });
+		if (ids.includes(playerId)) return;
+		// Append, then trim from the FRONT. The array is append-ordered, login reads
+		// it newest-first, and the row is rewritten whole on every append — so an
+		// uncapped array is both O(N²) to build and unbounded to read. Dropping the
+		// oldest ids keeps the row a fixed size without ever evicting the entries a
+		// login is most likely to want.
+		const next = [...ids, playerId];
+		const trimmed = next.length > PLAYER_NAME_INDEX_MAX ? next.slice(next.length - PLAYER_NAME_INDEX_MAX) : next;
+		await t.PlayerNameIndex.put({ ...row, id, playerIds: trimmed });
 	} catch (e: any) {
 		console.error('player name index write failed —', e?.message || e);
 	}
@@ -5598,11 +5649,36 @@ async function indexedIdsFor(name: string): Promise<string[]> {
  * a save whose passcode did not match.
  */
 /**
- * How many same-name saves the last-resort login scan will run scrypt against.
- * Bounds the work an unauthenticated failed login can cost — see the note at the
- * scan itself. Well above any plausible number of real saves sharing one name.
+ * How many same-name saves one login attempt will run scrypt against.
+ *
+ * Applies to BOTH candidate sources — the name index and the legacy scan — because
+ * the expensive path is the indexed one and capping only the other achieved
+ * nothing. Well above any plausible number of real saves sharing an exact name;
+ * past it, the oldest same-name saves are not reachable by name login, which is
+ * the deliberate trade against letting one request own the event loop.
  */
-const LOGIN_SCAN_CANDIDATE_MAX = 25;
+const LOGIN_SCAN_CANDIDATE_MAX = 12;
+
+/**
+ * Wall-clock ceiling on passcode hashing for one login attempt.
+ *
+ * The count cap is a proxy; this bounds the thing that actually hurts. scryptSync
+ * is ~36 ms and blocks the whole node, so this is roughly a dozen checks — and it
+ * holds even if scrypt gets slower, the box is loaded, or the parameters change,
+ * none of which a count cap would notice.
+ */
+const LOGIN_HASH_BUDGET_MS = 500;
+
+/**
+ * How many ids one PlayerNameIndex row will hold.
+ *
+ * The row is rewritten whole on every append, so an uncapped array is O(N²) write
+ * bytes to build and an unbounded read on every login for that name. Kept far
+ * above LOGIN_SCAN_CANDIDATE_MAX so the index is never the thing that decides
+ * which saves are reachable — the hash cap is, and it is the one documented as
+ * making that trade.
+ */
+const PLAYER_NAME_INDEX_MAX = 200;
 
 async function resolveByNameAndPasscode(
 	name: any,
@@ -5618,9 +5694,31 @@ async function resolveByNameAndPasscode(
 	// Point-read each indexed id BEFORE falling back to a scan. safeGet salvages
 	// an undecodable row here; the scan below never can, so this ordering is what
 	// keeps a corrupt save recoverable.
+	//
+	// THE HASHING IS CAPPED HERE, and this loop is the one that needed it. An
+	// earlier attempt capped only the fallback scan below, which is the branch that
+	// cannot be reached once a name is indexed — so the guard sat on the cheap path
+	// while the expensive one ran unbounded. `verifyPasscode` is scryptSync:
+	// ~36 ms and SYNCHRONOUS, so it blocks every other request on the node, not
+	// just this one. Uncapped, that is 36 ms x however many saves share the name —
+	// and since CreatePlayer is public and same-name saves are deliberately
+	// allowed, the caller can grow that number themselves. 1,000 saves named
+	// "willow" turned one ~60-byte POST into ~36 seconds of dead server.
+	//
+	// Newest first: someone actively logging in is far likelier to be on a recent
+	// save than on the oldest row that ever used the name.
 	let indexSeen = false;
 	let unreadable = false;
-	for (const pid of await indexedIdsFor(name)) {
+	const indexedIds = await indexedIdsFor(name);
+	const hashOrder = indexedIds.slice().reverse();
+	if (hashOrder.length > LOGIN_SCAN_CANDIDATE_MAX) {
+		console.error(
+			`login for "${wanted}": ${hashOrder.length} indexed saves share this name, checking the ${LOGIN_SCAN_CANDIDATE_MAX} most recent`,
+		);
+	}
+	const deadline = Date.now() + LOGIN_HASH_BUDGET_MS;
+	let hashed = 0;
+	for (const pid of hashOrder) {
 		const p = await safeGet(db().Player, pid);
 		if (!p) {
 			// Nothing decoded, but the bytes are on disk: this save exists and we
@@ -5630,29 +5728,30 @@ async function resolveByNameAndPasscode(
 			continue;
 		}
 		indexSeen = true;
+		// Two independent bounds. The count cap is the predictable one; the wall-clock
+		// budget is the one that actually bounds the harm, because it is measured in
+		// the units that hurt (blocked event loop) rather than in a proxy for them.
+		// Whichever trips first wins.
+		if (hashed >= LOGIN_SCAN_CANDIDATE_MAX || Date.now() > deadline) {
+			console.error(`login for "${wanted}": passcode check truncated after ${hashed} candidate(s)`);
+			break;
+		}
+		hashed++;
 		if (await verifyPasscode(p, passcode)) return { player: p, nameSeen: true };
 	}
-	// Last-resort scan for a save the name index never learned about. Everything
-	// above is a point read; this is the only unbounded read on the login path, and
-	// it is reached precisely when a login FAILS — a wrong passcode, or a name that
-	// doesn't exist. That makes it the one place an unauthenticated caller can
-	// choose to make the server do expensive work, and the work is not cheap on
-	// either axis: a full Player scan, and then `verifyPasscode` per candidate,
-	// which is scrypt — deliberately slow and, worse, SYNCHRONOUS, so each call
-	// blocks the whole event loop rather than just the request that asked for it.
+	// Last-resort scan for a save the name index never learned about — a save from
+	// before the index existed. Reached only when the name is in no index row at
+	// all, which after the back-fill below happens at most ONCE per name for the
+	// lifetime of the database.
 	//
-	// Two bounds, neither of which can turn a good login into a failed one:
-	//
-	//  • Skip the scan entirely when the index already produced candidates. If
-	//    `indexSeen` is true the name IS indexed, every save under it has just been
-	//    point-read, and none matched the passcode. The scan cannot find a
-	//    different answer — it can only re-derive the same rows the slow way.
-	//  • Cap how many name-matches we are willing to hash. Names collide (a shared
-	//    family machine, a common first name), and without a cap one POST costs one
-	//    scrypt per colliding save. The cap is generous enough that a real player is
-	//    never turned away by it, and the overflow is logged rather than silently
-	//    dropped, because "your save is beyond the cap" would otherwise look
-	//    identical to "wrong passcode".
+	// That back-fill is the point. This scan is the only unbounded read on the
+	// login path and it is reached precisely when a login FAILS, so leaving it
+	// repeatable would mean an unauthenticated caller could re-trigger a full
+	// Player scan by POSTing an unknown name over and over. Writing what it finds
+	// into PlayerNameIndex means the second attempt for that name takes the bounded
+	// path above instead. Deleting the scan outright would be simpler and is
+	// tempting, but it is what still finds a legacy save, and locking someone out
+	// of their world is worse than one scan.
 	let candidates: any[] = [];
 	if (!indexSeen) {
 		candidates = (await allOf(db().Player)).filter(
@@ -5661,18 +5760,23 @@ async function resolveByNameAndPasscode(
 					.trim()
 					.toLowerCase() === wanted,
 		);
-		if (candidates.length > LOGIN_SCAN_CANDIDATE_MAX) {
+		// Heal the index before hashing, so this name never needs the scan again —
+		// including when the passcode is wrong, which is the case an attacker repeats.
+		for (const c of candidates) if (c?.id) await indexPlayerName(String(c.name || name), c.id);
+		const ordered = candidates
+			.slice()
+			.sort((a: any, b: any) => (b?.createdAt || 0) - (a?.createdAt || 0))
+			.slice(0, LOGIN_SCAN_CANDIDATE_MAX);
+		if (candidates.length > ordered.length) {
 			console.error(
-				`login scan for "${wanted}": ${candidates.length} name matches, hashing the ${LOGIN_SCAN_CANDIDATE_MAX} most recent`,
+				`login scan for "${wanted}": ${candidates.length} name matches, hashing the ${ordered.length} most recent`,
 			);
-			// Newest first — a save someone is actively trying to log into is far more
-			// likely to be recent than to be the oldest row that ever used the name.
-			candidates = candidates
-				.slice()
-				.sort((a: any, b: any) => (b?.createdAt || 0) - (a?.createdAt || 0))
-				.slice(0, LOGIN_SCAN_CANDIDATE_MAX);
 		}
-		for (const c of candidates) {
+		for (const c of ordered) {
+			if (Date.now() > deadline) {
+				console.error(`login scan for "${wanted}": passcode check truncated on the time budget`);
+				break;
+			}
 			if (await verifyPasscode(c, passcode)) return { player: c, nameSeen: true };
 		}
 	}
@@ -10273,15 +10377,38 @@ function metricsListRow(r: any) {
  * 'populate-biome' (build a fully-restored showcase biome for screenshots/video),
  * 'set-weather' (force weather/season for filming; value {type?,season?} or clear).
  */
-const DEV_PLAYER = 'bailey'; // dev tools are restricted to this save
+/**
+ * The only save DevTools will act on, as a name slug.
+ *
+ * Restored as a REAL gate. A constant with this name existed here before and was
+ * never referenced — the comment beside it said dev tools were restricted to one
+ * save while the handler checked nothing, so every action below (including
+ * `restart-game`, which deletes a save's entire world, and `populate-biome`,
+ * which is ~250 writes in one request) was reachable by anyone who knew a player
+ * id. CreatePlayer is public, so "knowing a player id" meant one POST, and
+ * workers/play.js proxies DevTools straight from the public site.
+ *
+ * Matched on the slug of the save's NAME rather than its id, because ids carry a
+ * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
+ * because slugId normalises the ways the name gets typed — `bailey_test`,
+ * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
+ * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
+ * not qualify. Several saves can share the name, which is the intended way to
+ * have more than one test world.
+ */
+const DEV_PLAYER_SLUG = 'bailey-test';
 
 export class DevTools extends PublicEndpoint {
 	async post(data: any) {
 		const { playerId, action, area, amount, value, resources, animalId, seed } = await bodyOf(data);
-		// No username gate — the hidden panel is reached via a secret key sequence.
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
+		// The gate. Checked after requirePlayer so an unknown id still reads as 404
+		// rather than telling a caller which ids exist, and BEFORE the switch so no
+		// action can write anything on a save that isn't a test save.
+		if (slugId(String(player?.name || '')) !== DEV_PLAYER_SLUG)
+			throw new GameError(tr('server.err.devToolsRestricted'), 403, 'server.err.devToolsRestricted');
 		const log: string[] = [];
 
 		switch (action) {
@@ -11117,6 +11244,44 @@ const FEEDBACK_MAX_CHARS = 4000;
  * feedback. Returns ok:true once the row is durably stored, which is the
  * client's cue to drop its local offline-queue copy.
  */
+/** Caps on the diagnostic blob attached to a piece of feedback. */
+const FEEDBACK_METRICS_MAX_KEYS = 40;
+const FEEDBACK_METRICS_MAX_VALUE_CHARS = 500;
+
+/**
+ * Flatten the client's diagnostic context into a bounded, all-scalar map.
+ *
+ * This was the one place in the file where a client-supplied OBJECT was stored
+ * verbatim. `message` was capped at 4,000 characters and `replyTo` at 200, but
+ * `metrics` had no byte cap, key cap or depth cap — so an anonymous POST could
+ * write an arbitrarily large structure into the Feedback table permanently, and
+ * ListFeedback later reads that table whole. Every sibling endpoint already does
+ * something like this (SyncMetrics measures its snapshot, LandingEvent rebuilds
+ * counters through an allowlist); feedback was simply missed.
+ *
+ * Scalars only, and stringified: gatherFeedbackMetrics in src/feedback.ts sends a
+ * flat map of strings and numbers, so nothing real is lost, and a nested object
+ * can no longer smuggle depth past the key cap. Anything dropped is dropped
+ * silently on purpose — a player reporting a bug must not have the report
+ * refused because their client sent one field too many.
+ */
+function sanitizeFeedbackMetrics(raw: any): Record<string, string> {
+	const out: Record<string, string> = {};
+	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
+	let kept = 0;
+	for (const [k, v] of Object.entries(raw)) {
+		if (kept >= FEEDBACK_METRICS_MAX_KEYS) break;
+		if (v === null || v === undefined) continue;
+		const t = typeof v;
+		if (t !== 'string' && t !== 'number' && t !== 'boolean') continue;
+		const key = String(k).slice(0, 60);
+		if (!key) continue;
+		out[key] = String(v).slice(0, FEEDBACK_METRICS_MAX_VALUE_CHARS);
+		kept++;
+	}
+	return out;
+}
+
 export class SubmitFeedback extends PublicEndpoint {
 	async post(data: any) {
 		const body = await bodyOf(data);
@@ -11134,8 +11299,7 @@ export class SubmitFeedback extends PublicEndpoint {
 				.slice(0, 200) || null;
 		if (replyTo && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(replyTo))
 			throw new GameError(tr('server.err.feedbackBadEmail'), 400, 'server.err.feedbackBadEmail');
-		const metrics =
-			body.metrics && typeof body.metrics === 'object' && !Array.isArray(body.metrics) ? body.metrics : {};
+		const metrics = sanitizeFeedbackMetrics(body.metrics);
 		const queuedAt = Number(body.queuedAt) || null;
 
 		const id = `fb_${Date.now()}_${Math.random().toString(36).slice(2, 10)}`;
