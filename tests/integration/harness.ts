@@ -337,6 +337,14 @@ export interface World {
 	 * names, so pass them exactly as they appear in the export map.
 	 */
 	fetch<T = any>(cls: string, headers?: Record<string, string>): Promise<T>;
+	/**
+	 * A POST carrying an HTTP request context, so `headers` are in scope inside the
+	 * handler. Needed because plain `post()` deliberately supplies NO context —
+	 * that is the server's signal for "the in-app solo backend is calling", and
+	 * rate limiting is skipped for it. Anything that has to exercise a real
+	 * request (per-caller rate limits, address handling) must come through here.
+	 */
+	postWith<T = any>(cls: string, body: any, headers?: Record<string, string>): Promise<T>;
 }
 
 /** Reset to a brand-new world and return helpers bound to the loaded server. */
@@ -410,6 +418,13 @@ export async function freshWorld(): Promise<World> {
 			const r = inst(cls);
 			r._ctx = { headers: { get: (k: string) => lower[String(k).toLowerCase()] ?? null } };
 			return r.get(new URLSearchParams());
+		},
+		postWith: (cls, body, headers) => {
+			const lower: Record<string, string> = {};
+			for (const [k, v] of Object.entries(headers || {})) lower[k.toLowerCase()] = v;
+			const r = inst(cls);
+			r._ctx = { headers: { get: (k: string) => lower[String(k).toLowerCase()] ?? null } };
+			return r.post(body);
 		},
 	};
 }

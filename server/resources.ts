@@ -5080,6 +5080,16 @@ let warnedNoClientAddress = false;
 function rateLimit(res: any, tier: RateTier): void {
 	const headers: any = res?.getContext?.()?.headers;
 	if (!headers || typeof headers.get !== 'function') return; // solo / internal caller
+	// ONCE PER REQUEST, not once per call. The endpoint instance is per-request, so
+	// it is the right place to remember. Four endpoints (Heartbeat, Plant,
+	// SetHomeStyle, SyncPlayer) are a thin `post` that takes the player lock and
+	// hands off to a private method, and BOTH halves call bodyOf — which charged
+	// those requests twice and silently halved their budget. Marking the instance
+	// fixes it for those and for any future endpoint that reads its body more than
+	// once, which is a much easier invariant to keep than "call bodyOf exactly one
+	// time".
+	if (res.__rateCharged) return;
+	res.__rateCharged = true;
 	const limits = RATE_TIERS[tier];
 	const addr = clientAddress(headers);
 	if (!addr && !warnedNoClientAddress) {
@@ -5833,16 +5843,41 @@ async function unindexPlayerName(name: string, playerId: string): Promise<void> 
 }
 
 /** Ids recorded under a name slug. Empty when the index is absent/unreadable. */
-async function indexedIdsFor(name: string): Promise<string[]> {
+/**
+ * Ids indexed under a name, or NULL when the name has never been indexed.
+ *
+ * The distinction is load-bearing. An empty array means "we have looked, and
+ * nothing uses this name"; null means "we have never looked". Only the second
+ * justifies the unbounded scan in resolveByNameAndPasscode — without the
+ * difference, every login attempt for a name that does not exist re-ran that
+ * scan, which is exactly the request an attacker repeats.
+ */
+async function indexedIdsFor(name: string): Promise<string[] | null> {
 	try {
 		const t = db() as any;
-		if (!t.PlayerNameIndex) return [];
+		if (!t.PlayerNameIndex) return null;
 		const id = slugId(String(name || ''));
-		if (!id) return [];
+		if (!id) return null;
 		const row = await safeGet(t.PlayerNameIndex, id);
-		return Array.isArray(row?.playerIds) ? row.playerIds : [];
+		if (!row) return null;
+		return Array.isArray(row.playerIds) ? row.playerIds : [];
 	} catch {
-		return [];
+		return null;
+	}
+}
+
+/** Record that a name has been looked up, even when nothing was found under it,
+ *  so the scan behind it happens at most once per name. */
+async function markNameIndexed(name: string, ids: string[]): Promise<void> {
+	try {
+		const t = db() as any;
+		if (!t.PlayerNameIndex) return;
+		const id = slugId(String(name || ''));
+		if (!id) return;
+		if (await safeGet(t.PlayerNameIndex, id)) return; // known already; indexPlayerName owns updates
+		await t.PlayerNameIndex.put({ id, playerIds: ids.slice(0, PLAYER_NAME_INDEX_MAX) });
+	} catch (e: any) {
+		console.error('player name index mark failed —', e?.message || e);
 	}
 }
 
@@ -5920,7 +5955,7 @@ async function resolveByNameAndPasscode(
 	let indexSeen = false;
 	let unreadable = false;
 	const indexedIds = await indexedIdsFor(name);
-	const hashOrder = indexedIds.slice().reverse();
+	const hashOrder = (indexedIds ?? []).slice().reverse();
 	if (hashOrder.length > LOGIN_SCAN_CANDIDATE_MAX) {
 		console.error(
 			`login for "${wanted}": ${hashOrder.length} indexed saves share this name, checking the ${LOGIN_SCAN_CANDIDATE_MAX} most recent`,
@@ -5962,8 +5997,13 @@ async function resolveByNameAndPasscode(
 	// path above instead. Deleting the scan outright would be simpler and is
 	// tempting, but it is what still finds a legacy save, and locking someone out
 	// of their world is worse than one scan.
+	//
+	// Gated on the index row being ABSENT, not on the lookup returning nothing. A
+	// name nobody uses gets an empty row written below, so a second attempt with
+	// the same made-up name takes the cheap path — otherwise repeating it re-ran a
+	// full Player scan every time, which is the request worth repeating.
 	let candidates: any[] = [];
-	if (!indexSeen) {
+	if (indexedIds === null) {
 		candidates = (await allOf(db().Player)).filter(
 			(p: any) =>
 				String(p?.name || '')
@@ -5972,7 +6012,11 @@ async function resolveByNameAndPasscode(
 		);
 		// Heal the index before hashing, so this name never needs the scan again —
 		// including when the passcode is wrong, which is the case an attacker repeats.
-		for (const c of candidates) if (c?.id) await indexPlayerName(String(c.name || name), c.id);
+		if (candidates.length) {
+			for (const c of candidates) if (c?.id) await indexPlayerName(String(c.name || name), c.id);
+		} else {
+			await markNameIndexed(name, []);
+		}
 		const ordered = candidates
 			.slice()
 			.sort((a: any, b: any) => (b?.createdAt || 0) - (a?.createdAt || 0))
