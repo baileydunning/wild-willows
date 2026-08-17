@@ -277,10 +277,59 @@ export async function loadServer(): Promise<Record<string, any>> {
 	return endpoints;
 }
 
+/* ------------------------------------------------------------------ *
+ * Authorized dispatch
+ * ------------------------------------------------------------------ *
+ * `get`/`post` below call the handler DIRECTLY, which is right for the tests
+ * that exercise game logic — they'd otherwise have to carry a user object
+ * through several hundred assertions that have nothing to do with auth.
+ *
+ * But it means those helpers cannot say anything about access control, and the
+ * existing coverage for it works around that by calling `allowRead(user)` on
+ * the prototype and asserting the return value. That tests the predicate, not
+ * the protection: an endpoint whose hook correctly returns false is still wide
+ * open if nothing consults the hook, and the assertion stays green either way.
+ *
+ * `as(user)` closes that gap by dispatching the way Harper documents: pick the
+ * hook for the verb, consult it, and refuse before the handler runs. It models
+ * Harper's default too — an endpoint that defines no hook at all is super-user
+ * only, which is the entire protection on ListFeedback and SystemProbe.
+ *
+ * What it deliberately does NOT prove: that Harper itself still calls these
+ * hooks. Nothing running in-process can. Harper 5.2 deprecates all four in
+ * favour of operation overrides, and if a future release stops consulting them
+ * this harness would keep refusing while the real server let everyone in. That
+ * check belongs against a live instance — see scripts/smoke-test.sh.
+ */
+const VERB_HOOK = { get: 'allowRead', post: 'allowCreate', put: 'allowUpdate', delete: 'allowDelete' } as const;
+
+/** Harper's own super-user test, mirrored from isSuperUser() in server/resources.ts. */
+const isSuper = (user: any): boolean =>
+	!!(
+		user?.role?.permission?.super_user ||
+		user?.role?.super_user ||
+		user?.role?.role === 'super_user' ||
+		user?.role === 'super_user'
+	);
+
+export interface AuthorizationError extends Error {
+	status: number;
+}
+
+export interface AuthedWorld {
+	post<T = any>(cls: string, body: any): Promise<T>;
+	get<T = any>(cls: string, id?: string, query?: Record<string, string | string[]>): Promise<T>;
+}
+
 export interface World {
 	db: Db;
 	post<T = any>(cls: string, body: any): Promise<T>;
 	get<T = any>(cls: string, id?: string, query?: Record<string, string | string[]>): Promise<T>;
+	/**
+	 * The same calls, dispatched as `user` and refused when the endpoint says no.
+	 * Pass `undefined` or `null` for an anonymous request.
+	 */
+	as(user: any): AuthedWorld;
 	/**
 	 * Like get(), but with an HTTP request context carrying `headers` — for the
 	 * endpoints that content-negotiate or answer If-None-Match. Endpoint names here
@@ -299,10 +348,47 @@ export async function freshWorld(): Promise<World> {
 		if (typeof Cls !== 'function') throw new Error(`No endpoint named ${cls}`);
 		return new Cls(id);
 	};
+	/** Refuse before the handler runs, the way a real request would be refused. */
+	const gate = (cls: string, verb: keyof typeof VERB_HOOK, user: any) => {
+		const Cls = mod[cls];
+		if (typeof Cls !== 'function') throw new Error(`No endpoint named ${cls}`);
+		const hook = Cls.prototype?.[VERB_HOOK[verb]];
+		// No hook defined is not "no rule": it is Harper's default, which is an
+		// authenticated super user. Treating it as open would quietly bless the two
+		// endpoints (ListFeedback, SystemProbe) whose whole protection is the
+		// ABSENCE of an override.
+		const ok = typeof hook === 'function' ? hook.call(Cls.prototype, user) === true : isSuper(user);
+		if (!ok) {
+			const err = new Error(`Not authorized: ${verb.toUpperCase()} ${cls}`) as AuthorizationError;
+			err.status = 401;
+			throw err;
+		}
+	};
+	// Named targetFor, not `query`: the existing get() helper below already has a
+	// parameter called `query`, and a shadowed name in a file about authorization
+	// is a bad place to make a reader pause.
+	const targetFor = (id?: string, q?: Record<string, string | string[]>) => {
+		const target = new URLSearchParams() as URLSearchParams & { id?: string };
+		if (q)
+			for (const [k, vals] of Object.entries(q))
+				for (const v of Array.isArray(vals) ? vals : [vals]) target.append(k, String(v));
+		target.id = id;
+		return target;
+	};
 	return {
 		get db() {
 			return holder.db;
 		},
+		as: (user: any): AuthedWorld => ({
+			post: (cls, body) => {
+				gate(cls, 'post', user);
+				return inst(cls).post(body);
+			},
+			get: (cls, id, q) => {
+				gate(cls, 'get', user);
+				return inst(cls, id).get(targetFor(id, q));
+			},
+		}),
 		post: (cls, body) => inst(cls).post(body),
 		// Mirror Harper: get() receives a RequestTarget (a URLSearchParams subclass)
 		// carrying the path id plus any query params.
