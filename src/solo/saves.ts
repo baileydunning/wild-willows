@@ -73,6 +73,25 @@ const LS_PREFIX = 'wild-willows:solo-save:';
  * the player's own machine. The two never meet: solo saves are local files or
  * local browser storage by design, and the server has no table for them.
  */
+/**
+ * Where a save is parked when the page is going away RIGHT NOW.
+ *
+ * IndexedDB has no synchronous API, and an unload handler cannot wait: the
+ * transaction is queued and the page is destroyed before it commits. That did
+ * not matter while saves lived in localStorage, because `setItem` is
+ * synchronous — `beforeunload` fired, the write landed inside the handler, and
+ * the fact that nothing awaited the promise was invisible. Moving to IndexedDB
+ * turned that accident into lost progress on every close.
+ *
+ * So the last write on the way out goes to localStorage, synchronously, under
+ * this key, and the next load folds it into IndexedDB and deletes it. The copy
+ * is transient — one save, for the moments between closing and reopening — so it
+ * does not reintroduce the quota problem that motivated the move. If it does
+ * exceed quota the throw is caught, and the loss is the last few seconds, which
+ * is exactly the exposure that existed before.
+ */
+const MIRROR_PREFIX = 'wild-willows:solo-save-pending:';
+
 const SOLO_SAVE_DB = 'wild-willows';
 const SOLO_SAVE_STORE = 'IndexedSoloSave';
 
@@ -138,19 +157,25 @@ async function saveStorePut(db: IDBDatabase, id: string, contents: string): Prom
 }
 
 /** Keys still sitting in localStorage, if there is a localStorage at all. */
-function localSlotIds(): string[] {
+function idsUnder(prefix: string): string[] {
 	const ids: string[] = [];
 	try {
 		if (typeof localStorage === 'undefined') return ids;
 		for (let i = 0; i < localStorage.length; i++) {
 			const k = localStorage.key(i);
-			if (k?.startsWith(LS_PREFIX)) ids.push(k.slice(LS_PREFIX.length));
+			if (k?.startsWith(prefix)) ids.push(k.slice(prefix.length));
 		}
 	} catch {
 		/* storage disabled */
 	}
 	return ids;
 }
+
+/** Saves still sitting in localStorage proper, awaiting migration. */
+const localSlotIds = (): string[] => idsUnder(LS_PREFIX);
+
+/** Saves parked by the last unload, awaiting fold-in. */
+const mirrorSlotIds = (): string[] => idsUnder(MIRROR_PREFIX);
 
 /**
  * Open the database and, once per page load, move any localStorage saves into it.
@@ -183,6 +208,20 @@ function indexedSoloSaves(): Promise<IDBDatabase | null> {
 				/* leave this slot in localStorage; it stays readable either way */
 			}
 		}
+		// Then anything the last unload parked. A mirror is by definition NEWER than
+		// what is in IndexedDB — it was written on the way out, after the last
+		// autosave — so it wins, and is dropped only once it has been read back.
+		for (const id of mirrorSlotIds()) {
+			try {
+				const raw = localStorage.getItem(MIRROR_PREFIX + id);
+				if (raw == null) continue;
+				if (!(await saveStorePut(db, id, raw))) continue;
+				if ((await saveStoreGet(db, id)) !== raw) continue;
+				localStorage.removeItem(MIRROR_PREFIX + id);
+			} catch {
+				/* keep it — reads prefer it until it lands */
+			}
+		}
 		return db;
 	})();
 	return indexedSoloSavesReady;
@@ -201,7 +240,18 @@ export const newSlotId = () => {
 async function readRawText(slotId: string): Promise<string | null> {
 	try {
 		if (hasDesktopSaves()) return (await bridge()!.saves!.read(slotId)) || null;
+		// Open FIRST — that is what folds any parked mirror into IndexedDB and
+		// clears it. Reading the mirror before this would return the right bytes but
+		// leave it lying there forever, so every later read would keep preferring a
+		// copy that was supposed to be transient.
 		const saves = await indexedSoloSaves();
+		// Still here means the fold could not land (quota, a failed write). The
+		// mirror is by definition the newest copy of this slot, so it outranks
+		// IndexedDB rather than being skipped.
+		if (typeof localStorage !== 'undefined') {
+			const pending = localStorage.getItem(MIRROR_PREFIX + slotId);
+			if (pending != null) return pending;
+		}
 		if (saves) {
 			const hit = await saveStoreGet(saves, slotId);
 			// A miss is not proof of absence: migration may have been interrupted, or
@@ -314,7 +364,7 @@ async function listSlotIds(): Promise<string[]> {
 	// localStorage, and a load menu that showed only one of the two would look
 	// like the game had eaten half the player's saves.
 	const saves = await indexedSoloSaves();
-	const ids = new Set<string>(localSlotIds());
+	const ids = new Set<string>([...localSlotIds(), ...mirrorSlotIds()]);
 	if (saves) for (const id of await saveStoreKeys(saves)) ids.add(id);
 	return [...ids];
 }
@@ -376,6 +426,39 @@ export async function persist(meta: SaveMeta): Promise<void> {
 	lastPersistedSlot = meta.slotId;
 }
 
+/**
+ * Park the active save synchronously, for the moment the page is closing.
+ *
+ * `persist()` is async all the way down and cannot finish during unload — see
+ * MIRROR_PREFIX. This is the same serialization, written straight to
+ * localStorage with no await anywhere in the path, so it completes inside the
+ * event handler or not at all.
+ *
+ * Desktop is deliberately untouched: its writes go through the bridge, which
+ * behaved this way before IndexedDB existed and is not what changed.
+ */
+export function persistOnUnload(meta: SaveMeta): void {
+	if (hasDesktopSaves() || typeof localStorage === 'undefined') return;
+	try {
+		const dataJson = serializeActiveSaveJson();
+		if (dataJson === null) return;
+		const player = activeSaveRow('Player', meta.playerId);
+		const updated: SaveMeta = {
+			...meta,
+			name: player?.name ?? meta.name,
+			appearance: player?.appearance ?? meta.appearance,
+			updatedAt: Date.now(),
+		};
+		localStorage.setItem(
+			MIRROR_PREFIX + meta.slotId,
+			'{"meta":' + JSON.stringify(updated) + ',"data":' + dataJson + '}',
+		);
+	} catch {
+		// Quota, or storage disabled. The loss is the seconds since the last
+		// autosave — the same exposure this had before, not a new one.
+	}
+}
+
 // Guard state for the no-op skip above. Slot is tracked too, so saving into a
 // different slot always writes even when the world hasn't changed.
 let lastPersistedVersion = -1;
@@ -393,7 +476,10 @@ export async function deleteSave(slotId: string): Promise<void> {
 		// delete, and listSlotIds would surface the survivor immediately.
 		const saves = await indexedSoloSaves();
 		if (saves) await saveStoreDelete(saves, slotId);
-		if (typeof localStorage !== 'undefined') localStorage.removeItem(LS_PREFIX + slotId);
+		if (typeof localStorage !== 'undefined') {
+			localStorage.removeItem(LS_PREFIX + slotId);
+			localStorage.removeItem(MIRROR_PREFIX + slotId);
+		}
 	} catch {
 		/* ignore */
 	}
@@ -418,7 +504,10 @@ export async function clearBrowserSaves(): Promise<void> {
 		/* ignore */
 	}
 	try {
-		if (typeof localStorage !== 'undefined') for (const id of localSlotIds()) localStorage.removeItem(LS_PREFIX + id);
+		if (typeof localStorage !== 'undefined') {
+			for (const id of localSlotIds()) localStorage.removeItem(LS_PREFIX + id);
+			for (const id of mirrorSlotIds()) localStorage.removeItem(MIRROR_PREFIX + id);
+		}
 	} catch {
 		/* ignore */
 	}

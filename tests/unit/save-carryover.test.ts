@@ -14,6 +14,7 @@ import { installFakeIndexedDb, uninstallFakeIndexedDb, type FakeIdb } from '../h
 //     tests/helpers/fake-indexeddb.ts none of that path runs in CI at all.
 
 const LS_PREFIX = 'wild-willows:solo-save:';
+const MIRROR_PREFIX = 'wild-willows:solo-save-pending:';
 const store = new Map<string, string>();
 (globalThis as any).localStorage = {
 	getItem: (k: string) => store.get(k) ?? null,
@@ -168,6 +169,95 @@ describe('existing localStorage saves survive the move to IndexedDB', () => {
 		expect(store.size).toBe(0);
 		expect(idb.slotIds()).toEqual([slot.slotId]);
 		expect((await loadSaveData(slot.slotId))?.meta.name).toBe('Fresh');
+	});
+});
+
+describe('the last save before the page closes is not lost', () => {
+	// The regression this exists for: `beforeunload` did `void flushSoloSave()`,
+	// which only ever worked because localStorage.setItem is SYNCHRONOUS — the
+	// write completed inside the handler even though nothing awaited it. An
+	// IndexedDB write started there is queued and thrown away with the page, so
+	// the move to IndexedDB silently turned every close into lost progress.
+	// The e2e suite caught it as "a restored area survives a reload".
+	let idb: FakeIdb;
+	beforeEach(() => {
+		store.clear();
+		idb = installFakeIndexedDb();
+	});
+	afterEach(() => uninstallFakeIndexedDb());
+
+	it('carries the last moments of play across a reload', async () => {
+		const first = await loadSaves();
+		h.data = { Player: [{ id: 'pat-x1', name: 'Pat', unlockedBiomes: ['meadow'] }] };
+		const slot = await first.createSlot({ playerId: 'pat-x1', name: 'Pat', appearance: {} });
+
+		// The player unlocks the rest of the preserve, then closes the tab before
+		// the throttled autosave has fired.
+		h.data = {
+			Player: [
+				{ id: 'pat-x1', name: 'Pat', unlockedBiomes: ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'] },
+			],
+		};
+		first.persistOnUnload(slot);
+
+		const reloaded = await loadSaves();
+		const file = await reloaded.loadSaveData(slot.slotId);
+		expect(file?.data.Player[0].unlockedBiomes).toHaveLength(6);
+		// and the parked copy was folded in and cleared, not left to accumulate
+		expect(store.has(MIRROR_PREFIX + slot.slotId)).toBe(false);
+		expect(JSON.parse(idb.read(slot.slotId)!).data.Player[0].unlockedBiomes).toHaveLength(6);
+	});
+
+	it('reads a parked save that could not be folded in', async () => {
+		uninstallFakeIndexedDb();
+		installFakeIndexedDb({ failWrites: true });
+		store.set(MIRROR_PREFIX + 'slot-9', slotFile('slot-9', 'Pending'));
+		const { listSaves, loadSaveData } = await loadSaves();
+		expect((await listSaves()).map((m) => m.slotId)).toEqual(['slot-9']);
+		expect((await loadSaveData('slot-9'))?.meta.name).toBe('Pending');
+	});
+
+	it('prefers the parked copy over a staler one in IndexedDB', async () => {
+		uninstallFakeIndexedDb();
+		const stuck = installFakeIndexedDb({ failWrites: true });
+		stuck.seed(
+			'slot-3',
+			JSON.stringify({
+				meta: { slotId: 'slot-3', playerId: 'p3', name: 'Old', appearance: {}, createdAt: 1, updatedAt: 1 },
+				data: { Player: [{ id: 'p3', gold: 1 }] },
+			}),
+		);
+		store.set(
+			MIRROR_PREFIX + 'slot-3',
+			JSON.stringify({
+				meta: { slotId: 'slot-3', playerId: 'p3', name: 'New', appearance: {}, createdAt: 1, updatedAt: 2 },
+				data: { Player: [{ id: 'p3', gold: 99 }] },
+			}),
+		);
+		const { loadSaveData } = await loadSaves();
+		expect((await loadSaveData('slot-3'))?.data.Player[0].gold).toBe(99);
+	});
+
+	it('does not resurrect a deleted save from a parked copy', async () => {
+		idb.seed('gone', slotFile('gone', 'Gone'));
+		store.set(MIRROR_PREFIX + 'gone', slotFile('gone', 'Gone'));
+		const { deleteSave, listSaves } = await loadSaves();
+		await deleteSave('gone');
+		expect(await listSaves()).toHaveLength(0);
+	});
+
+	it('leaves the desktop path alone — its writes never went through localStorage', async () => {
+		(globalThis as any).wildWillowsDesktop = {
+			isDesktop: true,
+			saves: { list: async () => [], read: async () => null, write: async () => {}, remove: async () => {} },
+		};
+		try {
+			const { persistOnUnload } = await loadSaves();
+			persistOnUnload({ slotId: 's', playerId: 'p', name: 'D', appearance: {}, createdAt: 1, updatedAt: 1 });
+			expect(store.size).toBe(0);
+		} finally {
+			delete (globalThis as any).wildWillowsDesktop;
+		}
 	});
 });
 
