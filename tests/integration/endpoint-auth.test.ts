@@ -89,12 +89,17 @@ const PUBLIC = [
 	'UpgradeTool',
 	'Heartbeat',
 
-	// --- DevTools is public ON PURPOSE and is the loudest entry in this list:
-	// its own comment says "No username gate — the hidden panel is reached via a
-	// secret key sequence." The key sequence hides the UI, not the endpoint, so
-	// anyone holding a player id can grant resources, unlock biomes and set biome
-	// health on that save. Acceptable for a single-player game with no economy;
-	// listed here so it stays a decision rather than an accident.
+	// --- DevTools is reachable without credentials, but it is no longer OPEN: it
+	// refuses any save whose name is not `bailey_test` (DEV_PLAYER_SLUG in
+	// server/resources.ts). It sits in this list because this suite classifies
+	// endpoints by which side of the AUTH boundary they are on, and DevTools is
+	// still on the public side — the gate is a check inside the handler, not a
+	// Harper permission. The gate itself is covered in dev-populate.test.ts.
+	//
+	// It used to be genuinely open: a constant said dev tools were restricted to
+	// one save and nothing referenced it, so anyone holding a player id could
+	// grant resources, unlock biomes, or wipe a world — and CreatePlayer hands out
+	// player ids to anyone who asks.
 	'DevTools',
 
 	// --- telemetry the client writes. Anonymous by design, aggregate on read.

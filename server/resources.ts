@@ -11484,8 +11484,8 @@ const FEEDBACK_METRICS_MAX_VALUE_CHARS = 500;
  * silently on purpose — a player reporting a bug must not have the report
  * refused because their client sent one field too many.
  */
-function sanitizeFeedbackMetrics(raw: any): Record<string, string> {
-	const out: Record<string, string> = {};
+function sanitizeFeedbackMetrics(raw: any): Record<string, string | number | boolean> {
+	const out: Record<string, string | number | boolean> = {};
 	if (!raw || typeof raw !== 'object' || Array.isArray(raw)) return out;
 	let kept = 0;
 	for (const [k, v] of Object.entries(raw)) {
@@ -11495,7 +11495,11 @@ function sanitizeFeedbackMetrics(raw: any): Record<string, string> {
 		if (t !== 'string' && t !== 'number' && t !== 'boolean') continue;
 		const key = String(k).slice(0, 60);
 		if (!key) continue;
-		out[key] = String(v).slice(0, FEEDBACK_METRICS_MAX_VALUE_CHARS);
+		// Numbers and booleans keep their type. Only strings need truncating, and
+		// they are the only ones that can be large — stringifying everything was
+		// tidier to write and quietly turned `playMinutes: 42` into `'42'` for
+		// anything reading a feedback row back.
+		out[key] = t === 'string' ? (v as string).slice(0, FEEDBACK_METRICS_MAX_VALUE_CHARS) : (v as number | boolean);
 		kept++;
 	}
 	return out;

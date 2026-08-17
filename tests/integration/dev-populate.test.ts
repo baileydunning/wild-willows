@@ -14,9 +14,45 @@ beforeEach(async () => {
 	w = await freshWorld();
 });
 
+describe('DevTools is gated to test saves', () => {
+	// The previous gate was a constant nothing referenced, next to a comment
+	// claiming it restricted access. These pin the real one.
+	it('refuses a save that is not a test save', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Willow', passcode: '1234', appearance })).playerId;
+		await expect(w.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 200 })).rejects.toThrow();
+		// and it refused BEFORE doing anything
+		const s = await w.get('GameState', pid);
+		expect(Object.values(s.player.inventory || {}).some((n: any) => n >= 200)).toBe(false);
+	});
+
+	it('accepts the name however it was typed', async () => {
+		for (const name of ['bailey_test', 'Bailey_Test', 'bailey test', 'bailey-test']) {
+			const w2 = await freshWorld();
+			const pid = (await w2.post('CreatePlayer', { name, passcode: '1234', appearance })).playerId;
+			const r = await w2.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 200 });
+			expect(r.ok, `${name} should be allowed`).toBe(true);
+		}
+	});
+
+	it('does not treat a longer name as a match', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_testing', passcode: '1234', appearance })).playerId;
+		await expect(w.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 200 })).rejects.toThrow();
+	});
+
+	it('still 404s an unknown save rather than reporting the gate', async () => {
+		// Order matters: requirePlayer runs first, so the gate never tells a caller
+		// which player ids exist.
+		await expect(w.post('DevTools', { playerId: 'nobody-abc123', action: 'grant-resources' })).rejects.toThrow();
+	});
+});
+
 describe('DevTools populate-biome (showcase)', () => {
 	it('builds a fully-restored, well-formed meadow', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Sam', passcode: '1234', appearance })).playerId;
+		// DevTools is gated to bailey_test saves (DEV_PLAYER_SLUG in
+		// server/resources.ts). These fixtures drive DevTools to set up state, so
+		// they are exactly the saves that gate is for — named accordingly rather
+		// than given a bypass, so the tests exercise the shipped rule.
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		const r = await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'meadow' });
 		expect(r.ok).toBe(true);
 
@@ -128,7 +164,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('re-running rebuilds the scene rather than stacking on it — and lays out a different one', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Ivy', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		const layout = async () => {
 			const pls = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow');
 			return pls.map((p: any) => `${p.objectId}@${p.x},${p.y}`).sort();
@@ -147,7 +183,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('rebuilds an exact scene when handed a seed back', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Seed', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		const layout = async () => {
 			const pls = (await w.get('GameState', pid)).placements.filter((p: any) => p.area === 'meadow');
 			return pls.map((p: any) => `${p.objectId}@${p.x},${p.y}`).sort();
@@ -159,7 +195,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('reset-clock returns the game clock to the first morning', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Clock', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		// jump to night, confirm it took, then reset and confirm it's daytime again
 		await w.post('DevTools', { playerId: pid, action: 'set-time', value: 'night' });
 		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('night');
@@ -169,7 +205,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('restart from scratch also resets the clock to the first morning', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Redo', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'set-time', value: 'night' });
 		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('night');
 		await w.post('DevTools', { playerId: pid, action: 'restart-game' });
@@ -177,7 +213,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('furnishes the home too — maxed house, one of every piece that fits, clear doorway', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Hom', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		const r = await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'home' });
 		expect(r.ok).toBe(true);
 
@@ -224,7 +260,7 @@ describe('DevTools populate-biome (showcase)', () => {
 	});
 
 	it('dry biomes get no pond (desert cannot flood)', async () => {
-		const pid = (await w.post('CreatePlayer', { name: 'Dez', passcode: '1234', appearance })).playerId;
+		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'desert' });
 		const s = await w.get('GameState', pid);
 		expect(s.terrain.filter((t: any) => t.area === 'desert' && t.type === 'water').length).toBe(0);

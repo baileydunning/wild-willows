@@ -46,10 +46,16 @@ async function openAreas(w: World, pid: string): Promise<string[]> {
 	return s.biomeStates.filter((b: any) => b.unlocked).map((b: any) => b.biomeId);
 }
 
-/** A brand-new save with a full basket, so no test ever fails for want of materials. */
-async function newSave(name: string): Promise<{ w: World; pid: string }> {
+/** A brand-new save with a full basket, so no test ever fails for want of materials.
+ *
+ *  `label` is for reading the test, not for the save: every save here is created
+ *  as `bailey_test` because these fixtures drive DevTools to grant resources, and
+ *  DevTools is gated to that name (DEV_PLAYER_SLUG in server/resources.ts). Named
+ *  rather than bypassed, so the tests exercise the shipped rule. */
+async function newSave(label: string): Promise<{ w: World; pid: string }> {
+	void label;
 	const w = await freshWorld();
-	const pid = (await w.post('CreatePlayer', { name, passcode: '1234', appearance })).playerId;
+	const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 	await dev(w, pid, 'grant-resources', { amount: 500 });
 	return { w, pid };
 }
