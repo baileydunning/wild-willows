@@ -181,15 +181,14 @@ type ClientError @table(database: "wildwillows") { id: ID @primaryKey }
 # found and healed. Dynamic (id only) so the field set can evolve.
 type PlayerNameIndex @table(database: "wildwillows") { id: ID @primaryKey } # id = name slug · playerIds: string[]
 
-# ---------- landing page: mailing list + analytics (dynamic) ----------
-# MailingListSignup : `ml:${email}` · email, source, language, createdAt.
-#                     Emails are PII — the table is never exported and reads go
-#                     through the admin-only ListMailingList endpoint (raw
-#                     Resource, like ListFeedback).
-type MailingListSignup @table(database: "wildwillows") { id: ID @primaryKey }
+# ---------- landing page: analytics (dynamic) ----------
+# A MailingListSignup table sat here, holding one row per subscribed email. It
+# was removed along with the signup form, JoinMailingList and the admin-only
+# ListMailingList reader: the site no longer collects an email address by any
+# route, so the landing page holds no personal data at all.
 # LandingStat : ONE row per UTC day (`day:YYYY-MM-DD`) · day, visits, uniques,
-#               clicks { target: n }, signups, updatedAt. Aggregate counters
-#               only (no PII) — the public LandingStats rollup serves these to
-#               the /dashboard landing section.
+#               clicks { target: n }, downloads { which: n }, updatedAt.
+#               Aggregate counters only — the LandingStats rollup serves these
+#               to the /dashboard landing section.
 type LandingStat @table(database: "wildwillows") { id: ID @primaryKey }
 

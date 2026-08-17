@@ -10,10 +10,11 @@ import { t, getLocale } from './i18n';
 import { soloRequest } from './solo/backend';
 import { persist as persistSolo, type SaveMeta } from './solo/saves';
 import { DEMO, EDITION, DEMO_WEB_BACKEND } from './demo';
+import { clearDemoBudget } from './demoBudget';
 import { adaptiveInterval, ewma } from './perf';
 import { CHANNEL } from './platform';
 import { bridge } from './game/bridge';
-import { reportClientError } from './clientErrors';
+import { reportClientError, reportFetchFailure } from './clientErrors';
 
 const STORAGE_KEY = 'wild-willows:last-save';
 
@@ -466,7 +467,15 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		// player's wifi" and "the server is down", and the toast only tells the
 		// player. Deduplicated per session inside reportClientError, so a client
 		// that is properly offline sends this at most once (and fails to, quietly).
-		reportClientError(e, `fetch ${method} ${path.split('?')[0]}`);
+		//
+		// Through reportFetchFailure rather than reportClientError directly, which
+		// fixes two things this line got wrong. It drops the report when the page
+		// is unloading, hidden or offline — most of what reached the crash panel
+		// was the metrics uplink and the feed flush being killed on the way out,
+		// which no code change could ever have fixed. And it normalises the id out
+		// of the path, so `/Metrics/<playerId>` aggregates into ONE row instead of
+		// a fresh one per player. What the player sees below is unchanged.
+		reportFetchFailure(e, method, path);
 		const err: any = new Error(t('app.error.backendUnreachable'));
 		err.offline = true;
 		err.cause = e; // the raw reason is kept for the console, not for the player
@@ -654,6 +663,10 @@ export async function deleteDemoSave(): Promise<void> {
 	}
 	forgetSave('solo');
 	clearDemoSaveHome(); // the demo save is gone; the next one picks its own store
+	// ...and so is its budget. A spent budget left behind would be keyed to a player
+	// id that no longer exists (readDemoBudgetMs ignores it), but leaving a dead
+	// entry in storage invites exactly the mistake it's guarding against.
+	clearDemoBudget();
 }
 
 /** Export the active solo save as a downloadable file. Flushes any pending

@@ -26,6 +26,36 @@ echo "--- Place bird-perch indoors (should fail - outdoor only):"; q -X POST $B/
 echo "--- Place bird-perch in meadow:"; q -X POST $B/PlaceObject/ -d '{"playerId":"demo","objectId":"bird-perch","area":"meadow","x":12,"y":10}' | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{try{const j=JSON.parse(d);console.log('ok:',j.ok,'health:',j.biomeState&&j.biomeState.health)}catch(e){console.log(d.slice(0,300))}})"
 echo "--- Enter locked forest (should fail):"; q -X POST $B/SyncPlayer/ -d '{"playerId":"demo","x":5,"y":5,"area":"forest"}' | head -c 160; echo
 echo "--- Upgrade field journal (should fail - meadow health too low? req 25):"; q -X POST $B/UpgradeTool/ -d '{"playerId":"demo","toolId":"field-journal"}' | head -c 220; echo
+# --- authorization ------------------------------------------------------------
+# The ONE check that catches Harper changing its mind about the allow* hooks.
+#
+# server/resources.ts protects every dashboard feed with allowRead() returning
+# false for anonymous users (DashboardEndpoint), and ListFeedback/SystemProbe
+# with no hook at all — relying on Harper's authenticated-super-user default.
+# Harper 5.2 DEPRECATES allowRead/allowUpdate/allowCreate/allowDelete in favour
+# of operation overrides, and the failure mode is open, not closed: the day a
+# release stops consulting them these endpoints start answering everybody, and
+# every in-process test keeps passing because the hooks still return false when
+# you call them yourself. Only a real request to a real server can tell.
+#
+# A 401/403 is the pass. Anything else — including a 200 — is a finding.
+echo "--- Authorization: admin feeds must refuse anonymous requests:"
+for ep in MetricsSummary MetricsPlayers LandingStats GameplayHealth SaveHealth ServerHealth ListFeedback SystemProbe; do
+  code=$(curl -sk -m 5 -o /dev/null -w '%{http_code}' $B/$ep/)
+  case "$code" in
+    401|403) echo "    ok      $ep -> $code" ;;
+    000)     echo "    SKIP    $ep -> no response (server not up?)" ;;
+    *)       echo "    !! OPEN $ep -> $code  <-- ANONYMOUS READ SUCCEEDED" ;;
+  esac
+done
+# And the other direction, so a server that refuses EVERYTHING can't pass the
+# block above by being broken.
+echo "--- Authorization: public endpoints must still answer:"
+for ep in GameData Version; do
+  code=$(curl -sk -m 5 -o /dev/null -w '%{http_code}' $B/$ep/)
+  [ "$code" = "200" ] && echo "    ok      $ep -> 200" || echo "    !! $ep -> $code (expected 200)"
+done
+
 echo "--- Static index.html:"; curl -sk -m 4 $B/index.html | head -c 60; echo
 echo "--- Static root /:"; curl -sk -m 4 $B/ | head -c 60; echo
 echo "--- Reload GameState (persistence check):"; q $B/GameState/demo | node -e "let d='';process.stdin.on('data',c=>d+=c).on('end',()=>{const j=JSON.parse(d);console.log('placements:',j.placements.map(p=>p.objectId+'@'+p.area).join(','),'| meadow health:',j.biomeStates.find(b=>b.biomeId==='meadow').health)})"

@@ -2,7 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { api } from './api';
 import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusicActive } from './audio';
 import { bridge } from './game/bridge';
+import { STORE_ITCH_URL, STORE_MAS_URL } from './demo';
 import { PhaserGame } from './game/PhaserGame';
+import { reportDemoEnd } from './solo/appOpen';
 import { usePrefs } from './prefs';
 import { actionForToken, BIND_ACTIONS, tokenFromEvent } from './keybindings';
 import { GameProvider, useGame, useGameFeed } from './state';
@@ -420,37 +422,126 @@ function GameScreen() {
 	);
 }
 
-/** DEMO only: the hard-stop popup shown when the demo limit is reached (10 minutes
- *  in the forest, which the player unlocks by restoring the meadow first).
- *  It blocks all play; the save has already been deleted, so closing it drops
- *  the player back at the title screen with nothing to continue. */
+/** DEMO only: the hard-stop popup shown when the demo budget is spent (10 minutes
+ *  of play after the forest unlocks, which the player earns by restoring the
+ *  meadow first). It blocks all play, and it comes back on the next load if the
+ *  budget is still spent — the save is only deleted when this is DISMISSED, so
+ *  reloading past it used to be a way to keep playing. Closing it drops the
+ *  player back at the title screen with nothing to continue.
+ *
+ *  This screen is the last thing a demo player ever sees, and for a long time it
+ *  was the ONLY demo screen with no way to buy the game: the buy line was
+ *  unlinked text, the store URLs were imported solely by the soft nudge, and the
+ *  one `primary` button was the one that ends the session and deletes the save.
+ *  Three things follow from fixing that, and they are all deliberate:
+ *
+ *   1. The store links are here, and they are here UNCONDITIONALLY — unlike the
+ *      soft nudge, which reveals them only after an export because that prompt
+ *      interrupts play and can afford to wait. There is no "later" from this
+ *      screen. They open in a new tab (see STORE_*_URL in src/demo.ts), so
+ *      clicking one costs nothing: the popup stays up and the save is still
+ *      exportable behind it.
+ *   2. "Back to title" is no longer the primary button. It is the exit, and the
+ *      exit should not be the loudest thing on an ending.
+ *   3. It asks first if the meadow has not been downloaded. Deleting an
+ *      unexported save silently is both a bad last impression and a thrown-away
+ *      reason to buy — the carry-over is the strongest argument this screen has.
+ */
 function DemoCompleteModal() {
-	const { demoComplete, dismissDemo, exportDemo } = useGame();
+	const { demoComplete, dismissDemo, exportDemo, data, state } = useGame();
 	const { t } = useI18n();
 	const [exporting, setExporting] = useState(false);
 	const [exported, setExported] = useState(false);
 	const [exportError, setExportError] = useState(false);
+	// Second press of "Back to title" when nothing has been downloaded yet. Not a
+	// separate dialog: stacking a confirm on top of a modal that is already the
+	// end of the game reads as nagging, and the button relabelling itself in
+	// place is a smaller interruption that still cannot be clicked through by
+	// accident.
+	const [confirmLeave, setConfirmLeave] = useState(false);
 	if (!demoComplete) return null;
 	const onExport = async () => {
 		setExporting(true);
 		setExportError(false);
 		const name = await exportDemo();
 		setExporting(false);
-		if (name) setExported(true);
-		else setExportError(true);
+		if (name) {
+			setExported(true);
+			setConfirmLeave(false); // nothing left to lose — drop back to a plain exit
+			reportDemoEnd('exported'); // metrics: the end screen produced a carried save
+		} else setExportError(true);
 	};
+	const onLeave = () => {
+		if (!exported && !confirmLeave) return setConfirmLeave(true);
+		dismissDemo();
+	};
+
+	/* What this player actually did, in their own numbers.
+	 *
+	 * The body paragraph above sells the full game as a feature list — five more
+	 * biomes, seasons, deeper crafting — which is the same sentence every player
+	 * gets and is about the game rather than about them. These two figures are
+	 * the ending: how many neighbours they brought home, and how much of the
+	 * preserve's food web that is. The second number is deliberately the small
+	 * one. A player who returned fourteen species reads "9% of the food web" and
+	 * sees the other 91% for the first time, which is the argument this screen is
+	 * trying to make and cannot make with adjectives.
+	 *
+	 * Both definitions are lifted from UI the player has already seen rather than
+	 * invented here, so the recap cannot disagree with the Journal they were
+	 * reading five minutes ago: `state.discoveries.length` over
+	 * `data.animals.length` is exactly the Journal overview's own (returned/total)
+	 * header (src/ui/Journal.tsx), and the same pair the HUD prints as "across the
+	 * preserve".
+	 *
+	 * Skipped entirely at zero. A save can in principle reach the hard-stop having
+	 * returned nothing, and "0 animals home · 0% of the food web" is a worse last
+	 * impression than no recap at all. */
+	const returnedAnimals = state ? state.discoveries.length : 0;
+	const totalAnimals = data ? data.animals.length : 0;
+	const webPct = totalAnimals ? Math.round((returnedAnimals / totalAnimals) * 100) : 0;
+	const showRecap = returnedAnimals > 0 && totalAnimals > 0;
+
 	return (
-		<div className="panel-backdrop demo-done-backdrop" role="dialog" aria-modal="true">
+		<div
+			className="panel-backdrop demo-done-backdrop"
+			role="dialog"
+			aria-modal="true"
+			aria-labelledby="demo-done-title"
+		>
 			<div className="panel demo-done-card">
 				<div className="demo-done-icon">
 					<Icon name="paw" size={30} />
 				</div>
-				<h2>{t('app.demo.doneTitle')}</h2>
+				<h2 id="demo-done-title">{t('app.demo.doneTitle')}</h2>
 				<p>{t('app.demo.doneBody')}</p>
+
+				{showRecap && (
+					<div className="demo-done-recap">
+						<div className="demo-done-figures">
+							<div className="demo-done-figure">
+								<b>{returnedAnimals}</b>
+								<span>{t('app.demo.recapAnimals', { count: returnedAnimals })}</span>
+							</div>
+							<div className="demo-done-figure">
+								<b>{webPct}%</b>
+								<span>{t('app.demo.recapWeb')}</span>
+							</div>
+						</div>
+						{/* Floored at 2% so a single returned species still draws a mark —
+						    a bar with nothing in it reads as "you did nothing". */}
+						<div className="demo-done-webbar" role="presentation">
+							<i style={{ width: `${Math.max(2, webPct)}%` }} />
+						</div>
+						<p className="demo-done-recap-line">
+							{t('app.demo.recapLine', { returned: returnedAnimals, total: totalAnimals })}
+						</p>
+					</div>
+				)}
 
 				<div className="demo-done-export">
 					<p className="demo-done-export-hint">{t('app.demo.exportHint')}</p>
-					<button className="big-btn" onClick={onExport} disabled={exporting}>
+					<button className={`big-btn${exported ? '' : ' primary'}`} onClick={onExport} disabled={exporting}>
 						<Icon name={exported ? 'check' : 'download'} size={15} />{' '}
 						<span>
 							{exporting ? t('app.demo.exporting') : exported ? t('app.demo.exportDone') : t('app.demo.exportButton')}
@@ -459,9 +550,38 @@ function DemoCompleteModal() {
 					{exportError && <p className="form-error">{t('app.demo.exportFail')}</p>}
 				</div>
 
-				<p className="demo-done-cta">{t('app.demo.doneCta')}</p>
-				<button className="big-btn primary" onClick={dismissDemo}>
-					<Icon name="check" size={15} /> <span>{t('app.demo.doneButton')}</span>
+				{/* The pitch changes once the save is in their downloads: before, it is
+				    "buy the game"; after, it is "you already have your meadow, here is
+				    where it opens", which is a much smaller step to take. */}
+				<p className="demo-done-cta">{exported ? t('app.demo.doneCtaSaved') : t('app.demo.doneCta')}</p>
+
+				{/* New tab on purpose (see STORE_*_URL in src/demo.ts): inside itch's
+				    embed a same-frame navigation would tear down the running game, and
+				    here it would take the un-exported save with it. */}
+				<div className="demo-nudge-stores demo-done-stores">
+					<a
+						className="big-btn primary demo-nudge-store"
+						href={STORE_ITCH_URL}
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={() => reportDemoEnd('store')}
+					>
+						<Icon name="star" size={15} /> <span>{t('app.demo.storeItch')}</span>
+					</a>
+					<a
+						className="big-btn demo-nudge-store"
+						href={STORE_MAS_URL}
+						target="_blank"
+						rel="noopener noreferrer"
+						onClick={() => reportDemoEnd('store')}
+					>
+						<Icon name="star" size={15} /> <span>{t('app.demo.storeMas')}</span>
+					</a>
+				</div>
+
+				{confirmLeave && <p className="demo-done-warn">{t('app.demo.leaveWarn')}</p>}
+				<button className="big-btn subtle demo-done-leave" onClick={onLeave}>
+					<span>{confirmLeave ? t('app.demo.doneButtonConfirm') : t('app.demo.doneButton')}</span>
 				</button>
 			</div>
 		</div>

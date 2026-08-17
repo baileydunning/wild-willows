@@ -130,7 +130,6 @@ const TABLE_NAMES = [
 	'Feedback',
 	'SoloMetrics',
 	'AppOpen',
-	'MailingListSignup',
 	'LandingStat',
 	'PlayerNameIndex',
 	'SaveIncident',

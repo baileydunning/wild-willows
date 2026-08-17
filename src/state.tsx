@@ -16,7 +16,8 @@ import {
 	deleteDemoSave,
 	exportDemoSave,
 } from './api';
-import { DEMO, DEMO_FOREST_BIOME, DEMO_FOREST_MS } from './demo';
+import { DEMO, DEMO_FOREST_BIOME } from './demo';
+import { DEMO_BUDGET_MS, readDemoBudgetMs, watchDemoBudget } from './demoBudget';
 import { watchDemoNudge } from './demoNudge';
 import { flushFeedbackQueue } from './feedback';
 import { serialRun } from './serialRun';
@@ -420,10 +421,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		};
 	}, []);
 
+	// When anyone last touched the game. Read by two clocks that both want to mean
+	// "time spent playing" rather than "time this window was open": the heartbeat's
+	// play-time accounting (below, where the 30-minute window is argued out) and the
+	// demo's post-unlock budget (just after this). Declared up here so the demo gate
+	// can see it; the heartbeat is the reason the window is what it is.
+	//
+	// Deliberately not pointermove: a cursor crossing the window on its way somewhere
+	// else is not someone playing. These are the events the game runs on anyway —
+	// clicks, keys (WASD repeats while held), touch, wheel.
+	const lastInputAt = useRef(Date.now());
+	useEffect(() => {
+		const seen = () => {
+			lastInputAt.current = Date.now();
+		};
+		const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
+		for (const e of events) window.addEventListener(e, seen, { passive: true });
+		return () => {
+			for (const e of events) window.removeEventListener(e, seen);
+		};
+	}, []);
+
 	// Demo hard-stop: the caretaker restores the meadow to unlock the forest, then
-	// gets up to DEMO_FOREST_MS of time exploring it before play freezes with the
-	// thank-you popup. (No meadow cap — nothing ends the demo before they reach the
-	// forest, which is the whole point of the taste.) The save is NOT wiped yet —
+	// gets DEMO_BUDGET_MS of play — anywhere, forest or not — before play freezes
+	// with the thank-you popup. (No meadow cap — nothing ends the demo before they
+	// reach the forest, which is the whole point of the taste.) The save is NOT wiped yet —
 	// the popup offers a "download my save" export first, so deletion is deferred to
 	// dismiss (see dismissDemo). We flush the feed so an export captures the latest.
 	const finishDemo = useCallback(() => {
@@ -437,29 +459,46 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		void flushFeed();
 	}, [flushFeed]);
 
-	// Forest time cap — accumulate wall-clock only while the caretaker is actually
-	// standing in the forest and the tab is visible, so it measures time spent
-	// there rather than total play time. Ticks once a second; stops itself when it
-	// trips the limit so it can't re-fire.
-	const demoForestMsRef = useRef(0);
+	// The post-unlock budget. It runs while the forest is open, the tab is on screen,
+	// and someone has touched the game within HEARTBEAT_IDLE_MS — the same gate the
+	// heartbeat credits play time under, so the ten minutes the demo grants and
+	// the play time the dashboard reports are measuring the same thing.
+	//
+	// Read live off the bridge rather than from `state`, so unlocking the forest
+	// starts the clock without waiting for this effect to be rebuilt, and so a
+	// refreshed state object doesn't rebuild it several times a minute.
+	//
+	// The accrued total is persisted per save (src/demoBudget.ts). That, not the
+	// tick, is the part that matters: the old counter lived in a ref and started at
+	// zero on every page load, and it only ran inside the forest, so reloading —
+	// or simply walking into the wetland — turned the demo off.
+	const demoSaveId = state?.player?.id ?? null;
 	useEffect(() => {
-		if (!DEMO) return;
-		let last = Date.now();
-		const id = setInterval(() => {
-			const now = Date.now();
-			const dt = now - last;
-			last = now;
-			const inForest = bridge.shared.state?.player?.area === DEMO_FOREST_BIOME;
-			const visible = typeof document === 'undefined' || document.visibilityState === 'visible';
-			if (!inForest || !visible) return;
-			demoForestMsRef.current += dt;
-			if (demoForestMsRef.current >= DEMO_FOREST_MS) {
-				clearInterval(id);
-				finishDemo();
-			}
-		}, 1000);
-		return () => clearInterval(id);
-	}, [finishDemo]);
+		if (!DEMO || !demoSaveId || demoComplete) return;
+		return watchDemoBudget({
+			playerId: demoSaveId,
+			running: () => {
+				const player = bridge.shared.state?.player;
+				if (!player?.unlockedBiomes?.includes(DEMO_FOREST_BIOME)) return false;
+				if (typeof document !== 'undefined' && document.visibilityState === 'hidden') return false;
+				return Date.now() - lastInputAt.current <= HEARTBEAT_IDLE_MS;
+			},
+			onSpent: finishDemo,
+		});
+	}, [demoSaveId, demoComplete, finishDemo]);
+
+	// Re-raise the hard-stop on load for a save whose budget is already spent.
+	//
+	// Completion does NOT delete the save — deletion waits for the popup's export
+	// button (see dismissDemo) — so without this check, closing the tab at the
+	// thank-you screen and coming back was a way to keep playing, and the game had
+	// no memory that it had ever said goodbye. Both halves are needed: the persisted
+	// budget above is what survives the reload, and this is what acts on it.
+	const demoForestUnlocked = !!state?.player?.unlockedBiomes?.includes(DEMO_FOREST_BIOME);
+	useEffect(() => {
+		if (!DEMO || !demoSaveId || !demoForestUnlocked || demoComplete) return;
+		if (readDemoBudgetMs(demoSaveId) >= DEMO_BUDGET_MS) finishDemo();
+	}, [demoSaveId, demoForestUnlocked, demoComplete, finishDemo]);
 
 	// Demo re-engagement prompt: raised once, when a player stops playing without
 	// finishing (window untouched for five minutes, or back after a spell away).
@@ -476,16 +515,15 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// watcher down and rebuild it — resetting the idle clock — several times a
 	// minute, and the five-minute mark would never arrive.
 	const demoNudgeShown = useRef(false);
-	const demoSavePlayerId = state?.player?.id ?? null;
 	useEffect(() => {
-		if (!DEMO || !demoSavePlayerId || demoComplete || demoNudgeShown.current) return;
+		if (!DEMO || !demoSaveId || demoComplete || demoNudgeShown.current) return;
 		return watchDemoNudge((reason) => {
 			demoNudgeShown.current = true;
 			setDemoNudge(true);
 			reportDemoNudge('shown'); // metrics: the prompt's funnel starts here
 			pushLog('target', t(reason === 'idle' ? 'app.feed.demoNudgeIdle' : 'app.feed.demoNudgeReturned'));
 		});
-	}, [demoSavePlayerId, demoComplete]);
+	}, [demoSaveId, demoComplete]);
 
 	const dismissDemoNudge = useCallback(() => setDemoNudge(false), []);
 	const dismissGoalsUnlocked = useCallback(() => setGoalsUnlocked(false), []);
@@ -949,20 +987,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// reports the window it was recorded under (see metricsRev on the metrics blob)
 	// so the two are never averaged together by accident.
 	const sessionPlayerId = state?.player?.id ?? null;
-	const lastInputAt = useRef(Date.now());
-	useEffect(() => {
-		// Deliberately not pointermove: a cursor crossing the window on its way
-		// somewhere else is not someone playing. These are the events the game runs
-		// on anyway — clicks, keys (WASD repeats while held), touch, wheel.
-		const seen = () => {
-			lastInputAt.current = Date.now();
-		};
-		const events = ['pointerdown', 'keydown', 'wheel', 'touchstart'] as const;
-		for (const e of events) window.addEventListener(e, seen, { passive: true });
-		return () => {
-			for (const e of events) window.removeEventListener(e, seen);
-		};
-	}, []);
 	useEffect(() => {
 		if (!sessionPlayerId) return;
 		const beat = () => {

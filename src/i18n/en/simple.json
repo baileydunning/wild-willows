@@ -53,11 +53,11 @@
 				"text": "Press N to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. The guide shows what is happening everywhere. It also explains how weather and season shape the area you are in. Watch the sky. Odd weather can leave rare stuff to gather while it lasts.",
 				"touch": "Tap the cloud button to open the Weather guide. Each area has its own weather. It changes on its own and drifts with the seasons. Watch the sky. Odd weather can leave rare stuff to gather while it lasts."
 			},
-			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest."
+			"demoNote": "This is the free demo. Heal the meadow to open the forest, then look around. The demo ends 10 minutes after the forest opens."
 		},
 		"help": {
 			"intro": "A calm loop. Gather stuff. Craft it into homes for animals. Place it on the land. Then animals come home.",
-			"demoNote": "You are playing the free demo. Heal the meadow to open the forest, then look around. The demo ends after your first 10 minutes in the forest. Your save works in the full game.",
+			"demoNote": "You are playing the free demo. Heal the meadow to open the forest, then look around. The demo ends 10 minutes after the forest opens. Your save works in the full game.",
 			"keys": {
 				"click": "Look at an animal. Or open a placed item’s menu to move, turn, or pick it up.",
 				"rotate": "Turn the thing you are placing a quarter turn.",
@@ -238,6 +238,9 @@
 		},
 		"demo": {
 			"doneBody": "That is the end of the free demo. Thank you for healing a corner of the preserve. The full game opens five more areas to heal. It also adds deeper crafting, seasons and weather, a journal to fill, and many more animals to bring home.",
+			"recapLine": "You brought {returned} of the preserve’s {total} animals home. The rest are still out there.",
+			"doneCtaSaved": "Your meadow is saved on your computer. The full game costs $7, one time. Pick Import Save on its first screen and keep going from here.",
+			"leaveWarn": "If you leave, this meadow is deleted. You cannot get it back. Download it first.",
 			"nudgeBody": "No rush. Your meadow is right where you left it. If you are done for now, you can take it with you: download your save, and the full game can start it again from here.",
 			"nudgeSavedBody": "The save file is in your downloads. Get the full game, pick Import Save on its first screen, and keep going from here — with five more areas to heal."
 		},

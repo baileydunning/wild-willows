@@ -506,7 +506,7 @@
 			"text": "Last thing — walk back to your camp tent and press E to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!",
 			"touch": "Last thing — walk back to your camp tent and tap it to step inside. The sign by the tent first builds your tent into a real house (each style has its own perk), then upgrades it along four tracks: Space (a bigger home that lets you carry more), Comfort (strengthens your house perk), Decor, and Light. Higher upgrades open as your biomes get healthier, and inside you can place crafted camp comforts. Step in now — the preserve is all yours. Happy restoring!"
 		},
-		"demoNote": "This is the free demo — restore the meadow to unlock the forest, then explore. The demo wraps up after your first 10 minutes in the forest.",
+		"demoNote": "This is the free demo — restore the meadow to unlock the forest, then explore. The demo wraps up 10 minutes after the forest opens.",
 		"menus": {
 			"title": "Your menus, up top",
 			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it.",
@@ -592,7 +592,7 @@
 			"zoom": "Zoom the camera in / out",
 			"esc": "Close menus · cancel placing"
 		},
-		"demoNote": "You're playing the free demo — restore the meadow to open the forest, then explore it. The demo wraps up after your first 10 minutes in the forest, and your save carries into the full game.",
+		"demoNote": "You're playing the free demo — restore the meadow to open the forest, then explore it. The demo wraps up 10 minutes after the forest opens, and your save carries into the full game.",
 		"moreLabel": "Going further",
 		"more": {
 			"animals": {

@@ -1,7 +1,8 @@
 // DEMO only: when to raise the "Are you done playing?" prompt.
 //
-// The demo's own hard-stop (10 minutes in the forest — see src/demo.ts) is the
-// ONLY moment the game currently asks anyone to carry their save across. Most
+// The demo's own hard-stop (10 minutes of play after the forest unlocks — see
+// src/demoBudget.ts) is the ONLY moment the game currently asks anyone to carry
+// their save across. Most
 // demo players never reach it: they wander off mid-meadow, or tab away to
 // something else and drift back, and the session ends with a save they never
 // knew they could keep. That's the conversion the demo is losing — not people

@@ -8281,14 +8281,32 @@ async function metricsRollup(target?: any): Promise<{
 		 * reported because they differ — a save whose snapshot predates this field
 		 * counts for neither, and one with no usable creation time counts for
 		 * popularity but not for pacing. */
+		/* Idle windows are counted for POPULARITY but never for PACING.
+		 *
+		 * "Time to earn" is wall-clock from the save's creation, so a window left
+		 * open over a lunch break stamps a first-session achievement hours after
+		 * the save began — nobody played for those hours. One such save was enough
+		 * to turn a range that should have read "34s – 6m" into "34s – 11h 12m",
+		 * and it dragged the mean with it. Two things make it safe to drop them
+		 * here specifically: the row already carries the same `idle` flag the rest
+		 * of this endpoint filters on (so the definition of idle does not fork),
+		 * and the popularity count is untouched — an abandoned window still earned
+		 * the achievement, it just cannot say how long it took.
+		 *
+		 * The rows dropped are counted, not silently discarded: `timingIdleSkipped`
+		 * rides along in the coverage block so the card can say what the numbers
+		 * are drawn from. */
 		const achEarnedBy = new Map<string, { players: number; times: number[] }>();
+		let timingIdleSkipped = 0;
 		for (const v of withAch) {
 			const map = v.achievements.earnedAt;
 			if (!map || typeof map !== 'object') continue;
+			if (v.idle) timingIdleSkipped++;
 			for (const [id, at] of Object.entries(map)) {
 				let e = achEarnedBy.get(id);
 				if (!e) achEarnedBy.set(id, (e = { players: 0, times: [] }));
 				e.players++;
+				if (v.idle) continue; // popularity yes, duration no — see above
 				const ms = Number(at) - Number(v.createdAt || 0);
 				// Guard both ends: a missing createdAt yields an absurd age, and clock
 				// skew on a client-stamped timestamp can put an achievement before the
@@ -8325,6 +8343,8 @@ async function metricsRollup(target?: any): Promise<{
 			savesWithAchievements: withAch.length,
 			savesWithTimestamps: withAch.filter((v) => v.achievements.earnedAt && Object.keys(v.achievements.earnedAt).length)
 				.length,
+			// Counted in `players`, excluded from every duration — see above.
+			idleSkipped: timingIdleSkipped,
 		};
 
 		const achievementsSummary = {
@@ -8691,6 +8711,22 @@ async function metricsRollup(target?: any): Promise<{
 			exportPct: nudgeShown ? Math.round((nudgeExported / nudgeShown) * 100) : 0,
 			storePct: nudgeShown ? Math.round((nudgeStore / nudgeShown) * 100) : 0,
 		};
+		/* The end-of-demo popup, as its own funnel off the SAME denominator the
+		 * completion rate uses: every device that reaches the hard-stop sees this
+		 * screen, so `reachedGoal` is how many were shown it and needs no separate
+		 * flag. Read `storePct` next to demoNudge.storePct — the two screens are
+		 * asking the same question of the same people at different moments, and
+		 * until the popup had a store link at all, the nudge's number was the only
+		 * one moving. */
+		const endExported = demoDevices.filter((o) => o.demoEndExported).length;
+		const endStore = demoDevices.filter((o) => o.demoEndStore).length;
+		const demoEnd = {
+			shown: demoFinished,
+			exported: endExported,
+			storeClicked: endStore,
+			exportPct: demoFinished ? Math.round((endExported / demoFinished) * 100) : 0,
+			storePct: demoFinished ? Math.round((endStore / demoFinished) * 100) : 0,
+		};
 		const demoCompletion = {
 			demoInstalls: demoDevices.length,
 			createdCharacter: demoConverted,
@@ -8698,6 +8734,7 @@ async function metricsRollup(target?: any): Promise<{
 			// completion rate among demo players who actually made a character
 			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
 			nudge: demoNudge,
+			endScreen: demoEnd,
 		};
 		// demo vs paid split of installs (edition is stamped on each AppOpen row).
 		const editionSplit: Record<string, number> = {};
@@ -9296,7 +9333,6 @@ export class ServerHealth extends DashboardEndpoint {
 				'DashboardPage',
 				'dashboard',
 				'ListFeedback',
-				'ListMailingList',
 				'SystemProbe',
 			].map(norm),
 		);
@@ -10929,6 +10965,11 @@ export class SyncMetrics extends PublicEndpoint {
  *                     nudgeStep 'shown' | 'exported' | 'store'. Same rule as the
  *                     gate: describes a launch that already pinged, so it is NOT
  *                     counted toward opens.
+ *   phase "demo_end" — the end-of-demo popup, with endStep 'exported' | 'store'.
+ *                     Kept apart from demo_nudge because the two screens answer
+ *                     different questions and used to be conflated; the popup's
+ *                     denominator is reachedDemoGoal, so it needs no 'shown'.
+ *                     Not counted toward opens either.
  * Upserts one row per device. Best-effort; safe to point analytics at.
  */
 export class AppOpen extends PublicEndpoint {
@@ -10947,9 +10988,11 @@ export class AppOpen extends PublicEndpoint {
 						? 'demo_done'
 						: body.phase === 'demo_nudge'
 							? 'demo_nudge'
-							: body.phase === 'kb_gate'
-								? 'kb_gate'
-								: 'open';
+							: body.phase === 'demo_end'
+								? 'demo_end'
+								: body.phase === 'kb_gate'
+									? 'kb_gate'
+									: 'open';
 		const now = Date.now();
 		const t = db();
 		const id = `dev:${deviceId}`;
@@ -11041,6 +11084,19 @@ export class AppOpen extends PublicEndpoint {
 			demoNudgeExported: existing?.demoNudgeExported || (phase === 'demo_nudge' && body.nudgeStep === 'exported'),
 			demoNudgeStore: existing?.demoNudgeStore || (phase === 'demo_nudge' && body.nudgeStep === 'store'),
 			demoNudgeAt: existing?.demoNudgeAt || (phase === 'demo_nudge' ? now : 0),
+			/* The end-of-demo popup (DemoCompleteModal in src/App.tsx), same idea,
+			 * two flags. No `shown` twin: reachedDemoGoal above already IS the
+			 * screen's denominator — every device that reaches the budget reports
+			 * demo_done and then sees this popup — so a third flag would be a second
+			 * copy of that number, free to drift from it.
+			 *
+			 * Separate from the nudge's flags on purpose. They were one funnel while
+			 * the end screen had no store link at all, which meant the nudge's
+			 * store-click rate was silently carrying every click in the demo and
+			 * looked healthy for it. */
+			demoEndExported: existing?.demoEndExported || (phase === 'demo_end' && body.endStep === 'exported'),
+			demoEndStore: existing?.demoEndStore || (phase === 'demo_end' && body.endStep === 'store'),
+			demoEndAt: existing?.demoEndAt || (phase === 'demo_end' ? now : 0),
 			/* The keyboard gate. Both sticky, and deliberately so: this is the one
 			 * question a device answers ONCE and then keeps answering differently.
 			 * A phone that was turned away in March is still a phone that was turned
@@ -11063,20 +11119,18 @@ export class AppOpen extends PublicEndpoint {
 	}
 }
 
-// ---------------------------------------------------------------- landing page: mailing list + analytics
-// The marketing landing page (GET /) hosts a mailing-list signup form and
-// sends anonymous, aggregate-only usage pings. Same shape as the rest of this
-// file:
-//  • MailingListSignup rows carry emails (PII), so — exactly like Feedback —
-//    the table is never exported and reads go through the admin-only
-//    ListMailingList (raw Resource → Harper default super-user permissions).
+// ---------------------------------------------------------------- landing page: analytics
+// The marketing landing page (GET /) sends anonymous, aggregate-only usage
+// pings. Nothing here is personal data, and nothing here ever was after the
+// mailing list was removed: the form, the MailingListSignup table and the
+// admin-only ListMailingList reader all went with it, so the landing page now
+// collects no email address by any route. The subreddit is the follow-along
+// channel in its place.
 //  • LandingStat keeps ONE row per UTC day (`day:YYYY-MM-DD`) of plain
-//    counters; the public LandingStats rollup only ever returns those counts,
-//    never emails. Increments are read-modify-write like AppOpen — fine at
+//    counters. Increments are read-modify-write like AppOpen — fine at
 //    landing-page traffic, and analytics losing the odd count to a rare race
 //    is acceptable by design.
 
-const MAIL_EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 // Click targets the landing page reports (data-track attributes). Anything
 // else collapses into "other" so junk can't mint unbounded counter keys.
 const LANDING_CLICK_TARGETS = new Set([
@@ -11103,6 +11157,10 @@ const LANDING_CLICK_TARGETS = new Set([
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
+	// The subreddit card in the landing page's Updates section, and the matching
+	// footer link. Its own target rather than "other" so the dashboard can say how
+	// many people the page actually sends to the community.
+	'reddit',
 ]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
@@ -11127,29 +11185,30 @@ async function buildLandingStats(): Promise<any> {
 	const totals = {
 		visits: 0,
 		uniques: 0,
-		signups: 0,
 		clicks: {} as Record<string, number>,
 		downloads: {} as Record<string, number>,
 	};
 	for (const r of rows) {
 		totals.visits += r.visits || 0;
 		totals.uniques += r.uniques || 0;
-		totals.signups += r.signups || 0;
 		for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
 		for (const [k, v] of Object.entries(r.downloads || {}))
 			totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
 	}
-	let signupCount = totals.signups;
-	try {
-		if (t.MailingListSignup) signupCount = (await allOf(t.MailingListSignup)).length;
-	} catch {
-		/* keep the counter sum */
-	}
-	const days = rows.slice(-60).map((r: any) => ({
+	/* How many day-rows ride along with the totals.
+	 *
+	 * Was 60, chosen when the dashboard drew a fixed last-14-days histogram off
+	 * the tail of this list. That chart now has the same preset row as New
+	 * caretakers per day — 7d / 30d / 90d / All — and a 90d preset reading a
+	 * 60-day payload silently shows 60 days under a "90d" pill, which is the
+	 * kind of wrong that never announces itself. Sized to cover the widest
+	 * preset with room to spare; these are eight small numbers per day, so the
+	 * payload cost of the extra two months is trivial. */
+	const LANDING_DAYS_RETURNED = 180;
+	const days = rows.slice(-LANDING_DAYS_RETURNED).map((r: any) => ({
 		day: r.day,
 		visits: r.visits || 0,
 		uniques: r.uniques || 0,
-		signups: r.signups || 0,
 		clicks: r.clicks || {},
 		totalClicks: sumValues(r.clicks),
 		downloads: r.downloads || {},
@@ -11160,7 +11219,6 @@ async function buildLandingStats(): Promise<any> {
 		today: landingDay(now),
 		totals: {
 			...totals,
-			signups: signupCount,
 			totalClicks: sumValues(totals.clicks),
 			totalDownloads: sumValues(totals.downloads),
 		},
@@ -11214,7 +11272,6 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 			day,
 			visits: Number(stored?.visits) || 0,
 			uniques: Number(stored?.uniques) || 0,
-			signups: Number(stored?.signups) || 0,
 			clicks: countMap(stored?.clicks),
 			downloads: countMap(stored?.downloads),
 		};
@@ -11234,71 +11291,6 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
 	await bumpLandingStat((r) => {
 		r.downloads[which] = (r.downloads[which] || 0) + 1;
 	});
-}
-
-/**
- * POST /JoinMailingList/ {email, source?, website?} — add one address to the
- * update list, deduped by normalized email (id `ml:${email}`), so double
- * submits and re-signups never create duplicate rows. `website` is the form's
- * honeypot field: it's visually hidden, so a non-empty value means a bot —
- * we answer ok:true and store nothing. The response is {ok:true} whether the
- * address was new or already present, so the endpoint can't be used to probe
- * who is subscribed.
- */
-export class JoinMailingList extends PublicEndpoint {
-	async post(data: any) {
-		const body = await bodyOf(data);
-		if (String(body.website || '').trim()) return { ok: true }; // honeypot — bot, drop silently
-		const email = String(body.email || '')
-			.trim()
-			.toLowerCase()
-			.slice(0, 254);
-		if (!email || !MAIL_EMAIL_RE.test(email))
-			throw new GameError(tr('server.err.mailBadEmail'), 400, 'server.err.mailBadEmail');
-		const source =
-			String(body.source || 'landing')
-				.toLowerCase()
-				.replace(/[^a-z0-9-]/g, '')
-				.slice(0, 24) || 'landing';
-		const table = (db() as any).MailingListSignup;
-		if (!table) throw new GameError(tr('server.err.dbStarting'), 503, 'server.err.dbStarting');
-		const id = `ml:${email}`;
-		const existing = await safeGet(table, id);
-		if (!existing) {
-			await table.put({
-				id,
-				email,
-				source,
-				language:
-					String(body.lang || body.language || '')
-						.trim()
-						.toLowerCase()
-						.slice(0, 12) || null,
-				createdAt: Date.now(),
-			});
-			await bumpLandingStat((r) => {
-				r.signups = (r.signups || 0) + 1;
-			});
-		}
-		return { ok: true };
-	}
-}
-
-/**
- * GET /ListMailingList/ — every mailing-list signup, newest first.
- *
- * Deliberately extends the raw Resource (NOT PublicEndpoint), so Harper's
- * default permissions apply: only an authenticated super user can read it.
- * These rows are email addresses, which must never be public (same rule as
- * ListFeedback).
- */
-export class ListMailingList extends Resource {
-	async get() {
-		const table = (db() as any).MailingListSignup;
-		const rows: any[] = table ? await allOf(table) : [];
-		rows.sort((a: any, b: any) => (b.createdAt || 0) - (a.createdAt || 0));
-		return { count: rows.length, signups: rows };
-	}
 }
 
 /**
@@ -11787,14 +11779,13 @@ export class SaveHealth extends DashboardEndpoint {
 /**
  * GET /LandingStats/ — aggregate-only rollup of the landing page's daily
  * counters, consumed by the /dashboard "Landing page" section. Returns per-day
- * rows (last 60 days) plus lifetime totals. The signup total is the REAL deduped
- * row count from MailingListSignup (the per-day counter is also summed, but the
- * table is the source of truth if they ever drift). No emails or any other PII
- * ever leave through this endpoint.
+ * rows (see LANDING_DAYS_RETURNED) plus lifetime totals: visits, first-time
+ * visitors, outbound link clicks and classroom-PDF downloads. Counts only —
+ * there is no personal data anywhere behind this endpoint to leak.
  *
  * ADMIN ONLY. Nothing here is sensitive — it is counts, and it stayed harmless
  * when it was public. It moves behind auth because its only reader is /dashboard
- * and a business metric (visits, signups, conversion) is not something to hand
+ * and a business metric (visits, clicks, conversion) is not something to hand
  * to anyone who asks. POST /LandingEvent/ stays public: the landing page has to
  * be able to write to it.
  */

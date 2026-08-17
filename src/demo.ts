@@ -6,23 +6,29 @@
 // backend so the demo still runs — see resolveDemoBackend() in src/api.ts.
 //
 // Scope of the demo: a caretaker restores the starter meadow to unlock the forest,
-// then gets a taste of it. The demo hard-stops — with a thank-you popup that
-// returns to the title screen — once the player has spent DEMO_FOREST_MINUTES in
-// the forest. There's deliberately NO meadow cap, so nothing ends the demo before
-// they reach the forest. See the demo gate in src/state.tsx + App.tsx.
+// then gets a taste of what lies past it. The demo hard-stops — with a thank-you
+// popup that returns to the title screen — once DEMO_BUDGET_MINUTES of play have
+// passed SINCE the forest unlocked, wherever they're spent. There's deliberately NO
+// meadow cap, so nothing ends the demo before they reach the forest.
+//
+// That budget is persisted per save (src/demoBudget.ts) rather than held in memory.
+// In memory it reset on every reload and only ran while the player stood in the
+// forest, which is how a demo player reached the wetland and put in two hours. See
+// the demo gate in src/state.tsx + App.tsx.
 //
 // `typeof` keeps this safe in non-Vite contexts (e.g. Vitest), where the
 // injected constant doesn't exist — there it falls back to `false`.
 export const DEMO: boolean = typeof __DEMO__ !== 'undefined' ? __DEMO__ : false;
 
-/** The second biome the demo lets you reach; time spent here is what's capped. */
+/**
+ * The second biome, and the one whose unlock starts the demo's clock.
+ *
+ * Not a cap on the forest itself: the demo doesn't restrict which biomes a player
+ * can open (unlocks are ordinary game rules, see data/biomes.json), so anything
+ * that counted forest time alone stopped counting the moment they moved on. The
+ * budget lives in src/demoBudget.ts.
+ */
 export const DEMO_FOREST_BIOME = 'forest';
-
-/** Minutes of time in the forest before the demo hard-stops. */
-export const DEMO_FOREST_MINUTES = 10;
-
-/** Same limit in milliseconds (accumulated wall-clock while in the forest). */
-export const DEMO_FOREST_MS = DEMO_FOREST_MINUTES * 60 * 1000;
 
 // Where a demo player goes to buy the game. Both stores sell the SAME full
 // game, so both are offered rather than guessed at: the browser demo runs inside
