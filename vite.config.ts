@@ -146,6 +146,21 @@ export default defineConfig({
 					const path = id.replace(/\\/g, '/');
 					if (path.includes('/node_modules/phaser/')) return 'phaser';
 					if (/\/node_modules\/(react|react-dom|scheduler)\//.test(path)) return 'react';
+					/* The same cacheability argument, applied to our own code.
+					 *
+					 * `src/game/` is ~14k lines dominated by textures.ts (8.6k lines of
+					 * procedural texture generation) and WorldScene.ts, and it changes on a
+					 * completely different schedule from `src/ui/`. Left together in the
+					 * entry chunk, editing a panel's copy re-downloaded every texture
+					 * routine, and vice versa. `src/i18n/` is the strongest case of all: it
+					 * is several hundred KB of JSON that changes only when strings change.
+					 *
+					 * Same caveat as above — this buys cacheability, not size. Cutting the
+					 * bytes needs lazy loading (React.lazy for the panels, a dynamic import
+					 * for PhaserGame), which is a behaviour change and wants its own pass. */
+					if (path.includes('/src/i18n/')) return 'i18n';
+					if (path.includes('/src/game/')) return 'game';
+					if (path.includes('/src/ui/')) return 'ui';
 					return undefined;
 				},
 			},

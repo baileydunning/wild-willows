@@ -118,6 +118,33 @@ function hashStr(s: string): number {
 	return h >>> 0;
 }
 
+/** Fold an epoch-milliseconds value into a running hash, both halves of it.
+ *  `^` coerces through ToInt32, and a 13-digit ms timestamp does not fit — so
+ *  mixing one in directly would silently discard everything above bit 31 and let
+ *  two times exactly 2^32 ms apart (~49.7 days) hash identically. Growth and
+ *  regrow timers are driven off these, so that collision would show up as a plant
+ *  that never visually matures. */
+function mixMs(h: number, ms: number): number {
+	const lo = ms >>> 0;
+	const hi = Math.floor(ms / 4294967296) >>> 0;
+	h = Math.imul(h ^ lo, 16777619) >>> 0;
+	return Math.imul(h ^ hi, 16777619) >>> 0;
+}
+
+/** hashStr memoized over the small, repeating vocabularies the dynamic signature
+ *  walks — terrain types and object ids, a few dozen distinct strings shared
+ *  across thousands of rows. Bounded so a stray unique value can't grow it. */
+const hashMemo = new Map<string, number>();
+function hashCached(s: string): number {
+	let h = hashMemo.get(s);
+	if (h === undefined) {
+		h = hashStr(s);
+		if (hashMemo.size > 512) hashMemo.clear();
+		hashMemo.set(s, h);
+	}
+	return h;
+}
+
 function mulberry32(seed: number) {
 	let a = seed >>> 0;
 	return () => {
@@ -2377,19 +2404,55 @@ export class WorldScene extends Phaser.Scene {
 		const st = bridge.shared.state;
 		if (!st) return '';
 		const health = st.biomeStates.find((b) => b.biomeId === this.area)?.health ?? 5;
-		const terrain = (st.terrain || [])
-			.filter((tt) => tt.area === this.area)
-			.map((tt) => `${tt.x},${tt.y}:${tt.type}`)
-			.sort()
-			.join('|');
-		const placements = (st.placements || [])
-			.filter((pl) => pl.area === this.area)
-			.map(
-				(pl) =>
-					`${pl.id}:${pl.objectId}:${pl.x},${pl.y}:${pl.rotation || 0}:${pl.plantedAt || 0}:${(pl as any).lastHarvestAt || 0}`,
-			)
-			.sort()
-			.join('|');
+		// Terrain and placements are folded to a 32-bit hash instead of a sorted,
+		// joined string. This function is the GATE that lets refreshDynamic skip a
+		// rebuild, so it runs on every flush — including all the ones it goes on to
+		// reject — and terrain is, by this file's own note, "the one dynamic thing
+		// that accumulates without bound over a session". Building one ~40KB string
+		// per check (map, sort, join, then a full string compare) cost more than the
+		// skip saved on a busy save. The fold is order-INDEPENDENT — each row is
+		// hashed on its own and the results are combined with `+` and `^`, both
+		// commutative — which is what the `.sort()` was there to provide, at O(n)
+		// instead of O(n log n) and with no allocation per row.
+		let tSum = 0;
+		let tXor = 0;
+		let tCount = 0;
+		for (const tt of st.terrain || []) {
+			if (tt.area !== this.area) continue;
+			tCount++;
+			let h = hashCached(tt.type);
+			h = Math.imul(h ^ (tt.x | 0), 16777619) >>> 0;
+			h = Math.imul(h ^ (tt.y | 0), 16777619) >>> 0;
+			tSum = (tSum + h) | 0;
+			tXor ^= h;
+		}
+		let pSum = 0;
+		let pXor = 0;
+		let pCount = 0;
+		for (const pl of st.placements || []) {
+			if (pl.area !== this.area) continue;
+			pCount++;
+			let h = hashStr(pl.id) ^ hashCached(pl.objectId);
+			// *4 keeps the quarter-tile resolution placements are actually stored at.
+			h = Math.imul(h ^ (pl.x * 4 + pl.y * 1024), 16777619) >>> 0;
+			h = Math.imul(h ^ (pl.rotation || 0), 16777619) >>> 0;
+			h = mixMs(h, pl.plantedAt || 0);
+			h = mixMs(h, (pl as any).lastHarvestAt || 0);
+			pSum = (pSum + h) | 0;
+			pXor ^= h;
+		}
+		// TWO independent accumulators, and this is the part that is easy to get
+		// wrong: `+` and `^` are each commutative on their own, but interleaving them
+		// into ONE running value is not — the fold then depends on the array's order,
+		// and the state array is rebuilt on every refresh, so a pure reorder would
+		// read as a change and rebuild the whole layer for nothing. That is exactly
+		// what the `.sort()` this replaces was preventing. Kept separate, each
+		// accumulator is order-independent, so the pair is too.
+		//
+		// Counts ride along so the cheapest change to miss — one row added and
+		// another removed — has to collide on all three at once.
+		const terrain = `${tCount}.${(tSum >>> 0).toString(36)}.${(tXor >>> 0).toString(36)}`;
+		const placements = `${pCount}.${(pSum >>> 0).toString(36)}.${(pXor >>> 0).toString(36)}`;
 		const wx = liveWeatherType(this.worldId, this.area, st.weather);
 		// Unlock state and home config also drive static features (gates open when a
 		// biome unlocks; the camp building changes as the home is built/upgraded), so

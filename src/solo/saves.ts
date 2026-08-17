@@ -46,17 +46,80 @@ export const newSlotId = () => {
 
 // ---- low-level slot IO (desktop bridge or localStorage) ----
 
+async function readRawText(slotId: string): Promise<string | null> {
+	try {
+		if (hasDesktopSaves()) return (await bridge()!.saves!.read(slotId)) || null;
+		return localStorage.getItem(LS_PREFIX + slotId);
+	} catch {
+		return null;
+	}
+}
+
 async function readRaw(slotId: string): Promise<SaveFile | null> {
 	try {
-		if (hasDesktopSaves()) {
-			const raw = await bridge()!.saves!.read(slotId);
-			return raw ? JSON.parse(raw) : null;
-		}
-		const raw = localStorage.getItem(LS_PREFIX + slotId);
+		const raw = await readRawText(slotId);
 		return raw ? JSON.parse(raw) : null;
 	} catch {
 		return null;
 	}
+}
+
+/**
+ * Just the `meta` half of a slot, without parsing the save body.
+ *
+ * `persist` writes the file as `{"meta":<meta>,"data":<data>}` — meta first and
+ * small, data last and potentially megabytes — so the header can be sliced off
+ * and parsed on its own. The load menu only ever wants the header, and parsing
+ * every slot in full to read a name and a timestamp meant opening the save list
+ * cost a full JSON.parse of every save on disk, on the title screen, serially.
+ *
+ * The slice is a brace-matched scan rather than a search for `,"data":`, because
+ * a save whose NAME contained that text would otherwise cut in the wrong place.
+ * Anything unexpected falls back to the full parse, so a file written by an older
+ * build (or by hand) still reads correctly — this is an optimization, never a
+ * format requirement.
+ */
+async function readMeta(slotId: string): Promise<SaveMeta | null> {
+	const raw = await readRawText(slotId);
+	if (!raw) return null;
+	const head = '{"meta":';
+	if (raw.startsWith(head)) {
+		const end = matchingBraceEnd(raw, head.length);
+		if (end > 0) {
+			try {
+				return JSON.parse(raw.slice(head.length, end)) as SaveMeta;
+			} catch {
+				/* fall through to the full parse */
+			}
+		}
+	}
+	try {
+		return (JSON.parse(raw) as SaveFile)?.meta ?? null;
+	} catch {
+		return null;
+	}
+}
+
+/** Index just past the object that starts at `from`, or -1. String-aware, so a
+ *  brace or a backslash inside a save name can't throw off the count. */
+function matchingBraceEnd(s: string, from: number): number {
+	if (s[from] !== '{') return -1;
+	let depth = 0;
+	let inStr = false;
+	let esc = false;
+	for (let i = from; i < s.length; i++) {
+		const ch = s[i];
+		if (inStr) {
+			if (esc) esc = false;
+			else if (ch === '\\') esc = true;
+			else if (ch === '"') inStr = false;
+			continue;
+		}
+		if (ch === '"') inStr = true;
+		else if (ch === '{') depth++;
+		else if (ch === '}' && --depth === 0) return i + 1;
+	}
+	return -1;
 }
 
 async function writeRaw(slotId: string, file: SaveFile): Promise<void> {
@@ -94,11 +157,11 @@ async function listSlotIds(): Promise<string[]> {
 /** Every solo save, newest first, for the load menu. */
 export async function listSaves(): Promise<SaveMeta[]> {
 	const ids = await listSlotIds();
-	const metas: SaveMeta[] = [];
-	for (const id of ids) {
-		const f = await readRaw(id);
-		if (f?.meta) metas.push({ ...f.meta, slotId: id });
-	}
+	// Header-only reads, and concurrent rather than serial — the menu wants a name
+	// and a timestamp per slot, not the worlds behind them.
+	const metas = (await Promise.all(ids.map(async (id) => ({ id, meta: await readMeta(id) }))))
+		.filter((r): r is { id: string; meta: SaveMeta } => !!r.meta)
+		.map(({ id, meta }) => ({ ...meta, slotId: id }));
 	return metas.sort((a, b) => (b.updatedAt || 0) - (a.updatedAt || 0));
 }
 
@@ -184,10 +247,28 @@ const SIG_SECRET = 'wild-willows/solo-save/sig/v1';
 const ENC_SECRET = 'wild-willows/solo-save/enc/v1';
 
 /** Two-lane FNV-1a-style mix into four 32-bit words. Deterministic, synchronous,
- *  dependency-free; the shared primitive under both the tag and the keystream. */
-function hash128(s: string): [number, number, number, number] {
-	let h1 = 0x811c9dc5 >>> 0;
-	let h2 = 0xc2b2ae35 >>> 0;
+ *  dependency-free; the shared primitive under both the tag and the keystream.
+ *
+ *  Split into a resumable mix + a finish so callers can hash A THEN B without
+ *  building the string `A + B` first. The digest is bit-for-bit what the old
+ *  single-string version produced — the mix is a plain left-to-right fold and the
+ *  only length-dependent step is the final `h1 ^ len`, which now takes the summed
+ *  length — so every save exported before this change still verifies and decrypts.
+ *  Two hot paths needed it:
+ *
+ *   • signPayload was concatenating a full copy of a multi-megabyte payload onto
+ *     its secret just to hash it, doubling peak memory and walking it twice.
+ *   • keystreamBlock rebuilds `${ENC_SECRET}|${nonce}|${counter}` and hashes all
+ *     ~50 characters of it once per SIXTEEN output bytes — about three inner
+ *     iterations per byte of save. Only the counter changes between blocks, so
+ *     the constant prefix can be folded once and resumed per block. */
+const H1_SEED = 0x811c9dc5 >>> 0;
+const H2_SEED = 0xc2b2ae35 >>> 0;
+
+/** Fold `s` into a running two-lane state. */
+function hashMix(state: [number, number], s: string): [number, number] {
+	let h1 = state[0];
+	let h2 = state[1];
 	for (let i = 0; i < s.length; i++) {
 		const c = s.charCodeAt(i);
 		h1 = Math.imul(h1 ^ c, 0x01000193) >>> 0;
@@ -195,17 +276,30 @@ function hash128(s: string): [number, number, number, number] {
 		h1 ^= h1 >>> 15;
 		h2 ^= h2 >>> 13;
 	}
-	h1 = (h1 ^ s.length) >>> 0;
+	return [h1, h2];
+}
+
+/** Close out a running state over `len` total input characters. */
+function hashFinish(state: [number, number], len: number): [number, number, number, number] {
+	const h1 = (state[0] ^ len) >>> 0;
+	const h2 = state[1];
 	const h3 = Math.imul(h1 ^ h2, 0x27d4eb2f) >>> 0;
 	const h4 = (h1 + h2) >>> 0;
 	return [h1, h2, h3, h4];
 }
 
+function hash128(s: string): [number, number, number, number] {
+	return hashFinish(hashMix([H1_SEED, H2_SEED], s), s.length);
+}
+
 const hex32 = (n: number) => (n >>> 0).toString(16).padStart(8, '0');
 
-/** Keyed integrity tag over a plaintext payload, as 128-bit hex. */
+/** Keyed integrity tag over a plaintext payload, as 128-bit hex.
+ *  Streams the secret and the payload separately rather than concatenating them —
+ *  same digest, without allocating a second copy of a save that can be megabytes. */
 function signPayload(payload: string): string {
-	const [a, b, c, d] = hash128(SIG_SECRET + ' ' + payload);
+	const prefix = SIG_SECRET + ' ';
+	const [a, b, c, d] = hashFinish(hashMix(hashMix([H1_SEED, H2_SEED], prefix), payload), prefix.length + payload.length);
 	return hex32(a) + hex32(b) + hex32(c) + hex32(d);
 }
 
@@ -219,39 +313,59 @@ function tagsMatch(a: string, b: string): boolean {
 
 // ---- keystream cipher (hash-based CTR) + base64 ----
 
-function keystreamBlock(nonce: string, counter: number): Uint8Array {
-	const [a, b, c, d] = hash128(`${ENC_SECRET}|${nonce}|${counter}`);
-	const out = new Uint8Array(16);
-	const words = [a, b, c, d];
-	for (let i = 0; i < 4; i++) {
-		out[i * 4] = words[i] & 0xff;
-		out[i * 4 + 1] = (words[i] >>> 8) & 0xff;
-		out[i * 4 + 2] = (words[i] >>> 16) & 0xff;
-		out[i * 4 + 3] = (words[i] >>> 24) & 0xff;
-	}
-	return out;
+/** The per-nonce constant half of the keystream input, folded once. */
+function keystreamPrefix(nonce: string): { state: [number, number]; len: number } {
+	const prefix = `${ENC_SECRET}|${nonce}|`;
+	return { state: hashMix([H1_SEED, H2_SEED], prefix), len: prefix.length };
 }
 
-/** XOR bytes against the nonce-seeded keystream (encrypt and decrypt are identical). */
+/** One 16-byte keystream block, written straight into `out` at `at`.
+ *  Takes the pre-folded prefix so only the counter's few digits are hashed here. */
+function keystreamBlockInto(pre: { state: [number, number]; len: number }, counter: number, out: Uint8Array, at: number) {
+	const c = String(counter);
+	const [a, b, c3, d] = hashFinish(hashMix([pre.state[0], pre.state[1]], c), pre.len + c.length);
+	const words = [a, b, c3, d];
+	for (let i = 0; i < 4; i++) {
+		const o = at + i * 4;
+		if (o >= out.length) return;
+		out[o] = words[i] & 0xff;
+		if (o + 1 < out.length) out[o + 1] = (words[i] >>> 8) & 0xff;
+		if (o + 2 < out.length) out[o + 2] = (words[i] >>> 16) & 0xff;
+		if (o + 3 < out.length) out[o + 3] = (words[i] >>> 24) & 0xff;
+	}
+}
+
+/** XOR bytes against the nonce-seeded keystream (encrypt and decrypt are identical).
+ *  Generates the stream a block at a time into a scratch buffer instead of
+ *  re-deriving a fresh Uint8Array per 16 bytes; byte-for-byte the same output. */
 function xorKeystream(bytes: Uint8Array, nonce: string): Uint8Array {
 	const out = new Uint8Array(bytes.length);
-	let block = keystreamBlock(nonce, 0);
-	let counter = 0;
-	let bi = 0;
-	for (let i = 0; i < bytes.length; i++) {
-		if (bi >= block.length) {
-			block = keystreamBlock(nonce, ++counter);
-			bi = 0;
-		}
-		out[i] = bytes[i] ^ block[bi++];
+	const pre = keystreamPrefix(nonce);
+	const block = new Uint8Array(16);
+	for (let i = 0; i < bytes.length; i += 16) {
+		keystreamBlockInto(pre, i >> 4, block, 0);
+		const end = Math.min(16, bytes.length - i);
+		for (let j = 0; j < end; j++) out[i + j] = bytes[i + j] ^ block[j];
 	}
 	return out;
 }
 
+/** Base64 in chunks.
+ *  This used to build the binary string one character at a time —
+ *  `bin += String.fromCharCode(bytes[i])` — which on a save the code elsewhere
+ *  describes as "megabytes of JSON" is a million-iteration rope concat on the
+ *  main thread, and it sat behind the demo's Export button: the last screen a
+ *  demo player sees and the game's single best conversion moment. Chunking with
+ *  `String.fromCharCode.apply` does the same work in ~1/8000th the iterations;
+ *  the chunk is kept well under the argument-count limit that makes `apply`
+ *  throw on large arrays. */
 function bytesToB64(bytes: Uint8Array): string {
-	let bin = '';
-	for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);
-	return btoa(bin);
+	const CHUNK = 8192;
+	const parts: string[] = [];
+	for (let i = 0; i < bytes.length; i += CHUNK) {
+		parts.push(String.fromCharCode.apply(null, bytes.subarray(i, i + CHUNK) as unknown as number[]));
+	}
+	return btoa(parts.join(''));
 }
 
 function b64ToBytes(b64: string): Uint8Array {
