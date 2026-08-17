@@ -4,7 +4,7 @@
 // omits <lastmod> for it rather than inventing one.
 export const pageLastmod: Record<string, string> = {
 	"/": "2026-08-16",
-	"/privacy.html": "2026-08-15",
+	"/privacy.html": "2026-08-17",
 	"/age-rating.html": "2026-08-15",
 	"/support.html": "2026-08-16",
 	"/teachers": "2026-08-16",

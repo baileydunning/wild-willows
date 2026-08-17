@@ -12,10 +12,12 @@
 // automatically and shares nothing with the origin, so the demo can go down or
 // be redeployed without touching the game API, and vice versa.
 //
-// The cross-origin cost is near zero here: the demo runs its own backend in-app
-// (DEMO_WEB_BACKEND = 'solo'), so all it sends home are four fire-and-forget
-// telemetry POSTs — and Harper already has to allow cross-origin for itch's
-// demo and for the desktop app's `Origin: null`.
+// The demo is SERVER-AUTHORITATIVE (DEMO_WEB_BACKEND = 'harper' in src/demo.ts):
+// every action is a request to Harper. Sent from the browser to another hostname
+// those would be cross-origin, so the Worker proxies them server-side instead —
+// which is exactly why `run_worker_first` below is on. Harper still has to allow
+// cross-origin for itch's copy of the demo and for the desktop app's
+// `Origin: null`, but nothing served from THIS hostname needs it.
 //
 // Deploy by hand:  npx wrangler deploy
 {

@@ -21,7 +21,7 @@ The Mac App Store build is solo-only: there is no multiplayer, no account, and n
 
 ## Gameplay statistics I collect (automatic, anonymous)
 
-While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wild.willows.harperfabric.com`) roughly every five minutes, plus once when the window is hidden or closed. Each snapshot contains:
+While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wild.willows.harperfabric.com`) roughly every three minutes, plus once when the window is hidden or closed. Each snapshot contains:
 
 - a **random identifier** for the save slot (a UUID generated on your device — it is not derived from you, your device, or your Apple ID, and I cannot use it to identify you);
 - the **name you gave the save** (I suggest a caretaker name rather than your real name);

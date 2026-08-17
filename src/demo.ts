@@ -60,12 +60,20 @@ export const EDITION: 'demo' | 'full' = DEMO ? 'demo' : 'full';
 // validation as the full game, with ONE source of truth for game logic instead
 // of a second copy running in the browser.
 //
-// The cost is a concurrency ceiling: server-authoritative play measures ~145
-// writes and ~1,750 row reads per player per MINUTE (scripts/capacity-report.mjs),
-// which caps the hosted instance around 570 concurrent players and binds on
-// READS, not writes. If the demo ever gets that busy, the fix is read
-// amplification first — Terraform reads 53 rows per call and GameState 30 —
-// not a bigger instance.
+// The cost is a concurrency ceiling, and it is NOT a single number: per-player
+// read cost scales with how much of the world the player has built, so the
+// ceiling falls as people play. Measured with scripts/capacity-report.mjs on a
+// warm worker, against a PRO tier (1M row reads/min):
+//
+//   brand-new save          145 writes ·  1,500 rows/min  → ~650 concurrent
+//   forest just unlocked    149 writes · 12,200 rows/min  →  ~82 concurrent
+//   15-min budget spent     164 writes · 21,100 rows/min  →  ~47 concurrent
+//   a meadow completionist  165 writes · 48,300 rows/min  →  ~20 concurrent
+//
+// It binds on READS at every size. If the demo ever gets that busy the fix is
+// read amplification first, not a bigger instance — and the biggest remaining
+// one is Placement, whose ids carry no area, so every per-biome placement read
+// is still a whole-world scan (see byArea in server/resources.ts).
 //
 // Cross-origin is handled by the Worker (workers/play.js), which proxies these
 // endpoints server-side so the browser only ever talks to its own origin. Do not

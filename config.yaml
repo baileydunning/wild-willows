@@ -2,8 +2,10 @@
 #
 # ENDPOINTS ONLY: the hosted Harper serves no static files. The game UI ships
 # inside the desktop app (locally, `npm run dev:web` serves it and proxies API
-# calls here). The privacy / age-suitability pages are served by endpoints in
-# resources.js (GET /privacy.html, GET /age-rating.html), not static hosting.
+# calls here). Everything the site serves — the landing page, the policy and
+# age-suitability pages, support, teachers, the dashboard, images, the classroom
+# PDFs, robots.txt and sitemap.xml — comes from endpoints in resources.js (see
+# the export map at the end of that file), not from static hosting.
 rest: true
 
 graphqlSchema:

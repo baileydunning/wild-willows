@@ -5078,7 +5078,7 @@ const RATE_TIERS = {
 	auth: { perMinute: 10, burst: 5 },
 	/** Writes a permanent row from an anonymous caller. */
 	report: { perMinute: 20, burst: 10 },
-	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~5 minutes. */
+	/** Client telemetry: AppOpen fires per launch, SyncMetrics every ~3 minutes. */
 	telemetry: { perMinute: 60, burst: 30 },
 	/** Developer tools. Already gated to one save; this bounds the rest. */
 	dev: { perMinute: 60, burst: 30 },

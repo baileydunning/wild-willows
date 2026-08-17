@@ -4,7 +4,7 @@ name: web demo (itch & play.wildwillows.app)
 # it to the HTML5 channel of bai13y/wild-willows with butler, so it runs right on
 # the itch page — no download. The demo plays the real game against the hosted
 # Harper (falling back to the offline in-app backend if Harper is unreachable),
-# hard-stops after 5 animals return to the meadow, and deletes its save on finish.
+# hard-stops 15 minutes after the forest unlocks, and deletes its save on finish.
 #
 # Triggers (mirrors the itch release tags used by desktop-build.yml, plus manual):
 #   git tag itch-v0.1.0 && git push origin itch-v0.1.0  → build AND publish the demo
@@ -49,7 +49,8 @@ jobs:
         run: npm ci
 
       # DEMO=true bakes in the browser-demo behaviour (Harper-first backend, the
-      # 5-animal hard-stop, the tutorial demo note, edition:'demo' metrics).
+      # 15-minute post-forest-unlock hard-stop, the tutorial demo note,
+      # edition:'demo' metrics).
       # NO WW_CHANNEL here, deliberately. This exact artifact is served from BOTH
       # itch (the html5 channel below) and play.wildwillows.app, so the channel
       # cannot be a build-time fact — detectChannel() (src/platform.ts) reads the
@@ -63,8 +64,9 @@ jobs:
         run: test -f web/index.html
 
       # Destination 2: play.wildwillows.app, from the SAME web/ folder pushed to
-      # itch below. Cloudflare serves it as static assets from the edge, so the
-      # demo costs the Harper instance nothing and scales as far as the CDN does.
+      # itch below. Cloudflare serves the static bundle from the edge, but gameplay
+      # is proxied through the Worker to Harper — so the demo DOES cost the instance
+      # reads and writes (see scripts/capacity-report.mjs).
       # A subdomain, not a path on the apex — see the note in wrangler.jsonc.
       #
       # Runs before the itch push on purpose: our own site is the channel we

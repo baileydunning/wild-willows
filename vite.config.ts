@@ -13,7 +13,8 @@ const APP_VERSION: string =
 // suites drive the built app through preview, with the API proxied to a live
 // Harper). Harper is ENDPOINTS ONLY — it serves no static files —
 // so this proxy is the only way the web UI reaches it. Keep this list in sync
-// with the exported classes in server/resources.ts.
+// with the calls the client actually makes (src/api.ts) — the admin and
+// dashboard endpoints are deliberately absent.
 const HARPER_TARGET = process.env.HARPER_BASE_URL || 'https://localhost:9926';
 const harperEndpoints = [
 	// game data + saves
@@ -95,8 +96,8 @@ export default defineConfig({
 		__APP_VERSION__: JSON.stringify(APP_VERSION),
 		// Browser-playable itch DEMO build. Build with DEMO=true npm run build:web:
 		// the client talks to the hosted Harper (falling back to the in-app solo
-		// backend if it's unreachable) and hard-stops after 5 animals return to the
-		// meadow. See src/demo.ts.
+		// backend if it's unreachable) and hard-stops 15 minutes after the forest
+		// unlocks. See src/demo.ts and src/demoBudget.ts.
 		__DEMO__: JSON.stringify(process.env.DEMO === 'true'),
 		// Where this artifact is DISTRIBUTED (itch | mas | direct). Deliberately
 		// separate from `platform` (web/desktop): itch ships both a browser demo
