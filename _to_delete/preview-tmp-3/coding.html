@@ -1,0 +1,1833 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a webpage with real game data: a free intro to APIs lesson for grades 9-12</title>
+<meta name="description" content="A free computer science kit for grades 9-12. Students learn HTML, CSS, JavaScript and APIs by fetching real data from a live public game API and building their own webpage. Nothing to install, no student accounts, and you do not need to know JavaScript to teach it.">
+<link rel="canonical" href="https://wildwillows.app/teachers/coding">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="intro to APIs lesson plan, web development lesson high school, teach javascript beginners, fetch API lesson, JSON lesson plan, computer science lesson grades 9-12, free coding curriculum, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta property="og:description" content="Grades 9-12. Students fetch real data from a live public API and build a webpage from it. Nothing to install, no accounts, and you do not need to know JavaScript to teach it.">
+<meta property="og:url" content="https://wildwillows.app/teachers/coding">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta name="twitter:description" content="Grades 9-12. Real public API, browser code editor, no installs and no accounts.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LearningResource",
+      "@id": "https://wildwillows.app/teachers/coding",
+      "url": "https://wildwillows.app/teachers/coding",
+      "name": "Intro to APIs & Web Development with Wild Willows",
+      "description": "Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from a live public game API and using it to build their own webpage.",
+      "learningResourceType": "Lesson plan",
+      "educationalLevel": "Grades 9-12",
+      "educationalUse": ["instruction", "assignment"],
+      "timeRequired": "PT60M",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "typicalAgeRange": "14-18",
+      "teaches": [
+        { "@type": "Thing", "name": "HTML, CSS and JavaScript" },
+        { "@type": "Thing", "name": "Application programming interfaces" },
+        { "@type": "Thing", "name": "HTTP requests and responses" },
+        { "@type": "Thing", "name": "JSON and data types" },
+        { "@type": "Thing", "name": "Conditionals and iteration" },
+        { "@type": "Thing", "name": "Rendering data to the DOM" }
+      ],
+      "author": { "@type": "Person", "name": "Bailey Dunning" },
+      "publisher": { "@type": "Person", "name": "Bailey Dunning" },
+      "hasPart": [
+        { "@type": "LearningResource", "name": "Student lesson", "url": "https://wildwillows.app/learn/web-development" },
+        { "@type": "LearningResource", "name": "Code Builder", "url": "https://wildwillows.app/learn/code-builder" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs as a student types, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
+        { "@type": "Question", "name": "What do students need?", "acceptedAnswer": { "@type": "Answer", "text": "A browser and a keyboard. No accounts, no installs, no extensions. It works on a school Chromebook. Their work saves in their own browser and can be downloaded as a real HTML file." } },
+        { "@type": "Question", "name": "How long does it take?", "acceptedAnswer": { "@type": "Answer", "text": "One to three class periods, depending on how far you go. There are three suggested flows on this page: a single 60-minute period, two periods, or three." } },
+        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData/ is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
+        { "@type": "Question", "name": "What if our network blocks it?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson needs wildwillows.app reachable throughout, because fetching over a real network is what it teaches. Check this a week ahead rather than the morning of. A blocked domain shows as 'Failed to fetch' in the editor and needs an IT ticket, not a code fix." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
+        { "@type": "ListItem", "position": 3, "name": "Intro to APIs & Web Development", "item": "https://wildwillows.app/teachers/coding" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows — light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation — which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists — see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes — sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() — the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows — the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block — if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white — barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar — it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768–834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about — 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows — the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder — content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other.
+   `.kit .kit-go` rather than `.kit-go`: this is a <p>, and `.kit p` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows — the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+/* Every column but the first is supporting text. Written as "not the first"
+   rather than as a list of column numbers: the science guide's arrival ladder
+   uses the same table with five columns, and a numbered list silently stopped
+   colouring the last two. */
+.trouble td:not(:first-child) {
+	color: var(--ink-soft);
+}
+
+/* Percentages line up under each other, and never wrap mid-number. */
+.trouble .num {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* -------------------------------------------------- the specification list
+ *
+ * The block a teacher forwards to whoever approves software. A definition list
+ * rather than a table because every row is one term and one answer, and because
+ * it collapses to stacked pairs on a phone without a horizontal scroller. */
+.spec {
+	margin: 1rem 0 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.spec > div {
+	display: grid;
+	grid-template-columns: 10rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.65rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.spec dt {
+	font-weight: 700;
+	color: var(--green-deep);
+	font-size: 0.94rem;
+	line-height: 1.5;
+}
+
+[data-theme='dark'] .spec dt {
+	color: var(--green-bright);
+}
+
+.spec dd {
+	margin: 0;
+	color: var(--ink-soft);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+	.spec > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+/* ------------------------------------------------------------------ figures
+ *
+ * One screenshot with a caption under it. No lightbox: this page is read on a
+ * prep period and printed, and a gallery is a thing to operate rather than a
+ * thing to read. */
+.gfig {
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.gfig img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	background: var(--panel);
+}
+
+.gfig figcaption {
+	margin: 0.5rem 0 0;
+	font-size: 0.88rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.gfig figcaption b {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol,
+	.gfig,
+	.spec > div {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}
+
+/* Wild Willows — dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' — ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED — the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band — sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 — muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 — small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text · 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 — the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night — depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab`,
+   `body.edu-hub` and `.wwr` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above — so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 — below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading —
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute — so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="edu-hub guide">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
+    <a class="hide-sm" href="#flow">Lesson flow</a>
+    <a class="hide-sm" href="#trouble">Troubleshooting</a>
+    <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Open the Lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="twrap">
+
+<header class="thero">
+  <p class="kicker">Coding kit &middot; Grades 9&ndash;12</p>
+  <h1>Build a webpage with real game data</h1>
+  <p class="lead">Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from Wild Willows and using it to build their own interactive webpage.</p>
+  <div class="tmeta">
+    <span class="chip">Grades 9&ndash;12</span>
+    <span class="chip">60&ndash;120 minutes</span>
+    <span class="chip">No installation</span>
+    <span class="chip">No student accounts</span>
+    <span class="chip">HTML &middot; CSS &middot; JS &middot; APIs &middot; JSON</span>
+    <span class="chip warm">Real live API</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>You do not need to know JavaScript to teach this</h2>
+    <p>Every chapter is worked through on the page itself, so nothing depends on you writing code at the board. Each example runs as a student types, so a mistake shows up immediately rather than at the end. The editor explains errors in plain English instead of showing a stack trace, and the <a href="#trouble">troubleshooting table</a> below covers what actually goes wrong in a room of thirty.</p>
+    <p>The honest version: you will be asked questions you cannot answer. &ldquo;Let's find out&rdquo; is a good answer, and looking it up together in front of them is the most accurate thing you can model about this job.</p>
+  </div>
+</div>
+
+<div class="two-up">
+  <a class="tile" href="/learn/web-development" data-track="lesson-nav">
+    <span class="tile-k">For students</span>
+    <b>The Lesson</b>
+    <span>Ten chapters, every sample editable and live. This is what you put on the projector and what they work through.</span>
+  </a>
+  <a class="tile" href="/learn/code-builder" data-track="builder-nav">
+    <span class="tile-k">For students</span>
+    <b>The Code Builder</b>
+    <span>Three files and a live preview, for the build challenge and for anyone who finishes early.</span>
+  </a>
+</div>
+
+<section class="tsec" id="objectives">
+  <h2>What students can do by the end</h2>
+  <ul class="objectives">
+    <li>Explain the different roles of HTML, CSS and JavaScript</li>
+    <li>Explain what an API does, and describe the request and response between a browser and one</li>
+    <li>Recognize JSON as a common format for sending data between programs</li>
+    <li>Identify the basic data types in a JSON response, and explain why quotes matter</li>
+    <li>Use <code>fetch()</code> to request data from a real endpoint</li>
+    <li>Read values out of a JavaScript object or array by path</li>
+    <li>Write an <code>if</code> / <code>else</code> that makes the page behave differently depending on the data</li>
+    <li>Loop through a list of data and transform, filter and sort it</li>
+    <li>Use API data to update the HTML a visitor sees</li>
+    <li>Modify all three files to build a webpage of their own</li>
+  </ul>
+  <p class="sub">The looping objective is the one that separates this from a typical intro lesson. Most stop at displaying a single value; chapter 8 is where students stop copying and start asking their own questions of the data.</p>
+</section>
+
+<section class="tsec" id="vocab">
+  <h2>Vocabulary</h2>
+  <p class="sub">One line each. Copy this onto the board, or print the page.</p>
+  <div class="vocab">
+    <div class="vrow"><b>HTML</b><span>Structure. What is on the page.</span></div>
+    <div class="vrow"><b>CSS</b><span>Appearance. What it looks like.</span></div>
+    <div class="vrow"><b>JavaScript</b><span>Behavior. What it does.</span></div>
+    <div class="vrow"><b>API</b><span>A way for programs to communicate.</span></div>
+    <div class="vrow"><b>Endpoint</b><span>A specific address where an API provides something.</span></div>
+    <div class="vrow"><b>Request</b><span>Asking an API for something.</span></div>
+    <div class="vrow"><b>Response</b><span>What the API sends back.</span></div>
+    <div class="vrow"><b>JSON</b><span>A structured text format commonly used to send data.</span></div>
+    <div class="vrow"><b><code>fetch()</code></b><span>The JavaScript function that makes a web request.</span></div>
+    <div class="vrow"><b>String</b><span>Text. Always in quotes.</span></div>
+    <div class="vrow"><b>Number</b><span>A value you can do arithmetic with. No quotes.</span></div>
+    <div class="vrow"><b>Boolean</b><span><code>true</code> or <code>false</code>.</span></div>
+    <div class="vrow"><b>Array</b><span>An ordered list of things.</span></div>
+    <div class="vrow"><b>Object</b><span>A thing with named parts.</span></div>
+    <div class="vrow"><b><code>null</code> / <code>undefined</code></b><span>Nothing on purpose / nothing found.</span></div>
+    <div class="vrow"><b>Condition</b><span>A question with a yes-or-no answer.</span></div>
+    <div class="vrow"><b><code>if</code> / <code>else</code></b><span>Do one thing when a condition is true, another when it is not.</span></div>
+    <div class="vrow"><b><code>===</code></b><span>Asks whether two things are exactly the same. One <code>=</code> sets, three <code>===</code> ask.</span></div>
+    <div class="vrow"><b>Loop</b><span>Doing something once for each item in a list.</span></div>
+    <div class="vrow"><b><code>.map()</code></b><span>Make a new list by changing each item.</span></div>
+    <div class="vrow"><b><code>.filter()</code></b><span>Make a shorter list by keeping only some items.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="prep">
+  <h2>Before the Lesson</h2>
+  <ol class="steps">
+    <li><b>Work through the student lesson once yourself.</b> Half an hour, and it is the single best preparation. You will find the two or three places your class will slow down.</li>
+    <li><b>Check the network can reach <code>wildwillows.app</code>.</b> Do this a week ahead, not the morning of. A filtered domain is the most common way this lesson fails, it looks like broken code to a student, and it needs an IT ticket rather than a fix you can make in the room.</li>
+    <li><b>Optional: show five minutes of the game.</b> Students who have seen the meadow understand what <code>biome: "meadow"</code> means, and the data stops being abstract.</li>
+    <li><b>Pick a flow.</b> Three are below. Sixty to a hundred and twenty minutes means different things in different schools.</li>
+  </ol>
+  <p class="sub">There is nothing to install, no software to request, no accounts to create in advance, and no class codes to hand out.</p>
+</section>
+
+<section class="tsec" id="flow">
+  <h2>Three ways to run it</h2>
+
+  <div class="flowcard">
+    <h3>One period, 60 minutes</h3>
+    <div class="timeline">
+      <div class="tl"><b>10 min</b><span>What is a webpage? Show a page and ask what controls the words, the colors, and what happens on click. Let them guess before naming HTML, CSS and JavaScript.</span></div>
+      <div class="tl"><b>10 min</b><span>What is an API? Get to the real endpoint fast. Then press the button in chapter 4 on the projector and show the actual response.</span></div>
+      <div class="tl"><b>30 min</b><span>Guided coding, chapters 1 to 9, trimmed. See what to cut below.</span></div>
+      <div class="tl"><b>10 min</b><span>Build challenge in the Code Builder. A taster rather than a project.</span></div>
+    </div>
+  </div>
+
+  <div class="flowcard">
+    <h3>Two periods</h3>
+    <div class="timeline">
+      <div class="tl"><b>Day 1</b><span>Chapters 1 to 6: the three languages, the DOM, what an API is, fetching it, and reading values out of the response. Finish in the Code Builder with challenges 1 and 2.</span></div>
+      <div class="tl"><b>Day 2</b><span>Chapters 7 to 10: decisions, looping, rendering to the page, and their own build.</span></div>
+    </div>
+  </div>
+
+  <div class="flowcard">
+    <h3>Three periods</h3>
+    <div class="timeline">
+      <div class="tl"><b>Day 1</b><span>The web stack. Chapters 1 to 3, ending with JavaScript changing the page.</span></div>
+      <div class="tl"><b>Day 2</b><span>The API and its data. Chapters 4 to 6: the request, the response, the types in it, and reaching into them.</span></div>
+      <div class="tl"><b>Day 3</b><span>Decisions, looping, rendering and build. Chapters 7 to 10.</span></div>
+    </div>
+    <p class="note-line"><b>Chapters 7 and 8 are the heart of the module.</b> If a day is going to run long, let it be that one.</p>
+  </div>
+</section>
+
+<section class="tsec" id="cut">
+  <h2>What to cut when time is short</h2>
+  <p>You can make this call mid-lesson. The three things that carry chapter 9, which is where the payoff is, are <code>if</code> / <code>else</code>, <code>.map()</code> and <code>.filter()</code>. Keep those.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Keep</b>
+      <ul>
+        <li><code>if</code> / <code>else</code>, chapter 7</li>
+        <li><code>.filter()</code> and <code>.map()</code>, chapter 8</li>
+        <li>Chapter 9, putting the data on the page</li>
+        <li>The empty-state guard, chapter 7. Without it a filter that matches nothing renders a blank page and every student assumes they broke it.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>Enrichment, safe to skip</b>
+      <ul>
+        <li><code>.reduce()</code>, marked as a stretch goal on the page itself</li>
+        <li><code>.sort()</code> and method chaining</li>
+        <li><code>&amp;&amp;</code> and <code>||</code></li>
+        <li>The <code>?</code> <code>:</code> shorthand</li>
+        <li>Every Going Deeper panel. They are collapsed by default and nothing later depends on them.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">Those are marked as optional in the student page's own interface too, so skipping them does not read to a student as falling behind.</p>
+</section>
+
+<section class="tsec" id="opener">
+  <h2>Two openers that work</h2>
+  <h3>What is a webpage?</h3>
+  <p>Put any page on the projector. Ask three questions and let them guess before you name anything: what decides the words, what decides the colors, and what happens when I click this. You will get to structure, appearance and behavior on your own, in their words, which is a better start than three definitions.</p>
+  <h3>What is an API?</h3>
+  <p>Skip the restaurant-waiter analogy and get to the real thing in under a minute.</p>
+  <div class="dialogue">
+    <p><b>Browser:</b> Wild Willows API, give me the game data.</p>
+    <p><b>API:</b> <code>{ "animals": [...], "biomes": [...] }</code></p>
+  </div>
+  <p>Then open chapter 4 on the projector and press <b>See the real API response</b>. It reports the status, the time and the size from your own school network. A class watching <code>200 &middot; 412 ms &middot; 486 KB</code> appear has understood something a diagram cannot teach.</p>
+</section>
+
+<section class="tsec" id="assessment">
+  <h2>Assessment</h2>
+  <p>Deliberately not quiz-heavy. Three bands you can grade as completion, as points, or as a project.</p>
+  <div class="rubric">
+    <div class="rcol">
+      <b>Understanding</b>
+      <ul>
+        <li>Can explain what HTML, CSS and JavaScript each do</li>
+        <li>Can explain what an API is, and what a request and a response are</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Technical</b>
+      <ul>
+        <li>Successfully retrieves the API data</li>
+        <li>Displays at least one value from it on the page</li>
+        <li>Uses <code>if</code> / <code>else</code> to handle a case the data might not cover</li>
+        <li>Modifies HTML, CSS and JavaScript</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Creative</b>
+      <ul>
+        <li>Builds a page that communicates something about the Wild Willows data, rather than only displaying it</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-line"><b>Grade the understanding column hardest.</b> A student who used the worked example and can explain what the code does has learned more than one who wrote messier code unaided and cannot.</p>
+</section>
+
+<section class="tsec" id="trouble">
+  <h2>Troubleshooting</h2>
+  <p class="sub">Six things that actually go wrong, and what to do about each. None of them needs you to read the student's code.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>What they see</th><th>What it means</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>&ldquo;Failed to fetch&rdquo;</td>
+          <td>The network blocked the request. This is the big one.</td>
+          <td>Open <code>wildwillows.app/GameData/</code> in a tab. If that fails too, it is the school filter and it needs IT. Nothing in the code will fix it.</td>
+        </tr>
+        <tr>
+          <td>The preview is blank</td>
+          <td>Usually an error before anything was drawn.</td>
+          <td>Look at the panel under the editor. It names the line and explains the problem. If the panel is empty, the code has not run yet: press Run.</td>
+        </tr>
+        <tr>
+          <td>&ldquo;<code>is not defined</code>&rdquo;</td>
+          <td>A name that does not exist. Almost always a typo or a capital letter.</td>
+          <td>Compare the spelling in the two places it appears. <code>animal</code> and <code>Animal</code> are different names.</td>
+        </tr>
+        <tr>
+          <td>&ldquo;Cannot read properties of null&rdquo;</td>
+          <td><code>querySelector</code> found nothing, so there is nothing to change.</td>
+          <td>Check the <code>id</code> in the HTML matches the one in the JavaScript, including the <code>#</code>.</td>
+        </tr>
+        <tr>
+          <td>Yesterday's work is gone</td>
+          <td>Different machine, guest mode, or the browser cleared its storage.</td>
+          <td>Work saves in that browser, not to an account. Have them press Download at the end of each period; that file reopens with Open.</td>
+        </tr>
+        <tr>
+          <td>The preview will not update</td>
+          <td>The code has an error, or it is still waiting on the debounce.</td>
+          <td>Press Run. If it still does not change, read the error panel: a page that will not update is nearly always a page that threw.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="answers">
+  <h2>Answer key</h2>
+  <p>The finished chapter 10 challenge, all three files. Open it in the Code Builder to run it, or read it here.</p>
+  <div class="answer">
+    <div class="answer-head"><b>index.html</b></div>
+    <pre class="hcode">&lt;h1 id="title"&gt;Meadow Apex Predators&lt;/h1&gt;
+&lt;ul id="animal-list"&gt;&lt;/ul&gt;</pre>
+    <div class="answer-head"><b>styles.css</b></div>
+    <pre class="hcode">body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
+h1   { color: #6b3fa0; }
+li   { margin-bottom: .3rem; }</pre>
+    <div class="answer-head"><b>main.js</b></div>
+    <pre class="hcode">async function loadGameData() {
+  const response = await fetch("https://wildwillows.app/GameData/");
+  const data = await response.json();
+
+  const matches = data.animals
+    .filter(animal =&gt; animal.trophic === "apex-predator")
+    .sort((a, b) =&gt; a.name.localeCompare(b.name));
+
+  const list = document.querySelector("#animal-list");
+
+  if (matches.length === 0) {
+    list.innerHTML = "&lt;li&gt;No animals matched.&lt;/li&gt;";
+  } else {
+    list.innerHTML = matches.map(animal =&gt; `&lt;li&gt;${animal.name}&lt;/li&gt;`).join("");
+  }
+}
+
+loadGameData();</pre>
+    <p class="sub">Seventeen apex predators, alphabetical. Challenge 5 in chapter 10 is exactly this, and the count is how a student checks their own answer.</p>
+  </div>
+
+  <h3>A broken version, for a warm-up or a substitute</h3>
+  <p>Three planted bugs. Give students the file and ask them to find them using the error panel. It is a good sub-plan and a better test of understanding than writing it from scratch.</p>
+  <pre class="hcode">async function loadGameData() {
+  const response = fetch("https://wildwillows.app/GameData/");   // bug 1
+  const data = await response.json();
+
+  const matches = data.animal                                     // bug 2
+    .filter(animal =&gt; animal.trophic === "apex-predator");
+
+  document.querySelector("#animals-list").innerHTML =             // bug 3
+    matches.map(animal =&gt; `&lt;li&gt;${animal.name}&lt;/li&gt;`).join("");
+}
+
+loadGameData();</pre>
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>The three bugs</span></summary>
+    <div class="tfaq-body">
+      <p><b>1.</b> A missing <code>await</code> before <code>fetch</code>. <code>response.json</code> is not a function on a Promise, and that is what the panel will say.</p>
+      <p><b>2.</b> <code>data.animal</code> should be <code>data.animals</code>. The panel reports that you cannot call <code>.filter</code> on <code>undefined</code>.</p>
+      <p><b>3.</b> The selector says <code>#animals-list</code> and the HTML says <code>animal-list</code>. The panel reports that the element is not on the page.</p>
+    </div>
+  </details>
+</section>
+
+<section class="tsec" id="privacy">
+  <h2>What this collects</h2>
+  <p>Anonymous counts and nothing else: which chapters were reached, which errors the editor explained, roughly how long a session in the builder ran, and whether the network let the data through. No accounts, no cookies used for tracking, no third-party analytics.</p>
+  <p><b>Student code never leaves the browser.</b> It is saved in that browser's own storage so it is still there next period, and it is sent nowhere: not when they run it, not when it produces an error, and not in the usage counts. The only way their work leaves the machine is if they press Download.</p>
+  <p class="sub">Because nothing identifies a student, a class or a school, there is no student record to request, correct or delete. The <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools and districts.</p>
+</section>
+
+<div class="tcontact">
+  <h2>Ready to teach it?</h2>
+  <p>Open the lesson on the projector and work through chapter 1 with the class. If you run it and something confuses students or runs long, tell me: that is where the last three rounds of changes to these pages came from.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Open the Lesson</a>
+    <a class="btn btn-paper" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a>
+    <a class="btn btn-paper" href="/teachers/science" data-track="science-kit">The science kit</a>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* Same contract as the rest of the classroom pages (see PRIVACY.md): a name
+     from a fixed list and a number, nothing else. `view_coding` closes the
+     middle of the teaching funnel, which runs hub, kit, lesson, builder. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'teachers-coding', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  var fresh = true;
+  try {
+    fresh = !sessionStorage.getItem('ww_coding_kit_seen');
+    sessionStorage.setItem('ww_coding_kit_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile: counting it is the better failure. */
+  }
+  if (fresh) {
+    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_coding: 1 }); }, { timeout: 3000 });
+    else setTimeout(function () { report({ view_coding: 1 }); }, 500);
+  }
+
+  var NAV = { 'lesson-nav': 'nav_lesson', 'builder-nav': 'nav_builder', 'science-kit': 'nav_science', 'edu-nav': 'nav_hub' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>

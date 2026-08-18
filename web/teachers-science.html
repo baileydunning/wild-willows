@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wild Willows for teachers: a free classroom ecosystem lesson (grades 5&ndash;8)</title>
 <meta name="description" content="A free, ready-to-run classroom activity. Students restore a damaged meadow in Wild Willows, log which animals return and why, and learn that habitat is food, water, shelter and space. Educator guide and six printable worksheets, 45–60 minutes, grades 5–8, English and Spanish, no accounts and no cost.">
-<link rel="canonical" href="https://wildwillows.app/teachers">
+<link rel="canonical" href="https://wildwillows.app/teachers/science">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#2b3149">
 <meta name="keywords" content="ecosystem lesson plan, habitat lesson, biodiversity classroom activity, food web lesson, middle school science game, restoration ecology for kids, free educator guide, printable science worksheets, grades 5-8, NGSS ecosystems, educational game, Wild Willows">
@@ -17,7 +17,7 @@
 <meta property="og:site_name" content="Wild Willows">
 <meta property="og:title" content="Wild Willows for teachers: a free classroom ecosystem lesson">
 <meta property="og:description" content="Students restore a damaged meadow and work out why each animal came back when it did. Free educator guide and six printable worksheets. 45–60 minutes, grades 5–8, English &amp; Spanish, no accounts.">
-<meta property="og:url" content="https://wildwillows.app/teachers">
+<meta property="og:url" content="https://wildwillows.app/teachers/science">
 <meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -44,7 +44,7 @@
     {
       "@type": "LearningResource",
       "name": "Restoring Willow Meadow — a Wild Willows classroom activity",
-      "url": "https://wildwillows.app/teachers",
+      "url": "https://wildwillows.app/teachers/science",
       "description": "A single-session classroom activity in which students rebuild a damaged meadow in Wild Willows, watch wildlife return, and work out why each animal came back when it did.",
       "learningResourceType": ["Lesson plan", "Worksheet", "Activity"],
       "educationalLevel": "Grades 5–8",
@@ -96,7 +96,8 @@
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
-        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" }
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
+        { "@type": "ListItem", "position": 3, "name": "Ecosystems & Habitat", "item": "https://wildwillows.app/teachers/science" }
       ]
     }
   ]
@@ -513,6 +514,12 @@ section[id]{scroll-margin-top:66px}
    them until the page has loaded; `body.ready` is set on the load event. */
 .star,.fly{animation-play-state:paused}
 body.ready .star,body.ready .fly{animation-play-state:running}
+/* The line saying which of the two kits this page is. Above the note rather
+   than in it: a teacher who landed here from a search for "ecosystem lesson
+   plan" is in the right place and should not be made to read a signpost first,
+   but a teacher who wanted the coding one needs the way out on screen. */
+.sibling-kit{max-width:44rem;margin:0 auto 1.4rem;font-size:.92rem;line-height:1.6;color:var(--ink-soft);text-align:center}
+.sibling-kit a{color:var(--green-deep);font-weight:600}
 </style>
 </head>
 <body>
@@ -520,9 +527,9 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
     <a class="hide-sm" href="#teaches">What it teaches</a>
     <a class="hide-sm" href="#lesson">The lesson</a>
-    <a class="hide-sm" href="#practical">For your IT</a>
     <a class="hide-sm" href="/">The game</a>
     <a class="btn btn-go" href="#downloads">Download the kit</a>
   </div>
@@ -572,6 +579,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <main>
 
 <section id="about" style="padding-top:2.6rem"><div class="wrap">
+  <p class="sibling-kit">This is the science kit, for grades 5&ndash;8. There is also a <a href="/teachers/coding" data-track="coding-kit">computer science kit for grades 9&ndash;12</a>, where students pull real Wild Willows data into a webpage they build themselves. <a href="/teachers" data-track="edu-nav">Both kits</a>.</p>
   <div class="note">
     <p>In Wild Willows, students play a caretaker restoring a nature preserve. They gather fallen seeds, branches and stones, plant native grasses and wildflowers, dig ponds, and build shelter. As the land recovers, <b>real animals move back in on their own</b> &mdash; each one waiting until the meadow can actually meet its needs.</p>
     <p>Nothing is hunted, harmed, captured or kept. There is no score, no timer, and no way to lose. The learning sits in the gap between what students <em>predict</em> will happen and what actually does.</p>

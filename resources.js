@@ -32878,14 +32878,1028 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 </body>
 </html>
 `;
-var teachersHtml = `<!doctype html>
+var teachersIndexHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows for teachers: two free classroom kits, science and computer science</title>
+<meta name="description" content="Two free, ready-to-run classroom kits built on Wild Willows. Ecosystems and habitat for grades 5-8, and intro to APIs and web development for grades 9-12. Educator guides, printable worksheets and a browser code editor. No accounts, no cost, nothing to install.">
+<link rel="canonical" href="https://wildwillows.app/teachers">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="free classroom kit, educator guide, ecosystem lesson plan, intro to APIs lesson, web development for high school, computer science lesson plan, printable science worksheets, educational game, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows for teachers: two free classroom kits">
+<meta property="og:description" content="Ecosystems and habitat for grades 5-8, and intro to APIs and web development for grades 9-12. Free guides, worksheets and a browser code editor.">
+<meta property="og:url" content="https://wildwillows.app/teachers">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows for teachers: two free classroom kits">
+<meta name="twitter:description" content="Ecosystems for grades 5-8, APIs and web development for grades 9-12. Free, and nothing to install.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- The hub describes ITSELF as a collection of two kits, and nothing more.
+     The LearningResource markup for the science lesson moved to
+     /teachers/science with the lesson; leaving a copy here would have two URLs
+     claiming to be the same grades 5-8 activity, which is the one thing a split
+     like this must not do. The FAQ below is only the questions that belong to
+     BOTH kits; each kit page answers its own. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://wildwillows.app/teachers",
+      "url": "https://wildwillows.app/teachers",
+      "name": "Wild Willows for teachers",
+      "description": "Two free, ready-to-run classroom kits built on Wild Willows: ecosystems and habitat for grades 5-8, and intro to APIs and web development for grades 9-12.",
+      "isPartOf": { "@type": "WebSite", "name": "Wild Willows", "url": "https://wildwillows.app/" },
+      "hasPart": [
+        { "@type": "LearningResource", "name": "Ecosystems & Habitat", "url": "https://wildwillows.app/teachers/science", "educationalLevel": "Grades 5-8", "learningResourceType": "Lesson plan" },
+        { "@type": "LearningResource", "name": "Intro to APIs & Web Development", "url": "https://wildwillows.app/teachers/coding", "educationalLevel": "Grades 9-12", "learningResourceType": "Lesson plan" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I have to buy anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. Both kits are free, and everything they need runs in a browser. The science kit uses the free demo at play.wildwillows.app, and the coding kit uses two pages on this site. The guides and worksheets are free as well." } },
+        { "@type": "Question", "name": "Do students need accounts?", "acceptedAnswer": { "@type": "Answer", "text": "No accounts, no email, and no sign-in, in either kit. Nothing a student writes is sent anywhere." } },
+        { "@type": "Question", "name": "Can I photocopy the worksheets?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Print, photocopy, translate and adapt them for your own classes as much as you like. Please do not resell them." } },
+        { "@type": "Question", "name": "What data is collected about students?", "acceptedAnswer": { "@type": "Answer", "text": "Anonymous counts only, never linked to a person. No accounts, no cookies used for tracking, no third-party analytics, and no student work is transmitted. The full policy is at wildwillows.app/privacy.html." } },
+        { "@type": "Question", "name": "Which kit should I use?", "acceptedAnswer": { "@type": "Answer", "text": "The science kit is grades 5-8 and takes one period: students restore a meadow and work out why each animal returned when it did. The coding kit is grades 9-12 and takes one to three periods: students build a webpage from real Wild Willows data. They share a world but neither depends on the other." } },
+        { "@type": "Question", "name": "Can I get free copies of the game for my classroom?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A limited number of free promo codes are set aside for teachers, with no cost and no expiry. Email wildwillowsgame@gmail.com from your school address with your school, grade level and roughly how many machines you need." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+body.edu-hub {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other. */
+.kit-go {
+	margin-top: auto;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="edu-hub">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers/science" data-track="science-kit">Science kit</a>
+    <a class="hide-sm" href="/teachers/coding" data-track="coding-kit">Coding kit</a>
+    <a class="hide-sm" href="/">The game</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="twrap">
+
+<header class="thero">
+  <p class="kicker">For teachers</p>
+  <h1>Wild Willows in the classroom</h1>
+  <p class="lead">Two free, ready-to-run kits built on the same game. One is science, one is computer science, and they work equally well on their own. No accounts, no cost, nothing to install.</p>
+  <div class="tmeta">
+    <span class="chip">Free</span>
+    <span class="chip">No accounts</span>
+    <span class="chip">Nothing to install</span>
+    <span class="chip">Printable</span>
+  </div>
+</header>
+
+<div class="kits">
+
+  <section class="kit">
+    <svg class="kit-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5c0-6 3-10.5 8.5-11.5C20.5 16 17 21 12 21.5z"/><path d="M12 21.5C12 15 8.5 11 3.5 10.5 3.5 16 7 21 12 21.5z"/><path d="M12 21.5V13"/></svg>
+    <h2>Ecosystems &amp; Habitat</h2>
+    <div class="kit-facts">
+      <span class="chip">Grades 5&ndash;8</span>
+      <span class="chip">45&ndash;60 minutes</span>
+      <span class="chip">Science</span>
+    </div>
+    <p>Students restore a damaged meadow, log which animals return and when, and work out that habitat means food, water, shelter and space together. Nothing is hunted or lost, and there is no way to fail.</p>
+    <ul>
+      <li>Educator guide and six printable worksheets</li>
+      <li>Runs on the free browser demo, or offline once installed</li>
+      <li>English and Espa&ntilde;ol</li>
+      <li>Discussion prompts and a &ldquo;game vs. nature&rdquo; critique sheet</li>
+    </ul>
+    <p class="kit-go"><a class="btn btn-go" href="/teachers/science" data-track="science-kit">Open the science kit</a></p>
+  </section>
+
+  <section class="kit">
+    <svg class="kit-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5 4 13l4.5 4.5M15.5 8.5 20 13l-4.5 4.5M13.5 5l-3 16"/></svg>
+    <h2>Intro to APIs &amp; Web Development</h2>
+    <div class="kit-facts">
+      <span class="chip">Grades 9&ndash;12</span>
+      <span class="chip">1&ndash;3 periods</span>
+      <span class="chip">Computer Science</span>
+    </div>
+    <p>Students learn how HTML, CSS, JavaScript and APIs work together by pulling real Wild Willows data into a webpage they build themselves. Every code sample in the lesson is editable and runs as they type.</p>
+    <ul>
+      <li>Ten-chapter interactive lesson and a browser code editor</li>
+      <li>No prior coding experience, for students or for you</li>
+      <li>Real public API, not a mock dataset</li>
+      <li>Lesson flows for one, two or three periods, and an answer key</li>
+    </ul>
+    <p class="kit-go"><a class="btn btn-go" href="/teachers/coding" data-track="coding-kit">Open the coding kit</a></p>
+  </section>
+
+</div>
+
+<section class="tsec">
+  <h2>Free copies for your classroom</h2>
+  <p>A limited number of promo codes are set aside for teachers: full copies of the game, no cost and no expiry. Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> from your school address with your school, your grade level, and roughly how many machines you need.</p>
+  <p class="sub">Neither kit requires this. The science kit runs on the free browser demo and the coding kit runs on this site, so you can teach both today and ask later.</p>
+</section>
+
+<section class="tsec">
+  <h2>Questions teachers ask first</h2>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Do I have to buy anything?</span></summary>
+    <div class="tfaq-body"><p>No. Both kits are free and everything they need runs in a browser. The science kit uses the free demo, and the coding kit uses two pages on this site. The guides and worksheets are free as well.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Do students need accounts?</span></summary>
+    <div class="tfaq-body"><p>No accounts, no email, and no sign-in, in either kit. Nothing a student writes in the code editor is sent anywhere: it stays in that browser until they download it themselves.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Can I photocopy the worksheets?</span></summary>
+    <div class="tfaq-body"><p>Yes. Print them, photocopy them, translate them, cut them up and adapt them for your own classes as much as you like. The only thing asked is that you do not resell them.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>What data is collected about students?</span></summary>
+    <div class="tfaq-body">
+      <p>Anonymous counts only, never linked to a person. No accounts, no cookies used for tracking, no third-party analytics, and no student work is transmitted at any point.</p>
+      <p>Because nothing identifies a student, a class or a school, there is no student record to request, correct or delete. If your district needs that in writing, the <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Which kit should I use?</span></summary>
+    <div class="tfaq-body">
+      <p>Whichever matches your subject. They share a world and neither depends on the other, so there is no order to follow and no reason to run both.</p>
+      <p>If you teach both, the science kit makes a good week-one introduction to the world the coding kit then queries. That is a nice connection rather than a requirement.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Will this work on our network?</span></summary>
+    <div class="tfaq-body">
+      <p>Both kits need <code>wildwillows.app</code> and <code>play.wildwillows.app</code> reachable. Check that a week before you teach rather than the morning of: a filtered domain is the single most common way one of these lessons goes wrong, and it takes an IT ticket to fix.</p>
+      <p>Once installed, the game itself runs entirely offline. The coding kit needs the connection throughout, because fetching real data over a real network is the thing it teaches.</p>
+    </div>
+  </details>
+</section>
+
+<div class="tcontact">
+  <h2>Using this with a class?</h2>
+  <p>Tell me how it went. What confused students, what ran long, what you had to change: all of it is useful, and the last three rounds of changes to these pages came from teachers writing in.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
+    <a class="btn btn-paper" href="/" data-track="play">See the game</a>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* One counter, once per browser session, on the same contract as the rest of
+     the classroom pages (see PRIVACY.md): a name from a fixed list and a
+     number, and nothing else.
+
+     This page used to report itself as a click on 'edu-page' to the landing
+     beacon, because visits there are one undifferentiated series shared by
+     every page that sends them. It has its own key in the classroom counters
+     now, which is where the rest of the teaching funnel already lives. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'teachers', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  var fresh = true;
+  try {
+    fresh = !sessionStorage.getItem('ww_edu_hub_seen');
+    sessionStorage.setItem('ww_edu_hub_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile: counting it is the better failure. */
+  }
+  if (fresh) {
+    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_hub: 1 }); }, { timeout: 3000 });
+    else setTimeout(function () { report({ view_hub: 1 }); }, 500);
+  }
+
+  /* WHICH KIT THEY TOOK. The one number worth having about a hub. */
+  var NAV = { 'science-kit': 'nav_science', 'coding-kit': 'nav_coding' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>
+`;
+var teachersScienceHtml = `<!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wild Willows for teachers: a free classroom ecosystem lesson (grades 5&ndash;8)</title>
 <meta name="description" content="A free, ready-to-run classroom activity. Students restore a damaged meadow in Wild Willows, log which animals return and why, and learn that habitat is food, water, shelter and space. Educator guide and six printable worksheets, 45\u201360 minutes, grades 5\u20138, English and Spanish, no accounts and no cost.">
-<link rel="canonical" href="https://wildwillows.app/teachers">
+<link rel="canonical" href="https://wildwillows.app/teachers/science">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#2b3149">
 <meta name="keywords" content="ecosystem lesson plan, habitat lesson, biodiversity classroom activity, food web lesson, middle school science game, restoration ecology for kids, free educator guide, printable science worksheets, grades 5-8, NGSS ecosystems, educational game, Wild Willows">
@@ -32897,7 +33911,7 @@ var teachersHtml = `<!doctype html>
 <meta property="og:site_name" content="Wild Willows">
 <meta property="og:title" content="Wild Willows for teachers: a free classroom ecosystem lesson">
 <meta property="og:description" content="Students restore a damaged meadow and work out why each animal came back when it did. Free educator guide and six printable worksheets. 45\u201360 minutes, grades 5\u20138, English &amp; Spanish, no accounts.">
-<meta property="og:url" content="https://wildwillows.app/teachers">
+<meta property="og:url" content="https://wildwillows.app/teachers/science">
 <meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -32924,7 +33938,7 @@ var teachersHtml = `<!doctype html>
     {
       "@type": "LearningResource",
       "name": "Restoring Willow Meadow \u2014 a Wild Willows classroom activity",
-      "url": "https://wildwillows.app/teachers",
+      "url": "https://wildwillows.app/teachers/science",
       "description": "A single-session classroom activity in which students rebuild a damaged meadow in Wild Willows, watch wildlife return, and work out why each animal came back when it did.",
       "learningResourceType": ["Lesson plan", "Worksheet", "Activity"],
       "educationalLevel": "Grades 5\u20138",
@@ -32976,7 +33990,8 @@ var teachersHtml = `<!doctype html>
       "@type": "BreadcrumbList",
       "itemListElement": [
         { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
-        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" }
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
+        { "@type": "ListItem", "position": 3, "name": "Ecosystems & Habitat", "item": "https://wildwillows.app/teachers/science" }
       ]
     }
   ]
@@ -33393,6 +34408,12 @@ section[id]{scroll-margin-top:66px}
    them until the page has loaded; \`body.ready\` is set on the load event. */
 .star,.fly{animation-play-state:paused}
 body.ready .star,body.ready .fly{animation-play-state:running}
+/* The line saying which of the two kits this page is. Above the note rather
+   than in it: a teacher who landed here from a search for "ecosystem lesson
+   plan" is in the right place and should not be made to read a signpost first,
+   but a teacher who wanted the coding one needs the way out on screen. */
+.sibling-kit{max-width:44rem;margin:0 auto 1.4rem;font-size:.92rem;line-height:1.6;color:var(--ink-soft);text-align:center}
+.sibling-kit a{color:var(--green-deep);font-weight:600}
 </style>
 </head>
 <body>
@@ -33400,9 +34421,9 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
     <a class="hide-sm" href="#teaches">What it teaches</a>
     <a class="hide-sm" href="#lesson">The lesson</a>
-    <a class="hide-sm" href="#practical">For your IT</a>
     <a class="hide-sm" href="/">The game</a>
     <a class="btn btn-go" href="#downloads">Download the kit</a>
   </div>
@@ -33452,6 +34473,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <main>
 
 <section id="about" style="padding-top:2.6rem"><div class="wrap">
+  <p class="sibling-kit">This is the science kit, for grades 5&ndash;8. There is also a <a href="/teachers/coding" data-track="coding-kit">computer science kit for grades 9&ndash;12</a>, where students pull real Wild Willows data into a webpage they build themselves. <a href="/teachers" data-track="edu-nav">Both kits</a>.</p>
   <div class="note">
     <p>In Wild Willows, students play a caretaker restoring a nature preserve. They gather fallen seeds, branches and stones, plant native grasses and wildflowers, dig ponds, and build shelter. As the land recovers, <b>real animals move back in on their own</b> &mdash; each one waiting until the meadow can actually meet its needs.</p>
     <p>Nothing is hunted, harmed, captured or kept. There is no score, no timer, and no way to lose. The learning sits in the gap between what students <em>predict</em> will happen and what actually does.</p>
@@ -33912,6 +34934,1721 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 
 </html>
 `;
+var teachersCodingHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a webpage with real game data: a free intro to APIs lesson for grades 9-12</title>
+<meta name="description" content="A free computer science kit for grades 9-12. Students learn HTML, CSS, JavaScript and APIs by fetching real data from a live public game API and building their own webpage. Nothing to install, no student accounts, and you do not need to know JavaScript to teach it.">
+<link rel="canonical" href="https://wildwillows.app/teachers/coding">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="intro to APIs lesson plan, web development lesson high school, teach javascript beginners, fetch API lesson, JSON lesson plan, computer science lesson grades 9-12, free coding curriculum, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta property="og:description" content="Grades 9-12. Students fetch real data from a live public API and build a webpage from it. Nothing to install, no accounts, and you do not need to know JavaScript to teach it.">
+<meta property="og:url" content="https://wildwillows.app/teachers/coding">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta name="twitter:description" content="Grades 9-12. Real public API, browser code editor, no installs and no accounts.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LearningResource",
+      "@id": "https://wildwillows.app/teachers/coding",
+      "url": "https://wildwillows.app/teachers/coding",
+      "name": "Intro to APIs & Web Development with Wild Willows",
+      "description": "Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from a live public game API and using it to build their own webpage.",
+      "learningResourceType": "Lesson plan",
+      "educationalLevel": "Grades 9-12",
+      "educationalUse": ["instruction", "assignment"],
+      "timeRequired": "PT60M",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "typicalAgeRange": "14-18",
+      "teaches": [
+        { "@type": "Thing", "name": "HTML, CSS and JavaScript" },
+        { "@type": "Thing", "name": "Application programming interfaces" },
+        { "@type": "Thing", "name": "HTTP requests and responses" },
+        { "@type": "Thing", "name": "JSON and data types" },
+        { "@type": "Thing", "name": "Conditionals and iteration" },
+        { "@type": "Thing", "name": "Rendering data to the DOM" }
+      ],
+      "author": { "@type": "Person", "name": "Bailey Dunning" },
+      "publisher": { "@type": "Person", "name": "Bailey Dunning" },
+      "hasPart": [
+        { "@type": "LearningResource", "name": "Student lesson", "url": "https://wildwillows.app/learn/web-development" },
+        { "@type": "LearningResource", "name": "Code Builder", "url": "https://wildwillows.app/learn/code-builder" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs as a student types, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
+        { "@type": "Question", "name": "What do students need?", "acceptedAnswer": { "@type": "Answer", "text": "A browser and a keyboard. No accounts, no installs, no extensions. It works on a school Chromebook. Their work saves in their own browser and can be downloaded as a real HTML file." } },
+        { "@type": "Question", "name": "How long does it take?", "acceptedAnswer": { "@type": "Answer", "text": "One to three class periods, depending on how far you go. There are three suggested flows on this page: a single 60-minute period, two periods, or three." } },
+        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData/ is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
+        { "@type": "Question", "name": "What if our network blocks it?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson needs wildwillows.app reachable throughout, because fetching over a real network is what it teaches. Check this a week ahead rather than the morning of. A blocked domain shows as 'Failed to fetch' in the editor and needs an IT ticket, not a code fix." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
+        { "@type": "ListItem", "position": 3, "name": "Intro to APIs & Web Development", "item": "https://wildwillows.app/teachers/coding" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+body.edu-hub {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other. */
+.kit-go {
+	margin-top: auto;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows \u2014 the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+.trouble td:nth-child(2),
+.trouble td:nth-child(3) {
+	color: var(--ink-soft);
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="edu-hub guide">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
+    <a class="hide-sm" href="#flow">Lesson flow</a>
+    <a class="hide-sm" href="#trouble">Troubleshooting</a>
+    <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Open the Lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="twrap">
+
+<header class="thero">
+  <p class="kicker">Coding kit &middot; Grades 9&ndash;12</p>
+  <h1>Build a webpage with real game data</h1>
+  <p class="lead">Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from Wild Willows and using it to build their own interactive webpage.</p>
+  <div class="tmeta">
+    <span class="chip">Grades 9&ndash;12</span>
+    <span class="chip">60&ndash;120 minutes</span>
+    <span class="chip">No installation</span>
+    <span class="chip">No student accounts</span>
+    <span class="chip">HTML &middot; CSS &middot; JS &middot; APIs &middot; JSON</span>
+    <span class="chip warm">Real live API</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>You do not need to know JavaScript to teach this</h2>
+    <p>Every chapter is worked through on the page itself, so nothing depends on you writing code at the board. Each example runs as a student types, so a mistake shows up immediately rather than at the end. The editor explains errors in plain English instead of showing a stack trace, and the <a href="#trouble">troubleshooting table</a> below covers what actually goes wrong in a room of thirty.</p>
+    <p>The honest version: you will be asked questions you cannot answer. &ldquo;Let's find out&rdquo; is a good answer, and looking it up together in front of them is the most accurate thing you can model about this job.</p>
+  </div>
+</div>
+
+<div class="two-up">
+  <a class="tile" href="/learn/web-development" data-track="lesson-nav">
+    <span class="tile-k">For students</span>
+    <b>The Lesson</b>
+    <span>Ten chapters, every sample editable and live. This is what you put on the projector and what they work through.</span>
+  </a>
+  <a class="tile" href="/learn/code-builder" data-track="builder-nav">
+    <span class="tile-k">For students</span>
+    <b>The Code Builder</b>
+    <span>Three files and a live preview, for the build challenge and for anyone who finishes early.</span>
+  </a>
+</div>
+
+<section class="tsec" id="objectives">
+  <h2>What students can do by the end</h2>
+  <ul class="objectives">
+    <li>Explain the different roles of HTML, CSS and JavaScript</li>
+    <li>Explain what an API does, and describe the request and response between a browser and one</li>
+    <li>Recognize JSON as a common format for sending data between programs</li>
+    <li>Identify the basic data types in a JSON response, and explain why quotes matter</li>
+    <li>Use <code>fetch()</code> to request data from a real endpoint</li>
+    <li>Read values out of a JavaScript object or array by path</li>
+    <li>Write an <code>if</code> / <code>else</code> that makes the page behave differently depending on the data</li>
+    <li>Loop through a list of data and transform, filter and sort it</li>
+    <li>Use API data to update the HTML a visitor sees</li>
+    <li>Modify all three files to build a webpage of their own</li>
+  </ul>
+  <p class="sub">The looping objective is the one that separates this from a typical intro lesson. Most stop at displaying a single value; chapter 8 is where students stop copying and start asking their own questions of the data.</p>
+</section>
+
+<section class="tsec" id="vocab">
+  <h2>Vocabulary</h2>
+  <p class="sub">One line each. Copy this onto the board, or print the page.</p>
+  <div class="vocab">
+    <div class="vrow"><b>HTML</b><span>Structure. What is on the page.</span></div>
+    <div class="vrow"><b>CSS</b><span>Appearance. What it looks like.</span></div>
+    <div class="vrow"><b>JavaScript</b><span>Behavior. What it does.</span></div>
+    <div class="vrow"><b>API</b><span>A way for programs to communicate.</span></div>
+    <div class="vrow"><b>Endpoint</b><span>A specific address where an API provides something.</span></div>
+    <div class="vrow"><b>Request</b><span>Asking an API for something.</span></div>
+    <div class="vrow"><b>Response</b><span>What the API sends back.</span></div>
+    <div class="vrow"><b>JSON</b><span>A structured text format commonly used to send data.</span></div>
+    <div class="vrow"><b><code>fetch()</code></b><span>The JavaScript function that makes a web request.</span></div>
+    <div class="vrow"><b>String</b><span>Text. Always in quotes.</span></div>
+    <div class="vrow"><b>Number</b><span>A value you can do arithmetic with. No quotes.</span></div>
+    <div class="vrow"><b>Boolean</b><span><code>true</code> or <code>false</code>.</span></div>
+    <div class="vrow"><b>Array</b><span>An ordered list of things.</span></div>
+    <div class="vrow"><b>Object</b><span>A thing with named parts.</span></div>
+    <div class="vrow"><b><code>null</code> / <code>undefined</code></b><span>Nothing on purpose / nothing found.</span></div>
+    <div class="vrow"><b>Condition</b><span>A question with a yes-or-no answer.</span></div>
+    <div class="vrow"><b><code>if</code> / <code>else</code></b><span>Do one thing when a condition is true, another when it is not.</span></div>
+    <div class="vrow"><b><code>===</code></b><span>Asks whether two things are exactly the same. One <code>=</code> sets, three <code>===</code> ask.</span></div>
+    <div class="vrow"><b>Loop</b><span>Doing something once for each item in a list.</span></div>
+    <div class="vrow"><b><code>.map()</code></b><span>Make a new list by changing each item.</span></div>
+    <div class="vrow"><b><code>.filter()</code></b><span>Make a shorter list by keeping only some items.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="prep">
+  <h2>Before the Lesson</h2>
+  <ol class="steps">
+    <li><b>Work through the student lesson once yourself.</b> Half an hour, and it is the single best preparation. You will find the two or three places your class will slow down.</li>
+    <li><b>Check the network can reach <code>wildwillows.app</code>.</b> Do this a week ahead, not the morning of. A filtered domain is the most common way this lesson fails, it looks like broken code to a student, and it needs an IT ticket rather than a fix you can make in the room.</li>
+    <li><b>Optional: show five minutes of the game.</b> Students who have seen the meadow understand what <code>biome: "meadow"</code> means, and the data stops being abstract.</li>
+    <li><b>Pick a flow.</b> Three are below. Sixty to a hundred and twenty minutes means different things in different schools.</li>
+  </ol>
+  <p class="sub">There is nothing to install, no software to request, no accounts to create in advance, and no class codes to hand out.</p>
+</section>
+
+<section class="tsec" id="flow">
+  <h2>Three ways to run it</h2>
+
+  <div class="flowcard">
+    <h3>One period, 60 minutes</h3>
+    <div class="timeline">
+      <div class="tl"><b>10 min</b><span>What is a webpage? Show a page and ask what controls the words, the colors, and what happens on click. Let them guess before naming HTML, CSS and JavaScript.</span></div>
+      <div class="tl"><b>10 min</b><span>What is an API? Get to the real endpoint fast. Then press the button in chapter 4 on the projector and show the actual response.</span></div>
+      <div class="tl"><b>30 min</b><span>Guided coding, chapters 1 to 9, trimmed. See what to cut below.</span></div>
+      <div class="tl"><b>10 min</b><span>Build challenge in the Code Builder. A taster rather than a project.</span></div>
+    </div>
+  </div>
+
+  <div class="flowcard">
+    <h3>Two periods</h3>
+    <div class="timeline">
+      <div class="tl"><b>Day 1</b><span>Chapters 1 to 6: the three languages, the DOM, what an API is, fetching it, and reading values out of the response. Finish in the Code Builder with challenges 1 and 2.</span></div>
+      <div class="tl"><b>Day 2</b><span>Chapters 7 to 10: decisions, looping, rendering to the page, and their own build.</span></div>
+    </div>
+  </div>
+
+  <div class="flowcard">
+    <h3>Three periods</h3>
+    <div class="timeline">
+      <div class="tl"><b>Day 1</b><span>The web stack. Chapters 1 to 3, ending with JavaScript changing the page.</span></div>
+      <div class="tl"><b>Day 2</b><span>The API and its data. Chapters 4 to 6: the request, the response, the types in it, and reaching into them.</span></div>
+      <div class="tl"><b>Day 3</b><span>Decisions, looping, rendering and build. Chapters 7 to 10.</span></div>
+    </div>
+    <p class="note-line"><b>Chapters 7 and 8 are the heart of the module.</b> If a day is going to run long, let it be that one.</p>
+  </div>
+</section>
+
+<section class="tsec" id="cut">
+  <h2>What to cut when time is short</h2>
+  <p>You can make this call mid-lesson. The three things that carry chapter 9, which is where the payoff is, are <code>if</code> / <code>else</code>, <code>.map()</code> and <code>.filter()</code>. Keep those.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Keep</b>
+      <ul>
+        <li><code>if</code> / <code>else</code>, chapter 7</li>
+        <li><code>.filter()</code> and <code>.map()</code>, chapter 8</li>
+        <li>Chapter 9, putting the data on the page</li>
+        <li>The empty-state guard, chapter 7. Without it a filter that matches nothing renders a blank page and every student assumes they broke it.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>Enrichment, safe to skip</b>
+      <ul>
+        <li><code>.reduce()</code>, marked as a stretch goal on the page itself</li>
+        <li><code>.sort()</code> and method chaining</li>
+        <li><code>&amp;&amp;</code> and <code>||</code></li>
+        <li>The <code>?</code> <code>:</code> shorthand</li>
+        <li>Every Going Deeper panel. They are collapsed by default and nothing later depends on them.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">Those are marked as optional in the student page's own interface too, so skipping them does not read to a student as falling behind.</p>
+</section>
+
+<section class="tsec" id="opener">
+  <h2>Two openers that work</h2>
+  <h3>What is a webpage?</h3>
+  <p>Put any page on the projector. Ask three questions and let them guess before you name anything: what decides the words, what decides the colors, and what happens when I click this. You will get to structure, appearance and behavior on your own, in their words, which is a better start than three definitions.</p>
+  <h3>What is an API?</h3>
+  <p>Skip the restaurant-waiter analogy and get to the real thing in under a minute.</p>
+  <div class="dialogue">
+    <p><b>Browser:</b> Wild Willows API, give me the game data.</p>
+    <p><b>API:</b> <code>{ "animals": [...], "biomes": [...] }</code></p>
+  </div>
+  <p>Then open chapter 4 on the projector and press <b>See the real API response</b>. It reports the status, the time and the size from your own school network. A class watching <code>200 &middot; 412 ms &middot; 486 KB</code> appear has understood something a diagram cannot teach.</p>
+</section>
+
+<section class="tsec" id="assessment">
+  <h2>Assessment</h2>
+  <p>Deliberately not quiz-heavy. Three bands you can grade as completion, as points, or as a project.</p>
+  <div class="rubric">
+    <div class="rcol">
+      <b>Understanding</b>
+      <ul>
+        <li>Can explain what HTML, CSS and JavaScript each do</li>
+        <li>Can explain what an API is, and what a request and a response are</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Technical</b>
+      <ul>
+        <li>Successfully retrieves the API data</li>
+        <li>Displays at least one value from it on the page</li>
+        <li>Uses <code>if</code> / <code>else</code> to handle a case the data might not cover</li>
+        <li>Modifies HTML, CSS and JavaScript</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Creative</b>
+      <ul>
+        <li>Builds a page that communicates something about the Wild Willows data, rather than only displaying it</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-line"><b>Grade the understanding column hardest.</b> A student who used the worked example and can explain what the code does has learned more than one who wrote messier code unaided and cannot.</p>
+</section>
+
+<section class="tsec" id="trouble">
+  <h2>Troubleshooting</h2>
+  <p class="sub">Six things that actually go wrong, and what to do about each. None of them needs you to read the student's code.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>What they see</th><th>What it means</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>&ldquo;Failed to fetch&rdquo;</td>
+          <td>The network blocked the request. This is the big one.</td>
+          <td>Open <code>wildwillows.app/GameData/</code> in a tab. If that fails too, it is the school filter and it needs IT. Nothing in the code will fix it.</td>
+        </tr>
+        <tr>
+          <td>The preview is blank</td>
+          <td>Usually an error before anything was drawn.</td>
+          <td>Look at the panel under the editor. It names the line and explains the problem. If the panel is empty, the code has not run yet: press Run.</td>
+        </tr>
+        <tr>
+          <td>&ldquo;<code>is not defined</code>&rdquo;</td>
+          <td>A name that does not exist. Almost always a typo or a capital letter.</td>
+          <td>Compare the spelling in the two places it appears. <code>animal</code> and <code>Animal</code> are different names.</td>
+        </tr>
+        <tr>
+          <td>&ldquo;Cannot read properties of null&rdquo;</td>
+          <td><code>querySelector</code> found nothing, so there is nothing to change.</td>
+          <td>Check the <code>id</code> in the HTML matches the one in the JavaScript, including the <code>#</code>.</td>
+        </tr>
+        <tr>
+          <td>Yesterday's work is gone</td>
+          <td>Different machine, guest mode, or the browser cleared its storage.</td>
+          <td>Work saves in that browser, not to an account. Have them press Download at the end of each period; that file reopens with Open.</td>
+        </tr>
+        <tr>
+          <td>The preview will not update</td>
+          <td>The code has an error, or it is still waiting on the debounce.</td>
+          <td>Press Run. If it still does not change, read the error panel: a page that will not update is nearly always a page that threw.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="answers">
+  <h2>Answer key</h2>
+  <p>The finished chapter 10 challenge, all three files. Open it in the Code Builder to run it, or read it here.</p>
+  <div class="answer">
+    <div class="answer-head"><b>index.html</b></div>
+    <pre class="hcode">&lt;h1 id="title"&gt;Meadow Apex Predators&lt;/h1&gt;
+&lt;ul id="animal-list"&gt;&lt;/ul&gt;</pre>
+    <div class="answer-head"><b>styles.css</b></div>
+    <pre class="hcode">body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
+h1   { color: #6b3fa0; }
+li   { margin-bottom: .3rem; }</pre>
+    <div class="answer-head"><b>main.js</b></div>
+    <pre class="hcode">async function loadGameData() {
+  const response = await fetch("https://wildwillows.app/GameData/");
+  const data = await response.json();
+
+  const matches = data.animals
+    .filter(animal =&gt; animal.trophic === "apex-predator")
+    .sort((a, b) =&gt; a.name.localeCompare(b.name));
+
+  const list = document.querySelector("#animal-list");
+
+  if (matches.length === 0) {
+    list.innerHTML = "&lt;li&gt;No animals matched.&lt;/li&gt;";
+  } else {
+    list.innerHTML = matches.map(animal =&gt; \`&lt;li&gt;\${animal.name}&lt;/li&gt;\`).join("");
+  }
+}
+
+loadGameData();</pre>
+    <p class="sub">Seventeen apex predators, alphabetical. Challenge 5 in chapter 10 is exactly this, and the count is how a student checks their own answer.</p>
+  </div>
+
+  <h3>A broken version, for a warm-up or a substitute</h3>
+  <p>Three planted bugs. Give students the file and ask them to find them using the error panel. It is a good sub-plan and a better test of understanding than writing it from scratch.</p>
+  <pre class="hcode">async function loadGameData() {
+  const response = fetch("https://wildwillows.app/GameData/");   // bug 1
+  const data = await response.json();
+
+  const matches = data.animal                                     // bug 2
+    .filter(animal =&gt; animal.trophic === "apex-predator");
+
+  document.querySelector("#animals-list").innerHTML =             // bug 3
+    matches.map(animal =&gt; \`&lt;li&gt;\${animal.name}&lt;/li&gt;\`).join("");
+}
+
+loadGameData();</pre>
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>The three bugs</span></summary>
+    <div class="tfaq-body">
+      <p><b>1.</b> A missing <code>await</code> before <code>fetch</code>. <code>response.json</code> is not a function on a Promise, and that is what the panel will say.</p>
+      <p><b>2.</b> <code>data.animal</code> should be <code>data.animals</code>. The panel reports that you cannot call <code>.filter</code> on <code>undefined</code>.</p>
+      <p><b>3.</b> The selector says <code>#animals-list</code> and the HTML says <code>animal-list</code>. The panel reports that the element is not on the page.</p>
+    </div>
+  </details>
+</section>
+
+<section class="tsec" id="privacy">
+  <h2>What this collects</h2>
+  <p>Anonymous counts and nothing else: which chapters were reached, which errors the editor explained, roughly how long a session in the builder ran, and whether the network let the data through. No accounts, no cookies used for tracking, no third-party analytics.</p>
+  <p><b>Student code never leaves the browser.</b> It is saved in that browser's own storage so it is still there next period, and it is sent nowhere: not when they run it, not when it produces an error, and not in the usage counts. The only way their work leaves the machine is if they press Download.</p>
+  <p class="sub">Because nothing identifies a student, a class or a school, there is no student record to request, correct or delete. The <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools and districts.</p>
+</section>
+
+<div class="tcontact">
+  <h2>Ready to teach it?</h2>
+  <p>Open the lesson on the projector and work through chapter 1 with the class. If you run it and something confuses students or runs long, tell me: that is where the last three rounds of changes to these pages came from.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Open the Lesson</a>
+    <a class="btn btn-paper" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a>
+    <a class="btn btn-paper" href="/teachers/science" data-track="science-kit">The science kit</a>
+  </div>
+</div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+  /* Same contract as the rest of the classroom pages (see PRIVACY.md): a name
+     from a fixed list and a number, nothing else. \`view_coding\` closes the
+     middle of the teaching funnel, which runs hub, kit, lesson, builder. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'teachers-coding', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  var fresh = true;
+  try {
+    fresh = !sessionStorage.getItem('ww_coding_kit_seen');
+    sessionStorage.setItem('ww_coding_kit_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile: counting it is the better failure. */
+  }
+  if (fresh) {
+    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_coding: 1 }); }, { timeout: 3000 });
+    else setTimeout(function () { report({ view_coding: 1 }); }, 500);
+  }
+
+  var NAV = { 'lesson-nav': 'nav_lesson', 'builder-nav': 'nav_builder', 'science-kit': 'nav_science', 'edu-nav': 'nav_hub' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>
+`;
 var learnCodeBuilderHtml = `<!doctype html>
 <html lang="en">
 <head>
@@ -34257,6 +36994,9 @@ body.lesson,
  * genuinely new control on the page still looks like something they have
  * already seen on /teachers. */
 .wwr-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 0.78rem;
 	font-weight: 700;
@@ -34266,6 +37006,17 @@ body.lesson,
 	background: transparent;
 	color: var(--ink-soft, #75765f);
 	cursor: pointer;
+}
+
+/* The icon is there on every tab and shown only where the name is not: the
+   builder is a tool and names its files; the lesson is prose with editors in it
+   and cannot spend a third of every toolbar on three filenames. See
+   ww-lesson.css for the swap. */
+.wwr-tab-ico {
+	display: none;
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
 }
 
 .wwr-tab:hover {
@@ -34394,6 +37145,30 @@ body.lesson,
 
 .wwr--view-code .wwr-panes {
 	border-right: 0;
+}
+
+/* One visible pane, so ONE row. The stacked breakpoint below names two rows for
+   the code-above-preview layout; with the preview hidden the second row is left
+   empty and the card carries dead space under the editor. */
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-rows: minmax(0, 1fr);
+}
+
+/* ------------------------------------------------- JavaScript-only examples
+ *
+ * Code with a console under it and no switcher: see the note in ww-runner.js
+ * for why these are detected rather than declared. The preview still exists and
+ * still runs; it is display:none by way of the \`code\` view.
+ *
+ * The console is the output here rather than a sidecar, so it gets the room a
+ * result deserves and the editor stops being three quarters of the card. */
+.wwr--console-only .wwr-body {
+	min-height: 150px;
+}
+
+.wwr--console-only .wwr-console {
+	min-height: 8rem;
 }
 
 /* -------------------------------------------------------------------- panes */
@@ -34721,8 +37496,21 @@ body.wwr-resizing iframe {
 /* ------------------------------------------------------------- small screens */
 
 @media (max-width: 820px) {
+	/* THE ROWS HAVE TO BE NAMED, NOT JUST THE COLUMNS.
+	 *
+	 * Dropping to one column left grid-template-rows at a single
+	 * minmax(0, 1fr) from the two-column layout, so the code pane took the whole
+	 * explicit row and the preview landed in an IMPLICIT row sized auto. Inside a
+	 * bounded container that resolves to zero: the preview was 0px tall on every
+	 * iPad in portrait and every phone, which is the half of the screen the whole
+	 * teaching device depends on. Measured, not guessed: body 180, code 180,
+	 * preview 0.
+	 *
+	 * Two explicit rows, and the code gets slightly less than the preview because
+	 * on a narrow screen the result is the part worth seeing. */
 	.wwr-body {
 		grid-template-columns: 1fr;
+		grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
 	}
 
 	.wwr-panes {
@@ -34730,7 +37518,13 @@ body.wwr-resizing iframe {
 		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
 	}
 
-	.wwr-code,
+	/* Stacked, each pane needs a floor of its own or the shorter examples
+	   collapse to a few lines each. Roughly ten lines of code above a preview
+	   that can show a heading and a list, which is what these examples are. */
+	.wwr-code {
+		min-height: 170px;
+	}
+
 	.wwr-preview {
 		min-height: 150px;
 	}
@@ -34773,6 +37567,9 @@ body {
 }
 
 body.lab {
+	/* One number for the panel column, because two things depend on it: the grid
+	   that draws it and the bubble that sits on its edge. */
+	--lab-side-w: 280px;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -34877,9 +37674,10 @@ body.lab .nav .wrap {
 /* ------------------------------------------------------------------- layout */
 
 .lab-main {
+	position: relative; /* the collapse bubble is positioned against this */
 	flex: 1 1 auto;
 	display: grid;
-	grid-template-columns: 280px 1fr;
+	grid-template-columns: var(--lab-side-w) 1fr;
 	min-height: 0;
 }
 
@@ -35354,41 +38152,242 @@ body.lab .nav .wrap {
 
 /* -------------------------------------------------------------- small screens */
 
+/* TABLETS AND NARROW LAPTOPS: STOP FITTING THE VIEWPORT, START SCROLLING.
+ *
+ * Side by side, this page is a fixed-height app: the window is the frame and
+ * the editor fills what is left. Stacked, that model turns against it. The
+ * sidebar, the toolbar and the console all take their cut off the top and
+ * bottom of the same 100vh, and what reaches the editor is the remainder.
+ *
+ * Measured on an iPad in portrait before this rule: 77px of code above 94px of
+ * preview. An iPad mini got 42 and 52. That is not a small editor, it is four
+ * visible lines of code, and it is the whole page.
+ *
+ * So below 940px the document scrolls and the runner is given a real height
+ * instead of a leftover one. The editor also comes FIRST: it is what a student
+ * opened the page for, and the checkpoints are reference they scroll to. */
 @media (max-width: 940px) {
-	.lab-main {
-		grid-template-columns: 1fr;
-	}
-
 	body.lab {
 		overflow: auto;
 	}
 
+	.lab-main {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.lab-stage {
+		order: 1;
+		overflow: visible;
+	}
+
 	.lab-side {
+		order: 2;
 		border-right: 0;
-		border-bottom: 1.5px solid var(--panel-edge);
+		border-top: 1.5px solid var(--panel-edge);
+		/* Not a nested scroller once the page itself scrolls: two scrollbars in
+		   one column is a way to lose half the checkpoints without knowing. */
+		overflow: visible;
 	}
 
 	.lab-stage .wwr {
-		min-height: 360px;
+		/* A real height rather than what is left over. 70vh is about 800px on an
+		   iPad in portrait, which leaves the code and the preview roughly 250 each
+		   once the toolbar and the console have taken theirs. */
+		min-height: 70vh;
 	}
 }
 
-/* A phone can read this page but cannot comfortably write code on it, and
- * pretending otherwise wastes a student's period. Say so plainly, in the site's
- * own warm chip rather than a scary banner. */
-.lab-small-screen {
+
+/* --------------------------------------------------- too small for this page
+ *
+ * Shown instead of the workspace on a phone. The lesson works at this size and
+ * this page does not, so the honest move is to say which is which and link to
+ * the one that will work, rather than shipping a squeezed editor and letting a
+ * student find out during their period. See the note in ww-builder.js.
+ *
+ * The runner is never mounted in this state (it carries \`defer\`), so a phone
+ * also does not pay for two preview iframes it cannot use. */
+
+body.is-too-small .lab-bar,
+body.is-too-small .lab-main,
+body.is-too-small .lab-modal {
 	display: none;
 }
 
-@media (max-width: 560px) {
-	.lab-small-screen {
+/* body.lab is a fixed-height flex column with overflow hidden, which is the
+   right shape for an app that fills the window and the wrong one for a page
+   that is now just a paragraph and two links. */
+body.lab.is-too-small {
+	display: block;
+	overflow: auto;
+}
+
+.lab-blocked[hidden] {
+	display: none;
+}
+
+.lab-blocked {
+	display: flex;
+	justify-content: center;
+	padding: 2rem 1.1rem 3rem;
+}
+
+.lab-blocked-inner {
+	max-width: 34rem;
+}
+
+.lab-blocked svg {
+	width: 2.4rem;
+	height: 2.4rem;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .lab-blocked svg {
+	color: var(--green-bright);
+}
+
+.lab-blocked h1 {
+	font-size: 1.5rem;
+	line-height: 1.2;
+	margin: 0 0 0.7rem;
+	color: var(--ink);
+}
+
+.lab-blocked p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.lab-blocked-go {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 1.3rem 0 1rem;
+}
+
+.lab-blocked-note {
+	font-size: 0.88rem;
+}
+
+/* ------------------------------------------------ collapsing the side panel
+ *
+ * All the way out, not narrower: a squeezed sidebar is the worst of both, still
+ * taking room and no longer readable. The toggle lives in the toolbar and stays
+ * there in both states, because it is the one control that has to survive the
+ * panel disappearing. */
+
+body.lab.side-hidden .lab-main {
+	grid-template-columns: 1fr;
+}
+
+body.lab.side-hidden .lab-side {
+	display: none;
+}
+
+/* A bubble on the seam between the panel and the editor. Absolutely positioned
+   against .lab-main rather than dropped into either column, because it has to be
+   in the same place whether the panel is there or not: a control that runs away
+   when you press it is a control you have to find twice. The chevron points the
+   way the next press moves the panel. */
+.lab-side-toggle {
+	position: absolute;
+	top: 50%;
+	left: var(--lab-side-w);
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	padding: 0;
+	margin: 0;
+	transform: translate(-50%, -50%);
+	font: inherit;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 50%;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	box-shadow: 0 1px 5px rgba(59, 66, 50, 0.18);
+}
+
+[data-theme='dark'] .lab-side-toggle {
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* With the panel gone there is no seam to sit on, so it tucks against the left
+   edge of the window and the editor is given room for it. */
+body.lab.side-hidden .lab-side-toggle {
+	left: 0;
+	transform: translate(0.55rem, -50%);
+}
+
+body.lab.side-hidden .lab-stage {
+	padding-left: 2.9rem;
+}
+
+.lab-side-toggle svg {
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
+	transform: translateX(-1px); /* a chevron's ink sits right of its box centre */
+}
+
+body.lab.side-hidden .lab-side-toggle svg {
+	transform: translateX(1px) rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.lab-side-toggle svg {
+		transition: transform 0.18s ease;
+	}
+}
+
+.lab-side-toggle:hover {
+	color: var(--green-deep);
+	border-color: var(--green);
+}
+
+[data-theme='dark'] .lab-side-toggle:hover {
+	color: var(--green-bright);
+}
+
+.lab-side-toggle:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+/* The label is the only thing that says which way this goes, and the bubble has
+   no room for it. Hidden the standard way rather than with \`display: none\`, so
+   it stays in the accessibility tree and the button is not announced bare. */
+.lab-side-toggle-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* On a narrow screen the panel is already stacked under the editor rather than
+   beside it, so there is no width to reclaim and the control would be a button
+   that hides the checkpoints for no gain. */
+@media (max-width: 940px) {
+	.lab-side-toggle {
+		display: none;
+	}
+
+	body.lab.side-hidden .lab-side {
 		display: block;
-		margin: 0;
-		padding: 0.7rem 1.2rem;
-		background: #f7ead2;
-		border-bottom: 1.5px solid #e6d2a8;
-		color: #8a6a2a;
-		font-size: 0.88rem;
+	}
+
+	body.lab.side-hidden .lab-stage {
+		padding-left: 1.2rem;
 	}
 }
 
@@ -35630,20 +38629,38 @@ body.lab .nav .wrap {
 </head>
 <body class="lab">
 
-<p class="lab-small-screen">This works best on a laptop or a tablet with a keyboard &mdash; writing code on a phone is hard going.</p>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
-    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the Lesson</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
     </button>
   </div>
 </div></nav>
+
+<!-- Shown INSTEAD of the workspace on a phone. ww-builder.js decides which of
+     the two you get and unhides this one; it is hidden here so a laptop never
+     sees it flash. See the note in ww-builder.js for why the builder draws the
+     line where the lesson does not. -->
+<section class="lab-blocked" id="lab-blocked" hidden>
+  <div class="lab-blocked-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
+    <h1>This one needs a bigger screen</h1>
+    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
+    <p class="lab-blocked-go">
+      <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the Lesson instead</a>
+      <a class="btn btn-paper" href="/learn" data-track="learn-nav">Both pages</a>
+    </p>
+    <p class="lab-blocked-note">The Lesson works fine on a phone, editors and all. It is only this page that needs the room.</p>
+  </div>
+</section>
 
 <div class="lab-bar">
   <h1>Code Builder</h1>
@@ -35658,7 +38675,16 @@ body.lab .nav .wrap {
 </div>
 
 <main class="lab-main">
-  <aside class="lab-side">
+  <!-- Collapses the whole side panel so the editor gets the window. It rides the
+       seam between the two columns and stays in the same place once the panel is
+       gone, so the control that brings it back is where the control that took it
+       away was. The chevron points the way the next press moves the panel. -->
+  <button type="button" class="lab-side-toggle" id="lab-side-toggle" aria-expanded="true" aria-controls="lab-side" title="Hide the side panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+    <span class="lab-side-toggle-text">Hide panel</span>
+  </button>
+
+  <aside class="lab-side" id="lab-side">
     <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
          deliberately: once they have chosen something to build, the brief is
          what they are working to and the checkpoints become reference. -->
@@ -35696,7 +38722,7 @@ body.lab .nav .wrap {
          locked-down Chromebook makes DevTools a bad answer.
          \`manual\` is deliberately NOT set: the preview follows their typing, and
          Run is there for students who want cause and effect to be discrete. -->
-    <ww-runner console label="Your project">
+    <ww-runner defer console label="Your project">
       <script type="text/ww-file" name="index.html">
         <h1>Wild Willows Explorer</h1>
         <p id="message">Loading game data...</p>
@@ -35889,7 +38915,7 @@ body.lab .nav .wrap {
 			title: "Couldn't reach the Wild Willows data",
 			help:
 				'The request for the game data did not get through. Check the address is exactly ' +
-				'https://wildwillows.app/GameData/ \u2014 and if it looks right, ask your teacher: some school ' +
+				'https://wildwillows.app/GameData/ and if it looks right, ask your teacher: some school ' +
 				'networks block outside websites.',
 		},
 		{
@@ -35906,7 +38932,7 @@ body.lab .nav .wrap {
 			title: 'That element is not on the page',
 			help:
 				'querySelector gives you null when it cannot find what you asked for, and null means ' +
-				'"deliberately nothing". Check the spelling in your HTML and your JavaScript \u2014 and remember ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript, and remember ' +
 				'#name looks for id="name", while .name looks for class="name".',
 		},
 		{
@@ -35914,7 +38940,7 @@ body.lab .nav .wrap {
 			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
 			title: 'That piece of the data is not there',
 			help:
-				'undefined means "nothing found". You asked for something the data does not have \u2014 check the ' +
+				'undefined means "nothing found". You asked for something the data does not have. Check the ' +
 				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
 				'not data.animals.name).',
 		},
@@ -35931,7 +38957,7 @@ body.lab .nav .wrap {
 			match: /is not a function/i,
 			title: 'That is not something you can call',
 			help:
-				'You put () after something that is not a function \u2014 often a typo in the method name, or a ' +
+				'You put () after something that is not a function, often a typo in the method name, or a ' +
 				'value that turned out to be undefined.',
 		},
 		{
@@ -35951,7 +38977,7 @@ body.lab .nav .wrap {
 			match: /is not iterable/i,
 			title: 'That is not a list',
 			help:
-				'for...of and the array methods need an array. Check what you actually got \u2014 it may be a single ' +
+				'for...of and the array methods need an array. Check what you actually got: it may be a single ' +
 				'object, or undefined.',
 		},
 		{
@@ -35974,7 +39000,7 @@ body.lab .nav .wrap {
 			title: 'Your code stopped, and the browser would not say why',
 			help:
 				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
-				'changed, and try commenting lines out until the page runs again \u2014 the last line you removed ' +
+				'changed, and try commenting lines out until the page runs again. The last line you removed ' +
 				'is the one to look at.',
 		},
 		{
@@ -35982,7 +39008,7 @@ body.lab .nav .wrap {
 			match: /syntaxerror|unexpected token|unexpected identifier/i,
 			title: 'JavaScript could not read that',
 			help:
-				'A typo somewhere in the shape of the code \u2014 a missing comma, bracket or quote. The line number ' +
+				'A typo somewhere in the shape of the code: a missing comma, bracket or quote. The line number ' +
 				'is where JavaScript gave up, so the real mistake is often just above it.',
 		},
 	];
@@ -36202,12 +39228,38 @@ body.lab .nav .wrap {
 			}
 		}
 
+		/* What the page actually SHOWS, with the code that produced it left out.
+		 *
+		 * This was document.body.innerText, and innerText has a trapdoor: when an
+		 * element is not being rendered it falls back to textContent. A preview
+		 * that is display:none \u2014 which is every JavaScript-only example in the
+		 * lesson, and any runner switched to the code view \u2014 therefore returned the
+		 * SOURCE of both script blocks, including this harness. And this harness
+		 * contains the literal "[object Object]", in the test immediately below.
+		 * So the check matched itself, and every console example in chapters 5
+		 * through 9 accused the student of rendering an object they never rendered.
+		 *
+		 * A clone with the scripts and styles taken out reads the same whether the
+		 * document is rendered or not, which is the property the old version was
+		 * quietly relying on and did not have. */
+		function pageText() {
+			if (!document.body) return '';
+			try {
+				var clone = document.body.cloneNode(true);
+				var junk = clone.querySelectorAll('script, style');
+				for (var i = 0; i < junk.length; i++) junk[i].parentNode.removeChild(junk[i]);
+				return clone.textContent || '';
+			} catch (e) {
+				return '';
+			}
+		}
+
 		/* The silent failure: nothing is thrown, the page just renders the word
 		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
 		 * student stares at it with no idea what to search for. */
 		window.addEventListener('load', function () {
 			setTimeout(function () {
-				var text = document.body ? document.body.innerText : '';
+				var text = pageText();
 				if (/\\[object Object\\]/.test(text)) send('hint', { key: 'object-object' });
 				else if (/\\bundefined\\b/.test(text)) send('hint', { key: 'undefined-text' });
 			}, 300);
@@ -36221,7 +39273,7 @@ body.lab .nav .wrap {
 			title: 'Your page is showing [object Object]',
 			help:
 				'You are putting a whole object on the page where you meant one part of it. ' +
-				'Try adding the piece you want \u2014 for example .name instead of the whole animal.',
+				'Try adding the piece you want, for example .name instead of the whole animal.',
 		},
 		'undefined-text': {
 			title: 'Your page is showing the word "undefined"',
@@ -36289,7 +39341,7 @@ body.lab .nav .wrap {
 		area.className = 'wwr-code';
 		area.value = value || '';
 		area.spellcheck = false;
-		area.setAttribute('aria-label', file + ' \u2014 code editor');
+		area.setAttribute('aria-label', file + ', code editor');
 		/* Real keyboards, real settings: without these a browser will happily
 		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
 		area.setAttribute('autocomplete', 'off');
@@ -36361,7 +39413,30 @@ body.lab .nav .wrap {
 		var autorun = !host.hasAttribute('manual');
 		var label = host.getAttribute('label') || '';
 
+		/* A JAVASCRIPT-ONLY EXAMPLE HAS NO PAGE TO SHOW.
+		 *
+		 * Twenty-three of the lesson's runners are one main.js and a console: the
+		 * fetch steps, the property paths, every iterator method. Their output is
+		 * console.log and nothing else, so the preview column is a permanently
+		 * blank white rectangle taking half the width, and the view switcher above
+		 * it offers three ways to look at that blank rectangle.
+		 *
+		 * So these get code with the console under it, and no switcher. The
+		 * preview iframe is still built and still runs the code (it is where the
+		 * code executes and what reports back); it is only hidden, via the same
+		 * \`code\` view a student could have chosen by hand.
+		 *
+		 * Detected rather than declared, because the condition IS the definition:
+		 * one file, it is JavaScript, and no HTML or CSS behind it. An example
+		 * that renders something has one of those, and keeps its preview. */
+		var ctx = files[0].context || {};
+		var consoleOnly = mode === 'single' && files[0].kind === 'js' && !ctx.html && !ctx.css;
+		/* Without this such a runner would show nothing at all: no preview by
+		 * design, and no console either. */
+		if (consoleOnly) showConsole = true;
+
 		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		if (consoleOnly) host.classList.add('wwr--console-only');
 		host.innerHTML = '';
 
 		/* ---- toolbar ---- */
@@ -36418,13 +39493,14 @@ body.lab .nav .wrap {
 			viewBtns[v.id] = b;
 			views.appendChild(b);
 		});
-		bar.appendChild(views);
+		if (!consoleOnly) bar.appendChild(views);
 
 		var runBtn = button('Run', 'wwr-run', ICON_RUN);
 		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
 		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
 		openBtn.title = 'Open your page in a new tab';
-		bar.appendChild(openBtn);
+		/* Opening a blank page in a new tab is not a thing worth offering. */
+		if (!consoleOnly) bar.appendChild(openBtn);
 		bar.appendChild(runBtn);
 		bar.appendChild(resetBtn);
 		host.appendChild(bar);
@@ -36438,7 +39514,9 @@ body.lab .nav .wrap {
 			});
 			metric('view_' + id, host);
 		}
-		host.classList.add('wwr--view-split');
+		/* Set directly rather than through setView(), which reports a view change:
+		 * this is the starting state, not something the student chose. */
+		host.classList.add(consoleOnly ? 'wwr--view-code' : 'wwr--view-split');
 
 		/* ---- panes ---- */
 		var body = document.createElement('div');
@@ -36459,7 +39537,14 @@ body.lab .nav .wrap {
 			var t = document.createElement('button');
 			t.type = 'button';
 			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
-			t.textContent = f.name;
+			/* BOTH, ALWAYS. The lesson shows the icon and the builder shows the
+			 * name (see ww-lesson.css), but the filename is in the DOM either way:
+			 * it is the accessible name of the tab, it is what a screen reader
+			 * announces, and it is what the builder's help sidebar reads to decide
+			 * which file it is describing. An icon-only tab with no text is a
+			 * button that says nothing to anyone who cannot see it. */
+			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
+			t.title = f.name;
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
 			t.addEventListener('click', function () {
@@ -36495,7 +39580,7 @@ body.lab .nav .wrap {
 		function makeFrame() {
 			var f = document.createElement('iframe');
 			f.className = 'wwr-preview';
-			f.title = 'Live preview' + (label ? ' \u2014 ' + label : '');
+			f.title = 'Live preview' + (label ? ': ' + label : '');
 			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
 			 * origin and cannot reach this page, its storage, or its cookies. */
 			f.setAttribute('sandbox', 'allow-scripts');
@@ -36790,7 +39875,7 @@ body.lab .nav .wrap {
 			if (message) {
 				var m = document.createElement('code');
 				m.className = 'wwr-error-msg';
-				m.textContent = message + (line ? '  \u2014 line ' + line : '');
+				m.textContent = message + (line ? '  (line ' + line + ')' : '');
 				errBox.appendChild(m);
 			}
 			var p = document.createElement('p');
@@ -36916,6 +40001,32 @@ body.lab .nav .wrap {
 		run('auto');
 	}
 
+	/* One icon per file kind, keyed off the extension.
+	 *
+	 * They are the three questions the lesson opens with, in the same order: a
+	 * document for what is HERE, a drop of paint for what it LOOKS like, a bolt
+	 * for what it DOES. Which means a student meets these shapes in chapter 1 as
+	 * prose and again in every toolbar afterwards as a label.
+	 *
+	 * Drawn, like everything else on these pages, for the reason set out below:
+	 * a character would be whatever glyph the platform's font decides. */
+	var FILE_ICONS = {
+		html: '<path d="M6.5 3.5h7l4.5 4.5v12.5h-11.5z"/><path d="M13.5 3.5V8h4.5"/>',
+		css: '<path d="M12 3.5s5.5 5.6 5.5 9.3a5.5 5.5 0 0 1-11 0C6.5 9.1 12 3.5 12 3.5z"/>',
+		js: '<path d="M13.2 3.5 6.5 13.2h4.6l-.9 7.3 7-9.9h-4.6z"/>',
+	};
+
+	function fileIcon(name) {
+		var ext = String(name).split('.').pop().toLowerCase();
+		var path = FILE_ICONS[ext] || FILE_ICONS.html;
+		return (
+			'<svg class="wwr-tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			path +
+			'</svg>'
+		);
+	}
+
 	/* Icons are DRAWN, never typed.
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
@@ -36990,26 +40101,45 @@ body.lab .nav .wrap {
 			.join('\\n');
 	}
 
+	/**
+	 * Start one runner. Safe to call twice \u2014 the second call is a no-op.
+	 *
+	 * Split out of init() so a page can hold some of its runners back. Every
+	 * runner renders on start (see the run('auto') at the end of WwRunner), and
+	 * each one owns two iframes, so a page with thirty of them opens thirty
+	 * documents before the student has read a word. That is affordable for the
+	 * chapters, which are the point of the page; it is not affordable for
+	 * material inside a panel that begins closed and that most readers will never
+	 * open. Those carry \`defer\` and are mounted when the panel is.
+	 */
+	function mount(host) {
+		if (!host || host.dataset.wwReady) return;
+		host.dataset.wwReady = '1';
+		try {
+			WwRunner(host);
+		} catch (e) {
+			/* A broken runner must not take the rest of the lesson down with it \u2014
+			 * the page is readable without any of them (see the static fallback
+			 * markup each one wraps). */
+			host.classList.add('wwr--failed');
+			if (window.console) console.error('ww-runner failed to start', e);
+		}
+	}
+
 	function init() {
-		Array.prototype.forEach.call(document.querySelectorAll('ww-runner'), function (host) {
-			if (host.dataset.wwReady) return;
-			host.dataset.wwReady = '1';
-			try {
-				WwRunner(host);
-			} catch (e) {
-				/* A broken runner must not take the rest of the lesson down with it \u2014
-				 * the page is readable without any of them (see the static fallback
-				 * markup each one wraps). */
-				host.classList.add('wwr--failed');
-				if (window.console) console.error('ww-runner failed to start', e);
-			}
-		});
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner:not([defer])'), mount);
 	}
 
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 	else init();
 
-	window.WwRunner = { assembleDocument: assembleDocument, explain: explain, escapeForScript: escapeForScript, dedent: dedent };
+	window.WwRunner = {
+		assembleDocument: assembleDocument,
+		explain: explain,
+		escapeForScript: escapeForScript,
+		dedent: dedent,
+		mount: mount,
+	};
 })();
 
 </script>
@@ -37419,7 +40549,49 @@ body.lab .nav .wrap {
 
 	/* ------------------------------------------------------------------- boot */
 
+	/* THE BUILDER DRAWS A LINE THE LESSON DOES NOT.
+	 *
+	 * The lesson works on a phone, editors and all, and should: its examples are
+	 * a dozen lines each, most chapters are read rather than typed, and a student
+	 * on a bus getting through chapter 4 is a win.
+	 *
+	 * This page is the opposite shape. It is three files, a live preview and a
+	 * console, all on screen together, and it exists to be typed into for a whole
+	 * period. On a phone the soft keyboard covers the line being written, there
+	 * is no Tab key, and autocorrect fights punctuation the entire way. Shipping
+	 * a version of that is not generosity, it is a period spent on the keyboard
+	 * instead of on the code.
+	 *
+	 * So a phone gets a straight answer and a link to the thing that does work,
+	 * and the runner is never mounted: it carries \`defer\`, so no editor is built
+	 * and no preview iframes are opened on a device that cannot use them.
+	 *
+	 * The second clause is the landscape phone, wide enough to look like a tablet
+	 * with 400px of height and a keyboard over half of it. An iPad in portrait is
+	 * 744px or more and is not caught by either. */
+	function tooSmall() {
+		if (!window.matchMedia) return false;
+		return window.matchMedia('(max-width: 700px), (pointer: coarse) and (max-height: 460px)').matches;
+	}
+
 	function init() {
+		if (tooSmall()) {
+			var blocked = document.getElementById('lab-blocked');
+			if (blocked) blocked.hidden = false;
+			document.body.classList.add('is-too-small');
+			bump('env_too-small');
+			flush(true);
+			return;
+		}
+		var host = document.querySelector('ww-runner[defer]');
+		if (host && window.WwRunner && window.WwRunner.mount) {
+			host.removeAttribute('defer');
+			window.WwRunner.mount(host);
+		}
+		start();
+	}
+
+	function start() {
 		var runner = $('ww-runner');
 		if (!runner || !window.WwRunner) return;
 
@@ -37448,8 +40620,53 @@ body.lab .nav .wrap {
 			}, 4000);
 		}
 
+		/* ---- arriving from the lesson ----
+		 *
+		 * The last chapter of /learn/web-development hands the student's own work
+		 * across rather than dropping them into a starter project that throws it
+		 * away. It travels in the URL FRAGMENT, which browsers do not send to the
+		 * server: their code stays theirs, and the promise this page and
+		 * PRIVACY.md both make stays true.
+		 *
+		 * It wins over the autosave, and that is the right way round. Someone who
+		 * clicked "Open the Code Builder" at the end of the lesson thirty seconds
+		 * ago means the thing they were just looking at, not whatever they left
+		 * here last week. The old work is not lost either: this does not save
+		 * over it until they type something. */
+		var carried = null;
+		try {
+			var m = /[#&]start=([^&]+)/.exec(location.hash || '');
+			if (m) {
+				var payload = JSON.parse(decodeURIComponent(m[1]));
+				if (payload && typeof payload === 'object') {
+					carried = {
+						'index.html': typeof payload.html === 'string' ? payload.html : undefined,
+						'styles.css': typeof payload.css === 'string' ? payload.css : undefined,
+						'main.js': typeof payload.js === 'string' ? payload.js : undefined,
+					};
+					// The fragment is long and means nothing to a reader. Take it out of
+					// the bar so a reload or a bookmark is a plain /learn/code-builder.
+					if (history.replaceState) history.replaceState(null, '', location.pathname);
+				}
+			}
+		} catch (e) {
+			/* Anything unparseable in a hash a student may well have edited by hand
+			 * is not worth a broken page: fall through to the normal opening. */
+		}
+		if (carried) {
+			var only = {};
+			for (var name in carried) if (carried[name] !== undefined) only[name] = carried[name];
+			if (Object.keys(only).length) {
+				runner.wwSet(only);
+				status('Brought your code over from the lesson.', 'ok');
+				bump('carried_in');
+			} else {
+				carried = null;
+			}
+		}
+
 		/* ---- restore ---- */
-		var restored = load();
+		var restored = carried ? null : load();
 		if (restored) {
 			runner.wwSet({ 'index.html': restored.html, 'styles.css': restored.css, 'main.js': restored.js });
 			doneSet = restored.done || {};
@@ -37624,6 +40841,46 @@ body.lab .nav .wrap {
 			});
 		}
 		renderCheckpoints();
+
+		/* ---- the side panel, collapsed to nothing ----
+		 *
+		 * The checkpoints and the help are reference: worth having open while you
+		 * are working out what to do next, and 280px of permanent tax once you
+		 * know. A student writing a long chained expression wants the window.
+		 *
+		 * All the way out rather than narrower, because a squeezed sidebar is the
+		 * worst of both: still taking room, no longer readable. The bubble rides
+		 * the seam and stays in the same place in both states, which it has to:
+		 * it is the only control that survives the panel disappearing.
+		 *
+		 * Remembered with the rest of the layout, for the same reason the panels
+		 * themselves are: somebody who collapsed it on day two did not mean "until
+		 * I reload". */
+		var sideToggle = $('#lab-side-toggle');
+		if (sideToggle) {
+			var sideLabel = $('.lab-side-toggle-text', sideToggle);
+
+			function paintSide() {
+				var hidden = document.body.classList.contains('side-hidden');
+				sideToggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+				// The control says what pressing it will DO, not what the state is.
+				sideToggle.title = hidden ? 'Show the side panel' : 'Hide the side panel';
+				// The bubble shows a chevron and nothing else, so this label is the
+				// only wording a screen reader has. It is hidden, not absent.
+				if (sideLabel) sideLabel.textContent = hidden ? 'Show panel' : 'Hide panel';
+			}
+
+			if (ui.sideHidden === true) document.body.classList.add('side-hidden');
+			paintSide();
+
+			sideToggle.addEventListener('click', function () {
+				var hidden = document.body.classList.toggle('side-hidden');
+				ui.sideHidden = hidden;
+				save(files(), doneSet, ui);
+				paintSide();
+				bump(hidden ? 'panel_side_hidden' : 'panel_side_shown');
+			});
+		}
 
 		/* ---- collapsible side panels ---- */
 		[
@@ -37927,7 +41184,7 @@ body.lab .nav .wrap {
 		/* Where they went next. The nav links leave the page, so this has to be a
 		 * plain click listener rather than anything that waits for a response \u2014
 		 * bump() batches into the pagehide flush, which fires on the way out. */
-		var NAV = { 'lesson-nav': 'nav_lesson', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		var NAV = { 'lesson-nav': 'nav_lesson', 'learn-nav': 'nav_learn', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
 		document.addEventListener('click', function (e) {
 			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
 			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
@@ -37970,8 +41227,8 @@ var learnWebDevelopmentHtml = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Build with Wild Willows &mdash; learn HTML, CSS, JavaScript and APIs with real game data</title>
-<meta name="description" content="A free nine-chapter web development lesson for high school students. Learn HTML, CSS, JavaScript, and how to fetch a real API \u2014 every code sample on the page is editable and runs in your browser. No accounts, no installs.">
+<title>Build with Wild Willows: learn HTML, CSS, JavaScript and APIs with real game data</title>
+<meta name="description" content="A free ten-chapter web development lesson for high school students. Learn HTML, CSS, JavaScript, and how to fetch a real API. Every code sample on the page is editable and runs in your browser. No accounts, no installs.">
 <link rel="canonical" href="https://wildwillows.app/learn/web-development">
 <meta name="theme-color" content="#f4eeda">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
@@ -38304,6 +41561,9 @@ body.lesson,
  * genuinely new control on the page still looks like something they have
  * already seen on /teachers. */
 .wwr-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 0.78rem;
 	font-weight: 700;
@@ -38313,6 +41573,17 @@ body.lesson,
 	background: transparent;
 	color: var(--ink-soft, #75765f);
 	cursor: pointer;
+}
+
+/* The icon is there on every tab and shown only where the name is not: the
+   builder is a tool and names its files; the lesson is prose with editors in it
+   and cannot spend a third of every toolbar on three filenames. See
+   ww-lesson.css for the swap. */
+.wwr-tab-ico {
+	display: none;
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
 }
 
 .wwr-tab:hover {
@@ -38441,6 +41712,30 @@ body.lesson,
 
 .wwr--view-code .wwr-panes {
 	border-right: 0;
+}
+
+/* One visible pane, so ONE row. The stacked breakpoint below names two rows for
+   the code-above-preview layout; with the preview hidden the second row is left
+   empty and the card carries dead space under the editor. */
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-rows: minmax(0, 1fr);
+}
+
+/* ------------------------------------------------- JavaScript-only examples
+ *
+ * Code with a console under it and no switcher: see the note in ww-runner.js
+ * for why these are detected rather than declared. The preview still exists and
+ * still runs; it is display:none by way of the \`code\` view.
+ *
+ * The console is the output here rather than a sidecar, so it gets the room a
+ * result deserves and the editor stops being three quarters of the card. */
+.wwr--console-only .wwr-body {
+	min-height: 150px;
+}
+
+.wwr--console-only .wwr-console {
+	min-height: 8rem;
 }
 
 /* -------------------------------------------------------------------- panes */
@@ -38768,8 +42063,21 @@ body.wwr-resizing iframe {
 /* ------------------------------------------------------------- small screens */
 
 @media (max-width: 820px) {
+	/* THE ROWS HAVE TO BE NAMED, NOT JUST THE COLUMNS.
+	 *
+	 * Dropping to one column left grid-template-rows at a single
+	 * minmax(0, 1fr) from the two-column layout, so the code pane took the whole
+	 * explicit row and the preview landed in an IMPLICIT row sized auto. Inside a
+	 * bounded container that resolves to zero: the preview was 0px tall on every
+	 * iPad in portrait and every phone, which is the half of the screen the whole
+	 * teaching device depends on. Measured, not guessed: body 180, code 180,
+	 * preview 0.
+	 *
+	 * Two explicit rows, and the code gets slightly less than the preview because
+	 * on a narrow screen the result is the part worth seeing. */
 	.wwr-body {
 		grid-template-columns: 1fr;
+		grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
 	}
 
 	.wwr-panes {
@@ -38777,7 +42085,13 @@ body.wwr-resizing iframe {
 		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
 	}
 
-	.wwr-code,
+	/* Stacked, each pane needs a floor of its own or the shorter examples
+	   collapse to a few lines each. Roughly ten lines of code above a preview
+	   that can show a heading and a list, which is what these examples are. */
+	.wwr-code {
+		min-height: 170px;
+	}
+
 	.wwr-preview {
 		min-height: 150px;
 	}
@@ -38792,7 +42106,7 @@ body.wwr-resizing iframe {
 	}
 }
 
-/* Wild Willows \u2014 the student lesson at /learn/web-development.
+/* Wild Willows: the student lesson at /learn/web-development.
  *
  * Only what the lesson adds. Tokens, buttons, chips, nav and .wrap come from
  * site-core.css; the editor and preview come from ww-runner.css; dark mode is a
@@ -38802,7 +42116,7 @@ body.wwr-resizing iframe {
  *
  *   \u2022 A CHAPTER IS A LANDMARK, not a card. Nine of them stacked as cards reads
  *     as a form to fill in. They are sections of one document with a rule
- *     between them, and the runners are the only boxes on the page \u2014 so the eye
+ *     between them, and the runners are the only boxes on the page: so the eye
  *     goes to the thing you can type in.
  *   \u2022 THE RAIL IS THE SYLLABUS. A student who scrolls away from chapter 4 needs
  *     to know there are five more and which one they are in. It is a real nav
@@ -38871,9 +42185,15 @@ body.lesson {
 	overflow: auto;
 }
 
+/* Three columns: the number, the title, and the tick.
+   The tick has its OWN column rather than standing in for the number. It used
+   to replace it, which meant a finished chapter lost the one thing saying where
+   it sits in the order, and a reader scanning for "chapter 6" found a column of
+   ticks and a gap. Number on the left, progress on the right, both readable at
+   once. */
 .lrail a {
 	display: grid;
-	grid-template-columns: 1.35rem minmax(0, 1fr);
+	grid-template-columns: 1.35rem minmax(0, 1fr) 0.75rem;
 	gap: 0.55rem;
 	align-items: baseline;
 	padding: 0.34rem 0.75rem;
@@ -38884,6 +42204,27 @@ body.lesson {
 	border-left: 2px solid transparent;
 }
 
+/* Drawn, not typed, for the reason every icon on these pages is. The column is
+   reserved whether or not the tick is showing, so a row does not shift sideways
+   the moment it is finished. Pinned to the FIRST line: a two-line title would
+   otherwise centre it between the lines, pointing at nothing. */
+.lrail a::after {
+	content: '';
+	grid-column: 3;
+	align-self: start;
+	width: 0.5rem;
+	height: 0.28rem;
+	margin-top: 0.34rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+	opacity: 0;
+}
+
+.lrail a.is-done::after {
+	opacity: 1;
+}
+
 .lrail a:hover {
 	background: var(--sprout);
 	color: var(--ink);
@@ -38891,7 +42232,7 @@ body.lesson {
 
 /* --ink-soft rather than --ink-faint, because this number sits on --sprout when
    the row is current or hovered, and --ink-faint measures 4.09 against the dark
-   sprout \u2014 under AA for text this small. --ink-soft clears it on both (5.47
+   sprout: under AA for text this small. --ink-soft clears it on both (5.47
    light, 5.44 dark). */
 .lrail .rnum {
 	font-variant-numeric: tabular-nums;
@@ -38914,23 +42255,8 @@ body.lesson {
 	color: var(--green-deep);
 }
 
-/* Where you have been. The tick replaces the number rather than sitting beside
-   it: a row that says both "4" and "done" is two facts competing for 1.3rem. */
-.lrail a.is-done .rnum::after {
-	content: '';
-	display: block;
-	width: 0.55rem;
-	height: 0.3rem;
-	margin-top: 0.15rem;
-	border-left: 2px solid var(--green);
-	border-bottom: 2px solid var(--green);
-	transform: rotate(-45deg);
-}
-
-.lrail a.is-done .rnum {
-	color: transparent;
-	line-height: 0.9;
-}
+/* A finished chapter keeps its number and its title at full strength. The tick
+   is added; nothing is taken away. */
 
 @media (max-width: 900px) {
 	.lrail {
@@ -39054,11 +42380,96 @@ body.lesson {
 	margin: 1rem 0 0.5rem;
 }
 
+/* ICONS, NOT FILENAMES, IN A LESSON TOOLBAR.
+ *
+ * A three-file runner in a chapter was spending about a third of its toolbar on
+ * "index.html  styles.css  main.js", which pushed the view switcher and the Run
+ * button onto a second row. That second row is not a cosmetic problem: it moves
+ * Run to somewhere a student is not looking on the one control they need most.
+ *
+ * The name is still in the DOM and still the tab's accessible name, so a screen
+ * reader hears "index.html" and hovering shows it. Only the sighted, on-screen
+ * label is traded for a shape, and the shapes are the three questions chapter 1
+ * opens with: a document for what is here, a drop for what it looks like, a
+ * bolt for what it does.
+ *
+ * The Code Builder keeps the filenames. It is a tool with three real files in
+ * it, and a student is about to download them by name. */
+.ch ww-runner .wwr-tab-ico {
+	display: block;
+}
+
+/* Not \`display: none\` on the name: that takes it out of the accessibility tree
+   with it, and the tab would announce as an unlabelled button. This is the
+   standard visually-hidden recipe, which leaves it readable to assistive
+   technology and invisible to everyone else. */
+.ch ww-runner .wwr-tab-name {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.ch ww-runner .wwr-tab {
+	padding: 0.25rem 0.5rem;
+}
+
+/* THE EDITOR MUST SCROLL, NOT GROW.
+ *
+ * ww-runner.css pins the whole height chain so the line-number gutter cannot
+ * push its ancestors open, and the builder page then bounds the card with a
+ * full-height flex column. A lesson runner has no such column: it sits in
+ * ordinary document flow, so its grid row is free to size to its content and a
+ * student who pastes a hundred lines gets a two-thousand-pixel editor with the
+ * preview stranded somewhere off screen beside it. Measured before this rule:
+ * a 120-line file made the card 2483px tall inside a 761px window, and the
+ * textarea never scrolled vertically at all, because it never had to.
+ *
+ * min-height is in the runner sheet and is about not being uselessly small.
+ * This is the other end: a definite maximum on the grid container, which lets
+ * the minmax(0, 1fr) row cap out and hands the overflow to the textarea, where
+ * \`overflow: auto\` has been waiting for it the whole time. The gutter follows
+ * the textarea's scrollTop (see ww-runner.js), so the line numbers stay put.
+ *
+ * Roughly twenty-five lines of code. Long enough for every example on this
+ * page and for a student's own experiments; short enough that the prose above
+ * and below a runner stays on the same screen as it. */
+.ch ww-runner .wwr-body {
+	max-height: 26rem;
+}
+
+/* STACKED, THE CAP HAS TO GROW, NOT SHRINK.
+   Below 820px the two columns become two rows (see ww-runner.css), so one cap
+   is now feeding both the code and the preview. The first version of this went
+   the other way and made it SMALLER on a phone, which left about seven lines of
+   code above a preview the size of a postage stamp. Taller here, and the split
+   inside it favours the preview, because on a narrow screen the result is the
+   part worth seeing. */
+@media (max-width: 820px) {
+	.ch ww-runner .wwr-body {
+		max-height: 32rem;
+	}
+}
+
+/* A phone still gets a working editor, so the box has to stay big enough to
+   type in: about ten lines of code above a preview of the same size, which is
+   what the examples in these chapters actually are. */
+@media (max-width: 560px) {
+	.ch ww-runner .wwr-body {
+		max-height: 28rem;
+	}
+}
+
 /* The line under a runner that says what just changed. Tied to the box above it
    by position and by being the only small grey line on the page.
 
    --ink-soft here is the CLASSROOM value, not site-core's. This page carries
-   \`body.lesson\`, which ww-runner.css repoints along with \`body.lab\` \u2014 site-core's
+   \`body.lesson\`, which ww-runner.css repoints along with \`body.lab\`: site-core's
    #75765f measures 4.01 on --paper and these captions carry the instruction for
    the exercise above them ("change forestgreen to your favourite colour"), which
    is not a sentence to render in a shade that fails AA. */
@@ -39105,7 +42516,7 @@ body.lesson {
 	letter-spacing: 0.02em;
 }
 
-/* The trap notes \u2014 one \`=\` versus three, quotes around a number. Warm rather
+/* The trap notes: one \`=\` versus three, quotes around a number. Warm rather
    than red: these are things that will happen to you, not things you did wrong.
    Same palette as the runner's error panel, deliberately. */
 .note.warn {
@@ -39138,6 +42549,34 @@ body.lesson {
 
 .note.stretch .note-t {
 	color: var(--ink-soft);
+}
+
+/* A pill beside a heading, for material that is worth doing and not required.
+   Beside the heading rather than in a box above it, because a box above says
+   "this section is different" and a pill says "this one is a reach", which is
+   the actual message. Carries the words too: a colour alone would tell nobody
+   anything, and it is the same reason the chapter 2 callout gives. */
+.pill {
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 0.5rem;
+	font-size: 0.62rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #7a5312; /* 5.98 on the fill below */
+	background: #f8efdc;
+	border: 1px solid #e6d3ab;
+	border-radius: 999px;
+	padding: 0.16rem 0.5rem;
+	position: relative;
+	top: -0.08em;
+}
+
+[data-theme='dark'] .pill {
+	color: #e0c08a; /* 8.20 on the fill below */
+	background: #33291a;
+	border-color: #5b4a2c;
 }
 
 /* ----------------------------------------------------------------- tables */
@@ -39266,7 +42705,7 @@ body.lesson {
 }
 
 /* The fold control. Sized to match .jspace exactly so a leaf row's value lines
-   up with a container row's key \u2014 a tree whose columns do not agree is harder to
+   up with a container row's key: a tree whose columns do not agree is harder to
    read than no tree. The chevron inside is an SVG (see setChevron). */
 .jtoggle {
 	display: inline-flex;
@@ -39316,11 +42755,11 @@ body.lesson {
 
 /* TYPE COLOURS, AND WHY THESE.
    The legend under the tree names each one, so colour is never the only carrier
-   of meaning \u2014 but they still have to be READABLE, and these are small
+   of meaning: but they still have to be READABLE, and these are small
    monospace text rather than large display type, so the bar is 4.5 and not 3.
 
    MEASURED AGAINST THE SURFACE THEY ACTUALLY SIT ON, which is --paper-deep
-   (#ece4cb), the .jtree background \u2014 NOT the page behind it. A first pass here
+   (#ece4cb), the .jtree background: NOT the page behind it. A first pass here
    used --paper and shipped three values that read as passing and were not:
    #1f7a3f measured 4.62 on the page and 4.22 in the box it is actually drawn
    in. Ratios below are on #ece4cb, the worst of the three surfaces these ever
@@ -39337,8 +42776,8 @@ body.lesson {
 .jnull {
 	color: #5d5e4c;
 } /* 5.21 */
-/* Array(150) and { 17 } are the TYPE of the row, not decoration \u2014 a student is
-   meant to read them \u2014 so this needs the classroom --ink-faint (#66674f, 4.57 on
+/* Array(150) and { 17 } are the TYPE of the row, not decoration: a student is
+   meant to read them: so this needs the classroom --ink-faint (#66674f, 4.57 on
    the worst cream surface) rather than site-core's #9d9c85, which measures 2.20
    against this box. See the override in ww-runner.css. */
 .jmeta {
@@ -39523,7 +42962,7 @@ body.lesson {
 /* --------------------------------------------------------- no-JS fallback */
 
 /* Every runner wraps a static copy of its own starter code so the lesson is
-   readable with scripting off \u2014 a real constraint on a locked-down school
+   readable with scripting off: a real constraint on a locked-down school
    machine, not a hypothetical. The runner replaces the element's contents on
    boot, so this only ever shows when it did not. */
 .static-fallback {
@@ -39567,7 +43006,7 @@ body.lesson {
 
    --green-deep is the DARKER green: correct under white text and on cream, and
    backwards on a dark surface. Every place below is green text sitting on the
-   dark --sprout (#26302a) or the dark page, where the deep step measures 4.33 \u2014
+   dark --sprout (#26302a) or the dark page, where the deep step measures 4.33,
    under AA for body text. The bright step is the one the dark palette pairs with
    a dark ground, exactly as ww-dark.css does for the primary buttons.
 
@@ -39580,10 +43019,155 @@ body.lesson {
 }
 
 /* The rail's done-tick is a border, not text, so it takes the accent rather than
-   the ink \u2014 and it needs to read against the page, not against a fill. */
-[data-theme='dark'] .lrail a.is-done .rnum::after {
+   the ink, and it needs to read against the page, not against a fill. */
+[data-theme='dark'] .lrail a::after {
 	border-left-color: var(--green-bright);
 	border-bottom-color: var(--green-bright);
+}
+
+/* ------------------------------------------------------------ going deeper
+
+   The optional panel that closes the lesson. It is a real <details>, so it
+   works with no JavaScript, it is keyboard operable for free, and a student who
+   uses find-in-page gets the browser's own "expand to reveal" behaviour rather
+   than a search that silently misses half the page.
+
+   It STARTS CLOSED, and that is the whole design. A student who has just
+   finished chapter 9 has done enough; putting fourteen more topics in front of
+   them as a wall reads as "you are not finished after all". Closed, it is one
+   line that says there is more if you want it. */
+
+.deeper {
+	/* Sits at the END of the chapter it belongs to, not at the end of the page.
+	   Attached to its own material a student has just read, it is an offer to go
+	   further on THAT idea; collected at the end of the lesson it was a second
+	   lesson nobody asked for. Wide enough to be clearly a section boundary and
+	   not another callout inside the prose. */
+	margin: 2rem 0 0.6rem;
+	max-width: 46rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	background: var(--panel);
+	overflow: hidden;
+}
+
+.deeper > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 1.1rem 1.3rem;
+	display: grid;
+	grid-template-columns: 1.5rem minmax(0, 1fr);
+	gap: 0.8rem;
+	align-items: start;
+}
+
+/* Safari draws its own triangle through ::-webkit-details-marker rather than
+   through list-style, so both have to be turned off to get one chevron. */
+.deeper > summary::-webkit-details-marker {
+	display: none;
+}
+
+.deeper > summary:hover {
+	background: var(--sprout);
+}
+
+.deeper > summary:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: -3px;
+}
+
+.deeper-chev {
+	width: 1.5rem;
+	height: 1.5rem;
+	color: var(--green-deep);
+	margin-top: 0.1rem;
+}
+
+[data-theme='dark'] .deeper-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.deeper-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.deeper[open] > summary .deeper-chev {
+	transform: rotate(90deg);
+}
+
+.deeper-t {
+	font-size: 1.15rem;
+	font-weight: 700;
+	line-height: 1.3;
+	display: block;
+}
+
+.deeper-sub {
+	color: var(--ink-soft);
+	font-size: 0.92rem;
+	line-height: 1.55;
+	display: block;
+	margin-top: 0.2rem;
+}
+
+.deeper-body {
+	padding: 0 1.3rem 1.6rem;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.deeper-body > h3:first-of-type {
+	margin-top: 1.4rem;
+}
+
+/* A panel's headings are one step down from the chapter's own: the chapter is
+   the spine and this is a footnote on it. Same element, so the document outline
+   is unchanged; smaller, so the eye reads it as nested. */
+.deeper-body h3 {
+	font-size: 0.96rem;
+}
+
+.deeper-body p,
+.deeper-body ul,
+.deeper-body .ltable,
+.deeper-body .note,
+.deeper-body .snippet,
+.deeper-body .cap,
+.deeper-body .backref {
+	max-width: none;
+}
+
+/* A code block with no editor attached: the topics that are worth reading but
+   not worth another two iframes. */
+.snippet {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0.7rem 0 1.2rem;
+	max-width: 46rem;
+}
+
+/* Where a topic connects back to something they already did. The lesson is the
+   spine; this panel is footnotes on it, and a footnote should say which line. */
+.backref {
+	font-size: 0.84rem;
+	color: var(--ink-soft);
+	margin: -0.5rem 0 1.3rem;
+	max-width: 46rem;
+}
+
+.backref a {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .backref a {
+	color: var(--green-bright);
 }
 
 /* Wild Willows \u2014 dark mode for the classroom pages.
@@ -39827,6 +43411,7 @@ body.lesson {
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
     <a class="btn btn-paper" href="/learn/code-builder" data-track="builder-nav">Code Builder</a>
@@ -39845,14 +43430,15 @@ body.lesson {
   <h2>Chapters</h2>
   <ol>
     <li><a href="#chapter-1" data-ch="1"><span class="rnum">1</span><span>Three languages, one webpage</span></a></li>
-    <li><a href="#chapter-2" data-ch="2"><span class="rnum">2</span><span>JavaScript can change HTML</span></a></li>
-    <li><a href="#chapter-3" data-ch="3"><span class="rnum">3</span><span>Programs talking to programs</span></a></li>
-    <li><a href="#chapter-4" data-ch="4"><span class="rnum">4</span><span>Fetch your first API</span></a></li>
-    <li><a href="#chapter-5" data-ch="5"><span class="rnum">5</span><span>Look inside the data</span></a></li>
-    <li><a href="#chapter-6" data-ch="6"><span class="rnum">6</span><span>Make decisions</span></a></li>
-    <li><a href="#chapter-7" data-ch="7"><span class="rnum">7</span><span>Loop through the data</span></a></li>
-    <li><a href="#chapter-8" data-ch="8"><span class="rnum">8</span><span>Put API data on your page</span></a></li>
-    <li><a href="#chapter-9" data-ch="9"><span class="rnum">9</span><span>Your turn</span></a></li>
+    <li><a href="#chapter-2" data-ch="2"><span class="rnum">2</span><span>Make it look like yours</span></a></li>
+    <li><a href="#chapter-3" data-ch="3"><span class="rnum">3</span><span>JavaScript can change HTML</span></a></li>
+    <li><a href="#chapter-4" data-ch="4"><span class="rnum">4</span><span>Programs talking to programs</span></a></li>
+    <li><a href="#chapter-5" data-ch="5"><span class="rnum">5</span><span>Fetch your first API</span></a></li>
+    <li><a href="#chapter-6" data-ch="6"><span class="rnum">6</span><span>Look inside the data</span></a></li>
+    <li><a href="#chapter-7" data-ch="7"><span class="rnum">7</span><span>Make decisions</span></a></li>
+    <li><a href="#chapter-8" data-ch="8"><span class="rnum">8</span><span>Loop through the data</span></a></li>
+    <li><a href="#chapter-9" data-ch="9"><span class="rnum">9</span><span>Put API data on your page</span></a></li>
+    <li><a href="#chapter-10" data-ch="10"><span class="rnum">10</span><span>Your turn</span></a></li>
   </ol>
 </nav>
 
@@ -39860,16 +43446,14 @@ body.lesson {
 
 <header class="lhero">
   <h1>Build with Wild Willows</h1>
-  <p class="lead">Nine short chapters that take you from &ldquo;what is HTML&rdquo; to a webpage you built yourself, filled with live data from a real API. Every code sample below is editable and runs as you type &mdash; you cannot get to the bottom of this page without having written something.</p>
+  <p class="lead">Ten chapters that take you from &ldquo;what is HTML&rdquo; to a webpage you built yourself, filled with live data from a real API. Every code sample below is editable and runs as you type. You cannot get to the bottom of this page without having written something.</p>
   <div class="lmeta">
     <span class="chip">No account</span>
     <span class="chip">Nothing to install</span>
     <span class="chip">Real API, real data</span>
-    <span class="chip">About 3 class periods</span>
   </div>
-  <a class="btn btn-go" href="#chapter-1">Start chapter 1</a>
   <p class="small-screen">This page works on a phone, but the code editors are much easier on a laptop or a tablet with a keyboard.</p>
-  <noscript><p class="nojs" style="display:block;margin-top:1rem">JavaScript is switched off, so the editors below will not run. You can still read every chapter &mdash; each example is printed in full.</p></noscript>
+  <noscript><p class="nojs" style="display:block;margin-top:1rem">JavaScript is switched off, so the editors below will not run. You can still read every chapter: each example is printed in full.</p></noscript>
 </header>
 
 <!-- ============================================================ chapter 1 -->
@@ -39877,11 +43461,11 @@ body.lesson {
   <div class="ch-head">
     <span class="ch-num">Chapter 1</span>
     <h2>Three languages, one webpage</h2>
-    <p class="sub">Every webpage you have ever used is made of three things. Here they are, one at a time, on the same small card.</p>
+    <p class="sub">Every webpage you have ever used is made of three things working together. You will meet each one on its own here, building up the same small page: first the words, then how they look, then what happens when you click.</p>
   </div>
 
-  <h3>HTML &mdash; what is here?</h3>
-  <p>HTML is labeled text. A <code>&lt;h1&gt;</code> is a heading, a <code>&lt;p&gt;</code> is a paragraph, and the labels are what tell the browser which is which. Change the words and press nothing &mdash; it updates as you type.</p>
+  <h3>HTML: what is here?</h3>
+  <p>HTML is labeled text. A <code>&lt;h1&gt;</code> is a heading, a <code>&lt;p&gt;</code> is a paragraph, and the labels are what tell the browser which is which. Change the words and press nothing: it updates as you type.</p>
 
   <ww-runner label="index.html" data-concept="chapter_1_reached">
     <script type="text/ww-file" name="index.html">
@@ -39891,9 +43475,9 @@ body.lesson {
     <pre class="static-fallback">&lt;h1&gt;Wild Willows Animals&lt;/h1&gt;
 &lt;p&gt;Animals return when their habitat is healthy.&lt;/p&gt;</pre>
   </ww-runner>
-  <p class="cap">That is a webpage. Plain, unstyled, and completely real &mdash; you could put that file on the internet right now.</p>
+  <p class="cap">That is a webpage. Plain, unstyled, and completely real. You could put that file on the internet right now.</p>
 
-  <h3>CSS &mdash; what does it look like?</h3>
+  <h3>CSS: what does it look like?</h3>
   <p>Same HTML. CSS says how it should look, and it only ever needs three ideas: <strong>which thing</strong> (the selector), <strong>what about it</strong> (the property), and <strong>set to what</strong> (the value).</p>
 
   <ww-runner label="styles.css">
@@ -39910,7 +43494,7 @@ p  { font-size: 18px; }</pre>
   </ww-runner>
   <p class="cap"><strong>Your first challenge, ten seconds in:</strong> change <code>forestgreen</code> to your favorite color and watch the heading change. Try <code>rebeccapurple</code>, <code>tomato</code>, or <code>#4a7c59</code>.</p>
 
-  <h3>JavaScript &mdash; what does it do?</h3>
+  <h3>JavaScript: what does it do?</h3>
   <p>JavaScript makes a page respond. Also three ideas: <strong>find</strong> the element, <strong>listen</strong> for something to happen, <strong>change</strong> it. Click the heading in the preview.</p>
 
   <ww-runner label="main.js">
@@ -39932,17 +43516,456 @@ heading.addEventListener("click", () =&gt; {
 });</pre>
   </ww-runner>
   <p class="cap">HTML is the content. CSS is the appearance. JavaScript is the behavior. That is the whole map, and the rest of this lesson is one of those three getting more interesting.</p>
+
+  <details class="deeper" data-deeper="chapter-1">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. A few more HTML elements, and what the labels are actually for.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>There are more labels than these three</h3>
+      <p>You have used <code>&lt;h1&gt;</code> and <code>&lt;p&gt;</code>. There are about a hundred elements and you will use perhaps fifteen of them. These are the ones that come up first.</p>
+      <pre class="snippet">&lt;h1&gt; to &lt;h6&gt;   headings, in order of importance
+&lt;p&gt;             a paragraph
+&lt;ul&gt; &lt;li&gt;       a list, and one item in it
+&lt;a href="..."&gt;  a link
+&lt;img src="..." alt="..."&gt;   an image
+&lt;button&gt;        something to press
+&lt;div&gt;           a box with no meaning of its own
+&lt;span&gt;          a piece of text with no meaning of its own</pre>
+
+      <h3>Why the label matters, and not just the look</h3>
+      <p>You could make any of these look like any other with CSS. The label is not about the look: it is what tells a screen reader that a heading is a heading, what lets a search engine understand the page, and what makes <code>&lt;button&gt;</code> respond to the keyboard without you writing a line of code.</p>
+      <p>A <code>&lt;div&gt;</code> you have made clickable does none of that. Use the element that means what you mean, and reach for <code>&lt;div&gt;</code> and <code>&lt;span&gt;</code> when nothing means it.</p>
+
+      <h3>Attributes</h3>
+      <p>The extra information inside the opening tag. <code>href</code> is where a link goes, <code>src</code> is which image to load, and <code>alt</code> is what the image says for anyone who cannot see it.</p>
+      <pre class="snippet">&lt;a href="https://wildwillows.app"&gt;Play the game&lt;/a&gt;
+&lt;img src="fox.jpg" alt="A red fox in long grass"&gt;</pre>
+      <p class="backref"><code>alt</code> is not optional and it is not a caption. It is the sentence a blind reader hears in place of the picture, and it is also what shows up if the image fails to load on school wifi.</p>
+      </div>
+    </details>
 </section>
 
 <!-- ============================================================ chapter 2 -->
 <section class="ch" id="chapter-2">
   <div class="ch-head">
     <span class="ch-num">Chapter 2</span>
-    <h2>JavaScript can change HTML</h2>
-    <p class="sub">This is the small idea that everything else in this lesson is built on. It is worth two minutes.</p>
+    <h2>Make it look like yours</h2>
+    <p class="sub">You changed one color in chapter 1. CSS has maybe a dozen ideas that matter, and they are all in this chapter.</p>
   </div>
 
-  <p>An HTML element can be given an <code>id</code> &mdash; a name. JavaScript can then go and find the element with that name, and change it.</p>
+  <h3>Three ways to say which thing</h3>
+  <p>Every CSS rule starts by naming what it applies to. There are three ways to name something, and they answer three different questions.</p>
+
+  <div class="ltable-scroll">
+  <table class="ltable">
+    <thead><tr><th>Written</th><th>Means</th><th>Use it for</th></tr></thead>
+    <tbody>
+      <tr><td><code>p</code></td><td>every paragraph on the page</td><td>the overall look</td></tr>
+      <tr><td><code>.card</code></td><td>anything with <code>class="card"</code></td><td>a kind of thing you have several of</td></tr>
+      <tr><td><code>#total</code></td><td>the one thing with <code>id="total"</code></td><td>a single specific element</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <p>A class is the one you will reach for most. An element can carry several, separated by spaces, and any number of elements can share one.</p>
+
+  <ww-runner label="element, class, id">
+    <script type="text/ww-file" name="index.html" context>
+      <h2>Willow Meadow</h2>
+      <p class="fact">A meadow can hold twenty-five species.</p>
+      <p class="fact rare">Barn owls only come back late.</p>
+      <p id="total">25 animals</p>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      p {
+        color: #3b4232;
+      }
+
+      .fact {
+        font-style: italic;
+      }
+
+      .rare {
+        color: #8e4a12;
+        font-weight: 700;
+      }
+
+      #total {
+        font-size: 22px;
+      }
+    </script>
+    <pre class="static-fallback">p       { color: #3b4232; }
+.fact   { font-style: italic; }
+.rare   { color: #8e4a12; font-weight: 700; }
+#total  { font-size: 22px; }</pre>
+  </ww-runner>
+  <p class="cap">The second paragraph has both classes, so it gets both rules. When two rules set the same property, the more specific one wins, and an <code>id</code> beats a class which beats an element.</p>
+
+  <h3>Color, and the four ways to write one</h3>
+  <p>They all mean a color. Use whichever you can read.</p>
+  <pre class="snippet">color: forestgreen;              /* a name, about 140 of them exist */
+color: #4a7c59;                  /* hex: red, green, blue */
+color: rgb(74 124 89);           /* the same numbers, in decimal */
+color: rgb(74 124 89 / 40%);     /* the same, 40% see-through */</pre>
+  <p><code>color</code> is the text. <code>background</code> is behind it.</p>
+
+  <h3>Space: padding pushes in, margin pushes away</h3>
+  <p>Two properties, and the difference is exactly this. <strong>Padding</strong> is space inside the box, between its edge and its content. <strong>Margin</strong> is space outside the box, between it and everything else.</p>
+
+  <ww-runner label="padding versus margin">
+    <script type="text/ww-file" name="index.html" context>
+      <div class="card">First</div>
+      <div class="card">Second</div>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      .card {
+        background: #eaf3dd;
+
+        /* space INSIDE: the words move away from the edge */
+        padding: 16px;
+
+        /* space OUTSIDE: the cards move away from each other */
+        margin: 8px;
+      }
+    </script>
+    <pre class="static-fallback">.card {
+  background: #eaf3dd;
+  padding: 16px;   /* inside */
+  margin: 8px;     /* outside */
+}</pre>
+  </ww-runner>
+  <p class="cap">Set <code>padding</code> to <code>0</code> and watch the words hit the edge. Set <code>margin</code> to <code>0</code> and watch the two cards touch. The background color makes the difference visible, which is why it is there.</p>
+
+  <p>One value applies to all four sides. Two means vertical then horizontal, which is the form you will write most:</p>
+  <pre class="snippet">padding: 16px;              /* all four sides */
+padding: 8px 16px;          /* top and bottom, then left and right */
+padding: 8px 16px 24px 4px; /* top, right, bottom, left, clockwise */
+padding-left: 16px;         /* or just the one you mean */</pre>
+
+  <h3>Type</h3>
+  <p>Four properties do almost all of the work, and <code>line-height</code> is the one people forget. Text set solid is hard to read; a line height of about 1.5 is the single easiest improvement you can make to any page.</p>
+
+  <ww-runner label="making text readable">
+    <script type="text/ww-file" name="index.html" context>
+      <h2>Red Fox</h2>
+      <p class="role">A stalk-and-pounce generalist that keeps rodent and rabbit
+      numbers down and fills the gaps with insects, berries and whatever it finds
+      already dead. It rarely digs a den from scratch.</p>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      body {
+        font-family: system-ui, sans-serif;
+      }
+
+      .role {
+        font-size: 16px;
+        font-weight: 400;
+        line-height: 1.6;
+        max-width: 34em;
+      }
+    </script>
+    <pre class="static-fallback">.role {
+  font-size: 16px;
+  line-height: 1.6;
+  max-width: 34em;
+}</pre>
+  </ww-runner>
+  <p class="cap">Change <code>line-height</code> to <code>1</code> and read the paragraph again. Then take out <code>max-width</code> and widen the preview: a line of text longer than about 75 characters is measurably harder to read, because your eye loses its place coming back to the start.</p>
+
+  <h3>Boxes: borders, corners and shadow</h3>
+
+  <ww-runner label="turning a div into a card">
+    <script type="text/ww-file" name="index.html" context>
+      <div class="card">
+        <h3>Barn Owl</h3>
+        <p>Rare in the meadow</p>
+      </div>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      body { font-family: system-ui, sans-serif; padding: 20px; }
+
+      .card {
+        background: white;
+        border: 2px solid #4a7c59;
+        border-radius: 14px;
+        padding: 16px 20px;
+        box-shadow: 0 2px 10px rgb(0 0 0 / 12%);
+      }
+
+      .card h3 { margin: 0 0 4px; color: #39604a; }
+      .card p  { margin: 0; color: #75765f; }
+    </script>
+    <pre class="static-fallback">.card {
+  background: white;
+  border: 2px solid #4a7c59;
+  border-radius: 14px;
+  padding: 16px 20px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 12%);
+}</pre>
+  </ww-runner>
+  <p class="cap">Try <code>border-radius: 999px</code>. A radius larger than the box gives you a pill, which is how every rounded button on this page is made.</p>
+
+  <h3>Putting things in a row</h3>
+  <p>By default a <code>&lt;div&gt;</code> stacks: one per line, full width. Three properties change that, and between them they handle most layouts you will want.</p>
+
+  <ww-runner label="flexbox, the useful third of it">
+    <script type="text/ww-file" name="index.html" context>
+      <div class="row">
+        <span class="tag">meadow</span>
+        <span class="tag">rare</span>
+        <span class="tag">bird</span>
+      </div>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      body { font-family: system-ui, sans-serif; padding: 20px; }
+
+      .row {
+        display: flex;      /* children sit in a row */
+        gap: 8px;           /* space between them, no margins needed */
+        align-items: center;
+        flex-wrap: wrap;    /* and drop to the next line if they run out of room */
+      }
+
+      .tag {
+        background: #eaf3dd;
+        border-radius: 999px;
+        padding: 4px 12px;
+      }
+    </script>
+    <pre class="static-fallback">.row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  flex-wrap: wrap;
+}</pre>
+  </ww-runner>
+  <p class="cap">Add <code>justify-content: space-between</code> to <code>.row</code> and the tags spread to the edges. <code>gap</code> is the property worth remembering: it spaces children without giving any of them a margin, so nothing collapses or doubles up.</p>
+
+  <h3>Reacting to the mouse</h3>
+  <p><code>:hover</code> is a rule that only applies while the pointer is over the element. <code>transition</code> tells the browser to move between the two states over time instead of snapping.</p>
+
+  <ww-runner label="hover, with and without a transition">
+    <script type="text/ww-file" name="index.html" context>
+      <button class="btn">Hover me</button>
+      <button class="btn snap">And me</button>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      body { font-family: system-ui, sans-serif; padding: 20px; }
+
+      .btn {
+        font: inherit;
+        background: #4a7c59;
+        color: white;
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 18px;
+        cursor: pointer;
+        transition: background 0.2s ease;
+      }
+
+      .btn:hover  { background: #39604a; }
+      .snap       { transition: none; }
+    </script>
+    <pre class="static-fallback">.btn        { transition: background 0.2s ease; }
+.btn:hover  { background: #39604a; }</pre>
+  </ww-runner>
+  <p class="cap">Both buttons end up the same color. Only one of them gets there smoothly. Going Deeper, just below, takes this further into <code>transform</code> and real animation.</p>
+
+  <div class="note">
+    <span class="note-t">Where to look things up</span>
+    <p>There are hundreds of CSS properties. Search for what you want in plain words plus "css mdn", for example "css center a div mdn", and you will land on the reference professionals use.</p>
+  </div>
+
+  <details class="deeper" data-deeper="chapter-2">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Formatting text, custom properties, media queries, and making things move.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>Formatting text</h3>
+      <p>Half of this belongs to CSS and half to JavaScript, and the rule for choosing is worth stating: <strong>if it is about appearance, use CSS.</strong> Uppercasing a heading in CSS leaves the real words in the HTML, so search, screen readers and copy-and-paste all still get what you actually wrote.</p>
+      <pre class="snippet">/* CSS: how it looks */
+text-transform: uppercase;    /* the underlying text is unchanged */
+letter-spacing: 0.08em;       /* small caps and labels need this */
+text-align: center;
+font-variant-numeric: tabular-nums;   /* digits line up in a column */
+white-space: nowrap;          /* stop this one from wrapping */
+
+/* JavaScript: what the text IS */
+name.toUpperCase();
+name.trim();                  /* strip stray spaces from input */
+name.split(" ");              /* "Red Fox" -&gt; ["Red", "Fox"] */
+list.join(", ");              /* back the other way */</pre>
+      <p class="backref">The tabular-nums one is a real fix, not a nicety. In most fonts a <code>1</code> is narrower than a <code>7</code>, so a column of numbers looks ragged until you ask for the fixed-width digits the font already contains.</p>
+
+      <h3>One value, used in ten places</h3>
+      <p>A custom property is a name you invent, set once, and use anywhere below it. Change the value at the top and every use of it follows, which is how a whole site changes color in one line.</p>
+      <pre class="snippet">:root {
+  --green: #4a7c59;
+  --ink: #3b4232;
+  --radius: 14px;
+}
+
+.card   { border: 2px solid var(--green); border-radius: var(--radius); }
+.btn    { background: var(--green); }
+h1, h2  { color: var(--ink); }</pre>
+      <p class="backref">Dark mode on this page is exactly this and nothing else: the same rules throughout, with about twenty of these values pointed somewhere darker when you press the moon.</p>
+
+      <h3>The same page on a phone</h3>
+      <p>A <code>@media</code> block applies its rules only when the condition holds. Write the phone layout first and add the wider one on top, because a narrow single column is the thing that always works.</p>
+      <pre class="snippet">.layout { display: grid; gap: 16px; }          /* one column, always */
+
+@media (min-width: 700px) {
+  .layout { grid-template-columns: 1fr 2fr; }  /* two, when there is room */
+}</pre>
+
+      <h3>Transitions: from one state to the other</h3>
+      <p>The hover above used a <code>transition</code>. The property is more general than that: name what should animate, how long it should take, and how it should ease.</p>
+
+      <ww-runner label="what a transition is made of" defer data-concept="deeper_transition">
+        <script type="text/ww-file" name="index.html" context>
+          <div class="row">
+            <div class="box a">ease</div>
+            <div class="box b">linear</div>
+            <div class="box c">slow</div>
+          </div>
+          <p class="hint">Hover any of them</p>
+        </script>
+        <script type="text/ww-file" name="styles.css">
+          body { font-family: system-ui, sans-serif; padding: 20px; }
+          .row { display: flex; gap: 10px; }
+          .hint { color: #75765f; font-size: 14px; }
+
+          .box {
+            background: #eaf3dd;
+            padding: 20px 14px;
+            border-radius: 12px;
+          }
+
+          /* property   duration   easing */
+          .a { transition: background 0.3s ease; }
+          .b { transition: background 0.3s linear; }
+          .c { transition: background 1.2s ease; }
+
+          .box:hover { background: #d8eec2; }
+        </script>
+        <pre class="static-fallback">.a { transition: background 0.3s ease; }
+.box:hover { background: #d8eec2; }</pre>
+      </ww-runner>
+      <p class="cap"><code>transition: all 0.3s</code> works and is a bad habit: it animates properties you did not mean, including ones that force the browser to redo the whole layout. Name what you want.</p>
+
+      <h3><code>transform</code>: move it without moving anything else</h3>
+      <p><code>transform</code> shifts, scales or rotates an element for display only. Everything around it stays exactly where it was, which is why a button can grow on hover without shoving the rest of the row sideways.</p>
+
+      <ww-runner label="transform on hover" defer data-concept="deeper_transform">
+        <script type="text/ww-file" name="index.html" context>
+          <div class="row">
+            <button class="btn lift">lift</button>
+            <button class="btn grow">grow</button>
+            <button class="btn tilt">tilt</button>
+          </div>
+        </script>
+        <script type="text/ww-file" name="styles.css">
+          body { font-family: system-ui, sans-serif; padding: 24px; }
+          .row { display: flex; gap: 10px; }
+
+          .btn {
+            font: inherit;
+            background: #4a7c59;
+            color: white;
+            border: 0;
+            border-radius: 999px;
+            padding: 10px 18px;
+            cursor: pointer;
+            transition: transform 0.16s ease;
+          }
+
+          .lift:hover { transform: translateY(-4px); }
+          .grow:hover { transform: scale(1.12); }
+          .tilt:hover { transform: rotate(-6deg); }
+        </script>
+        <pre class="static-fallback">.lift:hover { transform: translateY(-4px); }
+.grow:hover { transform: scale(1.12); }</pre>
+      </ww-runner>
+      <p class="cap">Animating <code>transform</code> and <code>opacity</code> is cheap, because the browser can do it without recalculating where anything is. Animating <code>width</code>, <code>height</code>, <code>top</code> or <code>margin</code> makes it redo the layout on every frame, which is what a janky page usually is.</p>
+
+      <h3>Keyframes: an animation that runs on its own</h3>
+      <p>A transition needs something to change. When you want motion that just happens, describe the stages with <code>@keyframes</code> and attach them with <code>animation</code>.</p>
+
+      <ww-runner label="a loading state, and a fade-in" defer data-concept="deeper_keyframes">
+        <script type="text/ww-file" name="index.html" context>
+          <p class="loading">Loading animals</p>
+          <div class="card">Banana Slug</div>
+        </script>
+        <script type="text/ww-file" name="styles.css">
+          body { font-family: system-ui, sans-serif; padding: 24px; }
+
+          @keyframes pulse {
+            0%   { opacity: 1; }
+            50%  { opacity: 0.35; }
+            100% { opacity: 1; }
+          }
+
+          @keyframes rise {
+            from { opacity: 0; transform: translateY(10px); }
+            to   { opacity: 1; transform: translateY(0); }
+          }
+
+          /*        name   duration  easing  repeat  */
+          .loading { animation: pulse 1.4s ease-in-out infinite; }
+          .card    { animation: rise 0.45s ease both; }
+
+          .card {
+            background: #eaf3dd;
+            border-radius: 12px;
+            padding: 16px 20px;
+            margin-top: 12px;
+          }
+        </script>
+        <pre class="static-fallback">@keyframes rise {
+  from { opacity: 0; transform: translateY(10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.card { animation: rise 0.45s ease both; }</pre>
+      </ww-runner>
+      <p class="cap">The pulse is the honest use of animation: it says the page is working rather than broken. Chapter 5 fetches real data over a real network, and on school wifi that wait is long enough to need saying something about.</p>
+
+      <div class="note warn">
+        <span class="note-t">Some people need it to hold still</span>
+        <p>Motion on a screen makes some people dizzy or sick, and their operating system already knows they have asked for less of it. One CSS block passes that on, and every animation you write should sit behind it.</p>
+      </div>
+      <pre class="snippet">@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}</pre>
+      <p class="backref">This page does it too. The arrow that turned when you opened this panel, and the diagram in chapter 9 that lights up one step at a time, both check that setting first and stop moving if it is on.</p>
+      </div>
+    </details>
+</section>
+
+<!-- ============================================================ chapter 3 -->
+<section class="ch" id="chapter-3">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 3</span>
+    <h2>JavaScript can change HTML</h2>
+    <p class="sub">This is the idea that everything else in this lesson is built on. It is worth two minutes.</p>
+  </div>
+
+  <p>An HTML element can be given an <code>id</code>, which is a name. JavaScript can then go and find the element with that name, and change it.</p>
 
   <ww-runner label="an id, and the code that finds it">
     <script type="text/ww-file" name="index.html" context>
@@ -39963,21 +43986,66 @@ element.textContent = "150 animals";</pre>
     <span class="note-t">The whole idea, in two steps</span>
     <p>1. <code>document.querySelector("#animal-count")</code> found the HTML element whose <code>id</code> is <code>animal-count</code>. The <code>#</code> means &ldquo;the thing with this id&rdquo;.</p>
     <p>2. <code>element.textContent = "150 animals"</code> changed its text.</p>
-    <p>The page said <code>Loading...</code> for a moment and then said something else, because JavaScript reached in and rewrote it. Chapters 4 to 8 are that same move &mdash; except the new text comes from the internet instead of from the line above it.</p>
+    <p>The page said <code>Loading...</code> for a moment and then said something else, because JavaScript reached in and rewrote it. Chapters 5 to 9 are that same move, except that the new text comes from the internet instead of from the line above it.</p>
   </div>
 
   <p class="cap">Change <code>"150 animals"</code> to anything you like. Then change the <code>id</code> in the HTML to <code>total</code> without changing the JavaScript, and watch the error panel tell you exactly what broke.</p>
+
+  <details class="deeper" data-deeper="chapter-3">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. What the page actually is in memory, and where a name lives.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>The page is a tree, and that is why <code>querySelector</code> works</h3>
+      <p>When the browser reads your HTML it builds a tree in memory called the <strong>DOM</strong>. Your <code>&lt;li&gt;</code> elements are inside a <code>&lt;ul&gt;</code>, which is inside <code>&lt;body&gt;</code>, which is inside <code>&lt;html&gt;</code>.</p>
+      <p><code>document.querySelector("#animal-count")</code> searches that tree, and changing an element changes the tree. The page you see is a drawing of it, which is why the text changed without anything reloading.</p>
+      <pre class="snippet">const el = document.querySelector("#animal-count");
+el.parentElement;        /* upwards */
+el.children;             /* downwards */
+el.closest("section");   /* upwards, to the first match */
+document.querySelectorAll("li");   /* every match, not just the first */</pre>
+
+      <h3><code>textContent</code> and <code>innerHTML</code></h3>
+      <p><code>textContent</code> puts text on the page and never runs it. <code>innerHTML</code> parses what you give it as HTML, which is powerful and is why chapter 9 has a warning attached to it.</p>
+      <pre class="snippet">el.textContent = "&lt;b&gt;hello&lt;/b&gt;";   /* shows the angle brackets */
+el.innerHTML   = "&lt;b&gt;hello&lt;/b&gt;";   /* shows hello, in bold */</pre>
+
+      <h3><code>const</code>, <code>let</code> and where a name lives</h3>
+      <p>Almost every example on this page uses <code>const</code>. The difference is smaller than it looks.</p>
+      <div class="ltable-scroll">
+      <table class="ltable">
+        <thead><tr><th></th><th>Can you point it at something else?</th><th>Where does the name exist?</th></tr></thead>
+        <tbody>
+          <tr><td><code>const</code></td><td>No</td><td>Inside the nearest <code>{ }</code></td></tr>
+          <tr><td><code>let</code></td><td>Yes</td><td>Inside the nearest <code>{ }</code></td></tr>
+          <tr><td><code>var</code></td><td>Yes</td><td>The whole function, wherever you wrote it</td></tr>
+        </tbody>
+      </table>
+      </div>
+      <p><code>const</code> stops the <em>name</em> from being pointed somewhere else. It does not freeze what the name points at:</p>
+      <pre class="snippet">const animals = [];
+animals.push("Red Fox");   /* fine: the array changed, the name did not */
+animals = [];              /* TypeError: assignment to constant variable */</pre>
+      <p class="backref">Use <code>const</code> until something has to change, then <code>let</code>. <code>var</code> is older and leaks out of the block it was written in, which is a reason to leave it alone.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 3 -->
-<section class="ch" id="chapter-3">
+<!-- ============================================================ chapter 4 -->
+<section class="ch" id="chapter-4">
   <div class="ch-head">
-    <span class="ch-num">Chapter 3</span>
+    <span class="ch-num">Chapter 4</span>
     <h2>Programs can talk to other programs</h2>
     <p class="sub">An API is how one program asks another program a question.</p>
   </div>
 
-  <p>The Wild Willows game knows about animals, plants, biomes, recipes and everything else in it. The Wild Willows <strong>API</strong> is a web address that hands that information to any program that asks &mdash; including the webpage you are about to write.</p>
+  <p>The Wild Willows game knows about animals, plants, biomes, recipes and everything else in it. The Wild Willows <strong>API</strong> is a web address that hands that information to any program that asks, including the webpage you are about to write.</p>
 
   <div class="flow" id="ch3-flow">
     <span class="flow-step">Your webpage</span>
@@ -39987,14 +44055,14 @@ element.textContent = "150 animals";</pre>
     <span class="flow-step">API sends back data</span>
   </div>
 
-  <p>Not a diagram of something happening elsewhere &mdash; press the button and it happens here, on this machine, on this network.</p>
+  <p>Not a diagram of something happening elsewhere. Press the button and it happens here, on this machine, on this network.</p>
 
   <div class="probe" id="api-probe">
     <p class="probe-url">GET https://wildwillows.app/GameData/</p>
     <button type="button" class="btn btn-go" id="probe-go">See the real API response</button>
     <div class="probe-stats" id="probe-out" hidden></div>
     <div class="jtree" id="probe-tree" role="region" aria-label="The API response, as a tree"></div>
-    <p class="probe-note">Those numbers are yours. The time is how long the request took from where you are sitting, and the size is how much data came back &mdash; the same request from a phone on mobile data gives a different answer.</p>
+    <p class="probe-note">Those numbers are yours. The time is how long the request took from where you are sitting, and the size is how much data came back. The same request from a phone on mobile data gives a different answer.</p>
   </div>
 
   <p>Open <code>animals</code>, then <code>0</code>, and you are looking at one animal from the game as the program sees it.</p>
@@ -40009,8 +44077,8 @@ element.textContent = "150 animals";</pre>
       <tr><td>words in quotes</td><td><strong>string</strong></td><td><code>"name": "Red Fox"</code></td></tr>
       <tr><td>plain numbers</td><td><strong>number</strong></td><td><code>"minHealth": 35</code></td></tr>
       <tr><td><code>true</code> / <code>false</code></td><td><strong>boolean</strong></td><td><code>"explorable": true</code></td></tr>
-      <tr><td><code>[ &hellip; ]</code></td><td><strong>array</strong> &mdash; a list</td><td><code>"eatsOther": ["berries", "carrion"]</code></td></tr>
-      <tr><td><code>{ &hellip; }</code></td><td><strong>object</strong> &mdash; a thing with named parts</td><td>one whole animal</td></tr>
+      <tr><td><code>[ &hellip; ]</code></td><td><strong>array</strong>, a list</td><td><code>"eatsOther": ["berries", "carrion"]</code></td></tr>
+      <tr><td><code>{ &hellip; }</code></td><td><strong>object</strong>, a thing with named parts</td><td>one whole animal</td></tr>
       <tr><td><code>null</code></td><td><strong>nothing, on purpose</strong></td><td><code>"unlock": null</code> on the meadow</td></tr>
     </tbody>
   </table>
@@ -40030,21 +44098,61 @@ element.textContent = "150 animals";</pre>
 
   <div class="note warn">
     <span class="note-t">Quotes mean text</span>
-    <p><code>35</code> is a number you can do arithmetic with. <code>"35"</code> is text that happens to look like a number, and text does not do arithmetic. That one distinction causes more beginner bugs than everything else on this page put together, and it comes back in chapter 6 the moment you compare <code>minHealth &gt; 50</code>.</p>
+    <p><code>35</code> is a number you can do arithmetic with. <code>"35"</code> is text that happens to look like a number, and text does not do arithmetic. That distinction comes back in chapter 7, the moment you compare <code>minHealth &gt; 50</code>.</p>
   </div>
+
+  <details class="deeper" data-deeper="chapter-4">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. What JSON is, and what it is not.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>JSON is text</h3>
+      <p>The response you just looked at arrived as a string of characters. Turning that text into real JavaScript objects and arrays is a separate step, and it is the only reason <code>data.animals[0].name</code> works at all.</p>
+      <pre class="snippet">const text = '{"name": "Red Fox", "rarity": "rare"}';
+
+const animal = JSON.parse(text);    /* text   -&gt; object */
+animal.name;                        /* "Red Fox" */
+
+JSON.stringify(animal);             /* object -&gt; text, to send or store */</pre>
+      <p>Chapter 5 calls <code>response.json()</code>, which does the fetching and the parsing in one move. This is what it is doing underneath.</p>
+
+      <h3>It looks like JavaScript and it is not</h3>
+      <p>JSON is deliberately smaller than JavaScript, because it has to be readable by programs written in any language. The rules it does not share:</p>
+      <ul>
+        <li>keys must be in double quotes: <code>"name"</code>, never <code>name</code> or <code>'name'</code></li>
+        <li>no comments</li>
+        <li>no trailing comma after the last item</li>
+        <li>no functions, no <code>undefined</code>, no dates: only strings, numbers, booleans, <code>null</code>, arrays and objects</li>
+      </ul>
+      <p class="backref">Those are the six types from the table above, and that is not a coincidence. The type list is the format.</p>
+
+      <h3>Where the data actually comes from</h3>
+      <p><code>/GameData/</code> is one address that hands back everything. Many APIs instead give you an address per thing, and ask you to say which one you want:</p>
+      <pre class="snippet">/GameData/                     everything, in one response
+/Animals/red-fox               one animal        (a common alternative)
+/Animals?biome=meadow          a filtered list   (a query string)</pre>
+      <p>One big response is simpler to learn against and simpler to cache, which is why this one is built that way. Once you are choosing for yourself, the question is whether the page needs most of the data or a little of it.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 4 -->
-<section class="ch" id="chapter-4">
+<!-- ============================================================ chapter 5 -->
+<section class="ch" id="chapter-5">
   <div class="ch-head">
-    <span class="ch-num">Chapter 4</span>
+    <span class="ch-num">Chapter 5</span>
     <h2>Fetch your first API</h2>
     <p class="sub">One line at a time. Each stage runs; run it before you add the next.</p>
   </div>
 
-  <p><code>fetch</code> is the browser's way of asking for something over the internet. On its own it does exactly that and nothing else &mdash; ask, and hold on to the answer.</p>
+  <p><code>fetch</code> is the browser's way of asking for something over the internet. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
 
-  <ww-runner label="step 1 \u2014 ask" console>
+  <ww-runner label="step 1: ask" console>
     <script type="text/ww-file" name="main.js">
       fetch("https://wildwillows.app/GameData/");
 
@@ -40055,9 +44163,9 @@ console.log("asked!");</pre>
   </ww-runner>
   <p class="cap">Nothing visible happened, and that is correct. The request went out; nobody did anything with the answer.</p>
 
-  <p><code>.then()</code> means <em>and after that</em>. The answer arrives as a <code>Response</code> &mdash; an envelope. <code>.json()</code> opens the envelope.</p>
+  <p><code>.then()</code> means <em>and after that</em>. The answer arrives as a <code>Response</code>, an envelope. <code>.json()</code> opens the envelope.</p>
 
-  <ww-runner label="step 2 \u2014 open the envelope" console>
+  <ww-runner label="step 2: open the envelope" console>
     <script type="text/ww-file" name="main.js">
       fetch("https://wildwillows.app/GameData/")
         .then(response => response.json())
@@ -40094,7 +44202,7 @@ console.log("asked!");</pre>
 }
 loadGameData();</pre>
   </ww-runner>
-  <p class="cap"><code>await</code> only works inside a function marked <code>async</code>. If you forget the <code>async</code>, the error panel will say so &mdash; try deleting it.</p>
+  <p class="cap"><code>await</code> only works inside a function marked <code>async</code>. If you forget the <code>async</code>, the error panel will say so. Try deleting it.</p>
 
   <h3>What if it fails?</h3>
   <p>Networks go down and school wifi blocks things. A fetch that fails and says nothing is a blank page and a lost class period, so handle it from the start.</p>
@@ -40122,12 +44230,60 @@ loadGameData();</pre>
 }</pre>
   </ww-runner>
   <p class="cap"><code>try</code> means &ldquo;attempt this&rdquo;; <code>catch</code> means &ldquo;and if it goes wrong, do this instead&rdquo;. Change the address back to <code>/GameData/</code> and the <code>catch</code> block never runs.</p>
+
+  <details class="deeper" data-deeper="chapter-5">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Status codes, why a 404 is not an error, and what the browser does while it waits.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>What the API told you besides the data</h3>
+      <p>The probe in chapter 4 reported a <strong>status</strong> of 200. Every HTTP response carries one, and the first digit is the whole summary.</p>
+      <div class="ltable-scroll">
+      <table class="ltable">
+        <thead><tr><th>Status</th><th>Means</th><th>You will meet it as</th></tr></thead>
+        <tbody>
+          <tr><td><code>200</code></td><td>Here it is</td><td>the normal case</td></tr>
+          <tr><td><code>304</code></td><td>You already have it</td><td>a reload that costs nothing</td></tr>
+          <tr><td><code>404</code></td><td>No such address</td><td>a typo in the URL</td></tr>
+          <tr><td><code>429</code></td><td>You are asking too often</td><td>a fetch inside a loop</td></tr>
+          <tr><td><code>500</code></td><td>The server broke</td><td>not your fault</td></tr>
+        </tbody>
+      </table>
+      </div>
+
+      <h3>A 404 is not an error, and this catches people out</h3>
+      <p><code>fetch</code> only rejects when the request could not be made at all: no network, no such host, blocked. A 404 is a request that <em>succeeded</em> and came back with bad news, so it lands in your <code>then</code>, not your <code>catch</code>. That is what <code>response.ok</code> is for.</p>
+      <pre class="snippet">const response = await fetch(url);
+
+if (!response.ok) {
+  message.textContent = "Could not load the game data.";
+  return;
+}
+
+const data = await response.json();</pre>
+      <p class="backref">Without that check, a 404 returns an HTML error page, <code>.json()</code> tries to parse it, and the message a student gets is <code>Unexpected token '&lt;'</code>. That error is in the runner's list on this page, and this is where it comes from.</p>
+
+      <h3>Waiting is not stopping</h3>
+      <p>JavaScript runs one thing at a time. When you <code>await</code> a fetch, your function is set aside and the browser goes back to handling clicks, scrolling and drawing. When the response arrives, your function is put back in the queue and picks up where it left off.</p>
+      <p>That is why a slow API does not freeze the page, and why a long <code>for</code> loop does: the loop never lets go.</p>
+      <pre class="snippet">console.log("first");
+setTimeout(() =&gt; console.log("third"), 0);   /* queued, even at zero delay */
+console.log("second");</pre>
+      <p class="backref">Zero milliseconds still means "after the current work finishes". The queue is the point, not the delay.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 5 -->
-<section class="ch" id="chapter-5">
+<!-- ============================================================ chapter 6 -->
+<section class="ch" id="chapter-6">
   <div class="ch-head">
-    <span class="ch-num">Chapter 5</span>
+    <span class="ch-num">Chapter 6</span>
     <h2>Look inside the data</h2>
     <p class="sub">You have the whole catalogue. Now reach into it and pull out one thing.</p>
   </div>
@@ -40155,7 +44311,7 @@ console.log(data.animals[0].name); // one value</pre>
   <p>A dot reaches into an <strong>object</strong> by name. Square brackets reach into an <strong>array</strong> by position, and positions start at <code>0</code>, not <code>1</code>.</p>
 
   <h3>Try a path yourself</h3>
-  <p>Type a path and see what comes back &mdash; both the value and, more usefully, <em>what type</em> it is.</p>
+  <p>Type a path and see what comes back: both the value and, more usefully, <em>what type</em> it is.</p>
 
   <div class="probe" id="ch5-explorer">
     <p>
@@ -40177,17 +44333,88 @@ console.log(data.animals[0].name); // one value</pre>
 
   <div class="note warn">
     <span class="note-t">Two things worth meeting now</span>
-    <p><code>data.animals.length</code> is a <strong>number</strong> &mdash; 150. <code>"150 animals"</code> is a <strong>string</strong>. Writing <code>data.animals.length + " animals"</code> glues them together: <code>+</code> means <em>add</em> for numbers and <em>join</em> for text, and it decides based on what you gave it.</p>
-    <p>Ask for something that is not there &mdash; try <code>data.animals[999]</code> above &mdash; and you get <strong><code>undefined</code></strong>. Not an error, not zero, not empty. It is JavaScript saying &ldquo;there is nothing here&rdquo;, and it is behind about half of the confusing errors you will meet later.</p>
+    <p><code>data.animals.length</code> is a <strong>number</strong>: 150. <code>"150 animals"</code> is a <strong>string</strong>. Writing <code>data.animals.length + " animals"</code> glues them together: <code>+</code> means <em>add</em> for numbers and <em>join</em> for text, and it decides based on what you gave it.</p>
+    <p>Ask for something that is not there (try <code>data.animals[999]</code> above) and you get <strong><code>undefined</code></strong>. Not an error, not zero, not empty. It is JavaScript saying &ldquo;there is nothing here&rdquo;, and it is behind about half of the confusing errors you will meet later.</p>
   </div>
+
+  <details class="deeper" data-deeper="chapter-6">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Reading an object whose shape you do not know, and the function that calls itself.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3><code>Object.keys()</code>, <code>.values()</code> and <code>.entries()</code></h3>
+      <p>You reached into the data by naming the parts you wanted. This is how you read an object whose field names you do not already know.</p>
+
+      <ww-runner label="looping an object" console defer data-concept="deeper_object-keys">
+        <script type="text/ww-file" name="main.js">
+          async function loadGameData() {
+            const response = await fetch("https://wildwillows.app/GameData/");
+            const data = await response.json();
+
+            const animal = data.animals[0];
+
+            console.log(Object.keys(animal));     // the field names
+            console.log(Object.values(animal));   // the values
+
+            // both at once, as [name, value] pairs
+            for (const [field, value] of Object.entries(animal.requirements)) {
+              console.log(field, "=", value);
+            }
+          }
+
+          loadGameData();
+        </script>
+        <pre class="static-fallback">Object.keys(animal);
+Object.entries(animal.requirements);   /* [["minHealth", 35], ...] */</pre>
+      </ww-runner>
+      <p class="cap">This is how the collapsible tree above is built. It has never seen the Wild Willows data: it asks every object what its keys are and draws whatever it finds.</p>
+
+      <h3>Recursion, which this page is already doing</h3>
+      <p>The tree cannot know how deep the data goes. An animal contains <code>requirements</code>, which contains <code>objects</code>, which could contain anything. So it does not try. It handles one value, and if that value has parts inside it, it calls itself on each one.</p>
+
+      <ww-runner label="a function that calls itself" console defer data-concept="deeper_recursion">
+        <script type="text/ww-file" name="main.js">
+          async function loadGameData() {
+            const response = await fetch("https://wildwillows.app/GameData/");
+            const data = await response.json();
+
+            // how many values are in there, all the way down?
+            function countAll(value) {
+              if (value === null || typeof value !== "object") {
+                return 1;                       // a plain value: that is one
+              }
+              return Object.values(value)       // otherwise, ask each part
+                .reduce((total, part) => total + countAll(part), 0);
+            }
+
+            console.log(countAll(data.animals[0]), "values in one animal");
+            console.log(countAll(data.biomes), "values in all six biomes");
+          }
+
+          loadGameData();
+        </script>
+        <pre class="static-fallback">function countAll(value) {
+  if (value === null || typeof value !== "object") return 1;
+  return Object.values(value).reduce((total, part) =&gt; total + countAll(part), 0);
+}</pre>
+      </ww-runner>
+      <p class="cap">Two parts, always. A <strong>base case</strong> that answers without calling itself (a plain value counts as one), and a step that makes the problem smaller. Leave out the base case and it calls itself until the browser stops it, which is the error <code>Maximum call stack size exceeded</code>.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 6 -->
-<section class="ch" id="chapter-6">
+<!-- ============================================================ chapter 7 -->
+<section class="ch" id="chapter-7">
   <div class="ch-head">
-    <span class="ch-num">Chapter 6</span>
+    <span class="ch-num">Chapter 7</span>
     <h2>Make decisions</h2>
-    <p class="sub">Asking a question with a yes-or-no answer. This is the piece that makes chapter 7 easy.</p>
+    <p class="sub">Asking a question with a yes-or-no answer. This is the piece that makes chapter 8 easy.</p>
   </div>
 
   <p>Run this one before reading the next paragraph.</p>
@@ -40218,10 +44445,10 @@ if (animal.rarity === "rare") {
   <div class="note">
     <span class="note-t">Nothing happened, and nothing is broken</span>
     <p><code>data.animals[0]</code> is the Banana Slug, and its <code>rarity</code> is <code>"common"</code>. So the question was asked, the answer was no, and the block was skipped. The code ran perfectly.</p>
-    <p>This matters because a beginner's instinct is that nothing happening means broken. Now change <code>"rare"</code> to <code>"common"</code> and run it again.</p>
+    <p>Nothing happening and nothing being wrong look identical from the outside, so it is worth seeing once on purpose. Now change <code>"rare"</code> to <code>"common"</code> and run it again.</p>
   </div>
 
-  <h3><code>else</code> &mdash; always do one or the other</h3>
+  <h3><code>else</code>: always do one or the other</h3>
 
   <ww-runner label="if / else" data-concept="cond_else">
     <script type="text/ww-file" name="index.html" context>
@@ -40252,7 +44479,7 @@ if (animal.rarity === "rare") {
   </ww-runner>
   <p class="cap">One of the two always happens. Change <code>data.animals[0]</code> to <code>data.animals[3]</code> and see which branch you get.</p>
 
-  <h3><code>else if</code> &mdash; more than two outcomes</h3>
+  <h3><code>else if</code>: more than two outcomes</h3>
   <p>There are exactly three rarities in the game: <code>common</code>, <code>uncommon</code> and <code>rare</code>. Three real values, three outcomes.</p>
 
   <ww-runner label="else if" data-concept="cond_else-if">
@@ -40275,7 +44502,7 @@ if (animal.rarity === "rare") {
           label = "Common";
         }
 
-        document.querySelector("#badge").textContent = animal.name + " \u2014 " + label;
+        document.querySelector("#badge").textContent = animal.name + ": " + label;
       }
 
       loadGameData();
@@ -40284,7 +44511,7 @@ if (animal.rarity === "rare") {
 else if (animal.rarity === "uncommon")  label = "Uncommon";
 else                                    label = "Common";</pre>
   </ww-runner>
-  <p class="cap"><strong>Move the <code>else</code> branch to the top</strong> and see what happens to every animal. The first true branch wins and the rest are skipped &mdash; a rule that is much easier to see than to be told.</p>
+  <p class="cap"><strong>Move the <code>else</code> branch to the top</strong> and see what happens to every animal. The first true branch wins and the rest are skipped. That is a rule far easier to see than to be told.</p>
 
   <h3>Comparisons</h3>
   <div class="ltable-scroll">
@@ -40306,10 +44533,10 @@ else                                    label = "Common";</pre>
 
         const animal = data.animals[0];
 
-        // text \u2014 quotes, and ===
+        // text: quotes, and ===
         console.log(animal.biome === "forest");
 
-        // number \u2014 no quotes, and > works
+        // number: no quotes, and > works
         console.log(animal.requirements.minHealth > 50);
         console.log("minHealth is", animal.requirements.minHealth);
       }
@@ -40322,10 +44549,10 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
 
   <div class="note warn">
     <span class="note-t">One equals sets, three equals asks</span>
-    <p><code>=</code> puts a value into something. <code>===</code> asks whether two things are the same. Typing one when you meant three is the most common mistake in this whole lesson, and the error it causes does not mention <code>=</code> anywhere.</p>
+    <p><code>=</code> puts a value into something. <code>===</code> asks whether two things are the same. Typing one when you meant three does not produce an error that mentions <code>=</code> anywhere, which is what makes it worth knowing in advance.</p>
   </div>
 
-  <h3><code>&amp;&amp;</code> and <code>||</code> &mdash; asking two things at once</h3>
+  <h3><code>&amp;&amp;</code> and <code>||</code>: asking two things at once</h3>
 
   <ww-runner label="and / or" console data-concept="cond_and-or">
     <script type="text/ww-file" name="main.js">
@@ -40345,7 +44572,7 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
     </script>
     <pre class="static-fallback">animal.rarity === "rare" &amp;&amp; animal.biome === "meadow"</pre>
   </ww-runner>
-  <p class="cap">Swap the <code>&amp;&amp;</code> for <code>||</code> and run it again. <code>&amp;&amp;</code> means both, <code>||</code> means either &mdash; and the count tells you the difference better than a definition does.</p>
+  <p class="cap">Swap the <code>&amp;&amp;</code> for <code>||</code> and run it again. <code>&amp;&amp;</code> means both, <code>||</code> means either, and the count tells you the difference better than a definition does.</p>
 
   <h3>The empty-state guard</h3>
   <p>This is the one you will reuse in everything you build. Without it, a search that finds nothing renders a blank page, and every student in the room assumes their code is broken.</p>
@@ -40360,7 +44587,7 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
         const data = await response.json();
         const result = document.querySelector("#result");
 
-        // no animal lives in the "tundra" \u2014 this biome does not exist
+        // no animal lives in the "tundra": this biome does not exist
         const matches = data.animals.filter(animal => animal.biome === "tundra");
 
         if (matches.length === 0) {
@@ -40378,30 +44605,79 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
   result.textContent = matches.length + " animals found.";
 }</pre>
   </ww-runner>
-  <p class="cap">Change <code>"tundra"</code> to a real biome &mdash; <code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code> or <code>coastal</code> &mdash; and the other branch runs.</p>
+  <p class="cap">Change <code>"tundra"</code> to a real biome (<code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code> or <code>coastal</code>) and the other branch runs.</p>
 
   <div class="note stretch">
-    <span class="note-t">Optional &mdash; the <code>?</code> <code>:</code> shorthand</span>
+    <span class="note-t">Optional: the <code>?</code> <code>:</code> shorthand</span>
     <p><code>const label = animal.rarity === "rare" ? "Rare find" : "";</code></p>
-    <p>If the question is true use the first thing, otherwise the second. It does exactly what an <code>if</code>/<code>else</code> does, in one line, and it is what makes chapter 8's list code readable. Skip it if it looks like noise &mdash; nothing later depends on it.</p>
+    <p>If the question is true use the first thing, otherwise the second. It does exactly what an <code>if</code>/<code>else</code> does, in one line, and it is what makes chapter 9's list code readable. Skip it if it looks like noise. Nothing later depends on it.</p>
   </div>
 
   <div class="note">
     <span class="note-t">Where this is going</span>
     <p><code>animal.rarity === "rare"</code> is a question with a yes-or-no answer, and you just used it in an <code>if</code>. In the next chapter you hand that same question to <code>.filter()</code> and let it ask about all 150 animals at once.</p>
   </div>
+
+  <details class="deeper" data-deeper="chapter-7">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Truthiness, the safe dot, and choosing between many values.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>Everything is either truthy or falsy</h3>
+      <p>An <code>if</code> does not need a comparison. Give it any value at all and JavaScript decides whether that value counts as yes. Six things count as no, and everything else counts as yes.</p>
+      <pre class="snippet">/* the falsy six */
+false   0   ""   null   undefined   NaN
+
+/* so this works, and reads well */
+if (matches.length) { ... }        /* any number but 0 */
+if (animal.fact) { ... }           /* any string but "" */</pre>
+      <div class="note warn">
+        <span class="note-t">The trap in that</span>
+        <p><code>0</code> is falsy, so <code>if (animal.requirements.minHealth)</code> is <code>false</code> for an animal that needs no health at all, which is not what you meant. When zero is a real answer, compare explicitly: <code>if (minHealth !== undefined)</code>.</p>
+      </div>
+
+      <h3><code>?.</code> and <code>??</code></h3>
+      <p>Reading through something that might not be there throws <code>Cannot read properties of undefined</code>. The optional dot stops at the gap instead.</p>
+      <pre class="snippet">animal.requirements.water.tiles      /* throws if there is no water */
+animal.requirements.water?.tiles     /* undefined if there is no water */
+
+/* and a default for when it IS missing */
+const tiles = animal.requirements.water?.tiles ?? 0;</pre>
+      <p><code>??</code> only steps in for <code>null</code> and <code>undefined</code>, which is what makes it different from <code>||</code>. With <code>||</code>, a real <code>0</code> would be replaced by the default, because zero is falsy.</p>
+
+      <h3>Many outcomes: <code>switch</code></h3>
+      <p>A long <code>else if</code> chain comparing one value against a list is what <code>switch</code> is for. It is not more powerful, it is easier to read.</p>
+      <pre class="snippet">switch (animal.rarity) {
+  case "rare":
+    label = "Rare find";
+    break;
+  case "uncommon":
+    label = "Uncommon";
+    break;
+  default:
+    label = "Common";
+}</pre>
+      <p class="backref">The <code>break</code> is not optional. Without it execution falls through into the next case and keeps going, which is occasionally useful and much more often a bug.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 7 -->
-<section class="ch" id="chapter-7">
+<!-- ============================================================ chapter 8 -->
+<section class="ch" id="chapter-8">
   <div class="ch-head">
-    <span class="ch-num">Chapter 7</span>
+    <span class="ch-num">Chapter 8</span>
     <h2>Loop through the data</h2>
     <p class="sub">One animal was a demo. 150 is a webpage.</p>
   </div>
 
-  <h3><code>for...of</code> &mdash; do this for each one</h3>
-  <p>The honest starting point, and the one that reads like English. <strong>This always works and is never wrong.</strong> Everything after it is a shorter way of saying one particular kind of loop &mdash; which is worth knowing up front, so the methods below feel like conveniences rather than magic words.</p>
+  <h3><code>for...of</code>: do this for each one</h3>
+  <p>The honest starting point, and the one that reads like English. <strong>This always works and is never wrong.</strong> Everything after it is a shorter way of saying one particular kind of loop, which is worth knowing up front, so the methods below feel like conveniences rather than magic words.</p>
 
   <ww-runner label="for...of" console data-concept="iter_for-of">
     <script type="text/ww-file" name="main.js">
@@ -40421,8 +44697,8 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
 }</pre>
   </ww-runner>
 
-  <h3><code>.forEach()</code> &mdash; the same thing, shorter</h3>
-  <p>Here is the piece the rest of the chapter rests on. <code>animal =&gt;</code> means: <em>for each one, call it</em> <code>animal</code>, <em>and here is what to do with it</em>. That is an <strong>arrow function</strong> &mdash; a small piece of code you hand to something else to run.</p>
+  <h3><code>.forEach()</code>: the same thing, shorter</h3>
+  <p>Here is the piece the rest of the chapter rests on. <code>animal =&gt;</code> means: <em>for each one, call it</em> <code>animal</code>, <em>and here is what to do with it</em>. That is an <strong>arrow function</strong>: a piece of code you hand to something else to run.</p>
 
   <ww-runner label=".forEach()" console data-concept="iter_forEach">
     <script type="text/ww-file" name="main.js">
@@ -40441,9 +44717,9 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
   console.log(animal.name);
 });</pre>
   </ww-runner>
-  <p class="cap">The name <code>animal</code> is yours to choose. Rename it to <code>creature</code> in <em>both</em> places and it works exactly the same &mdash; it is just a label for &ldquo;the one we are on&rdquo;.</p>
+  <p class="cap">The name <code>animal</code> is yours to choose. Rename it to <code>creature</code> in <em>both</em> places and it works exactly the same. It is just a label for &ldquo;the one we are on&rdquo;.</p>
 
-  <h3><code>.map()</code> &mdash; turn each one into something else</h3>
+  <h3><code>.map()</code>: turn each one into something else</h3>
   <p>150 objects go in. 150 strings come out. Same length, different contents.</p>
 
   <ww-runner label=".map()" console data-concept="iter_map">
@@ -40463,10 +44739,10 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
     </script>
     <pre class="static-fallback">const names = data.animals.map(animal =&gt; animal.name);</pre>
   </ww-runner>
-  <p class="cap"><code>.map()</code> is the most useful thing in this chapter, because it is how a list of data becomes a list of HTML. Chapter 8 cashes that in.</p>
+  <p class="cap"><code>.map()</code> is the most useful thing in this chapter, because it is how a list of data becomes a list of HTML. Chapter 9 cashes that in.</p>
 
-  <h3><code>.filter()</code> &mdash; keep only some of them</h3>
-  <p>Give it the yes-or-no question from chapter 6 and it asks that question about every animal, keeping the ones that answer yes.</p>
+  <h3><code>.filter()</code>: keep only some of them</h3>
+  <p>Give it the yes-or-no question from chapter 7 and it asks that question about every animal, keeping the ones that answer yes.</p>
 
   <ww-runner label=".filter()" console data-concept="iter_filter">
     <script type="text/ww-file" name="main.js">
@@ -40489,14 +44765,14 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
   <div class="note warn">
     <span class="note-t">Use the real values, or you get an empty list</span>
     <p>A filter for a value that does not exist returns nothing, and an empty list looks exactly like broken code. These are the actual values in the data:</p>
-    <p><strong>biome</strong> &mdash; <code>meadow</code> <code>forest</code> <code>wetland</code> <code>desert</code> <code>alpine</code> <code>coastal</code><br>
-       <strong>rarity</strong> &mdash; <code>common</code> <code>uncommon</code> <code>rare</code><br>
-       <strong>kind</strong> &mdash; <code>mammal</code> <code>bird</code> <code>fish</code> <code>insect</code> <code>reptile</code> <code>amphibian</code> <code>invertebrate</code><br>
-       <strong>trophic</strong> &mdash; <code>herbivore</code> <code>insectivore</code> <code>omnivore</code> <code>mesopredator</code> <code>apex-predator</code> <code>detritivore</code> <code>decomposer</code> <code>scavenger</code> <code>filter-feeder</code></p>
-    <p>And the type rule from chapter 3, at the moment it matters: <code>.filter(a =&gt; a.biome === "meadow")</code> compares <strong>text</strong>, so it needs quotes. <code>.filter(a =&gt; a.requirements.minHealth &gt; 50)</code> compares a <strong>number</strong>, so it does not &mdash; and <code>"50"</code> in quotes is text, and text does not do arithmetic.</p>
+    <p><strong>biome</strong>: <code>meadow</code> <code>forest</code> <code>wetland</code> <code>desert</code> <code>alpine</code> <code>coastal</code><br>
+       <strong>rarity</strong>: <code>common</code> <code>uncommon</code> <code>rare</code><br>
+       <strong>kind</strong>: <code>mammal</code> <code>bird</code> <code>fish</code> <code>insect</code> <code>reptile</code> <code>amphibian</code> <code>invertebrate</code><br>
+       <strong>trophic</strong>: <code>herbivore</code> <code>insectivore</code> <code>omnivore</code> <code>mesopredator</code> <code>apex-predator</code> <code>detritivore</code> <code>decomposer</code> <code>scavenger</code> <code>filter-feeder</code></p>
+    <p>And the type rule from chapter 4, at the moment it matters: <code>.filter(a =&gt; a.biome === "meadow")</code> compares <strong>text</strong>, so it needs quotes. <code>.filter(a =&gt; a.requirements.minHealth &gt; 50)</code> compares a <strong>number</strong>, so it does not. And <code>"50"</code> in quotes is text, and text does not do arithmetic.</p>
   </div>
 
-  <h3><code>.find()</code> &mdash; get exactly one</h3>
+  <h3><code>.find()</code>: get exactly one</h3>
 
   <ww-runner label=".find()" console data-concept="iter_find">
     <script type="text/ww-file" name="main.js">
@@ -40517,12 +44793,12 @@ console.log(fox.diet);</pre>
   </ww-runner>
 
   <div class="note">
-    <span class="note-t">The difference people trip on</span>
+    <span class="note-t">The difference between them</span>
     <p><code>.filter()</code> gives you back an <strong>array</strong>, even if only one thing matched. <code>.find()</code> gives you back <strong>the thing itself</strong>. That is why the code above says <code>fox.diet</code> and not <code>fox[0].diet</code>.</p>
-    <p>Change <code>.find</code> to <code>.filter</code> and run it. Read what the error panel says &mdash; then you will remember this permanently.</p>
+    <p>Change <code>.find</code> to <code>.filter</code> and run it. Read what the error panel says, and then you will remember this permanently.</p>
   </div>
 
-  <h3><code>.sort()</code> &mdash; put them in order</h3>
+  <h3><code>.sort()</code>: put them in order</h3>
 
   <ww-runner label=".sort()" console data-concept="iter_sort">
     <script type="text/ww-file" name="main.js">
@@ -40530,7 +44806,7 @@ console.log(fox.diet);</pre>
         const response = await fetch("https://wildwillows.app/GameData/");
         const data = await response.json();
 
-        // the [...] makes a COPY first \u2014 see the note below
+        // the [...] makes a COPY first: see the note below
         const alphabetical = [...data.animals]
           .sort((a, b) => a.name.localeCompare(b.name));
 
@@ -40542,12 +44818,10 @@ console.log(fox.diet);</pre>
     <pre class="static-fallback">const alphabetical = [...data.animals]
   .sort((a, b) =&gt; a.name.localeCompare(b.name));</pre>
   </ww-runner>
-  <p class="cap"><code>.sort()</code> reorders the original array rather than making a new one, which is why we copy it first with <code>[...]</code>. That is a real bug that is very hard to find later &mdash; something you sorted once stays sorted everywhere else in your program.</p>
+  <p class="cap"><code>.sort()</code> reorders the original array rather than making a new one, which is why we copy it first with <code>[...]</code>. That is a real bug that is very hard to find later. Something you sorted once stays sorted everywhere else in your program.</p>
 
-  <div class="note stretch">
-    <span class="note-t">Optional &mdash; <code>.reduce()</code>, a running total</span>
-    <p>Everything after this works fine without <code>.reduce()</code>. Come back to it.</p>
-  </div>
+  <h3><code>.reduce()</code>: combine them into one value <span class="pill">Stretch goal</span></h3>
+  <p>Think of it as a running total. You give it something to start with, and a rule for folding the next item into what you have so far. Everything after this works fine without it, so come back to it if it does not land the first time.</p>
 
   <ww-runner label=".reduce()" console data-concept="iter_reduce">
     <script type="text/ww-file" name="main.js">
@@ -40601,7 +44875,7 @@ console.log(fox.diet);</pre>
   .map(animal =&gt; animal.name)
   .join(", ");</pre>
   </ww-runner>
-  <p class="cap"><strong>Now move <code>.map()</code> above <code>.filter()</code></strong> and run it. It breaks, and the error tells you why: after <code>.map()</code> you no longer have animals, you have names &mdash; and a name has no <code>.biome</code>. Order matters, and watching it fail takes four hundred milliseconds.</p>
+  <p class="cap"><strong>Now move <code>.map()</code> above <code>.filter()</code></strong> and run it. It breaks, and the error tells you why: after <code>.map()</code> you no longer have animals, you have names, and a name has no <code>.biome</code>. Order matters, and watching it fail takes four hundred milliseconds.</p>
 
   <h3>The one block worth keeping</h3>
   <div class="ltable-scroll">
@@ -40618,20 +44892,146 @@ console.log(fox.diet);</pre>
     </tbody>
   </table>
   </div>
+
+  <details class="deeper" data-deeper="chapter-8">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Five more array methods, why a function can be handed to another function, and what makes code slow.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3><code>.some()</code> and <code>.every()</code></h3>
+      <p><code>.filter()</code> hands back a list. Sometimes you only want a yes or a no about the whole list, and these give you one straight away.</p>
+
+      <ww-runner label="one answer about a whole list" console defer data-concept="deeper_some-every">
+        <script type="text/ww-file" name="main.js">
+          async function loadGameData() {
+            const response = await fetch("https://wildwillows.app/GameData/");
+            const data = await response.json();
+
+            const meadow = data.animals.filter(animal => animal.biome === "meadow");
+
+            // is at least ONE of them rare?
+            console.log("any rare:", meadow.some(animal => animal.rarity === "rare"));
+
+            // are ALL of them rare?
+            console.log("all rare:", meadow.every(animal => animal.rarity === "rare"));
+          }
+
+          loadGameData();
+        </script>
+        <pre class="static-fallback">meadow.some(animal =&gt; animal.rarity === "rare");    /* true */
+meadow.every(animal =&gt; animal.rarity === "rare");   /* false */</pre>
+      </ww-runner>
+      <p class="cap">Same question you gave <code>.filter()</code>. Different shape of answer: a boolean instead of an array.</p>
+
+      <h3><code>new Set()</code>, for the values you did not know were there</h3>
+      <p>This chapter listed the real values of <code>biome</code>, <code>rarity</code>, <code>kind</code> and <code>trophic</code> so your filters would match something. Here is how that list was made, rather than looked up.</p>
+
+      <ww-runner label="what values exist?" console defer data-concept="deeper_set">
+        <script type="text/ww-file" name="main.js">
+          async function loadGameData() {
+            const response = await fetch("https://wildwillows.app/GameData/");
+            const data = await response.json();
+
+            const everyTrophic = data.animals.map(animal => animal.trophic);
+            console.log(everyTrophic.length, "values, most of them repeats");
+
+            // a Set keeps each value once, however many times it turns up
+            const distinct = [...new Set(everyTrophic)].sort();
+            console.log(distinct);
+          }
+
+          loadGameData();
+        </script>
+        <pre class="static-fallback">const distinct = [...new Set(data.animals.map(a =&gt; a.trophic))].sort();</pre>
+      </ww-runner>
+      <p class="cap">Change <code>trophic</code> to any other field and you have asked the data a question nobody wrote down the answer to. That is most of what data work actually is.</p>
+
+      <h3>Three more, briefly</h3>
+      <p><code>.includes()</code> asks whether a value is in a list. <code>.slice()</code> takes a section out without changing the original. <code>.indexOf()</code> says where something is, or <code>-1</code> if it is not there at all.</p>
+      <pre class="snippet">fox.eats.includes("prairie-vole");   /* true */
+data.animals.slice(0, 5);            /* the first five */
+data.animals.slice(-3);              /* the last three */
+distinct.indexOf("herbivore");       /* a position, or -1 */</pre>
+      <p class="backref">The <code>-1</code> is worth remembering. It is the same idea as the <code>undefined</code> in chapter 6: a real answer meaning "not here", which will quietly behave like a number if you forget to check it.</p>
+
+      <h3>A function is a value</h3>
+      <p>You have been handing functions to other functions throughout this chapter without anyone saying so out loud. That is the trick that makes <code>.filter()</code> possible: a function can be stored in a variable and passed around exactly like a number or a string.</p>
+
+      <ww-runner label="functions in variables" console defer data-concept="deeper_functions-as-values">
+        <script type="text/ww-file" name="main.js">
+          async function loadGameData() {
+            const response = await fetch("https://wildwillows.app/GameData/");
+            const data = await response.json();
+
+            // give the question a name
+            const isRare = animal => animal.rarity === "rare";
+
+            // then hand the name to .filter()
+            console.log(data.animals.filter(isRare).length, "rare animals");
+
+            // it is an ordinary value: you can log it, and pass it on
+            console.log(typeof isRare);
+          }
+
+          loadGameData();
+        </script>
+        <pre class="static-fallback">const isRare = animal =&gt; animal.rarity === "rare";
+data.animals.filter(isRare);</pre>
+      </ww-runner>
+      <p class="cap">Naming the question is often clearer than writing it inline, and you can reuse it in a <code>.some()</code>, an <code>.every()</code> and a <code>.find()</code> without repeating yourself.</p>
+
+      <h3>Changing something, versus copying it</h3>
+      <p>This chapter copied the array with <code>[...]</code> before sorting it. Here is what that actually means, and why it is the kind of bug that takes an afternoon to find.</p>
+
+      <ww-runner label="the same array, seen twice" console defer data-concept="deeper_mutation">
+        <script type="text/ww-file" name="main.js">
+          const original = ["c", "a", "b"];
+
+          const sorted = original.sort();   // no copy
+          console.log("sorted:  ", sorted);
+          console.log("original:", original);   // also sorted now
+
+          // .map, .filter and .slice never do this: they build a new array
+          const safe = ["c", "a", "b"];
+          const upper = safe.map(letter => letter.toUpperCase());
+          console.log("upper:", upper);
+          console.log("safe: ", safe);   // untouched
+        </script>
+        <pre class="static-fallback">const sorted = original.sort();  /* \`original\` is now sorted too */</pre>
+      </ww-runner>
+      <p class="cap">Methods that build something new (<code>.map</code>, <code>.filter</code>, <code>.slice</code>) are safe to use anywhere. Methods that rearrange in place (<code>.sort</code>, <code>.reverse</code>, <code>.push</code>) change something somebody else might still be holding.</p>
+
+      <h3>How long does this take?</h3>
+      <p><code>.filter()</code> over 150 animals looks at all 150. That is instant, so it never comes up. Over 150 million rows it would look at 150 million, and the same line of code would take minutes.</p>
+      <p>The useful idea is not the speed, it is the <strong>shape</strong>: the work grows in step with the data. Chaining <code>.filter().sort().map()</code> walks the list three times, which is still that same shape. But a filter nested inside a filter checks every animal against every animal, which is 150 times 150, and at a million rows that is a trillion comparisons and a page that never loads.</p>
+      <pre class="snippet">/* one pass per method: fine at any size you will meet */
+data.animals.filter(isRare).sort(byName).map(toName);
+
+/* every animal against every animal: 150 x 150 here, and it does not scale */
+data.animals.filter(a =&gt; data.animals.some(b =&gt; b.biome === a.biome));</pre>
+      <p class="backref">Computer scientists write these as O(n) and O(n squared) and call it big-O notation. The notation is a name for the question you can now ask, which is: if the data got a thousand times bigger, what happens to this line?</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 8 -->
-<section class="ch" id="chapter-8">
+<!-- ============================================================ chapter 9 -->
+<section class="ch" id="chapter-9">
   <div class="ch-head">
-    <span class="ch-num">Chapter 8</span>
+    <span class="ch-num">Chapter 9</span>
     <h2>Put API data on your webpage</h2>
     <p class="sub">Every chapter so far, in one file.</p>
   </div>
 
-  <p>Chapter 2 changed some text. Chapter 4 fetched some data. Here they meet.</p>
+  <p>Chapter 3 changed some text. Chapter 5 fetched some data. Here they meet.</p>
 
   <ww-runner label="one animal, from the API, on the page">
-    <script type="text/ww-file" name="index.html" context>
+    <script type="text/ww-file" name="index.html">
       <h1>Wild Willows</h1>
       <p id="animal-name">Loading animal...</p>
     </script>
@@ -40662,11 +45062,11 @@ console.log(fox.diet);</pre>
   <p>This is the moment the whole lesson pays off.</p>
 
   <ww-runner label="a whole list, built from data">
-    <script type="text/ww-file" name="index.html" context>
+    <script type="text/ww-file" name="index.html">
       <h1>Willow Meadow</h1>
       <ul id="animal-list"></ul>
     </script>
-    <script type="text/ww-file" name="styles.css" context>
+    <script type="text/ww-file" name="styles.css">
       body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
       h1   { color: #39604a; }
       li   { margin-bottom: .3rem; }
@@ -40704,22 +45104,76 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
     <span class="note-t">One honest note about <code>innerHTML</code></span>
     <p><code>innerHTML</code> will run anything it is given. That is fine here, because we are building HTML from data we trust, out of our own API. If the text came from strangers on the internet you would use <code>textContent</code> instead, which puts text on the page and never runs it.</p>
   </div>
+
+  <details class="deeper" data-deeper="chapter-9">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Making numbers readable, and building elements without innerHTML.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>Formatting a number so a person can read it</h3>
+      <p>Putting a number on a page is a different job from calculating one. <code>0.3333333333333333</code> and <code>1250000</code> are both correct and neither is readable. The browser will format them for you, in the reader's own language and conventions.</p>
+
+      <ww-runner label="numbers people can read" console defer data-concept="deeper_number-format">
+        <script type="text/ww-file" name="main.js">
+          const share = 25 / 150;
+
+          console.log(share);                          // 0.16666666666666666
+          console.log(share.toFixed(1));               // "0.2"  (a string now)
+          console.log((share * 100).toFixed(0) + "%"); // "17%"
+
+          // thousands separators, in the reader's own conventions
+          console.log((1250000).toLocaleString("en-US"));  // 1,250,000
+          console.log((1250000).toLocaleString("de-DE"));  // 1.250.000
+
+          // and as a percentage, without doing the arithmetic yourself
+          const pct = new Intl.NumberFormat("en-US", { style: "percent" });
+          console.log(pct.format(share));
+        </script>
+        <pre class="static-fallback">share.toFixed(1);
+(1250000).toLocaleString("en-US");
+new Intl.NumberFormat("en-US", { style: "percent" }).format(share);</pre>
+      </ww-runner>
+      <p class="cap"><code>.toFixed()</code> hands back a <strong>string</strong>, not a number, which matters the moment you try to sort by it. Round for display, keep the real number for the arithmetic.</p>
+
+      <h3>Building the list without <code>innerHTML</code></h3>
+      <p>The warning above is real, and this is the other way to do it. It is longer, and it cannot run anything it is given, because at no point is there any HTML to parse.</p>
+      <pre class="snippet">const list = document.querySelector("#animal-list");
+
+for (const animal of data.animals) {
+  const item = document.createElement("li");
+  item.textContent = animal.name;   /* text, never markup */
+  list.appendChild(item);
+}</pre>
+      <p class="backref">Use <code>innerHTML</code> with data you trust, which is what you have here. Use this the moment any part of the text came from a person: a search box, a comment, a name someone typed.</p>
+
+      <h3>Emptying it first</h3>
+      <p>Run your render twice and you get the list twice. <code>innerHTML = items</code> happens to replace, but <code>appendChild</code> adds, so anything that can re-render needs to start from empty.</p>
+      <pre class="snippet">list.innerHTML = "";   /* then build it */</pre>
+      <p class="backref">This is the bug behind "why do I have fifty animals" in every project that adds a filter button later.</p>
+      </div>
+    </details>
 </section>
 
-<!-- ============================================================ chapter 9 -->
-<section class="ch" id="chapter-9">
+<!-- ============================================================ chapter 10 -->
+<section class="ch" id="chapter-10">
   <div class="ch-head">
-    <span class="ch-num">Chapter 9</span>
+    <span class="ch-num">Chapter 10</span>
     <h2>Your turn</h2>
     <p class="sub">Five changes to the code below. Tick them off as you go.</p>
   </div>
 
   <ww-runner label="your page" console data-carry>
-    <script type="text/ww-file" name="index.html" context>
+    <script type="text/ww-file" name="index.html">
       <h1 id="title">Willow Meadow</h1>
       <ul id="animal-list"></ul>
     </script>
-    <script type="text/ww-file" name="styles.css" context>
+    <script type="text/ww-file" name="styles.css">
       body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
       h1   { color: #39604a; }
       li   { margin-bottom: .3rem; }
@@ -40752,30 +45206,59 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
     </li>
     <li class="chal" data-chal="color">
       <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 2 done"></button>
-      <span><span class="chal-t">Change its color.</span> <span class="chal-h">That one is in <code>styles.css</code> &mdash; chapter 1.</span></span>
+      <span><span class="chal-t">Change its color.</span> <span class="chal-h">That one is in <code>styles.css</code>, chapter 2.</span></span>
     </li>
     <li class="chal" data-chal="value">
       <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 3 done"></button>
-      <span><span class="chal-t">Show a different value.</span> <span class="chal-h">Instead of <code>animal.name</code>, try <code>animal.diet</code> or <code>animal.fact</code>. Chapter 5 has the paths.</span></span>
+      <span><span class="chal-t">Show a different value.</span> <span class="chal-h">Instead of <code>animal.name</code>, try <code>animal.diet</code> or <code>animal.fact</code>. Chapter 6 has the paths.</span></span>
     </li>
     <li class="chal" data-chal="biome">
       <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 4 done"></button>
-      <span><span class="chal-t">Show a different biome.</span> <span class="chal-h">One word in the <code>.filter()</code> &mdash; chapter 7.</span></span>
+      <span><span class="chal-t">Show a different biome.</span> <span class="chal-h">One word in the <code>.filter()</code>, chapter 8.</span></span>
     </li>
     <li class="chal" data-chal="apex">
       <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 5 done"></button>
-      <span><span class="chal-t">Show only the apex predators, in alphabetical order.</span> <span class="chal-h">Filter on <code>animal.trophic</code>, then <code>.sort()</code> &mdash; chapters 6 and 7 together. There are 17 of them.</span></span>
+      <span><span class="chal-t">Show only the apex predators, in alphabetical order.</span> <span class="chal-h">Filter on <code>animal.trophic</code>, then <code>.sort()</code>, chapters 7 and 8 together. There are 17 of them.</span></span>
     </li>
   </ul>
 
-  <p class="cap">If the last two gave you trouble, that is useful information rather than a problem &mdash; number 4 is chapter 7 and number 5 is chapters 6 and 7 together, so you know exactly where to scroll back to.</p>
+  <p class="cap">If the last two gave you trouble, that is useful information rather than a problem: number 4 is chapter 8 and number 5 is chapters 7 and 8 together, so you know exactly where to scroll back to.</p>
 
   <div class="handoff">
     <h2>Ready to build something of your own?</h2>
     <p>The Code Builder gives you the same three files with room to work, thirty project ideas, and everything you just learned still in your hands. Your code from the editor above comes with you.</p>
     <a class="btn btn-go" id="to-builder" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a>
   </div>
+
+  <details class="deeper" data-deeper="chapter-10">
+      <summary>
+        <svg class="deeper-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg>
+        <span>
+          <span class="deeper-t">Going Deeper</span>
+          <span class="deeper-sub">Optional. Where to go from here.</span>
+        </span>
+      </summary>
+
+      <div class="deeper-body">
+
+      <h3>The reference professionals actually use</h3>
+      <p>MDN Web Docs is free, accurate and written by the people who build browsers. Search for any method or property on this page plus "mdn" and the first result will be the real documentation. It assumes you already know some of it, and reading it anyway is most of how the rest gets learned.</p>
+
+      <h3>Three things worth building next</h3>
+      <ul>
+        <li>A <strong>search box</strong>: an <code>&lt;input&gt;</code>, an <code>input</code> event listener, and the <code>.filter()</code> from chapter 8 run against whatever they typed.</li>
+        <li>A <strong>picker</strong>: buttons for the six biomes, each one re-running your render with a different value.</li>
+        <li>A <strong>comparison</strong>: two animals side by side, built from the same data with the same code twice.</li>
+      </ul>
+      <p>All three are the code you already have, with one thing that changes. That is what most of web development turns out to be.</p>
+
+      <h3>When you get stuck</h3>
+      <p>Read the error panel first: it names the line and often the mistake. Then <code>console.log</code> the value just before the line that broke. The error marks where things stopped working, not where they went wrong, and those are usually a step apart.</p>
+      <p class="backref">The Code Builder has the same editor, the same error explanations and thirty project ideas to pick from. Your code from this chapter comes with you.</p>
+      </div>
+    </details>
 </section>
+
 
 </main>
 </div>
@@ -40907,7 +45390,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			title: "Couldn't reach the Wild Willows data",
 			help:
 				'The request for the game data did not get through. Check the address is exactly ' +
-				'https://wildwillows.app/GameData/ \u2014 and if it looks right, ask your teacher: some school ' +
+				'https://wildwillows.app/GameData/ and if it looks right, ask your teacher: some school ' +
 				'networks block outside websites.',
 		},
 		{
@@ -40924,7 +45407,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			title: 'That element is not on the page',
 			help:
 				'querySelector gives you null when it cannot find what you asked for, and null means ' +
-				'"deliberately nothing". Check the spelling in your HTML and your JavaScript \u2014 and remember ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript, and remember ' +
 				'#name looks for id="name", while .name looks for class="name".',
 		},
 		{
@@ -40932,7 +45415,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
 			title: 'That piece of the data is not there',
 			help:
-				'undefined means "nothing found". You asked for something the data does not have \u2014 check the ' +
+				'undefined means "nothing found". You asked for something the data does not have. Check the ' +
 				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
 				'not data.animals.name).',
 		},
@@ -40949,7 +45432,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			match: /is not a function/i,
 			title: 'That is not something you can call',
 			help:
-				'You put () after something that is not a function \u2014 often a typo in the method name, or a ' +
+				'You put () after something that is not a function, often a typo in the method name, or a ' +
 				'value that turned out to be undefined.',
 		},
 		{
@@ -40969,7 +45452,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			match: /is not iterable/i,
 			title: 'That is not a list',
 			help:
-				'for...of and the array methods need an array. Check what you actually got \u2014 it may be a single ' +
+				'for...of and the array methods need an array. Check what you actually got: it may be a single ' +
 				'object, or undefined.',
 		},
 		{
@@ -40992,7 +45475,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			title: 'Your code stopped, and the browser would not say why',
 			help:
 				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
-				'changed, and try commenting lines out until the page runs again \u2014 the last line you removed ' +
+				'changed, and try commenting lines out until the page runs again. The last line you removed ' +
 				'is the one to look at.',
 		},
 		{
@@ -41000,7 +45483,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			match: /syntaxerror|unexpected token|unexpected identifier/i,
 			title: 'JavaScript could not read that',
 			help:
-				'A typo somewhere in the shape of the code \u2014 a missing comma, bracket or quote. The line number ' +
+				'A typo somewhere in the shape of the code: a missing comma, bracket or quote. The line number ' +
 				'is where JavaScript gave up, so the real mistake is often just above it.',
 		},
 	];
@@ -41220,12 +45703,38 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			}
 		}
 
+		/* What the page actually SHOWS, with the code that produced it left out.
+		 *
+		 * This was document.body.innerText, and innerText has a trapdoor: when an
+		 * element is not being rendered it falls back to textContent. A preview
+		 * that is display:none \u2014 which is every JavaScript-only example in the
+		 * lesson, and any runner switched to the code view \u2014 therefore returned the
+		 * SOURCE of both script blocks, including this harness. And this harness
+		 * contains the literal "[object Object]", in the test immediately below.
+		 * So the check matched itself, and every console example in chapters 5
+		 * through 9 accused the student of rendering an object they never rendered.
+		 *
+		 * A clone with the scripts and styles taken out reads the same whether the
+		 * document is rendered or not, which is the property the old version was
+		 * quietly relying on and did not have. */
+		function pageText() {
+			if (!document.body) return '';
+			try {
+				var clone = document.body.cloneNode(true);
+				var junk = clone.querySelectorAll('script, style');
+				for (var i = 0; i < junk.length; i++) junk[i].parentNode.removeChild(junk[i]);
+				return clone.textContent || '';
+			} catch (e) {
+				return '';
+			}
+		}
+
 		/* The silent failure: nothing is thrown, the page just renders the word
 		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
 		 * student stares at it with no idea what to search for. */
 		window.addEventListener('load', function () {
 			setTimeout(function () {
-				var text = document.body ? document.body.innerText : '';
+				var text = pageText();
 				if (/\\[object Object\\]/.test(text)) send('hint', { key: 'object-object' });
 				else if (/\\bundefined\\b/.test(text)) send('hint', { key: 'undefined-text' });
 			}, 300);
@@ -41239,7 +45748,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			title: 'Your page is showing [object Object]',
 			help:
 				'You are putting a whole object on the page where you meant one part of it. ' +
-				'Try adding the piece you want \u2014 for example .name instead of the whole animal.',
+				'Try adding the piece you want, for example .name instead of the whole animal.',
 		},
 		'undefined-text': {
 			title: 'Your page is showing the word "undefined"',
@@ -41307,7 +45816,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		area.className = 'wwr-code';
 		area.value = value || '';
 		area.spellcheck = false;
-		area.setAttribute('aria-label', file + ' \u2014 code editor');
+		area.setAttribute('aria-label', file + ', code editor');
 		/* Real keyboards, real settings: without these a browser will happily
 		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
 		area.setAttribute('autocomplete', 'off');
@@ -41379,7 +45888,30 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		var autorun = !host.hasAttribute('manual');
 		var label = host.getAttribute('label') || '';
 
+		/* A JAVASCRIPT-ONLY EXAMPLE HAS NO PAGE TO SHOW.
+		 *
+		 * Twenty-three of the lesson's runners are one main.js and a console: the
+		 * fetch steps, the property paths, every iterator method. Their output is
+		 * console.log and nothing else, so the preview column is a permanently
+		 * blank white rectangle taking half the width, and the view switcher above
+		 * it offers three ways to look at that blank rectangle.
+		 *
+		 * So these get code with the console under it, and no switcher. The
+		 * preview iframe is still built and still runs the code (it is where the
+		 * code executes and what reports back); it is only hidden, via the same
+		 * \`code\` view a student could have chosen by hand.
+		 *
+		 * Detected rather than declared, because the condition IS the definition:
+		 * one file, it is JavaScript, and no HTML or CSS behind it. An example
+		 * that renders something has one of those, and keeps its preview. */
+		var ctx = files[0].context || {};
+		var consoleOnly = mode === 'single' && files[0].kind === 'js' && !ctx.html && !ctx.css;
+		/* Without this such a runner would show nothing at all: no preview by
+		 * design, and no console either. */
+		if (consoleOnly) showConsole = true;
+
 		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		if (consoleOnly) host.classList.add('wwr--console-only');
 		host.innerHTML = '';
 
 		/* ---- toolbar ---- */
@@ -41436,13 +45968,14 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			viewBtns[v.id] = b;
 			views.appendChild(b);
 		});
-		bar.appendChild(views);
+		if (!consoleOnly) bar.appendChild(views);
 
 		var runBtn = button('Run', 'wwr-run', ICON_RUN);
 		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
 		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
 		openBtn.title = 'Open your page in a new tab';
-		bar.appendChild(openBtn);
+		/* Opening a blank page in a new tab is not a thing worth offering. */
+		if (!consoleOnly) bar.appendChild(openBtn);
 		bar.appendChild(runBtn);
 		bar.appendChild(resetBtn);
 		host.appendChild(bar);
@@ -41456,7 +45989,9 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			});
 			metric('view_' + id, host);
 		}
-		host.classList.add('wwr--view-split');
+		/* Set directly rather than through setView(), which reports a view change:
+		 * this is the starting state, not something the student chose. */
+		host.classList.add(consoleOnly ? 'wwr--view-code' : 'wwr--view-split');
 
 		/* ---- panes ---- */
 		var body = document.createElement('div');
@@ -41477,7 +46012,14 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			var t = document.createElement('button');
 			t.type = 'button';
 			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
-			t.textContent = f.name;
+			/* BOTH, ALWAYS. The lesson shows the icon and the builder shows the
+			 * name (see ww-lesson.css), but the filename is in the DOM either way:
+			 * it is the accessible name of the tab, it is what a screen reader
+			 * announces, and it is what the builder's help sidebar reads to decide
+			 * which file it is describing. An icon-only tab with no text is a
+			 * button that says nothing to anyone who cannot see it. */
+			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
+			t.title = f.name;
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
 			t.addEventListener('click', function () {
@@ -41513,7 +46055,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		function makeFrame() {
 			var f = document.createElement('iframe');
 			f.className = 'wwr-preview';
-			f.title = 'Live preview' + (label ? ' \u2014 ' + label : '');
+			f.title = 'Live preview' + (label ? ': ' + label : '');
 			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
 			 * origin and cannot reach this page, its storage, or its cookies. */
 			f.setAttribute('sandbox', 'allow-scripts');
@@ -41808,7 +46350,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			if (message) {
 				var m = document.createElement('code');
 				m.className = 'wwr-error-msg';
-				m.textContent = message + (line ? '  \u2014 line ' + line : '');
+				m.textContent = message + (line ? '  (line ' + line + ')' : '');
 				errBox.appendChild(m);
 			}
 			var p = document.createElement('p');
@@ -41934,6 +46476,32 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		run('auto');
 	}
 
+	/* One icon per file kind, keyed off the extension.
+	 *
+	 * They are the three questions the lesson opens with, in the same order: a
+	 * document for what is HERE, a drop of paint for what it LOOKS like, a bolt
+	 * for what it DOES. Which means a student meets these shapes in chapter 1 as
+	 * prose and again in every toolbar afterwards as a label.
+	 *
+	 * Drawn, like everything else on these pages, for the reason set out below:
+	 * a character would be whatever glyph the platform's font decides. */
+	var FILE_ICONS = {
+		html: '<path d="M6.5 3.5h7l4.5 4.5v12.5h-11.5z"/><path d="M13.5 3.5V8h4.5"/>',
+		css: '<path d="M12 3.5s5.5 5.6 5.5 9.3a5.5 5.5 0 0 1-11 0C6.5 9.1 12 3.5 12 3.5z"/>',
+		js: '<path d="M13.2 3.5 6.5 13.2h4.6l-.9 7.3 7-9.9h-4.6z"/>',
+	};
+
+	function fileIcon(name) {
+		var ext = String(name).split('.').pop().toLowerCase();
+		var path = FILE_ICONS[ext] || FILE_ICONS.html;
+		return (
+			'<svg class="wwr-tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			path +
+			'</svg>'
+		);
+	}
+
 	/* Icons are DRAWN, never typed.
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
@@ -42008,41 +46576,60 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			.join('\\n');
 	}
 
+	/**
+	 * Start one runner. Safe to call twice \u2014 the second call is a no-op.
+	 *
+	 * Split out of init() so a page can hold some of its runners back. Every
+	 * runner renders on start (see the run('auto') at the end of WwRunner), and
+	 * each one owns two iframes, so a page with thirty of them opens thirty
+	 * documents before the student has read a word. That is affordable for the
+	 * chapters, which are the point of the page; it is not affordable for
+	 * material inside a panel that begins closed and that most readers will never
+	 * open. Those carry \`defer\` and are mounted when the panel is.
+	 */
+	function mount(host) {
+		if (!host || host.dataset.wwReady) return;
+		host.dataset.wwReady = '1';
+		try {
+			WwRunner(host);
+		} catch (e) {
+			/* A broken runner must not take the rest of the lesson down with it \u2014
+			 * the page is readable without any of them (see the static fallback
+			 * markup each one wraps). */
+			host.classList.add('wwr--failed');
+			if (window.console) console.error('ww-runner failed to start', e);
+		}
+	}
+
 	function init() {
-		Array.prototype.forEach.call(document.querySelectorAll('ww-runner'), function (host) {
-			if (host.dataset.wwReady) return;
-			host.dataset.wwReady = '1';
-			try {
-				WwRunner(host);
-			} catch (e) {
-				/* A broken runner must not take the rest of the lesson down with it \u2014
-				 * the page is readable without any of them (see the static fallback
-				 * markup each one wraps). */
-				host.classList.add('wwr--failed');
-				if (window.console) console.error('ww-runner failed to start', e);
-			}
-		});
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner:not([defer])'), mount);
 	}
 
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 	else init();
 
-	window.WwRunner = { assembleDocument: assembleDocument, explain: explain, escapeForScript: escapeForScript, dedent: dedent };
+	window.WwRunner = {
+		assembleDocument: assembleDocument,
+		explain: explain,
+		escapeForScript: escapeForScript,
+		dedent: dedent,
+		mount: mount,
+	};
 })();
 
 </script>
 <script>
-/* Wild Willows \u2014 the student lesson at /learn/web-development.
+/* Wild Willows: the student lesson at /learn/web-development.
  *
  * The page's own behaviour. The editors and previews are ww-runner.js; this file
  * is everything the lesson adds around them:
  *
- *   \u2022 the chapter rail \u2014 where you are, where you have been, and per-chapter
+ *   \u2022 the chapter rail: where you are, where you have been, and per-chapter
  *     dwell time bucketed for the dashboard
- *   \u2022 the API probe in chapter 3 \u2014 a real request to /GameData/, reporting the
+ *   \u2022 the API probe in chapter 3: a real request to /GameData/, reporting the
  *     status, the time and the size a student's own network actually produced
- *   \u2022 the JSON tree \u2014 collapsible, coloured by type, shared by chapters 3 and 5
- *   \u2022 the path explorer in chapter 5 \u2014 type a path, see which part of the tree
+ *   \u2022 the JSON tree: collapsible, coloured by type, shared by chapters 3 and 5
+ *   \u2022 the path explorer in chapter 5: type a path, see which part of the tree
  *     it selected and what type came back
  *   \u2022 the five challenges in chapter 9, and the hand-off into the Code Builder
  *   \u2022 one batched beacon of anonymous counters, on the same contract as the
@@ -42055,7 +46642,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 (function () {
 	'use strict';
 
-	var CHAPTERS = 9;
+	var CHAPTERS = 10;
 	var API_URL = 'https://wildwillows.app/GameData/';
 	var DONE_KEY = 'wwLessonDone'; // chapters seen, for the rail's ticks
 	var CHAL_KEY = 'wwLessonChallenges'; // which of chapter 9's five are ticked
@@ -42067,7 +46654,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 	 * anything that should be reported exactly once per session rides on the
 	 * final flush only. The builder's version of this once kept a batch after
 	 * sending it, behind a latch, and the five-minute timer sent it a second
-	 * time \u2014 every counter before a student's first tab switch was recorded
+	 * time: every counter before a student's first tab switch was recorded
 	 * twice. Do not reintroduce a latch here. */
 	var counts = {};
 	var summarySent = false;
@@ -42082,7 +46669,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 	function addSummary() {
 		var reached = 0;
 		for (var i = 1; i <= CHAPTERS; i++) if (dwell[i] > 0) reached++;
-		if (reached) bump('chapters_' + Math.min(9, reached));
+		if (reached) bump('chapters_' + Math.min(CHAPTERS, reached));
 
 		var ticked = challengesDone().length;
 		if (ticked) bump('challenges_' + Math.min(5, ticked));
@@ -42122,7 +46709,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		}
 	}
 
-	/* Everything ww-runner reports \u2014 runs, errors, fetch outcomes, view changes \u2014
+	/* Everything ww-runner reports (runs, errors, fetch outcomes, view changes)
 	 * arrives here as a bubbling event, so instrumentation is written once rather
 	 * than at each of the page's fifteen runners. */
 	document.addEventListener('ww:metric', function (e) {
@@ -42130,7 +46717,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		bump(e.detail.key);
 		/* A runner tagged with the concept it teaches also reports that concept the
 		 * first time it is actually run. That is what makes "which iterator methods
-		 * did students really try" answerable \u2014 as opposed to "which ones were on
+		 * did students really try" answerable: as opposed to "which ones were on
 		 * the page", which we already know. */
 		var host = e.target && e.target.closest && e.target.closest('ww-runner[data-concept]');
 		if (host && !host.dataset.conceptSent && /^runs_/.test(e.detail.key)) {
@@ -42170,7 +46757,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			localStorage.setItem(key, JSON.stringify(value));
 		} catch (e) {
 			/* Guest mode and managed Chromebooks: storage can be unavailable or
-			 * full. The lesson works without it \u2014 you lose the ticks, not the page. */
+			 * full. The lesson works without it: you lose the ticks, not the page. */
 			if (value === undefined) return null;
 		}
 		return null;
@@ -42237,8 +46824,8 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 
 		/* WHICH CHAPTER IS "CURRENT" IS A GEOMETRY QUESTION, not a visibility one.
 		 *
-		 * The obvious version of this \u2014 rank the sections by intersection ratio and
-		 * take the highest \u2014 has a hole at both ends of the page, and the top one
+		 * The obvious version of this: rank the sections by intersection ratio and
+		 * take the highest: has a hole at both ends of the page, and the top one
 		 * is the one a student sees first: standing at the hero, NO chapter is
 		 * intersecting, every ratio is 0, and the rail highlights nothing at all.
 		 * A syllabus that shows no position until you have scrolled past the first
@@ -42250,7 +46837,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		 * chapter too short to ever win on ratio.
 		 *
 		 * The observer is still here, but only as a cheap way to be told that
-		 * something moved \u2014 it does not decide anything. That keeps this off the
+		 * something moved: it does not decide anything. That keeps this off the
 		 * scroll path, which matters on the Chromebooks this page is written for. */
 		var READING_LINE = 96; // px below the sticky nav
 
@@ -42294,7 +46881,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 	 * Written by hand rather than dumping JSON.stringify into a <pre> for one
 	 * reason: the colours ARE the lesson. Chapter 3 names six types in a table,
 	 * and a tree that paints strings, numbers, booleans and null differently
-	 * means a student sees the type before they read anything about it \u2014 and in
+	 * means a student sees the type before they read anything about it: and in
 	 * chapter 5 they can see that a path landed on an array rather than a string
 	 * without running it. */
 
@@ -42306,7 +46893,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 
 	var TYPE_CLASS = { string: 'jstr', number: 'jnum', boolean: 'jbool', null: 'jnull' };
 
-	/** A human sentence naming what a value is \u2014 used under the tree and by the
+	/** A human sentence naming what a value is: used under the tree and by the
 	 *  chapter 5 explorer, so chapter 3's table gets used rather than read once. */
 	function describe(v) {
 		var t = typeOf(v);
@@ -42315,8 +46902,8 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			var n = Object.keys(v).length;
 			return 'an object with ' + n + ' part' + (n === 1 ? '' : 's');
 		}
-		if (t === 'null') return 'null \u2014 nothing, on purpose';
-		if (t === 'undefined') return 'undefined \u2014 there is nothing here';
+		if (t === 'null') return 'null: nothing, on purpose';
+		if (t === 'undefined') return 'undefined: there is nothing here';
 		return 'a ' + t;
 	}
 
@@ -42374,14 +46961,14 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 	 *
 	 * Every icon on these pages is an SVG path, and the reason is the one that
 	 * rules out emoji: a geometric-shape character is whatever glyph the
-	 * platform's font decides \u2014 a hairline arrow on one machine, a full-colour
+	 * platform's font decides: a hairline arrow on one machine, a full-colour
 	 * pictograph at a size nothing else on the page uses on another, and an empty
 	 * box on a managed Chromebook missing the font. This is a control a student
 	 * hits a hundred times to read one record; it does not get to be a lottery.
 	 *
 	 * (This comment deliberately does not print the character it is arguing
 	 * about. tests/unit/built-pages.test.ts scans the delivered page for
-	 * pictographs, and this file is inlined into it \u2014 a comment naming the
+	 * pictographs, and this file is inlined into it: a comment naming the
 	 * forbidden glyph would be the thing that fails the check. The runner partial
 	 * learned the same lesson about closing script tags.)
 	 *
@@ -42444,7 +47031,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 
 	/* ------------------------------------------------------ the API probe */
 
-	var gameData = null; // shared by chapters 3 and 5 \u2014 fetched at most once
+	var gameData = null; // shared by chapters 3 and 5: fetched at most once
 	var pending = null;
 
 	function loadGameData() {
@@ -42489,9 +47076,9 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 					/* REAL NUMBERS FROM THEIR OWN NETWORK. A screenshot of a response
 					 * teaches nothing; "412 ms, 318 KB, on this school's wifi" is a
 					 * fact about the machine in front of them. */
-					out.appendChild(stat(r.cached ? '\u2014' : r.status, 'status'));
+					out.appendChild(stat(r.cached ? 'n/a' : r.status, 'status'));
 					out.appendChild(stat(r.cached ? 'cached' : r.ms + ' ms', 'took'));
-					out.appendChild(stat(r.cached ? '\u2014' : Math.round(r.bytes / 1024) + ' KB', 'size'));
+					out.appendChild(stat(r.cached ? 'n/a' : Math.round(r.bytes / 1024) + ' KB', 'size'));
 					out.appendChild(stat(Object.keys(r.data).length, 'top-level keys'));
 					if (tree) renderTree(tree, r.data, 1);
 				})
@@ -42500,7 +47087,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 					btn.textContent = label;
 					bump('fetch_failed');
 					out.textContent =
-						'The request did not get through. That is usually the school network blocking it rather than anything on this page \u2014 try again, and tell your teacher if it keeps happening.';
+						'The request did not get through. That is usually the school network blocking it rather than anything on this page. Try again, and tell your teacher if it keeps happening.';
 				});
 		});
 	}
@@ -42512,13 +47099,13 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		return box;
 	}
 
-	/* ------------------------------------------ chapter 5 \u2014 the path explorer
+	/* ------------------------------------------ chapter 5: the path explorer
 	 *
 	 * A student types data.animals[0].name and sees which row of the tree it
 	 * landed on and what type came back. The path is PARSED, not evaluated: this
 	 * takes text a student typed and walks it across our own object, and eval on
 	 * that input would be a needless liability on a page built for schools.
-	 * Parsing also gives a better error \u2014 it can say which step failed. */
+	 * Parsing also gives a better error: it can say which step failed. */
 
 	function parsePath(text) {
 		var src = String(text).trim();
@@ -42566,16 +47153,16 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 				.then(function (r) {
 					var got = walk(r.data, parsed.steps);
 					if (got.missing)
-						return show('That path stops early \u2014 \`' + parsed.steps.slice(0, got.at).join('.') + '\` is not there.');
+						return show('That path stops early: \`' + parsed.steps.slice(0, got.at).join('.') + '\` is not there.');
 					var v = got.value;
 					if (v === undefined) {
 						/* The undefined callout from the plan, delivered by the student's
 						 * own typo rather than by a paragraph they skimmed. */
 						show(
-							'undefined \u2014 there is nothing at that path. Not an error, not zero, not empty: JavaScript saying "nothing here".',
+							'undefined: there is nothing at that path. Not an error, not zero, not empty. It is JavaScript saying "nothing here".',
 						);
 					} else {
-						show(describe(v) + (typeOf(v) === 'string' ? ' \u2014 ' + literal(v) : ''));
+						show(describe(v) + (typeOf(v) === 'string' ? ': ' + literal(v) : ''));
 					}
 					if (tree) {
 						renderTree(tree, v === undefined ? {} : v, 1);
@@ -42600,6 +47187,65 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 			b.addEventListener('click', function () {
 				input.value = b.getAttribute('data-path');
 				run();
+			});
+		});
+	}
+
+	/* ------------------------------------------------------- going deeper
+	 *
+	 * One panel per chapter, each closed, each holding its own runners back.
+	 *
+	 * The runners carry \`defer\`, so ww-runner.js leaves them alone at boot and
+	 * they are started here when their panel is first opened. That is not a
+	 * micro-optimisation: every runner renders on start and each owns two
+	 * iframes, and the chapters already open sixty-odd documents before a
+	 * student has read a word. Paying for another twenty on behalf of panels
+	 * most readers never open is the difference between this page being usable
+	 * on a school Chromebook and not.
+	 *
+	 * Two counters, and the difference between them is the useful part.
+	 * \`deeper_opened\` is every open on the page. \`deeper_chapter-N\` says WHICH
+	 * chapters leave students wanting more, which is the question that decides
+	 * where the next piece of writing should go. */
+
+	/* Where a reader went next. The nav links leave the page, so this has to be a
+	 * plain click listener rather than anything that waits for a response:
+	 * bump() batches into the pagehide flush, which fires on the way out.
+	 *
+	 * The same map lives in ww-builder.js and in the hub's own script. Three
+	 * copies of five pairs is less bad than a fourth shared partial for it, but
+	 * they do have to agree, so the KEYS are the allowlist in server/resources.ts
+	 * and that is the thing to check against. */
+	var NAV = {
+		'learn-nav': 'nav_learn',
+		'lesson-nav': 'nav_lesson',
+		'builder-nav': 'nav_builder',
+		'hub-nav': 'nav_hub',
+		'game-nav': 'nav_game',
+	};
+
+	function initNav() {
+		document.addEventListener('click', function (e) {
+			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
+		});
+	}
+
+	function initDeeper() {
+		$$('details.deeper').forEach(function (panel) {
+			var started = false;
+			var which = panel.getAttribute('data-deeper');
+			panel.addEventListener('toggle', function () {
+				if (!panel.open) return;
+				bump('deeper_opened');
+				if (which) bump('deeper_' + which);
+				if (started) return;
+				started = true;
+				var mount = window.WwRunner && window.WwRunner.mount;
+				$$('ww-runner[defer]', panel).forEach(function (host) {
+					host.removeAttribute('defer');
+					if (mount) mount(host);
+				});
 			});
 		});
 	}
@@ -42653,7 +47299,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 	 * Chapter 9's last runner carries across into the Code Builder, so a student
 	 * arrives there with their own work already open rather than with a starter
 	 * project that throws it away. The code travels in the URL FRAGMENT, which
-	 * browsers do not send to the server \u2014 their code stays theirs, and the
+	 * browsers do not send to the server: their code stays theirs, and the
 	 * promise on this page and in PRIVACY.md stays true. */
 
 	function initHandoff() {
@@ -42662,7 +47308,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		link.addEventListener('click', function () {
 			var host = $('#chapter-9 ww-runner[data-carry]');
 			var area = host && $('textarea.wwr-code', host);
-			if (!area || !area.value.trim()) return; // no work to carry \u2014 plain link
+			if (!area || !area.value.trim()) return; // no work to carry: plain link
 			try {
 				var payload = { js: area.value };
 				link.href = '/learn/code-builder#start=' + encodeURIComponent(JSON.stringify(payload));
@@ -42737,6 +47383,8 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 		initExplorer();
 		initLegend();
 		initChallenges();
+		initNav();
+		initDeeper();
 		initHandoff();
 		initFlow();
 	}
@@ -42758,8 +47406,886 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 </body>
 </html>
 `;
+var learnIndexHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn to code with Wild Willows: a free web development lesson and browser code editor</title>
+<meta name="description" content="A free ten-chapter web development lesson and a browser code editor for students, built on a real public game API. Learn HTML, CSS, JavaScript and how to fetch data. No accounts, no installs.">
+<link rel="canonical" href="https://wildwillows.app/learn">
+<meta name="theme-color" content="#f4eeda">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 the classroom hub at /learn.
+ *
+ * Two doors and enough copy to choose between them. Tokens, buttons, chips and
+ * nav come from site-core.css; dark mode is a repoint of the same tokens in
+ * ww-dark.css and needs nothing here.
+ *
+ * The page has no editors on it, which is deliberate: a student who lands on
+ * /learn should be one click from writing code, not looking at a demo of it.
+ */
+
+body.hub {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.hwrap {
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.hhero {
+	padding: 3rem 0 1.6rem;
+	max-width: 44rem;
+}
+
+.hhero h1 {
+	font-size: clamp(2rem, 5vw, 3.1rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.hhero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.hmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* --------------------------------------------------------------- the doors
+ *
+ * Two cards, side by side on a laptop and stacked on a phone. Equal weight on
+ * purpose, down to the button: neither is the "real" one. A student who has
+ * never written code starts at the lesson, and one who arrived from a
+ * classmate's project starts at the builder, and both of those are the right
+ * answer for that person.
+ *
+ * The recommendation is carried by the ORDER and by the two kickers above the
+ * headings ("Start here" / "Or build something"), which is as much weight as it
+ * should have. A quieter button on the second card said something stronger than
+ * that: it read as the lesser option rather than the other one. */
+
+.doors {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.6rem 0 0;
+	align-items: stretch;
+}
+
+.door {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem 1.4rem 1.3rem;
+}
+
+.door h2 {
+	font-size: 1.3rem;
+	margin: 0.6rem 0 0.1rem;
+	line-height: 1.25;
+}
+
+.door-kicker {
+	font-size: 0.68rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .door-kicker {
+	color: var(--green-bright);
+}
+
+.door-sub {
+	color: var(--ink-soft);
+	line-height: 1.6;
+	margin: 0.5rem 0 0.9rem;
+}
+
+.door ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+	line-height: 1.5;
+}
+
+/* The marker is POSITIONED, not a grid column.
+   A grid here looked right and broke the moment a line contained an inline
+   element: every child of a grid container is its own grid item, so an <li>
+   reading "if and else" with two <code> tags in it laid out as four separate
+   cells and wrapped down the card. Padding plus an absolute marker takes the
+   line as one flow, whatever is inside it. */
+.door li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+}
+
+/* Drawn, not typed, for the reason every icon on these pages is: a bullet
+   character is whatever glyph the platform's font decides. */
+.door li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .door li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other. */
+.door-go {
+	margin-top: auto;
+}
+
+.door .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+.hsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.hsec h2 {
+	font-size: 1.25rem;
+	margin: 0 0 0.5rem;
+}
+
+.hsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+	color: var(--ink);
+}
+
+.hsec p.sub {
+	color: var(--ink-soft);
+}
+
+.hsec code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	background: var(--sprout);
+	border-radius: 5px;
+	padding: 0.08em 0.34em;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0.7rem 0 1.1rem;
+}
+
+/* The three-up strip under "What you need". Facts, not features. */
+.hfacts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+}
+
+.hfact {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 12px;
+	padding: 0.85rem 1rem;
+}
+
+.hfact b {
+	display: block;
+	margin-bottom: 0.15rem;
+}
+
+.hfact span {
+	color: var(--ink-soft);
+	font-size: 0.9rem;
+	line-height: 1.5;
+	display: block;
+}
+
+/* The teachers note at the foot: a different audience, so it reads as an aside
+   rather than as another door. */
+.hteach {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+	max-width: 46rem;
+}
+
+.hteach h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.15rem;
+}
+
+.hteach p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="hub">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
+    <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Start the Lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="hwrap">
+
+<header class="hhero">
+  <h1>Learn to code with real game data</h1>
+  <p class="lead">Wild Willows is a game about bringing a nature preserve back to life. Everything in it, all 150 animals and the six biomes they live in, is published as a public API that anyone can use. These two pages teach you to build a webpage out of it.</p>
+  <div class="hmeta">
+    <span class="chip">Free</span>
+    <span class="chip">No account</span>
+    <span class="chip">Nothing to install</span>
+    <span class="chip">Runs in your browser</span>
+  </div>
+</header>
+
+<div class="doors">
+
+  <section class="door">
+    <span class="door-kicker">Start here</span>
+    <h2>The Lesson</h2>
+    <p class="door-sub">Ten chapters, from &ldquo;what is HTML&rdquo; to a working page full of live data. Every code sample is editable and runs as you type, so you cannot get to the end without having written something.</p>
+    <ul>
+      <li>HTML, CSS and JavaScript, and what each one is for</li>
+      <li>What an API is, and a real request you can watch happen</li>
+      <li><code>if</code> and <code>else</code>, and looping through 150 records</li>
+      <li>Building a page from data you fetched yourself</li>
+      <li>Optional Going Deeper panels on every chapter</li>
+    </ul>
+    <p class="door-go"><a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Start the Lesson</a></p>
+  </section>
+
+  <section class="door">
+    <span class="door-kicker">Or build something</span>
+    <h2>The Code Builder</h2>
+    <p class="door-sub">Three files, a live preview and the same game data. Open it when you have an idea of your own, or when you finish the Lesson and want room to work.</p>
+    <ul>
+      <li><code>index.html</code>, <code>styles.css</code> and <code>main.js</code>, side by side with the page they make</li>
+      <li>Thirty project ideas if you need one</li>
+      <li>Plain-language explanations when something breaks</li>
+      <li>Your work saves in your browser, and downloads as a real file</li>
+    </ul>
+    <p class="door-go"><a class="btn btn-go" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a></p>
+  </section>
+
+</div>
+
+<section class="hsec">
+  <h2>What you need</h2>
+  <div class="hfacts">
+    <div class="hfact"><b>A browser</b><span>Anything current, including a school Chromebook. A keyboard helps a lot.</span></div>
+    <div class="hfact"><b>No account</b><span>Nothing to sign up for and nothing to log into. Your work stays in your own browser.</span></div>
+    <div class="hfact"><b>No experience</b><span>The Lesson starts from the first line of HTML. Nothing before it is assumed.</span></div>
+  </div>
+</section>
+
+<section class="hsec">
+  <h2>The data</h2>
+  <p>One address, open to anyone, no key required. It answers with every animal, biome, resource, recipe and craftable object in the game.</p>
+  <div class="hcode">https://wildwillows.app/GameData/</div>
+  <p>Which means this is a whole program that shows you something real:</p>
+  <div class="hcode">const response = await fetch("https://wildwillows.app/GameData/");
+const data = await response.json();
+
+console.log(data.animals[0].name);   // "Banana Slug"</div>
+  <p class="sub">You are welcome to use it in your own projects, in or out of school. It is the same data the game runs on, so when the game changes, so does this.</p>
+</section>
+
+<div class="hteach">
+  <h2>Teaching this?</h2>
+  <p>There is a page for you: what each chapter covers, how long it takes, what to expect students to get stuck on, and printable material for the ecology side of the game.</p>
+  <a class="btn btn-paper" href="/teachers" data-track="edu-nav">For teachers</a>
+</div>
+
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  /* The hub's own counters. Two of them, and both answer a question the rest of
+     the funnel cannot.
+     
+     THE TOGGLE IS NOT WIRED HERE. ww-theme.js is included once, in <head>,
+     because the attribute has to be on <html> before the first paint or a
+     student who chose dark gets a flash of cream. It wires the button itself on
+     DOMContentLoaded. Including it a second time down here would attach a
+     SECOND click handler, so every press would toggle twice and land back where
+     it started, which looks exactly like a broken button.
+
+     Same contract as every other classroom counter (see PRIVACY.md): a name
+     from a fixed list and a number, nothing else. */
+
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'learn', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* 1. That the page was opened at all, once per browser session. /learn is
+        where a student who was handed a bare link arrives, and without this
+        their visit begins at whichever of the two pages they picked. */
+  var fresh = true;
+  try {
+    fresh = !sessionStorage.getItem('ww_learn_seen');
+    sessionStorage.setItem('ww_learn_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile. Counting it is the better failure:
+       a double count on a machine that cannot remember beats a blind spot. */
+  }
+  if (fresh) {
+    // Nothing about a page view is time-sensitive, so it waits for idle rather
+    // than taking uplink while the page is still painting.
+    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_learn: 1 }); }, { timeout: 3000 });
+    else setTimeout(function () { report({ view_learn: 1 }); }, 500);
+  }
+
+  /* 2. WHICH DOOR THEY TOOK. This is the whole reason the page exists, so it is
+        the one number worth having about it: a hub where everybody leaves
+        through the same side is not a hub, it is a redirect with extra steps.
+        sendBeacon rather than a fetch, because the page is unloading. */
+  var NAV = {
+    'lesson-nav': 'nav_lesson',
+    'builder-nav': 'nav_builder',
+    'learn-nav': 'nav_learn',
+    'hub-nav': 'nav_hub',
+    'game-nav': 'nav_game',
+    'edu-nav': 'nav_hub',
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>
+`;
 var ogImageB64 = "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";
-var buildStamp = "0.3.10+2026-08-18T03:18:57.745Z";
+var buildStamp = "0.3.10+2026-08-18T05:53:19.293Z";
 
 // server/page-lastmod.ts
 var pageLastmod = {
@@ -42768,6 +48294,9 @@ var pageLastmod = {
   "/age-rating.html": "2026-08-17",
   "/support.html": "2026-08-17",
   "/teachers": "2026-08-17",
+  "/teachers/science": "2026-08-17",
+  "/teachers/coding": "2026-08-17",
+  "/learn": "2026-08-17",
   "/learn/web-development": "2026-08-17",
   "/educator-guide.pdf": "2026-08-10",
   "/student-worksheets.pdf": "2026-08-09"
@@ -50611,6 +56140,10 @@ var LESSON_ERROR_KEYS = /* @__PURE__ */ new Set([
 var LESSON_EXACT = /* @__PURE__ */ new Set([
   // reach
   "view_hub",
+  // /learn, the classroom hub. Its own key rather than view_hub, which is the
+  // TEACHERS hub: two different audiences arriving at two different pages, and
+  // folding them together would make both numbers unreadable.
+  "view_learn",
   "view_science",
   "view_coding",
   "view_lesson",
@@ -50629,8 +56162,15 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   // three keys — the marketing side's data-track names post to /LandingEvent/
   // and would be counted in the wrong system entirely.
   "nav_lesson",
+  "nav_builder",
+  "nav_learn",
   "nav_hub",
   "nav_game",
+  // Which kit a teacher took from the hub. The one number worth having about a
+  // hub: if everybody leaves through the same side it is a redirect with extra
+  // steps rather than a choice.
+  "nav_science",
+  "nav_coding",
   // funnel
   "lesson_start",
   "builder_open",
@@ -50641,6 +56181,11 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   // lesson interactions
   "types_legend-opened",
   "types_tree-expanded",
+  // The optional "Going Deeper" panel at the end of the lesson. Worth its own
+  // counter because it answers a question the funnel cannot: how many students
+  // who finished still wanted more. If almost nobody opens it, it is the wrong
+  // material or the wrong place for it; if most do, the lesson ends too early.
+  "deeper_opened",
   // builder health
   "runs_manual",
   "runs_debounced",
@@ -50680,10 +56225,19 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   "panel_checkpoints_closed",
   "panel_help_open",
   "panel_help_closed",
+  // The whole side panel, collapsed out of the way so the editor gets the
+  // window. Worth its own pair: if most students hide it and never bring it
+  // back, the checkpoints are in the wrong place rather than merely optional.
+  "panel_side_hidden",
+  "panel_side_shown",
   // environment
   "env_viewport-sm",
   "env_viewport-md",
   "env_viewport-lg",
+  // How often the Code Builder was opened on a screen too small to use it. If
+  // that number is large the answer is not to squeeze the editor onto a phone,
+  // it is that whatever is linking there should say so first.
+  "env_too-small",
   // session shape
   "session_total",
   "duration_lt5m",
@@ -50695,13 +56249,24 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   "returning_day3"
 ]);
 var LESSON_PATTERNS = [
-  /^chapter_[1-9]_reached$/,
-  /^chapters_[1-9]$/,
+  // TEN chapters, not nine. A CSS chapter was added at position 2 and every
+  // chapter after it moved up one, which pushed the last one to 10 — outside
+  // [1-9], where it would have been silently rejected and counted as `other`.
+  // A bounded family has to be widened deliberately when the thing it bounds
+  // grows; that is the cost of the bound and it is worth paying.
+  /^chapter_([1-9]|10)_reached$/,
+  /^chapters_([1-9]|10)$/,
   /^challenges_[1-5]$/,
-  /^hints_chapter-[1-9]$/,
-  /^dwell_chapter-[1-9]_(lt1m|1to3m|3to10m|gt10m)$/,
+  /^hints_chapter-([1-9]|10)$/,
+  /^dwell_chapter-([1-9]|10)_(lt1m|1to3m|3to10m|gt10m)$/,
   /^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
   /^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
+  // Topics inside "Going Deeper". Same shape and same reasoning as iter_ and
+  // cond_: which OPTIONAL material students actually run is the only way to
+  // tell a section that earns its place from one that is only ever scrolled
+  // past. Bounded by the pattern, not by a list, because this panel is where
+  // new topics get added.
+  /^deeper_[a-z][a-z0-9-]{0,23}$/,
   /^edits_(html|css|js)_(1to5|6to20|21to50|50plus)$/,
   // Checkpoint and hint ids, and idea slugs. Kebab-case and short by
   // construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
@@ -50864,6 +56429,11 @@ var PUBLIC_PAGES = {
   // and share. Harper serves /teachers.html too (it strips the suffix), which
   // costs nothing and cannot be linked to by accident.
   teachers: { path: "/teachers", redirect: true, sitemap: true },
+  // The two kits the hub leads to. /teachers stays a 200 and keeps its equity:
+  // it is an established URL printed in both PDFs and linked externally, so it
+  // changes job rather than changing address.
+  "teachers-science": { path: "/teachers/science", redirect: true, sitemap: true },
+  "teachers-coding": { path: "/teachers/coding", redirect: true, sitemap: true },
   // The classroom student pages live under /learn/<slug>, resolved by ONE
   // resource reading getId() — the same shape /img/<name>.webp already uses.
   // The builder is `noindex` in its own <head> (it is a tool, not a document,
@@ -50875,6 +56445,10 @@ var PUBLIC_PAGES = {
   // prose that a teacher searching for "high school API lesson" should be able
   // to find. Indexable and in the sitemap; the builder it hands off to is not.
   "learn-web-development": { path: "/learn/web-development", redirect: true, sitemap: true },
+  // The hub the two student pages hang off. Indexable: "learn javascript with a
+  // real api" is a thing people search for, and this is the page that answers it
+  // for someone who has not heard of the game.
+  learn: { path: "/learn", redirect: true, sitemap: true },
   // The classroom PDFs. Indexable — Google indexes PDF content, and these are
   // the only thing on the site aimed squarely at teachers searching for a
   // classroom ecology resource. No redirect: they are not served through
@@ -50949,12 +56523,30 @@ var DashboardPage = class extends PublicEndpoint {
     return htmlPage(this, "dashboard", dashboardHtml, { private: true });
   }
 };
+var TEACHER_PAGES = {
+  "": { key: "teachers", html: teachersIndexHtml },
+  science: { key: "teachers-science", html: teachersScienceHtml },
+  coding: { key: "teachers-coding", html: teachersCodingHtml }
+};
 var TeachersPage = class extends PublicEndpoint {
   async get() {
-    return htmlPage(this, "teachers", teachersHtml);
+    const slug = String(this.getId?.() || "").trim().replace(/^\/+|\/+$/g, "");
+    const page = Object.prototype.hasOwnProperty.call(TEACHER_PAGES, slug) ? TEACHER_PAGES[slug] : null;
+    if (!page) {
+      return {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+        body: "Not found"
+      };
+    }
+    return htmlPage(this, page.key, page.html);
   }
 };
 var LEARN_PAGES = {
+  // The empty slug is /learn itself, which is the case the getId() dispatch was
+  // shaped for: one resource for the section, so the hub is not a fourth export
+  // and a third routing story.
+  "": { key: "learn", html: learnIndexHtml },
   "code-builder": { key: "learn-code-builder", html: learnCodeBuilderHtml },
   "web-development": { key: "learn-web-development", html: learnWebDevelopmentHtml }
 };

@@ -22,7 +22,7 @@ const URL = process.env.CLASSROOM_URL || 'http://localhost:4321';
 
 export default defineConfig({
 	testDir: './tests/e2e',
-	testMatch: /(code-builder|lesson)\.spec\.ts/,
+	testMatch: /(code-builder|lesson|teachers)\.spec\.ts/,
 	timeout: 30_000,
 	expect: { timeout: 10_000 },
 	fullyParallel: true,

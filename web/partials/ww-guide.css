@@ -427,25 +427,9 @@
 	color: var(--ink);
 }
 
-/* Every column but the first is supporting text. Written as "not the first"
-   rather than as a list of column numbers: the science guide's arrival ladder
-   uses the same table with five columns, and a numbered list silently stopped
-   colouring the last two. */
-.trouble td:not(:first-child) {
+.trouble td:nth-child(2),
+.trouble td:nth-child(3) {
 	color: var(--ink-soft);
-}
-
-/* Percentages line up under each other, and never wrap mid-number. */
-.trouble .num {
-	font-variant-numeric: tabular-nums;
-	white-space: nowrap;
-}
-
-/* A short label that reads as broken when it wraps: "Insect-" over "eater" in a
-   column that had the room. Applied per cell rather than per column, because
-   the two tables using this style do not have it in the same place. */
-.trouble .tight {
-	white-space: nowrap;
 }
 
 .trouble tbody tr:last-child td {
@@ -478,79 +462,6 @@
 	margin: 0 0 0.9rem;
 }
 
-/* -------------------------------------------------- the specification list
- *
- * The block a teacher forwards to whoever approves software. A definition list
- * rather than a table because every row is one term and one answer, and because
- * it collapses to stacked pairs on a phone without a horizontal scroller. */
-.spec {
-	margin: 1rem 0 0;
-	border-top: 1px solid var(--panel-edge);
-}
-
-.spec > div {
-	display: grid;
-	grid-template-columns: 10rem minmax(0, 1fr);
-	gap: 0.9rem;
-	padding: 0.65rem 0.2rem;
-	border-bottom: 1px solid var(--panel-edge);
-}
-
-.spec dt {
-	font-weight: 700;
-	color: var(--green-deep);
-	font-size: 0.94rem;
-	line-height: 1.5;
-}
-
-[data-theme='dark'] .spec dt {
-	color: var(--green-bright);
-}
-
-.spec dd {
-	margin: 0;
-	color: var(--ink-soft);
-	font-size: 0.94rem;
-	line-height: 1.6;
-}
-
-@media (max-width: 560px) {
-	.spec > div {
-		grid-template-columns: minmax(0, 1fr);
-		gap: 0.15rem;
-	}
-}
-
-/* ------------------------------------------------------------------ figures
- *
- * One screenshot with a caption under it. No lightbox: this page is read on a
- * prep period and printed, and a gallery is a thing to operate rather than a
- * thing to read. */
-.gfig {
-	margin: 1.1rem 0 0;
-	max-width: 46rem;
-}
-
-.gfig img {
-	display: block;
-	width: 100%;
-	height: auto;
-	border: 1.5px solid var(--panel-edge);
-	border-radius: var(--r);
-	background: var(--panel);
-}
-
-.gfig figcaption {
-	margin: 0.5rem 0 0;
-	font-size: 0.88rem;
-	line-height: 1.6;
-	color: var(--ink-soft);
-}
-
-.gfig figcaption b {
-	color: var(--ink);
-}
-
 /* --------------------------------------------------------------- printing
  *
  * Teachers print these. Nav, theme toggle and calls to action are furniture on
@@ -574,9 +485,7 @@
 
 	.flowcard,
 	.cut,
-	.rcol,
-	.gfig,
-	.spec > div {
+	.rcol {
 		break-inside: avoid;
 	}
 

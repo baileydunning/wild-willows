@@ -361,6 +361,103 @@ body.lab .nav .wrap {
 	box-shadow: 0 1px 0 var(--panel-edge);
 }
 
+/* ------------------------------------------------------- the revealed answer
+ *
+ * Shown beside the student's own code rather than pasted over it, so the two
+ * can be compared — which is the whole reason to look at a worked version.
+ *
+ * `pre-wrap` rather than `pre`: this column is 280px, and a horizontal
+ * scrollbar under every answer is a worse read than a wrapped line. Long tokens
+ * (the API URL) still overflow rather than being broken mid-word, so the
+ * horizontal scroll is there for the rare case and absent for the normal one. */
+.cp-code {
+	margin-top: 0.5rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--panel);
+}
+
+.cp-code[hidden] {
+	display: none;
+}
+
+/* Only while an answer is on screen. A permanently wider column would cost the
+   editor 100px for the whole period to serve a few seconds of reading. */
+body.lab.hint-open {
+	--lab-side-w: 380px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.lab-main {
+		transition: grid-template-columns 0.18s ease;
+	}
+}
+
+.cp-code-head {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.3rem 0.35rem 0.3rem 0.6rem;
+	background: var(--paper-deep);
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.cp-code-head:not(:first-child) {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.cp-code-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.7rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cp-copy {
+	flex: none;
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.68rem;
+	padding: 0.12rem 0.55rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--green-deep);
+	cursor: pointer;
+}
+
+.cp-copy:hover {
+	border-color: var(--green);
+}
+
+[data-theme='dark'] .cp-copy {
+	color: var(--green-bright);
+}
+
+.cp-pre {
+	margin: 0;
+	padding: 0.55rem 0.6rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.72rem;
+	line-height: 1.55;
+	color: var(--ink);
+	white-space: pre-wrap;
+	overflow-wrap: normal;
+	overflow-x: auto;
+	tab-size: 2;
+}
+
+.cp-pre:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: -2px;
+}
+
 /* ---------------------------------------------------------------- help panel */
 
 .help-title {
@@ -434,6 +531,93 @@ body.lab .nav .wrap {
 .brief-what {
 	margin: 0 0 0.4rem;
 	font-size: 0.88rem;
+	line-height: 1.5;
+	color: var(--ink);
+}
+
+/* Level and methods, from the same fields the idea cards filter on. Here they
+   are a reminder of what the idea is going to ask for rather than a control. */
+.brief-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin: 0 0 0.6rem;
+}
+
+.brief-tag {
+	font-size: 0.68rem;
+	font-weight: 700;
+	line-height: 1.6;
+	padding: 0.02rem 0.45rem;
+	border-radius: 999px;
+	border: 1.5px solid var(--panel-edge);
+	color: var(--ink-soft);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.brief-tag.is-level {
+	font-family: inherit;
+	background: var(--sprout);
+	border-color: var(--sprout);
+	color: var(--green-deep);
+	text-transform: capitalize;
+}
+
+[data-theme='dark'] .brief-tag.is-level {
+	color: var(--green-bright);
+}
+
+.brief-h {
+	margin: 0 0 0.3rem;
+	font-size: 0.66rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+}
+
+/* Numbered, because they are in order and the first one is meant to be done
+   first. Counter rather than a list marker so the number can be given the
+   accent colour without dragging the text with it. */
+.brief-steps {
+	list-style: none;
+	counter-reset: brief;
+	margin: 0 0 0.6rem;
+	padding: 0;
+}
+
+.brief-steps li {
+	counter-increment: brief;
+	position: relative;
+	padding-left: 1.35rem;
+	margin-bottom: 0.35rem;
+	font-size: 0.84rem;
+	line-height: 1.5;
+	color: var(--ink-soft);
+}
+
+.brief-steps li::before {
+	content: counter(brief);
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .brief-steps li::before {
+	color: var(--green-bright);
+}
+
+/* The finish line. A student who cannot tell whether they are done keeps
+   fiddling, and this is the sentence that ends that. */
+.brief-done {
+	margin: 0 0 0.55rem;
+	padding: 0.4rem 0.55rem;
+	background: var(--sprout);
+	border-radius: 8px;
+	font-size: 0.82rem;
 	line-height: 1.5;
 	color: var(--ink);
 }

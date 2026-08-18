@@ -1,14 +1,14 @@
-/* Wild Willows — the student lesson at /learn/web-development.
+/* Wild Willows: the student lesson at /learn/web-development.
  *
  * The page's own behaviour. The editors and previews are ww-runner.js; this file
  * is everything the lesson adds around them:
  *
- *   • the chapter rail — where you are, where you have been, and per-chapter
+ *   • the chapter rail: where you are, where you have been, and per-chapter
  *     dwell time bucketed for the dashboard
- *   • the API probe in chapter 3 — a real request to /GameData/, reporting the
+ *   • the API probe in chapter 3: a real request to /GameData/, reporting the
  *     status, the time and the size a student's own network actually produced
- *   • the JSON tree — collapsible, coloured by type, shared by chapters 3 and 5
- *   • the path explorer in chapter 5 — type a path, see which part of the tree
+ *   • the JSON tree: collapsible, coloured by type, shared by chapters 3 and 5
+ *   • the path explorer in chapter 5: type a path, see which part of the tree
  *     it selected and what type came back
  *   • the five challenges in chapter 9, and the hand-off into the Code Builder
  *   • one batched beacon of anonymous counters, on the same contract as the
@@ -21,7 +21,7 @@
 (function () {
 	'use strict';
 
-	var CHAPTERS = 9;
+	var CHAPTERS = 10;
 	var API_URL = 'https://wildwillows.app/GameData/';
 	var DONE_KEY = 'wwLessonDone'; // chapters seen, for the rail's ticks
 	var CHAL_KEY = 'wwLessonChallenges'; // which of chapter 9's five are ticked
@@ -33,7 +33,7 @@
 	 * anything that should be reported exactly once per session rides on the
 	 * final flush only. The builder's version of this once kept a batch after
 	 * sending it, behind a latch, and the five-minute timer sent it a second
-	 * time — every counter before a student's first tab switch was recorded
+	 * time: every counter before a student's first tab switch was recorded
 	 * twice. Do not reintroduce a latch here. */
 	var counts = {};
 	var summarySent = false;
@@ -48,7 +48,7 @@
 	function addSummary() {
 		var reached = 0;
 		for (var i = 1; i <= CHAPTERS; i++) if (dwell[i] > 0) reached++;
-		if (reached) bump('chapters_' + Math.min(9, reached));
+		if (reached) bump('chapters_' + Math.min(CHAPTERS, reached));
 
 		var ticked = challengesDone().length;
 		if (ticked) bump('challenges_' + Math.min(5, ticked));
@@ -88,7 +88,7 @@
 		}
 	}
 
-	/* Everything ww-runner reports — runs, errors, fetch outcomes, view changes —
+	/* Everything ww-runner reports (runs, errors, fetch outcomes, view changes)
 	 * arrives here as a bubbling event, so instrumentation is written once rather
 	 * than at each of the page's fifteen runners. */
 	document.addEventListener('ww:metric', function (e) {
@@ -96,7 +96,7 @@
 		bump(e.detail.key);
 		/* A runner tagged with the concept it teaches also reports that concept the
 		 * first time it is actually run. That is what makes "which iterator methods
-		 * did students really try" answerable — as opposed to "which ones were on
+		 * did students really try" answerable: as opposed to "which ones were on
 		 * the page", which we already know. */
 		var host = e.target && e.target.closest && e.target.closest('ww-runner[data-concept]');
 		if (host && !host.dataset.conceptSent && /^runs_/.test(e.detail.key)) {
@@ -136,7 +136,7 @@
 			localStorage.setItem(key, JSON.stringify(value));
 		} catch (e) {
 			/* Guest mode and managed Chromebooks: storage can be unavailable or
-			 * full. The lesson works without it — you lose the ticks, not the page. */
+			 * full. The lesson works without it: you lose the ticks, not the page. */
 			if (value === undefined) return null;
 		}
 		return null;
@@ -203,8 +203,8 @@
 
 		/* WHICH CHAPTER IS "CURRENT" IS A GEOMETRY QUESTION, not a visibility one.
 		 *
-		 * The obvious version of this — rank the sections by intersection ratio and
-		 * take the highest — has a hole at both ends of the page, and the top one
+		 * The obvious version of this: rank the sections by intersection ratio and
+		 * take the highest: has a hole at both ends of the page, and the top one
 		 * is the one a student sees first: standing at the hero, NO chapter is
 		 * intersecting, every ratio is 0, and the rail highlights nothing at all.
 		 * A syllabus that shows no position until you have scrolled past the first
@@ -216,7 +216,7 @@
 		 * chapter too short to ever win on ratio.
 		 *
 		 * The observer is still here, but only as a cheap way to be told that
-		 * something moved — it does not decide anything. That keeps this off the
+		 * something moved: it does not decide anything. That keeps this off the
 		 * scroll path, which matters on the Chromebooks this page is written for. */
 		var READING_LINE = 96; // px below the sticky nav
 
@@ -260,7 +260,7 @@
 	 * Written by hand rather than dumping JSON.stringify into a <pre> for one
 	 * reason: the colours ARE the lesson. Chapter 3 names six types in a table,
 	 * and a tree that paints strings, numbers, booleans and null differently
-	 * means a student sees the type before they read anything about it — and in
+	 * means a student sees the type before they read anything about it: and in
 	 * chapter 5 they can see that a path landed on an array rather than a string
 	 * without running it. */
 
@@ -272,7 +272,7 @@
 
 	var TYPE_CLASS = { string: 'jstr', number: 'jnum', boolean: 'jbool', null: 'jnull' };
 
-	/** A human sentence naming what a value is — used under the tree and by the
+	/** A human sentence naming what a value is: used under the tree and by the
 	 *  chapter 5 explorer, so chapter 3's table gets used rather than read once. */
 	function describe(v) {
 		var t = typeOf(v);
@@ -281,8 +281,8 @@
 			var n = Object.keys(v).length;
 			return 'an object with ' + n + ' part' + (n === 1 ? '' : 's');
 		}
-		if (t === 'null') return 'null — nothing, on purpose';
-		if (t === 'undefined') return 'undefined — there is nothing here';
+		if (t === 'null') return 'null: nothing, on purpose';
+		if (t === 'undefined') return 'undefined: there is nothing here';
 		return 'a ' + t;
 	}
 
@@ -340,14 +340,14 @@
 	 *
 	 * Every icon on these pages is an SVG path, and the reason is the one that
 	 * rules out emoji: a geometric-shape character is whatever glyph the
-	 * platform's font decides — a hairline arrow on one machine, a full-colour
+	 * platform's font decides: a hairline arrow on one machine, a full-colour
 	 * pictograph at a size nothing else on the page uses on another, and an empty
 	 * box on a managed Chromebook missing the font. This is a control a student
 	 * hits a hundred times to read one record; it does not get to be a lottery.
 	 *
 	 * (This comment deliberately does not print the character it is arguing
 	 * about. tests/unit/built-pages.test.ts scans the delivered page for
-	 * pictographs, and this file is inlined into it — a comment naming the
+	 * pictographs, and this file is inlined into it: a comment naming the
 	 * forbidden glyph would be the thing that fails the check. The runner partial
 	 * learned the same lesson about closing script tags.)
 	 *
@@ -410,7 +410,7 @@
 
 	/* ------------------------------------------------------ the API probe */
 
-	var gameData = null; // shared by chapters 3 and 5 — fetched at most once
+	var gameData = null; // shared by chapters 3 and 5: fetched at most once
 	var pending = null;
 
 	function loadGameData() {
@@ -455,9 +455,9 @@
 					/* REAL NUMBERS FROM THEIR OWN NETWORK. A screenshot of a response
 					 * teaches nothing; "412 ms, 318 KB, on this school's wifi" is a
 					 * fact about the machine in front of them. */
-					out.appendChild(stat(r.cached ? '—' : r.status, 'status'));
+					out.appendChild(stat(r.cached ? 'n/a' : r.status, 'status'));
 					out.appendChild(stat(r.cached ? 'cached' : r.ms + ' ms', 'took'));
-					out.appendChild(stat(r.cached ? '—' : Math.round(r.bytes / 1024) + ' KB', 'size'));
+					out.appendChild(stat(r.cached ? 'n/a' : Math.round(r.bytes / 1024) + ' KB', 'size'));
 					out.appendChild(stat(Object.keys(r.data).length, 'top-level keys'));
 					if (tree) renderTree(tree, r.data, 1);
 				})
@@ -466,7 +466,7 @@
 					btn.textContent = label;
 					bump('fetch_failed');
 					out.textContent =
-						'The request did not get through. That is usually the school network blocking it rather than anything on this page — try again, and tell your teacher if it keeps happening.';
+						'The request did not get through. That is usually the school network blocking it rather than anything on this page. Try again, and tell your teacher if it keeps happening.';
 				});
 		});
 	}
@@ -478,13 +478,13 @@
 		return box;
 	}
 
-	/* ------------------------------------------ chapter 5 — the path explorer
+	/* ------------------------------------------ chapter 5: the path explorer
 	 *
 	 * A student types data.animals[0].name and sees which row of the tree it
 	 * landed on and what type came back. The path is PARSED, not evaluated: this
 	 * takes text a student typed and walks it across our own object, and eval on
 	 * that input would be a needless liability on a page built for schools.
-	 * Parsing also gives a better error — it can say which step failed. */
+	 * Parsing also gives a better error: it can say which step failed. */
 
 	function parsePath(text) {
 		var src = String(text).trim();
@@ -532,16 +532,16 @@
 				.then(function (r) {
 					var got = walk(r.data, parsed.steps);
 					if (got.missing)
-						return show('That path stops early — `' + parsed.steps.slice(0, got.at).join('.') + '` is not there.');
+						return show('That path stops early: `' + parsed.steps.slice(0, got.at).join('.') + '` is not there.');
 					var v = got.value;
 					if (v === undefined) {
 						/* The undefined callout from the plan, delivered by the student's
 						 * own typo rather than by a paragraph they skimmed. */
 						show(
-							'undefined — there is nothing at that path. Not an error, not zero, not empty: JavaScript saying "nothing here".',
+							'undefined: there is nothing at that path. Not an error, not zero, not empty. It is JavaScript saying "nothing here".',
 						);
 					} else {
-						show(describe(v) + (typeOf(v) === 'string' ? ' — ' + literal(v) : ''));
+						show(describe(v) + (typeOf(v) === 'string' ? ': ' + literal(v) : ''));
 					}
 					if (tree) {
 						renderTree(tree, v === undefined ? {} : v, 1);
@@ -566,6 +566,65 @@
 			b.addEventListener('click', function () {
 				input.value = b.getAttribute('data-path');
 				run();
+			});
+		});
+	}
+
+	/* ------------------------------------------------------- going deeper
+	 *
+	 * One panel per chapter, each closed, each holding its own runners back.
+	 *
+	 * The runners carry `defer`, so ww-runner.js leaves them alone at boot and
+	 * they are started here when their panel is first opened. That is not a
+	 * micro-optimisation: every runner renders on start and each owns two
+	 * iframes, and the chapters already open sixty-odd documents before a
+	 * student has read a word. Paying for another twenty on behalf of panels
+	 * most readers never open is the difference between this page being usable
+	 * on a school Chromebook and not.
+	 *
+	 * Two counters, and the difference between them is the useful part.
+	 * `deeper_opened` is every open on the page. `deeper_chapter-N` says WHICH
+	 * chapters leave students wanting more, which is the question that decides
+	 * where the next piece of writing should go. */
+
+	/* Where a reader went next. The nav links leave the page, so this has to be a
+	 * plain click listener rather than anything that waits for a response:
+	 * bump() batches into the pagehide flush, which fires on the way out.
+	 *
+	 * The same map lives in ww-builder.js and in the hub's own script. Three
+	 * copies of five pairs is less bad than a fourth shared partial for it, but
+	 * they do have to agree, so the KEYS are the allowlist in server/resources.ts
+	 * and that is the thing to check against. */
+	var NAV = {
+		'learn-nav': 'nav_learn',
+		'lesson-nav': 'nav_lesson',
+		'builder-nav': 'nav_builder',
+		'hub-nav': 'nav_hub',
+		'game-nav': 'nav_game',
+	};
+
+	function initNav() {
+		document.addEventListener('click', function (e) {
+			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
+		});
+	}
+
+	function initDeeper() {
+		$$('details.deeper').forEach(function (panel) {
+			var started = false;
+			var which = panel.getAttribute('data-deeper');
+			panel.addEventListener('toggle', function () {
+				if (!panel.open) return;
+				bump('deeper_opened');
+				if (which) bump('deeper_' + which);
+				if (started) return;
+				started = true;
+				var mount = window.WwRunner && window.WwRunner.mount;
+				$$('ww-runner[defer]', panel).forEach(function (host) {
+					host.removeAttribute('defer');
+					if (mount) mount(host);
+				});
 			});
 		});
 	}
@@ -619,7 +678,7 @@
 	 * Chapter 9's last runner carries across into the Code Builder, so a student
 	 * arrives there with their own work already open rather than with a starter
 	 * project that throws it away. The code travels in the URL FRAGMENT, which
-	 * browsers do not send to the server — their code stays theirs, and the
+	 * browsers do not send to the server: their code stays theirs, and the
 	 * promise on this page and in PRIVACY.md stays true. */
 
 	function initHandoff() {
@@ -628,7 +687,7 @@
 		link.addEventListener('click', function () {
 			var host = $('#chapter-9 ww-runner[data-carry]');
 			var area = host && $('textarea.wwr-code', host);
-			if (!area || !area.value.trim()) return; // no work to carry — plain link
+			if (!area || !area.value.trim()) return; // no work to carry: plain link
 			try {
 				var payload = { js: area.value };
 				link.href = '/learn/code-builder#start=' + encodeURIComponent(JSON.stringify(payload));
@@ -703,6 +762,8 @@
 		initExplorer();
 		initLegend();
 		initChallenges();
+		initNav();
+		initDeeper();
 		initHandoff();
 		initFlow();
 	}

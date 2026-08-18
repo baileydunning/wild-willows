@@ -26,6 +26,9 @@ body {
 }
 
 body.lab {
+	/* One number for the panel column, because two things depend on it: the grid
+	   that draws it and the bubble that sits on its edge. */
+	--lab-side-w: 280px;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -130,9 +133,10 @@ body.lab .nav .wrap {
 /* ------------------------------------------------------------------- layout */
 
 .lab-main {
+	position: relative; /* the collapse bubble is positioned against this */
 	flex: 1 1 auto;
 	display: grid;
-	grid-template-columns: 280px 1fr;
+	grid-template-columns: var(--lab-side-w) 1fr;
 	min-height: 0;
 }
 
@@ -607,40 +611,241 @@ body.lab .nav .wrap {
 
 /* -------------------------------------------------------------- small screens */
 
+/* TABLETS AND NARROW LAPTOPS: STOP FITTING THE VIEWPORT, START SCROLLING.
+ *
+ * Side by side, this page is a fixed-height app: the window is the frame and
+ * the editor fills what is left. Stacked, that model turns against it. The
+ * sidebar, the toolbar and the console all take their cut off the top and
+ * bottom of the same 100vh, and what reaches the editor is the remainder.
+ *
+ * Measured on an iPad in portrait before this rule: 77px of code above 94px of
+ * preview. An iPad mini got 42 and 52. That is not a small editor, it is four
+ * visible lines of code, and it is the whole page.
+ *
+ * So below 940px the document scrolls and the runner is given a real height
+ * instead of a leftover one. The editor also comes FIRST: it is what a student
+ * opened the page for, and the checkpoints are reference they scroll to. */
 @media (max-width: 940px) {
-	.lab-main {
-		grid-template-columns: 1fr;
-	}
-
 	body.lab {
 		overflow: auto;
 	}
 
+	.lab-main {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.lab-stage {
+		order: 1;
+		overflow: visible;
+	}
+
 	.lab-side {
+		order: 2;
 		border-right: 0;
-		border-bottom: 1.5px solid var(--panel-edge);
+		border-top: 1.5px solid var(--panel-edge);
+		/* Not a nested scroller once the page itself scrolls: two scrollbars in
+		   one column is a way to lose half the checkpoints without knowing. */
+		overflow: visible;
 	}
 
 	.lab-stage .wwr {
-		min-height: 360px;
+		/* A real height rather than what is left over. 70vh is about 800px on an
+		   iPad in portrait, which leaves the code and the preview roughly 250 each
+		   once the toolbar and the console have taken theirs. */
+		min-height: 70vh;
 	}
 }
 
-/* A phone can read this page but cannot comfortably write code on it, and
- * pretending otherwise wastes a student's period. Say so plainly, in the site's
- * own warm chip rather than a scary banner. */
-.lab-small-screen {
+
+/* --------------------------------------------------- too small for this page
+ *
+ * Shown instead of the workspace on a phone. The lesson works at this size and
+ * this page does not, so the honest move is to say which is which and link to
+ * the one that will work, rather than shipping a squeezed editor and letting a
+ * student find out during their period. See the note in ww-builder.js.
+ *
+ * The runner is never mounted in this state (it carries `defer`), so a phone
+ * also does not pay for two preview iframes it cannot use. */
+
+body.is-too-small .lab-bar,
+body.is-too-small .lab-main,
+body.is-too-small .lab-modal {
 	display: none;
 }
 
-@media (max-width: 560px) {
-	.lab-small-screen {
+/* body.lab is a fixed-height flex column with overflow hidden, which is the
+   right shape for an app that fills the window and the wrong one for a page
+   that is now just a paragraph and two links. */
+body.lab.is-too-small {
+	display: block;
+	overflow: auto;
+}
+
+.lab-blocked[hidden] {
+	display: none;
+}
+
+.lab-blocked {
+	display: flex;
+	justify-content: center;
+	padding: 2rem 1.1rem 3rem;
+}
+
+.lab-blocked-inner {
+	max-width: 34rem;
+}
+
+.lab-blocked svg {
+	width: 2.4rem;
+	height: 2.4rem;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .lab-blocked svg {
+	color: var(--green-bright);
+}
+
+.lab-blocked h1 {
+	font-size: 1.5rem;
+	line-height: 1.2;
+	margin: 0 0 0.7rem;
+	color: var(--ink);
+}
+
+.lab-blocked p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.lab-blocked-go {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 1.3rem 0 1rem;
+}
+
+.lab-blocked-note {
+	font-size: 0.88rem;
+}
+
+/* ------------------------------------------------ collapsing the side panel
+ *
+ * All the way out, not narrower: a squeezed sidebar is the worst of both, still
+ * taking room and no longer readable. The toggle lives in the toolbar and stays
+ * there in both states, because it is the one control that has to survive the
+ * panel disappearing. */
+
+body.lab.side-hidden .lab-main {
+	grid-template-columns: 1fr;
+}
+
+body.lab.side-hidden .lab-side {
+	display: none;
+}
+
+/* A bubble on the seam between the panel and the editor. Absolutely positioned
+   against .lab-main rather than dropped into either column, because it has to be
+   in the same place whether the panel is there or not: a control that runs away
+   when you press it is a control you have to find twice. The chevron points the
+   way the next press moves the panel. */
+.lab-side-toggle {
+	position: absolute;
+	top: 50%;
+	left: var(--lab-side-w);
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	padding: 0;
+	margin: 0;
+	transform: translate(-50%, -50%);
+	font: inherit;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 50%;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	box-shadow: 0 1px 5px rgba(59, 66, 50, 0.18);
+}
+
+[data-theme='dark'] .lab-side-toggle {
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* With the panel gone there is no seam to sit on, so it tucks against the left
+   edge of the window and the editor is given room for it. */
+body.lab.side-hidden .lab-side-toggle {
+	left: 0;
+	transform: translate(0.55rem, -50%);
+}
+
+body.lab.side-hidden .lab-stage {
+	padding-left: 2.9rem;
+}
+
+.lab-side-toggle svg {
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
+	transform: translateX(-1px); /* a chevron's ink sits right of its box centre */
+}
+
+body.lab.side-hidden .lab-side-toggle svg {
+	transform: translateX(1px) rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.lab-side-toggle svg {
+		transition: transform 0.18s ease;
+	}
+}
+
+.lab-side-toggle:hover {
+	color: var(--green-deep);
+	border-color: var(--green);
+}
+
+[data-theme='dark'] .lab-side-toggle:hover {
+	color: var(--green-bright);
+}
+
+.lab-side-toggle:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+/* The label is the only thing that says which way this goes, and the bubble has
+   no room for it. Hidden the standard way rather than with `display: none`, so
+   it stays in the accessibility tree and the button is not announced bare. */
+.lab-side-toggle-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* On a narrow screen the panel is already stacked under the editor rather than
+   beside it, so there is no width to reclaim and the control would be a button
+   that hides the checkpoints for no gain. */
+@media (max-width: 940px) {
+	.lab-side-toggle {
+		display: none;
+	}
+
+	body.lab.side-hidden .lab-side {
 		display: block;
-		margin: 0;
-		padding: 0.7rem 1.2rem;
-		background: #f7ead2;
-		border-bottom: 1.5px solid #e6d2a8;
-		color: #8a6a2a;
-		font-size: 0.88rem;
+	}
+
+	body.lab.side-hidden .lab-stage {
+		padding-left: 1.2rem;
 	}
 }

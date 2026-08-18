@@ -13057,6 +13057,10 @@ const LESSON_PATTERNS: RegExp[] = [
 	// construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
 	/^checkpoint_[a-z][a-z0-9-]{0,23}$/,
 	/^hint_[a-z][a-z0-9-]{0,23}$/,
+	// hint_ is "revealed the worked version"; copy_ is "took it". The gap between
+	// the two is the number worth having: a checkpoint everybody reveals and
+	// nobody copies is one where the hint above it was almost enough.
+	/^copy_[a-z][a-z0-9-]{0,23}$/,
 	/^idea_[a-z][a-z0-9-]{0,31}$/,
 	/^challenge_[a-z][a-z0-9-]{0,31}$/,
 ];

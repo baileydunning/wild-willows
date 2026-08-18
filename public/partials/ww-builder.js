@@ -135,42 +135,441 @@
 	 *
 	 * Keep each `what` to ONE sentence. The moment an idea needs a paragraph it is
 	 * an assignment, not an idea, and students stop reading.
+	 *
+	 * `steps` and `done` are the other half of that trade. The one-liner is what
+	 * gets an idea CHOSEN, off a wall of thirty; it is not enough to start from,
+	 * and "show every animal whose kind is invertebrate" left a student staring at
+	 * three files with nowhere to put their hands. So the card stays a sentence
+	 * and the brief panel, which only ever shows the ONE idea they picked, carries
+	 * three first moves and a finish line. Each step names a real field, and the
+	 * first one is always small enough to do wrong and see.
 	 */
 	var IDEAS = [
 		// --- easy: one filter or one map -------------------------------------
-		{ id: 'meadow-roll-call', level: 'easy', uses: ['filter'], title: 'Meadow Roll Call', what: 'List every animal that lives in Willow Meadow.', data: 'animals[].biome' },
-		{ id: 'berry-eaters', level: 'easy', uses: ['filter'], title: 'Berry Eaters', what: 'Show only the animals whose diet mentions berries.', data: 'animals[].diet' },
-		{ id: 'name-that-species', level: 'easy', uses: ['map'], title: 'Name That Species', what: "Show each animal's name with its scientific name in italics underneath.", data: 'animals[].scientificName' },
-		{ id: 'rare-finds', level: 'easy', uses: ['filter'], title: 'Rare Finds', what: 'Show only the animals marked rare.', data: 'animals[].rarity' },
-		{ id: 'top-of-chain', level: 'easy', uses: ['filter'], title: 'Top of the Chain', what: 'Show every apex predator in the preserve.', data: 'animals[].trophic' },
-		{ id: 'fact-of-the-day', level: 'easy', uses: ['if'], title: 'Fact of the Day', what: 'Show one random animal fact, with a button for another.', data: 'animals[].fact' },
-		{ id: 'biome-colors', level: 'easy', uses: ['map'], title: 'Biome Colors', what: "Show each biome's name styled with its own color from the data.", data: 'biomes[].palette.healthy' },
-		{ id: 'tiny-things', level: 'easy', uses: ['filter'], title: 'Tiny Things', what: 'Show every animal whose kind is invertebrate.', data: 'animals[].kind' },
-		{ id: 'six-biomes', level: 'easy', uses: ['map'], title: 'Six Biomes', what: 'Show all six biomes with their descriptions.', data: 'biomes[].description' },
+		{
+			id: 'meadow-roll-call',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Meadow Roll Call',
+			what: 'List every animal that lives in Willow Meadow.',
+			data: 'animals[].biome',
+			steps: [
+				'Fetch the data and log it once, so you can see the shape before you use it.',
+				'Filter animals down to the ones whose biome is exactly "meadow".',
+				'Build one list item per animal and put the whole list into the page.',
+			],
+			done: 'The page lists 25 animals, and none of them are from another biome.',
+		},
+		{
+			id: 'berry-eaters',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Berry Eaters',
+			what: 'Show only the animals whose diet mentions berries.',
+			data: 'animals[].diet',
+			steps: [
+				'Log a few diet values first. They are sentences, not tidy tags.',
+				'Keep the animals whose diet contains "berr", so berry and berries both match.',
+				'Show the diet line next to the name, so the match is visible on the page.',
+			],
+			done: 'Every animal shown has berries somewhere in its diet, and you can see where.',
+		},
+		{
+			id: 'name-that-species',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Name That Species',
+			what: 'Show each animal\'s name with its scientific name in italics underneath.',
+			data: 'animals[].scientificName',
+			steps: [
+				'Map each animal to a small block of HTML rather than to a single string.',
+				'Put the common name in a heading and the scientific name in an em below it.',
+				'In styles.css, make the italic line smaller and lighter than the name.',
+			],
+			done: '150 entries, each with two lines that clearly look different from each other.',
+		},
+		{
+			id: 'rare-finds',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Rare Finds',
+			what: 'Show only the animals marked rare.',
+			data: 'animals[].rarity',
+			steps: [
+				'Log the rarity values first. There are only three of them.',
+				'Filter to the ones where rarity is "rare".',
+				'Put the count at the top of the page, so the number is part of the answer.',
+			],
+			done: 'Only rare animals are on the page, and it says how many there are.',
+		},
+		{
+			id: 'top-of-chain',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Top of the Chain',
+			what: 'Show every apex predator in the preserve.',
+			data: 'animals[].trophic',
+			steps: [
+				'Check what trophic actually contains. The value you want is "apex-predator".',
+				'Filter to trophic === \'apex-predator\', hyphen and all. "apex" alone matches nothing.',
+				'Show each one with its biome, so the spread across the preserve is visible.',
+			],
+			done: 'Only apex predators, and you can tell which biome each one came from.',
+		},
+		{
+			id: 'fact-of-the-day',
+			level: 'easy',
+			uses: ['if'],
+			title: 'Fact of the Day',
+			what: 'Show one random animal fact, with a button for another.',
+			data: 'animals[].fact',
+			steps: [
+				'Pick one animal with Math.floor(Math.random() * animals.length).',
+				'Show that animal\'s name and its fact.',
+				'Add a button whose click handler picks again and rewrites the same element.',
+			],
+			done: 'Pressing the button changes the fact without reloading anything.',
+		},
+		{
+			id: 'biome-colors',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Biome Colors',
+			what: 'Show each biome\'s name styled with its own color from the data.',
+			data: 'biomes[].palette.healthy',
+			steps: [
+				'Log one biome and find where the color lives inside the object.',
+				'Map each biome to an element and set its color from palette.healthy.',
+				'Add a filled swatch next to the name, so the color reads at small sizes too.',
+			],
+			done: 'Six biome names, each drawn in a color that came from the data rather than from you.',
+		},
+		{
+			id: 'tiny-things',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Tiny Things',
+			what: 'Show every animal whose kind is invertebrate.',
+			data: 'animals[].kind',
+			steps: [
+				'Log the kind values to see the exact vocabulary the data uses.',
+				'Filter to the ones where kind is "invertebrate".',
+				'Show the kind next to each name, so the filter is visible rather than assumed.',
+			],
+			done: 'Everything on the page is an invertebrate, and nothing else got through.',
+		},
+		{
+			id: 'six-biomes',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Six Biomes',
+			what: 'Show all six biomes with their descriptions.',
+			data: 'biomes[].description',
+			steps: [
+				'Map biomes to a card with the name as a heading and the description under it.',
+				'Join the cards together and write them into one container element.',
+				'Give the cards a border, a radius and some padding in styles.css.',
+			],
+			done: 'Six cards, each with a name and its own description.',
+		},
+		{
+			id: 'shelter-notes',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Shelter Notes',
+			what: 'Show where each animal sleeps, nests or hides.',
+			data: 'animals[].shelter',
+			steps: [
+				'Log one shelter value. They are full sentences, so give them room to wrap.',
+				'Map each animal to its name plus its shelter description.',
+				'In styles.css, make the name bold and the shelter line lighter beneath it.',
+			],
+			done: '150 entries, each naming an animal and where it actually shelters.',
+		},
 
 		// --- medium: filter plus sort, or two fields together -----------------
-		{ id: 'a-z-guide', level: 'medium', uses: ['sort', 'map'], title: 'A–Z Field Guide', what: 'List all 150 animals in alphabetical order.', data: 'animals[].name' },
-		{ id: 'biome-picker', level: 'medium', uses: ['filter', 'if'], title: 'Biome Picker', what: 'Six buttons, one per biome — click one and the list swaps.', data: 'biomes[].id' },
-		{ id: 'search-box', level: 'medium', uses: ['filter', 'if'], title: 'Search Box', what: 'Type a name and filter the list as you go.', data: 'animals[].name' },
-		{ id: 'habitat-checklist', level: 'medium', uses: ['map'], title: 'Habitat Checklist', what: 'Show what one animal needs before it will come home.', data: 'animals[].requirements.objects' },
-		{ id: 'hardest-to-please', level: 'medium', uses: ['sort'], title: 'Hardest to Please', what: 'Sort animals by how healthy their biome must be, toughest first.', data: 'animals[].requirements.minHealth' },
-		{ id: 'diet-cards', level: 'medium', uses: ['map'], title: 'Diet Cards', what: 'A card per animal with its diet, shelter and preferred habitat.', data: 'animals[].diet, .shelter' },
-		{ id: 'what-eats-what', level: 'medium', uses: ['map', 'if'], title: 'What Eats What', what: 'Pick an animal and show what it eats and what eats it.', data: 'animals[].eats, .eatenBy' },
-		{ id: 'resource-map', level: 'medium', uses: ['map'], title: 'Resource Map', what: 'Show each biome with the resources you can gather there.', data: 'biomes[].resources' },
-		{ id: 'sources-page', level: 'medium', uses: ['map'], title: 'Sources Page', what: "Show one animal's real-world sources as clickable links.", data: 'animals[].sources' },
-		{ id: 'rarity-badges', level: 'medium', uses: ['if', 'map'], title: 'Rarity Badges', what: 'Give every animal a badge — common, uncommon or rare.', data: 'animals[].rarity' },
+		{
+			id: 'a-z-guide',
+			level: 'medium',
+			uses: ['sort', 'map'],
+			title: 'A–Z Field Guide',
+			what: 'List all 150 animals in alphabetical order.',
+			data: 'animals[].name',
+			steps: [
+				'Copy the array before sorting. .sort() changes the original in place.',
+				'Sort with (a, b) => a.name.localeCompare(b.name).',
+				'Map to list items and render them.',
+			],
+			done: '150 names, A to Z, with nothing missing off either end.',
+		},
+		{
+			id: 'biome-picker',
+			level: 'medium',
+			uses: ['filter', 'if'],
+			title: 'Biome Picker',
+			what: 'Six buttons, one per biome — click one and the list swaps.',
+			data: 'biomes[].id',
+			steps: [
+				'Build one button per biome, carrying the biome id on a data attribute.',
+				'On click, filter the animals to that biome and rewrite the list below.',
+				'Mark the pressed button, so it is obvious which biome is showing.',
+			],
+			done: 'Clicking any of the six buttons swaps the list underneath it.',
+		},
+		{
+			id: 'search-box',
+			level: 'medium',
+			uses: ['filter', 'if'],
+			title: 'Search Box',
+			what: 'Type a name and filter the list as you go.',
+			data: 'animals[].name',
+			steps: [
+				'Add an input and listen for its input event, not its change event.',
+				'Compare with .toLowerCase() on both sides, or capitals will break the match.',
+				'Handle the no-match case with a message instead of an empty page.',
+			],
+			done: 'Typing narrows the list as you go, and a search that matches nothing says so.',
+		},
+		{
+			id: 'habitat-checklist',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Habitat Checklist',
+			what: 'Show what one animal needs before it will come home.',
+			data: 'animals[].requirements.objects',
+			steps: [
+				'Log one animal\'s requirements. objects is an object, not an array.',
+				'Use Object.keys() for the habitat items and the value for how many are needed.',
+				'Show them as a checklist, with minHealth as the heading above it.',
+			],
+			done: 'One animal, the list of what it needs, and the health level it is waiting for.',
+		},
+		{
+			id: 'hardest-to-please',
+			level: 'medium',
+			uses: ['sort'],
+			title: 'Hardest to Please',
+			what: 'Sort animals by how healthy their biome must be, toughest first.',
+			data: 'animals[].requirements.minHealth',
+			steps: [
+				'Copy the array, then sort by requirements.minHealth, largest first.',
+				'Show the number beside each name, so the ordering can be checked.',
+				'Take the top 20 with .slice(0, 20) to keep the page readable.',
+			],
+			done: 'The list runs from the fussiest animal downwards, with the numbers visible.',
+		},
+		{
+			id: 'diet-cards',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Diet Cards',
+			what: 'A card per animal with its diet, shelter and preferred habitat.',
+			data: 'animals[].diet, .shelter',
+			steps: [
+				'Map each animal to a card holding name, diet, shelter and preferredHabitat.',
+				'Label every line, so a reader can tell which fact is which.',
+				'Lay the cards out with CSS grid in styles.css.',
+			],
+			done: 'A grid of cards, each carrying four labelled facts about one animal.',
+		},
+		{
+			id: 'what-eats-what',
+			level: 'medium',
+			uses: ['map', 'if'],
+			title: 'What Eats What',
+			what: 'Pick an animal and show what it eats and what eats it.',
+			data: 'animals[].eats, .eatenBy',
+			steps: [
+				'eats and eatenBy hold ids, not names. Build a lookup from id to animal first.',
+				'Show one animal with two lists: what it eats, and what eats it.',
+				'Handle the empty case. An apex predator has nothing in eatenBy.',
+			],
+			done: 'Both lists show real names, and an apex predator says so rather than showing a blank.',
+		},
+		{
+			id: 'resource-map',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Resource Map',
+			what: 'Show each biome with the resources you can gather there.',
+			data: 'biomes[].resources',
+			steps: [
+				'Log one biome to see how resources is stored before you loop over it.',
+				'Map each biome to its name plus its resources joined with commas.',
+				'Colour each biome heading with that biome\'s own palette color.',
+			],
+			done: 'Six biomes, each listing what you can gather there.',
+		},
+		{
+			id: 'sources-page',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Sources Page',
+			what: 'Show one animal\'s real-world sources as clickable links.',
+			data: 'animals[].sources',
+			steps: [
+				'Log one animal\'s sources to see what each entry actually contains.',
+				'Map them to anchor elements with the href set and the title as the text.',
+				'Add target="_blank" and rel="noopener", so a click does not lose your page.',
+			],
+			done: 'A list of real references for one animal, and every one of them opens.',
+		},
+		{
+			id: 'rarity-badges',
+			level: 'medium',
+			uses: ['if', 'map'],
+			title: 'Rarity Badges',
+			what: 'Give every animal a badge — common, uncommon or rare.',
+			data: 'animals[].rarity',
+			steps: [
+				'Map each animal to its name plus a span carrying its rarity as a class name.',
+				'Style the three classes differently in styles.css.',
+				'Put the word inside the badge as well. Color on its own is not a label.',
+			],
+			done: 'Every animal has a badge, and the three kinds are still tellable apart in grey.',
+		},
 
 		// --- ambitious: reduce, grouping, or real interaction ------------------
-		{ id: 'species-census', level: 'ambitious', uses: ['reduce'], title: 'Species Census', what: 'Count the animals in each biome and draw bars to compare them.', data: 'animals[].biome' },
-		{ id: 'food-web', level: 'ambitious', uses: ['filter', 'if'], title: 'Food Web', what: 'Pick an animal and walk outwards through what eats it.', data: 'animals[].eats, .eatenBy' },
-		{ id: 'trophic-pyramid', level: 'ambitious', uses: ['reduce'], title: 'Trophic Pyramid', what: 'Stack the animals by their role in the food chain.', data: 'animals[].trophic' },
-		{ id: 'restoration-planner', level: 'ambitious', uses: ['filter', 'if'], title: 'Restoration Planner', what: 'Pick a health level and show which animals would return.', data: 'animals[].requirements.minHealth' },
-		{ id: 'rarity-breakdown', level: 'ambitious', uses: ['reduce'], title: 'Rarity Breakdown', what: 'Count common, uncommon and rare, and draw it as a chart.', data: 'animals[].rarity' },
-		{ id: 'two-biomes', level: 'ambitious', uses: ['filter'], title: 'Two-Biome Comparison', what: 'Show two biomes side by side and compare their species.', data: 'animals[].biome' },
-		{ id: 'quiz-mode', level: 'ambitious', uses: ['if'], title: 'Quiz Mode', what: 'Show a fact and ask which animal it belongs to.', data: 'animals[].fact, .name' },
-		{ id: 'water-dependents', level: 'ambitious', uses: ['filter'], title: 'Water Dependents', what: 'Find every animal that needs water to come home.', data: 'animals[].requirements' },
-		{ id: 'guess-the-biome', level: 'ambitious', uses: ['if'], title: 'Guess the Biome', what: 'Show a habitat description and let the player guess where it is.', data: 'animals[].preferredHabitat' },
-		{ id: 'field-journal', level: 'ambitious', uses: ['filter', 'if'], title: 'Field Journal', what: 'Let the reader keep a list of favorites that survives a refresh.', data: 'animals[].name' },
+		{
+			id: 'species-census',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Species Census',
+			what: 'Count the animals in each biome and draw bars to compare them.',
+			data: 'animals[].biome',
+			steps: [
+				'Reduce the animals into an object mapping each biome to a count.',
+				'Turn that object into rows with Object.entries().',
+				'Draw each bar as a div whose width is its share of the largest count.',
+			],
+			done: 'Six bars whose lengths match the numbers printed beside them.',
+		},
+		{
+			id: 'food-web',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Food Web',
+			what: 'Pick an animal and walk outwards through what eats it.',
+			data: 'animals[].eats, .eatenBy',
+			steps: [
+				'Build the id-to-animal lookup once, at the start, not inside the loop.',
+				'Show one animal, and make every name in its two lists clickable.',
+				'A click re-renders the whole view centred on the animal that was clicked.',
+			],
+			done: 'You can walk from any animal to its neighbours, and back again.',
+		},
+		{
+			id: 'trophic-pyramid',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Trophic Pyramid',
+			what: 'Stack the animals by their role in the food chain.',
+			data: 'animals[].trophic',
+			steps: [
+				'Reduce into a count for each trophic value.',
+				'Write the level order yourself. The data is not stored in pyramid order.',
+				'Draw each level as a row, widest at the bottom.',
+			],
+			done: 'A pyramid whose rows are in food-chain order rather than data order.',
+		},
+		{
+			id: 'restoration-planner',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Restoration Planner',
+			what: 'Pick a health level and show which animals would return.',
+			data: 'animals[].requirements.minHealth',
+			steps: [
+				'Add a range input running from 0 to 100.',
+				'On input, keep the animals whose requirements.minHealth is at or below it.',
+				'Show the count, so moving the slider visibly changes something every time.',
+			],
+			done: 'Dragging the slider adds and removes animals as the threshold moves.',
+		},
+		{
+			id: 'rarity-breakdown',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Rarity Breakdown',
+			what: 'Count common, uncommon and rare, and draw it as a chart.',
+			data: 'animals[].rarity',
+			steps: [
+				'Reduce into counts for the three rarity values.',
+				'Work out each one\'s share of the total as a percentage.',
+				'Draw three bars, each labelled with its count and its share.',
+			],
+			done: 'Three bars whose percentages add up to 100.',
+		},
+		{
+			id: 'two-biomes',
+			level: 'ambitious',
+			uses: ['filter'],
+			title: 'Two-Biome Comparison',
+			what: 'Show two biomes side by side and compare their species.',
+			data: 'animals[].biome',
+			steps: [
+				'Two select elements, one per side, both built from the biome list.',
+				'Filter the animals twice, once per chosen biome, and render two columns.',
+				'Print how many species each side has, so the columns can be compared.',
+			],
+			done: 'Two columns you can change independently, each with its own count.',
+		},
+		{
+			id: 'quiz-mode',
+			level: 'ambitious',
+			uses: ['if'],
+			title: 'Quiz Mode',
+			what: 'Show a fact and ask which animal it belongs to.',
+			data: 'animals[].fact, .name',
+			steps: [
+				'Pick a random animal and show its fact, without the name.',
+				'Offer four buttons: the right answer and three others picked at random.',
+				'Say whether the guess was right, then offer the next question.',
+			],
+			done: 'You can answer several in a row, and it keeps the score.',
+		},
+		{
+			id: 'water-dependents',
+			level: 'ambitious',
+			uses: ['filter'],
+			title: 'Water Dependents',
+			what: 'Find every animal that needs water to come home.',
+			data: 'animals[].requirements',
+			steps: [
+				'Log a requirements.objects to see what the habitat items are called.',
+				'Keep the animals whose object names mention pond, water or pool.',
+				'Show which item matched, so the filter can be checked rather than trusted.',
+			],
+			done: 'Every animal listed needs water, and the page names the item that proves it.',
+		},
+		{
+			id: 'guess-the-biome',
+			level: 'ambitious',
+			uses: ['if'],
+			title: 'Guess the Biome',
+			what: 'Show a habitat description and let the player guess where it is.',
+			data: 'animals[].preferredHabitat',
+			steps: [
+				'Show one animal\'s preferredHabitat, with any biome name taken out of it.',
+				'Offer the six biomes as buttons.',
+				'After a guess, reveal both the answer and the animal it described.',
+			],
+			done: 'A round plays all the way through: read, guess, reveal, next.',
+		},
+		{
+			id: 'field-journal',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Field Journal',
+			what: 'Keep a running list of favorites you can add to and clear.',
+			data: 'animals[].name',
+			steps: [
+				'Keep a favorites array in your own code, and add to it on a button click.',
+				'Re-render both lists after every change, rather than patching one of them.',
+				'Handle the empty journal with a line of text, not an empty box.',
+			],
+			done: 'You can add, see and clear favorites, and the empty state says something.',
+		},
 	];
 
 	/* --------------------------------------------------------------- help text */
@@ -608,6 +1007,64 @@
 		/* ---- checkpoints ---- */
 		var cpList = $('#lab-checkpoints');
 		var undo = null;
+		/* Which answers are showing. Deliberately NOT saved with the rest of the
+		   layout: a revealed answer is a moment, not a preference, and coming back
+		   next period to six open answers is not where anyone wants to start. */
+		var openHints = {};
+		/* The panel is 280px because that is enough for a goal and a hint. It is not
+		   enough for `const response = await fetch("https://wildwillows.app/...")`,
+		   which wraps to four lines and stops looking like code. So while an answer
+		   is showing the column gets 100px more, and gives it straight back. */
+		function paintHintWidth() {
+			document.body.classList.toggle('hint-open', !!document.querySelector('.cp-code:not([hidden])'));
+		}
+
+		var COPY_KEYS = /Mac|iPhone|iPad/.test(navigator.platform || '') ? 'Cmd+C' : 'Ctrl+C';
+
+		function selectText(node) {
+			if (!node) return false;
+			try {
+				var range = document.createRange();
+				range.selectNodeContents(node);
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		}
+
+		/* THREE WAYS, IN ORDER OF HOW NICE THEY ARE.
+		 *
+		 * The async clipboard is the good one and the one that usually runs. It
+		 * needs a secure context and a permission a managed school profile can
+		 * refuse — so when it says no, select the block and ask the browser to copy
+		 * the selection, which needs neither. If even that is refused the text is
+		 * left highlighted and the student presses Cmd+C, which is one instruction
+		 * rather than a dead button. */
+		function copyText(text, node) {
+			try {
+				if (navigator.clipboard && navigator.clipboard.writeText)
+					return navigator.clipboard.writeText(text).catch(function () {
+						return legacyCopy(node);
+					});
+			} catch (e) {
+				/* falls through */
+			}
+			return legacyCopy(node);
+		}
+
+		function legacyCopy(node) {
+			if (!selectText(node)) return Promise.reject(new Error('cannot select'));
+			var worked = false;
+			try {
+				worked = document.execCommand('copy');
+			} catch (e) {
+				worked = false;
+			}
+			return worked ? Promise.resolve() : Promise.reject(new Error('selected only'));
+		}
 
 		var cpCount = $('#lab-cp-count');
 
@@ -660,21 +1117,76 @@
 				main.appendChild(el('div', 'cp-goal', cp.goal));
 				main.appendChild(el('div', 'cp-hint', cp.hint));
 
+				/* SHOWS the answer, it does not APPLY it.
+				 *
+				 * This used to overwrite the student's files with the worked version,
+				 * behind a confirm() and a one-shot undo. Two things were wrong with
+				 * that. A student pressing "Show me" is usually stuck and wants to
+				 * LOOK at the answer, and the price of looking was their own work.
+				 * And once it had been applied there was nothing left to compare
+				 * against — the thing they were stuck on was gone from the screen.
+				 *
+				 * So it reveals the code in place, next to their own, with a Copy
+				 * button. Copying is the same keystrokes as typing it, and it is
+				 * their decision rather than a modal's. Nothing in the editor moves,
+				 * so the checkpoint is not ticked either: looking is not finishing.
+				 */
 				var show = el('button', 'cp-show', 'Show me');
 				show.type = 'button';
-				show.addEventListener('click', function () {
-					var target = Object.keys(cp.show).join(' and ');
-					if (!window.confirm('This will replace what is in ' + target + '. Continue? (You can undo once.)')) return;
-					undo = files();
-					runner.wwSet(cp.show);
-					doneSet[cp.id] = true;
-					save(files(), doneSet, ui);
-					renderCheckpoints();
-					bump('hint_' + cp.id);
-					status('Filled in. Undo is in the toolbar if you want your version back.', 'ok');
-					if (undoBtn) undoBtn.hidden = false;
-				});
+				show.setAttribute('aria-expanded', 'false');
 				main.appendChild(show);
+
+				var codeBox = el('div', 'cp-code');
+				codeBox.hidden = true;
+				Object.keys(cp.show).forEach(function (name) {
+					var head = el('div', 'cp-code-head');
+					head.appendChild(el('span', 'cp-code-name', name));
+
+					var copy = el('button', 'cp-copy', 'Copy');
+					copy.type = 'button';
+					copy.addEventListener('click', function () {
+						var pre = codeBox.querySelector('[data-file="' + name + '"]');
+						copyText(cp.show[name], pre).then(
+							function () {
+								copy.textContent = 'Copied';
+								status('Copied. Paste it into ' + name + ' and change it until it is yours.', 'ok');
+								setTimeout(function () {
+									copy.textContent = 'Copy';
+								}, 1600);
+								bump('copy_' + cp.id);
+							},
+							function () {
+								/* Everything refused. The block is highlighted by now, so the
+								   one thing left to say is which two keys to press. */
+								status('Highlighted for you — press ' + COPY_KEYS + ' to copy it.', '');
+							},
+						);
+					});
+					head.appendChild(copy);
+					codeBox.appendChild(head);
+
+					var pre = el('pre', 'cp-pre', cp.show[name]);
+					pre.setAttribute('data-file', name);
+					pre.tabIndex = 0;
+					codeBox.appendChild(pre);
+				});
+				main.appendChild(codeBox);
+
+				if (openHints[cp.id]) {
+					codeBox.hidden = false;
+					show.textContent = 'Hide';
+					show.setAttribute('aria-expanded', 'true');
+				}
+
+				show.addEventListener('click', function () {
+					var open = codeBox.hidden;
+					codeBox.hidden = !open;
+					openHints[cp.id] = open;
+					show.textContent = open ? 'Hide' : 'Show me';
+					show.setAttribute('aria-expanded', open ? 'true' : 'false');
+					paintHintWidth();
+					if (open) bump('hint_' + cp.id);
+				});
 
 				li.appendChild(tick);
 				li.appendChild(main);
@@ -755,6 +1267,19 @@
 		/* ---- the brief: whatever idea they picked, kept on screen ---- */
 		var briefBox = $('#lab-current-idea');
 
+		/* The wall of thirty cards is a MENU: one line each, because a paragraph on
+		 * thirty cards is a wall nobody reads. This panel is the opposite problem.
+		 * It shows exactly one idea, the one they chose, and it stays on screen for
+		 * the rest of the period — so it is the right place for everything the card
+		 * could not carry. "Show every animal whose kind is invertebrate" is enough
+		 * to pick; it is not enough to start.
+		 *
+		 * Built with el() rather than innerHTML. The text is ours, so this is not
+		 * about untrusted input; it is that a brief assembled with `+` breaks the
+		 * first time an idea's wording contains an angle bracket, and several of
+		 * these steps talk about elements and tags. */
+		var METHOD_LABEL = { filter: '.filter()', map: '.map()', sort: '.sort()', reduce: '.reduce()', if: 'if / else' };
+
 		function showBrief(idea) {
 			if (!briefBox) return;
 			if (!idea) {
@@ -769,6 +1294,32 @@
 			set('#lab-brief-title', idea.title);
 			set('#lab-brief-what', idea.what);
 			set('#lab-brief-data', 'Uses ' + idea.data);
+
+			var tags = $('#lab-brief-tags');
+			if (tags) {
+				tags.textContent = '';
+				var chips = [idea.level].concat(idea.uses || []);
+				for (var t = 0; t < chips.length; t++)
+					tags.appendChild(
+						el('span', 'brief-tag' + (t === 0 ? ' is-level' : ''), t === 0 ? chips[t] : METHOD_LABEL[chips[t]] || chips[t]),
+					);
+			}
+
+			var list = $('#lab-brief-steps');
+			if (list) {
+				list.textContent = '';
+				var steps = idea.steps || [];
+				for (var i = 0; i < steps.length; i++) list.appendChild(el('li', '', steps[i]));
+				list.hidden = steps.length === 0;
+				var heading = $('.brief-h', briefBox);
+				if (heading) heading.hidden = steps.length === 0;
+			}
+
+			var doneLine = $('#lab-brief-done');
+			if (doneLine) {
+				doneLine.textContent = idea.done ? 'Done when: ' + idea.done : '';
+				doneLine.hidden = !idea.done;
+			}
 		}
 
 		function ideaById(id) {

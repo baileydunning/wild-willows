@@ -311,6 +311,69 @@ test.describe('a screen too small for this page', () => {
 	});
 });
 
+test.describe('"Show me" shows the answer without taking their work', () => {
+	// The old version pasted the worked code over the student's files behind a
+	// confirm(). Someone stuck enough to press it lost what they had, and lost the
+	// thing they were comparing against at the same moment.
+	const answer = (page: Page, n: number) => page.locator('.cp-code').nth(n);
+
+	test('reveals the code beside their own and leaves the editor alone', async ({ page }) => {
+		await page.getByRole('tab', { name: FILES.js, exact: true }).click();
+		const area = page.locator('textarea.wwr-code:visible');
+		await area.click();
+		await area.press('ControlOrMeta+a');
+		await area.fill('// my own work');
+		await page.waitForTimeout(600);
+
+		await expect(answer(page, 2)).toBeHidden();
+		await page.locator('.cp-show').nth(2).click();
+		await expect(answer(page, 2)).toBeVisible();
+		await expect(answer(page, 2).locator('.cp-pre')).toContainText('loadGameData');
+
+		// The point of the whole change.
+		await expect(page.locator('textarea.wwr-code:visible')).toHaveValue('// my own work');
+		await expect(page.locator('.cp.is-done')).toHaveCount(0);
+	});
+
+	test('every file in the answer gets its own header and Copy', async ({ page }) => {
+		// Checkpoint 5 changes two files. One Copy for both would put HTML into
+		// main.js.
+		const multi = page.locator('.cp').nth(4);
+		await multi.locator('.cp-show').click();
+		const box = multi.locator('.cp-code');
+		await expect(box.locator('.cp-code-name')).toHaveText(['index.html', 'main.js']);
+		await expect(box.locator('.cp-copy')).toHaveCount(2);
+	});
+
+	test('toggles shut, and is not still open next time', async ({ page }) => {
+		const show = page.locator('.cp-show').nth(2);
+		await show.click();
+		await expect(show).toHaveText('Hide');
+		await expect(show).toHaveAttribute('aria-expanded', 'true');
+		await show.click();
+		await expect(show).toHaveText('Show me');
+		await expect(answer(page, 2)).toBeHidden();
+
+		await show.click();
+		await page.waitForTimeout(700); // the autosave is debounced
+		await page.reload();
+		await expect(page.locator('.cp-code:not([hidden])')).toHaveCount(0);
+	});
+
+	test('widens the column while it is showing, and gives it back', async ({ page }) => {
+		// 280px wraps `await fetch("https://wildwillows.app/GameData/")` into four
+		// lines that stop looking like code.
+		const side = page.locator('.lab-side');
+		const before = (await side.boundingBox())!.width;
+		await page.locator('.cp-show').nth(2).click();
+		await page.waitForTimeout(400);
+		expect((await side.boundingBox())!.width).toBeGreaterThan(before + 60);
+		await page.locator('.cp-show').nth(2).click();
+		await page.waitForTimeout(400);
+		expect((await side.boundingBox())!.width).toBeCloseTo(before, 0);
+	});
+});
+
 test.describe('the side panel collapses out of the way', () => {
 	// The checkpoints and the help are reference: worth having open while you are
 	// working out what to do next, and 280px of permanent tax once you know.

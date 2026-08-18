@@ -452,8 +452,10 @@ describe('editing keeps native undo working', () => {
 	});
 
 	it('replaces a whole file undoably too', () => {
-		// "Show me", the idea scaffolds and Reset all throw work away. Those are the
-		// actions where one Cmd+Z putting your own version back matters most.
+		// The idea scaffolds and Reset throw work away. Those are the actions where
+		// one Cmd+Z putting your own version back matters most. ("Show me" used to
+		// be on this list; it reveals the answer beside their code now instead of
+		// pasting it over the top, which is why it no longer needs an undo.)
 		expect(SRC).toContain('function replaceValue');
 		expect(SRC).toContain('replaceValue(editors[f.name].area');
 	});

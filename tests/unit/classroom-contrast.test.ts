@@ -23,6 +23,8 @@ import { resolve } from 'node:path';
 const RUNNER = readFileSync(resolve(__dirname, '../../public/partials/ww-runner.css'), 'utf8');
 const SITE = readFileSync(resolve(__dirname, '../../public/partials/site-core.css'), 'utf8');
 const LESSON = readFileSync(resolve(__dirname, '../../public/partials/ww-lesson.css'), 'utf8');
+const TEACHERS = readFileSync(resolve(__dirname, '../../public/partials/ww-teachers.css'), 'utf8');
+const GUIDE = readFileSync(resolve(__dirname, '../../public/partials/ww-guide.css'), 'utf8');
 
 const rgb = (hex: string): number[] => {
 	let h = hex.replace('#', '');
@@ -54,12 +56,13 @@ const siteToken = (name: string): string => {
 	return m![1];
 };
 
-/** A token as the classroom pages repoint it for daylight. */
-const override = (name: string): string => {
-	const m = new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,6});\\s*/\\* [\\d.]+`).exec(RUNNER);
-	expect(m, `--${name} should be repointed in ww-runner.css`).toBeTruthy();
+/** A token as a classroom sheet repoints it for daylight. */
+const overrideIn = (sheet: string, where: string, name: string): string => {
+	const m = new RegExp(`--${name}:\\s*(#[0-9a-fA-F]{3,6});\\s*/\\* [\\d.]+`).exec(sheet);
+	expect(m, `--${name} should be repointed in ${where}`).toBeTruthy();
 	return m![1];
 };
+const override = (name: string): string => overrideIn(RUNNER, 'ww-runner.css', name);
 
 /** Every cream the classroom pages actually put text on. */
 const SURFACES = ['paper', 'paper-deep', 'panel', 'sprout'];
@@ -144,6 +147,59 @@ describe('the lesson page inherits the classroom inks', () => {
 		// at night and the rail would turn to mud.
 		const DARK = readFileSync(resolve(__dirname, '../../public/partials/ww-dark.css'), 'utf8');
 		expect(DARK).toContain("[data-theme='dark'] body.lesson");
+	});
+});
+
+describe('the teacher pages inherit the classroom inks', () => {
+	// SAME BUG, SECOND TIME. The override is scoped to a selector list, so a page
+	// only gets it by joining one. The lesson page missed it once; /teachers,
+	// /teachers/science and /teachers/coding missed it for the same reason — they
+	// are on ww-teachers.css, which never carried the repoint at all, so every
+	// vocabulary definition, lesson-flow timing and column heading on three
+	// pages fell back to site-core's 4.01 and 2.40.
+	//
+	// They cannot simply join ww-runner.css's list: that sheet is not on these
+	// pages. So ww-teachers.css carries its own copy of the same two values, and
+	// this asserts the copy is both PRESENT and IDENTICAL — two palettes that
+	// drift apart is the failure this is really guarding against.
+	it('body.edu-hub repoints both muted inks', () => {
+		expect(TEACHERS).toMatch(/body\.edu-hub\s*\{[^}]*--ink-soft:/);
+		expect(TEACHERS).toMatch(/body\.edu-hub\s*\{[^}]*--ink-faint:/);
+	});
+
+	it('to the same values the lab and the lesson use', () => {
+		for (const name of ['ink-soft', 'ink-faint'])
+			expect(overrideIn(TEACHERS, 'ww-teachers.css', name), `--${name}`).toBe(override(name));
+	});
+
+	it('and clears AA on every cream surface, measured not assumed', () => {
+		for (const name of ['ink-soft', 'ink-faint'])
+			for (const surface of SURFACES)
+				expect(
+					ratio(overrideIn(TEACHERS, 'ww-teachers.css', name), siteToken(surface)),
+					`--${name} on --${surface}`,
+				).toBeGreaterThanOrEqual(4.5);
+	});
+
+	it('body.edu-hub is on the dark override too', () => {
+		const DARK = readFileSync(resolve(__dirname, '../../public/partials/ww-dark.css'), 'utf8');
+		expect(DARK).toContain("[data-theme='dark'] body.edu-hub");
+	});
+
+	it('re-aims the green that sits on the dark sprout tint', () => {
+		// .chip and the reassurance heading are both drawn on --sprout, where
+		// --green-deep measures 4.33. Under AA for 13px bold, and the chips carry
+		// the grade level and the running time.
+		const DARK = readFileSync(resolve(__dirname, '../../public/partials/ww-dark.css'), 'utf8');
+		expect(DARK).toMatch(/\[data-theme='dark'\] \.chip,\s*\n\[data-theme='dark'\] \.reassure h2 \{\s*\n\s*color: var\(--green-bright\)/);
+	});
+
+	it('the guide sheet colours every table column, not the first two', () => {
+		// The troubleshooting table has three columns and the arrival ladder has
+		// five. A rule listing nth-child(2) and (3) silently left the ladder's last
+		// two columns at full-strength ink, which reads as five bold columns.
+		expect(GUIDE).toMatch(/\.trouble td:not\(:first-child\)/);
+		expect(GUIDE).not.toMatch(/\.trouble td:nth-child\(3\)/);
 	});
 });
 

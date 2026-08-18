@@ -35,20 +35,38 @@
 </head>
 <body class="lab">
 
-<p class="lab-small-screen">This works best on a laptop or a tablet with a keyboard &mdash; writing code on a phone is hard going.</p>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
-    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the Lesson</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
       <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
     </button>
   </div>
 </div></nav>
+
+<!-- Shown INSTEAD of the workspace on a phone. ww-builder.js decides which of
+     the two you get and unhides this one; it is hidden here so a laptop never
+     sees it flash. See the note in ww-builder.js for why the builder draws the
+     line where the lesson does not. -->
+<section class="lab-blocked" id="lab-blocked" hidden>
+  <div class="lab-blocked-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
+    <h1>This one needs a bigger screen</h1>
+    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
+    <p class="lab-blocked-go">
+      <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the Lesson instead</a>
+      <a class="btn btn-paper" href="/learn" data-track="learn-nav">Both pages</a>
+    </p>
+    <p class="lab-blocked-note">The Lesson works fine on a phone, editors and all. It is only this page that needs the room.</p>
+  </div>
+</section>
 
 <div class="lab-bar">
   <h1>Code Builder</h1>
@@ -63,7 +81,16 @@
 </div>
 
 <main class="lab-main">
-  <aside class="lab-side">
+  <!-- Collapses the whole side panel so the editor gets the window. It rides the
+       seam between the two columns and stays in the same place once the panel is
+       gone, so the control that brings it back is where the control that took it
+       away was. The chevron points the way the next press moves the panel. -->
+  <button type="button" class="lab-side-toggle" id="lab-side-toggle" aria-expanded="true" aria-controls="lab-side" title="Hide the side panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.5 5.5 8 12l6.5 6.5"/></svg>
+    <span class="lab-side-toggle-text">Hide panel</span>
+  </button>
+
+  <aside class="lab-side" id="lab-side">
     <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
          deliberately: once they have chosen something to build, the brief is
          what they are working to and the checkpoints become reference. -->
@@ -101,7 +128,7 @@
          locked-down Chromebook makes DevTools a bad answer.
          `manual` is deliberately NOT set: the preview follows their typing, and
          Run is there for students who want cause and effect to be discrete. -->
-    <ww-runner console label="Your project">
+    <ww-runner defer console label="Your project">
       <script type="text/ww-file" name="index.html">
         <h1>Wild Willows Explorer</h1>
         <p id="message">Loading game data...</p>
