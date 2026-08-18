@@ -131,6 +131,52 @@ describe('the built Code Builder page', () => {
 	});
 });
 
+describe('the landing page routes to the rest of the site', () => {
+	const html = builtPage('landingHtml');
+
+	it('offers the six sections in the nav, in order', () => {
+		const nav = /<div class="links">([\s\S]*?)<\/div>/.exec(html);
+		expect(nav, 'the nav links block should be findable').toBeTruthy();
+		const labels = [...nav![1].matchAll(/<a class="hide-sm"[^>]*>([^<]+)<\/a>/g)].map((m) => m[1]);
+		expect(labels).toEqual(['Reviews', 'Accessibility', 'Teachers', 'Developers', 'Community', 'FAQ']);
+	});
+
+	it('and every one of them is a section that exists', () => {
+		const nav = /<div class="links">([\s\S]*?)<\/div>/.exec(html)![1];
+		for (const [, id] of nav.matchAll(/href="#([a-z]+)"/g)) expect(html, `#${id}`).toMatch(new RegExp(`<section[^>]*id="${id}"`));
+	});
+
+	it('sends teachers to both kits, not just the science one', () => {
+		// This section was written when there was one kit. A hub link alone made
+		// the coding kit invisible to anyone who did not click through.
+		expect(html).toContain('href="/teachers/science"');
+		expect(html).toContain('href="/teachers/coding"');
+		expect(html).toContain('href="/teachers"');
+		// The PDFs stayed reachable in one click — they are the thing teachers came for.
+		expect(html).toContain('href="/educator-guide.pdf"');
+		expect(html).toContain('href="/student-worksheets.pdf"');
+	});
+
+	it('sends developers to the lesson, the builder and the endpoint', () => {
+		expect(html).toMatch(/<section[^>]*id="developers"/);
+		expect(html).toContain('href="/learn/web-development"');
+		expect(html).toContain('href="/learn/code-builder"');
+		expect(html).toContain('href="/learn"');
+		expect(html).toContain('https://wildwillows.app/GameData/');
+	});
+
+	it('reports those clicks on a target the endpoint accepts', () => {
+		// An unlisted target is not dropped, it is bucketed into `other` — so the
+		// counter still moves and says nothing. See LANDING_CLICK_TARGETS.
+		const targets = new Set([...html.matchAll(/data-track="([a-z-]+)"/g)].map((m) => m[1]));
+		expect(targets.has('learn-nav')).toBe(true);
+		const RESOURCES = readFileSync(join(root, 'server/resources.ts'), 'utf8');
+		const list = /const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\]\)/.exec(RESOURCES);
+		expect(list, 'LANDING_CLICK_TARGETS should be findable').toBeTruthy();
+		for (const t of targets) expect(list![1], `data-track="${t}" is not allowlisted`).toContain(`'${t}'`);
+	});
+});
+
 describe('the Code Builder on a screen too small for it', () => {
 	const html = builtPage('learnCodeBuilderHtml');
 

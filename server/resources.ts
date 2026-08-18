@@ -12169,6 +12169,11 @@ const LANDING_CLICK_TARGETS = new Set([
 	'get-nav',
 	'gallery',
 	'edu-nav',
+	// The landing page's Developers section, which is the door to /learn. One
+	// target rather than three: from here the question is only whether the page
+	// sends anyone into the lesson material at all. Which of the two they took is
+	// already counted on /learn itself, by the classroom beacon.
+	'learn-nav',
 	// /teachers reports itself here, once per browser session, as a click rather
 	// than a visit. Visits are ONE undifferentiated series shared by every page
 	// that sends them, so a teachers-page visit would silently inflate the landing
