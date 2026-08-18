@@ -136,7 +136,7 @@ describe('the element itself', () => {
 	it('builds an editor and a sandboxed preview from its starter files', () => {
 		const host = mount(
 			'<script type="text/ww-file" name="index.html">&lt;h1&gt;Hi&lt;/h1&gt;</script>' +
-				'<script type="text/ww-file" name="index.js">console.log(1)</script>',
+				'<script type="text/ww-file" name="main.js">console.log(1)</script>',
 		);
 		expect(host.querySelectorAll('textarea.wwr-code').length).toBe(2);
 		const frame = host.querySelector('iframe.wwr-preview') as HTMLIFrameElement;
@@ -147,12 +147,347 @@ describe('the element itself', () => {
 	});
 
 	it('exposes the sources it is currently running', () => {
-		const host = mount('<script type="text/ww-file" name="index.js">const a = 1;</script>');
+		const host = mount('<script type="text/ww-file" name="main.js">const a = 1;</script>');
 		expect(host.wwGet().js).toBe('const a = 1;');
 	});
 
 	it('hides the tab strip when there is only one file', () => {
-		const host = mount('<script type="text/ww-file" name="index.js">x</script>');
+		const host = mount('<script type="text/ww-file" name="main.js">x</script>');
 		expect((host.querySelector('.wwr-tabs') as HTMLElement).hidden).toBe(true);
+	});
+});
+
+describe('the preview, and why it stopped flickering', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+	const CSS = readFileSync(join(process.cwd(), 'public/partials/ww-runner.css'), 'utf8');
+
+	const mount = (inner: string) => {
+		document.body.innerHTML = `<ww-runner console>${inner}</ww-runner>`;
+		const host = document.querySelector('ww-runner') as any;
+		new Function(SRC)();
+		return host;
+	};
+
+	it('double-buffers the preview', () => {
+		// One iframe meant reassigning srcdoc on every debounce, and the frame
+		// paints white while it rebuilds — a visible flash every time a student
+		// paused typing. Two frames, swapped on load, means they keep looking at
+		// the last good render until the next one is ready.
+		const host = mount('<script type="text/ww-file" name="main.js">x</script>');
+		const frames = host.querySelectorAll('iframe.wwr-preview');
+		expect(frames).toHaveLength(2);
+		expect(host.querySelectorAll('iframe.is-live')).toHaveLength(1);
+	});
+
+	it('retires the frame it swaps away from', () => {
+		// Otherwise a student's setInterval keeps running in a hidden document,
+		// once more per render, forever.
+		expect(SRC).toContain("old.srcdoc = ''");
+	});
+
+	it('does not re-run when nothing changed', () => {
+		expect(SRC).toContain("if (doc === lastDoc && how !== 'manual') return;");
+	});
+
+	it('always honours an explicit Run', () => {
+		// "I pressed Run and nothing happened" is worse than a redundant render.
+		expect(/how !== 'manual'/.test(SRC)).toBe(true);
+	});
+
+	it('keeps both buffers stacked so a swap cannot reflow', () => {
+		expect(CSS).toMatch(/\.wwr-preview\s*\{[^}]*position:\s*absolute/);
+		expect(CSS).toMatch(/\.wwr-preview\.is-live\s*\{[^}]*opacity:\s*1/);
+	});
+});
+
+describe('the console, and why it stopped hanging', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+
+	it('caps how much one log can send', () => {
+		// Chapter 4 says console.log(data). That is ~300 KB of JSON, which
+		// pretty-printed is ~600 KB of string, posted across a message channel and
+		// written into the DOM. The browser sat there doing that instead of
+		// painting, which reads as "the console is broken".
+		expect(SRC).toContain('MAX_CHARS = 2000');
+		expect(SRC).toContain('MAX_LINES = 200');
+	});
+
+	it('summarises long arrays instead of serialising all of them', () => {
+		// 150 animal records is the normal case. "Array(150) [first three…]" is
+		// both faster and a better answer than 150 pretty-printed objects.
+		expect(SRC).toContain('Array.isArray(v) && v.length > 8');
+	});
+
+	it('caps what the DOM has to hold as well', () => {
+		expect(SRC).toContain('consoleCount > 250');
+	});
+
+	it('accepts messages from both buffers', () => {
+		// The incoming render starts logging before it has been swapped in.
+		// Listening only to the live frame drops the first console line and any
+		// error thrown during load — which is most of them.
+		expect(SRC).toContain('frames[0].contentWindow');
+		expect(SRC).toContain('frames[1].contentWindow');
+	});
+});
+
+describe('view modes', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+	const CSS = readFileSync(join(process.cwd(), 'public/partials/ww-runner.css'), 'utf8');
+
+	const mount = () => {
+		document.body.innerHTML = '<ww-runner console><script type="text/ww-file" name="main.js">x</script></ww-runner>';
+		const host = document.querySelector('ww-runner') as any;
+		new Function(SRC)();
+		return host;
+	};
+
+	it('offers split, code and page, and starts on split', () => {
+		const host = mount();
+		const buttons = host.querySelectorAll('.wwr-view');
+		expect(buttons).toHaveLength(3);
+		expect(host.classList.contains('wwr--view-split')).toBe(true);
+		expect(host.querySelectorAll('.wwr-view.is-on')).toHaveLength(1);
+	});
+
+	it('switches, and says so to assistive tech', () => {
+		const host = mount();
+		const code = [...host.querySelectorAll('.wwr-view')].find(
+			(b: any) => b.getAttribute('aria-label') === 'Show code',
+		) as HTMLButtonElement;
+		expect(code).toBeTruthy();
+		code.click();
+		expect(host.classList.contains('wwr--view-code')).toBe(true);
+		expect(host.classList.contains('wwr--view-split')).toBe(false);
+		expect(code.getAttribute('aria-pressed')).toBe('true');
+	});
+
+	it('hides the other half in each single view', () => {
+		expect(CSS).toContain('.wwr--view-code .wwr-out');
+		expect(CSS).toContain('.wwr--view-preview .wwr-panes');
+	});
+
+	it('opens the page in a tab as a standalone blob, without the harness', () => {
+		// A blob: URL gives the new tab a real origin, so fetch behaves exactly as
+		// it will in the file the student downloads. srcdoc would not.
+		expect(SRC).toContain('function standaloneDoc()');
+		expect(SRC).toContain('new Blob([standaloneDoc()]');
+		expect(SRC).toMatch(/standaloneDoc[\s\S]{0,200}assembleDocument\(src\.html, src\.css, src\.js\)/);
+	});
+});
+
+describe('the height chain', () => {
+	const CSS = readFileSync(join(process.cwd(), 'public/partials/ww-runner.css'), 'utf8');
+
+	it('pins every level so the editor scrolls instead of growing', () => {
+		// The gutter is `white-space: pre` with one line per row, so its intrinsic
+		// height IS the length of the file. Grid and flex children default to
+		// min-height:auto, so that height was free to push every ancestor open —
+		// which is how the console ended up stranded in the middle of the editor.
+		expect(CSS).toMatch(/\.wwr-body\s*\{[^}]*grid-template-rows:\s*minmax\(0, 1fr\)/);
+		expect(CSS).toMatch(/\.wwr-panes\s*\{[^}]*min-height:\s*0/);
+		expect(CSS).toMatch(/\.wwr-editor\s*\{[^}]*min-height:\s*0/);
+		expect(CSS).toMatch(/\.wwr-gutter\s*\{[^}]*min-height:\s*0/);
+	});
+
+	it('scrolls the code both ways', () => {
+		// `pre`, not `pre-wrap`: a 200-character line should scroll sideways, not
+		// silently rewrap and hide from the student that it is 200 characters long.
+		expect(CSS).toMatch(/\.wwr-code\s*\{[^}]*white-space:\s*pre;/);
+		expect(CSS).toMatch(/\.wwr-code\s*\{[^}]*overflow:\s*auto/);
+		expect(CSS).toMatch(/\.wwr-code\s*\{[^}]*height:\s*100%/);
+	});
+});
+
+describe('the assembled preview actually parses', () => {
+	// THE TEST THAT WAS MISSING.
+	//
+	// The reporting harness used to be written as an array of JavaScript string
+	// literals — a program expressed inside strings, where every backslash needs
+	// doubling and nothing checks that you did it. A `\n` that was meant to be two
+	// characters became a real newline, split a string across two lines, and the
+	// whole harness failed to parse. The preview threw `SyntaxError: Unexpected
+	// EOF` before running a single line, so the console stayed empty and the page
+	// looked merely broken.
+	//
+	// Every other check passed: the file parsed, the page built, the includes
+	// expanded, the bytes were all there. The thing nobody was checking was
+	// whether the document we hand the iframe is itself valid JavaScript.
+
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+
+	const assembledScript = (js: string): string => {
+		document.body.innerHTML = `<ww-runner console><script type="text/ww-file" name="main.js">${js}</script></ww-runner>`;
+		new Function(SRC)();
+		const frame = document.querySelector('iframe.wwr-preview') as HTMLIFrameElement;
+		expect(frame, 'the runner should have rendered a preview frame').toBeTruthy();
+		const m = /<script>\n([\s\S]*)\n<\/script>/.exec(frame.srcdoc);
+		expect(m, 'the assembled document should contain one script block').toBeTruthy();
+		return m![1];
+	};
+
+	it('produces a preview script that is valid JavaScript', () => {
+		// new Function throws on a syntax error without executing anything.
+		expect(() => new Function(assembledScript('console.log(1);'))).not.toThrow();
+	});
+
+	it('stays valid with the starter project in it', () => {
+		const starter = [
+			'async function loadGameData() {',
+			'  const response = await fetch("https://wildwillows.app/GameData/");',
+			'  const data = await response.json();',
+			'  console.log(data);',
+			'}',
+			'loadGameData();',
+		].join('\n');
+		expect(() => new Function(assembledScript(starter))).not.toThrow();
+	});
+
+	it('stays valid when the student writes a closing script tag', () => {
+		expect(() => new Function(assembledScript('const s = "</scr" + "ipt>";'))).not.toThrow();
+	});
+
+	it('builds the harness from a real function rather than string literals', () => {
+		// The structural guarantee behind the tests above: this file's own parser
+		// now checks the harness, so the escaping cannot silently rot again.
+		expect(SRC).toContain('function harnessProgram()');
+		expect(SRC).toContain("var HARNESS = '(' + harnessProgram.toString() + ')();'");
+	});
+});
+
+describe("a syntax error in the student's code still gets reported", () => {
+	// THE BUG THIS FILE EXISTS FOR, second time around.
+	//
+	// The harness used to be concatenated in front of the student's code in ONE
+	// script block. A syntax error is a PARSE-time failure — the browser discards
+	// the whole block before running any of it — so a student who left a `var`
+	// dangling took the harness down with them. window.onerror was never
+	// installed, nothing was posted to the host, and they got a blank preview, an
+	// empty console, and an error visible only in devtools.
+	//
+	// That is exactly the "I have no idea what is wrong" moment this component
+	// exists to prevent, and it only happened for BROKEN code — so every test
+	// written against working code passed.
+
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+
+	const previewBlocks = (js: string) => {
+		document.body.innerHTML = `<ww-runner console><script type="text/ww-file" name="main.js">${js}</script></ww-runner>`;
+		new Function(SRC)();
+		const frame = document.querySelector('iframe.wwr-preview') as HTMLIFrameElement;
+		const doc = new DOMParser().parseFromString(frame.srcdoc, 'text/html');
+		return [...doc.querySelectorAll('script')].map((n) => n.textContent || '');
+	};
+
+	it('puts the harness in a block of its own', () => {
+		const blocks = previewBlocks('console.log(1);');
+		expect(blocks.length).toBe(2);
+		expect(blocks[0]).toContain('harnessProgram');
+		expect(blocks[1]).not.toContain('harnessProgram');
+	});
+
+	it("keeps the harness parseable even when the student's code is not", () => {
+		// A dangling `var` — literally what was on screen when this was found.
+		const blocks = previewBlocks('loadGameData();\n\nvar');
+		expect(() => new Function(blocks[0]), 'the harness must still install').not.toThrow();
+		expect(() => new Function(blocks[1]), 'the student block is the broken one').toThrow();
+	});
+
+	it("explains the end-of-input error in every browser's wording", () => {
+		// Chrome says "Unexpected end of input", Safari "Unexpected end of script"
+		// and sometimes "Unexpected EOF". Same mistake, three wordings — and the
+		// students likeliest to hit it are the least able to tell they are the same.
+		const R = (window as any).WwRunner;
+		for (const message of [
+			'SyntaxError: Unexpected end of input',
+			'SyntaxError: Unexpected end of script',
+			'SyntaxError: Unexpected EOF',
+		])
+			expect(R.explain(message).key, message).toBe('unexpected-eof');
+	});
+});
+
+describe('editing keeps native undo working', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+
+	it('inserts a tab without wiping the undo stack', () => {
+		// Assigning .value replaces the field wholesale and the browser throws away
+		// its undo history when you do — so Cmd/Ctrl+Z silently stopped working from
+		// the first time a student pressed Tab. execCommand('insertText') is
+		// deprecated and still the only way to edit a textarea undoably.
+		expect(SRC).toContain("insertText(area, '  ')");
+		expect(SRC).toContain("document.execCommand('insertText', false, text)");
+	});
+
+	it('replaces a whole file undoably too', () => {
+		// "Show me", the idea scaffolds and Reset all throw work away. Those are the
+		// actions where one Cmd+Z putting your own version back matters most.
+		expect(SRC).toContain('function replaceValue');
+		expect(SRC).toContain('replaceValue(editors[f.name].area');
+	});
+});
+
+describe('the console can be resized and ignored', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+	const CSS = readFileSync(join(process.cwd(), 'public/partials/ww-runner.css'), 'utf8');
+
+	it('drags from the header', () => {
+		expect(CSS).toMatch(/\.wwr-console-head\s*\{[^}]*cursor:\s*ns-resize/);
+		expect(SRC).toContain("chead.addEventListener('pointerdown'");
+	});
+
+	it('does not lose the drag over the preview', () => {
+		// The iframes would otherwise swallow the pointer the moment it crossed them.
+		expect(CSS).toContain('body.wwr-resizing iframe');
+	});
+
+	it('folds away entirely', () => {
+		expect(SRC).toContain('function setCollapsed');
+		expect(CSS).toContain('.wwr-console.is-collapsed .wwr-console-lines');
+	});
+
+	it('is operable from the keyboard', () => {
+		expect(SRC).toContain("chead.setAttribute('role', 'separator')");
+		expect(SRC).toContain("e.key === 'ArrowUp'");
+	});
+});
+
+describe('the host parses the code itself', () => {
+	// Safari will not describe a script error in a sandboxed, opaque-origin frame
+	// to a cross-origin listener: window.onerror receives "Script error." — two
+	// words that name nothing, point nowhere, and are indistinguishable from every
+	// other failure. Chrome hands over the real message, which is why this went
+	// unnoticed through a full browser test run.
+	//
+	// So the host compiles the student's JavaScript itself, purely to find out what
+	// is wrong with it. new Function only PARSES — it never runs the code.
+
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+
+	it('checks syntax in the host, where the message is real', () => {
+		expect(SRC).toContain('function syntaxErrorIn(js)');
+		expect(SRC).toContain('new Function(js)');
+	});
+
+	it('measures the wrapper’s line offset rather than assuming it', () => {
+		// new Function wraps the code, so a reported line is offset by however many
+		// lines that wrapper adds — which differs by engine and version.
+		expect(SRC).toContain('SYNTAX_LINE_OFFSET');
+	});
+
+	it('does not blame the wrapper’s own closing brace', () => {
+		// An unterminated file makes the parser trip on the brace new Function
+		// appended, reporting a character the student never typed.
+		expect(SRC).toContain("if (/unexpected token '?\\}'?/i.test(message)) message = 'Unexpected end of input';");
+	});
+
+	it('still explains the masked message if one ever reaches the panel', () => {
+		const R = (window as any).WwRunner;
+		expect(R.explain('Script error.').key).toBe('masked');
+		expect(R.explain('Script error').help).toMatch(/Safari hides/);
+	});
+
+	it('reports one message per failure', () => {
+		expect(SRC).toContain('if (syntaxProblem) {');
 	});
 });

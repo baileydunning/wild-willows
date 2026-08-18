@@ -88,6 +88,11 @@ const pages = {
 	// self-contained single string with its screenshots inlined as data URIs, and
 	// its <style> is the landing page's copied verbatim so the two cannot drift.
 	teachersHtml: 'public/teachers.html',
+	// The classroom Code Builder, served at /learn/code-builder. Unlike the pages
+	// above this one is assembled from parts: its <style> and <script> blocks are
+	// @include directives pulling in public/partials/ww-*.{css,js}, so the editor
+	// component stays a single source shared with the lesson page.
+	learnCodeBuilderHtml: 'public/learn-code-builder.html',
 };
 
 // --- build-time includes ---------------------------------------------------
@@ -109,20 +114,77 @@ const pages = {
 // signal to reach for a real build step instead of growing this one.
 const INCLUDE = /<!--\s*@include\s+([\w./-]+)\s*-->/g;
 
-/** Expand every @include in `html`. Throws on a missing file: a silently
- *  unexpanded include ships a page whose interactive examples are all inert,
- *  which looks like a content bug and is nearly impossible to spot in review. */
+/**
+ * Whether a given offset in the page sits inside a <script> or a <style> block.
+ *
+ * An include is pasted in verbatim, so what is legal in the included file
+ * depends entirely on where the directive sits. Counting unclosed opening tags
+ * before the offset is enough here: these are our own hand-written pages, not
+ * arbitrary HTML, and every block is opened and closed on its own line.
+ */
+const contextAt = (html, index) => {
+	const before = html.slice(0, index);
+	for (const tag of ['script', 'style']) {
+		const opens = (before.match(new RegExp(`<${tag}[\\s>]`, 'gi')) || []).length;
+		const closes = (before.match(new RegExp(`</${tag}\\s*>`, 'gi')) || []).length;
+		if (opens > closes) return tag;
+	}
+	return 'html';
+};
+
+/**
+ * Expand every @include in `html`.
+ *
+ * Throws on a missing file: a silently unexpanded include ships a page whose
+ * interactive examples are all inert, which looks like a content bug and is
+ * nearly impossible to spot in review.
+ *
+ * ESCAPES CLOSING TAGS, and this is not a theoretical nicety. public/partials/
+ * ww-runner.js contains a long comment explaining the bug where a closing script
+ * tag inside a string ends the enclosing block early — and that comment spelled
+ * the sequence out literally. Inlined into the builder page's <script>, it ended
+ * the block mid-file and the browser rendered the rest of the runner as visible
+ * text on the page. Every automated check passed: the bytes were all present,
+ * the includes had all expanded, and curl showed a 200 with the right length.
+ * Only a human opening the page in a browser could see it.
+ *
+ * So the build fixes it rather than trusting anyone to remember:
+ *   • into a <script> — escape the slash. Inside JavaScript that is the SAME
+ *     string, so this can never change behaviour, only prevent the break.
+ *   • into a <style>  — throw instead. A backslash in CSS is an escape
+ *     character, so "fixing" it could silently change a selector; and there is
+ *     no legitimate reason for a closing style tag to appear in a stylesheet.
+ */
 const expandIncludes = (html, sourcePath) =>
-	html.replace(INCLUDE, (_match, rel) => {
+	html.replace(INCLUDE, (match, rel, offset) => {
 		const target = join(root, rel);
 		if (!existsSync(target)) {
 			throw new Error(`build-pages: ${sourcePath} includes "${rel}", which does not exist.`);
 		}
-		const body = readFileSync(target, 'utf8');
+		let body = readFileSync(target, 'utf8');
 		if (INCLUDE.test(body)) {
 			// Reset lastIndex — INCLUDE is /g and .test() advances it.
 			INCLUDE.lastIndex = 0;
 			throw new Error(`build-pages: ${rel} contains its own @include; nesting is not supported.`);
+		}
+
+		const context = contextAt(html, offset);
+		if (context === 'script') {
+			const before = body;
+			body = body.replace(/<\/(script)/gi, '<\\/$1');
+			if (body !== before) {
+				const n = (before.match(/<\/script/gi) || []).length;
+				console.warn(
+					`build-pages: escaped ${n} closing script tag(s) while inlining ${rel} into ${sourcePath}.\n` +
+						`            Harmless (same string in JS), but prefer not to write the literal sequence.`,
+				);
+			}
+		} else if (context === 'style' && /<\/style/i.test(body)) {
+			throw new Error(
+				`build-pages: ${rel} contains a closing style tag and is being inlined into a <style> ` +
+					`block in ${sourcePath}. That would end the block early. Remove it — this one cannot be ` +
+					`escaped safely, because a backslash in CSS is an escape character.`,
+			);
 		}
 		return body;
 	});

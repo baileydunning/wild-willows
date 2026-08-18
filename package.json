@@ -12,6 +12,7 @@
 	"main": "electron/main.js",
 	"scripts": {
 		"dev:web": "vite",
+		"landing": "node scripts/serve-pages.mjs",
 		"dev": "npm run build:server && harper dev .",
 		"browser": "DEMO=true npm run build:web && vite preview --open",
 		"build": "npm run build:server && npm run build:web",
@@ -33,6 +34,7 @@
 		"test:watch": "vitest",
 		"test:e2e": "playwright test",
 		"test:e2e:solo": "playwright test --project=solo",
+		"test:e2e:classroom": "playwright test --config playwright.classroom.config.ts",
 		"test:e2e:i18n": "playwright test --project=i18n",
 		"test:all": "npm run check && npm run test && npm run test:e2e:solo",
 		"desktop": "npm run build && electron .",

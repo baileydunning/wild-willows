@@ -1,0 +1,232 @@
+/* Wild Willows — dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' — ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED — the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band — sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 — muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 — small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text · 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 — the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night — depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab, .wwr` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above — so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 — below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute — so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}

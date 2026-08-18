@@ -2,23 +2,68 @@
  *
  * Inlined into both classroom student pages by scripts/build-pages.mjs alongside
  * ww-runner.js. Everything is scoped under .wwr so it cannot leak into the page
- * around it, and nothing here depends on the host page's own stylesheet — the
- * two student pages should be able to diverge visually without breaking the
- * component they share.
+ * around it.
  *
- * Colour values are literals rather than custom properties on purpose: the
- * runner is also what a student sees inside the downloaded project preview, and
- * a variable inherited from a page that is no longer there would render it
- * unreadable.
+ * Built on the site's own design tokens from public/partials/site-core.css —
+ * the same --paper / --panel / --ink / --green cream-and-leaf palette, the same
+ * Quicksand stack, the same radii — so the editor reads as part of Wild Willows
+ * rather than a developer tool someone bolted on.
+ *
+ * Every var() carries a literal fallback. The tokens come from a sheet included
+ * ahead of this one, and if that include is ever dropped the runner should look
+ * slightly plain rather than unreadable (unset custom properties collapse to
+ * transparent text on transparent backgrounds).
+ *
+ * Monospace is the ONE place this departs from the site's type: code has to be
+ * monospaced, and Quicksand's lovely round glyphs actively hide the difference
+ * between l, 1 and I — which is a real source of "why doesn't my code work" for
+ * a beginner.
  */
+
+/* [hidden] is only display:none in the UA stylesheet, so ANY author rule that
+ * sets display wins and the element stays visible. Both of the things this
+ * component hides — the inactive file panes and the tab strip in one-file mode —
+ * are flex containers, so `el.hidden = true` did nothing at all: clicking a file
+ * tab appeared to do nothing because every pane was still stacked on screen.
+ * These two rules are the fix; the attribute selector adds the specificity the
+ * base rules already had. */
+.wwr-editor[hidden],
+.wwr-tabs[hidden],
+.wwr [hidden] {
+	display: none;
+}
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the classroom pages only rather than edited
+ * upstream. Measured against the four cream surfaces these actually sit on
+ * (--paper, --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On a marketing page those carry decorative captions and it is a judgement
+ * call. Here they carry the hint under every checkpoint, the sidebar headings
+ * and the editor's line numbers — content a student has to read, often on a
+ * classroom projector or a cheap Chromebook panel in a bright room. The values
+ * below keep the sheet's warm olive cast and clear 4.5 on every surface.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.lab,
+.wwr {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+}
 
 .wwr {
 	display: block;
 	margin: 1.5rem 0;
-	border: 1px solid #d5dcc9;
-	border-radius: 10px;
+	border: 1.5px solid var(--panel-edge, #e3d9bc);
+	border-radius: var(--r, 14px);
 	overflow: hidden;
-	background: #fbfcf7;
+	background: var(--panel, #fdfaf1);
+	box-shadow: var(--shadow, 0 2px 3px rgba(52, 58, 40, 0.08));
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
 	font-size: 15px;
 }
 
@@ -28,15 +73,15 @@
 	display: flex;
 	align-items: center;
 	gap: 0.5rem;
-	padding: 0.4rem 0.6rem;
-	background: #eef2e5;
-	border-bottom: 1px solid #d5dcc9;
+	padding: 0.45rem 0.7rem;
+	background: var(--sprout, #eaf3dd);
+	border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
 	flex-wrap: wrap;
 }
 
 .wwr-label {
-	font-weight: 600;
-	color: #3f5136;
+	font-weight: 700;
+	color: var(--green-deep, #39604a);
 	font-size: 0.85rem;
 }
 
@@ -49,94 +94,191 @@
 	gap: 0.25rem;
 }
 
+/* File tabs read as the site's chips — same pill, same weights — so the one
+ * genuinely new control on the page still looks like something they have
+ * already seen on /teachers. */
 .wwr-tab {
-	font: inherit;
-	font-size: 0.82rem;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
-	padding: 0.25rem 0.7rem;
-	border: 1px solid transparent;
-	border-radius: 6px;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.2rem 0.75rem;
+	border: 1.5px solid transparent;
+	border-radius: 999px;
 	background: transparent;
-	color: #5a6b52;
+	color: var(--ink-soft, #75765f);
 	cursor: pointer;
 }
 
 .wwr-tab:hover {
-	background: #e2e9d5;
+	background: rgba(255, 255, 255, 0.6);
 }
 
 .wwr-tab.is-active {
-	background: #fbfcf7;
-	border-color: #d5dcc9;
-	color: #2f3d29;
-	font-weight: 600;
+	background: var(--green, #4a7c59);
+	border-color: var(--green, #4a7c59);
+	color: #fff;
 }
 
 .wwr-btn {
-	font: inherit;
-	font-size: 0.82rem;
-	padding: 0.3rem 0.75rem;
-	border: 1px solid #c3cdb4;
-	border-radius: 6px;
-	background: #fbfcf7;
-	color: #3f5136;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.35rem 0.9rem;
+	border: none;
+	border-radius: 10px;
+	background: var(--panel, #fdfaf1);
+	color: var(--green-deep, #39604a);
+	box-shadow: 0 2px 0 var(--panel-edge, #e3d9bc);
 	cursor: pointer;
 	white-space: nowrap;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.wwr-ico {
+	width: 14px;
+	height: 14px;
+	flex: none;
 }
 
 .wwr-btn:hover {
-	background: #fff;
-	border-color: #9fb38c;
+	filter: brightness(1.06);
 }
 
+.wwr-btn:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge, #e3d9bc);
+}
+
+/* The site's primary button, at toolbar scale. */
 .wwr-run {
-	background: #4a7c59;
-	border-color: #3f6b4c;
+	background: var(--green, #4a7c59);
 	color: #fff;
-	font-weight: 600;
+	box-shadow: 0 2px 0 var(--green-deep, #39604a);
 }
 
-.wwr-run:hover {
-	background: #558c66;
-	border-color: #3f6b4c;
+.wwr-run:active {
+	box-shadow: 0 1px 0 var(--green-deep, #39604a);
 }
 
-/* Unrun edits: only appears in manual mode, where the whole point is that the
- * student decides when to run. A pulse rather than a colour change alone, so it
- * reads as "there is something to do" at a glance. */
+/* Unrun edits: a pulse rather than a color change alone, so it reads as "there
+ * is something to do" at a glance. */
 .wwr-run.is-dirty {
 	animation: wwr-pulse 1.4s ease-in-out infinite;
 }
 
 @keyframes wwr-pulse {
 	50% {
-		box-shadow: 0 0 0 4px rgba(74, 124, 89, 0.22);
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 4px rgba(124, 181, 100, 0.35);
 	}
+}
+
+/* --------------------------------------------------------------- view modes
+ *
+ * Split is the teaching default — cause and effect in one eyeful, which is the
+ * whole device the lesson is built on. But at 1366px on a Chromebook two half
+ * columns is cramped for both, and a student writing a long function or showing
+ * a classmate what they made wants one thing full width. */
+.wwr-views {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.55);
+}
+
+.wwr-view {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.85rem;
+	height: 1.6rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #61624b);
+	cursor: pointer;
+}
+
+.wwr-view svg {
+	width: 15px;
+	height: 15px;
+	display: block;
+}
+
+.wwr-view:hover {
+	background: rgba(255, 255, 255, 0.8);
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-view.is-on {
+	background: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr--view-code .wwr-out,
+.wwr--view-preview .wwr-panes {
+	display: none;
+}
+
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.wwr--view-code .wwr-panes {
+	border-right: 0;
 }
 
 /* -------------------------------------------------------------------- panes */
 
+/* THE HEIGHT CHAIN, and every link matters.
+ *
+ * The editor used to grow with the file. Add thirty lines and the whole panel
+ * got taller, pushing the console down and out of the card — which is what the
+ * screenshot of a console stranded in the middle of the editor was.
+ *
+ * The culprit was the line-number gutter: it is `white-space: pre` with one line
+ * per row, so its INTRINSIC height is the length of the file. `overflow: hidden`
+ * does not stop that — it stops scrolling, not growing. And because grid and
+ * flex children both default to `min-height: auto`, that intrinsic height was
+ * free to push every ancestor open.
+ *
+ * So each level is pinned: minmax(0, 1fr) tracks here, min-height: 0 on the
+ * children, and the textarea is the ONLY thing that scrolls. Remove any one of
+ * these and the growth comes back. */
 .wwr-body {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
 	min-height: 240px;
 }
 
-/* One-file examples in the lesson are usually short; side-by-side keeps the
- * cause and its effect in one eyeful, which is the entire teaching device. */
+/* One-file examples in the lesson are short; side-by-side keeps the cause and
+ * its effect in one eyeful, which is the entire teaching device. */
 .wwr--single .wwr-body {
 	min-height: 180px;
 }
 
 .wwr-panes {
-	border-right: 1px solid #d5dcc9;
+	border-right: 1.5px solid var(--panel-edge, #e3d9bc);
 	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
 }
 
 .wwr-editor {
 	display: flex;
 	height: 100%;
-	background: #fdfdfa;
+	min-height: 0;
+	background: var(--panel, #fdfaf1);
 }
 
 .wwr-gutter {
@@ -144,11 +286,12 @@
 	padding: 0.6rem 0.4rem 0.6rem 0.6rem;
 	margin: 0;
 	text-align: right;
-	color: #a8b39c;
-	background: #f4f6ed;
-	border-right: 1px solid #e6ead9;
+	color: var(--ink-faint, #9d9c85);
+	background: var(--paper-deep, #ece4cb);
+	border-right: 1px solid var(--panel-edge, #e3d9bc);
 	white-space: pre;
 	overflow: hidden;
+	min-height: 0;
 	user-select: none;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 13px;
@@ -162,12 +305,16 @@
 	resize: none;
 	padding: 0.6rem;
 	background: transparent;
-	color: #26301f;
+	color: var(--ink, #3b4232);
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 13px;
 	line-height: 1.55;
 	tab-size: 2;
-	min-height: 180px;
+	height: 100%;
+	min-height: 0;
+	/* `pre`, not `pre-wrap`: a long line scrolls sideways rather than silently
+	 * rewrapping. Wrapping looks tidier and teaches the wrong thing — a student
+	 * cannot see that their line is 200 characters long if the editor hides it. */
 	white-space: pre;
 	overflow: auto;
 }
@@ -180,78 +327,206 @@
 /* ------------------------------------------------------------ output column */
 
 .wwr-out {
+	position: relative;
 	display: flex;
 	flex-direction: column;
 	min-width: 0;
+	min-height: 0;
+	/* White, not --panel: this is the student's OWN page, and it should look like
+	 * a browser window rather than another panel of ours. */
 	background: #fff;
 }
 
+/* Both buffers occupy the same box; only the live one is visible. Crossfading by
+ * opacity rather than swapping display keeps the layout perfectly still — a
+ * reflow on every render would be its own kind of flicker. */
 .wwr-preview {
-	flex: 1 1 auto;
+	position: absolute;
+	inset: 0;
 	width: 100%;
+	height: 100%;
 	border: 0;
 	background: #fff;
-	min-height: 180px;
+	opacity: 0;
+	pointer-events: none;
 }
 
+.wwr-preview.is-live {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Full-width row under both columns. Height is generous but bounded: a beginner's
+ * first instruction is console.log(data) on the whole 300 KB catalog, and a
+ * three-line box makes that look like the code failed. */
+/* Full-width row under both columns, and RESIZABLE — height is set inline by the
+ * drag handle. How much console a student wants is entirely situational: none at
+ * all while laying out HTML, as much as possible on the chapter that is only
+ * about reading logged data. Anything fixed is wrong for somebody. */
 .wwr-console {
-	border-top: 1px solid #e6ead9;
-	background: #f7f8f2;
-	max-height: 40%;
+	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
+	background: var(--paper, #f4eeda);
 	display: flex;
 	flex-direction: column;
+	flex: 0 0 auto;
+	min-height: 0;
+	overflow: hidden;
 }
 
+.wwr-console.is-collapsed {
+	height: auto;
+}
+
+.wwr-console.is-collapsed .wwr-console-lines {
+	display: none;
+}
+
+/* The header IS the drag handle. A separate 4px grab strip is the conventional
+ * answer and a bad one here: it is a fiddly target on a trackpad, invisible
+ * until you find it, and this bar was otherwise doing nothing but holding a
+ * word. */
 .wwr-console-head {
-	padding: 0.25rem 0.6rem;
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: none;
+	padding: 0.3rem 0.5rem 0.3rem 0.7rem;
 	font-size: 0.72rem;
-	letter-spacing: 0.04em;
+	font-weight: 700;
+	letter-spacing: 0.05em;
 	text-transform: uppercase;
-	color: #7d8a74;
-	border-bottom: 1px solid #e6ead9;
+	color: var(--ink-faint, #66674f);
+	border-bottom: 1px solid var(--panel-edge, #e3d9bc);
+	cursor: ns-resize;
+	user-select: none;
+	touch-action: none;
+}
+
+.wwr-console-head:hover {
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-console-head:focus-visible {
+	outline: 2px solid var(--green, #4a7c59);
+	outline-offset: -2px;
+}
+
+/* Two grip lines, so the bar reads as draggable before anyone tries. */
+.wwr-console-head::after {
+	content: '';
+	width: 26px;
+	height: 6px;
+	margin-left: 0.2rem;
+	border-top: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	opacity: 0.35;
+	order: 1;
+}
+
+.wwr-console-head .wwr-spacer {
+	order: 2;
+}
+
+.wwr-fold {
+	order: 3;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wwr-fold svg {
+	width: 13px;
+	height: 13px;
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.is-collapsed .wwr-fold svg {
+	transform: rotate(-90deg);
+}
+
+.wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+/* While dragging, nothing else on the page should select or steal the cursor —
+ * and the iframes must stop swallowing pointer events, or the drag dies the
+ * moment it crosses the preview. */
+body.wwr-resizing {
+	cursor: ns-resize;
+	user-select: none;
+}
+
+body.wwr-resizing iframe {
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-fold svg {
+		transition: none;
+	}
 }
 
 .wwr-console-lines {
 	margin: 0;
-	padding: 0.4rem 0.6rem;
+	padding: 0.4rem 0.7rem;
 	overflow: auto;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 12.5px;
 	line-height: 1.5;
-	color: #3a4633;
+	color: var(--ink, #3b4232);
 	white-space: pre-wrap;
 	word-break: break-word;
 	min-height: 3.2em;
 }
 
+/* An empty console is ambiguous: it looks identical whether nothing was logged,
+ * the code never ran, or the pane is broken. Say which. */
+.wwr-console-lines:empty::before {
+	content: 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+	color: var(--ink-faint, #66674f);
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-size: 0.82rem;
+}
+
 .wwr-console-line + .wwr-console-line {
-	border-top: 1px dotted #e2e6d8;
+	border-top: 1px dotted var(--panel-edge, #e3d9bc);
 	padding-top: 0.2rem;
 	margin-top: 0.2rem;
 }
 
 .wwr-console-line.is-warn {
-	color: #8a6d1f;
+	color: #77591f; /* 5.30 on --paper */
 }
 
 .wwr-console-line.is-error {
-	color: #9c3b2e;
+	/* --clay measures 3.25 on --paper. This is the line that tells a student
+	   something went wrong; it does not get to be the hardest one to read. */
+	color: #93392c; /* 6.32 */
 }
 
 /* -------------------------------------------------------------- error panel */
 
-/* Warm, not alarming. A red siren teaches beginners that errors are failures;
- * they are the normal state of writing code, and the panel should read like
- * help rather than punishment. */
+/* The site's warm chip palette (.chip.warm), not a red siren. Errors are the
+ * normal state of writing code, and the panel should read like help rather than
+ * punishment — especially for someone whose first ever error this may be. */
 .wwr-error {
-	border-top: 1px solid #edd9b8;
-	background: #fdf6e8;
+	border-top: 1.5px solid #e6d2a8;
+	background: #f7ead2;
 	padding: 0.7rem 0.9rem;
 }
 
 .wwr-error-title {
 	font-weight: 700;
-	color: #7a4f16;
+	color: #6f521c; /* 6.09 on the panel's #f7ead2 */
 	margin-bottom: 0.3rem;
 }
 
@@ -259,10 +534,10 @@
 	display: block;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 12.5px;
-	color: #6b4a2a;
-	background: #f7ecd8;
-	border-radius: 4px;
-	padding: 0.25rem 0.45rem;
+	color: #6f521c; /* 6.62 over the lightened panel */
+	background: rgba(255, 255, 255, 0.55);
+	border-radius: 8px;
+	padding: 0.25rem 0.5rem;
 	margin-bottom: 0.4rem;
 	white-space: pre-wrap;
 	word-break: break-word;
@@ -270,7 +545,7 @@
 
 .wwr-error-help {
 	margin: 0;
-	color: #52412c;
+	color: var(--ink, #3b4232);
 	font-size: 0.92rem;
 	line-height: 1.5;
 }
@@ -293,7 +568,7 @@
 
 	.wwr-panes {
 		border-right: 0;
-		border-bottom: 1px solid #d5dcc9;
+		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
 	}
 
 	.wwr-code,
@@ -305,6 +580,8 @@
 @media (prefers-reduced-motion: reduce) {
 	.wwr-run.is-dirty {
 		animation: none;
-		box-shadow: 0 0 0 3px rgba(74, 124, 89, 0.3);
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 3px rgba(124, 181, 100, 0.4);
 	}
 }

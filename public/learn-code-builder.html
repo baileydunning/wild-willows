@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Code Builder &mdash; write HTML, CSS and JavaScript in your browser</title>
+<meta name="description" content="A free browser code editor for students. Three files, a live preview, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
+<link rel="canonical" href="https://wildwillows.app/learn/code-builder">
+<!-- The builder is a tool, not a document: there is nothing here for a search
+     engine to rank, and an indexed code editor competes with the lesson that
+     explains it. The lesson page and /teachers/coding are the indexable pair. -->
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#2b3149">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Quicksand at the three weights the site uses (body 500, semibold 600,
+     headings 700), loaded the same non-blocking way as every other page. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+<!-- @include public/partials/ww-theme.js -->
+</script>
+
+<style>
+<!-- @include public/partials/site-core.css -->
+<!-- @include public/partials/ww-runner.css -->
+<!-- @include public/partials/ww-builder.css -->
+<!-- @include public/partials/ww-dark.css -->
+</style>
+</head>
+<body class="lab">
+
+<p class="lab-small-screen">This works best on a laptop or a tablet with a keyboard &mdash; writing code on a phone is hard going.</p>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers">For teachers</a>
+    <a class="hide-sm" href="/">The game</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="lab-bar">
+  <h1>Code Builder</h1>
+  <span class="lab-spacer"></span>
+  <button type="button" class="btn btn-go" id="lab-ideas-open"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.6v.1h6v-.1c0-.6.3-1.2.8-1.6A6.5 6.5 0 0 0 12 2.5z"/></svg> Ideas</button>
+  <button type="button" class="btn btn-paper" id="lab-undo" hidden>Undo</button>
+  <button type="button" class="btn btn-paper" id="lab-import">Open&hellip;</button>
+  <input type="file" id="lab-import-input" accept=".html,text/html" hidden>
+  <button type="button" class="btn btn-paper" id="lab-download">Download</button>
+  <button type="button" class="btn btn-paper" id="lab-reset">Start over</button>
+  <p class="lab-status" id="lab-status" role="status" aria-live="polite"></p>
+</div>
+
+<main class="lab-main">
+  <aside class="lab-side">
+    <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
+         deliberately: once they have chosen something to build, the brief is
+         what they are working to and the checkpoints become reference. -->
+    <section class="lab-section lab-brief" id="lab-current-idea" hidden>
+      <h2>What you&rsquo;re building</h2>
+      <h3 class="brief-title" id="lab-brief-title"></h3>
+      <p class="brief-what" id="lab-brief-what"></p>
+      <p class="brief-data" id="lab-brief-data"></p>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-paper" id="lab-brief-change">Pick another</button>
+        <button type="button" class="btn btn-paper" id="lab-brief-clear">Clear</button>
+      </div>
+    </section>
+
+    <details class="lab-section lab-details" id="lab-checkpoints-details" open>
+      <summary>Checkpoints <span class="cp-count" id="lab-cp-count"></span></summary>
+      <ol id="lab-checkpoints"></ol>
+    </details>
+
+    <details class="lab-section lab-details" id="lab-help-details" open>
+      <summary>Need help?</summary>
+      <div id="lab-help"></div>
+    </details>
+
+    <div class="lab-section">
+      <p class="lab-note">
+        Your code stays in this browser. It is never sent to us, and there is no
+        account to make. Use <b>Download</b> to keep a copy you can open on any computer.
+      </p>
+    </div>
+  </aside>
+
+  <section class="lab-stage">
+    <!-- console: the lesson sends students here straight after chapter 4, and a
+         locked-down Chromebook makes DevTools a bad answer.
+         `manual` is deliberately NOT set: the preview follows their typing, and
+         Run is there for students who want cause and effect to be discrete. -->
+    <ww-runner console label="Your project">
+      <script type="text/ww-file" name="index.html">
+        <h1>Wild Willows Explorer</h1>
+        <p id="message">Loading game data...</p>
+      </script>
+      <script type="text/ww-file" name="styles.css">
+        body {
+          font-family: sans-serif;
+          padding: 2rem;
+        }
+
+        h1 {
+          color: seagreen;
+        }
+      </script>
+      <script type="text/ww-file" name="main.js">
+        async function loadGameData() {
+          const response = await fetch("https://wildwillows.app/GameData/");
+          const data = await response.json();
+
+          // TODO: put something from `data` on the page
+          console.log(data);
+        }
+
+        loadGameData();
+      </script>
+    </ww-runner>
+
+    <p class="lab-note">
+      The preview updates a moment after you stop typing. Press <b>Run</b> to update it straight away.
+    </p>
+  </section>
+</main>
+
+<div class="lab-modal" id="lab-ideas" hidden role="dialog" aria-modal="true" aria-labelledby="lab-ideas-title">
+  <div class="lab-modal-inner">
+    <h2 id="lab-ideas-title">Something to build</h2>
+    <p class="lab-modal-sub">Every one of these uses the real Wild Willows data. Pick one, or shuffle for three more.</p>
+
+    <div class="lab-filters">
+      <span>How hard:</span>
+      <button type="button" class="chip on" data-idea-filter="level" data-value="all">Any</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="easy">Easy</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="medium">Medium</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="ambitious">Ambitious</button>
+    </div>
+    <div class="lab-filters">
+      <span>Practice:</span>
+      <button type="button" class="chip on" data-idea-filter="uses" data-value="all">Anything</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="if">if / else</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="filter">.filter()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="map">.map()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="sort">.sort()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="reduce">.reduce()</button>
+    </div>
+
+    <div class="idea-cards" id="lab-idea-cards"></div>
+
+    <div class="lab-modal-actions">
+      <button type="button" class="btn btn-paper" id="lab-ideas-shuffle"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4"/><circle cx="8.4" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="8.4" cy="15.6" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="15.6" r="1.35" fill="currentColor" stroke="none"/></svg> Shuffle</button>
+      <button type="button" class="btn btn-go" id="lab-ideas-surprise">Surprise me</button>
+      <button type="button" class="btn btn-paper" id="lab-ideas-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+<!-- @include public/partials/ww-runner.js -->
+</script>
+<script>
+<!-- @include public/partials/ww-builder.js -->
+</script>
+</body>
+</html>

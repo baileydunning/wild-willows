@@ -65,6 +65,7 @@ import {
 	dashboardHtml,
 	landingHtml,
 	teachersHtml,
+	learnCodeBuilderHtml,
 	ogImageB64,
 	buildStamp,
 } from './pages';
@@ -12897,6 +12898,13 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	// and share. Harper serves /teachers.html too (it strips the suffix), which
 	// costs nothing and cannot be linked to by accident.
 	teachers: { path: '/teachers', redirect: true, sitemap: true },
+	// The classroom student pages live under /learn/<slug>, resolved by ONE
+	// resource reading getId() — the same shape /img/<name>.webp already uses.
+	// The builder is `noindex` in its own <head> (it is a tool, not a document,
+	// and an indexed code editor competes with the lesson that explains it), so
+	// it is deliberately absent from the sitemap while still canonicalising to
+	// the apex like every other page.
+	'learn-code-builder': { path: '/learn/code-builder', redirect: true, sitemap: false },
 	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
 	// the only thing on the site aimed squarely at teachers searching for a
 	// classroom ecology resource. No redirect: they are not served through
@@ -13040,6 +13048,40 @@ class DashboardPage extends PublicEndpoint {
 class TeachersPage extends PublicEndpoint {
 	async get() {
 		return htmlPage(this, 'teachers', teachersHtml);
+	}
+}
+
+/**
+ * GET /learn/<slug> — the classroom student pages.
+ *
+ * One resource for the whole section, dispatching on getId(), because Harper
+ * resolves the FIRST path segment to a resource and hands the rest to getId() —
+ * the same mechanism the screenshot endpoint uses for /img/<name>.webp. A
+ * resource per page would need one export per page and give /learn itself
+ * nothing to serve.
+ *
+ * Unknown slugs 404 from an explicit map rather than falling through to a
+ * default page: a typo'd link a teacher hands thirty students should say so
+ * plainly, not silently serve them the wrong lesson.
+ */
+const LEARN_PAGES: Record<string, { key: string; html: string }> = {
+	'code-builder': { key: 'learn-code-builder', html: learnCodeBuilderHtml },
+};
+
+class LearnPage extends PublicEndpoint {
+	async get() {
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(LEARN_PAGES, slug) ? LEARN_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
 	}
 }
 
@@ -13328,6 +13370,7 @@ export {
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,
 	TeachersPage as teachers,
+	LearnPage as learn,
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',
