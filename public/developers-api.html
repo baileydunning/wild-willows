@@ -47,7 +47,7 @@
       "license": "https://wildwillows.app/developers/api#terms",
       "potentialAction": {
         "@type": "ConsumeAction",
-        "target": { "@type": "EntryPoint", "urlTemplate": "https://wildwillows.app/GameData/", "httpMethod": "GET", "contentType": "application/json" }
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://wildwillows.app/GameData", "httpMethod": "GET", "contentType": "application/json" }
       }
     },
     {
@@ -61,7 +61,7 @@
       "distribution": {
         "@type": "DataDownload",
         "encodingFormat": "application/json",
-        "contentUrl": "https://wildwillows.app/GameData/"
+        "contentUrl": "https://wildwillows.app/GameData"
       }
     },
     {
@@ -99,6 +99,7 @@
     <a class="hide-sm" href="#start">Quick start</a>
     <a class="hide-sm" href="#animal">The animal object</a>
     <a class="hide-sm" href="#limits">Limits</a>
+    <a class="hide-sm" href="#corrections">Corrections</a>
     <a class="hide-sm" href="#terms">Terms</a>
     <a class="btn btn-go" href="/learn" data-track="learn-nav">Learn to use it</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
@@ -137,10 +138,10 @@
 <section class="tsec" id="start">
   <h2>Quick start</h2>
   <p>One endpoint. There are no parameters, no pagination and no other routes: you take the whole thing and pick what you want out of it.</p>
-  <pre class="hcode">GET https://wildwillows.app/GameData/</pre>
+  <pre class="hcode">GET https://wildwillows.app/GameData</pre>
 
   <p class="answer-head">JavaScript &mdash; browser or Node</p>
-  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData");
 const data = await res.json();
 
 const meadow = data.animals.filter((a) =&gt; a.biome === "meadow");
@@ -150,7 +151,7 @@ console.log(meadow.slice(0, 3).map((a) =&gt; `${a.name} — ${a.diet}`).join("\n
   <p class="answer-head">Python &mdash; standard library, nothing to install</p>
   <pre class="hcode">import json, urllib.request
 
-with urllib.request.urlopen("https://wildwillows.app/GameData/") as r:
+with urllib.request.urlopen("https://wildwillows.app/GameData") as r:
     data = json.load(r)
 
 meadow = [a for a in data["animals"] if a["biome"] == "meadow"]
@@ -165,7 +166,7 @@ Prairie Vole — grasses, sedges, seeds and roots, plus bark in winter
 Monarch Butterfly — caterpillars eat only milkweed; adults sip flower nectar</pre>
 
   <p class="answer-head">curl</p>
-  <pre class="hcode">curl -s https://wildwillows.app/GameData/ \
+  <pre class="hcode">curl -s https://wildwillows.app/GameData \
   | jq -r '.animals[] | select(.biome == "meadow" and .trophic == "apex-predator") | .name'
 
 Red-tailed Hawk
@@ -295,7 +296,7 @@ Barn Owl</pre>
 
   <h3>1. The arrival ladder</h3>
   <p>Sort a biome by <code>minHealth</code> and you get the order life comes back in. Read <code>requirements.animals</code> alongside it and you can see why the hunters are at the bottom of the list.</p>
-  <pre class="hcode">const data = await (await fetch("https://wildwillows.app/GameData/")).json();
+  <pre class="hcode">const data = await (await fetch("https://wildwillows.app/GameData")).json();
 
 const ladder = data.animals
   .filter((a) =&gt; a.biome === "meadow")
@@ -320,7 +321,7 @@ for (const a of ladder.slice(0, 8)) {
   <pre class="hcode">import requests
 from collections import Counter
 
-data = requests.get("https://wildwillows.app/GameData/", timeout=30).json()
+data = requests.get("https://wildwillows.app/GameData", timeout=30).json()
 
 counts = Counter(a["trophic"] for a in data["animals"])
 for role, n in counts.most_common():
@@ -353,15 +354,63 @@ console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`
       <thead><tr><th>Header</th><th>Value</th><th>What it means for you</th></tr></thead>
       <tbody>
         <tr><td><code>access-control-allow-origin</code></td><td class="tight"><code>*</code></td><td>Read it straight from a browser. A plain <code>fetch(url)</code> with no custom headers is never preflighted, so there is nothing else to configure.</td></tr>
-        <tr><td><code>cache-control</code></td><td class="tight"><code>no-cache</code></td><td>Not &ldquo;do not cache&rdquo;. It means cache it and revalidate, which is what you want: the data changes only when the game ships a build.</td></tr>
-        <tr><td><code>etag</code></td><td class="tight">build stamp</td><td>Send it back as <code>If-None-Match</code> and an unchanged catalog costs you a 304 with an empty body instead of half a megabyte.</td></tr>
+        <tr><td><code>cache-control</code></td><td class="tight"><code>public, max-age=600,<br>s-maxage=86400</code></td><td>Two answers in one header: your browser may keep it for ten minutes, a shared cache for a day. See <a href="#caching-explained">what that means</a> below.</td></tr>
+        <tr><td><code>etag</code></td><td class="tight">build stamp</td><td>Send it back as <code>If-None-Match</code> and an unchanged catalog answers with a 304 and an empty body instead of half a megabyte. Cheap, not free: it is still a request and a round trip, so it is a fallback for code that has to check, not a substitute for keeping the result.</td></tr>
         <tr><td><code>content-encoding</code></td><td class="tight">br / gzip</td><td>Negotiated from your <code>Accept-Encoding</code>. Every HTTP client you are likely to use asks for this by default.</td></tr>
         <tr><td><code>vary</code></td><td class="tight"><code>Accept-Encoding</code></td><td>So a shared cache does not hand a gzip body to a client that cannot read it.</td></tr>
         <tr><td><code>retry-after</code></td><td class="tight"><code>60</code></td><td>Only on a <code>429</code>. Wait that long and you come back to a full budget rather than to another refusal.</td></tr>
       </tbody>
     </table>
   </div>
-  <p class="note-line">Only <code>GET</code> and <code>HEAD</code>. There is no <code>POST</code>, no auth, no write path, and nothing that takes a parameter &mdash; so there is also nothing here that can be injected into.</p>
+  <h3 id="caching-explained">What caching is, and which kind is doing what here</h3>
+
+  <p><b>Caching is keeping a copy of an answer so you do not have to ask for it again.</b> That is the whole idea. Everything below is a variation on where the copy is kept and how long it is trusted, and the reason anyone bothers is that asking again is slow, costs somebody money, and can fail. This response is about half a megabyte and changes when the game ships a build, which makes it close to the ideal thing to cache: large, identical for everybody, and rarely different.</p>
+
+  <p>There are three copies in play between this server and your code, and they are worth telling apart.</p>
+
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Kind</th><th>Where the copy lives</th><th>What it is set to here</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><b>Browser cache</b><br><span class="tight">private</span></td>
+          <td>On the machine that asked. Yours alone, which is why it is called a private cache: it may hold a response nobody else is allowed to see.</td>
+          <td><b>Ten minutes.</b> Press Run twenty times in a lesson and you send one request, not twenty. Ship a build and it is visible within ten minutes without anyone clearing anything.</td>
+        </tr>
+        <tr>
+          <td><b>Shared cache</b><br><span class="tight">CDN / edge</span></td>
+          <td>On a machine between you and the origin, holding one copy for everyone who asks. This site sits behind Cloudflare, so that machine is usually a few miles from you.</td>
+          <td><b>One day</b>, and a deploy purges it. Most requests are answered here and never reach the database at all, which is what lets the limits below be generous.</td>
+        </tr>
+        <tr>
+          <td><b>Your own copy</b><br><span class="tight">in your program</span></td>
+          <td>A variable, a file on disk, a row in your database. Nothing to do with HTTP: you decide when to throw it away.</td>
+          <td><b>Up to you, and it is the one that matters.</b> Fetch the catalog once when your program starts and keep it. That is the difference between one request and one per page view.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h4>How a cache decides it is still allowed to answer</h4>
+
+  <p>Two mechanisms, and this endpoint uses both.</p>
+
+  <p><b>An expiry.</b> <code>cache-control</code> carries a number of seconds, and until it runs out the cached copy is served with no request at all. <code>max-age</code> is the number for a private cache and <code>s-maxage</code> is the one for a shared cache, which is how one header gives your browser ten minutes and Cloudflare a day. Nothing goes over the network in that window, which is why it is the fastest possible answer and also why it is the one that can be out of date.</p>
+
+  <p><b>A validator.</b> When the copy does age out, the cache does not start from nothing: it sends the <code>etag</code> it kept and asks whether that version is still current. If it is, the answer is <code>304 Not Modified</code> with no body, and the old copy is reused. Half a megabyte becomes a few hundred bytes. It is not free, though, and this is the part that is easy to get wrong: a 304 is still a request, still a round trip, and still counts against the <a href="#limits">rate limit</a>. Cheap is not the same as nothing.</p>
+
+  <h4>Why any of this is your problem</h4>
+
+  <ul class="tlist">
+    <li><b>It is most of what makes a page feel fast.</b> A cached response arrives in single-digit milliseconds. Half a megabyte over school wifi does not.</li>
+    <li><b>It is what keeps a free API free.</b> One classroom re-running a fetch example is thirty machines asking the same question at the same moment. Answered from a cache that costs nothing; answered from a database it is a bill and, eventually, a limit.</li>
+    <li><b>It works offline, briefly.</b> A response inside its expiry window is served even if the network is not there.</li>
+    <li><b>And it is the classic source of &ldquo;but I fixed that&rdquo;.</b> Every cache is a promise that something has not changed, so every cache can be wrong. That is what the purge on deploy and the ten-minute browser window are for: bounded staleness rather than none, chosen on purpose.</li>
+  </ul>
+
+  <p class="sub">One place a cache cannot help the client, and it is worth knowing why: the classroom editor runs student code in a sandboxed frame on an opaque origin, so it sends a real request every time and never a conditional one. Those still land in the shared cache above, which is what keeps them off the database. It is the <a href="#limits">rate limit</a> they count against, and that is what the arithmetic below is about.</p>
+
+  <p class="note-line">Only <code>GET</code> and <code>HEAD</code>. There are no request parameters and no write operations, which keeps the public attack surface intentionally small.</p>
 </section>
 
 <section class="tsec" id="limits">
@@ -379,9 +428,11 @@ console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`
   </div>
 
   <h3>Where those numbers come from</h3>
-  <p>Not from a guess. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every re-run is a fresh full request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
-  <p>So the arithmetic is thirty students behind one school NAT, each averaging twenty runs a minute while they work: 600 a minute from a single address, all of it people doing exactly what the lesson asked. That is the sustained rate. The burst is a class pressing Run at the same moment, twice over.</p>
-  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. The <code>etag</code> makes every repeat free.</p>
+  <p>Not from a guess, and not from what the origin sees. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every press of Run is a real request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
+  <p>So the arithmetic is thirty students behind one school NAT, each pressing Run twenty times in a period: 600 requests a minute from a single address, all of it people doing exactly what the lesson asked. That is where the sustained number comes from. The burst is a class pressing Run at the same moment, twice over.</p>
+  <p><b>Most of those never arrive here.</b> They are answered by the <a href="#caching-explained">shared cache</a> a few miles from the school, which is the arrangement that makes a limit like this affordable: what the origin actually meets is the requests that miss that cache. The number is deliberately left at the full classroom figure anyway, so that a class stays under it even on the day the cache is cold, or purged, or switched off.</p>
+  <p class="note-line">Which is the short version of the whole page: the limit is not there to make you cache. The cache is already doing that. The limit is there so one address cannot spoil the endpoint for everyone else.</p>
+  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. Sending the <code>etag</code> back makes a repeat cheap rather than free: half a megabyte becomes a few hundred bytes, but it is still a request, and the limit counts requests.</p>
 
   <h3>What a refusal looks like</h3>
   <p>A <code>429</code> with the CORS header on it, so it reaches your <code>catch</code> as a real status rather than as an opaque network failure, and a plain-language body you can show a user.</p>
@@ -392,7 +443,7 @@ cache-control: no-store
 
 Too many requests for the game catalog. It changes only when the game
 ships a build, so fetch it once and keep it. Wait a minute and try again.</pre>
-  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData");
 if (res.status === 429) {
   const wait = Number(res.headers.get("retry-after") || 60);
   console.log(`Rate limited. Try again in ${wait}s.`);
@@ -418,27 +469,56 @@ if (res.status === 429) {
     <div class="cut skip">
       <b>May change without warning</b>
       <ul>
-        <li>Species being added. Treat 150 as a floor rather than a constant.</li>
+        <li>Species being added or changed. Treat 150 as a floor rather than a constant.</li>
         <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
         <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
         <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
       </ul>
     </div>
   </div>
-  <p class="sub">If you build something that depends on this and you tell me what you are depending on, I will treat it as load-bearing. That is a better offer than a version number I might not honor.</p>
+  <p class="sub">If you build something that depends on this and you tell me what you are depending on, I will treat it as load-bearing. That is a better offer than a version number I might not honor. If what you have found is not a change but a mistake, <a href="#corrections">ask me to fix it</a>.</p>
+</section>
+
+<section class="tsec" id="corrections">
+  <h2>Something in the data is wrong. Now what?</h2>
+  <p>Ask me to change it, and I will. The catalog is one file compiled from cited sources, so a correction is an edit to the source data rather than a note appended to a page: once it goes out, every copy of the game and everyone reading this endpoint gets the fixed version.</p>
+
+  <p><b>Email <a href="mailto:wildwillowsgame@gmail.com?subject=Wild%20Willows%20data">wildwillowsgame@gmail.com</a></b> with as much of this as you have. None of it is required, but each part is one fewer thing I have to work out:</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Tell me</th><th>Example</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>The <code>id</code></td><td class="tight"><code>red-fox</code></td><td>Names repeat across regions and ids do not. It is the first field on every record.</td></tr>
+        <tr><td>The field</td><td class="tight"><code>diet</code>, <code>eats</code>, <code>fact</code></td><td>Says whether this is a wording fix, a food-web link, or a number.</td></tr>
+        <tr><td>What it should say</td><td class="tight">&ldquo;also takes insects and fruit&rdquo;</td><td>A proposed correction moves faster than a report that something is off.</td></tr>
+        <tr><td>Where that comes from</td><td class="tight">a link, a paper, a field guide</td><td>Every record carries its own <code>sources</code>, and a correction has to be able to join them.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>What happens next</h3>
+  <p>I check the claim against the record&rsquo;s existing <code>sources</code> and against yours. If they disagree I will tell you which one I went with and why. A fix lands in the data file, the tests that guard the shape of every record have to pass, and it ships with the next build &mdash; at which point the <code>etag</code> changes, the edge copy is purged, and your next request gets the new catalog without you doing anything.</p>
+  <p>Some things I will push back on, and it is fairer to say so here than in a reply. This is a game catalog: diets are simplified to what a ten-year-old can act on, one species eats a handful of others rather than forty, and the <code>requirements</code> are a designer&rsquo;s model of succession rather than a published one. A correction that makes a record more accurate and still playable gets in. One that makes it more accurate and unplayable probably does not, and I will say which of the two I think it is.</p>
+
+  <h3>Other kinds of request</h3>
+  <ul class="tlist">
+    <li><b>A species is missing.</b> Send it with a source and a biome. The six biomes hold 25 each and that count is fixed, so an addition is usually a swap; tell me what you think it should replace and why.</li>
+    <li><b>A field you wish existed.</b> Say what you would do with it. Fields that carry a real use get added far more easily than fields that would be nice to have.</li>
+    <li><b>You are depending on something.</b> Not a correction, but the most useful mail I get. Tell me which fields your project reads and I will treat them as load-bearing rather than finding out by breaking you.</li>
+  </ul>
+  <p class="sub">One person reads this inbox, so there is no ticket number and no service-level promise. There is a reply, and data corrections go to the front of the queue &mdash; a wrong fact that a class reads is worse than a bug in the game.</p>
 </section>
 
 <section class="tsec" id="terms">
   <h2>Using it, and using it kindly</h2>
-  <p><b>Use it for whatever you like</b> &mdash; a class project, a visualisation, a bot, a game of your own, a paper. No permission needed and no attribution required, though a link back is appreciated and I would genuinely like to see what you make.</p>
-  <p><b>Fetch it once, not in a loop.</b> The whole catalog arrives in one response and does not change between deploys, so there is never a reason to request it more than once per session. If you are serving it on to other people, cache it and honor the <code>etag</code>. The <a href="#limits">rate limit</a> is set well above that, and staying well below it is free.</p>
-  <p><b>The species facts are cited, not invented.</b> Each record carries its <code>sources</code>. If you find something wrong, tell me and I will fix the data rather than the page &mdash; several corrections have come in that way already.</p>
+  <p><b>Use it for whatever you like</b> &mdash; a class project, a visualization, a bot, a game of your own, a paper. No permission needed and no attribution required, though a link back is appreciated and I would genuinely like to see what you make.</p>
+  <p><b>Fetch it once, not in a loop.</b> The whole catalog arrives in one response and does not change between deploys, so there is never a reason to request it more than once per session. If you are serving it on to other people, cache it and honor the <code>etag</code>. The <a href="#limits">rate limit</a> is set well above that, and nothing bad happens to you for sitting comfortably under it.</p>
   <p class="sub">Not suitable as a scientific reference. It is a carefully-sourced game catalog: real species with real diets and real relationships, simplified enough to be played. The <code>requirements</code> are a game designer's model of succession, not a published one.</p>
 </section>
 
 <section class="tsec" id="learn">
   <h2>If this is your first API</h2>
-  <p>There is a free ten-chapter lesson built on exactly this endpoint, with an editor that runs your code as you type and explains errors in plain language. It was written for a high-school classroom and it works fine on your own.</p>
+  <p>There is a free ten-chapter lesson built on exactly this endpoint, with an editor that runs your code on a button press and explains errors in plain language. It was written for a high-school classroom and it works fine on your own.</p>
   <div class="two-up">
     <a class="tile" href="/learn/web-development" data-track="learn-nav">
       <span class="tile-k">Start here</span>
@@ -448,7 +528,7 @@ if (res.status === 429) {
     <a class="tile" href="/learn/code-builder" data-track="learn-nav">
       <span class="tile-k">Or build something</span>
       <b>The Code Builder</b>
-      <span>Three files and a live preview, thirty project ideas, and a download button. Your code stays in your browser.</span>
+      <span>Three files and a preview, thirty project ideas, and a download button. Your code stays in your browser.</span>
     </a>
   </div>
   <p class="sub">Teaching with it? There is an <a href="/teachers/coding" data-track="edu-nav">educator guide</a> with a lesson plan, an answer key and a troubleshooting table.</p>
@@ -458,9 +538,8 @@ if (res.status === 429) {
   <h2>Built something?</h2>
   <p>I would like to see it, and if you are depending on part of this I would rather know than find out by breaking it. Bug reports about the data itself are especially welcome &mdash; a wrong diet is a thing I can fix.</p>
   <div class="cta-row">
-    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
-    <a class="btn btn-paper" href="/learn" data-track="learn-nav">The lesson</a>
-    <a class="btn btn-paper" href="/" data-track="play">The game</a>
+    <a class="btn btn-go" href="https://www.reddit.com/r/wildwillows/" target="_blank" rel="noopener" data-track="reddit">r/wildwillows<span class="sr-only"> (opens in a new tab)</span></a>
+    <a class="btn btn-paper" href="mailto:wildwillowsgame@gmail.com">Email me</a>
   </div>
 </div>
 
@@ -510,7 +589,7 @@ if (res.status === 429) {
     else setTimeout(function () { report(opening); }, 500);
   }
 
-  var NAV = { 'learn-nav': 'nav_learn', 'edu-nav': 'nav_hub', play: 'nav_game' };
+  var NAV = { 'learn-nav': 'nav_learn', 'edu-nav': 'nav_hub', play: 'nav_game', reddit: 'nav_reddit' };
   document.addEventListener('click', function (e) {
     var a = e.target && e.target.closest && e.target.closest('a[data-track]');
     if (!a) return;

@@ -43,7 +43,7 @@ describe('the /developers section routes', () => {
 
 	it('documents the endpoint it is about, and links to the lesson', async () => {
 		const body = String((await dev('api')).body);
-		expect(body).toContain('https://wildwillows.app/GameData/');
+		expect(body).toContain('https://wildwillows.app/GameData');
 		expect(body).toContain('/learn/web-development');
 	});
 });

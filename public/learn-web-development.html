@@ -38,6 +38,7 @@
     <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="hide-sm" href="/developers/api" target="_blank" rel="noopener" data-track="api-nav">API docs<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4.5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
     <a class="btn btn-paper" href="/learn/code-builder" data-track="builder-nav">Code Builder</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -70,7 +71,7 @@
 
 <header class="lhero">
   <h1>Build with Wild Willows</h1>
-  <p class="lead">Ten chapters that take you from &ldquo;what is HTML&rdquo; to a webpage you built yourself, filled with live data from a real API. Every code sample below is editable and runs as you type. You cannot get to the bottom of this page without having written something.</p>
+  <p class="lead">Ten chapters that take you from &ldquo;what is HTML&rdquo; to a webpage you built yourself, filled with live data from a real API. Every code sample below is editable, and you press Run when you want to see what it does. You cannot get to the bottom of this page without having written something.</p>
   <div class="lmeta">
     <span class="chip">No account</span>
     <span class="chip">Nothing to install</span>
@@ -79,6 +80,47 @@
   <p class="small-screen">This page works on a phone, but the code editors are much easier on a laptop or a tablet with a keyboard.</p>
   <noscript><p class="nojs" style="display:block;margin-top:1rem">JavaScript is switched off, so the editors below will not run. You can still read every chapter: each example is printed in full.</p></noscript>
 </header>
+
+<!-- ==================================================== looking things up -->
+<section class="ch" id="look-things-up">
+  <div class="ch-head">
+    <span class="ch-num">Before you start</span>
+    <h2>Looking things up</h2>
+    <p class="sub">Where the answers are, and the one question worth asking about code you did not write.</p>
+  </div>
+
+  <p>Nobody who writes web pages for a living has this memorized. Not the property names, not the arguments a method takes, not the order of the two things inside <code>.reduce()</code>. They look it up, several times a day, and then they look the same thing up again next month. Learning where to look is not a fallback for when this lesson lets you down. It is the part of the job that lasts.</p>
+
+  <p>The search that works is plain words plus <code>mdn</code>: <span class="qtext">css center a div mdn</span>, or <span class="qtext">javascript sort array of objects mdn</span>. That one habit answers most of what you will want to know between here and your first real project.</p>
+
+  <div class="ltable-scroll">
+    <table class="ltable">
+      <thead><tr><th>Where</th><th>What it is for</th></tr></thead>
+      <tbody>
+        <tr><td>The error panel on this page</td><td>First stop, every time. It names the line and usually the mistake, which answers about half the questions you were going to type into a search box.</td></tr>
+        <tr><td><a href="https://developer.mozilla.org/" target="_blank" rel="noopener">MDN Web Docs<span class="sr-only"> (opens in a new tab)</span></a></td><td>The reference, written by the people who build browsers. Every property, every method, with examples. This is the one professionals have open.</td></tr>
+        <tr><td><a href="https://javascript.info/" target="_blank" rel="noopener">javascript.info<span class="sr-only"> (opens in a new tab)</span></a></td><td>For when MDN assumes something you do not have yet. Same accuracy, taught rather than listed.</td></tr>
+        <tr><td><a href="https://caniuse.com/" target="_blank" rel="noopener">caniuse.com<span class="sr-only"> (opens in a new tab)</span></a></td><td>&ldquo;Does this actually work in real browsers.&rdquo; One search, a color-coded table, done.</td></tr>
+        <tr><td><a href="https://stackoverflow.com/" target="_blank" rel="noopener">Stack Overflow<span class="sr-only"> (opens in a new tab)</span></a></td><td>Somebody hit your exact error in 2019 and asked about it. Read the comments under the accepted answer as well as the answer: that is usually where the correction is.</td></tr>
+        <tr><td><a href="https://devdocs.io/" target="_blank" rel="noopener">DevDocs<span class="sr-only"> (opens in a new tab)</span></a></td><td>Every reference in one fast search box, and it works offline once loaded. Useful on a school laptop that blocks half the internet.</td></tr>
+        <tr><td>Your browser&rsquo;s developer tools</td><td>Right-click anything on any page and choose Inspect. It is the page you are looking at, opened up, and it is the same panel you have been using here.</td></tr>
+        <tr><td><a href="https://eloquentjavascript.net/" target="_blank" rel="noopener">Eloquent JavaScript<span class="sr-only"> (opens in a new tab)</span></a></td><td>The long version, free online, in book form. For when you want to know why rather than how.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="cap">One warning about search results. <b>W3Schools</b> ranks first for almost every question a beginner types, and it is frequently out of date and sometimes quietly wrong. If it is the only page you can reach, use it and check anything surprising against MDN.</p>
+
+  <h3>Code you did not write</h3>
+
+  <p>There is one question worth asking about any code you did not write yourself, whether it came from a forum, a friend, or a chatbot: <strong>could you tell if it was wrong?</strong> If yes, use it. If no, that is not a reason to avoid it. It is the thing to go and learn next.</p>
+
+  <h3>About AI</h3>
+
+  <p>A lot of professional software engineers use it, and there is no version of this advice where you never touch it. But there is a difference between using a tool to go faster at something you understand and using it to skip understanding. For the next ten chapters, the code is small on purpose, and typing it yourself is not busywork: it is the only thing that builds the judgment you will need later, when the AI hands you 200 lines and asks you to decide whether they are right.</p>
+
+  <p class="backref">Your teacher may have a rule about this, and their rule wins.</p>
+</section>
 
 <!-- ============================================================ chapter 1 -->
 <section class="ch" id="chapter-1">
@@ -89,7 +131,7 @@
   </div>
 
   <h3>HTML: what is here?</h3>
-  <p>HTML is labeled text. A <code>&lt;h1&gt;</code> is a heading, a <code>&lt;p&gt;</code> is a paragraph, and the labels are what tell the browser which is which. Change the words and press nothing: it updates as you type.</p>
+  <p>HTML is labeled text. A <code>&lt;h1&gt;</code> is a heading, a <code>&lt;p&gt;</code> is a paragraph, and the labels are what tell the browser which is which. Change the words and press <b>Run</b>: the panel beside the code is your page.</p>
 
   <ww-runner label="index.html" data-concept="chapter_1_reached">
     <script type="text/ww-file" name="index.html">
@@ -116,7 +158,7 @@
     <pre class="static-fallback">h1 { color: forestgreen; }
 p  { font-size: 18px; }</pre>
   </ww-runner>
-  <p class="cap"><strong>Your first challenge, ten seconds in:</strong> change <code>forestgreen</code> to your favorite color and watch the heading change. Try <code>rebeccapurple</code>, <code>tomato</code>, or <code>#4a7c59</code>.</p>
+  <p class="cap"><strong>Your first challenge, ten seconds in:</strong> change <code>forestgreen</code> to your favorite color, press <b>Run</b>, and watch the heading change. Try <code>rebeccapurple</code>, <code>tomato</code>, or <code>#4a7c59</code>.</p>
 
   <h3>JavaScript: what does it do?</h3>
   <p>JavaScript makes a page respond. Also three ideas: <strong>find</strong> the element, <strong>listen</strong> for something to happen, <strong>change</strong> it. Click the heading in the preview.</p>
@@ -265,7 +307,7 @@ color: rgb(74 124 89 / 40%);     /* the same, 40% see-through */</pre>
   margin: 8px;     /* outside */
 }</pre>
   </ww-runner>
-  <p class="cap">Set <code>padding</code> to <code>0</code> and watch the words hit the edge. Set <code>margin</code> to <code>0</code> and watch the two cards touch. The background color makes the difference visible, which is why it is there.</p>
+  <p class="cap">Set <code>padding</code> to <code>0</code>, press <b>Run</b>, and watch the words hit the edge. Set <code>margin</code> to <code>0</code> and watch the two cards touch. The background color makes the difference visible, which is why it is there.</p>
 
   <p>One value applies to all four sides. Two means vertical then horizontal, which is the form you will write most:</p>
   <pre class="snippet">padding: 16px;              /* all four sides */
@@ -586,8 +628,64 @@ h1, h2  { color: var(--ink); }</pre>
   <div class="ch-head">
     <span class="ch-num">Chapter 3</span>
     <h2>JavaScript can change HTML</h2>
-    <p class="sub">This is the idea that everything else in this lesson is built on. It is worth two minutes.</p>
+    <p class="sub">Two ideas everything else is built on: giving a value a name, and reaching into the page to change it. Worth five minutes.</p>
   </div>
+
+  <h3>First, a name for a thing</h3>
+
+  <p>Every JavaScript example so far has started the same way, and the lesson has not said what that line does. <code>const heading = document.querySelector("h1")</code> makes a <strong>variable</strong>: it takes a value and gives it a name, so that every line after it can say the name instead of doing the work again.</p>
+
+  <p>There are three parts. <code>const</code> announces that a name is being made. <code>heading</code> is the name, and you choose it. The <code>=</code> attaches one to the other, and it is not the equals sign of arithmetic: it does not ask whether two things are the same, it works out whatever is on its right and points the name at the answer.</p>
+
+  <h4>Three words that make a name, and the one to use</h4>
+
+  <div class="ltable-scroll">
+    <table class="ltable">
+      <thead><tr><th>Word</th><th>What it does</th><th>Use it</th></tr></thead>
+      <tbody>
+        <tr><td><code>const</code></td><td>Makes a name and refuses to let it be pointed at something else later.</td><td><b>Almost always.</b> Every example on this page uses it unless there is a reason not to.</td></tr>
+        <tr><td><code>let</code></td><td>Makes a name that can be pointed at something else later.</td><td>When the thing genuinely changes: a running total, a counter, a value that gets replaced.</td></tr>
+        <tr><td><code>var</code></td><td>The old way. Makes a name that leaks out of the block it was written in.</td><td><b>Not in new code.</b> You will meet it in older examples online, and it is worth recognizing rather than copying.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p>Use <code>const</code> until something has to change, then <code>let</code>. Starting with <code>const</code> is not caution for its own sake: a name that cannot be repointed is one fewer thing that can quietly become something else halfway down a file you are still reading.</p>
+
+  <p>One thing <code>const</code> does <em>not</em> do, which catches people out: it protects the name, not what the name holds. A list can still gain and lose items.</p>
+
+  <pre class="snippet">const animals = ["Red Fox"];
+animals.push("Barn Owl");   /* fine: the list changed, the name did not */
+animals = ["Barn Owl"];     /* TypeError: assignment to constant variable */</pre>
+
+  <ww-runner label="three names" console>
+    <script type="text/ww-file" name="main.js">
+      const animal = "Red Fox";
+      const legs = 4;
+      const nocturnal = true;
+
+      console.log(animal);
+      console.log(animal + " has " + legs + " legs.");
+      console.log("Comes out at night?", nocturnal);
+    </script>
+    <pre class="static-fallback">const animal = "Red Fox";
+const legs = 4;
+const nocturnal = true;
+
+console.log(animal);
+console.log(animal + " has " + legs + " legs.");
+console.log("Comes out at night?", nocturnal);</pre>
+  </ww-runner>
+
+  <div class="note">
+    <span class="note-t">What a name is allowed to hold</span>
+    <p>Anything. Text goes in quotes (<code>"Red Fox"</code>), numbers do not (<code>4</code>), and <code>true</code> and <code>false</code> are the two yes-or-no values. Further down this page a name will hold an element taken out of the page, and then the game&rsquo;s entire catalog of 150 animals. The line looks the same every time; only the right-hand side gets more interesting.</p>
+    <p>The name itself is for whoever reads the code next, which within a week is you. <code>a</code> runs exactly as well as <code>animal</code> and tells nobody anything. Names cannot contain spaces, and <code>Animal</code> and <code>animal</code> are two different names.</p>
+  </div>
+
+  <p class="cap">Change <code>"Red Fox"</code> to another animal and press <b>Run</b>. Then add <code>console.log(color)</code> at the bottom, without ever making a name called <code>color</code>, and read the error panel: <code>color is not defined</code> is JavaScript saying it has never heard that name before.</p>
+
+  <h3>Now find something on the page</h3>
 
   <p>An HTML element can be given an <code>id</code>, which is a name. JavaScript can then go and find the element with that name, and change it.</p>
 
@@ -613,7 +711,7 @@ element.textContent = "150 animals";</pre>
     <p>The page said <code>Loading...</code> for a moment and then said something else, because JavaScript reached in and rewrote it. Chapters 5 to 9 are that same move, except that the new text comes from the internet instead of from the line above it.</p>
   </div>
 
-  <p class="cap">Change <code>"150 animals"</code> to anything you like. Then change the <code>id</code> in the HTML to <code>total</code> without changing the JavaScript, and watch the error panel tell you exactly what broke.</p>
+  <p class="cap">Change <code>"150 animals"</code> to anything you like. Then change the <code>id</code> in the HTML to <code>total</code> without changing the JavaScript, run it again, and watch the error panel tell you exactly what broke.</p>
 
   <details class="deeper" data-deeper="chapter-3">
       <summary>
@@ -640,8 +738,8 @@ document.querySelectorAll("li");   /* every match, not just the first */</pre>
       <pre class="snippet">el.textContent = "&lt;b&gt;hello&lt;/b&gt;";   /* shows the angle brackets */
 el.innerHTML   = "&lt;b&gt;hello&lt;/b&gt;";   /* shows hello, in bold */</pre>
 
-      <h3><code>const</code>, <code>let</code> and where a name lives</h3>
-      <p>Almost every example on this page uses <code>const</code>. The difference is smaller than it looks.</p>
+      <h3>Where a name lives</h3>
+      <p>The three words are compared at the top of this chapter. The part left over is <em>scope</em>: not whether a name can be repointed, but which lines of the file can see it at all.</p>
       <div class="ltable-scroll">
       <table class="ltable">
         <thead><tr><th></th><th>Can you point it at something else?</th><th>Where does the name exist?</th></tr></thead>
@@ -652,11 +750,14 @@ el.innerHTML   = "&lt;b&gt;hello&lt;/b&gt;";   /* shows hello, in bold */</pre>
         </tbody>
       </table>
       </div>
-      <p><code>const</code> stops the <em>name</em> from being pointed somewhere else. It does not freeze what the name points at:</p>
-      <pre class="snippet">const animals = [];
-animals.push("Red Fox");   /* fine: the array changed, the name did not */
-animals = [];              /* TypeError: assignment to constant variable */</pre>
-      <p class="backref">Use <code>const</code> until something has to change, then <code>let</code>. <code>var</code> is older and leaks out of the block it was written in, which is a reason to leave it alone.</p>
+      <p>That last row is the reason <code>var</code> is left alone now. A name declared inside an <code>if</code> block with <code>var</code> is still there after the block ends, and still there at the bottom of the function, which makes it possible to use a name you thought you had finished with and get no complaint from anyone.</p>
+      <pre class="snippet">function check(animal) {
+  if (animal.rarity === "rare") {
+    var note = "worth seeing";
+  }
+  return note;   /* var: reachable here, and undefined if the if never ran */
+}                /* const or let: an error, which is the more useful answer */</pre>
+      <p class="backref">A name that stops existing at the closing brace is a name you cannot accidentally read afterwards. That is the whole argument, and it is why the two newer words behave the same way as each other and differently from the old one.</p>
       </div>
     </details>
 </section>
@@ -668,6 +769,8 @@ animals = [];              /* TypeError: assignment to constant variable */</pre
     <h2>Programs can talk to other programs</h2>
     <p class="sub">An API is how one program asks another program a question.</p>
   </div>
+
+  <p><strong>API</strong> stands for <strong>application programming interface</strong>. The word doing the work is <em>interface</em>: a fixed, published way for one program to ask another program for something, so that neither has to know anything else about how the other is built.</p>
 
   <p>The Wild Willows game knows about animals, plants, biomes, recipes and everything else in it. The Wild Willows <strong>API</strong> is a web address that hands that information to any program that asks, including the webpage you are about to write.</p>
 
@@ -682,7 +785,7 @@ animals = [];              /* TypeError: assignment to constant variable */</pre
   <p>Not a diagram of something happening elsewhere. Press the button and it happens here, on this machine, on this network.</p>
 
   <div class="probe" id="api-probe">
-    <p class="probe-url">GET https://wildwillows.app/GameData/</p>
+    <p class="probe-url">GET https://wildwillows.app/GameData</p>
     <button type="button" class="btn btn-go" id="probe-go">See the real API response</button>
     <div class="probe-stats" id="probe-out" hidden></div>
     <div class="jtree" id="probe-tree" role="region" aria-label="The API response, as a tree"></div>
@@ -696,7 +799,7 @@ animals = [];              /* TypeError: assignment to constant variable */</pre
 
   <div class="ltable-scroll">
   <table class="ltable">
-    <thead><tr><th>In the data</th><th>Called</th><th>From /GameData/</th></tr></thead>
+    <thead><tr><th>In the data</th><th>Called</th><th>From /GameData</th></tr></thead>
     <tbody>
       <tr><td>words in quotes</td><td><strong>string</strong></td><td><code>"name": "Red Fox"</code></td></tr>
       <tr><td>plain numbers</td><td><strong>number</strong></td><td><code>"minHealth": 35</code></td></tr>
@@ -757,8 +860,8 @@ JSON.stringify(animal);             /* object -&gt; text, to send or store */</p
       <p class="backref">Those are the six types from the table above, and that is not a coincidence. The type list is the format.</p>
 
       <h3>Where the data actually comes from</h3>
-      <p><code>/GameData/</code> is one address that hands back everything. Many APIs instead give you an address per thing, and ask you to say which one you want:</p>
-      <pre class="snippet">/GameData/                     everything, in one response
+      <p><code>/GameData</code> is one address that hands back everything. Many APIs instead give you an address per thing, and ask you to say which one you want:</p>
+      <pre class="snippet">/GameData                     everything, in one response
 /Animals/red-fox               one animal        (a common alternative)
 /Animals?biome=meadow          a filtered list   (a query string)</pre>
       <p>One big response is simpler to learn against and simpler to cache, which is why this one is built that way. Once you are choosing for yourself, the question is whether the page needs most of the data or a little of it.</p>
@@ -771,33 +874,66 @@ JSON.stringify(animal);             /* object -&gt; text, to send or store */</p
   <div class="ch-head">
     <span class="ch-num">Chapter 5</span>
     <h2>Fetch your first API</h2>
-    <p class="sub">One line at a time. Each stage runs; run it before you add the next.</p>
+    <p class="sub">Ask for the data, wait for the answer, and handle the times it does not arrive.</p>
   </div>
 
-  <p><code>fetch</code> is the browser's way of asking for something over the internet. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
+
+  <p>A <strong>web API</strong> is one of those interfaces reachable at a web address. Wild Willows publishes its at <code>https://wildwillows.app/GameData</code>: ask that address, and it answers with every animal, biome and recipe in the game, written out as text. Your page never touches the game's own database. It only ever sees what the interface hands back, which is why the game can change underneath and your code keeps working.</p>
+
+  <p><code>fetch</code> is the browser's way of sending that request. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
 
   <ww-runner label="step 1: ask" console>
     <script type="text/ww-file" name="main.js">
-      fetch("https://wildwillows.app/GameData/");
+      fetch("https://wildwillows.app/GameData");
 
       console.log("asked!");
     </script>
-    <pre class="static-fallback">fetch("https://wildwillows.app/GameData/");
+    <pre class="static-fallback">fetch("https://wildwillows.app/GameData");
 console.log("asked!");</pre>
   </ww-runner>
   <p class="cap">Nothing visible happened, and that is correct. The request went out; nobody did anything with the answer.</p>
+
+  <h3>Every request has a verb, and this one is <code>GET</code></h3>
+
+  <p>You just sent a request, and every request carries a word saying what kind of thing it is. They are called <strong>HTTP methods</strong>, and only a handful matter.</p>
+
+  <div class="ltable-scroll">
+    <table class="ltable">
+      <thead><tr><th>Method</th><th>What it asks for</th><th>Where you have met it</th></tr></thead>
+      <tbody>
+        <tr><td><code>GET</code></td><td>Give me this. Changes nothing on the server.</td><td>Every page you open, every image on it, and the request you just made.</td></tr>
+        <tr><td><code>POST</code></td><td>Here is something new. Take it and do something with it.</td><td>Signing up, posting a comment, saving your game.</td></tr>
+        <tr><td><code>PUT</code> / <code>PATCH</code></td><td>Replace this / change part of this. It already exists.</td><td>Editing a profile. <code>PUT</code> sends the whole thing, <code>PATCH</code> sends only what changed.</td></tr>
+        <tr><td><code>DELETE</code></td><td>Remove it.</td><td>Deleting a save, a post, an account.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p><code>fetch(url)</code> with nothing after the address is a <code>GET</code>. That is the default, which is why the line you just ran did not have to say so. Anything else has to be spelled out in a second argument:</p>
+
+  <pre class="snippet">fetch(url);                               /* GET, because nothing said otherwise */
+fetch(url, { method: "POST", body: ... }); /* anything else, spelled out */</pre>
+
+  <p><strong>This whole lesson is <code>GET</code>, and that is a choice rather than a simplification.</strong> The Wild Willows catalog is public, read-only data: there is nothing in it to create, edit or delete, so the endpoint answers <code>GET</code> and refuses everything else. Which means every request in the next five chapters is safe to send twice, or a hundred times, and none of them can break anything for anybody. That is a good property to learn on.</p>
+
+  <div class="note">
+    <span class="note-t">Why the difference matters more than it looks</span>
+    <p>A <code>GET</code> is meant to be a question, not an action. Browsers, caches and search-engine crawlers all lean on that: they will repeat one, keep the answer, or send it before you have asked for anything. That rule is what makes the web cacheable at all.</p>
+    <p>So a <code>GET</code> that quietly changes something is a real bug rather than a style preference. The classic version is a delete link: a crawler follows every link on the page, and by morning the page is empty.</p>
+  </div>
+
 
   <p><code>.then()</code> means <em>and after that</em>. The answer arrives as a <code>Response</code>, an envelope. <code>.json()</code> opens the envelope.</p>
 
   <ww-runner label="step 2: open the envelope" console>
     <script type="text/ww-file" name="main.js">
-      fetch("https://wildwillows.app/GameData/")
+      fetch("https://wildwillows.app/GameData")
         .then(response => response.json())
         .then(data => {
           console.log(data);
         });
     </script>
-    <pre class="static-fallback">fetch("https://wildwillows.app/GameData/")
+    <pre class="static-fallback">fetch("https://wildwillows.app/GameData")
   .then(response =&gt; response.json())
   .then(data =&gt; {
     console.log(data);
@@ -811,7 +947,7 @@ console.log("asked!");</pre>
   <ww-runner label="async / await" console>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         console.log(data);
@@ -820,7 +956,7 @@ console.log("asked!");</pre>
       loadGameData();
     </script>
     <pre class="static-fallback">async function loadGameData() {
-  const response = await fetch("https://wildwillows.app/GameData/");
+  const response = await fetch("https://wildwillows.app/GameData");
   const data = await response.json();
   console.log(data);
 }
@@ -853,7 +989,7 @@ loadGameData();</pre>
   console.log("Could not load the game data.");
 }</pre>
   </ww-runner>
-  <p class="cap"><code>try</code> means &ldquo;attempt this&rdquo;; <code>catch</code> means &ldquo;and if it goes wrong, do this instead&rdquo;. Change the address back to <code>/GameData/</code> and the <code>catch</code> block never runs.</p>
+  <p class="cap"><code>try</code> means &ldquo;attempt this&rdquo;; <code>catch</code> means &ldquo;and if it goes wrong, do this instead&rdquo;. Change the address back to <code>/GameData</code> and the <code>catch</code> block never runs.</p>
 
   <details class="deeper" data-deeper="chapter-5">
       <summary>
@@ -917,7 +1053,7 @@ console.log("second");</pre>
   <ww-runner label="from the whole thing to one value" console>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         console.log(data.animals);         // an array of 150 things
@@ -978,7 +1114,7 @@ console.log(data.animals[0].name); // one value</pre>
       <ww-runner label="looping an object" console defer data-concept="deeper_object-keys">
         <script type="text/ww-file" name="main.js">
           async function loadGameData() {
-            const response = await fetch("https://wildwillows.app/GameData/");
+            const response = await fetch("https://wildwillows.app/GameData");
             const data = await response.json();
 
             const animal = data.animals[0];
@@ -1005,7 +1141,7 @@ Object.entries(animal.requirements);   /* [["minHealth", 35], ...] */</pre>
       <ww-runner label="a function that calls itself" console defer data-concept="deeper_recursion">
         <script type="text/ww-file" name="main.js">
           async function loadGameData() {
-            const response = await fetch("https://wildwillows.app/GameData/");
+            const response = await fetch("https://wildwillows.app/GameData");
             const data = await response.json();
 
             // how many values are in there, all the way down?
@@ -1046,7 +1182,7 @@ Object.entries(animal.requirements);   /* [["minHealth", 35], ...] */</pre>
   <ww-runner label="if" console data-concept="cond_if">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const animal = data.animals[0];
@@ -1080,7 +1216,7 @@ if (animal.rarity === "rare") {
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const animal = data.animals[0];
@@ -1112,7 +1248,7 @@ if (animal.rarity === "rare") {
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const animal = data.animals[12];
@@ -1152,7 +1288,7 @@ else                                    label = "Common";</pre>
   <ww-runner label="text and numbers compare differently" console data-concept="cond_comparison">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const animal = data.animals[0];
@@ -1181,7 +1317,7 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
   <ww-runner label="and / or" console data-concept="cond_and-or">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         // BOTH must be true
@@ -1207,7 +1343,7 @@ console.log(animal.requirements.minHealth &gt; 50);</pre>
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
         const result = document.querySelector("#result");
 
@@ -1306,7 +1442,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   <ww-runner label="for...of" console data-concept="iter_for-of">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         for (const animal of data.animals) {
@@ -1327,7 +1463,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   <ww-runner label=".forEach()" console data-concept="iter_forEach">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         data.animals.forEach(animal => {
@@ -1349,7 +1485,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   <ww-runner label=".map()" console data-concept="iter_map">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const names = data.animals.map(animal => animal.name);
@@ -1371,7 +1507,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   <ww-runner label=".filter()" console data-concept="iter_filter">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const meadow = data.animals.filter(animal => animal.biome === "meadow");
@@ -1401,7 +1537,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   <ww-runner label=".find()" console data-concept="iter_find">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const fox = data.animals.find(animal => animal.name === "Red Fox");
@@ -1427,7 +1563,7 @@ console.log(fox.diet);</pre>
   <ww-runner label=".sort()" console data-concept="iter_sort">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         // the [...] makes a COPY first: see the note below
@@ -1450,7 +1586,7 @@ console.log(fox.diet);</pre>
   <ww-runner label=".reduce()" console data-concept="iter_reduce">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         // start the running total at 0, add 1 for each animal
@@ -1479,7 +1615,7 @@ console.log(fox.diet);</pre>
   <ww-runner label="filter, then sort, then map" console data-concept="iter_chained">
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const list = data.animals
@@ -1499,7 +1635,7 @@ console.log(fox.diet);</pre>
   .map(animal =&gt; animal.name)
   .join(", ");</pre>
   </ww-runner>
-  <p class="cap"><strong>Now move <code>.map()</code> above <code>.filter()</code></strong> and run it. It breaks, and the error tells you why: after <code>.map()</code> you no longer have animals, you have names, and a name has no <code>.biome</code>. Order matters, and watching it fail takes four hundred milliseconds.</p>
+  <p class="cap"><strong>Now move <code>.map()</code> above <code>.filter()</code></strong> and run it. It breaks, and the error tells you why: after <code>.map()</code> you no longer have animals, you have names, and a name has no <code>.biome</code>. Order matters, and watching it fail takes one press.</p>
 
   <h3>The one block worth keeping</h3>
   <div class="ltable-scroll">
@@ -1534,7 +1670,7 @@ console.log(fox.diet);</pre>
       <ww-runner label="one answer about a whole list" console defer data-concept="deeper_some-every">
         <script type="text/ww-file" name="main.js">
           async function loadGameData() {
-            const response = await fetch("https://wildwillows.app/GameData/");
+            const response = await fetch("https://wildwillows.app/GameData");
             const data = await response.json();
 
             const meadow = data.animals.filter(animal => animal.biome === "meadow");
@@ -1559,7 +1695,7 @@ meadow.every(animal =&gt; animal.rarity === "rare");   /* false */</pre>
       <ww-runner label="what values exist?" console defer data-concept="deeper_set">
         <script type="text/ww-file" name="main.js">
           async function loadGameData() {
-            const response = await fetch("https://wildwillows.app/GameData/");
+            const response = await fetch("https://wildwillows.app/GameData");
             const data = await response.json();
 
             const everyTrophic = data.animals.map(animal => animal.trophic);
@@ -1590,7 +1726,7 @@ distinct.indexOf("herbivore");       /* a position, or -1 */</pre>
       <ww-runner label="functions in variables" console defer data-concept="deeper_functions-as-values">
         <script type="text/ww-file" name="main.js">
           async function loadGameData() {
-            const response = await fetch("https://wildwillows.app/GameData/");
+            const response = await fetch("https://wildwillows.app/GameData");
             const data = await response.json();
 
             // give the question a name
@@ -1661,7 +1797,7 @@ data.animals.filter(a =&gt; data.animals.some(b =&gt; b.biome === a.biome));</pr
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         document.querySelector("#animal-name").textContent = data.animals[0].name;
@@ -1697,7 +1833,7 @@ data.animals.filter(a =&gt; data.animals.some(b =&gt; b.biome === a.biome));</pr
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const items = data.animals
@@ -1804,7 +1940,7 @@ for (const animal of data.animals) {
     </script>
     <script type="text/ww-file" name="main.js">
       async function loadGameData() {
-        const response = await fetch("https://wildwillows.app/GameData/");
+        const response = await fetch("https://wildwillows.app/GameData");
         const data = await response.json();
 
         const items = data.animals
@@ -1866,7 +2002,7 @@ for (const animal of data.animals) {
       <div class="deeper-body">
 
       <h3>The reference professionals actually use</h3>
-      <p>MDN Web Docs is free, accurate and written by the people who build browsers. Search for any method or property on this page plus "mdn" and the first result will be the real documentation. It assumes you already know some of it, and reading it anyway is most of how the rest gets learned.</p>
+      <p>MDN Web Docs is free, accurate and written by the people who build browsers. Search for any method or property on this page plus &ldquo;mdn&rdquo; and the first result will be the real documentation. It assumes you already know some of it, and reading it anyway is most of how the rest gets learned. The rest of the places worth looking, and what to do about code you did not write, are <a href="#look-things-up">at the top of this page</a>.</p>
 
       <h3>Three things worth building next</h3>
       <ul>

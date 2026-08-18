@@ -1,13 +1,13 @@
 /* Wild Willows: the student lesson at /learn/web-development.
  *
- * The page's own behaviour. The editors and previews are ww-runner.js; this file
+ * The page's own behavior. The editors and previews are ww-runner.js; this file
  * is everything the lesson adds around them:
  *
  *   • the chapter rail: where you are, where you have been, and per-chapter
  *     dwell time bucketed for the dashboard
  *   • the API probe in chapter 3: a real request to /GameData/, reporting the
  *     status, the time and the size a student's own network actually produced
- *   • the JSON tree: collapsible, coloured by type, shared by chapters 3 and 5
+ *   • the JSON tree: collapsible, colored by type, shared by chapters 3 and 5
  *   • the path explorer in chapter 5: type a path, see which part of the tree
  *     it selected and what type came back
  *   • the five challenges in chapter 9, and the hand-off into the Code Builder
@@ -42,6 +42,23 @@
 		counts[key] = (counts[key] || 0) + 1;
 	}
 
+	/* FIRST VISIT EVER, not first visit this session.
+	 *
+	 * `view_lesson` is traffic and this is reach: how many different browsers have
+	 * ever opened the page. The gap between the two is how much of the traffic is
+	 * the same people coming back, which for a lesson is the difference between
+	 * being used and being reloaded. One bit, readable only by this origin, and
+	 * it identifies nobody. */
+	function bumpFirstEver() {
+		try {
+			if (localStorage.getItem('ww_ever_lesson')) return;
+			localStorage.setItem('ww_ever_lesson', '1');
+		} catch (e) {
+			/* storage refused: overstating reach a little beats losing it */
+		}
+		bump('unique_lesson');
+	}
+
 	/** Counters that describe the session as a whole rather than an event in it:
 	 *  how many chapters were reached, how many challenges ticked, and how long
 	 *  was spent in each chapter. Once per session, at the end. */
@@ -59,7 +76,7 @@
 		}
 	}
 
-	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioural
+	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioral
 	 *  trace of one reader; a band answers "is chapter 7 too long" just as well and
 	 *  describes nobody. Under ten seconds is scrolling past, not reading. */
 	function dwellBand(ms) {
@@ -258,7 +275,7 @@
 	/* --------------------------------------------------------- the JSON tree
 	 *
 	 * Written by hand rather than dumping JSON.stringify into a <pre> for one
-	 * reason: the colours ARE the lesson. Chapter 3 names six types in a table,
+	 * reason: the colors ARE the lesson. Chapter 3 names six types in a table,
 	 * and a tree that paints strings, numbers, booleans and null differently
 	 * means a student sees the type before they read anything about it: and in
 	 * chapter 5 they can see that a path landed on an array rather than a string
@@ -340,7 +357,7 @@
 	 *
 	 * Every icon on these pages is an SVG path, and the reason is the one that
 	 * rules out emoji: a geometric-shape character is whatever glyph the
-	 * platform's font decides: a hairline arrow on one machine, a full-colour
+	 * platform's font decides: a hairline arrow on one machine, a full-color
 	 * pictograph at a size nothing else on the page uses on another, and an empty
 	 * box on a managed Chromebook missing the font. This is a control a student
 	 * hits a hundred times to read one record; it does not get to be a lottery.
@@ -377,7 +394,7 @@
 	}
 
 	/** Children are built the first time a node is opened, not up front. The full
-	 *  catalogue is a few hundred kilobytes of JSON; rendering every node of it
+	 *  catalog is a few hundred kilobytes of JSON; rendering every node of it
 	 *  eagerly is tens of thousands of elements and a visibly janky page on the
 	 *  hardware this lesson is written for. */
 	function buildKids(into, value, depth, openTo) {
@@ -576,7 +593,7 @@
 	 *
 	 * The runners carry `defer`, so ww-runner.js leaves them alone at boot and
 	 * they are started here when their panel is first opened. That is not a
-	 * micro-optimisation: every runner renders on start and each owns two
+	 * micro-optimization: every runner renders on start and each owns two
 	 * iframes, and the chapters already open sixty-odd documents before a
 	 * student has read a word. Paying for another twenty on behalf of panels
 	 * most readers never open is the difference between this page being usable
@@ -736,6 +753,7 @@
 
 	function init() {
 		bump('view_lesson');
+		bumpFirstEver();
 		var w = window.innerWidth || 0;
 		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
 

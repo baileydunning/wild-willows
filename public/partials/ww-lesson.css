@@ -238,6 +238,16 @@ body.lesson {
 	color: var(--green-deep);
 }
 
+/* A step below h3, for a part of a section rather than a section.
+ * Sized deliberately rather than left at the browser's default, which is 1em
+ * bold and reads as body text that has shouted. */
+.ch h4 {
+	font-size: 0.95rem;
+	margin: 1.5rem 0 0.45rem;
+	color: var(--ink);
+	letter-spacing: 0.01em;
+}
+
 .ch p {
 	line-height: 1.65;
 	max-width: 46rem;
@@ -1060,4 +1070,38 @@ body.lesson {
 
 [data-theme='dark'] .backref a {
 	color: var(--green-bright);
+}
+
+/* THE ONE LINK ON THIS PAGE THAT LEAVES IT.
+ *
+ * An inline <svg> with no width is 300x150 by default, which would put a
+ * billboard in the nav bar; and an arrow drawn as a character would be whatever
+ * glyph the platform's font decides. So: drawn, and sized in ems so it tracks
+ * the label it belongs to. The words "(opens in a new tab)" ride along for a
+ * screen reader, because an icon is not an announcement. */
+.nav .links a .ext {
+	/* site-core sets svg { display: block } sitewide, which put this on a line of
+	   its own under the label — nowrap does not help, a block is a block. */
+	display: inline-block;
+	width: 0.78em;
+	height: 0.78em;
+	margin-left: 0.3em;
+	vertical-align: -0.04em;
+	opacity: 0.8;
+}
+
+/* An example search, quoted without quote marks.
+ *
+ * Not <code>: what is inside is not code and should not be read as code by
+ * anyone or announced as code by a screen reader. It is the literal string to
+ * type into a search box, which wants to look like something typed rather than
+ * something run. */
+.qtext {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.92em;
+	padding: 0.06em 0.4em;
+	border-radius: 0.35rem;
+	background: var(--paper-deep, #ece4cb);
+	color: var(--ink, #3b4232);
+	white-space: nowrap;
 }

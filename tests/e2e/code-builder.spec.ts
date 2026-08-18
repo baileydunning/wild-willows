@@ -25,8 +25,10 @@ async function setFile(page: Page, name: string, code: string) {
 	await area.click();
 	await area.press('ControlOrMeta+a');
 	await area.fill(code);
-	// The preview is debounced (~400ms) and then swaps on load.
-	await page.waitForTimeout(1200);
+	// Nothing runs on its own any more: an edit only marks the button. Press it,
+	// the way a student does, and give the frame a moment to load and swap in.
+	await page.locator('.wwr-run').click();
+	await page.waitForTimeout(800);
 }
 
 const errorPanel = (page: Page) => page.locator('.wwr-error:not([hidden])');

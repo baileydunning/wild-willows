@@ -19,7 +19,7 @@
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -42,7 +42,7 @@
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night — depth comes from an almost black
@@ -50,13 +50,15 @@
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab, .wwr` for
+/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab`,
+   `body.edu-hub` and `.wwr` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above — so without this the light greys would
+   which OUTRANKS the (0,1,0) block above — so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -78,7 +80,7 @@
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -95,6 +97,17 @@
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading —
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {

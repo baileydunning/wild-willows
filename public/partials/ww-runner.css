@@ -268,8 +268,12 @@ body.lesson,
  *
  * The console is the output here rather than a sidecar, so it gets the room a
  * result deserves and the editor stops being three quarters of the card. */
-.wwr--console-only .wwr-body {
-	min-height: 150px;
+/* Doubled up deliberately: a console-only example is ALSO a single-file one, and
+   the .wwr--single rule further down would otherwise win on document order and
+   give this the taller box it does not need. */
+.wwr.wwr--console-only .wwr-body {
+	height: 11rem;
+	min-height: 11rem;
 }
 
 .wwr--console-only .wwr-console {
@@ -291,19 +295,32 @@ body.lesson,
  * free to push every ancestor open.
  *
  * So each level is pinned: minmax(0, 1fr) tracks here, min-height: 0 on the
- * children, and the textarea is the ONLY thing that scrolls. Remove any one of
- * these and the growth comes back. */
+ * children, and the textarea is the ONLY thing that scrolls.
+ *
+ * AND THAT WAS NOT ENOUGH. Measured at 1280px: a five-line example was 180px
+ * tall and a sixty-line one was 1228px. minmax(0, 1fr) only caps a track when
+ * the grid has a height to divide up; in a box that sizes to its own content an
+ * fr track still resolves to max-content, and the gutter — one line per row,
+ * white-space: pre — is exactly as tall as the file. overflow: hidden stops it
+ * scrolling, not growing.
+ *
+ * So the box gets a real height. Now the fr track has something to be a
+ * fraction OF, every descendant's height: 100% resolves against something
+ * definite, and a file of any length scrolls inside a card that is the same
+ * size as every other card on the page. */
 .wwr-body {
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 	grid-template-rows: minmax(0, 1fr);
-	min-height: 240px;
+	height: 17rem;
+	min-height: 17rem;
 }
 
 /* One-file examples in the lesson are short; side-by-side keeps the cause and
  * its effect in one eyeful, which is the entire teaching device. */
 .wwr--single .wwr-body {
-	min-height: 180px;
+	height: 13rem;
+	min-height: 13rem;
 }
 
 .wwr-panes {
@@ -393,6 +410,57 @@ body.lesson,
 .wwr-preview.is-live {
 	opacity: 1;
 	pointer-events: auto;
+}
+
+/* SITS OVER THE PREVIEW WHILE THE PREVIEW IS OUT OF DATE.
+ *
+ * Over rather than beside, and over the whole column rather than in a corner,
+ * because the thing it has to correct is a student's belief that what they are
+ * looking at reflects what they just typed. It is placed where they are looking
+ * when that belief forms. */
+.wwr-prompt {
+	position: absolute;
+	inset: 0;
+	z-index: 2;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	margin: 0;
+	padding: 1rem;
+	text-align: center;
+	font-size: 0.85rem;
+	/* Literal, not a token: the preview column stays white in dark mode (see the
+	   note in ww-dark.css), so --ink-soft would resolve to a pale ink on a pale
+	   surface exactly where this most needs to be read. 6.5:1 on white. */
+	color: #5a5b46;
+	/* 0.88, not less: the student's own page is underneath and it can be any
+	   color they like. Against the worst case (a black page) this still measures
+	   5.27:1 for the text on top; at 0.82 it was 4.55. */
+	background: rgba(255, 255, 255, 0.88);
+	/* The old render stays legible underneath: it is still their page, and it is
+	   still what the code looked like a moment ago. */
+	backdrop-filter: blur(1px);
+	pointer-events: none;
+}
+
+.wwr-prompt[hidden] {
+	display: none;
+}
+
+/* No preview column to sit over, so it becomes a strip of its own between the
+   code and the console — which is where the output of these examples appears,
+   and so where a reader is looking for the thing that has not updated. */
+.wwr--console-only .wwr-prompt {
+	position: static;
+	padding: 0.45rem 0.6rem;
+	background: var(--paper, #f4eeda);
+	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
+	backdrop-filter: none;
+	/* Back to the token here, unlike the overlay above. This variant sits on
+	   --paper, which IS themed: in dark mode the surface goes to #1e2022 and the
+	   pinned ink would be dark text on a dark strip. --ink-soft measures 4.92 on
+	   the lightest cream and 6.52 on the dark surface. */
+	color: var(--ink-soft, #61624b);
 }
 
 /* Full-width row under both columns. Height is generous but bounded: a beginner's
@@ -616,6 +684,16 @@ body.wwr-resizing iframe {
 	.wwr-body {
 		grid-template-columns: 1fr;
 		grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
+		/* Tall enough that the two rows clear the floors set on the code and the
+		   preview below; stacked, they need the room the second column gave them. */
+		height: 26rem;
+		min-height: 26rem;
+	}
+
+	/* One pane, so it does not need the height of two. */
+	.wwr.wwr--console-only .wwr-body {
+		height: 13rem;
+		min-height: 13rem;
 	}
 
 	.wwr-panes {

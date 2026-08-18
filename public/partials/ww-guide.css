@@ -584,3 +584,18 @@
 		background: #fff;
 	}
 }
+
+/* A plain list inside a docs section. The page's other lists live inside a .cut
+   card and borrow its type; this one stands on its own, so it says so rather
+   than inheriting the browser's default 16px and 1.15 leading next to prose set
+   at 0.95/1.65. */
+.tsec ul.tlist {
+	margin: 0.2rem 0 0.9rem;
+	padding-left: 1.15rem;
+	line-height: 1.65;
+	max-width: 46rem;
+}
+
+.tsec ul.tlist li {
+	margin-bottom: 0.45rem;
+}

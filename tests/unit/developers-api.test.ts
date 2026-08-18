@@ -113,7 +113,7 @@ describe('every value the page enumerates still exists', () => {
 
 describe('the page is honest about what it is', () => {
 	it('names the endpoint, and only that endpoint', () => {
-		expect(PAGE).toContain('https://wildwillows.app/GameData/');
+		expect(PAGE).toContain('https://wildwillows.app/GameData');
 		// There is no /api/v1: the URL is hardcoded in every shipped build and
 		// cannot move, and promising a versioned one would be a lie.
 		expect(PAGE).not.toMatch(/\/api\/v\d/);
@@ -192,5 +192,113 @@ describe('the site points at it', () => {
 		const RESOURCES = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
 		const list = /const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\]\)/.exec(RESOURCES);
 		expect(list![1]).toContain("'api-docs'");
+	});
+});
+
+// The appended blocks below read the page source under the name the rest of
+// this file uses for it.
+const html = PAGE;
+
+describe('the docs do not oversell what a repeat costs', () => {
+	// A reviewer's catch, and a fair one: a 304 saves bandwidth, not requests.
+	// Calling it "free" told a developer that a polling loop was fine as long as
+	// it sent If-None-Match, which is exactly the loop that would have kept the
+	// origin busy.
+	it('never calls a repeat request free', () => {
+		// Every sentence with "free" in it, judged one at a time. A blanket regex
+		// either bans the word — the lesson and the API really are free of charge —
+		// or matches the honest sentences that now say "cheap, not free".
+		const sentences = text.split(/(?<=[.!?])\s+/).filter((x) => /\bfree\b/i.test(x));
+		expect(sentences.length, 'the page should still say what is free of charge').toBeGreaterThan(0);
+		const offenders = sentences.filter((x) => {
+			if (/not free|rather than free|free of charge/i.test(x)) return false; // explicitly the opposite claim
+			if (/free (lesson|public API|to use|educator|classroom|copies)/i.test(x)) return false; // free of charge
+			return /etag|repeat|request|304|limit/i.test(x); // a cost claim
+		});
+		expect(offenders).toEqual([]);
+	});
+
+	it('says what a 304 actually saves, and what it does not', () => {
+		expect(html).toMatch(/Cheap, not free/i);
+		expect(html).toContain('it is still a request');
+	});
+
+	it('explains what caching even is before explaining this one', () => {
+		// The audience includes a fifteen-year-old on their second API. "Honor the
+		// etag" is instructions; this is the paragraph that makes them mean
+		// something.
+		expect(html).toMatch(/Caching is keeping a copy of an answer/i);
+		expect(html).toMatch(/private cache|Browser cache/i);
+		expect(html).toMatch(/shared cache/i);
+		expect(html).toMatch(/never reach the database/i);
+	});
+
+	it('names all three copies, including the one it does not control', () => {
+		// The third is the one that actually decides whether an integration is
+		// polite: a variable in the caller's own program.
+		const i = html.indexOf('id="caching-explained"');
+		const section = html.slice(i, html.indexOf('Only <code>GET</code>', i));
+		expect(section).toMatch(/in your program|A variable, a file on disk/);
+		expect(section).toMatch(/expiry/i);
+		expect(section).toMatch(/validator/i);
+		// The two TTLs, which are a Cloudflare rule rather than only this header.
+		expect(section).toMatch(/[Tt]en minutes/);
+		expect(section).toMatch(/One day/i);
+	});
+
+	it('keeps the security claim to what is checkable', () => {
+		// "nothing here that can be injected into" is broader than anyone should
+		// promise on a public page. The facts underneath it are fine.
+		expect(html).not.toMatch(/nothing here that can be injected/i);
+		expect(html).toContain('no request parameters and no write operations');
+		expect(html).toContain('attack surface intentionally small');
+	});
+
+	it('publishes the shared-cache window the server actually sends', () => {
+		// The origin's own header is the authority for the EDGE window, so that
+		// number is read from source rather than trusted.
+		const resources = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+		const m = /const cacheControl = '([^']+)';/.exec(resources);
+		expect(m, 'GameData should set a cache-control it can be checked against').toBeTruthy();
+		expect(m![1]).toContain('s-maxage=86400');
+		expect(html).toContain('s-maxage=86400');
+	});
+
+	it('and documents the browser window a reader will really observe', () => {
+		/* THE HEADER ON THE WIRE IS NOT THE HEADER IN THE SOURCE. The Cloudflare
+		 * cache rule takes its edge TTL from the origin's header and rewrites the
+		 * browser TTL to ten minutes, so a developer running `curl -I` sees
+		 * max-age=600 where this file says max-age=0. Documenting the origin's
+		 * string would be documenting something nobody receives. */
+		expect(html).toContain('max-age=600');
+		expect(html).not.toMatch(/<code>public, max-age=0/);
+	});
+});
+
+describe('the docs say how to get the data corrected', () => {
+	it('has a section of its own, in the page nav', () => {
+		expect(html).toContain('id="corrections"');
+		expect(html).toContain('href="#corrections"');
+	});
+
+	it('names the inbox it goes to', () => {
+		const i = html.indexOf('id="corrections"');
+		const section = html.slice(i, html.indexOf('id="terms"'));
+		expect(section).toContain('wildwillowsgame@gmail.com');
+	});
+
+	it('asks for the four things that make a correction actionable', () => {
+		const i = html.indexOf('id="corrections"');
+		const section = html.slice(i, html.indexOf('id="terms"'));
+		for (const want of ['<code>id</code>', 'field', 'should say', 'sources'])
+			expect(section, `a correction should ask for: ${want}`).toContain(want);
+	});
+
+	it('is honest about what gets refused', () => {
+		const i = html.indexOf('id="corrections"');
+		const section = html.slice(i, html.indexOf('id="terms"'));
+		// Better here than in a reply to someone who spent an evening on it.
+		expect(section).toMatch(/push back/i);
+		expect(section).toMatch(/no service-level promise|no ticket number/i);
 	});
 });

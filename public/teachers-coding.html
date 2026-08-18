@@ -66,10 +66,10 @@
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs as a student types, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
+        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs when a student presses Run, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
         { "@type": "Question", "name": "What do students need?", "acceptedAnswer": { "@type": "Answer", "text": "A browser and a keyboard. No accounts, no installs, no extensions. It works on a school Chromebook. Their work saves in their own browser and can be downloaded as a real HTML file." } },
         { "@type": "Question", "name": "How long does it take?", "acceptedAnswer": { "@type": "Answer", "text": "One to three class periods, depending on how far you go. There are three suggested flows on this page: a single 60-minute period, two periods, or three." } },
-        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData/ is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
+        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
         { "@type": "Question", "name": "What if our network blocks it?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson needs wildwillows.app reachable throughout, because fetching over a real network is what it teaches. Check this a week ahead rather than the morning of. A blocked domain shows as 'Failed to fetch' in the editor and needs an IT ticket, not a code fix." } }
       ]
     },
@@ -136,7 +136,7 @@
   <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
   <div>
     <h2>You do not need to know JavaScript to teach this</h2>
-    <p>Every chapter is worked through on the page itself, so nothing depends on you writing code at the board. Each example runs as a student types, so a mistake shows up immediately rather than at the end. The editor explains errors in plain English instead of showing a stack trace, and the <a href="#trouble">troubleshooting table</a> below covers what actually goes wrong in a room of thirty.</p>
+    <p>Every chapter is worked through on the page itself, so nothing depends on you writing code at the board. Each example runs when a student presses Run, so a mistake shows up in the same minute they made it rather than at the end. The editor explains errors in plain English instead of showing a stack trace, and the <a href="#trouble">troubleshooting table</a> below covers what actually goes wrong in a room of thirty.</p>
     <p>The honest version: you will be asked questions you cannot answer. &ldquo;Let's find out&rdquo; is a good answer, and looking it up together in front of them is the most accurate thing you can model about this job.</p>
   </div>
 </div>
@@ -150,7 +150,7 @@
   <a class="tile" href="/learn/code-builder" data-track="builder-nav">
     <span class="tile-k">For students</span>
     <b>The Code Builder</b>
-    <span>Three files and a live preview, for the build challenge and for anyone who finishes early.</span>
+    <span>Three files and a preview, for the build challenge and for anyone who finishes early.</span>
   </a>
 </div>
 
@@ -317,7 +317,7 @@
         <tr>
           <td>&ldquo;Failed to fetch&rdquo;</td>
           <td>The network blocked the request. This is the big one.</td>
-          <td>Open <code>wildwillows.app/GameData/</code> in a tab. If that fails too, it is the school filter and it needs IT. Nothing in the code will fix it.</td>
+          <td>Open <code>wildwillows.app/GameData</code> in a tab. If that fails too, it is the school filter and it needs IT. Nothing in the code will fix it.</td>
         </tr>
         <tr>
           <td>The preview is blank</td>
@@ -362,7 +362,7 @@ h1   { color: #6b3fa0; }
 li   { margin-bottom: .3rem; }</pre>
     <div class="answer-head"><b>main.js</b></div>
     <pre class="hcode">async function loadGameData() {
-  const response = await fetch("https://wildwillows.app/GameData/");
+  const response = await fetch("https://wildwillows.app/GameData");
   const data = await response.json();
 
   const matches = data.animals
@@ -385,7 +385,7 @@ loadGameData();</pre>
   <h3>A broken version, for a warm-up or a substitute</h3>
   <p>Three planted bugs. Give students the file and ask them to find them using the error panel. It is a good sub-plan and a better test of understanding than writing it from scratch.</p>
   <pre class="hcode">async function loadGameData() {
-  const response = fetch("https://wildwillows.app/GameData/");   // bug 1
+  const response = fetch("https://wildwillows.app/GameData");   // bug 1
   const data = await response.json();
 
   const matches = data.animal                                     // bug 2

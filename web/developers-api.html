@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Open Game Data: a free public API of 150 real species</title>
+<meta name="description" content="One public endpoint, no key and no sign-up: 150 real animals with diet, shelter, food-web links and habitat requirements, six biomes, and everything the game itself is built from. JavaScript, Python and curl examples, and a free lesson that teaches you to use it.">
+<link rel="canonical" href="https://wildwillows.app/developers/api">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="free public API, open game data, JSON API no key, ecology dataset, species API, food web data, API for students, learn fetch API, public dataset for teaching, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows Open Game Data: a free public API of 150 real species">
+<meta property="og:description" content="One endpoint, no key. 150 real animals with diet, shelter, food-web links and habitat requirements. JavaScript, Python and curl examples.">
+<meta property="og:url" content="https://wildwillows.app/developers/api">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows Open Game Data">
+<meta name="twitter:description" content="A free public API of 150 real species, their diets, their food web and what each one needs to come home. No key, no sign-up.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Wild Willows Open Game Data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "A single public JSON endpoint serving every definition the game Wild Willows is built from: 150 real animal species with diet, shelter, preferred habitat, food-web links and the habitat requirements that decide when each one returns, plus six biomes, 385 habitat items, 355 recipes and 38 gatherable resources.",
+      "documentation": "https://wildwillows.app/developers/api",
+      "termsOfService": "https://wildwillows.app/developers/api#terms",
+      "provider": { "@type": "Person", "name": "Bailey Dunning" },
+      "isAccessibleForFree": true,
+      "license": "https://wildwillows.app/developers/api#terms",
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://wildwillows.app/GameData/", "httpMethod": "GET", "contentType": "application/json" }
+      }
+    },
+    {
+      "@type": "Dataset",
+      "name": "Wild Willows species and habitat data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "150 real animal species across six North American habitat types, each with a scientific name, diet, shelter, preferred habitat, trophic role, rarity, cited sources, what it eats, what eats it, and the habitat conditions required for it to return to a restored landscape.",
+      "keywords": ["ecology", "species", "food web", "habitat", "biodiversity", "restoration", "open data"],
+      "isAccessibleForFree": true,
+      "creator": { "@type": "Person", "name": "Bailey Dunning" },
+      "distribution": {
+        "@type": "DataDownload",
+        "encodingFormat": "application/json",
+        "contentUrl": "https://wildwillows.app/GameData/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Open Game Data", "item": "https://wildwillows.app/developers/api" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a reader who chose dark never sees a flash of cream. -->
+<script>
+<!-- @include public/partials/ww-theme.js -->
+</script>
+
+<style>
+<!-- @include public/partials/site-core.css -->
+<!-- @include public/partials/ww-teachers.css -->
+<!-- @include public/partials/ww-guide.css -->
+<!-- @include public/partials/ww-a11y.css -->
+<!-- @include public/partials/ww-dark.css -->
+</style>
+</head>
+
+<a class="skip-link" href="#main">Skip to the docs</a>
+
+<body class="edu-hub guide">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="#start">Quick start</a>
+    <a class="hide-sm" href="#animal">The animal object</a>
+    <a class="hide-sm" href="#limits">Limits</a>
+    <a class="hide-sm" href="#terms">Terms</a>
+    <a class="btn btn-go" href="/learn" data-track="learn-nav">Learn to use it</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="twrap" id="main" tabindex="-1">
+
+<header class="thero">
+  <p class="kicker">Open Game Data</p>
+  <h1>One endpoint, no key</h1>
+  <p class="lead">Everything Wild Willows is built from is served from a single public URL: 150 real species with their diets, their food web and what each one needs before it will come home, across six habitat types. It is the same data the game itself runs on.</p>
+  <div class="tmeta">
+    <span class="chip">No key, no sign-up</span>
+    <span class="chip">CORS enabled</span>
+    <span class="chip">150 species</span>
+    <span class="chip">6 biomes</span>
+    <span class="chip">JSON</span>
+    <span class="chip warm">Free to use</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>There is nothing to sign up for</h2>
+    <p>No API key, no account and no dashboard to register in. One GET, from a browser or anywhere else, and you have the whole dataset. It sends <code>Access-Control-Allow-Origin: *</code>, so a page you are building can read it directly with no server of your own.</p>
+    <p>There is a rate limit: <b>600 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
+    <p>It exists because a classroom lesson needed a real API to teach against rather than a mock one. That turned out to be useful to more people than students, so it is documented rather than merely public.</p>
+  </div>
+</div>
+
+<section class="tsec" id="start">
+  <h2>Quick start</h2>
+  <p>One endpoint. There are no parameters, no pagination and no other routes: you take the whole thing and pick what you want out of it.</p>
+  <pre class="hcode">GET https://wildwillows.app/GameData/</pre>
+
+  <p class="answer-head">JavaScript &mdash; browser or Node</p>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+const data = await res.json();
+
+const meadow = data.animals.filter((a) =&gt; a.biome === "meadow");
+console.log(`${meadow.length} animals live in Willow Meadow`);
+console.log(meadow.slice(0, 3).map((a) =&gt; `${a.name} — ${a.diet}`).join("\n"));</pre>
+
+  <p class="answer-head">Python &mdash; standard library, nothing to install</p>
+  <pre class="hcode">import json, urllib.request
+
+with urllib.request.urlopen("https://wildwillows.app/GameData/") as r:
+    data = json.load(r)
+
+meadow = [a for a in data["animals"] if a["biome"] == "meadow"]
+print(f"{len(meadow)} animals live in Willow Meadow")
+for a in meadow[:3]:
+    print(f"{a['name']} — {a['diet']}")</pre>
+
+  <p class="answer-head">Both print</p>
+  <pre class="hcode">25 animals live in Willow Meadow
+Grasshopper — grasses, sedges and broadleaf forbs
+Prairie Vole — grasses, sedges, seeds and roots, plus bark in winter
+Monarch Butterfly — caterpillars eat only milkweed; adults sip flower nectar</pre>
+
+  <p class="answer-head">curl</p>
+  <pre class="hcode">curl -s https://wildwillows.app/GameData/ \
+  | jq -r '.animals[] | select(.biome == "meadow" and .trophic == "apex-predator") | .name'
+
+Red-tailed Hawk
+Coyote
+Barn Owl</pre>
+
+  <p class="note-line">Every snippet on this page was run against the live data before it was published, and the output under each one is what it actually printed. If one of them stops working, that is a bug and I would like to hear about it.</p>
+</section>
+
+<section class="tsec" id="response">
+  <h2>What comes back</h2>
+  <p>One JSON object. These are its keys, all of them arrays except the last two.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Key</th><th>Count</th><th>What it holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>animals</code></td><td class="num">150</td><td>Every species, 25 per biome. The interesting one, and what the rest of this page is mostly about.</td></tr>
+        <tr><td><code>biomes</code></td><td class="num">6</td><td>The six habitat types, with their palettes, their grid size and what can be gathered in each.</td></tr>
+        <tr><td><code>habitatObjects</code></td><td class="num">385</td><td>Everything that can be planted or built, and what each one contributes to habitat.</td></tr>
+        <tr><td><code>recipes</code></td><td class="num">355</td><td>What each item is made from.</td></tr>
+        <tr><td><code>resources</code></td><td class="num">38</td><td>Gatherable materials, and which tool collects them.</td></tr>
+        <tr><td><code>achievements</code></td><td class="num">50</td><td>Named goals, their category and their requirement.</td></tr>
+        <tr><td><code>tools</code></td><td class="num">9</td><td>The tools and their upgrade tiers.</td></tr>
+        <tr><td><code>appearanceOptions</code></td><td class="num">&mdash;</td><td>An object of character-customization lists. Only interesting if you are building something that draws a caretaker.</td></tr>
+        <tr><td><code>nodeRegenSeconds</code></td><td class="num">&mdash;</td><td>A single number, a game-balance constant. Ignore it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sub">Roughly half a megabyte of JSON, about a fifth of that over the wire once compressed. There is no thinner version: see <a href="#terms">using it kindly</a> for how to fetch it once rather than often.</p>
+</section>
+
+<section class="tsec" id="animal">
+  <h2>The animal object</h2>
+  <p>The one worth knowing. Every field below is on every one of the 150 records, and none of them are placeholders: the diets, the shelters and the food-web links were written from cited sources, which travel with the record.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td>Stable kebab-case identifier, <code>"red-fox"</code>. What <code>eats</code>, <code>eatenBy</code> and <code>requirements.animals</code> refer to.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Common name, <code>"Red Fox"</code>.</td></tr>
+        <tr><td><code>scientificName</code></td><td class="tight">string</td><td><code>"Vulpes vulpes"</code>.</td></tr>
+        <tr><td><code>biome</code></td><td class="tight">string</td><td>One of the six biome ids. Exactly 25 species per biome.</td></tr>
+        <tr><td><code>kind</code></td><td class="tight">string</td><td>Broad group: <code>mammal</code>, <code>bird</code>, <code>insect</code>, <code>invertebrate</code>, <code>reptile</code>, <code>amphibian</code>, <code>fish</code>.</td></tr>
+        <tr><td><code>trophic</code></td><td class="tight">string</td><td>Role in the food web. Nine values, listed below.</td></tr>
+        <tr><td><code>rarity</code></td><td class="tight">string</td><td><code>common</code> (69), <code>uncommon</code> (41) or <code>rare</code> (40).</td></tr>
+        <tr><td><code>diet</code></td><td class="tight">string</td><td>A sentence, not a tag list. <code>"grasses, sedges and broadleaf forbs"</code>.</td></tr>
+        <tr><td><code>shelter</code></td><td class="tight">string</td><td>Where it nests, dens or hides, in a sentence.</td></tr>
+        <tr><td><code>preferredHabitat</code></td><td class="tight">string</td><td>The conditions it wants, in a sentence.</td></tr>
+        <tr><td><code>fact</code></td><td class="tight">string</td><td>One true, checkable thing about the species. Good for a card, a quiz or a fact-of-the-day.</td></tr>
+        <tr><td><code>role</code></td><td class="tight">string</td><td>A paragraph on what it does in its ecosystem and who depends on it.</td></tr>
+        <tr><td><code>eats</code></td><td class="tight">string[]</td><td>Ids of other animals in the dataset. Empty for a herbivore.</td></tr>
+        <tr><td><code>eatsOther</code></td><td class="tight">string[]</td><td>Food that is not an animal in the dataset: <code>["grasses", "leaves and forbs", "sedges"]</code>.</td></tr>
+        <tr><td><code>eatenBy</code></td><td class="tight">string[]</td><td>Ids of its predators. Empty for an apex predator, which is a useful thing to check for.</td></tr>
+        <tr><td><code>sources</code></td><td class="tight">object[]</td><td><code>{ name, url }</code> references for the claims above. Real citations, mostly to Animal Diversity Web and state wildlife agencies.</td></tr>
+        <tr><td><code>requirements</code></td><td class="tight">object</td><td>What has to be true before this species returns. Its own section below.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Trophic roles</h3>
+  <div class="vocab">
+    <div class="vrow"><b>herbivore</b><span>Eats plants. 46 species, the widest group.</span></div>
+    <div class="vrow"><b>insectivore</b><span>Eats insects. 29.</span></div>
+    <div class="vrow"><b>mesopredator</b><span>A hunter that is also hunted. 23.</span></div>
+    <div class="vrow"><b>omnivore</b><span>Eats both. 18.</span></div>
+    <div class="vrow"><b>apex-predator</b><span>Nothing in the dataset eats it. 17, and <code>eatenBy</code> is empty for all of them.</span></div>
+    <div class="vrow"><b>detritivore</b><span>Eats dead and rotting material. 10.</span></div>
+    <div class="vrow"><b>filter-feeder</b><span>Strains food from water. 4.</span></div>
+    <div class="vrow"><b>scavenger</b><span>Eats what it did not kill. 2.</span></div>
+    <div class="vrow"><b>decomposer</b><span>Breaks matter back down. 1.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="requirements">
+  <h2>Requirements, and why they are the interesting part</h2>
+  <p>Most species datasets tell you what an animal is. This one also encodes what a place has to become before that animal will live in it, because the game had to decide when each one comes back. That turns the dataset into something you can compute an <em>order</em> from.</p>
+  <pre class="hcode">"requirements": {
+  "minHealth": 65,
+  "minBalance": 40,
+  "objects": { "earthen-fox-den": 1, "native-grass-patch": 2, "brush-pile": 1, "oak-tree": 1 },
+  "signature": "earthen-fox-den",
+  "water": { "tiles": 1 },
+  "animals": ["cottontail-rabbit", "prairie-vole"],
+  "hint": "This one comes back once the small animals do — and she needs an old burrow she can widen into a nursery."
+}</pre>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>minHealth</code></td><td class="tight">number</td><td>Percentage of habitat recovery the biome needs first. 8 for the first arrival, 80 for the last.</td></tr>
+        <tr><td><code>minBalance</code></td><td class="tight">number</td><td>How evenly spread that recovery has to be. Optional.</td></tr>
+        <tr><td><code>objects</code></td><td class="tight">object</td><td>Habitat item id to how many are needed. The ids are in <code>habitatObjects</code>.</td></tr>
+        <tr><td><code>signature</code></td><td class="tight">string</td><td>The one item most identified with this species, if it has one.</td></tr>
+        <tr><td><code>water</code></td><td class="tight">object</td><td><code>{ tiles: n }</code> when it needs open water. Absent when it does not.</td></tr>
+        <tr><td><code>animals</code></td><td class="tight">string[]</td><td><b>The good one.</b> Other species that must already be present. This is what makes predators arrive last.</td></tr>
+        <tr><td><code>hint</code></td><td class="tight">string</td><td>A written clue, in plain language, for a player working out what is missing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="biome">
+  <h2>The biome object</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td><code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code>, <code>coastal</code>.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland, Graywind Heights, Pelican Shore.</td></tr>
+        <tr><td><code>order</code></td><td class="tight">number</td><td>The order they are restored in, 1 to 6.</td></tr>
+        <tr><td><code>description</code></td><td class="tight">string</td><td>What the place is, and what happened to it.</td></tr>
+        <tr><td><code>restorationGoal</code></td><td class="tight">string</td><td>What a player is being asked to do there.</td></tr>
+        <tr><td><code>palette</code></td><td class="tight">object</td><td><code>{ damaged, healthy }</code>, two hex colors. Useful if you are drawing anything.</td></tr>
+        <tr><td><code>grid</code></td><td class="tight">object</td><td><code>{ cols, rows }</code> &mdash; the meadow is 44 &times; 26.</td></tr>
+        <tr><td><code>resources</code></td><td class="tight">string[]</td><td>What can be gathered on the surface there.</td></tr>
+        <tr><td><code>digResources</code></td><td class="tight">string[]</td><td>What digging turns up. Repeats are weightings, not mistakes.</td></tr>
+        <tr><td><code>unlock</code></td><td class="tight">object</td><td>What opens this biome. <code>null</code> for the meadow, which is where everyone starts.</td></tr>
+        <tr><td><code>explorable</code></td><td class="tight">boolean</td><td>Whether it is a place you can go.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="recipes">
+  <h2>Three things worth building</h2>
+  <p>Each of these runs as written, and the output under it is what it printed.</p>
+
+  <h3>1. The arrival ladder</h3>
+  <p>Sort a biome by <code>minHealth</code> and you get the order life comes back in. Read <code>requirements.animals</code> alongside it and you can see why the hunters are at the bottom of the list.</p>
+  <pre class="hcode">const data = await (await fetch("https://wildwillows.app/GameData/")).json();
+
+const ladder = data.animals
+  .filter((a) =&gt; a.biome === "meadow")
+  .sort((a, b) =&gt; a.requirements.minHealth - b.requirements.minHealth);
+
+const name = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a.name]));
+
+for (const a of ladder.slice(0, 8)) {
+  const waiting = (a.requirements.animals || []).map((id) =&gt; name[id]).join(", ");
+  console.log(`${String(a.requirements.minHealth).padStart(3)}%  ${a.name}${waiting ? "  (needs " + waiting + ")" : ""}`);
+}</pre>
+  <pre class="hcode">  8%  Grasshopper
+  9%  Pillbug
+ 10%  Prairie Vole
+ 10%  Snail
+ 12%  Ladybug
+ 14%  Ground Squirrel  (needs Grasshopper)
+ 15%  Monarch Butterfly
+ 16%  Song Sparrow  (needs Grasshopper)</pre>
+
+  <h3>2. A census of the food web</h3>
+  <pre class="hcode">import requests
+from collections import Counter
+
+data = requests.get("https://wildwillows.app/GameData/", timeout=30).json()
+
+counts = Counter(a["trophic"] for a in data["animals"])
+for role, n in counts.most_common():
+    print(f"{role:16} {n}")</pre>
+  <pre class="hcode">herbivore        46
+insectivore      29
+mesopredator     23
+omnivore         18
+apex-predator    17
+detritivore      10
+filter-feeder    4
+scavenger        2
+decomposer       1</pre>
+
+  <h3>3. Who eats whom</h3>
+  <p><code>eats</code> and <code>eatenBy</code> hold ids rather than names, so build the lookup once and the whole web is walkable. An empty <code>eatenBy</code> means you have reached the top.</p>
+  <pre class="hcode">const byId = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a]));
+const names = (ids) =&gt; ids.map((id) =&gt; byId[id].name).join(", ");
+
+const fox = byId["red-fox"];
+console.log(`${fox.name} eats ${names(fox.eats)}`);
+console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`);</pre>
+  <p class="sub">Every id in <code>eats</code> and <code>eatenBy</code> resolves to a record in the same response, so the graph is closed and you never have to handle a dangling reference.</p>
+</section>
+
+<section class="tsec" id="caching">
+  <h2>Caching, compression and what a client sees</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Header</th><th>Value</th><th>What it means for you</th></tr></thead>
+      <tbody>
+        <tr><td><code>access-control-allow-origin</code></td><td class="tight"><code>*</code></td><td>Read it straight from a browser. A plain <code>fetch(url)</code> with no custom headers is never preflighted, so there is nothing else to configure.</td></tr>
+        <tr><td><code>cache-control</code></td><td class="tight"><code>no-cache</code></td><td>Not &ldquo;do not cache&rdquo;. It means cache it and revalidate, which is what you want: the data changes only when the game ships a build.</td></tr>
+        <tr><td><code>etag</code></td><td class="tight">build stamp</td><td>Send it back as <code>If-None-Match</code> and an unchanged catalog costs you a 304 with an empty body instead of half a megabyte.</td></tr>
+        <tr><td><code>content-encoding</code></td><td class="tight">br / gzip</td><td>Negotiated from your <code>Accept-Encoding</code>. Every HTTP client you are likely to use asks for this by default.</td></tr>
+        <tr><td><code>vary</code></td><td class="tight"><code>Accept-Encoding</code></td><td>So a shared cache does not hand a gzip body to a client that cannot read it.</td></tr>
+        <tr><td><code>retry-after</code></td><td class="tight"><code>60</code></td><td>Only on a <code>429</code>. Wait that long and you come back to a full budget rather than to another refusal.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note-line">Only <code>GET</code> and <code>HEAD</code>. There is no <code>POST</code>, no auth, no write path, and nothing that takes a parameter &mdash; so there is also nothing here that can be injected into.</p>
+</section>
+
+<section class="tsec" id="limits">
+  <h2>Rate limits</h2>
+  <p>One limit, on one endpoint, and it is sized so that you have to be doing something strange to meet it.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Limit</th><th>Value</th><th>Why that number</th></tr></thead>
+      <tbody>
+        <tr><td>Per address, sustained</td><td class="num">600 / min</td><td>Ten a second, from one IP, for a file that changes when the game ships a build.</td></tr>
+        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
+        <tr><td>Refill</td><td class="num">10 / s</td><td>Continuous, not a reset on the minute. Ten seconds of quiet buys you a hundred requests back.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Where those numbers come from</h3>
+  <p>Not from a guess. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every re-run is a fresh full request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
+  <p>So the arithmetic is thirty students behind one school NAT, each averaging twenty runs a minute while they work: 600 a minute from a single address, all of it people doing exactly what the lesson asked. That is the sustained rate. The burst is a class pressing Run at the same moment, twice over.</p>
+  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. The <code>etag</code> makes every repeat free.</p>
+
+  <h3>What a refusal looks like</h3>
+  <p>A <code>429</code> with the CORS header on it, so it reaches your <code>catch</code> as a real status rather than as an opaque network failure, and a plain-language body you can show a user.</p>
+  <pre class="hcode">HTTP/1.1 429 Too Many Requests
+access-control-allow-origin: *
+retry-after: 60
+cache-control: no-store
+
+Too many requests for the game catalog. It changes only when the game
+ships a build, so fetch it once and keep it. Wait a minute and try again.</pre>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+if (res.status === 429) {
+  const wait = Number(res.headers.get("retry-after") || 60);
+  console.log(`Rate limited. Try again in ${wait}s.`);
+} else {
+  const data = await res.json();
+}</pre>
+  <p class="note-line">Nothing else here is limited, because nothing else here exists: one endpoint, no auth, no writes. If you need a higher ceiling for something real, <a href="mailto:wildwillowsgame@gmail.com">write to me</a> &mdash; it is a number in a config file and I would rather raise it than have you work around it.</p>
+</section>
+
+<section class="tsec" id="stability">
+  <h2>What can change, and what will not</h2>
+  <p>This is a game's internal catalog that has been made public, and being honest about that is more useful than promising an API contract I would then have to keep.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Safe to build on</b>
+      <ul>
+        <li>The URL. It is hardcoded into every copy of the game that has already shipped, so it cannot move.</li>
+        <li>Species <code>id</code>s. They are the keys the save files use.</li>
+        <li>The fields in the tables above. A test in this repo fails the build if one of them is renamed, and it names this page when it does.</li>
+        <li>The six biome ids, and 25 species in each.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>May change without warning</b>
+      <ul>
+        <li>Species being added. Treat 150 as a floor rather than a constant.</li>
+        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
+        <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
+        <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">If you build something that depends on this and you tell me what you are depending on, I will treat it as load-bearing. That is a better offer than a version number I might not honor.</p>
+</section>
+
+<section class="tsec" id="terms">
+  <h2>Using it, and using it kindly</h2>
+  <p><b>Use it for whatever you like</b> &mdash; a class project, a visualisation, a bot, a game of your own, a paper. No permission needed and no attribution required, though a link back is appreciated and I would genuinely like to see what you make.</p>
+  <p><b>Fetch it once, not in a loop.</b> The whole catalog arrives in one response and does not change between deploys, so there is never a reason to request it more than once per session. If you are serving it on to other people, cache it and honor the <code>etag</code>. The <a href="#limits">rate limit</a> is set well above that, and staying well below it is free.</p>
+  <p><b>The species facts are cited, not invented.</b> Each record carries its <code>sources</code>. If you find something wrong, tell me and I will fix the data rather than the page &mdash; several corrections have come in that way already.</p>
+  <p class="sub">Not suitable as a scientific reference. It is a carefully-sourced game catalog: real species with real diets and real relationships, simplified enough to be played. The <code>requirements</code> are a game designer's model of succession, not a published one.</p>
+</section>
+
+<section class="tsec" id="learn">
+  <h2>If this is your first API</h2>
+  <p>There is a free ten-chapter lesson built on exactly this endpoint, with an editor that runs your code as you type and explains errors in plain language. It was written for a high-school classroom and it works fine on your own.</p>
+  <div class="two-up">
+    <a class="tile" href="/learn/web-development" data-track="learn-nav">
+      <span class="tile-k">Start here</span>
+      <b>The Lesson</b>
+      <span>HTML, CSS and JavaScript, what an API is, a real request you can watch happen, and building a page from the response.</span>
+    </a>
+    <a class="tile" href="/learn/code-builder" data-track="learn-nav">
+      <span class="tile-k">Or build something</span>
+      <b>The Code Builder</b>
+      <span>Three files and a live preview, thirty project ideas, and a download button. Your code stays in your browser.</span>
+    </a>
+  </div>
+  <p class="sub">Teaching with it? There is an <a href="/teachers/coding" data-track="edu-nav">educator guide</a> with a lesson plan, an answer key and a troubleshooting table.</p>
+</section>
+
+<div class="tcontact">
+  <h2>Built something?</h2>
+  <p>I would like to see it, and if you are depending on part of this I would rather know than find out by breaking it. Bug reports about the data itself are especially welcome &mdash; a wrong diet is a thing I can fix.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
+    <a class="btn btn-paper" href="/learn" data-track="learn-nav">The lesson</a>
+    <a class="btn btn-paper" href="/" data-track="play">The game</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  /* One counter, once per browser session, on the same contract as the rest of
+     the site (see PRIVACY.md): a name from a fixed list and a number. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'developers', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
+  var fresh = true;
+  var everFresh = false;
+  try {
+    fresh = !sessionStorage.getItem('ww_dev_seen');
+    sessionStorage.setItem('ww_dev_seen', '1');
+  } catch (e) {
+    /* a locked-down profile: counting it is the better failure */
+  }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_developers');
+    if (everFresh) localStorage.setItem('ww_ever_developers', '1');
+  } catch (e) {
+    /* storage refused — counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
+  if (fresh) {
+    var opening = { view_developers: 1 };
+    if (everFresh) opening.unique_developers = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
+  }
+
+  var NAV = { 'learn-nav': 'nav_learn', 'edu-nav': 'nav_hub', play: 'nav_game' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>

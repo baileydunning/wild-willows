@@ -24219,13 +24219,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -24588,7 +24588,7 @@ section[id]{scroll-margin-top:66px}
     </div>
     <div class="card">
       <h3>Your save's name rides along</h3>
-      <p>It's the one field in that snapshot <b>you</b> chose, and it's there so a row is recognisable rather than a bare UUID. Nothing else in the snapshot identifies you.</p>
+      <p>It's the one field in that snapshot <b>you</b> chose, and it's there so a row is recognizable rather than a bare UUID. Nothing else in the snapshot identifies you.</p>
     </div>
     <div class="card">
       <h3>Only what you type</h3>
@@ -24656,9 +24656,6 @@ section[id]{scroll-margin-top:66px}
       <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> <span>Profile you, or combine game data with data from anywhere else</span></div>
       <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> <span>Ask for a real name, an account, or a sign-in</span></div>
     </div>
-  </div>
-  <div class="callout" style="background:var(--panel);border-color:var(--panel-edge)">
-    <p>Builds distributed through the Mac App Store contain no Steam integration. Builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by <a href="https://store.steampowered.com/privacy_agreement/" rel="noopener">Valve's privacy policy</a>.</p>
   </div>
 </div></section>
 
@@ -24749,6 +24746,24 @@ section[id]{scroll-margin-top:66px}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
+  /* THIS PAGE REPORTS ITSELF, once per browser session.
+     It used to report nothing at all, which meant three public pages had no
+     usage data of any kind \u2014 including this one, which is the page a school
+     district reads before approving anything. A visit is not sendable here:
+     'visit' is ONE undifferentiated series shared by every page that sends it,
+     so a policy-page visit would silently inflate the landing page's number
+     with no way to unmix them later. Its own click target keeps both honest,
+     which is the same trade /teachers made. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_privacy_seen'))return;
+      sessionStorage.setItem('ww_privacy_seen','1');track('click','privacy-page');
+    }catch(e){track('click','privacy-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
@@ -24885,13 +24900,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -25386,7 +25401,7 @@ section[id]{scroll-margin-top:66px}
     </div>
   </div>
   <div class="pattern">
-    <p>Questions about anything on this page? Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> &mdash; it goes straight to the developer. If you're a teacher, there's a free classroom kit on the <a href="/teachers" data-track="edu-nav">teachers page</a>.</p>
+    <p>Questions about anything on this page? Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> &mdash; it goes straight to the developer. If you're a teacher, there are two free classroom kits &mdash; <a href="/teachers/science" data-track="edu-nav">ecosystems for grades 5&ndash;8</a> and <a href="/teachers/coding" data-track="edu-nav">intro to APIs for grades 9&ndash;12</a> &mdash; on the <a href="/teachers" data-track="edu-nav">teachers page</a>.</p>
   </div>
 </div></section>
 
@@ -25455,6 +25470,24 @@ section[id]{scroll-margin-top:66px}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
+  /* THIS PAGE REPORTS ITSELF, once per browser session.
+     It used to report nothing at all, which meant three public pages had no
+     usage data of any kind \u2014 including this one, which is the page a school
+     district reads before approving anything. A visit is not sendable here:
+     'visit' is ONE undifferentiated series shared by every page that sends it,
+     so a policy-page visit would silently inflate the landing page's number
+     with no way to unmix them later. Its own click target keeps both honest,
+     which is the same trade /teachers made. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_rating_seen'))return;
+      sessionStorage.setItem('ww_rating_seen','1');track('click','rating-page');
+    }catch(e){track('click','rating-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
@@ -25594,13 +25627,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -26071,7 +26104,7 @@ section[id]{scroll-margin-top:66px}
     </div>
     <div class="card">
       <h3>Using it in a classroom</h3>
-      <p>There's a free kit for that: an educator guide and six student worksheets on the <a href="/teachers" data-track="edu-nav">teachers page</a>, plus free copies for schools.</p>
+      <p>There are two free kits for that: <a href="/teachers/science" data-track="edu-nav">Ecosystems &amp; Habitat</a> for grades 5&ndash;8, with an educator guide and six student worksheets, and <a href="/teachers/coding" data-track="edu-nav">Intro to APIs &amp; Web Development</a> for grades 9&ndash;12. <a href="/teachers" data-track="edu-nav">Both</a>, plus free copies for schools.</p>
     </div>
     <div class="card">
       <h3>Where to buy it</h3>
@@ -26136,6 +26169,24 @@ section[id]{scroll-margin-top:66px}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
+  /* THIS PAGE REPORTS ITSELF, once per browser session.
+     It used to report nothing at all, which meant three public pages had no
+     usage data of any kind \u2014 including this one, which is the page a school
+     district reads before approving anything. A visit is not sendable here:
+     'visit' is ONE undifferentiated series shared by every page that sends it,
+     so a policy-page visit would silently inflate the landing page's number
+     with no way to unmix them later. Its own click target keeps both honest,
+     which is the same trade /teachers made. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_support_seen'))return;
+      sessionStorage.setItem('ww_support_seen','1');track('click','support-page');
+    }catch(e){track('click','support-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
@@ -26241,13 +26292,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -26329,16 +26380,16 @@ section{padding:3.4rem 0}
 				--accent: #4a7c59;
 				--accent-dark: #39604a; /* 5.61 worst surface */
 				--accent-soft: #eaf3dd;
-				/* ---- the four series colours ----
+				/* ---- the four series colors ----
 				   MEASURED, not chosen. The previous set (#4a7c59 #7fb069 #6ea8c8
 				   #d77b8f) failed three of the five computable checks against this
 				   page's cream surface (#fdfaf1):
 
 				     chroma floor        #4a7c59 C=0.077, #6ea8c8 C=0.077 \u2014 under
 				                         0.10, which is the point where a hue stops
-				                         reading as a colour and starts reading grey
+				                         reading as a color and starts reading gray
 				     normal-vision floor #6ea8c8 vs #7fb069  \u0394E 14.3 \u2014 under 15, so
-				                         full-colour readers could not reliably tell
+				                         full-color readers could not reliably tell
 				                         the sage and the sky apart
 				     contrast vs surface 2.42 / 2.48 / 2.83 \u2014 three of four under 3:1
 
@@ -26362,12 +26413,12 @@ section{padding:3.4rem 0}
 				--s4: #b0446a;
 				/* Lighter steps of the same four hues, for the left end of a bar
 				   gradient. Same hue angle, +0.17 OKLCH lightness, chroma at 0.8 \u2014
-				   a step of the same ramp rather than a different colour. */
+				   a step of the same ramp rather than a different color. */
 				--s1-lift: #69ab79;
 				--s2-lift: #669ad6;
 				--s3-lift: #f2b474;
 				--s4-lift: #de829e;
-				/* Slot 3 as TEXT, or as a chip behind white text. The mark colour
+				/* Slot 3 as TEXT, or as a chip behind white text. The mark color
 				   (#c47a1a) is 3.27 on cream and carries white at 3.42 \u2014 fine for a
 				   fill, short of AA for anything with letters in it. Same hue, two
 				   steps darker: 4.96 on cream, 5.18 under white. Same split as
@@ -26414,7 +26465,7 @@ section{padding:3.4rem 0}
 			   announced itself as "Wild Willows Metrics" above the form, with a nav,
 			   a version filter and a Problems toggle \u2014 so anyone who found the URL
 			   learned that it exists, what it reports and roughly how it is
-			   organised, without a password.
+			   organized, without a password.
 			   Signed out, the page is a wordmark-free form on a cream background and
 			   nothing else. The title is neutral in the markup too; the real one is
 			   set from script once there is a session. */
@@ -26465,7 +26516,7 @@ section{padding:3.4rem 0}
 			}
 
 			/* The site nav, which this page did not have. Full-bleed like the rest of
-			   the dashboard rather than site-core's centred 1080px wrap. */
+			   the dashboard rather than site-core's centered 1080px wrap. */
 			.nav .wrap {
 				max-width: 1180px;
 				padding: 0 clamp(0.9rem, 3vw, 2rem);
@@ -26525,7 +26576,7 @@ section{padding:3.4rem 0}
 			[hidden] {
 				display: none !important;
 			}
-			/* Sign-in screen. Small, centred, and the only thing on the page \u2014 there is
+			/* Sign-in screen. Small, centered, and the only thing on the page \u2014 there is
 			   nothing else to look at until it is answered. */
 			.loginwrap {
 				display: flex;
@@ -26599,7 +26650,7 @@ section{padding:3.4rem 0}
 				cursor: pointer;
 			}
 			/* The Problems toggle. Neutral until something is actually wrong, then it
-			   goes amber \u2014 so the button's colour carries the state without needing to
+			   goes amber \u2014 so the button's color carries the state without needing to
 			   be read. */
 			button.refresh.probs.on {
 				background: var(--accent-soft);
@@ -27044,7 +27095,7 @@ section{padding:3.4rem 0}
 			/* Demo is a FILLED sage chip, full a tinted one. They used to differ by hue
 			   (gold-on-cream vs green-on-green); now that the demo series is sage
 			   everywhere else \u2014 donut, legend, vs-table bars \u2014 the chips have to agree
-			   with it, so the two are told apart by fill weight rather than colour. */
+			   with it, so the two are told apart by fill weight rather than color. */
 			.hledi.demo {
 				color: #ffffff;
 				background: var(--s3-ink);
@@ -27121,7 +27172,7 @@ section{padding:3.4rem 0}
 				font-variant-numeric: tabular-nums;
 				white-space: nowrap;
 			}
-			/* Finished the chain: the number goes the accent colour so a completed
+			/* Finished the chain: the number goes the accent color so a completed
 			   board reads at a glance without the bar having to be measured. */
 			.hlchain.done .num {
 				color: var(--accent-dark);
@@ -27235,7 +27286,7 @@ section{padding:3.4rem 0}
 				margin: 0.15rem 0;
 			}
 			/* The channel is the reason this list exists, so it reads first and loudest
-			   \u2014 everything beside it is a plain grey chip. */
+			   \u2014 everything beside it is a plain gray chip. */
 			.acchan {
 				background: var(--accent);
 				color: #fff;
@@ -27306,8 +27357,8 @@ section{padding:3.4rem 0}
 				color: var(--ink);
 			}
 			/* Super-user-only remove control at the foot of the player modal. Same
-			   red pair as button.delbtn so there is one "destructive" colour on the
-			   page, but boxed and labelled rather than a bare \xD7 \u2014 this one has no
+			   red pair as button.delbtn so there is one "destructive" color on the
+			   page, but boxed and labeled rather than a bare \xD7 \u2014 this one has no
 			   undo, and it should not look like the counter deletes that do. */
 			.dangerzone {
 				display: flex;
@@ -27770,7 +27821,7 @@ section{padding:3.4rem 0}
 			}
 			/* A date is wider than its column and overhangs both sides. In the middle
 			   of the strip that is fine; at the ends it hangs past the chart and gets
-			   clipped, so the outermost dates align to their edge instead of centring
+			   clipped, so the outermost dates align to their edge instead of centering
 			   on it \u2014 the last day is exactly the one you most want to read. */
 			.dcol:first-child .dl {
 				align-self: flex-start;
@@ -28589,7 +28640,7 @@ section{padding:3.4rem 0}
 			 * shown as its own row rather than folded into a real store, so the
 			 * backfill gap stays visible instead of padding whichever one you read first. */
 			/* detectOS() in src/platform.ts returns exactly these. Shared, because the
-			   keyboard gate reads them too and a phone has to be recognisable as a
+			   keyboard gate reads them too and a phone has to be recognizable as a
 			   phone in both places. */
 			/* The ten-goal starter chain (starterTasks() in server/resources.ts), keyed
 			 * by task id. Labels live here rather than coming down with the payload
@@ -28799,14 +28850,14 @@ section{padding:3.4rem 0}
 			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
 			 * which puts a number and a label under every column \u2014 fine for four
 			 * tutorial steps, unreadable at ninety days. Here the count lives in the
-			 * tooltip and the axis is labelled at intervals. */
+			 * tooltip and the axis is labeled at intervals. */
 			function dayCols(days, key) {
 				if (!days.length) return \`<div class="emptynote">No days in this range.</div>\`;
 				const max = Math.max(...days.map((d) => n(d[key])), 1);
 				/* Every column ships its count and its date; which of them survive is
 				 * decided by fitDayCharts() from the width the columns actually got.
 				 * Deriving that from the day count alone was wrong at every width but
-				 * the one it was tuned on \u2014 on a phone it produced a grey smear.
+				 * the one it was tuned on \u2014 on a phone it produced a gray smear.
 				 * Zeros stay blank: the flat tick already says nothing happened, and a
 				 * row of 0s over empty days is noise competing with the real numbers. */
 				const fmtDay = (iso) => {
@@ -28837,7 +28888,7 @@ section{padding:3.4rem 0}
 			 * Column width is not knowable when the markup is built \u2014 it depends on the
 			 * card, the viewport, and whether the strip ended up scrolling \u2014 so labels
 			 * and counts are dropped here, after layout, and again on resize. A date
-			 * needs roughly 34px to sit under its bar without touching its neighbour;
+			 * needs roughly 34px to sit under its bar without touching its neighbor;
 			 * a two-digit count needs about 17px. Labels are spaced backwards from the
 			 * last column so the most recent day is always the one that keeps its date. */
 			function fitDayCharts() {
@@ -29076,7 +29127,7 @@ section{padding:3.4rem 0}
 			 * first shipped showing em-dashes on a healthy server. Not adjustable in
 			 * the UI either: a 24h window makes ServerHealth read to its 4,000-row
 			 * cap and it became the slowest endpoint on the instance. The endpoint
-			 * still honours ?minutes= for anyone reading it directly. */
+			 * still honors ?minutes= for anyone reading it directly. */
 			const SERVER_WINDOW = 60;
 
 			/** How this caretaker has their settings \u2014 every option in Settings \u2192
@@ -29092,7 +29143,7 @@ section{padding:3.4rem 0}
 			 *  not just spot the ones that are on. \`interactHint\` is inverted here
 			 *  because it ships ON: what is worth seeing is that this player turned it
 			 *  off. Everything with more than two values (colorblind mode, text size,
-			 *  font, theme) gets a labelled row instead, using the same label maps as
+			 *  font, theme) gets a labeled row instead, using the same label maps as
 			 *  the site-wide rollup. */
 			function prefsCardHTML(p) {
 				const pr = p.prefs;
@@ -29646,7 +29697,7 @@ section{padding:3.4rem 0}
 					}
 				}
 
-				// One way back, shown only when you are not already home. Labelling a
+				// One way back, shown only when you are not already home. Labeling a
 				// mode switch by what it conceals leaves you hunting for the way out.
 				const back = document.getElementById('backbtn');
 				if (back) back.hidden = MODE === 'dashboard';
@@ -29731,7 +29782,7 @@ section{padding:3.4rem 0}
 					const day = (ms) =>
 						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '\u2014';
 					/* In a window, the count column shows what happened IN it, with the
-					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * all-time figure kept beside it in gray. A row whose buckets predate
 					 * the per-day counters reads "\u2014" rather than 0: there is no evidence
 					 * either way, and printing a zero would be inventing some. */
 					const hits = (r) => {
@@ -29893,7 +29944,26 @@ section{padding:3.4rem 0}
 				 * work queue for explanation copy, the ideas say which prompts students
 				 * actually pick, and the health strip is the only way to find out that
 				 * a school network is silently blocking the API. */
-				let classroomSection = '';
+				/* EDUCATION IS TWO KITS, NOT ONE SECTION.
+				 *
+				 * These used to be a single "Classroom" block, which put a grades-5-8
+				 * ecology activity and a grades-9-12 web-development course under one
+				 * heading and one funnel. They share a hub and nothing else: different
+				 * ages, different subjects, different teachers, and completely
+				 * different shapes of evidence. The science kit is measured by pages
+				 * read and PDFs taken away, because the activity happens in the game
+				 * and on paper; the coding kit is measured by what students did in the
+				 * editor, because all of it happens on this site.
+				 *
+				 * Averaging those together produced numbers that described neither. */
+				let codingSection = '';
+				/* Set inside the two payload blocks below and read by the science
+				   section, which is assembled last because it needs both. */
+				let reachById = {};
+				let kitSplit = null;
+				let pdfDownloads = null;
+				let pdfToday = 0;
+				let schoolCopies = 0;
 				if (CLASSROOM && CLASSROOM.totals) {
 					const C = CLASSROOM.totals;
 					const cN = (k) => n(C[k]) || 0;
@@ -29911,7 +29981,7 @@ section{padding:3.4rem 0}
 						'fetch-failed': 'Could not reach the data',
 						'null-property': 'Element not on the page',
 						'undefined-property': 'Field not in the data',
-						'not-defined': 'Name not recognised',
+						'not-defined': 'Name not recognized',
 						'not-a-function': 'Not something you can call',
 						'unexpected-eof': 'Something left open',
 						'json-parse': 'Answer was not JSON',
@@ -29934,21 +30004,47 @@ section{padding:3.4rem 0}
 					];
 					const durationRows = DURATIONS.map(([label, key]) => [label, cN(key)]).filter((r) => r[1]);
 					const sessions = n(CLASSROOM.sessions) || 0;
-					/* A midpoint estimate, labelled as one. The buckets are deliberate \u2014
-					 * a precise per-session duration is a behavioural trace of one person
+					/* A midpoint estimate, labeled as one. The buckets are deliberate \u2014
+					 * a precise per-session duration is a behavioral trace of one person
 					 * \u2014 so this is the honest way to answer "roughly how long?" from them. */
 					const MIDPOINT = { duration_lt5m: 2.5, duration_5to15m: 10, duration_15to30m: 22, duration_30to60m: 45, duration_gt60m: 75 };
 					const bucketed = DURATIONS.reduce((a, [, k]) => a + cN(k), 0);
 					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
 					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
 
+					/* \`unique\` is null for a page that does not report first-visits yet,
+					   and that is not the same as zero: one means "nobody new", the other
+					   means "not measured". The row shows nothing rather than a 0. */
+					for (const r of CLASSROOM.reach || []) reachById[r.id] = r;
+					kitSplit = { science: cN('nav_science'), coding: cN('nav_coding') };
+
+					/* The coding kit's own pages. The science page and the teachers hub
+					   are deliberately not here: one belongs to the other kit, and the
+					   hub belongs to both, so it is reported with the site rather than
+					   claimed by either. */
+					const CODING_PAGES = ['coding', 'learn', 'lesson', 'builder', 'developers'];
+					const reachRows = (CLASSROOM.reach || [])
+						.filter((r) => CODING_PAGES.includes(r.id) && n(r.views) > 0)
+						.sort((a, b) => n(b.views) - n(a.views))
+						.map((r) => [r.label, n(r.views), r.unique == null ? null : n(r.unique), r.path]);
+					const reachMax = Math.max(...reachRows.map((r) => r[1]), 1);
+
+					const ARRIVAL_LABELS = {
+						direct: 'Typed it or had it bookmarked',
+						search: 'A search engine',
+						social: 'Reddit, Bluesky or another social site',
+						internal: 'Another page on this site',
+						other: 'Somewhere else',
+					};
+					const arrivalRows = (CLASSROOM.arrivals || []).map((a) => [ARRIVAL_LABELS[a.key] || a.key, a.n]);
+
 					const h = CLASSROOM.health || {};
 					const fetchTotal = n(h.fetchOk) + n(h.fetchFailed);
 					const blockedPct = fetchTotal ? Math.round((n(h.fetchFailed) / fetchTotal) * 100) : 0;
 
-					classroomSection = sec(
-						'Classroom',
-						'wildwillows.app/learn \u2014 the coding kit, anonymous counters only',
+					codingSection = sec(
+						'Coding kit',
+						'/learn and /developers \u2014 intro to APIs & web development, grades 9-12',
 						\`<div class="grid kpis">\${[
 							kpi(fmt(sessions), 'Builder sessions', \`\${fmt(cN('returning_day2') + cN('returning_day3'))} came back another day\`),
 							kpi(
@@ -29964,8 +30060,49 @@ section{padding:3.4rem 0}
 							),
 						].join('')}</div>\` +
 							\`<div style="margin-top:.8rem">\` +
-							cardTitled('Funnel', 'where the kit loses people', barRows(funnelRows)) +
+							cardTitled('Funnel', 'the student path, and where it loses people', barRows(funnelRows)) +
 							\`</div>\` +
+							/* REACH, next to the funnel and deliberately not inside it.
+							 *
+							 * The funnel is ONE path: hub, coding kit, lesson, builder, run,
+							 * fetch, download. Most of the site is not on it \u2014 the science kit
+							 * is a different classroom, the API docs are for somebody who is
+							 * not in a classroom at all \u2014 and forcing them in as "steps" made
+							 * every drop-off percentage below them meaningless.
+							 *
+							 * Two numbers per page. Views is traffic; first-time browsers is
+							 * reach. A page whose two numbers are close is finding new people;
+							 * one where views run far ahead is being reloaded by the same few,
+							 * and those are opposite problems. */
+							\`<div style="margin-top:.8rem">\` +
+							cardTitled(
+								'Its pages, side by side',
+								'visits this period, and how many of them were somebody new',
+								reachRows.length
+									? \`<div class="bars">\${reachRows
+											.map(
+												([lab, views, uniq, path]) =>
+													\`<div class="bar"><span class="lab" title="\${esc(path)}">\${esc(lab)}</span>\` +
+													\`<span class="track" style="position:relative"><span class="fill" style="width:\${Math.max(2, (views / reachMax) * 100)}%"></span>\` +
+													/* The first-visit share, drawn INSIDE the same track rather than as
+													   a second bar: the question is what fraction of this page's traffic
+													   was somebody new, and two bars side by side make that a subtraction
+													   the reader has to do. */
+													(uniq == null
+														? ''
+														: \`<span class="fill" style="width:\${Math.max(2, (uniq / reachMax) * 100)}%;opacity:.45;position:absolute;left:0;top:0"></span>\`) +
+													\`</span>\` +
+													\`<span class="num">\${fmt(views)}\${uniq == null ? '' : \` \xB7 \${fmt(uniq)} new\`}</span></div>\`,
+											)
+											.join('')}</div>\`
+									: \`<div class="emptynote">No page views recorded yet.</div>\`,
+							) +
+							\`</div>\` +
+							(arrivalRows.length
+								? \`<div style="margin-top:.8rem">\` +
+									cardTitled('How they arrived', 'resolved in the browser, never sent as a URL', barRows(arrivalRows)) +
+									\`</div>\`
+								: '') +
 							\`<div class="grid two" style="margin-top:.8rem">\` +
 							cardTitled(
 								'Errors students hit',
@@ -30015,7 +30152,14 @@ section{padding:3.4rem 0}
 						support: 'Support page',
 						'get-nav': 'Get the game (nav)',
 						'edu-nav': 'For teachers (nav)',
-						'edu-page': 'Teachers page (viewed)',
+						// \`edu-page\` is the science kit's OLD self-report. Its page view moved
+						// to /LessonEvent/ as \`view_science\` so it could be compared with the
+						// other kits; the historical series stays labeled and readable
+						// rather than being quietly renamed under its own numbers.
+						'edu-page': 'Science kit (viewed, before Aug 2026)',
+						'privacy-page': 'Privacy policy (viewed)',
+						'support-page': 'Support page (viewed)',
+						'rating-page': 'Age suitability (viewed)',
 						'pdf-guide': 'Educator guide (click)',
 						'pdf-worksheets': 'Worksheets (click)',
 						'school-copy': 'Classroom copy request',
@@ -30048,6 +30192,12 @@ section{padding:3.4rem 0}
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
+					/* Handed to the science section below. The PDFs ARE the science kit \u2014
+					   the guide and the six worksheets \u2014 so the breakdown belongs with it
+					   rather than under the landing page that happens to link to them. */
+					pdfDownloads = dl;
+					pdfToday = Object.values(dlToday).reduce((a, v) => a + n(v), 0);
+					schoolCopies = n((lt.clicks || {})['school-copy']);
 					/* Where people arrived from, in the only vocabulary this site has:
 					 * nine buckets, resolved in the visitor's own browser. The referrer
 					 * URL is never sent \u2014 see LANDING_SOURCES in server/resources.ts.
@@ -30092,7 +30242,7 @@ section{padding:3.4rem 0}
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app \u2014 visits, arrivals, link clicks & classroom PDFs',
+						'wildwillows.app \u2014 visits, arrivals, link clicks and where the hub sends people',
 						\`<div class="grid kpis">\${[
 							kpi(fmt(lt.visits), 'Visits', \`\${fmt(lt.uniques)} first-time visitors\`),
 							kpi(
@@ -30122,10 +30272,19 @@ section{padding:3.4rem 0}
 								'all-time',
 								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
+							/* Where the Classroom PDFs card used to sit. It moved into the
+							   science kit's own section; what belongs here instead is the
+							   thing the hub is FOR, which is deciding which kit to take. */
 							cardTitled(
-								'Classroom PDFs',
-								\`downloaded all-time \xB7 \${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today\`,
-								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'gold' }),
+								'The teachers hub',
+								'/teachers \u2014 which kit a visitor took from it',
+								kitSplit && (kitSplit.science || kitSplit.coding)
+									? barRows([
+											['Took the science kit', kitSplit.science],
+											['Took the coding kit', kitSplit.coding],
+											reachById.hub ? ['Reached the hub at all', n(reachById.hub.views)] : null,
+										])
+									: '<div class="emptynote">No hub navigation recorded yet.</div>',
 							) +
 							\`</div>\` +
 							// Acquisition is its own question \u2014 not a breakdown of the
@@ -30229,11 +30388,80 @@ section{padding:3.4rem 0}
 				 * number on this page: how many people arrived at all. High but not
 				 * first is the compromise \u2014 the game numbers lead, the traffic follows
 				 * immediately. */
+				/* ---- Science kit ----
+				 *
+				 * Assembled here rather than with the other two because it needs BOTH
+				 * payloads: its reach comes from /LessonStats/ and its downloads from
+				 * /LandingStats/, since the PDF links are shared with the landing page
+				 * and always have been.
+				 *
+				 * IT IS MEASURED DIFFERENTLY ON PURPOSE. There is no funnel here and no
+				 * error ranking, because there is almost nothing to instrument: the
+				 * activity happens inside the game and on paper. What a teacher does on
+				 * this site is read the guide and take the PDFs away, so reach and
+				 * downloads are not a thin version of the coding numbers \u2014 they are the
+				 * whole of what this kit can honestly report. */
+				let scienceSection = '';
+				{
+					const sci = reachById.science;
+					const guide = n((pdfDownloads || {}).guide);
+					const sheets = n((pdfDownloads || {}).worksheets);
+					const anything = (sci && n(sci.views)) || guide || sheets || schoolCopies;
+					if (anything) {
+						scienceSection = sec(
+							'Science kit',
+							'/teachers/science \u2014 ecosystems & habitat, grades 5-8',
+							\`<div class="grid kpis">\${[
+								kpi(
+									fmt(sci ? sci.views : 0),
+									'Kit page views',
+									sci && sci.unique != null ? \`\${fmt(sci.unique)} first-time visitors\` : 'first-time visitors not measured yet',
+								),
+								kpi(fmt(guide + sheets), 'PDFs taken', \`\${fmt(pdfToday)} today\`),
+								kpi(fmt(guide), 'Educator guides', 'the eight-page lesson plan'),
+								kpi(
+									schoolCopies ? \`<span class="accent">\${fmt(schoolCopies)}</span>\` : '0',
+									'Classroom copy requests',
+									'teachers asking for free copies of the game',
+								),
+							].join('')}</div>\` +
+								\`<div class="grid two" style="margin-top:.8rem">\` +
+								cardTitled(
+									'What they took away',
+									'downloaded all-time \u2014 the kit itself',
+									pdfDownloads && Object.keys(pdfDownloads).length
+										? barRows(objToEntries(pdfDownloads), {
+												labelMap: { guide: 'Educator Guide', worksheets: 'Student Worksheets' },
+												cls: 'gold',
+											})
+										: '<div class="emptynote">No downloads recorded yet.</div>',
+								) +
+								cardTitled(
+									'Read, then taken',
+									'how much of the reading turns into a download',
+									sci && n(sci.views)
+										? barRows([
+												['Opened the kit page', n(sci.views)],
+												[\`Took a PDF (\${Math.round(((guide + sheets) / n(sci.views)) * 100)}% of readers)\`, guide + sheets],
+												schoolCopies ? [\`Asked for classroom copies\`, schoolCopies] : null,
+											])
+										: '<div class="emptynote">No page views recorded yet.</div>',
+								) +
+								\`</div>\` +
+								\`<p class="emptynote" style="margin-top:.8rem">Nothing else is counted here, and that is not a gap. The science activity happens in the game and on the worksheets, so once a teacher has the PDFs this site stops being able to see anything \u2014 by design.</p>\`,
+							'website',
+						);
+					}
+				}
+
 				if (landingSection) out.push(landingSection);
 
-				/* Directly under Landing page: both are site numbers rather than game
-				 * numbers, and the classroom funnel starts where the landing one ends. */
-				if (classroomSection) out.push(classroomSection);
+				/* Directly under Landing page: all three are site numbers rather than
+				 * game numbers, and the education funnels start where the landing one
+				 * ends. Science first because it is the older and larger of the two
+				 * kits, and because its numbers are the shorter read. */
+				if (scienceSection) out.push(scienceSection);
+				if (codingSection) out.push(codingSection);
 
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
@@ -30361,7 +30589,7 @@ section{padding:3.4rem 0}
 								.slice(0, 2)
 								.map((t) => \`<span class="hltag">\${t}</span>\`)
 								.join('');
-							// The green border is the ask, but colour alone isn't a reliable cue, so the
+							// The green border is the ask, but color alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? \`<span class="hltag hllive">Active now</span>\` : '';
 							// The best thing a card can say about a player: they played the
@@ -31146,7 +31374,7 @@ section{padding:3.4rem 0}
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
 
-			/** Grey out the "Range" selector unless a specific version is chosen. */
+			/** Gray out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
 				const wrap = document.getElementById('version-mode-wrap');
 				const sel = document.getElementById('version-mode');
@@ -31483,7 +31711,7 @@ section{padding:3.4rem 0}
 				};
 				const round1v = (x) => Math.round(n(x) * 10) / 10;
 				const gt = ht.gameplayTiming;
-				// Colour only past the point where it is worth looking at. Under a
+				// Color only past the point where it is worth looking at. Under a
 				// second a slow call is a curiosity; past that a player feels it.
 				const slowTone = (ms) => (n(ms) >= 1000 ? '<span class="accent">' : '<span>');
 				// Not rounded to a whole percent: 4MB in a 286GB volume is 0.0014%, and
@@ -31812,7 +32040,7 @@ section{padding:3.4rem 0}
 
 			/* Which range object a picker drives. Keyed by the \`data-range-scope\`
 			 * dayRangePicker() stamps on every control it builds, so a second chart is
-			 * a new entry here and nothing else. An unrecognised scope is ignored
+			 * a new entry here and nothing else. An unrecognized scope is ignored
 			 * rather than defaulting to the first one \u2014 silently moving the wrong
 			 * chart is worse than doing nothing. */
 			const DAY_RANGE_SCOPES = { daily: DAY_RANGE, landing: LANDING_DAY_RANGE };
@@ -32124,13 +32352,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -32192,7 +32420,7 @@ section{padding:3.4rem 0}
    four full-height sections deep, which read as one undifferentiated scroll \u2014
    the bands were doing nothing for the stretch of the page that needed them
    most. Adding a section in the middle of that run means flipping every band
-   after it, not just adding one; check the whole sequence, not the neighbour. */
+   after it, not just adding one; check the whole sequence, not the neighbor. */
 .band{background:var(--paper-deep)}
 
 /* intro note */
@@ -32258,7 +32486,7 @@ section{padding:3.4rem 0}
 .play-btn.playing .i-pause{display:flex}
 .player-info{flex:1;min-width:0}
 .player-info .who{font-size:.8rem;font-weight:700;color:var(--ink-faint);text-transform:none;margin:0 0 .1rem}
-.player-info h3{margin:0 0 .55rem;font-size:1.08rem;color:var(--ink)}
+.player-info h2{margin:0 0 .55rem;font-size:1.08rem;color:var(--ink)}
 .bar{height:9px;border-radius:999px;background:var(--paper-deep);cursor:pointer;overflow:hidden;border:1px solid var(--panel-edge)}
 .bar-fill{height:100%;width:0;background:var(--green-bright);border-radius:999px;transition:width .1s linear}
 .times{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);margin-top:.35rem}
@@ -32365,24 +32593,48 @@ body.lb-open{overflow:hidden}
 .school-cta .fine a{color:var(--green-deep)}
 @media(max-width:820px){.edu{grid-template-columns:1fr}.school{grid-template-columns:1fr;padding:1.4rem 1.35rem}}
 
+/* ---------- anchor landings ------------------------------------------------
+   The nav is sticky and 59px tall, so a section jumped to from it arrives with
+   its heading hidden behind the header and the first thing you see is the
+   paragraph after it \u2014 which reads as the link having missed. Same fix the
+   classroom pages carry (ww-teachers.css); the landing page never had it
+   because it never had in-page nav links until the sections were named. */
+#look,#reviews,#everyone,#educators,#developers,#soundtrack,#updates,#faq,#get,#top{scroll-margin-top:4.6rem}
+
 /* ---------- mobile critical path -----------------------------------------
    Everything below the hero is skipped for layout and paint until it is near
    the viewport. The page is one long scroll of big screenshots, and on a
    throttled phone the browser was laying out and painting all of it before it
-   could show the top. contain-intrinsic-size gives each skipped section a
-   placeholder height so the scrollbar and anchor links stay honest; the values
-   are the sections' real heights at 412px wide, measured and then trimmed 7%
-   for the margins that collapse differently under containment, so the scroll
-   height barely moves as sections resolve. */
-#look,#reviews,#everyone,#educators,#soundtrack,#updates,#faq,#get{content-visibility:auto}
-#look{contain-intrinsic-size:auto 3815px}
-#reviews{contain-intrinsic-size:auto 1615px}
-#everyone{contain-intrinsic-size:auto 1904px}
-#educators{contain-intrinsic-size:auto 934px}
-#soundtrack{contain-intrinsic-size:auto 270px}
-#updates{contain-intrinsic-size:auto 623px}
-#faq{contain-intrinsic-size:auto 1032px}
-#get{contain-intrinsic-size:auto 365px}
+   could show the top.
+
+   SCOPED TO THE WIDTH IT WAS MEASURED AT, which it was not before, and that was
+   a real bug rather than a tuning problem. The placeholder heights are the
+   sections' heights at 412px \u2014 a phone, where cards stack. At 1440px the same
+   sections are half that: #reviews is 1737 tall on a phone and 801 on a desktop.
+   Applied at every width, every off-screen section over-reported by hundreds of
+   pixels, so the document claimed to be ~12,900px tall; a click on a nav link
+   started a smooth scroll toward an offset computed from that, the sections
+   resolved to their real heights on the way past, the page collapsed by ~2,000px
+   underneath the animation, and the scroll clamped to the bottom. Every link
+   below Accessibility landed at the footer.
+
+   A desktop does not need this: the cost it avoids is layout and paint on a
+   throttled phone. So it applies only there, where the numbers are true.
+
+   The values are measured, not estimated \u2014 re-measure at 412px with containment
+   forced off if the content of a section changes materially. */
+@media(max-width:820px){
+#look,#reviews,#everyone,#educators,#developers,#soundtrack,#updates,#faq,#get{content-visibility:auto}
+#look{contain-intrinsic-size:auto 5217px}
+#reviews{contain-intrinsic-size:auto 1737px}
+#everyone{contain-intrinsic-size:auto 2047px}
+#educators{contain-intrinsic-size:auto 1104px}
+#developers{contain-intrinsic-size:auto 1181px}
+#soundtrack{contain-intrinsic-size:auto 290px}
+#updates{contain-intrinsic-size:auto 670px}
+#faq{contain-intrinsic-size:auto 1110px}
+#get{contain-intrinsic-size:auto 392px}
+}
 
 /* The hero's fireflies and stars are decoration, and on a slow device they were
    animating while the browser was still trying to paint the first screen. Hold
@@ -32396,10 +32648,10 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <nav class="nav"><div class="wrap">
   <a class="brand" href="#top"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
-    <a class="hide-sm" href="#look">Screenshots</a>
     <a class="hide-sm" href="#reviews">Reviews</a>
     <a class="hide-sm" href="#everyone">Accessibility</a>
-    <a class="hide-sm" href="/teachers" data-track="edu-nav">For teachers</a>
+    <a class="hide-sm" href="#educators">Teachers</a>
+    <a class="hide-sm" href="#developers">Developers</a>
     <a class="hide-sm" href="#updates">Community</a>
     <a class="hide-sm" href="#faq">FAQ</a>
     <a class="btn btn-go" href="#get" data-track="get-nav">Get the game</a>
@@ -32464,7 +32716,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     </button>
     <div class="player-info">
       <p class="who">Original soundtrack by Jon Licht</p>
-      <h3>Wild Willows Main Theme</h3>
+      <h2>Wild Willows Main Theme</h2>
       <div class="bar" id="ppBar" role="progressbar" aria-label="Theme progress"><div class="bar-fill" id="ppFill"></div></div>
       <div class="times"><span id="ppCur">0:00</span><span id="ppDur">3:00</span></div>
     </div>
@@ -32533,7 +32785,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 
 <!-- Ordered deliberately, not chronologically. The arc answers the questions a
      visitor asks in the order they ask them: what is this and why would I like it
-     \u2192 I'm sceptical \u2192 is there enough here \u2192 who is it good for \u2192 quick second
+     \u2192 I'm skeptical \u2192 is there enough here \u2192 who is it good for \u2192 quick second
      opinion \u2192 how do I try it. The last one points straight at the demo, which is
      where the section hands off. Quotes are verbatim, typos and all, because tidying a
      testimonial makes it someone else's words. -->
@@ -32620,39 +32872,77 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 <section id="educators"><div class="wrap">
   <div class="head">
     <h2>For teachers</h2>
-    <p>A ready-to-run classroom kit: one lesson for grades 5&ndash;8, printable worksheets, and nothing to sign up for. The whole thing runs on the free browser demo.</p>
+    <p>Two free, ready-to-run kits built on the same game &mdash; one science, one computer science. They work equally well on their own. No accounts, no cost, nothing to install.</p>
   </div>
 
   <div class="edu">
-    <a class="dl" href="/educator-guide.pdf" target="_blank" rel="noopener" data-track="pdf-guide">
-      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span>
+    <a class="dl" href="/teachers/science" data-track="edu-nav">
+      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21.5c0-6 3-10.5 8.5-11.5C20.5 16 17 21 12 21.5z"/><path d="M12 21.5C12 15 8.5 11 3.5 10.5 3.5 16 7 21 12 21.5z"/><path d="M12 21.5V13"/></svg></span>
       <span class="dl-txt">
-        <b>Educator Guide</b>
-        <span class="dl-meta">PDF &middot; 8 pages &middot; grades 5&ndash;8 &middot; 45&ndash;60 min</span>
-        <span class="dl-sub">A single-session lesson on Willow Meadow: what to set up beforehand, what students should watch for, discussion questions with answer notes, and the ecosystem standards it supports.</span>
-        <span class="dl-go">Download the guide &rarr;</span>
+        <b>Ecosystems &amp; Habitat</b>
+        <span class="dl-meta">Grades 5&ndash;8 &middot; 45&ndash;60 min &middot; science</span>
+        <span class="dl-sub">Students restore a damaged meadow, log which animals return and when, and work out that habitat means food, water, shelter and space together. Educator guide, six printable worksheets, English and Espa&ntilde;ol.</span>
+        <span class="dl-go">Open the science kit &rarr;</span>
       </span>
     </a>
-    <a class="dl" href="/student-worksheets.pdf" target="_blank" rel="noopener" data-track="pdf-worksheets">
-      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h5"/><path d="M9 12.5h7M9 16h5"/></svg></span>
+    <a class="dl" href="/teachers/coding" data-track="edu-nav">
+      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8.5 4 13l4.5 4.5M15.5 8.5 20 13l-4.5 4.5M13.5 5l-3 16"/></svg></span>
       <span class="dl-txt">
-        <b>Student Worksheets</b>
-        <span class="dl-meta">PDF &middot; 6 worksheets &middot; one per student or pair</span>
-        <span class="dl-sub">Before You Play, Field Log, Before &amp; After, Habitat Detective, Design Your Own Biome, and Game vs. Nature. They work on their own or as a set, so use only the ones you want.</span>
-        <span class="dl-go">Download the worksheets &rarr;</span>
+        <b>Intro to APIs &amp; Web Development</b>
+        <span class="dl-meta">Grades 9&ndash;12 &middot; 1&ndash;3 periods &middot; computer science</span>
+        <span class="dl-sub">Students learn how HTML, CSS, JavaScript and APIs fit together by pulling real Wild Willows data into a webpage they build themselves. Ten-chapter lesson, answer key, and you do not need to know JavaScript to teach it.</span>
+        <span class="dl-go">Open the coding kit &rarr;</span>
       </span>
     </a>
   </div>
 
-  <p class="edu-note">Free to download, print and photocopy. No email, no account, no strings &mdash; and a <b>limited number of free copies for schools</b>, first come, first served.</p>
+  <p class="edu-note">Both kits are free to download, print and photocopy &mdash; no email, no account, no strings. The science kit&rsquo;s <a href="/educator-guide.pdf" target="_blank" rel="noopener" data-track="pdf-guide">educator guide</a> and <a href="/student-worksheets.pdf" target="_blank" rel="noopener" data-track="pdf-worksheets">student worksheets</a> download straight from here, and there are a <b>limited number of free copies for schools</b>, first come, first served.</p>
 
   <div class="cta-row" style="justify-content:center;margin-top:1.1rem">
     <a class="btn btn-go" href="/teachers" data-track="edu-nav">Everything for teachers &rarr;</a>
   </div>
 </div></section>
 
-<section class="band" id="updates"><div class="wrap">
-  <!-- Every other section on this page opens with a centred .head (h2 + one
+<!-- The game's data is a public, key-free endpoint, and there is a free lesson
+     built on it. This section is the door to /learn; the teachers section above
+     is the door to the same material with a lesson plan wrapped around it. -->
+<section class="band" id="developers"><div class="wrap">
+  <div class="head">
+    <h2>For developers</h2>
+    <p>Every animal, biome and habitat item in the game is served from one public endpoint, with no key and no sign-up. There is a free lesson that teaches you to build something with it.</p>
+  </div>
+
+  <div class="edu">
+    <a class="dl" href="/learn/web-development" data-track="learn-nav">
+      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5h16v13H4z"/><path d="M4 9h16"/><path d="M8 13h6"/></svg></span>
+      <span class="dl-txt">
+        <b>The Lesson</b>
+        <span class="dl-meta">Ten chapters &middot; runs in the browser &middot; no setup</span>
+        <span class="dl-sub">HTML, CSS and JavaScript, what an API is, and a real request you can watch happen &mdash; then reading the response, looping over it, and building a page out of it. Every code sample is editable and runs as you type.</span>
+        <span class="dl-go">Start the Lesson &rarr;</span>
+      </span>
+    </a>
+    <a class="dl" href="/learn/code-builder" data-track="learn-nav">
+      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 8.5 4 13l4.5 4.5M15.5 8.5 20 13l-4.5 4.5M13.5 5l-3 16"/></svg></span>
+      <span class="dl-txt">
+        <b>The Code Builder</b>
+        <span class="dl-meta">Three files &middot; live preview &middot; thirty project ideas</span>
+        <span class="dl-sub">index.html, styles.css and main.js side by side with the page they make, plain-language explanations when something breaks, and a download button. Your work stays in your own browser.</span>
+        <span class="dl-go">Open the Code Builder &rarr;</span>
+      </span>
+    </a>
+  </div>
+
+  <p class="edu-note">The endpoint is <code>https://wildwillows.app/GameData/</code> &mdash; 150 species with real diet, shelter and habitat notes, six biomes, and the requirements that decide which animal returns when. It is the same data the game itself runs on, it sends the CORS header, and it needs no key. Build whatever you like with it.</p>
+
+  <div class="cta-row" style="justify-content:center;margin-top:1.1rem">
+    <a class="btn btn-go" href="/developers/api" data-track="api-docs">Read the API docs &rarr;</a>
+    <a class="btn btn-paper" href="/learn" data-track="learn-nav">Learn to use it &rarr;</a>
+  </div>
+</div></section>
+
+<section id="updates"><div class="wrap">
+  <!-- Every other section on this page opens with a centered .head (h2 + one
        line of subhead) and then its content. This one used to jump straight to
        the postcard, so the page's rhythm broke for one section and the document
        outline skipped from the h2s around it to an h3 inside a card. The .head
@@ -32682,7 +32972,7 @@ body.ready .star,body.ready .fly{animation-play-state:running}
   </div>
 </div></section>
 
-<section id="faq"><div class="wrap">
+<section class="band" id="faq"><div class="wrap">
   <div class="head"><h2>Good to know</h2></div>
   <div class="faq">
     <details open><summary>What is Wild Willows?</summary><p>A cozy nature-restoration life sim. You set up camp at the edge of a damaged nature preserve, then gather materials, craft and plant real habitat, and shape the land. As each biome recovers, real animal species find their way home.</p></details>
@@ -33119,13 +33409,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -33188,7 +33478,25 @@ section{padding:3.4rem 0}
  * repoint of the same tokens in ww-dark.css.
  */
 
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder \u2014 content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
 body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
 	background: var(--paper);
 	color: var(--ink);
 	font-family: var(--f);
@@ -33331,9 +33639,13 @@ body.edu-hub {
 }
 
 /* Pushes the button to the bottom so two cards of different length still line
-   their calls to action up with each other. */
-.kit-go {
-	margin-top: auto;
+   their calls to action up with each other.
+   \`.kit .kit-go\` rather than \`.kit-go\`: this is a <p>, and \`.kit p\` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
 }
 
 .kit .btn {
@@ -33342,6 +33654,17 @@ body.edu-hub {
 }
 
 /* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections \u2014 "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
 
 .tsec {
 	margin-top: 3rem;
@@ -33479,6 +33802,76 @@ body.edu-hub {
 	gap: 0.5rem;
 }
 
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* Wild Willows \u2014 dark mode for the classroom pages.
  *
  * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
@@ -33500,7 +33893,7 @@ body.edu-hub {
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -33523,7 +33916,7 @@ body.edu-hub {
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
@@ -33531,13 +33924,15 @@ body.edu-hub {
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -33559,7 +33954,7 @@ body.edu-hub {
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -33576,6 +33971,17 @@ body.edu-hub {
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {
@@ -33717,6 +34123,8 @@ body.edu-hub {
 </head>
 <body class="edu-hub">
 
+<a class="skip-link" href="#main">Skip to the kits</a>
+
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
@@ -33730,7 +34138,7 @@ body.edu-hub {
   </div>
 </div></nav>
 
-<div class="twrap">
+<main class="twrap" id="main" tabindex="-1">
 
 <header class="thero">
   <p class="kicker">For teachers</p>
@@ -33842,7 +34250,7 @@ body.edu-hub {
   </div>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -33864,16 +34272,34 @@ body.edu-hub {
     }
   }
 
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_edu_hub_seen');
     sessionStorage.setItem('ww_edu_hub_seen', '1');
   } catch (e) {
     /* Guest mode or a locked-down profile: counting it is the better failure. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_hub');
+    if (everFresh) localStorage.setItem('ww_ever_hub', '1');
+  } catch (e) {
+    /* storage refused \u2014 counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
   if (fresh) {
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_hub: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_hub: 1 }); }, 500);
+    var opening = { view_hub: 1 };
+    if (everFresh) opening.unique_hub = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   /* WHICH KIT THEY TOOK. The one number worth having about a hub. */
@@ -33901,7 +34327,7 @@ var teachersScienceHtml = `<!doctype html>
 <meta name="description" content="A free, ready-to-run classroom activity. Students restore a damaged meadow in Wild Willows, log which animals return and why, and learn that habitat is food, water, shelter and space. Educator guide and six printable worksheets, 45\u201360 minutes, grades 5\u20138, English and Spanish, no accounts and no cost.">
 <link rel="canonical" href="https://wildwillows.app/teachers/science">
 <meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#2b3149">
+<meta name="theme-color" content="#f4eeda">
 <meta name="keywords" content="ecosystem lesson plan, habitat lesson, biodiversity classroom activity, food web lesson, middle school science game, restoration ecology for kids, free educator guide, printable science worksheets, grades 5-8, NGSS ecosystems, educational game, Wild Willows">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
@@ -33977,13 +34403,14 @@ var teachersScienceHtml = `<!doctype html>
     {
       "@type": "FAQPage",
       "mainEntity": [
-        { "@type": "Question", "name": "Do I have to buy anything to run the lesson?", "acceptedAnswer": { "@type": "Answer", "text": "No. The whole activity runs on the free browser demo at play.wildwillows.app \u2014 Willow Meadow is not capped, so a class can restore it, meet the animals and finish every worksheet without spending anything. The educator guide and worksheets are free as well, and there are free promo codes for classrooms that want the installed game." } },
-        { "@type": "Question", "name": "What grade level is Wild Willows for?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson is written for grades 5\u20138 and the game is rated 9+. Younger classes can play it with the Simpler wording setting turned on. Older students get the most out of the Game vs. Nature worksheet, which asks them to pick apart the model itself." } },
-        { "@type": "Question", "name": "What does Wild Willows teach?", "acceptedAnswer": { "@type": "Answer", "text": "That habitat means food, water, shelter and space together; that different species need different things; that biodiversity builds in an order, with predators arriving only once their prey is established; that restoration takes time and repeated effort; and that a model of an ecosystem is useful even though it leaves things out." } },
-        { "@type": "Question", "name": "Do students need accounts or internet access?", "acceptedAnswer": { "@type": "Answer", "text": "No accounts, no email, and no sign-in. The installed game runs entirely offline and saves locally to the machine; only the browser demo needs a connection to load the page." } },
-        { "@type": "Question", "name": "What data does Wild Willows collect about students?", "acceptedAnswer": { "@type": "Answer", "text": "Anonymous gameplay statistics only, never linked to identity. No tracking, no third-party analytics, and no personal information is collected." } },
-        { "@type": "Question", "name": "Can I get free copies for my classroom?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A limited number of free promo codes are set aside for teachers \u2014 full copies, no cost, no expiry. Email wildwillowsgame@gmail.com from your school address with your school, grade level and roughly how many machines you need." } },
-        { "@type": "Question", "name": "Is there anything violent or upsetting in the game?", "acceptedAnswer": { "@type": "Answer", "text": "No. There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted, captured or lost, and nothing ever dies." } }
+        { "@type": "Question", "name": "Do I have to buy anything to run the lesson?", "acceptedAnswer": { "@type": "Answer", "text": "No. The whole activity runs on the free browser demo at play.wildwillows.app. Willow Meadow is not capped, so a class can restore it, meet the animals and finish every worksheet without spending anything. The guide and worksheets are free as well, and there are free classroom copies of the full game for the asking." } },
+        { "@type": "Question", "name": "Will students' work survive to the next class period?", "acceptedAnswer": { "@type": "Answer", "text": "In the demo, not reliably. Plan it as a single session and have students carry the evidence out on the worksheets rather than in the save file. The installed full game saves locally to the machine, so a class set of copies is what you want to run it over several periods." } },
+        { "@type": "Question", "name": "What if my students cannot install software?", "acceptedAnswer": { "@type": "Answer", "text": "Use the browser demo. It needs nothing installed and no sign-in, so it runs on locked-down school machines and Chromebooks, anywhere with a reasonably current browser. The full game is a download for macOS, Windows and Linux." } },
+        { "@type": "Question", "name": "Is it appropriate for my grade level?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson is written for grades 5-8 and the game is rated 9+. Younger classes can play it with the Simpler wording setting turned on, leaning on Worksheets 1 to 3. Older students get the most out of Worksheet 6, which asks them to pick apart the model itself." } },
+        { "@type": "Question", "name": "How much prep does it actually take?", "acceptedAnswer": { "@type": "Answer", "text": "Fifteen minutes. Open the meadow once yourself, print Worksheets 1 to 3, and check the settings on one machine. There are no accounts to create, no class codes to hand out and no rosters to upload." } },
+        { "@type": "Question", "name": "Is there anything violent, scary or upsetting in the game?", "acceptedAnswer": { "@type": "Answer", "text": "No. There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted, captured or lost, and nothing ever dies. Predators arrive as residents of a recovered food web rather than as a threat." } },
+        { "@type": "Question", "name": "Can I photocopy the worksheets, or adapt the guide?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Print, photocopy and share them with your students and colleagues freely. If you rework the lesson into something better, write to wildwillowsgame@gmail.com." } },
+        { "@type": "Question", "name": "What data does Wild Willows collect about students?", "acceptedAnswer": { "@type": "Answer", "text": "Anonymous gameplay statistics only, never linked to identity. No accounts, no email, no tracking, no third-party analytics, and no personal information is collected. Because nothing identifies anybody, there is no student record to request, correct or delete." } }
       ]
     },
     {
@@ -33998,1028 +34425,6 @@ var teachersScienceHtml = `<!doctype html>
 }
 </script>
 
-<style>
-/* Wild Willows \u2014 For teachers.
-   The style block below is the landing page's, copied verbatim so the two
-   pages cannot drift apart, followed by the rules only this page needs.
-   Edit public/landing.html's <style> and re-copy rather than tweaking here. */
-
-/* Wild Willows landing, styled after the game itself: cream in-game panels,
-   pill chips, health bars, and the title screen's dusk. One typeface (the
-   game's), no gradient-card template stuff. */
-:root{
-  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
-  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
-  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
-  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
-  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
-  --toast:#33342b;
-  --r:14px; --rlg:20px;
-  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
-  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
-}
-*{box-sizing:border-box}
-html{scroll-behavior:smooth}
-body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
-h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
-h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
-h3{font-size:1.15rem}
-p{margin:0 0 1rem}
-a{color:var(--green-deep)}
-img{max-width:100%}
-.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
-svg{display:block}
-
-/* ---------- chips & buttons, borrowed from the game UI ---------- */
-.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
-  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
-.chip.on{background:var(--green);border-color:var(--green);color:#fff}
-.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
-.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
-  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
-  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
-  transition:transform .1s ease, filter .1s ease}
-.btn:active{transform:translateY(1px)}
-.btn:hover{filter:brightness(1.06)}
-.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
-.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
-.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
-.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
-.btn svg{width:16px;height:16px;flex:none}
-.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
-
-/* ---------- nav ---------- */
-.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
-.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
-.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
-.brand svg{width:27px;height:27px;flex:none}
-.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
-/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
-   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
-   pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
-.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
-.nav .links a:not(.btn):hover{color:var(--green-deep)}
-.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
-/* The nav is a fixed-height flex row, so when its contents stop fitting they
-   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
-
-   1. nowrap, so an item never splits across two lines whatever happens.
-   2. the secondary links go at 940px, not 740px. Measured: the landing nav
-      needs ~910px with every link shown, and every iPad in portrait is
-      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
-      what this band is really about \u2014 940 also lines up with .access's
-      breakpoint, so there is one fewer number in this sheet. Below it the nav
-      is brand + primary CTA, and the links it drops are section anchors the
-      page scrolls to anyway. */
-.brand,.nav .links a{white-space:nowrap}
-@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
-@media(max-width:940px){.nav .links a.hide-sm{display:none}}
-
-/* ---------- hero: the title screen's dusk ---------- */
-/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
-   the hero's edge (negative margin) and must not be clipped. The oversized
-   scene art is clipped by .hero-scene instead. */
-.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
-.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
-.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
-.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
-.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
-  text-shadow:0 3px 0 rgba(24,28,46,.55)}
-.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
-.hero .cta-row{justify-content:center}
-.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
-.hero .platline span{margin:0 .45rem}
-.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
-.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
-@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
-@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
-@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
-
-/* game-window frame: every screenshot lives in one of the game's own panels */
-.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
-.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
-.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
-.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
-.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
-.win img{display:block;width:100%;height:auto}
-.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
-  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
-.hero .wrap{padding-bottom:3.4rem}
-@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
-
-/* ---------- sections ---------- */
-section{padding:3.4rem 0}
-.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
-.head p{color:var(--ink-soft);font-size:1.04rem}
-.band{background:var(--paper-deep)}
-
-/* intro note */
-.note{max-width:44rem;margin:0 auto;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
-  box-shadow:var(--shadow);padding:1.8rem 2rem 1.5rem;position:relative}
-.note:before{content:"";position:absolute;top:-11px;left:50%;transform:translateX(-50%) rotate(-1.5deg);width:96px;height:22px;
-  background:rgba(201,145,63,.28);border:1px solid rgba(201,145,63,.25);border-radius:3px}
-.note p{font-size:1.06rem;color:var(--ink)}
-.note .sig{color:var(--ink-soft);font-size:.95rem;margin:0}
-.note .sig b{color:var(--green-deep)}
-
-/* feature rows */
-.feature{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem;align-items:center;margin:0 0 3rem}
-.feature:last-child{margin-bottom:0}
-.feature .txt h3{font-size:1.45rem}
-.feature .txt p{color:var(--ink-soft);font-size:1.02rem}
-.feature .txt .chips{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.4rem}
-@media(min-width:800px){.feature.flip .txt{order:2}.feature.flip .win{order:1}}
-@media(max-width:799px){.feature{grid-template-columns:1fr;gap:1.1rem}.feature .txt{order:1}.feature .win{order:2}}
-
-/* smaller shots grid: plain images with captions underneath, no chrome */
-.shots{display:grid;grid-template-columns:1fr 1fr;gap:2.2rem 1.8rem;margin-top:3rem}
-@media(max-width:719px){.shots{grid-template-columns:1fr;gap:1.8rem}}
-.shots figure{margin:0}
-.shots img{display:block;width:100%;height:auto;border-radius:var(--rlg);border:1.5px solid var(--panel-edge);box-shadow:var(--shadow)}
-.shots .cap{padding:.75rem .15rem 0;font-size:.95rem;color:var(--ink-soft);margin:0}
-.shots .cap b{color:var(--green-deep);display:block;font-size:1.04rem;margin-bottom:.15rem}
-
-/* the numbers band: the game's little black toasts */
-.tally{display:flex;flex-wrap:wrap;gap:.6rem;justify-content:center}
-.tally .toast b{color:#cfe6ae;margin-right:.3rem}
-
-/* accessibility panel */
-.access{display:grid;grid-template-columns:repeat(6,1fr);gap:1.3rem;max-width:68rem;margin:0 auto;align-items:stretch}
-.apanel{grid-column:span 2}
-.apanel.half{grid-column:span 3}
-@media(max-width:940px){.access{grid-template-columns:repeat(2,1fr)}.apanel,.apanel.half{grid-column:span 1}}
-@media(max-width:640px){.access{grid-template-columns:1fr}}
-.apanel{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);
-  padding:1.45rem 1.5rem;display:flex;flex-direction:column}
-.apanel .chips{display:flex;flex-wrap:wrap;gap:.42rem;margin-top:auto;padding-top:.95rem}
-.apanel p{color:var(--ink-soft);margin:0}
-.apanel h3{display:flex;align-items:center;gap:.5rem;margin-bottom:.7rem;font-size:1.06rem}
-.apanel h3 .ai{flex:none;width:30px;height:30px;border-radius:9px;background:var(--sprout);border:1.5px solid #cfe0bd;
-  display:flex;align-items:center;justify-content:center}
-.apanel h3 .ai svg{width:17px;height:17px;stroke:var(--green-deep);stroke-width:1.9;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.checkrow{display:flex;align-items:flex-start;gap:.55rem;padding:.26rem 0;color:var(--ink);font-size:.95rem;line-height:1.5}
-.checkrow svg{flex:none;width:18px;height:18px;margin-top:.22rem;stroke:var(--green-bright);stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.checkrow b{font-weight:700;color:var(--green-deep)}
-.checkrow .sub{display:block;color:var(--ink-soft);font-size:.88rem}
-.a-note{max-width:68rem;margin:1.3rem auto 0;text-align:center;font-size:.92rem;color:var(--ink-soft)}
-
-/* soundtrack */
-.player{max-width:620px;margin:0 auto;display:flex;align-items:center;gap:1.2rem;background:var(--panel);
-  border:1.5px solid var(--panel-edge);border-radius:var(--rlg);padding:1.2rem 1.4rem;box-shadow:var(--shadow)}
-.play-btn{flex:none;width:60px;height:60px;border-radius:50%;border:none;cursor:pointer;background:var(--green);color:#fff;
-  display:flex;align-items:center;justify-content:center;box-shadow:0 3px 0 var(--green-deep);transition:transform .1s ease}
-.play-btn:hover{transform:scale(1.05)}
-.play-btn:active{transform:translateY(1px)}
-.play-btn svg{width:26px;height:26px}
-.play-btn .i-pause{display:none}
-.play-btn.playing .i-play{display:none}
-.play-btn.playing .i-pause{display:flex}
-.player-info{flex:1;min-width:0}
-.player-info .who{font-size:.8rem;font-weight:700;color:var(--ink-faint);text-transform:none;margin:0 0 .1rem}
-.player-info h3{margin:0 0 .55rem;font-size:1.08rem;color:var(--ink)}
-.bar{height:9px;border-radius:999px;background:var(--paper-deep);cursor:pointer;overflow:hidden;border:1px solid var(--panel-edge)}
-.bar-fill{height:100%;width:0;background:var(--green-bright);border-radius:999px;transition:width .1s linear}
-.times{display:flex;justify-content:space-between;font-size:.8rem;color:var(--ink-faint);margin-top:.35rem}
-@media(max-width:520px){.player{flex-direction:column;text-align:center}.player-info{width:100%}}
-
-/* mailing list: a postcard from the preserve */
-.post{max-width:620px;margin:0 auto;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
-  box-shadow:var(--shadow);padding:1.7rem 1.8rem;position:relative}
-/* The dashed "stamp" in the top-right corner is gone, and so is everything that
-   existed to make room for it: the 74px right padding on the heading and intro,
-   and the 520px media query that shrank the stamp and unwound that padding
-   again. Nothing else in this sheet referenced them. */
-.post p{color:var(--ink-soft);font-size:.99rem}
-.post form{display:flex;gap:.6rem;flex-wrap:wrap;margin:.9rem 0 .4rem}
-.post input[type=email]{flex:1;min-width:210px;font-family:var(--f);font-size:1rem;font-weight:500;color:var(--ink);
-  background:#fff;border:1.5px solid var(--panel-edge);border-radius:12px;padding:.66rem .9rem;outline:none}
-.post input[type=email]:focus{border-color:var(--green)}
-.post .fine{font-size:.8rem;color:var(--ink-faint);margin:0}
-.post .hp{position:absolute;left:-5000px;top:auto;width:1px;height:1px;overflow:hidden}
-.post .done{display:none;align-items:flex-start;gap:.6rem;background:var(--sprout);border:1.5px solid #cfe0bd;
-  border-radius:12px;padding:.8rem .95rem;margin:.9rem 0 .4rem;color:var(--green-deep);font-weight:600}
-.post .oops{display:none;font-size:.88rem;color:var(--clay);font-weight:600;margin:.3rem 0 0}
-.post.is-done form{display:none}.post.is-done .done{display:flex}
-
-/* FAQ: field-guide entries */
-.faq{max-width:46rem;margin:0 auto}
-details{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--r);padding:.05rem 1.15rem;margin:0 0 .65rem;box-shadow:0 2px 3px rgba(52,58,40,.05)}
-summary{font-weight:700;font-size:1.02rem;color:var(--ink);cursor:pointer;padding:.85rem 0;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:1rem}
-summary::-webkit-details-marker{display:none}
-summary:after{content:"\u203A";font-size:1.35rem;color:var(--green-bright);transition:transform .18s;transform:rotate(90deg)}
-details[open] summary:after{transform:rotate(-90deg)}
-details p{color:var(--ink-soft);margin:0 0 1rem}
-
-/* final CTA: back to the dusk */
-.final{position:relative;background:linear-gradient(180deg,var(--paper) 0%,var(--dusk) 0%,var(--night2) 55%,var(--night) 100%);color:#f2f0dd;text-align:center;overflow:hidden;padding:4.2rem 0 4.6rem}
-.final h2{color:#f7f4e4}
-.final p{color:#d9d2ba;max-width:34rem;margin:0 auto 1.6rem}
-.final .cta-row{justify-content:center;position:relative;z-index:2}
-
-footer{background:#1d2334;color:#a9a893;padding:2.1rem 0;font-size:.9rem}
-footer .wrap{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center;justify-content:space-between}
-footer .brand{color:#e3ddc6}
-footer a{color:#cfc9ad;text-decoration:none}
-footer a:hover{color:#fff}
-footer .foot-links{display:flex;gap:1.2rem;flex-wrap:wrap}
-
-/* lightbox gallery: click any screenshot to browse them all */
-img.zoomable{cursor:zoom-in}
-body.lb-open{overflow:hidden}
-.lb{position:fixed;inset:0;z-index:100;display:none;align-items:center;justify-content:center;padding:2.4rem 4.5rem;background:rgba(23,27,39,.88)}
-.lb.open{display:flex}
-.lb figure{margin:0;text-align:center;max-width:100%}
-.lb img{max-width:min(1100px,100%);max-height:76vh;width:auto;height:auto;border-radius:14px;box-shadow:0 24px 70px rgba(0,0,0,.55)}
-.lb-cap{color:#e8e2cc;font-weight:600;margin-top:.85rem;font-size:1rem}
-.lb-count{color:#a9a893;font-size:.85rem;margin-left:.6rem;font-variant-numeric:tabular-nums}
-.lb button{position:absolute;border:none;cursor:pointer;background:rgba(253,250,241,.12);color:#f2f0dd;
-  border-radius:50%;width:46px;height:46px;font-size:1.6rem;line-height:1;display:flex;align-items:center;justify-content:center;
-  font-family:var(--f);transition:background .12s ease}
-.lb button:hover{background:rgba(253,250,241,.28)}
-.lb button:focus-visible{outline:2px solid #f2f0dd;outline-offset:2px}
-.lb-close{top:1rem;right:1rem}
-.lb-prev{left:.9rem;top:50%;transform:translateY(-50%)}
-.lb-next{right:.9rem;top:50%;transform:translateY(-50%)}
-@media(max-width:640px){
-  .lb{padding:1rem 3.4rem}
-  .lb button{width:40px;height:40px}
-  .lb-prev{left:.3rem}.lb-next{right:.3rem}
-}
-
-/* ---- reviews ---- */
-.revs{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem;align-items:start;max-width:66rem;margin:0 auto}
-.rev{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);
-  padding:1.25rem 1.35rem;margin:0;display:flex;flex-direction:column;gap:.75rem}
-.rev p{margin:0;font-size:.95rem;line-height:1.55}
-.rev cite{font-style:normal;font-size:.78rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;color:var(--ink-faint)}
-.stars{display:flex;gap:.1rem;color:var(--gold)}
-.stars svg{width:15px;height:15px;flex:none}
-/* Screen-reader-only: the stars are decorative, so the rating is spelled out. */
-.vh{position:absolute;width:1px;height:1px;margin:-1px;padding:0;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0}
-@media(max-width:900px){.revs{grid-template-columns:repeat(2,1fr)}}
-@media(max-width:620px){.revs{grid-template-columns:1fr}}
-/* ---- for teachers: PDF downloads + the school-copies offer ---- */
-.edu{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;max-width:62rem;margin:0 auto}
-.dl{display:flex;gap:1rem;align-items:flex-start;text-decoration:none;color:inherit;background:var(--panel);
-  border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);padding:1.35rem 1.45rem;
-  transition:transform .12s ease}
-.dl:hover{transform:translateY(-2px)}
-.dl-ico{flex:none;width:44px;height:44px;border-radius:13px;background:var(--sprout);border:1.5px solid var(--panel-edge);
-  display:flex;align-items:center;justify-content:center;color:var(--green-deep)}
-.dl-ico svg{width:22px;height:22px}
-.dl-txt{display:flex;flex-direction:column;gap:.32rem;min-width:0}
-.dl-txt b{font-size:1.08rem;color:var(--green-deep)}
-.dl-meta{font-size:.75rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-faint)}
-.dl-sub{font-size:.93rem;line-height:1.55;color:var(--ink-soft)}
-.dl-go{margin-top:.2rem;font-size:.9rem;font-weight:700;color:var(--green)}
-.edu-note{max-width:62rem;margin:1rem auto 0;text-align:center;font-size:.92rem;color:var(--ink-soft)}
-.school{max-width:62rem;margin:1.5rem auto 0;display:grid;grid-template-columns:1.7fr .85fr;gap:1.6rem;align-items:center;
-  background:var(--sprout);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);padding:1.7rem 1.8rem}
-.school h3{margin:0 0 .55rem;color:var(--green-deep);font-size:1.16rem}
-.school p{margin:0 0 .65rem;color:var(--ink-soft);font-size:.97rem;line-height:1.62}
-.school p:last-child{margin-bottom:0}
-.school b{color:var(--ink)}
-.school-cta{text-align:center}
-.school-cta .btn{width:100%}
-.school-cta .fine{margin:.65rem 0 0;font-size:.84rem;color:var(--ink-faint);line-height:1.5}
-.school-cta .fine a{color:var(--green-deep)}
-@media(max-width:820px){.edu{grid-template-columns:1fr}.school{grid-template-columns:1fr;padding:1.4rem 1.35rem}}
-
-/* ============================================================
-   /teachers only. Everything above is the landing page's sheet,
-   copied verbatim so the two pages cannot drift apart. Anything
-   this page needs and the landing page does not lives down here.
-   ============================================================ */
-
-/* hero: same dusk, but shorter \u2014 teachers are here to skim, not to be sold to.
-   The modifier is \`hero-edu\` and NOT \`edu\`, which is the trap it fell into once:
-   \`.edu\` already exists above as the two-up grid of PDF download cards, and it
-   carries display:grid, max-width:62rem and margin:0 auto. A hero wearing that
-   class silently became a 992px centred box on desktop \u2014 and looked perfect on
-   mobile, because below 992px the max-width never bites. Any new modifier on
-   this page has to be checked against the landing page's sheet above. */
-.hero.hero-edu .wrap{padding:3.4rem 1.2rem 3rem}
-.hero.hero-edu .wordmark{font-size:clamp(2rem,5.4vw,3.3rem)}
-.hero.hero-edu .kicker{font-size:.82rem;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#e3b98a;margin:0 0 .5rem}
-.hero .chips{display:flex;flex-wrap:wrap;gap:.45rem;justify-content:center;margin:1.4rem 0 0}
-.hero .chip{background:rgba(255,255,255,.12);border-color:rgba(255,255,255,.34);color:#eee8d2}
-
-/* two-line section intro that isn't centered \u2014 used where the section is a reference table */
-.head.left{margin-left:0;text-align:left;max-width:52rem}
-
-/* generic cream panel + grids, so sections stop reinventing .apanel */
-.card{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);padding:1.4rem 1.5rem}
-.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem}
-.g3{display:grid;grid-template-columns:repeat(3,1fr);gap:1.1rem}
-@media(max-width:900px){.g3{grid-template-columns:1fr 1fr}}
-@media(max-width:640px){.g2,.g3{grid-template-columns:1fr}}
-.card h3{font-size:1.08rem;margin-bottom:.4rem}
-.card p{color:var(--ink-soft);font-size:.96rem;margin:0}
-.card p + p{margin-top:.6rem}
-.num{display:flex;align-items:center;justify-content:center;flex:none;width:30px;height:30px;border-radius:9px;
-  background:var(--sprout);border:1.5px solid #cfe0bd;color:var(--green-deep);font-weight:700;font-size:.92rem}
-
-/* takeaway cards: the four things a student leaves with */
-.takes{display:grid;grid-template-columns:repeat(2,1fr);gap:1.1rem;max-width:62rem;margin:0 auto}
-@media(max-width:720px){.takes{grid-template-columns:1fr}}
-.take{display:flex;gap:.95rem;align-items:flex-start}
-.take h3{margin:0 0 .3rem;font-size:1.05rem}
-
-/* the lesson arc: a vertical timeline of three blocks */
-.arc{max-width:52rem;margin:0 auto;display:flex;flex-direction:column;gap:1rem}
-.step{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);
-  padding:1.35rem 1.5rem;position:relative}
-.step-top{display:flex;align-items:center;gap:.7rem;margin-bottom:.6rem;flex-wrap:wrap}
-.step-top h3{margin:0;font-size:1.12rem}
-.step-top .chip.warm{margin-left:auto}
-.step ul{margin:0;padding-left:1.1rem;color:var(--ink-soft);font-size:.97rem}
-.step li{margin:0 0 .45rem}
-.step li:last-child{margin-bottom:0}
-.step li b{color:var(--ink)}
-
-/* checklist panel (before class / grouping) */
-.setup{display:grid;grid-template-columns:1.25fr 1fr;gap:1.1rem;max-width:52rem;margin:1.1rem auto 0}
-@media(max-width:720px){.setup{grid-template-columns:1fr}}
-
-.pattern{max-width:62rem;margin:1.1rem auto 0;background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:var(--rlg);
-  padding:1.1rem 1.3rem;color:var(--ink);font-size:.98rem}
-.pattern b{color:var(--green-deep)}
-
-/* discussion prompts: two lists side by side */
-.promptbox ul{margin:.2rem 0 0;padding-left:1.1rem;color:var(--ink-soft);font-size:.96rem}
-.promptbox li{margin:0 0 .4rem}
-
-/* game vs nature: two columns that disagree with each other */
-.vs{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;max-width:62rem;margin:0 auto}
-@media(max-width:720px){.vs{grid-template-columns:1fr}}
-.vs .card h3{display:flex;align-items:center;gap:.5rem}
-.vsrow{display:flex;align-items:flex-start;gap:.55rem;padding:.3rem 0;font-size:.95rem;line-height:1.5;color:var(--ink)}
-.vsrow svg{flex:none;width:17px;height:17px;margin-top:.24rem;stroke-width:2.4;fill:none;stroke-linecap:round;stroke-linejoin:round}
-.vsrow.yes svg{stroke:var(--green-bright)}
-.vsrow.no svg{stroke:var(--clay)}
-
-/* six biomes */
-.biomes{display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;max-width:62rem;margin:0 auto}
-@media(max-width:860px){.biomes{grid-template-columns:1fr 1fr}}
-@media(max-width:560px){.biomes{grid-template-columns:1fr}}
-.biome{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--r);box-shadow:var(--shadow);padding:1rem 1.1rem}
-.biome b{display:block;color:var(--green-deep);font-size:1.02rem;margin-bottom:.2rem}
-.biome span{font-size:.92rem;color:var(--ink-soft);line-height:1.55}
-
-/* practical details: a spec sheet, not prose */
-.spec{max-width:56rem;margin:0 auto;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
-  box-shadow:var(--shadow);overflow:hidden}
-.spec .row{display:grid;grid-template-columns:11rem 1fr;gap:1.2rem;padding:.9rem 1.4rem;border-bottom:1px solid #efe8d2}
-.spec .row:last-child{border-bottom:none}
-.spec .row:nth-child(odd){background:#fbf8ee}
-.spec dt{font-weight:700;color:var(--green-deep);font-size:.96rem;margin:0}
-.spec dd{margin:0;color:var(--ink-soft);font-size:.95rem;line-height:1.6}
-@media(max-width:640px){.spec .row{grid-template-columns:1fr;gap:.2rem}}
-
-/* section anchors clear the sticky nav */
-section[id]{scroll-margin-top:66px}
-
-/* ---------- mobile critical path -----------------------------------------
-   This page is 15,000px of lesson plan, and on a throttled phone the browser
-   was laying out and painting all of it before it could show the first screen.
-   Everything below the intro is skipped until it is near the viewport.
-   contain-intrinsic-size holds a placeholder height so the scrollbar and the
-   in-page anchors (the lesson jumps to #model, #downloads and #faq) stay
-   honest; the values are the sections' real heights at 412px wide, measured and
-   then trimmed 7% for the margins that collapse differently under containment,
-   so the scroll height barely moves as sections resolve. */
-#teaches,#lesson,#discussion,#model,#downloads,#copies,#beyond,#practical,#faq,#get{content-visibility:auto}
-#teaches{contain-intrinsic-size:auto 1428px}
-#lesson{contain-intrinsic-size:auto 2308px}
-#discussion{contain-intrinsic-size:auto 1087px}
-#model{contain-intrinsic-size:auto 1441px}
-#downloads{contain-intrinsic-size:auto 1754px}
-#copies{contain-intrinsic-size:auto 561px}
-#beyond{contain-intrinsic-size:auto 1402px}
-#practical{contain-intrinsic-size:auto 1396px}
-#faq{contain-intrinsic-size:auto 1128px}
-#get{contain-intrinsic-size:auto 420px}
-
-/* The hero's fireflies and stars are decoration, and on a slow device they were
-   animating while the browser was still trying to paint the first screen. Hold
-   them until the page has loaded; \`body.ready\` is set on the load event. */
-.star,.fly{animation-play-state:paused}
-body.ready .star,body.ready .fly{animation-play-state:running}
-/* The line saying which of the two kits this page is. Above the note rather
-   than in it: a teacher who landed here from a search for "ecosystem lesson
-   plan" is in the right place and should not be made to read a signpost first,
-   but a teacher who wanted the coding one needs the way out on screen. */
-.sibling-kit{max-width:44rem;margin:0 auto 1.4rem;font-size:.92rem;line-height:1.6;color:var(--ink-soft);text-align:center}
-.sibling-kit a{color:var(--green-deep);font-weight:600}
-</style>
-</head>
-<body>
-
-<nav class="nav"><div class="wrap">
-  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
-  <div class="links">
-    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
-    <a class="hide-sm" href="#teaches">What it teaches</a>
-    <a class="hide-sm" href="#lesson">The lesson</a>
-    <a class="hide-sm" href="/">The game</a>
-    <a class="btn btn-go" href="#downloads">Download the kit</a>
-  </div>
-</div></nav>
-
-<header class="hero hero-edu" id="top">
-  <div class="hero-scene" aria-hidden="true">
-    <span class="star" style="top:10%;left:14%;width:3px;height:3px"></span>
-    <span class="star" style="top:16%;left:33%;width:2px;height:2px;animation-delay:.9s"></span>
-    <span class="star" style="top:8%;left:57%;width:2px;height:2px;animation-delay:1.6s"></span>
-    <span class="star" style="top:19%;left:72%;width:3px;height:3px;animation-delay:.4s"></span>
-    <span class="star" style="top:11%;left:87%;width:2px;height:2px;animation-delay:2.2s"></span>
-    <span class="fly" style="bottom:16%;left:24%"></span>
-    <span class="fly" style="bottom:11%;left:40%;animation-delay:2.5s"></span>
-    <span class="fly" style="bottom:20%;left:66%;animation-delay:4.5s"></span>
-    <svg viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
-      <g>
-        <circle cx="255" cy="70" r="30" fill="#f4ecca" opacity=".95"/>
-        <circle cx="244" cy="62" r="26" fill="#4b4260" opacity=".45"/>
-      </g>
-      <path d="M0 330 Q 240 262 520 312 T 1080 300 T 1600 312 V420 H0 Z" fill="#2c3327" opacity=".9"/>
-      <path d="M0 366 Q 300 322 640 354 T 1200 348 T 1600 358 V420 H0 Z" fill="#1f2b1d"/>
-      <path d="M64 400 q-4 -30 6 -46 M84 402 q2 -26 -6 -42 M104 400 q-2 -32 8 -50 M1258 398 q-4 -26 6 -42 M1278 400 q2 -24 -4 -38 M1296 398 q-2 -28 8 -44"
-        stroke="#16210f" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".85"/>
-    </svg>
-  </div>
-  <div class="wrap">
-    <p class="kicker">For teachers</p>
-    <h1 class="wordmark">Wild Willows in the classroom</h1>
-    <p class="lead">Students rebuild a damaged meadow, watch real wildlife move back in, and work out why each animal came back when it did. One class period, free to run, nothing to sign up for.</p>
-    <div class="cta-row">
-      <a class="btn btn-go" href="#downloads"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11"/><path d="M7.5 11L12 15.5 16.5 11"/><path d="M5 19h14"/></svg> Download the free kit</a>
-      <a class="btn btn-night" href="https://play.wildwillows.app/" rel="noopener" data-track="play">Try it in your browser</a>
-      <a class="btn btn-night" href="#copies">Free copies for schools</a>
-    </div>
-    <div class="chips">
-      <span class="chip">Grades 5&ndash;8</span>
-      <span class="chip">45&ndash;60 minutes</span>
-      <span class="chip">English &amp; Espa&ntilde;ol</span>
-      <span class="chip">Runs offline</span>
-      <span class="chip">No accounts, no email</span>
-      <span class="chip">No ads or purchases</span>
-    </div>
-  </div>
-</header>
-
-<main>
-
-<section id="about" style="padding-top:2.6rem"><div class="wrap">
-  <p class="sibling-kit">This is the science kit, for grades 5&ndash;8. There is also a <a href="/teachers/coding" data-track="coding-kit">computer science kit for grades 9&ndash;12</a>, where students pull real Wild Willows data into a webpage they build themselves. <a href="/teachers" data-track="edu-nav">Both kits</a>.</p>
-  <div class="note">
-    <p>In Wild Willows, students play a caretaker restoring a nature preserve. They gather fallen seeds, branches and stones, plant native grasses and wildflowers, dig ponds, and build shelter. As the land recovers, <b>real animals move back in on their own</b> &mdash; each one waiting until the meadow can actually meet its needs.</p>
-    <p>Nothing is hunted, harmed, captured or kept. There is no score, no timer, and no way to lose. The learning sits in the gap between what students <em>predict</em> will happen and what actually does.</p>
-  </div>
-</div></section>
-
-<section class="band" id="teaches"><div class="wrap">
-  <div class="head">
-    <h2>What students walk away with</h2>
-    <p>Four ideas the meadow teaches by making students test them, rather than by telling them.</p>
-  </div>
-  <div class="takes">
-    <div class="card take">
-      <span class="num" aria-hidden="true">1</span>
-      <div>
-        <h3>Habitat is four things at once</h3>
-        <p>Food, water, shelter and space. An animal returns only when <b>all</b> of its needs are met in one place &mdash; which is why building three of the four does nothing at all.</p>
-      </div>
-    </div>
-    <div class="card take">
-      <span class="num" aria-hidden="true">2</span>
-      <div>
-        <h3>Different species need different things</h3>
-        <p>A bumblebee and a barn owl do not want the same meadow. Students who build one of everything discover they can no longer say which build caused which arrival.</p>
-      </div>
-    </div>
-    <div class="card take">
-      <span class="num" aria-hidden="true">3</span>
-      <div>
-        <h3>Biodiversity builds in an order</h3>
-        <p>Plants and insects first, predators last. The hawk is not harder to build for &mdash; it is waiting for everyone below it to arrive first.</p>
-      </div>
-    </div>
-    <div class="card take">
-      <span class="num" aria-hidden="true">4</span>
-      <div>
-        <h3>Restoration takes time and repetition</h3>
-        <p>Habitat does not appear the moment it is planted. Things need time to establish before anything counts them, progress comes from repeated effort rather than one big build &mdash; and whatever is taken away takes its dependents with it.</p>
-      </div>
-    </div>
-  </div>
-
-  <div class="card" style="max-width:62rem;margin:1.4rem auto 0">
-    <h3>Standards this supports</h3>
-    <p style="margin-bottom:.8rem">Ecosystems and interdependent relationships, matter and energy flow, biodiversity and humans, and cause-and-effect reasoning. Pair it with your own state or district framework &mdash; the activity is built to be <b>evidence-based, not answer-based</b>, so what students hand in is a record of what they tried and what happened.</p>
-    <div class="chips" style="display:flex;flex-wrap:wrap;gap:.42rem">
-      <span class="chip">Ecosystems</span>
-      <span class="chip">Interdependent relationships</span>
-      <span class="chip">Matter &amp; energy flow</span>
-      <span class="chip">Biodiversity &amp; humans</span>
-      <span class="chip">Cause &amp; effect</span>
-      <span class="chip">Models &amp; their limits</span>
-    </div>
-  </div>
-</div></section>
-
-<section id="lesson"><div class="wrap">
-  <div class="head">
-    <h2>How one class period runs</h2>
-    <p>A 45&ndash;60 minute arc. The timings are a guide &mdash; the discussion at the end matters more than finishing the play block.</p>
-  </div>
-
-  <div class="arc">
-    <div class="step">
-      <div class="step-top"><span class="num" aria-hidden="true">1</span><h3>Open the meadow together</h3><span class="chip warm">5&ndash;10 min</span></div>
-      <ul>
-        <li>Project the empty meadow for the whole class &mdash; dusty ground, a few dry tufts, nothing alive. Read the goal aloud.</li>
-        <li>Ask, and write the answers where everyone can see them: <b>What is missing here? What would an animal need before it would move in? Which animal shows up first &mdash; and why?</b></li>
-        <li>Students record their predictions on Worksheet&nbsp;1 <b>before touching a keyboard</b>. Do not correct the predictions &mdash; they are what you revisit at the end.</li>
-      </ul>
-    </div>
-    <div class="step">
-      <div class="step-top"><span class="num" aria-hidden="true">2</span><h3>Play, build, observe</h3><span class="chip warm">25&ndash;35 min</span></div>
-      <ul>
-        <li>Groups collect materials, plant and build. Push them to <b>try new things rather than perfect their work</b> &mdash; it is an experiment, not a competition.</li>
-        <li>Every time an animal arrives, the recorder logs it on Worksheet&nbsp;2: what arrived, and what had just been planted or built.</li>
-        <li>Circulate with one question: <b>&ldquo;Why do you think that one came now?&rdquo;</b></li>
-      </ul>
-    </div>
-    <div class="step">
-      <div class="step-top"><span class="num" aria-hidden="true">3</span><h3>Compare and discuss</h3><span class="chip warm">10&ndash;15 min</span></div>
-      <ul>
-        <li>Groups fill in the <em>after</em> column of Worksheet&nbsp;2, then compare their meadow against their own day-one predictions.</li>
-        <li>Pool the class data. Which animals did most groups get? Which did nobody get? What did the groups with the most species build that the others didn&rsquo;t?</li>
-        <li>Close on the big one: <b>&ldquo;Ten groups built ten different meadows. Why did roughly the same animals arrive first in all of them?&rdquo;</b></li>
-      </ul>
-    </div>
-  </div>
-
-  <div class="setup">
-    <div class="card">
-      <h3>Before class</h3>
-      <div class="checkrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg> <span><b>Get it on the machines</b><span class="sub">Install the full game, or just open the free browser demo &mdash; no download, no sign-in.</span></span></div>
-      <div class="checkrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg> <span><b>Turn on Settings &rsaquo; Simpler wording</b><span class="sub">Rewords the whole game, animal notes included, in shorter everyday sentences. Nothing is hidden &mdash; it makes the field journal far easier for this age group.</span></span></div>
-      <div class="checkrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg> <span><b>Print Worksheets 1&ndash;3</b><span class="sub">One per student, or one per pair.</span></span></div>
-      <div class="checkrow"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg> <span><b>Optional</b><span class="sub">Set Language to Espa&ntilde;ol, and check Text size and Colorblind mode for students who need them.</span></span></div>
-    </div>
-    <div class="card">
-      <h3>Grouping</h3>
-      <p><b>Pairs at one machine works best</b> &mdash; one drives, one records, swap at the halfway mark.</p>
-      <p><b>Groups of three</b> work well if machines are limited. Give each student a role: gatherer, recorder, observer.</p>
-      <p><b>Whole class on a projector</b> works too. Take a vote on what to plant or craft next.</p>
-      <p>However you group them, students create and name their own caretaker when the game starts. It takes a minute or two, and it is worth letting them have it.</p>
-    </div>
-  </div>
-
-  <div class="pattern" style="max-width:52rem">
-    <b>Worth saying out loud on day one:</b> there is no score in this game and no way to fail. Groups that fill every tile are not doing better than groups that built carefully and watched closely. Telling students that up front changes what they pay attention to.
-  </div>
-</div></section>
-
-
-<section class="band" id="discussion"><div class="wrap">
-  <div class="head">
-    <h2>Questions that get somewhere</h2>
-    <p>Field notes turn play into evidence: students predict, record what actually happened, then explain the gap between the two.</p>
-  </div>
-
-  <div class="g2" style="max-width:62rem;margin:0 auto">
-    <div class="card promptbox">
-      <h3>While they play</h3>
-      <ul>
-        <li>What has changed since you started?</li>
-        <li>What is still missing from this meadow?</li>
-        <li>You built that &mdash; what were you hoping would come?</li>
-        <li>Why do you think nothing arrived that time?</li>
-      </ul>
-    </div>
-    <div class="card promptbox">
-      <h3>After they play</h3>
-      <ul>
-        <li>Which animal needed the most from you?</li>
-        <li>What arrived that you did not plan for?</li>
-        <li>If you started over, what would you build first?</li>
-        <li>Which animals are still missing, and what would they need?</li>
-      </ul>
-    </div>
-  </div>
-
-<div class="shots" style="grid-template-columns:1fr 1fr;margin-top:2.4rem">
-    <figure>
-      <img decoding="async" loading="lazy" width="1160" height="725" src="/img/food-web-bbe1ebcb.webp" alt="A biome food web in Wild Willows grouping real animals by apex predators, mid predators, omnivores and herbivores.">
-      <p class="cap"><b>The food web, in game</b>Every biome groups its real species by apex predator, mid predator, omnivore and herbivore &mdash; a ready-made prompt for who eats whom, and why the hunters came last.</p>
-    </figure>
-    <figure>
-      <img decoding="async" loading="lazy" width="1160" height="725" src="/img/field-guide-90d71b06.webp" alt="The field guide in Wild Willows showing real forest animals with their diet, shelter and role.">
-      <p class="cap"><b>The field journal</b>Real diet, shelter and role for every species. Animals that haven&rsquo;t returned show as silhouettes with a hint &mdash; that is the whole of Worksheet&nbsp;4.</p>
-    </figure>
-  </div>
-</div></section>
-
-<section id="model"><div class="wrap">
-  <div class="head">
-    <h2>It&rsquo;s a model, and students should say so</h2>
-    <p>Wild Willows is a simplified model of an ecosystem. Tell students that directly, then ask them to find the simplifications &mdash; that&rsquo;s Worksheet&nbsp;6, and it&rsquo;s the part that transfers to every other model they&rsquo;ll meet.</p>
-  </div>
-  <div class="vs">
-    <div class="card">
-      <h3><span class="ai" aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:9px;background:var(--sprout);border:1.5px solid #cfe0bd;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:17px;height:17px;stroke:var(--green-deep);stroke-width:2.2;fill:none;stroke-linecap:round;stroke-linejoin:round"><path d="M5 12.6l4.2 4.2L19 7"/></svg></span> What it gets right</h3>
-      <div class="vsrow yes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg><span>Animals need food, water, shelter and space &mdash; all of it, in one place.</span></div>
-      <div class="vsrow yes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg><span>Predators only settle once their prey is established.</span></div>
-      <div class="vsrow yes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg><span>Plants have to grow before they count as habitat.</span></div>
-      <div class="vsrow yes"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 12.6l4.2 4.2L19 7"/></svg><span>Recovery is gradual, and every species has its own threshold.</span></div>
-    </div>
-    <div class="card">
-      <h3><span class="ai" aria-hidden="true" style="flex:none;width:30px;height:30px;border-radius:9px;background:#f6e2e5;border:1.5px solid #e6c3c9;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 24 24" style="width:16px;height:16px;stroke:var(--clay);stroke-width:2.4;fill:none;stroke-linecap:round"><path d="M7 7l10 10M17 7L7 17"/></svg></span> What it leaves out</h3>
-      <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Nothing dies, gets sick, or goes hungry. Real food webs run on death.</span></div>
-      <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>There are no invasive species, no pollution, no disease.</span></div>
-      <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Restoration takes minutes here. In the field it takes years.</span></div>
-      <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>Animals never compete for the same resource.</span></div>
-      <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 7l10 10M17 7L7 17"/></svg><span>The caretaker always has the materials, tools, and permission.</span></div>
-    </div>
-  </div>
-  <p class="edu-note" style="max-width:62rem">Closing question for the class: <b>&ldquo;If we could add one true thing to this game that isn&rsquo;t in it, what should it be &mdash; and what would it change about how you played?&rdquo;</b></p>
-
-  <div class="shots" style="grid-template-columns:1fr;max-width:44rem;margin:2.4rem auto 0">
-    <figure>
-      <img decoding="async" loading="lazy" width="1160" height="725" src="/img/meadow-before-after-c5de53a0.webp" alt="The same corner of Willow Meadow in Wild Willows side by side: bare dry ground with only a tent and campfire on the left, and on the right the restored version with a cottage, grass, wildflowers, a pond, a bench and a bluebird.">
-      <p class="cap"><b>Before and after, same corner of the meadow</b>Worksheet&nbsp;3 asks students to count rather than admire: species, groups of living thing, plant cover, water, and who eats whom. Numbers make the change arguable.</p>
-    </figure>
-  </div>
-</div></section>
-
-<section class="band" id="downloads"><div class="wrap">
-  <div class="head">
-    <h2>The classroom kit</h2>
-    <p>Free to download, print and photocopy for your students. No email, no account, no strings.</p>
-  </div>
-
-  <div class="edu">
-    <a class="dl" href="/educator-guide.pdf" target="_blank" rel="noopener" data-track="pdf-guide">
-      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 5.5A1.5 1.5 0 0 1 5.5 4H11v16H5.5A1.5 1.5 0 0 1 4 18.5z"/><path d="M20 5.5A1.5 1.5 0 0 0 18.5 4H13v16h5.5a1.5 1.5 0 0 0 1.5-1.5z"/></svg></span>
-      <span class="dl-txt">
-        <b>Educator Guide</b>
-        <span class="dl-meta">PDF &middot; 8 pages &middot; grades 5&ndash;8 &middot; 45&ndash;60 min</span>
-        <span class="dl-sub">Everything on this page in print form, plus the full teacher quick start, the arrival ladder, answer notes for every worksheet, and the standards it supports.</span>
-        <span class="dl-go">Download the guide &rarr;</span>
-      </span>
-    </a>
-    <a class="dl" href="/student-worksheets.pdf" target="_blank" rel="noopener" data-track="pdf-worksheets">
-      <span class="dl-ico" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5h8.5L19 8v12.5H6z"/><path d="M14 3.5V8h5"/><path d="M9 12.5h7M9 16h5"/></svg></span>
-      <span class="dl-txt">
-        <b>Student Worksheets</b>
-        <span class="dl-meta">PDF &middot; 6 worksheets &middot; one per student or pair</span>
-        <span class="dl-sub">Print-ready field kit. They work on their own or as a set, so use only the ones you want.</span>
-        <span class="dl-go">Download the worksheets &rarr;</span>
-      </span>
-    </a>
-  </div>
-
-  <div class="g3" style="max-width:62rem;margin:1.1rem auto 0">
-    <div class="card"><h3>1 &middot; Before You Play</h3><p>Predict what the meadow needs and who will come back first. Filled in before anyone touches a keyboard.</p></div>
-    <div class="card"><h3>2 &middot; Field Log</h3><p>Fourteen rows: what we planted or built, who arrived, meadow health. Cause paired with effect.</p></div>
-    <div class="card"><h3>3 &middot; Before &amp; After</h3><p>Count biodiversity at the start and again at the end, then argue about which number moved most.</p></div>
-    <div class="card"><h3>4 &middot; Habitat Detective</h3><p>Choose a missing animal, diagnose what it lacks, change <em>one</em> thing, and check. A whole investigation cycle on one page.</p></div>
-    <div class="card"><h3>5 &middot; Design Your Own Biome</h3><p>Off-screen design task &mdash; invent a damaged habitat and plan its restoration. Good homework, extension or assessment.</p></div>
-    <div class="card"><h3>6 &middot; Game vs. Nature</h3><p>Sort what the game gets right from what it leaves out, then argue whether a model is useful if it isn&rsquo;t complete.</p></div>
-  </div>
-
-  <p class="edu-note">The whole lesson runs on the <a href="https://play.wildwillows.app/" data-track="play">free browser demo</a>: Willow Meadow isn&rsquo;t capped, so a class can restore it, meet the animals and finish the worksheets without anyone buying anything. Demo saves don&rsquo;t reliably survive between class periods, so plan it as a single session &mdash; or ask for classroom copies below and keep the work.</p>
-</div></section>
-
-<section id="copies"><div class="wrap">
-  <div class="school" style="margin-top:0">
-    <div class="school-txt">
-      <h3>Free copies for schools</h3>
-      <p>I have a <b>limited number of free promo codes</b> set aside for teachers who want to play Wild Willows with their students. Full copies, no cost, no expiry, no strings. They go out first come, first served, so if you&rsquo;re interested, just ask.</p>
-      <p>There&rsquo;s no application and no paperwork. Write to me from your school address with your school, your grade level, roughly how many machines you&rsquo;d be putting it on, and a line or two about why you want to use Wild Willows with your class. I answer every email either way.</p>
-    </div>
-    <div class="school-cta">
-      <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com?subject=Classroom%20copies%20of%20Wild%20Willows&amp;body=Hi%20Bailey%2C%0A%0ASchool%3A%20%0AGrade%20level%3A%20%0AHow%20many%20machines%3A%20%0A%0AWhy%20I%20want%20to%20use%20Wild%20Willows%20with%20my%20class%3A%0A%0A%0AThank%20you!%0A" data-track="school-copy">Ask for classroom copies</a>
-      <p class="fine">or write to <a href="mailto:wildwillowsgame@gmail.com" data-track="school-copy">wildwillowsgame@gmail.com</a></p>
-    </div>
-  </div>
-</div></section>
-
-<section class="band" id="beyond"><div class="wrap">
-  <div class="head">
-    <h2>Beyond Willow Meadow</h2>
-    <p>The meadow is the first of six connected areas. Restoring one opens a trail to the next, and animals from every area count toward a single preserve total &mdash; <b>150 species in all, 25 per area</b>, each with real diet, shelter and habitat notes.</p>
-  </div>
-  <div class="biomes">
-    <div class="biome"><b>Old Hollow Forest</b><span>A logged-over woodland. Rebuild the understory, raise nesting trees and deadwood.</span></div>
-    <div class="biome"><b>Rushwater Wetland</b><span>A drained marsh. Restore shallow water, reed beds and mud banks.</span></div>
-    <div class="biome"><b>Redstone Scrubland</b><span>An overgrazed desert flat. Replant brush, build shade and burrows.</span></div>
-    <div class="biome"><b>Graywind Heights</b><span>A trampled alpine slope. Restore turf, snowmelt pools and rocky shelter.</span></div>
-    <div class="biome"><b>Pelican Shore</b><span>A scoured coast. Anchor the dunes, reopen the tidepools.</span></div>
-    <div class="biome"><b>Willow Meadow</b><span>Where the lesson starts. A grassland stripped of its native grasses, 44&nbsp;&times;&nbsp;26 tiles of restorable ground and 96 habitat items to plant or build.</span></div>
-  </div>
-  <div class="shots" style="grid-template-columns:1fr;max-width:50rem;margin:2.2rem auto 0">
-    <figure>
-      <img decoding="async" loading="lazy" width="1160" height="725" src="/img/six-biomes-2f53095f.webp" alt="All six biomes of the Wild Willows preserve restored: Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland, Graywind Heights and Pelican Shore, each full of plants, water and returning animals.">
-      <p class="cap"><b>All six, restored</b>If you run a second session, groups can swap machines and work out from the meadow alone what the previous group built, and in what order.</p>
-    </figure>
-  </div>
-</div></section>
-
-<section id="practical"><div class="wrap">
-  <div class="head">
-    <h2>Practical details for schools</h2>
-    <p>The page to forward to whoever approves software on your machines.</p>
-  </div>
-  <dl class="spec">
-    <div class="row"><dt>Platforms</dt><dd>macOS, Windows and Linux for the full game. Modest hardware requirements &mdash; no graphics card needed. The free demo runs in any reasonably current browser, which usually includes school Chromebooks and managed laptops.</dd></div>
-    <div class="row"><dt>Internet</dt><dd>None required for the installed game. It runs entirely offline and saves locally to the machine. Only the browser demo needs a connection, to load the page.</dd></div>
-    <div class="row"><dt>Accounts</dt><dd>No account, no email, no sign-in, no roster upload. A save is just a name the student picks.</dd></div>
-    <div class="row"><dt>Languages</dt><dd>Full English and Spanish &mdash; interface, animal notes and field journal alike. Switchable any time from the title screen or Settings &rsaquo; Language.</dd></div>
-    <div class="row"><dt>Accessibility</dt><dd>Reduce motion; three colorblind modes including monochrome; four text sizes; five font choices; fully rebindable keys; separate music and effects volume; light and dark mode; and a &ldquo;simpler wording&rdquo; setting that plainly rewords the whole game, animal notes included. All in one Settings screen, all changeable mid-game.</dd></div>
-    <div class="row"><dt>Content rating</dt><dd>Apple 9+. No combat, no failure state, nothing dies. Nothing is hunted, harmed, captured or kept.</dd></div>
-    <div class="row"><dt>Ads &amp; purchases</dt><dd>None. No advertising, no in-app purchases, no loot boxes, no chat, and no user-generated content from other players.</dd></div>
-    <div class="row"><dt>Student data</dt><dd>Anonymous gameplay statistics only, never linked to identity. No tracking, no third-party analytics, nothing collected about who a student is. Details in the <a href="/privacy.html">privacy policy</a>.</dd></div>
-  </dl>
-</div></section>
-
-<section class="band" id="faq"><div class="wrap">
-  <div class="head"><h2>Teacher questions</h2></div>
-  <div class="faq">
-    <details open><summary>Do I have to buy anything to run the lesson?</summary><p>No. The whole activity runs on the free browser demo at <a href="https://play.wildwillows.app/" data-track="play">play.wildwillows.app</a> &mdash; Willow Meadow isn&rsquo;t capped, so a class can restore it, meet the animals and finish every worksheet without spending anything. The guide and worksheets are free too. If you want the installed game on your machines, ask about <a href="#copies">free classroom copies</a>.</p></details>
-    <details><summary>Will students&rsquo; work survive to the next class period?</summary><p>In the demo, not reliably &mdash; plan it as a single session, and have students carry the evidence out on the worksheets rather than in the save file. The installed full game saves locally to the machine, so a class set of copies is what you want if you&rsquo;d rather run it over several periods.</p></details>
-    <details><summary>What if my students can&rsquo;t install software?</summary><p>Then use the browser demo. It needs nothing installed and no sign-in, so it runs on locked-down school machines and Chromebooks &mdash; anywhere with a reasonably current browser. The full game is a download for macOS, Windows and Linux.</p></details>
-    <details><summary>Is it appropriate for my grade level?</summary><p>The lesson is written for grades 5&ndash;8, and the game is rated 9+. Younger classes can play it happily &mdash; turn on Settings &rsaquo; Simpler wording, and lean on Worksheets 1&ndash;3. Older students tend to get the most out of Worksheet 6, which asks them to pick apart the model itself.</p></details>
-    <details><summary>How much prep does it actually take?</summary><p>Read the two-page quick start, print Worksheets 1&ndash;3, and open the game once on one machine to check the settings. Fifteen minutes, honestly.</p></details>
-    <details><summary>Is there anything violent, scary or upsetting?</summary><p>No. There&rsquo;s no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted, captured or lost, and nothing ever dies. Predators arrive as residents of a recovered food web, not as a threat.</p></details>
-    <details><summary>What data does it collect about my students?</summary><p>Anonymous gameplay statistics only &mdash; things like how many plants were placed &mdash; never linked to a name or an identity. No accounts, no email, no tracking, no third-party analytics. The full <a href="/privacy.html">privacy policy</a> spells out exactly what is sent and why.</p></details>
-    <details><summary>Can I photocopy the worksheets, or adapt the guide?</summary><p>Yes. Print, photocopy and share them with your students and colleagues freely. If you rework the lesson into something better, I&rsquo;d love to see it &mdash; <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p></details>
-    <details><summary>Can I get help planning it around my curriculum?</summary><p>Yes, and I&rsquo;d genuinely enjoy it. Write to me with your framework or unit and I&rsquo;ll tell you honestly where Wild Willows fits and where it doesn&rsquo;t.</p></details>
-  </div>
-</div></section>
-
-<section class="final" id="get">
-  <span class="fly" style="bottom:24%;left:18%"></span>
-  <span class="fly" style="bottom:30%;left:44%;animation-delay:3s"></span>
-  <span class="fly" style="bottom:20%;left:72%;animation-delay:5.5s"></span>
-  <div class="wrap">
-    <h2>Take the kit and try it</h2>
-    <p>Open the demo in a browser tab, read the quick start, and see whether it fits your class. If it does, write to me about copies.</p>
-    <div class="cta-row">
-      <a class="btn btn-go" href="/educator-guide.pdf" target="_blank" rel="noopener" data-track="pdf-guide">Educator Guide (PDF)</a>
-      <a class="btn btn-paper" href="/student-worksheets.pdf" target="_blank" rel="noopener" data-track="pdf-worksheets">Student Worksheets (PDF)</a>
-      <a class="btn btn-night" href="https://play.wildwillows.app/" rel="noopener" data-track="play">Play the free demo</a>
-    </div>
-  </div>
-</section>
-
-</main>
-
-<footer><div class="wrap">
-  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:24px;height:24px"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</div>
-  <div class="foot-links">
-    <a href="/">The game</a>
-    <a href="https://apps.apple.com/us/app/wild-willows/id6787300760?mt=12" rel="noopener" data-track="appstore">App Store</a>
-    <a href="https://bai13y.itch.io/wild-willows" rel="noopener" data-track="itch">itch.io</a>
-    <a href="/privacy.html" data-track="privacy">Privacy</a>
-    <a href="/age-rating.html">Age suitability</a>
-    <a href="/support.html" data-track="support">Support</a>
-  </div>
-  <div>Made by Bailey Dunning &middot; Music &amp; sound by Jon Licht &middot; &copy; 2026 Wild Willows</div>
-</div></footer>
-
-<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Screenshot gallery" hidden>
-  <button class="lb-close" id="lbClose" type="button" aria-label="Close gallery">&times;</button>
-  <button class="lb-prev" id="lbPrev" type="button" aria-label="Previous screenshot">&lsaquo;</button>
-  <figure>
-    <img id="lbImg" src="" alt="">
-    <figcaption class="lb-cap"><span id="lbCap"></span><span class="lb-count" id="lbCount"></span></figcaption>
-  </figure>
-  <button class="lb-next" id="lbNext" type="button" aria-label="Next screenshot">&rsaquo;</button>
-</div>
-
-<script>
-(function(){
-  /* ------------------------------------------------ page analytics
-     Same anonymous, aggregate-only beacon the landing page uses
-     (POST /LandingEvent/, counted per day in Harper, shown on /dashboard).
-     Two deliberate differences from the landing page:
-
-     1. NO 'visit' ping. Visits are a single undifferentiated series shared by
-        every page that sends one, so a teachers-page visit would silently
-        inflate the landing page's number and there would be no way to unmix
-        them afterwards. Instead this page reports itself ONCE per browser
-        session as a click on the 'edu-page' target, which is its own counter.
-     2. Outbound targets reuse the landing page's names ('play', 'pdf-guide',
-        'pdf-worksheets', 'school-copy'), so a teacher who downloads the guide
-        from here lands in the same bucket as one who downloads it from the
-        landing page. That is the number worth having; where they clicked from
-        is not. */
-  /* Where the visitor arrived from, resolved HERE and never sent raw.
-     The beacon used to carry 200 characters of document.referrer \u2014 which can
-     include a search query \u2014 and the server read none of it. This sends one
-     word from a fixed list instead: enough to answer "are teachers finding
-     this through search or through Reddit", and not enough to describe anyone.
-     A same-site referrer returns null, so clicking through from the landing
-     page does not register as an arrival from somewhere. */
-  var SOURCE_HOSTS=[['google','google'],['bing','bing'],['duckduckgo','duckduckgo'],
-    ['reddit','reddit'],['itch','itch'],['apple','apple'],
-    /* Bluesky's hosts are bsky.app and bsky.social \u2014 'bluesky' appears in its
-       name and in none of its domains, so matching on the bucket name would
-       have produced a counter that could never be anything but zero. */
-    ['bsky','bluesky']];
-  function sourceBucket(){
-    try{
-      if(!document.referrer)return 'direct';
-      var h=new URL(document.referrer).hostname.toLowerCase().replace(/^www\\./,'');
-      if(h===location.hostname)return null;
-      for(var i=0;i<SOURCE_HOSTS.length;i++)if(h.indexOf(SOURCE_HOSTS[i][0])>-1)return SOURCE_HOSTS[i][1];
-      return 'other';
-    }catch(e){return 'other';}
-  }
-  function track(type,target,from){
-    try{
-      var payload=JSON.stringify({type:type,target:target||null,
-        from:from||undefined});
-      if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
-      else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
-    }catch(e){}
-  }
-  /* The once-per-session page ping used to fire while the page was still
-     painting, opening a connection and taking uplink from the first screen.
-     Nothing about it is time-sensitive, so it waits for idle after load \u2014 the
-     timeout keeps it honest on tabs that never go idle, and pagehide catches
-     the teacher who leaves before either fires. */
-  function sendPageView(){
-    if(sendPageView.done)return; sendPageView.done=true;
-    try{
-      if(sessionStorage.getItem('ww_edu_seen'))return;
-      sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page',sourceBucket());
-    }catch(e){track('click','edu-page',sourceBucket());}
-  }
-  function schedulePageView(){
-    if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
-    else setTimeout(sendPageView,500);
-  }
-  window.addEventListener('load',function(){document.body.classList.add('ready');});
-  if(document.readyState==='complete')schedulePageView();
-  else window.addEventListener('load',schedulePageView);
-  window.addEventListener('pagehide',sendPageView);
-  document.addEventListener('click',function(e){
-    var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
-    if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
-  });
-
-  /* ------------------------------------------------ screenshot lightbox
-     Click (or Enter on) any screenshot to open it big, then arrow through
-     every screenshot on the page. Esc / backdrop click closes. Same behaviour
-     as the landing page; the selector is narrower because this page only has
-     captioned figures. */
-  var shots=[].slice.call(document.querySelectorAll('.shots img'));
-  var lb=document.getElementById('lb'),lbImg=document.getElementById('lbImg'),
-      lbCap=document.getElementById('lbCap'),lbCount=document.getElementById('lbCount'),
-      lbClose=document.getElementById('lbClose');
-  if(lb&&shots.length){
-    var idx=0,lastFocus=null;
-    function capFor(img){
-      var fig=img.closest('figure');
-      if(fig){var b=fig.querySelector('.cap b');if(b)return b.textContent;}
-      return 'Wild Willows';
-    }
-    function showShot(i){
-      idx=(i+shots.length)%shots.length;
-      var s=shots[idx];
-      lbImg.src=s.src;lbImg.alt=s.alt||'';
-      lbCap.textContent=capFor(s);
-      lbCount.textContent=(idx+1)+' / '+shots.length;
-    }
-    function openLb(i){
-      lastFocus=document.activeElement;
-      showShot(i);
-      lb.hidden=false;lb.classList.add('open');document.body.classList.add('lb-open');
-      lbClose.focus();
-      track('click','gallery');
-    }
-    function closeLb(){
-      lb.classList.remove('open');lb.hidden=true;document.body.classList.remove('lb-open');
-      if(lastFocus&&lastFocus.focus)lastFocus.focus();
-    }
-    shots.forEach(function(s,i){
-      s.classList.add('zoomable');
-      s.setAttribute('tabindex','0');
-      s.setAttribute('role','button');
-      s.addEventListener('click',function(){openLb(i);});
-      s.addEventListener('keydown',function(e){if(e.key==='Enter'||e.key===' '){e.preventDefault();openLb(i);}});
-    });
-    lbClose.addEventListener('click',closeLb);
-    document.getElementById('lbPrev').addEventListener('click',function(){showShot(idx-1);});
-    document.getElementById('lbNext').addEventListener('click',function(){showShot(idx+1);});
-    lb.addEventListener('click',function(e){if(e.target===lb)closeLb();});
-    document.addEventListener('keydown',function(e){
-      if(lb.hidden)return;
-      if(e.key==='Escape')closeLb();
-      else if(e.key==='ArrowLeft')showShot(idx-1);
-      else if(e.key==='ArrowRight')showShot(idx+1);
-    });
-  }
-})();
-</script>
-
-</body>
-
-</html>
-`;
-var teachersCodingHtml = `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Build a webpage with real game data: a free intro to APIs lesson for grades 9-12</title>
-<meta name="description" content="A free computer science kit for grades 9-12. Students learn HTML, CSS, JavaScript and APIs by fetching real data from a live public game API and building their own webpage. Nothing to install, no student accounts, and you do not need to know JavaScript to teach it.">
-<link rel="canonical" href="https://wildwillows.app/teachers/coding">
-<meta name="robots" content="index, follow, max-image-preview:large">
-<meta name="theme-color" content="#f4eeda">
-<meta name="keywords" content="intro to APIs lesson plan, web development lesson high school, teach javascript beginners, fetch API lesson, JSON lesson plan, computer science lesson grades 9-12, free coding curriculum, Wild Willows">
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
-
-<meta property="og:type" content="article">
-<meta property="og:site_name" content="Wild Willows">
-<meta property="og:title" content="Build a webpage with real game data: a free intro to APIs lesson">
-<meta property="og:description" content="Grades 9-12. Students fetch real data from a live public API and build a webpage from it. Nothing to install, no accounts, and you do not need to know JavaScript to teach it.">
-<meta property="og:url" content="https://wildwillows.app/teachers/coding">
-<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Build a webpage with real game data: a free intro to APIs lesson">
-<meta name="twitter:description" content="Grades 9-12. Real public API, browser code editor, no installs and no accounts.">
-<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
-
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
-
-<script type="application/ld+json">
-{
-  "@context": "https://schema.org",
-  "@graph": [
-    {
-      "@type": "LearningResource",
-      "@id": "https://wildwillows.app/teachers/coding",
-      "url": "https://wildwillows.app/teachers/coding",
-      "name": "Intro to APIs & Web Development with Wild Willows",
-      "description": "Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from a live public game API and using it to build their own webpage.",
-      "learningResourceType": "Lesson plan",
-      "educationalLevel": "Grades 9-12",
-      "educationalUse": ["instruction", "assignment"],
-      "timeRequired": "PT60M",
-      "inLanguage": "en",
-      "isAccessibleForFree": true,
-      "typicalAgeRange": "14-18",
-      "teaches": [
-        { "@type": "Thing", "name": "HTML, CSS and JavaScript" },
-        { "@type": "Thing", "name": "Application programming interfaces" },
-        { "@type": "Thing", "name": "HTTP requests and responses" },
-        { "@type": "Thing", "name": "JSON and data types" },
-        { "@type": "Thing", "name": "Conditionals and iteration" },
-        { "@type": "Thing", "name": "Rendering data to the DOM" }
-      ],
-      "author": { "@type": "Person", "name": "Bailey Dunning" },
-      "publisher": { "@type": "Person", "name": "Bailey Dunning" },
-      "hasPart": [
-        { "@type": "LearningResource", "name": "Student lesson", "url": "https://wildwillows.app/learn/web-development" },
-        { "@type": "LearningResource", "name": "Code Builder", "url": "https://wildwillows.app/learn/code-builder" }
-      ]
-    },
-    {
-      "@type": "FAQPage",
-      "mainEntity": [
-        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs as a student types, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
-        { "@type": "Question", "name": "What do students need?", "acceptedAnswer": { "@type": "Answer", "text": "A browser and a keyboard. No accounts, no installs, no extensions. It works on a school Chromebook. Their work saves in their own browser and can be downloaded as a real HTML file." } },
-        { "@type": "Question", "name": "How long does it take?", "acceptedAnswer": { "@type": "Answer", "text": "One to three class periods, depending on how far you go. There are three suggested flows on this page: a single 60-minute period, two periods, or three." } },
-        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData/ is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
-        { "@type": "Question", "name": "What if our network blocks it?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson needs wildwillows.app reachable throughout, because fetching over a real network is what it teaches. Check this a week ahead rather than the morning of. A blocked domain shows as 'Failed to fetch' in the editor and needs an IT ticket, not a code fix." } }
-      ]
-    },
-    {
-      "@type": "BreadcrumbList",
-      "itemListElement": [
-        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
-        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
-        { "@type": "ListItem", "position": 3, "name": "Intro to APIs & Web Development", "item": "https://wildwillows.app/teachers/coding" }
-      ]
-    }
-  ]
-}
-</script>
 
 <!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
 <script>
@@ -35185,13 +34590,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -35254,7 +34659,25 @@ section{padding:3.4rem 0}
  * repoint of the same tokens in ww-dark.css.
  */
 
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder \u2014 content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
 body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
 	background: var(--paper);
 	color: var(--ink);
 	font-family: var(--f);
@@ -35397,9 +34820,13 @@ body.edu-hub {
 }
 
 /* Pushes the button to the bottom so two cards of different length still line
-   their calls to action up with each other. */
-.kit-go {
-	margin-top: auto;
+   their calls to action up with each other.
+   \`.kit .kit-go\` rather than \`.kit-go\`: this is a <p>, and \`.kit p\` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
 }
 
 .kit .btn {
@@ -35408,6 +34835,17 @@ body.edu-hub {
 }
 
 /* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections \u2014 "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
 
 .tsec {
 	margin-top: 3rem;
@@ -35974,9 +35412,25 @@ body.edu-hub {
 	color: var(--ink);
 }
 
-.trouble td:nth-child(2),
-.trouble td:nth-child(3) {
+/* Every column but the first is supporting text. Written as "not the first"
+   rather than as a list of column numbers: the science guide's arrival ladder
+   uses the same table with five columns, and a numbered list silently stopped
+   coloring the last two. */
+.trouble td:not(:first-child) {
 	color: var(--ink-soft);
+}
+
+/* Percentages line up under each other, and never wrap mid-number. */
+.trouble .num {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* A short label that reads as broken when it wraps: "Insect-" over "eater" in a
+   column that had the room. Applied per cell rather than per column, because
+   the two tables using this style do not have it in the same place. */
+.trouble .tight {
+	white-space: nowrap;
 }
 
 .trouble tbody tr:last-child td {
@@ -36009,6 +35463,79 @@ body.edu-hub {
 	margin: 0 0 0.9rem;
 }
 
+/* -------------------------------------------------- the specification list
+ *
+ * The block a teacher forwards to whoever approves software. A definition list
+ * rather than a table because every row is one term and one answer, and because
+ * it collapses to stacked pairs on a phone without a horizontal scroller. */
+.spec {
+	margin: 1rem 0 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.spec > div {
+	display: grid;
+	grid-template-columns: 10rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.65rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.spec dt {
+	font-weight: 700;
+	color: var(--green-deep);
+	font-size: 0.94rem;
+	line-height: 1.5;
+}
+
+[data-theme='dark'] .spec dt {
+	color: var(--green-bright);
+}
+
+.spec dd {
+	margin: 0;
+	color: var(--ink-soft);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+	.spec > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+/* ------------------------------------------------------------------ figures
+ *
+ * One screenshot with a caption under it. No lightbox: this page is read on a
+ * prep period and printed, and a gallery is a thing to operate rather than a
+ * thing to read. */
+.gfig {
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.gfig img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	background: var(--panel);
+}
+
+.gfig figcaption {
+	margin: 0.5rem 0 0;
+	font-size: 0.88rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.gfig figcaption b {
+	color: var(--ink);
+}
+
 /* --------------------------------------------------------------- printing
  *
  * Teachers print these. Nav, theme toggle and calls to action are furniture on
@@ -36032,13 +35559,85 @@ body.edu-hub {
 
 	.flowcard,
 	.cut,
-	.rcol {
+	.rcol,
+	.gfig,
+	.spec > div {
 		break-inside: avoid;
 	}
 
 	body.guide {
 		background: #fff;
 	}
+}
+
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 /* Wild Willows \u2014 dark mode for the classroom pages.
@@ -36062,7 +35661,7 @@ body.edu-hub {
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -36085,7 +35684,7 @@ body.edu-hub {
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
@@ -36093,13 +35692,15 @@ body.edu-hub {
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -36121,7 +35722,7 @@ body.edu-hub {
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -36138,6 +35739,2267 @@ body.edu-hub {
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+
+<body class="edu-hub guide">
+
+<a class="skip-link" href="#main">Skip to the guide</a>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
+    <a class="hide-sm" href="#flow">Lesson flow</a>
+    <a class="hide-sm" href="#ladder">Arrival ladder</a>
+    <a class="hide-sm" href="#trouble">Troubleshooting</a>
+    <a class="btn btn-go" href="#kit">Download the kit</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="twrap" id="main" tabindex="-1">
+
+<header class="thero">
+  <p class="kicker">Science kit &middot; Grades 5&ndash;8</p>
+  <h1>Restore a damaged meadow</h1>
+  <p class="lead">Students rebuild a stripped grassland in Wild Willows, watch real wildlife move back in on its own, and work out why each animal came back when it did. One class period, free to run, nothing to sign up for.</p>
+  <div class="tmeta">
+    <span class="chip">Grades 5&ndash;8</span>
+    <span class="chip">45&ndash;60 minutes</span>
+    <span class="chip">English &amp; Espa&ntilde;ol</span>
+    <span class="chip">Runs offline</span>
+    <span class="chip">No accounts, no email</span>
+    <span class="chip warm">Six printable worksheets</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>You do not need to play games to teach this</h2>
+    <p>There is no score, no timer, no combat and no way to lose, so nobody has to be good at anything for the lesson to work. Students gather seeds and stones, plant grass and wildflowers, dig a pond, and animals arrive on their own once the meadow can actually meet their needs. Ten minutes with it yourself is enough preparation to run the room.</p>
+    <p>The learning is not in the game. It is in the gap between what students predicted on Worksheet&nbsp;1 and what actually happened, and that discussion is the part worth protecting when the period runs short.</p>
+  </div>
+</div>
+
+<p class="sub" style="max-width:46rem;margin:1rem 0 0">This is the science kit. There is also a <a href="/teachers/coding" data-track="edu-nav">computer science kit for grades 9&ndash;12</a>, where students pull real Wild Willows data into a webpage they build themselves. <a href="/teachers" data-track="edu-nav">Both kits</a>.</p>
+
+<div class="two-up" id="kit">
+  <a class="tile" href="/educator-guide.pdf" target="_blank" rel="noopener" data-track="pdf-guide">
+    <span class="tile-k">For you</span>
+    <b>Educator Guide (PDF)</b>
+    <span>Eight pages: quick start, the session arc, the arrival ladder, answer notes and the standards it supports. Everything on this page, in print.</span>
+  </a>
+  <a class="tile" href="/student-worksheets.pdf" target="_blank" rel="noopener" data-track="pdf-worksheets">
+    <span class="tile-k">For students</span>
+    <b>Student Worksheets (PDF)</b>
+    <span>Six printable worksheets. They work on their own or as a set, so print only the ones you want. Photocopy them freely.</span>
+  </a>
+</div>
+
+<section class="tsec" id="objectives">
+  <h2>What students can do by the end</h2>
+  <ul class="objectives">
+    <li>Name the four things a habitat has to provide, and explain why providing three of them does nothing</li>
+    <li>Predict which animal returns next, and support it with what the meadow now has</li>
+    <li>Explain why two species in the same meadow need different things from it</li>
+    <li>Describe the order biodiversity returns in, and why the hunters arrive last</li>
+    <li>Use a food web to explain why one species depends on another being there first</li>
+    <li>Record a change and its effect as paired evidence, rather than as a list of animal names</li>
+    <li>Change one thing at a time, and say what that lets them conclude</li>
+    <li>Count biodiversity before and after, and argue about which number moved most</li>
+    <li>Name three things this model gets right about nature and three it leaves out</li>
+    <li>Explain why a model is still useful when it is not complete</li>
+  </ul>
+  <p class="sub">The ordering objective is the one that separates this from a habitat worksheet. Most students can list what an animal needs; far fewer can explain why the hawk cannot arrive until the voles have.</p>
+  <h3>Standards this supports</h3>
+  <p>Pair it with your own state or district framework. The activity is built to be <b>evidence-based rather than answer-based</b>, so what students hand in is a record of what they tried and what happened.</p>
+  <div class="tmeta">
+    <span class="chip">Ecosystems</span>
+    <span class="chip">Interdependent relationships</span>
+    <span class="chip">Matter &amp; energy flow</span>
+    <span class="chip">Biodiversity &amp; humans</span>
+    <span class="chip">Cause &amp; effect</span>
+    <span class="chip">Models &amp; their limits</span>
+  </div>
+</section>
+
+<section class="tsec" id="vocab">
+  <h2>Vocabulary</h2>
+  <p class="sub">One line each. Copy this onto the board, or print the page. The game itself uses the plainer word in each pair when Simpler wording is on.</p>
+  <div class="vocab">
+    <div class="vrow"><b>Habitat</b><span>Where an animal lives, and everything it needs to live there.</span></div>
+    <div class="vrow"><b>The four needs</b><span>Food, water, shelter and space. A habitat has to provide all four.</span></div>
+    <div class="vrow"><b>Ecosystem</b><span>Living things and their surroundings, working as one system.</span></div>
+    <div class="vrow"><b>Species</b><span>One particular kind of living thing.</span></div>
+    <div class="vrow"><b>Native species</b><span>A species that belongs in this place and evolved alongside it.</span></div>
+    <div class="vrow"><b>Biodiversity</b><span>How many different kinds of living thing are in one place.</span></div>
+    <div class="vrow"><b>Producer</b><span>A plant. Makes its own food out of sunlight, and feeds everything else.</span></div>
+    <div class="vrow"><b>Herbivore</b><span>Eats plants.</span></div>
+    <div class="vrow"><b>Insectivore</b><span>Eats insects. The ladybug, the bat and the bluebird are all insectivores here.</span></div>
+    <div class="vrow"><b>Omnivore</b><span>Eats both plants and animals.</span></div>
+    <div class="vrow"><b>Detritivore</b><span>Eats dead and rotting material. The snail and the pillbug. The game calls them recyclers.</span></div>
+    <div class="vrow"><b>Pollinator</b><span>Carries pollen between flowers so the plants can make seeds.</span></div>
+    <div class="vrow"><b>Food web</b><span>Who eats whom, all of it at once, rather than a single chain.</span></div>
+    <div class="vrow"><b>Trophic level</b><span>A step on the food web: plants, then plant-eaters, then hunters.</span></div>
+    <div class="vrow"><b>Apex predator</b><span>A hunter that nothing else hunts. The owl, the hawk and the coyote.</span></div>
+    <div class="vrow"><b>Mesopredator</b><span>A hunter that is also hunted. The fox, the badger and the garter snake.</span></div>
+    <div class="vrow"><b>Niche</b><span>The particular job and place a species has in its habitat.</span></div>
+    <div class="vrow"><b>Threshold</b><span>The point at which conditions are finally good enough. In the game it is a meadow health percentage, and every species has its own.</span></div>
+    <div class="vrow"><b>Succession</b><span>The order in which life returns to a damaged place.</span></div>
+    <div class="vrow"><b>Restoration</b><span>Repairing a damaged habitat on purpose.</span></div>
+    <div class="vrow"><b>Model</b><span>A simplified version of something real, built so it can be used.</span></div>
+    <div class="vrow"><b>Variable</b><span>The one thing you change in a test, so you can tell what caused the result.</span></div>
+    <div class="vrow"><b>Evidence</b><span>What you actually observed, as opposed to what you expected.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="prep">
+  <h2>Before the Lesson</h2>
+  <ol class="steps">
+    <li><b>Open Willow Meadow once yourself.</b> Ten minutes. Plant a grass patch, wait for it to finish growing, and watch the grasshopper arrive. You will have seen the entire mechanic the lesson rests on.</li>
+    <li><b>Decide demo or installed copies.</b> The free browser demo needs nothing installed and no sign-in, which is what makes it work on locked-down school machines; its saves do not reliably survive to the next period. Installed copies save locally and run fully offline. Either runs the whole lesson.</li>
+    <li><b>Check the network can reach <code>play.wildwillows.app</code>.</b> Do this a week ahead rather than the morning of, if you are using the demo. A filtered domain needs an IT ticket, not a fix you can make in the room.</li>
+    <li><b>Turn on Settings &rsaquo; Simpler wording.</b> It rewords the whole game, animal notes included, in shorter everyday sentences. Nothing is hidden; it is said more plainly, and it makes the field journal far easier at this age.</li>
+    <li><b>Print Worksheets 1&ndash;3.</b> One per student, or one per pair.</li>
+    <li><b>Optional.</b> Set Language to Espa&ntilde;ol, and check Text size and Colorblind mode for students who need them.</li>
+  </ol>
+  <p class="sub">Fifteen minutes of prep, honestly. There are no accounts to create, no class codes to hand out and no rosters to upload.</p>
+  <p class="note-line"><b>Worth saying out loud on day one:</b> there is no score in this game and no way to fail. Groups that fill every tile are not doing better than groups that built carefully and watched closely. Telling students that up front changes what they pay attention to.</p>
+</section>
+
+<section class="tsec" id="flow">
+  <h2>Three ways to run it</h2>
+
+  <div class="flowcard">
+    <h3>One period, 45&ndash;60 minutes</h3>
+    <div class="timeline">
+      <div class="tl"><b>5&ndash;10 min</b><span>Open the meadow together on the projector: dusty ground, a few dry tufts, nothing alive. Read the goal aloud, then ask the three questions in the opener below and write the answers where everyone can see them. Students fill in Worksheet&nbsp;1 <b>before touching a keyboard</b>, and you do not correct the predictions.</span></div>
+      <div class="tl"><b>25&ndash;35 min</b><span>Groups collect, plant and build. Push them to try new things rather than perfect their work. Every arrival goes on Worksheet&nbsp;2 next to what had just been planted. Circulate with one question: &ldquo;why do you think that one came now?&rdquo;</span></div>
+      <div class="tl"><b>10&ndash;15 min</b><span>Groups fill in the <em>after</em> column and compare their meadow against their own day-one predictions. Pool the class data, then close on the big one: &ldquo;ten groups built ten different meadows &mdash; why did roughly the same animals arrive first in all of them?&rdquo;</span></div>
+    </div>
+    <p class="note-line">The timings are a guide. The discussion at the end matters more than finishing the play block, so take the time out of the middle rather than off the end.</p>
+  </div>
+
+  <div class="flowcard">
+    <h3>Two periods</h3>
+    <div class="timeline">
+      <div class="tl"><b>Day 1</b><span>The arc above, ending with Worksheets 1&ndash;3. Groups keep their machines if you have installed copies.</span></div>
+      <div class="tl"><b>Day 2</b><span>Worksheet&nbsp;4, Habitat Detective: each group picks a species that never showed up, diagnoses what it is missing, changes <em>one</em> thing, and checks. Finish with Worksheet&nbsp;6 and the model discussion. Worksheet&nbsp;5 becomes the homework.</span></div>
+    </div>
+    <p class="note-line">A good day-two variation: groups swap machines and try to work out, from the meadow alone, what the previous group built and in what order.</p>
+  </div>
+
+  <div class="flowcard">
+    <h3>One projector, no student machines</h3>
+    <div class="timeline">
+      <div class="tl"><b>Class</b><span>You drive. Take a vote on what to plant or craft next, and hold the class to one change at a time so the cause stays visible. Every worksheet except&nbsp;4 still works exactly as written.</span></div>
+      <div class="tl"><b>Roles</b><span>Rotate three students at a time: one calls the build, one reads the field journal aloud, one keeps the class field log on the board.</span></div>
+    </div>
+  </div>
+
+  <h3>Grouping</h3>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Pairs at one machine</b>
+      <ul>
+        <li>Works best. One drives, one records.</li>
+        <li>Swap at the halfway mark, so both students have driven and both have had to write down a reason.</li>
+      </ul>
+    </div>
+    <div class="cut keep">
+      <b>Groups of three</b>
+      <ul>
+        <li>Good when machines are limited.</li>
+        <li>Give each student a role: gatherer, recorder, observer.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">However you group them, students create and name their own caretaker when the game starts. It takes a minute or two, and it is worth letting them have it.</p>
+</section>
+
+<section class="tsec" id="ladder">
+  <h2>The arrival ladder</h2>
+  <p>Meadow health rises as students plant and build, and every species has its own threshold. This is the ladder they are climbing, and it is the answer key to most of what happens in the room: when a group asks why the fox will not come, the answer is in this table.</p>
+  <p class="sub">All twenty-five Willow Meadow species, in the order they can arrive. &ldquo;Waiting on&rdquo; means that species has to be living in the meadow already.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Species</th><th>Group</th><th>Health</th><th>What it needs built</th><th>Waiting on</th></tr></thead>
+      <tbody>
+        <tr><td>Grasshopper</td><td class="tight">Plant-eater</td><td class="num">8%</td><td>Grass Patch</td><td>&mdash;</td></tr>
+        <tr><td>Pillbug</td><td class="tight">Recycler</td><td class="num">9%</td><td>Crumbling Log</td><td>&mdash;</td></tr>
+        <tr><td>Prairie Vole</td><td class="tight">Plant-eater</td><td class="num">10%</td><td>Grass Runways</td><td>&mdash;</td></tr>
+        <tr><td>Snail</td><td class="tight">Recycler</td><td class="num">10%</td><td>Damp Leaf Corner</td><td>&mdash;</td></tr>
+        <tr><td>Ladybug</td><td class="tight">Insect-eater</td><td class="num">12%</td><td>Clover Patch</td><td>&mdash;</td></tr>
+        <tr><td>Ground Squirrel</td><td class="tight">Omnivore</td><td class="num">14%</td><td>Burrow Town, Dry Stone Wall</td><td>Grasshopper</td></tr>
+        <tr><td>Monarch Butterfly</td><td class="tight">Plant-eater</td><td class="num">15%</td><td>Milkweed Bed, Pollinator Garden</td><td>&mdash;</td></tr>
+        <tr><td>Song Sparrow</td><td class="tight">Omnivore</td><td class="num">16%</td><td>Hidden Grass Nest, Berry Bush</td><td>Grasshopper</td></tr>
+        <tr><td>Garter Snake</td><td class="tight">Mid-predator</td><td class="num">20%</td><td>Meadow Winter Den, Dry Stone Wall</td><td>Grasshopper, Prairie Vole</td></tr>
+        <tr><td>Praying Mantis</td><td class="tight">Insect-eater</td><td class="num">24%</td><td>Egg-Case Stem, Wildflower Patch, Native Grass Patch</td><td>Grasshopper, Monarch Butterfly</td></tr>
+        <tr><td>Bumblebee</td><td class="tight">Plant-eater</td><td class="num">25%</td><td>Nesting Tussock, Native Thistle Stand</td><td>&mdash;</td></tr>
+        <tr><td>Cottontail Rabbit</td><td class="tight">Plant-eater</td><td class="num">25%</td><td>Brush Hollow, Berry Bush</td><td>&mdash;</td></tr>
+        <tr><td>Garden Spider</td><td class="tight">Insect-eater</td><td class="num">26%</td><td>Web Anchor Stems, Wildflower Patch</td><td>Grasshopper, Ladybug</td></tr>
+        <tr><td>Groundhog</td><td class="tight">Plant-eater</td><td class="num">38%</td><td>Meadow Burrow Mound, Native Grass Patch, Brush Pile</td><td>&mdash;</td></tr>
+        <tr><td>Opossum</td><td class="tight">Omnivore</td><td class="num">44%</td><td>Den Hollow, Hollow Log</td><td>Grasshopper, Snail</td></tr>
+        <tr><td>American Goldfinch</td><td class="tight">Plant-eater</td><td class="num">45%</td><td>Sunflower Patch, Native Thistle Stand, Native Grass Patch</td><td>&mdash;</td></tr>
+        <tr><td>Western Meadowlark</td><td class="tight">Omnivore</td><td class="num">45%</td><td>Domed Grass Nest, Native Grass Patch &times;3, Bird Perch</td><td>Grasshopper, Praying Mantis</td></tr>
+        <tr><td>Brown Bat</td><td class="tight">Insect-eater</td><td class="num">50%</td><td>Maternity Roost, Small Pond, Oak Tree</td><td>Praying Mantis</td></tr>
+        <tr><td>Bluebird</td><td class="tight">Insect-eater</td><td class="num">55%</td><td>Bluebird Nest Box, Berry Bush, Bird Perch</td><td>Grasshopper, Bumblebee</td></tr>
+        <tr><td>Mule Deer</td><td class="tight">Plant-eater</td><td class="num">55%</td><td>Berry Thicket &times;2, Native Grass Patch, Small Pond</td><td>&mdash;</td></tr>
+        <tr><td>Barn Owl</td><td class="tight">Top predator</td><td class="num">60%</td><td>Barn Loft, Native Grass Patch &times;2, Bird Perch</td><td>Prairie Vole</td></tr>
+        <tr><td>American Badger</td><td class="tight">Mid-predator</td><td class="num">65%</td><td>Deep Soil Bank, Native Grass Patch &times;2, Bare Soil Scrape</td><td>Ground Squirrel, Prairie Vole</td></tr>
+        <tr><td>Red Fox</td><td class="tight">Mid-predator</td><td class="num">65%</td><td>Earth Den, Native Grass Patch &times;2, Brush Pile, Oak Tree</td><td>Cottontail Rabbit, Prairie Vole</td></tr>
+        <tr><td>Red-tailed Hawk</td><td class="tight">Top predator</td><td class="num">70%</td><td>Crown Stick Eyrie, Oak Tree, Bird Perch</td><td>Ground Squirrel, Prairie Vole</td></tr>
+        <tr><td>Coyote</td><td class="tight">Top predator</td><td class="num">80%</td><td>Den Bank, Native Grass Patch &times;2, Brush Pile, Small Pond</td><td>Cottontail Rabbit, Prairie Vole</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note-line"><b>The pattern to draw out:</b> plants and insects at the bottom, hunters at the top. The hawk and the owl are not harder to build for &mdash; they are waiting for everyone below them to arrive first. The grasshopper is always first, and almost everything with teeth or talons is ultimately waiting on it and on the vole.</p>
+  <p><b>&ldquo;Nothing came for ages, then three arrived at once.&rdquo;</b> Almost always because a plant finished growing and several species had been waiting on it. Plants do not count as habitat until they are fully grown, which is the single most useful thing to tell a stuck group.</p>
+</section>
+
+<section class="tsec" id="cut">
+  <h2>What to cut when time is short</h2>
+  <p>A 45-minute period with logins and settling time is closer to 35. These are the calls worth making in advance.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Keep</b>
+      <ul>
+        <li>Worksheet&nbsp;1 before anyone builds. Without the prediction there is nothing to compare against, and the last ten minutes have no content.</li>
+        <li>Cause paired with effect in the field log. &ldquo;Grasshopper&rdquo; is a note; &ldquo;grasshopper, right after the first grass patch finished&rdquo; is evidence.</li>
+        <li>The closing comparison against day-one predictions. This is the lesson.</li>
+        <li>Saying out loud that there is no score and no way to fail.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>Enrichment</b>
+      <ul>
+        <li>Worksheet&nbsp;4, Habitat Detective. A full investigation cycle, and it wants a second session or a fast group.</li>
+        <li>Worksheet&nbsp;5, Design Your Own Biome. Off-screen and needs no game, which makes it good homework, extension or assessment.</li>
+        <li>Worksheet&nbsp;6, Game vs. Nature. The part that transfers furthest, and the part older students get the most out of.</li>
+        <li>Swapping machines to reverse-engineer another group&rsquo;s meadow.</li>
+        <li>Pooling every group&rsquo;s field log into one class dataset on the board.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-line">If you have to lose something from the middle, lose build time rather than discussion time. A meadow at 20% health has already produced everything the discussion needs.</p>
+</section>
+
+<section class="tsec" id="opener">
+  <h2>Two openers that work</h2>
+
+  <h3>1. The empty meadow</h3>
+  <p>Project Willow Meadow before anyone has a keyboard. Say nothing for a moment, then ask these three, and write every answer where the class can see it:</p>
+  <ol class="steps">
+    <li>What is missing here?</li>
+    <li>What would an animal need before it would move in?</li>
+    <li>Which animal shows up first, and why?</li>
+  </ol>
+  <p>Do not correct anything. Wrong predictions are the useful ones: a student who guessed &ldquo;a deer&rdquo; and got a grasshopper has something real to explain at the end, and the student who guessed right has to say why.</p>
+
+  <h3>2. Name an animal</h3>
+  <p>Before you show them anything, every student names one animal they would like to see in the meadow. Keep the list on the board all period, and tell them you will check it at the end.</p>
+  <p>In the last ten minutes, cross off the ones that arrived. Usually it is a handful. Ask what those few have in common, and what each of the rest would have needed.</p>
+  <p class="sub">This works because students name big charismatic animals almost every time, and the meadow answers with a grasshopper. The list makes that discovery theirs rather than yours.</p>
+</section>
+
+<section class="tsec" id="discussion">
+  <h2>Questions that get somewhere</h2>
+  <p>Field notes turn play into evidence: students predict, record what actually happened, then explain the gap between the two.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>While they play</b>
+      <ul>
+        <li>What has changed since you started?</li>
+        <li>What is still missing from this meadow?</li>
+        <li>You built that &mdash; what were you hoping would come?</li>
+        <li>Why do you think nothing arrived that time?</li>
+      </ul>
+    </div>
+    <div class="cut keep">
+      <b>After they play</b>
+      <ul>
+        <li>Which animal needed the most from you?</li>
+        <li>What arrived that you did not plan for?</li>
+        <li>If you started over, what would you build first?</li>
+        <li>Which animals are still missing, and what would they need?</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>What students say, and where to take it</h3>
+  <div class="dialogue">
+    <p><b>&ldquo;Nothing is happening.&rdquo;</b> Ask what they planted and how long ago. Plants have to finish growing before they count, so the wait is the lesson rather than a bug.</p>
+  </div>
+  <div class="dialogue">
+    <p><b>&ldquo;I will just build one of everything.&rdquo;</b> Fine &mdash; then ask which build caused which arrival. They usually cannot say, which makes the case for one change at a time better than you can.</p>
+  </div>
+  <div class="dialogue">
+    <p><b>&ldquo;The fox is broken, it will not come.&rdquo;</b> Ask what a fox eats. If the rabbits and voles are not back, the fox has nothing to live on. The <a href="#ladder">arrival ladder</a> says so in a row.</p>
+  </div>
+  <div class="dialogue">
+    <p><b>&ldquo;Ours is the best meadow.&rdquo;</b> Best at what? Push for a measure &mdash; most species, most plants, most water &mdash; and then the groups can compare fairly.</p>
+  </div>
+</section>
+
+<section class="tsec" id="model">
+  <h2>It is a model, and students should say so</h2>
+  <p>Wild Willows is a simplified model of an ecosystem. Tell students that directly, then ask them to find the simplifications. That is Worksheet&nbsp;6, and it is the part that transfers to every other model they will meet.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>What it gets right</b>
+      <ul>
+        <li>Animals need food, water, shelter and space &mdash; all of it, in one place.</li>
+        <li>Predators only settle once their prey is established.</li>
+        <li>Plants have to grow before they count as habitat.</li>
+        <li>Recovery is gradual, and every species has its own threshold.</li>
+        <li>Take away one plant type and you take away the animals that depended on it.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>What it leaves out</b>
+      <ul>
+        <li>Nothing dies, gets sick, or goes hungry. Real food webs run on death.</li>
+        <li>There are no invasive species, no pollution, no disease.</li>
+        <li>Restoration takes minutes here. In the field it takes years.</li>
+        <li>Animals never compete for the same resource.</li>
+        <li>The caretaker always has the materials, the tools and the permission.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-line">Closing question for the class: <b>&ldquo;if we could add one true thing to this game that is not in it, what should it be &mdash; and what would it change about how you played?&rdquo;</b></p>
+  <figure class="gfig">
+    <img decoding="async" loading="lazy" width="1160" height="725" src="/img/meadow-before-after-c5de53a0.webp" alt="The same corner of Willow Meadow side by side: bare dry ground with only a tent and campfire on the left, and on the right the restored version with a cottage, grass, wildflowers, a pond, a bench and a bluebird.">
+    <figcaption><b>Before and after, the same corner of the meadow.</b> Worksheet&nbsp;3 asks students to count rather than admire: species, groups of living thing, plant cover, water, and who eats whom. Numbers make the change arguable.</figcaption>
+  </figure>
+</section>
+
+<section class="tsec" id="assessment">
+  <h2>Assessment</h2>
+  <p>Deliberately not quiz-heavy. Three bands you can grade as completion, as points, or as a project.</p>
+  <div class="rubric">
+    <div class="rcol">
+      <b>Understanding</b>
+      <ul>
+        <li>Names the four things a habitat provides</li>
+        <li>Explains why the hunters arrive last, in terms of what they eat</li>
+        <li>Can say what a model leaves out, and why it is still useful</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Evidence</b>
+      <ul>
+        <li>Worksheet&nbsp;1 completed before building, and left uncorrected</li>
+        <li>Field log pairs each arrival with what had just been built</li>
+        <li>Before-and-after counts are filled in on both sides</li>
+        <li>Changed one thing at a time, and can say what that showed</li>
+      </ul>
+    </div>
+    <div class="rcol">
+      <b>Reasoning</b>
+      <ul>
+        <li>Explains a wrong prediction rather than crossing it out</li>
+        <li>Argues which biodiversity number moved most, with a reason</li>
+        <li>Designs a biome in which every species has a stated reason to live there</li>
+      </ul>
+    </div>
+  </div>
+  <p class="note-line"><b>Grade the evidence column hardest.</b> A student whose meadow ended half-empty but whose log explains exactly why has done the science. A full meadow with an empty log has not.</p>
+</section>
+
+<section class="tsec" id="trouble">
+  <h2>Troubleshooting</h2>
+  <p class="sub">Eight things that actually go wrong in a room of thirty, and what to do about each.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>What happens</th><th>What it means</th><th>What to do</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>&ldquo;Nothing is arriving&rdquo;</td>
+          <td>The plants are not fully grown yet, or meadow health is still below 8%.</td>
+          <td>Have them check the health reading, then wait. A grass patch that has just been planted is not habitat yet. This is the lesson, not a fault.</td>
+        </tr>
+        <tr>
+          <td>A group is stuck on one species</td>
+          <td>It has a prerequisite they have not met &mdash; usually another animal rather than another plant.</td>
+          <td>Send them to the field journal hint, or read the row out of the <a href="#ladder">arrival ladder</a>. The fox needs rabbits and voles; the hawk needs voles and ground squirrels.</td>
+        </tr>
+        <tr>
+          <td>They built everything and can explain nothing</td>
+          <td>No isolated variable, so no conclusion is available.</td>
+          <td>Ask which build caused which arrival. When they cannot say, set the rule: one change, then wait and watch.</td>
+        </tr>
+        <tr>
+          <td>Racing to fill every tile</td>
+          <td>They are looking for a score that does not exist.</td>
+          <td>Say again that there is no score. Then ask for a measure: most species, most kinds of animal, most water. Now the comparison is fair and it is about the meadow.</td>
+        </tr>
+        <tr>
+          <td>Work is gone next period</td>
+          <td>Demo saves do not reliably survive between sessions.</td>
+          <td>Expected. Plan it as a single session and have students carry the evidence out on the worksheets. Installed copies save locally, so ask about classroom copies if you want several periods.</td>
+        </tr>
+        <tr>
+          <td>The game will not load</td>
+          <td>The school filter is blocking the domain, or the machine cannot install software.</td>
+          <td>The browser demo needs <code>play.wildwillows.app</code> reachable and nothing installed, so it works on Chromebooks and managed laptops. If the domain is filtered it needs an IT ticket, which is why the check goes a week ahead.</td>
+        </tr>
+        <tr>
+          <td>The reading is too hard</td>
+          <td>The field journal is written at its full reading level.</td>
+          <td>Settings &rsaquo; Simpler wording rewords the whole game in shorter everyday sentences, animal notes included. Settings &rsaquo; Language has full Espa&ntilde;ol.</td>
+        </tr>
+        <tr>
+          <td>A student is upset that an animal has not come</td>
+          <td>They have read absence as failure.</td>
+          <td>Nothing is lost or harmed in this game, and a missing animal is a question rather than a loss. Turn it into Worksheet&nbsp;4: what does it still need?</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="answers">
+  <h2>Answer key</h2>
+  <p>Most of these have no single right answer, which is the point. What follows is what a strong response contains, and where a weak one usually goes wrong.</p>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 1 &mdash; Before You Play</span></summary>
+    <div class="tfaq-body">
+      <p><b>What is missing?</b> Strong answers name things rather than moods: plants, water, cover, food. &ldquo;It looks sad&rdquo; is a starting point to push on.</p>
+      <p><b>Food, water, shelter, space, right now.</b> The honest answer is that the meadow offers space and almost nothing else. Students who write &ldquo;none&rdquo; in all four boxes have not looked at the ground.</p>
+      <p><b>Which animal comes first?</b> Almost nobody predicts a grasshopper, and that is the useful part. Leave every prediction uncorrected &mdash; this sheet is what the last ten minutes of the lesson compares against.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 2 &mdash; Field Log</span></summary>
+    <div class="tfaq-body">
+      <p>The rows are graded on pairing, not on count. &ldquo;Grasshopper&rdquo; is a note. &ldquo;Grasshopper, right after the first grass patch finished growing, health 8%&rdquo; is evidence, and it is what the class discussion runs on.</p>
+      <p><b>Which arrival surprised you most?</b> Usually the grasshopper first, or three animals at once after a long gap.</p>
+      <p><b>Was there a moment when nothing came? What ended it?</b> The expected answer is that a plant finished growing and several waiting species arrived together. Any answer that names the specific build that broke the gap is a strong one.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 3 &mdash; Biodiversity, Before &amp; After</span></summary>
+    <div class="tfaq-body">
+      <p><b>Before</b> is nearly all zeros, and that is correct. <b>After</b> depends entirely on how far the group got; a meadow at 25% health typically holds eight to twelve species across three or four groups of animal.</p>
+      <p><b>Which number changed most?</b> Plant cover, usually, and it is the right answer for the right reason: it is the one the students changed directly. Everything else changed because it did.</p>
+      <p><b>What does rising biodiversity tell us?</b> That the meadow now offers more different kinds of habitat, so more different kinds of animal can meet all four of their needs in it.</p>
+      <p><b>What had to be true before a hunter would move in?</b> Its prey had to already be living there. This is the question the whole ladder exists to answer.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 4 &mdash; Habitat Detective</span></summary>
+    <div class="tfaq-body">
+      <p>The <a href="#ladder">arrival ladder</a> above is the answer key for every species a student can pick. The eight suggested on the sheet:</p>
+      <p><b>Bumblebee</b> &mdash; a nesting tussock and native thistle, at 25% health. <b>Garter Snake</b> &mdash; a winter den and a dry stone wall, with grasshoppers and voles already resident. <b>Cottontail Rabbit</b> &mdash; a brush hollow and a berry bush, at 25%. <b>Snail</b> &mdash; a damp leaf corner, at 10%, and one of the easiest wins on the sheet.</p>
+      <p><b>Mule Deer</b> &mdash; two berry thickets, native grass and a small pond, at 55%. <b>Red Fox</b> &mdash; an earth den, brush pile, oak and two grass patches, with rabbits and voles resident, at 65%. <b>Red-tailed Hawk</b> &mdash; a crown eyrie, an oak and a perch, with voles and ground squirrels resident, at 70%. <b>Barn Owl</b> &mdash; a barn loft, a perch and two grass patches, with voles resident, at 60%.</p>
+      <p><b>The prediction step is the graded one.</b> A student who changed one thing and can say what that proved has done the work, whether or not the animal turned up.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 5 &mdash; Design Your Own Biome</span></summary>
+    <div class="tfaq-body">
+      <p>No answer key: it is a design task. What a strong one contains is a habitat in which <b>every species has a stated reason to live there</b> &mdash; its food, its water and its shelter all named and all present in the plan.</p>
+      <p>The two questions that separate a strong design from a pretty map are the last two: which species returns first and why it needs little, and which returns last and what has to happen before it will. A design where the top predator arrives first has not understood the lesson.</p>
+      <p>To push it further: add a constraint after they finish. The rains fail for two years, or the sea warms a degree. What has to change? Or have groups trade plans and hunt for a species whose needs are not actually met &mdash; friendly, and very effective.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Worksheet 6 &mdash; Game vs. Nature</span></summary>
+    <div class="tfaq-body">
+      <p><b>Question 3, the checklist:</b> every one of the six is true of a real meadow and not of this game. Animals can die or go hungry; two animals can compete for the same food; one species arriving can push another out; plants can be eaten faster than they grow back; weather can wreck a habitat rather than decorate it; and real restoration takes years rather than minutes.</p>
+      <p><b>Question 5, is an incomplete model still useful?</b> Yes, and the reason is the answer worth holding out for: a model leaves things out <em>on purpose</em>, so that it is simple enough to use. What makes it usable rather than misleading is being able to say exactly what it leaves out &mdash; which is what the student just did in questions 1 to 4.</p>
+      <p>Scientists use models the same way. A model of a river, a forest or the climate always leaves something out, and naming the omissions is part of using it properly.</p>
+    </div>
+  </details>
+</section>
+
+<section class="tsec" id="worksheets">
+  <h2>The six worksheets</h2>
+  <p class="sub">Print only the ones you want. They work on their own or as a set.</p>
+  <div class="vocab">
+    <div class="vrow"><b>1 &middot; Before You Play</b><span>Predict what the meadow needs and who will come back first. Filled in before anyone touches a keyboard.</span></div>
+    <div class="vrow"><b>2 &middot; Field Log</b><span>Fourteen rows: what we planted or built, who arrived, meadow health. Cause paired with effect.</span></div>
+    <div class="vrow"><b>3 &middot; Before &amp; After</b><span>Count biodiversity at the start and again at the end, then argue about which number moved most.</span></div>
+    <div class="vrow"><b>4 &middot; Habitat Detective</b><span>Choose a missing animal, diagnose what it lacks, change <em>one</em> thing, and check. A whole investigation cycle on one page.</span></div>
+    <div class="vrow"><b>5 &middot; Design Your Own Biome</b><span>An off-screen design task: invent a damaged habitat and plan its restoration. Good homework, extension or assessment.</span></div>
+    <div class="vrow"><b>6 &middot; Game vs. Nature</b><span>Sort what the game gets right from what it leaves out, then argue whether a model is useful if it is not complete.</span></div>
+  </div>
+  <figure class="gfig">
+    <img decoding="async" loading="lazy" width="1160" height="725" src="/img/field-guide-90d71b06.webp" alt="The field guide in Wild Willows showing real animals with their diet, shelter and role.">
+    <figcaption><b>The field journal.</b> Real diet, shelter and role for every species. Animals that have not returned show as silhouettes with a hint, which is the whole of Worksheet&nbsp;4.</figcaption>
+  </figure>
+  <figure class="gfig">
+    <img decoding="async" loading="lazy" width="1160" height="725" src="/img/food-web-bbe1ebcb.webp" alt="A biome food web in Wild Willows grouping real animals by apex predators, mid predators, omnivores and herbivores.">
+    <figcaption><b>The food web, in game.</b> Every biome groups its real species by top predator, mid predator, omnivore and plant-eater &mdash; a ready-made prompt for who eats whom, and for why the hunters came last.</figcaption>
+  </figure>
+</section>
+
+<section class="tsec" id="beyond">
+  <h2>Beyond Willow Meadow</h2>
+  <p>The meadow is the first of six connected areas. Restoring one opens a trail to the next, and animals from every area count toward a single preserve total: <b>150 species in all, 25 per area</b>, each with real diet, shelter and habitat notes.</p>
+  <div class="two-up">
+    <div class="tile"><b>Willow Meadow</b><span>Where the lesson starts. A grassland stripped of its native grasses. 44&nbsp;&times;&nbsp;26 tiles of restorable ground and 96 habitat items to plant or build.</span></div>
+    <div class="tile"><b>Old Hollow Forest</b><span>A logged-over woodland. Rebuild the understory, raise nesting trees and deadwood.</span></div>
+    <div class="tile"><b>Rushwater Wetland</b><span>A drained marsh. Restore shallow water, reed beds and mud banks.</span></div>
+    <div class="tile"><b>Redstone Scrubland</b><span>An overgrazed desert flat. Replant brush, build shade and burrows.</span></div>
+    <div class="tile"><b>Graywind Heights</b><span>A trampled alpine slope. Restore turf, snowmelt pools and rocky shelter.</span></div>
+    <div class="tile"><b>Pelican Shore</b><span>A scoured coast. Anchor the dunes, reopen the tidepools.</span></div>
+  </div>
+  <p class="sub">If a class gets through the meadow and wants more, the forest is the natural second session: the same mechanic with a vertical structure, so students have to think about the canopy as well as the ground.</p>
+</section>
+
+<section class="tsec" id="practical">
+  <h2>Practical details for schools</h2>
+  <p class="sub">The section to forward to whoever approves software on your machines.</p>
+  <dl class="spec">
+    <div><dt>Platforms</dt><dd>macOS, Windows and Linux for the full game, with modest hardware requirements and no graphics card needed. The free demo runs in any reasonably current browser, which usually includes school Chromebooks and managed laptops.</dd></div>
+    <div><dt>Internet</dt><dd>None required for the installed game: it runs entirely offline and saves locally to the machine. Only the browser demo needs a connection, to load the page.</dd></div>
+    <div><dt>Accounts</dt><dd>No account, no email, no sign-in and no roster upload. A save is just a name the student picks.</dd></div>
+    <div><dt>Languages</dt><dd>Full English and Espa&ntilde;ol &mdash; interface, animal notes and field journal alike. Switchable any time from the title screen or Settings &rsaquo; Language.</dd></div>
+    <div><dt>Accessibility</dt><dd>Reduce motion; three colorblind modes including monochrome; four text sizes; five font choices; fully rebindable keys; separate music and effects volume; light and dark mode; and a Simpler wording setting that plainly rewords the whole game, animal notes included. All in one Settings screen, all changeable mid-game.</dd></div>
+    <div><dt>Content rating</dt><dd>Apple 9+. No combat, no failure state, nothing dies. Nothing is hunted, harmed, captured or kept.</dd></div>
+    <div><dt>Ads &amp; purchases</dt><dd>None. No advertising, no in-app purchases, no loot boxes, no chat, and no user-generated content from other players.</dd></div>
+    <div><dt>Student data</dt><dd>Anonymous gameplay statistics only, never linked to identity. No tracking, no third-party analytics, nothing collected about who a student is.</dd></div>
+    <div><dt>Cost</dt><dd>The demo, the guide and the worksheets are free. Free classroom copies of the full game are available for the asking, below.</dd></div>
+  </dl>
+</section>
+
+<section class="tsec" id="privacy">
+  <h2>What this collects</h2>
+  <p>Anonymous counts and nothing else. No accounts, no email addresses, no cookies used for tracking, no third-party analytics, and nothing that identifies a student, a class or a school.</p>
+  <p>The installed game keeps a save file on the machine it runs on and sends nothing anywhere. Because nothing identifies anybody, there is no student record to request, correct or delete. The <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools and districts.</p>
+</section>
+
+<section class="tsec">
+  <h2>Questions teachers ask first</h2>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Do I have to buy anything to run the lesson?</span></summary>
+    <div class="tfaq-body"><p>No. The whole activity runs on the free browser demo at <a href="https://play.wildwillows.app/" rel="noopener" data-track="play">play.wildwillows.app</a>. Willow Meadow is not capped, so a class can restore it, meet the animals and finish every worksheet without spending anything. The guide and worksheets are free as well, and there are free classroom copies of the full game for the asking.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Will students&rsquo; work survive to the next class period?</span></summary>
+    <div class="tfaq-body"><p>In the demo, not reliably. Plan it as a single session and have students carry the evidence out on the worksheets rather than in the save file. The installed full game saves locally to the machine, so a class set of copies is what you want if you would rather run it over several periods.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>What if my students cannot install software?</span></summary>
+    <div class="tfaq-body"><p>Use the browser demo. It needs nothing installed and no sign-in, so it runs on locked-down school machines and Chromebooks &mdash; anywhere with a reasonably current browser. The full game is a download for macOS, Windows and Linux.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Is it appropriate for my grade level?</span></summary>
+    <div class="tfaq-body"><p>The lesson is written for grades 5&ndash;8, and the game is rated 9+. Younger classes can play it happily: turn on Settings &rsaquo; Simpler wording and lean on Worksheets 1&ndash;3. Older students tend to get the most out of Worksheet&nbsp;6, which asks them to pick apart the model itself.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>How much prep does it actually take?</span></summary>
+    <div class="tfaq-body"><p>Fifteen minutes. Open the meadow once yourself, print Worksheets 1&ndash;3, and check the settings on one machine. The full <a href="#prep">prep list</a> is above.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Is there anything violent, scary or upsetting?</span></summary>
+    <div class="tfaq-body"><p>No. There is no combat, no enemies, and no way to fail. Animals are observed and welcomed home, never hunted, captured or lost, and nothing ever dies. Predators arrive as residents of a recovered food web rather than as a threat.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Can I photocopy the worksheets, or adapt the guide?</span></summary>
+    <div class="tfaq-body"><p>Yes. Print, photocopy and share them with your students and colleagues freely. If you rework the lesson into something better, I would love to see it: <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Can I get help planning it around my curriculum?</span></summary>
+    <div class="tfaq-body"><p>Yes, and I would enjoy it. Write with your framework or unit and I will tell you honestly where Wild Willows fits and where it does not.</p></div>
+  </details>
+</section>
+
+<div class="tcontact">
+  <h2>Free copies for your classroom</h2>
+  <p>A limited number of promo codes are set aside for teachers: full copies of the game, no cost, no expiry, no paperwork. Write from your school address with your school, your grade level, roughly how many machines you would put it on, and a line about why you want to use it with your class. I answer every email either way.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com?subject=Classroom%20copies%20of%20Wild%20Willows&amp;body=Hi%20Bailey%2C%0A%0ASchool%3A%20%0AGrade%20level%3A%20%0AHow%20many%20machines%3A%20%0A%0AWhy%20I%20want%20to%20use%20Wild%20Willows%20with%20my%20class%3A%0A%0A%0AThank%20you!%0A" data-track="school-copy">Ask for classroom copies</a>
+    <a class="btn btn-paper" href="https://play.wildwillows.app/" rel="noopener" data-track="play">Play the free demo</a>
+    <a class="btn btn-paper" href="/teachers/coding" data-track="edu-nav">The coding kit</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function(){
+  /* ------------------------------------------------ page analytics
+     Same anonymous, aggregate-only beacon the landing page uses
+     (POST /LandingEvent/, counted per day in Harper, shown on /dashboard).
+     Two deliberate differences from the landing page:
+
+     1. NO 'visit' ping. Visits are a single undifferentiated series shared by
+        every page that sends one, so a teachers-page visit would silently
+        inflate the landing page's number and there would be no way to unmix
+        them afterwards. Instead this page reports itself ONCE per browser
+        session as a click on the 'edu-page' target, which is its own counter.
+     2. Outbound targets reuse the landing page's names ('play', 'pdf-guide',
+        'pdf-worksheets', 'school-copy'), so a teacher who downloads the guide
+        from here lands in the same bucket as one who downloads it from the
+        landing page. That is the number worth having; where they clicked from
+        is not. */
+  /* Where the visitor arrived from, resolved HERE and never sent raw.
+     The beacon used to carry 200 characters of document.referrer \u2014 which can
+     include a search query \u2014 and the server read none of it. This sends one
+     word from a fixed list instead: enough to answer "are teachers finding
+     this through search or through Reddit", and not enough to describe anyone.
+     A same-site referrer returns null, so clicking through from the landing
+     page does not register as an arrival from somewhere. */
+  function track(type,target,from){
+    try{
+      var payload=JSON.stringify({type:type,target:target||null,
+        from:from||undefined});
+      if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
+      else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
+    }catch(e){}
+  }
+  /* The once-per-session page ping used to fire while the page was still
+     painting, opening a connection and taking uplink from the first screen.
+     Nothing about it is time-sensitive, so it waits for idle after load \u2014 the
+     timeout keeps it honest on tabs that never go idle, and pagehide catches
+     the teacher who leaves before either fires. */
+  /* TWO BEACONS ON THIS ONE PAGE, on purpose.
+   *
+   * The clicks stay on /LandingEvent/ because 'pdf-guide', 'pdf-worksheets' and
+   * 'school-copy' are shared with the landing page, and a teacher who downloads
+   * the guide from here belongs in the same bucket as one who downloads it from
+   * there. Where they clicked from is not the number worth having.
+   *
+   * The PAGE VIEW moved to /LessonEvent/ as \`view_science\`. Its three siblings \u2014
+   * the hub, the coding kit and the API docs \u2014 all report themselves there, and
+   * this page reporting itself as a click on 'edu-page' instead meant the older
+   * and better-known of the two kits could not be compared with anything next to
+   * it. Which kit a teacher takes is the whole question the hub exists to answer.
+   *
+   * \`unique_science\` rides along on a localStorage flag rather than the session
+   * one: views tell you traffic, first-visits tell you reach, and the gap between
+   * them is how much of it is the same people coming back. */
+  function reportLesson(counts){
+    try{
+      var body=JSON.stringify({page:'teachers-science',counts:counts});
+      if(navigator.sendBeacon)navigator.sendBeacon('/LessonEvent/',new Blob([body],{type:'application/json'}));
+    }catch(e){}
+  }
+  function firstTime(store,k){
+    try{ if(store.getItem(k))return false; store.setItem(k,'1'); return true; }catch(e){ return true; }
+  }
+  /* Where they arrived from, as one word from a fixed list. Same five buckets the
+     lesson and the builder already report, rather than this page's own nine-name
+     scheme: those belonged to /LandingEvent/, and the page view no longer lives
+     there. One vocabulary across the classroom pages beats two that nearly agree. */
+  function refBucket(){
+    try{
+      var r=document.referrer;
+      if(!r)return 'ref_direct';
+      var h=new URL(r).hostname.toLowerCase().replace(/^www\\./,'');
+      if(h===location.hostname)return 'ref_internal';
+      if(/google|bing|duckduckgo|ecosia|yahoo/.test(h))return 'ref_search';
+      if(/reddit|bsky|mastodon|facebook|instagram|linkedin/.test(h))return 'ref_social';
+      return 'ref_other';
+    }catch(e){return 'ref_other';}
+  }
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    var counts={};
+    if(firstTime(window.sessionStorage,'ww_edu_seen'))counts.view_science=1;
+    if(firstTime(window.localStorage,'ww_ever_science'))counts.unique_science=1;
+    if(!counts.view_science)return;
+    counts[refBucket()]=1;
+    reportLesson(counts);
+  }
+  function schedulePageView(){
+    if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+    else setTimeout(sendPageView,500);
+  }
+  if(document.readyState==='complete')schedulePageView();
+  else window.addEventListener('load',schedulePageView);
+  window.addEventListener('pagehide',sendPageView);
+  document.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
+    if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
+  });
+})();
+</script>
+
+</body>
+
+</html>
+`;
+var teachersCodingHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build a webpage with real game data: a free intro to APIs lesson for grades 9-12</title>
+<meta name="description" content="A free computer science kit for grades 9-12. Students learn HTML, CSS, JavaScript and APIs by fetching real data from a live public game API and building their own webpage. Nothing to install, no student accounts, and you do not need to know JavaScript to teach it.">
+<link rel="canonical" href="https://wildwillows.app/teachers/coding">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="intro to APIs lesson plan, web development lesson high school, teach javascript beginners, fetch API lesson, JSON lesson plan, computer science lesson grades 9-12, free coding curriculum, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta property="og:description" content="Grades 9-12. Students fetch real data from a live public API and build a webpage from it. Nothing to install, no accounts, and you do not need to know JavaScript to teach it.">
+<meta property="og:url" content="https://wildwillows.app/teachers/coding">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Build a webpage with real game data: a free intro to APIs lesson">
+<meta name="twitter:description" content="Grades 9-12. Real public API, browser code editor, no installs and no accounts.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "LearningResource",
+      "@id": "https://wildwillows.app/teachers/coding",
+      "url": "https://wildwillows.app/teachers/coding",
+      "name": "Intro to APIs & Web Development with Wild Willows",
+      "description": "Students learn how HTML, CSS, JavaScript and APIs work together by retrieving real data from a live public game API and using it to build their own webpage.",
+      "learningResourceType": "Lesson plan",
+      "educationalLevel": "Grades 9-12",
+      "educationalUse": ["instruction", "assignment"],
+      "timeRequired": "PT60M",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "typicalAgeRange": "14-18",
+      "teaches": [
+        { "@type": "Thing", "name": "HTML, CSS and JavaScript" },
+        { "@type": "Thing", "name": "Application programming interfaces" },
+        { "@type": "Thing", "name": "HTTP requests and responses" },
+        { "@type": "Thing", "name": "JSON and data types" },
+        { "@type": "Thing", "name": "Conditionals and iteration" },
+        { "@type": "Thing", "name": "Rendering data to the DOM" }
+      ],
+      "author": { "@type": "Person", "name": "Bailey Dunning" },
+      "publisher": { "@type": "Person", "name": "Bailey Dunning" },
+      "hasPart": [
+        { "@type": "LearningResource", "name": "Student lesson", "url": "https://wildwillows.app/learn/web-development" },
+        { "@type": "LearningResource", "name": "Code Builder", "url": "https://wildwillows.app/learn/code-builder" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I need to know JavaScript to teach this?", "acceptedAnswer": { "@type": "Answer", "text": "No. Every chapter of the student lesson is worked through on the page itself, every code sample runs as a student types, and the editor explains errors in plain language rather than showing a stack trace. The troubleshooting table on this page covers what actually goes wrong in a classroom." } },
+        { "@type": "Question", "name": "What do students need?", "acceptedAnswer": { "@type": "Answer", "text": "A browser and a keyboard. No accounts, no installs, no extensions. It works on a school Chromebook. Their work saves in their own browser and can be downloaded as a real HTML file." } },
+        { "@type": "Question", "name": "How long does it take?", "acceptedAnswer": { "@type": "Answer", "text": "One to three class periods, depending on how far you go. There are three suggested flows on this page: a single 60-minute period, two periods, or three." } },
+        { "@type": "Question", "name": "Is the API real?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. https://wildwillows.app/GameData/ is the live endpoint the game itself runs on, open to anyone with no key required. Students see real response times and real data, and their code keeps working outside the lesson." } },
+        { "@type": "Question", "name": "What if our network blocks it?", "acceptedAnswer": { "@type": "Answer", "text": "The lesson needs wildwillows.app reachable throughout, because fetching over a real network is what it teaches. Check this a week ahead rather than the morning of. A blocked domain shows as 'Failed to fetch' in the editor and needs an IT ticket, not a code fix." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" },
+        { "@type": "ListItem", "position": 3, "name": "Intro to APIs & Web Development", "item": "https://wildwillows.app/teachers/coding" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defenses:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder \u2014 content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other.
+   \`.kit .kit-go\` rather than \`.kit-go\`: this is a <p>, and \`.kit p\` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections \u2014 "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows \u2014 the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+/* Every column but the first is supporting text. Written as "not the first"
+   rather than as a list of column numbers: the science guide's arrival ladder
+   uses the same table with five columns, and a numbered list silently stopped
+   coloring the last two. */
+.trouble td:not(:first-child) {
+	color: var(--ink-soft);
+}
+
+/* Percentages line up under each other, and never wrap mid-number. */
+.trouble .num {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* A short label that reads as broken when it wraps: "Insect-" over "eater" in a
+   column that had the room. Applied per cell rather than per column, because
+   the two tables using this style do not have it in the same place. */
+.trouble .tight {
+	white-space: nowrap;
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* -------------------------------------------------- the specification list
+ *
+ * The block a teacher forwards to whoever approves software. A definition list
+ * rather than a table because every row is one term and one answer, and because
+ * it collapses to stacked pairs on a phone without a horizontal scroller. */
+.spec {
+	margin: 1rem 0 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.spec > div {
+	display: grid;
+	grid-template-columns: 10rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.65rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.spec dt {
+	font-weight: 700;
+	color: var(--green-deep);
+	font-size: 0.94rem;
+	line-height: 1.5;
+}
+
+[data-theme='dark'] .spec dt {
+	color: var(--green-bright);
+}
+
+.spec dd {
+	margin: 0;
+	color: var(--ink-soft);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+	.spec > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+/* ------------------------------------------------------------------ figures
+ *
+ * One screenshot with a caption under it. No lightbox: this page is read on a
+ * prep period and printed, and a gallery is a thing to operate rather than a
+ * thing to read. */
+.gfig {
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.gfig img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	background: var(--panel);
+}
+
+.gfig figcaption {
+	margin: 0.5rem 0 0;
+	font-size: 0.88rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.gfig figcaption b {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol,
+	.gfig,
+	.spec > div {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}
+
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted gray. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {
@@ -36279,6 +38141,8 @@ body.edu-hub {
 </head>
 <body class="edu-hub guide">
 
+<a class="skip-link" href="#main">Skip to the guide</a>
+
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
@@ -36293,7 +38157,7 @@ body.edu-hub {
   </div>
 </div></nav>
 
-<div class="twrap">
+<main class="twrap" id="main" tabindex="-1">
 
 <header class="thero">
   <p class="kicker">Coding kit &middot; Grades 9&ndash;12</p>
@@ -36415,7 +38279,6 @@ body.edu-hub {
       <div class="tl"><b>Day 2</b><span>The API and its data. Chapters 4 to 6: the request, the response, the types in it, and reaching into them.</span></div>
       <div class="tl"><b>Day 3</b><span>Decisions, looping, rendering and build. Chapters 7 to 10.</span></div>
     </div>
-    <p class="note-line"><b>Chapters 7 and 8 are the heart of the module.</b> If a day is going to run long, let it be that one.</p>
   </div>
 </section>
 
@@ -36451,12 +38314,8 @@ body.edu-hub {
   <h3>What is a webpage?</h3>
   <p>Put any page on the projector. Ask three questions and let them guess before you name anything: what decides the words, what decides the colors, and what happens when I click this. You will get to structure, appearance and behavior on your own, in their words, which is a better start than three definitions.</p>
   <h3>What is an API?</h3>
-  <p>Skip the restaurant-waiter analogy and get to the real thing in under a minute.</p>
-  <div class="dialogue">
-    <p><b>Browser:</b> Wild Willows API, give me the game data.</p>
-    <p><b>API:</b> <code>{ "animals": [...], "biomes": [...] }</code></p>
-  </div>
-  <p>Then open chapter 4 on the projector and press <b>See the real API response</b>. It reports the status, the time and the size from your own school network. A class watching <code>200 &middot; 412 ms &middot; 486 KB</code> appear has understood something a diagram cannot teach.</p>
+  <p>Do not define it first. Open chapter 4 on the projector and press <b>See the real API response</b>. The page reports the status, the time and the size of the request it just made over your school&rsquo;s own network, then shows the data that came back. Ask what they think happened before you name any of it.</p>
+  <p>The definition afterwards fits in a line: one program asked another program, on a different computer, for something, and got it back as text. The rest of the lesson is reading that text.</p>
 </section>
 
 <section class="tsec" id="assessment">
@@ -36605,7 +38464,7 @@ loadGameData();</pre>
   </div>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -36622,16 +38481,34 @@ loadGameData();</pre>
     }
   }
 
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_coding_kit_seen');
     sessionStorage.setItem('ww_coding_kit_seen', '1');
   } catch (e) {
     /* Guest mode or a locked-down profile: counting it is the better failure. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_coding');
+    if (everFresh) localStorage.setItem('ww_ever_coding', '1');
+  } catch (e) {
+    /* storage refused \u2014 counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
   if (fresh) {
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_coding: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_coding: 1 }); }, 500);
+    var opening = { view_coding: 1 };
+    if (everFresh) opening.unique_coding = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   var NAV = { 'lesson-nav': 'nav_lesson', 'builder-nav': 'nav_builder', 'science-kit': 'nav_science', 'edu-nav': 'nav_hub' };
@@ -36836,13 +38713,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -36938,7 +38815,7 @@ section{padding:3.4rem 0}
  *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
  *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
  *
- * On a marketing page those carry decorative captions and it is a judgement
+ * On a marketing page those carry decorative captions and it is a judgment
  * call. Here they carry the hint under every checkpoint, the sidebar headings
  * and the editor's line numbers \u2014 content a student has to read, often on a
  * classroom projector or a cheap Chromebook panel in a bright room. The values
@@ -37584,10 +39461,10 @@ body.lab .nav {
 
 /* Full-bleed nav, to match the bar underneath it.
  *
- * site-core wraps the nav in .wrap \u2014 max-width 1080px, centred \u2014 because on the
- * marketing pages it sits above centred prose and should line up with it. This
+ * site-core wraps the nav in .wrap \u2014 max-width 1080px, centered \u2014 because on the
+ * marketing pages it sits above centered prose and should line up with it. This
  * page is a tool: the bar below it, the sidebar and the editor all run to the
- * window edges, so a centred nav left the brand indented from "Code Builder" and
+ * window edges, so a centered nav left the brand indented from "Code Builder" and
  * the two rows' right-hand buttons visibly out of step. Same horizontal padding
  * as .lab-bar, so every row on the page starts and ends on the same two lines. */
 body.lab .nav .wrap {
@@ -37725,7 +39602,7 @@ body.lab .nav .wrap {
 
 /* ------------------------------------------------ collapsible side sections
  *
- * A real <details>, not a JS accordion: keyboard and screen-reader behaviour
+ * A real <details>, not a JS accordion: keyboard and screen-reader behavior
  * comes free, and it still works if the controller fails to boot.
  *
  * The summary carries the progress count, so a student who has collapsed the
@@ -37902,6 +39779,103 @@ body.lab .nav .wrap {
 	box-shadow: 0 1px 0 var(--panel-edge);
 }
 
+/* ------------------------------------------------------- the revealed answer
+ *
+ * Shown beside the student's own code rather than pasted over it, so the two
+ * can be compared \u2014 which is the whole reason to look at a worked version.
+ *
+ * \`pre-wrap\` rather than \`pre\`: this column is 280px, and a horizontal
+ * scrollbar under every answer is a worse read than a wrapped line. Long tokens
+ * (the API URL) still overflow rather than being broken mid-word, so the
+ * horizontal scroll is there for the rare case and absent for the normal one. */
+.cp-code {
+	margin-top: 0.5rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	overflow: hidden;
+	background: var(--panel);
+}
+
+.cp-code[hidden] {
+	display: none;
+}
+
+/* Only while an answer is on screen. A permanently wider column would cost the
+   editor 100px for the whole period to serve a few seconds of reading. */
+body.lab.hint-open {
+	--lab-side-w: 380px;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.lab-main {
+		transition: grid-template-columns 0.18s ease;
+	}
+}
+
+.cp-code-head {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.3rem 0.35rem 0.3rem 0.6rem;
+	background: var(--paper-deep);
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.cp-code-head:not(:first-child) {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.cp-code-name {
+	flex: 1 1 auto;
+	min-width: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.7rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: nowrap;
+}
+
+.cp-copy {
+	flex: none;
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.68rem;
+	padding: 0.12rem 0.55rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--green-deep);
+	cursor: pointer;
+}
+
+.cp-copy:hover {
+	border-color: var(--green);
+}
+
+[data-theme='dark'] .cp-copy {
+	color: var(--green-bright);
+}
+
+.cp-pre {
+	margin: 0;
+	padding: 0.55rem 0.6rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.72rem;
+	line-height: 1.55;
+	color: var(--ink);
+	white-space: pre-wrap;
+	overflow-wrap: normal;
+	overflow-x: auto;
+	tab-size: 2;
+}
+
+.cp-pre:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: -2px;
+}
+
 /* ---------------------------------------------------------------- help panel */
 
 .help-title {
@@ -37975,6 +39949,93 @@ body.lab .nav .wrap {
 .brief-what {
 	margin: 0 0 0.4rem;
 	font-size: 0.88rem;
+	line-height: 1.5;
+	color: var(--ink);
+}
+
+/* Level and methods, from the same fields the idea cards filter on. Here they
+   are a reminder of what the idea is going to ask for rather than a control. */
+.brief-tags {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.25rem;
+	margin: 0 0 0.6rem;
+}
+
+.brief-tag {
+	font-size: 0.68rem;
+	font-weight: 700;
+	line-height: 1.6;
+	padding: 0.02rem 0.45rem;
+	border-radius: 999px;
+	border: 1.5px solid var(--panel-edge);
+	color: var(--ink-soft);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+
+.brief-tag.is-level {
+	font-family: inherit;
+	background: var(--sprout);
+	border-color: var(--sprout);
+	color: var(--green-deep);
+	text-transform: capitalize;
+}
+
+[data-theme='dark'] .brief-tag.is-level {
+	color: var(--green-bright);
+}
+
+.brief-h {
+	margin: 0 0 0.3rem;
+	font-size: 0.66rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+}
+
+/* Numbered, because they are in order and the first one is meant to be done
+   first. Counter rather than a list marker so the number can be given the
+   accent color without dragging the text with it. */
+.brief-steps {
+	list-style: none;
+	counter-reset: brief;
+	margin: 0 0 0.6rem;
+	padding: 0;
+}
+
+.brief-steps li {
+	counter-increment: brief;
+	position: relative;
+	padding-left: 1.35rem;
+	margin-bottom: 0.35rem;
+	font-size: 0.84rem;
+	line-height: 1.5;
+	color: var(--ink-soft);
+}
+
+.brief-steps li::before {
+	content: counter(brief);
+	position: absolute;
+	left: 0;
+	top: 0;
+	font-size: 0.72rem;
+	font-weight: 700;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .brief-steps li::before {
+	color: var(--green-bright);
+}
+
+/* The finish line. A student who cannot tell whether they are done keeps
+   fiddling, and this is the sentence that ends that. */
+.brief-done {
+	margin: 0 0 0.55rem;
+	padding: 0.4rem 0.55rem;
+	background: var(--sprout);
+	border-radius: 8px;
+	font-size: 0.82rem;
 	line-height: 1.5;
 	color: var(--ink);
 }
@@ -38096,7 +40157,7 @@ body.lab .nav .wrap {
 }
 
 /* The card's call to action. It had only size rules and no .btn class, so it
- * rendered as the browser's default grey chrome in the middle of a page that has
+ * rendered as the browser's default gray chrome in the middle of a page that has
  * a perfectly good button of its own \u2014 see the screenshot that prompted this. */
 .idea-start {
 	align-self: flex-start;
@@ -38332,7 +40393,7 @@ body.lab.side-hidden .lab-stage {
 	width: 1.05rem;
 	height: 1.05rem;
 	flex: none;
-	transform: translateX(-1px); /* a chevron's ink sits right of its box centre */
+	transform: translateX(-1px); /* a chevron's ink sits right of its box center */
 }
 
 body.lab.side-hidden .lab-side-toggle svg {
@@ -38391,6 +40452,76 @@ body.lab.side-hidden .lab-side-toggle svg {
 	}
 }
 
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* Wild Willows \u2014 dark mode for the classroom pages.
  *
  * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
@@ -38412,7 +40543,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -38435,7 +40566,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
@@ -38443,13 +40574,15 @@ body.lab.side-hidden .lab-side-toggle svg {
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -38471,7 +40604,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -38488,6 +40621,17 @@ body.lab.side-hidden .lab-side-toggle svg {
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {
@@ -38630,6 +40774,9 @@ body.lab.side-hidden .lab-side-toggle svg {
 <body class="lab">
 
 
+<!-- MEASURED: 38 tab stops from here to the code editor before this existed. -->
+<a class="skip-link" href="#lab-stage">Skip to the editor</a>
+
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
@@ -38692,6 +40839,10 @@ body.lab.side-hidden .lab-side-toggle svg {
       <h2>What you&rsquo;re building</h2>
       <h3 class="brief-title" id="lab-brief-title"></h3>
       <p class="brief-what" id="lab-brief-what"></p>
+      <div class="brief-tags" id="lab-brief-tags"></div>
+      <p class="brief-h">Three first moves</p>
+      <ol class="brief-steps" id="lab-brief-steps"></ol>
+      <p class="brief-done" id="lab-brief-done"></p>
       <p class="brief-data" id="lab-brief-data"></p>
       <div class="brief-actions">
         <button type="button" class="btn btn-paper" id="lab-brief-change">Pick another</button>
@@ -38717,7 +40868,7 @@ body.lab.side-hidden .lab-side-toggle svg {
     </div>
   </aside>
 
-  <section class="lab-stage">
+  <section class="lab-stage" id="lab-stage" tabindex="-1">
     <!-- console: the lesson sends students here straight after chapter 4, and a
          locked-down Chromebook makes DevTools a bad answer.
          \`manual\` is deliberately NOT set: the preview follows their typing, and
@@ -39348,6 +41499,20 @@ body.lab.side-hidden .lab-side-toggle svg {
 		area.setAttribute('autocorrect', 'off');
 		area.setAttribute('autocapitalize', 'off');
 
+		/* THE ESCAPE HATCH HAS TO BE ANNOUNCED, not just implemented.
+		 *
+		 * Tab indents instead of moving focus, and Escape-then-Tab moves out (see
+		 * the keydown handler below). A keyboard user who does not know that is in
+		 * a trap whether or not the code has a way out of it, so the way out is
+		 * part of the field's description rather than a comment in this file. */
+		var howto = document.createElement('span');
+		howto.className = 'sr-only';
+		howto.id = 'wwr-howto-' + file.replace(/[^a-z0-9]/gi, '-') + '-' + Math.round(performance.now() * 1000);
+		howto.textContent = 'Tab inserts two spaces. To move focus out of the editor, press Escape and then Tab.';
+		area.setAttribute('aria-describedby', howto.id);
+
+		wrap.appendChild(howto);
+
 		function renderGutter() {
 			var lines = area.value.split('\\n').length;
 			var out = '';
@@ -39545,19 +41710,48 @@ body.lab.side-hidden .lab-side-toggle svg {
 			 * button that says nothing to anyone who cannot see it. */
 			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
 			t.title = f.name;
+			t.setAttribute('data-file', f.name);
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			/* ROVING TABINDEX. A tablist is ONE tab stop, and the arrow keys move
+			 * inside it \u2014 that is the whole reason the role exists. Left as three
+			 * plain buttons it announced itself as a tablist and then behaved like
+			 * a toolbar, which is worse than either: a screen-reader user is told
+			 * to press the arrow keys and nothing happens. */
+			t.tabIndex = i === 0 ? 0 : -1;
 			t.addEventListener('click', function () {
-				files.forEach(function (other) {
-					editors[other.name].wrap.hidden = other.name !== f.name;
-				});
-				Array.prototype.forEach.call(tabs.children, function (c) {
-					c.classList.toggle('is-active', c === t);
-					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
-				});
-				metric('tab_' + f.name.split('.').pop(), host);
+				selectTab(t, false);
 			});
 			tabs.appendChild(t);
+		});
+
+		function selectTab(t, focusIt) {
+			var name = t.getAttribute('data-file');
+			files.forEach(function (other) {
+				editors[other.name].wrap.hidden = other.name !== name;
+			});
+			Array.prototype.forEach.call(tabs.children, function (c) {
+				var on = c === t;
+				c.classList.toggle('is-active', on);
+				c.setAttribute('aria-selected', on ? 'true' : 'false');
+				c.tabIndex = on ? 0 : -1;
+			});
+			if (focusIt) t.focus();
+			metric('tab_' + String(name).split('.').pop(), host);
+		}
+
+		tabs.addEventListener('keydown', function (e) {
+			var STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+			var kids = Array.prototype.slice.call(tabs.children);
+			var at = kids.indexOf(document.activeElement);
+			if (at < 0) return;
+			var to = -1;
+			if (STEP[e.key]) to = (at + STEP[e.key] + kids.length) % kids.length;
+			else if (e.key === 'Home') to = 0;
+			else if (e.key === 'End') to = kids.length - 1;
+			if (to < 0) return;
+			e.preventDefault();
+			selectTab(kids[to], true);
 		});
 		/* One file needs no tab strip \u2014 the lesson's inline examples would just be
 		 * wearing chrome that explains nothing. */
@@ -39705,7 +41899,6 @@ body.lab.side-hidden .lab-side-toggle svg {
 		}
 		var consoleLines = document.createElement('pre');
 		consoleLines.className = 'wwr-console-lines';
-		consoleLines.setAttribute('aria-live', 'polite');
 		consoleBox.appendChild(consoleLines);
 		host.appendChild(consoleBox);
 
@@ -39713,8 +41906,35 @@ body.lab.side-hidden .lab-side-toggle svg {
 		errBox.className = 'wwr-error';
 		errBox.hidden = true;
 		errBox.setAttribute('role', 'status');
-		errBox.setAttribute('aria-live', 'polite');
 		host.appendChild(errBox);
+
+		/* LIVE ONLY WHILE YOU ARE IN IT.
+		 *
+		 * Both of these were \`aria-live="polite"\` from the moment they were built.
+		 * On the Code Builder that is two live regions and fine. On the lesson it
+		 * is thirty-two runners \u2014 SIXTY-FOUR live regions, all of which run their
+		 * examples on load \u2014 so a screen reader opens the page and reads out every
+		 * console on it before the reader has got to chapter 1.
+		 *
+		 * They still have to announce: an error that only appears silently is the
+		 * failure this component exists to prevent. So the announcement follows
+		 * the focus. The runner you are typing in speaks; the thirty-one you are
+		 * not stay quiet. */
+		function setLive(on) {
+			/* \`off\`, not a removed attribute: role="status" carries an IMPLICIT
+			   polite live region, so deleting aria-live leaves the error panel
+			   announcing anyway. An explicit \`off\` is what overrides the role. */
+			var v = on ? 'polite' : 'off';
+			consoleLines.setAttribute('aria-live', v);
+			errBox.setAttribute('aria-live', v);
+		}
+		setLive(false);
+		host.addEventListener('focusin', function () {
+			setLive(true);
+		});
+		host.addEventListener('focusout', function (e) {
+			if (!host.contains(e.relatedTarget)) setLive(false);
+		});
 
 		/* ---- running ---- */
 		var timer = null;
@@ -39777,7 +41997,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 			/* Nothing changed \u2014 do not tear the page down to rebuild the same thing.
 			 * Input events fire for plenty of reasons that leave the code identical
 			 * (arrow keys, selection, a tab switch), and every one of those was
-			 * costing a full reload and a flash. Run always honours an explicit
+			 * costing a full reload and a flash. Run always honors an explicit
 			 * press, because "I pressed Run and nothing happened" is worse. */
 			if (doc === lastDoc && how !== 'manual') return;
 			lastDoc = doc;
@@ -40031,7 +42251,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
 	 * not: the glyph comes from whatever font the platform decides, so it lands
-	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * anywhere between a hairline arrow and a full-color emoji, at a size nothing
 	 * else in the toolbar uses. On a school Windows machine missing the font it is
 	 * a blank box on the one button a student needs most. Two SVG paths cost
 	 * nothing and look the same everywhere. */
@@ -40281,42 +42501,441 @@ body.lab.side-hidden .lab-side-toggle svg {
 	 *
 	 * Keep each \`what\` to ONE sentence. The moment an idea needs a paragraph it is
 	 * an assignment, not an idea, and students stop reading.
+	 *
+	 * \`steps\` and \`done\` are the other half of that trade. The one-liner is what
+	 * gets an idea CHOSEN, off a wall of thirty; it is not enough to start from,
+	 * and "show every animal whose kind is invertebrate" left a student staring at
+	 * three files with nowhere to put their hands. So the card stays a sentence
+	 * and the brief panel, which only ever shows the ONE idea they picked, carries
+	 * three first moves and a finish line. Each step names a real field, and the
+	 * first one is always small enough to do wrong and see.
 	 */
 	var IDEAS = [
 		// --- easy: one filter or one map -------------------------------------
-		{ id: 'meadow-roll-call', level: 'easy', uses: ['filter'], title: 'Meadow Roll Call', what: 'List every animal that lives in Willow Meadow.', data: 'animals[].biome' },
-		{ id: 'berry-eaters', level: 'easy', uses: ['filter'], title: 'Berry Eaters', what: 'Show only the animals whose diet mentions berries.', data: 'animals[].diet' },
-		{ id: 'name-that-species', level: 'easy', uses: ['map'], title: 'Name That Species', what: "Show each animal's name with its scientific name in italics underneath.", data: 'animals[].scientificName' },
-		{ id: 'rare-finds', level: 'easy', uses: ['filter'], title: 'Rare Finds', what: 'Show only the animals marked rare.', data: 'animals[].rarity' },
-		{ id: 'top-of-chain', level: 'easy', uses: ['filter'], title: 'Top of the Chain', what: 'Show every apex predator in the preserve.', data: 'animals[].trophic' },
-		{ id: 'fact-of-the-day', level: 'easy', uses: ['if'], title: 'Fact of the Day', what: 'Show one random animal fact, with a button for another.', data: 'animals[].fact' },
-		{ id: 'biome-colors', level: 'easy', uses: ['map'], title: 'Biome Colors', what: "Show each biome's name styled with its own color from the data.", data: 'biomes[].palette.healthy' },
-		{ id: 'tiny-things', level: 'easy', uses: ['filter'], title: 'Tiny Things', what: 'Show every animal whose kind is invertebrate.', data: 'animals[].kind' },
-		{ id: 'six-biomes', level: 'easy', uses: ['map'], title: 'Six Biomes', what: 'Show all six biomes with their descriptions.', data: 'biomes[].description' },
+		{
+			id: 'meadow-roll-call',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Meadow Roll Call',
+			what: 'List every animal that lives in Willow Meadow.',
+			data: 'animals[].biome',
+			steps: [
+				'Fetch the data and log it once, so you can see the shape before you use it.',
+				'Filter animals down to the ones whose biome is exactly "meadow".',
+				'Build one list item per animal and put the whole list into the page.',
+			],
+			done: 'The page lists 25 animals, and none of them are from another biome.',
+		},
+		{
+			id: 'berry-eaters',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Berry Eaters',
+			what: 'Show only the animals whose diet mentions berries.',
+			data: 'animals[].diet',
+			steps: [
+				'Log a few diet values first. They are sentences, not tidy tags.',
+				'Keep the animals whose diet contains "berr", so berry and berries both match.',
+				'Show the diet line next to the name, so the match is visible on the page.',
+			],
+			done: 'Every animal shown has berries somewhere in its diet, and you can see where.',
+		},
+		{
+			id: 'name-that-species',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Name That Species',
+			what: 'Show each animal\\'s name with its scientific name in italics underneath.',
+			data: 'animals[].scientificName',
+			steps: [
+				'Map each animal to a small block of HTML rather than to a single string.',
+				'Put the common name in a heading and the scientific name in an em below it.',
+				'In styles.css, make the italic line smaller and lighter than the name.',
+			],
+			done: '150 entries, each with two lines that clearly look different from each other.',
+		},
+		{
+			id: 'rare-finds',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Rare Finds',
+			what: 'Show only the animals marked rare.',
+			data: 'animals[].rarity',
+			steps: [
+				'Log the rarity values first. There are only three of them.',
+				'Filter to the ones where rarity is "rare".',
+				'Put the count at the top of the page, so the number is part of the answer.',
+			],
+			done: 'Only rare animals are on the page, and it says how many there are.',
+		},
+		{
+			id: 'top-of-chain',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Top of the Chain',
+			what: 'Show every apex predator in the preserve.',
+			data: 'animals[].trophic',
+			steps: [
+				'Check what trophic actually contains. The value you want is "apex-predator".',
+				'Filter to trophic === \\'apex-predator\\', hyphen and all. "apex" alone matches nothing.',
+				'Show each one with its biome, so the spread across the preserve is visible.',
+			],
+			done: 'Only apex predators, and you can tell which biome each one came from.',
+		},
+		{
+			id: 'fact-of-the-day',
+			level: 'easy',
+			uses: ['if'],
+			title: 'Fact of the Day',
+			what: 'Show one random animal fact, with a button for another.',
+			data: 'animals[].fact',
+			steps: [
+				'Pick one animal with Math.floor(Math.random() * animals.length).',
+				'Show that animal\\'s name and its fact.',
+				'Add a button whose click handler picks again and rewrites the same element.',
+			],
+			done: 'Pressing the button changes the fact without reloading anything.',
+		},
+		{
+			id: 'biome-colors',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Biome Colors',
+			what: 'Show each biome\\'s name styled with its own color from the data.',
+			data: 'biomes[].palette.healthy',
+			steps: [
+				'Log one biome and find where the color lives inside the object.',
+				'Map each biome to an element and set its color from palette.healthy.',
+				'Add a filled swatch next to the name, so the color reads at small sizes too.',
+			],
+			done: 'Six biome names, each drawn in a color that came from the data rather than from you.',
+		},
+		{
+			id: 'tiny-things',
+			level: 'easy',
+			uses: ['filter'],
+			title: 'Tiny Things',
+			what: 'Show every animal whose kind is invertebrate.',
+			data: 'animals[].kind',
+			steps: [
+				'Log the kind values to see the exact vocabulary the data uses.',
+				'Filter to the ones where kind is "invertebrate".',
+				'Show the kind next to each name, so the filter is visible rather than assumed.',
+			],
+			done: 'Everything on the page is an invertebrate, and nothing else got through.',
+		},
+		{
+			id: 'six-biomes',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Six Biomes',
+			what: 'Show all six biomes with their descriptions.',
+			data: 'biomes[].description',
+			steps: [
+				'Map biomes to a card with the name as a heading and the description under it.',
+				'Join the cards together and write them into one container element.',
+				'Give the cards a border, a radius and some padding in styles.css.',
+			],
+			done: 'Six cards, each with a name and its own description.',
+		},
+		{
+			id: 'shelter-notes',
+			level: 'easy',
+			uses: ['map'],
+			title: 'Shelter Notes',
+			what: 'Show where each animal sleeps, nests or hides.',
+			data: 'animals[].shelter',
+			steps: [
+				'Log one shelter value. They are full sentences, so give them room to wrap.',
+				'Map each animal to its name plus its shelter description.',
+				'In styles.css, make the name bold and the shelter line lighter beneath it.',
+			],
+			done: '150 entries, each naming an animal and where it actually shelters.',
+		},
 
 		// --- medium: filter plus sort, or two fields together -----------------
-		{ id: 'a-z-guide', level: 'medium', uses: ['sort', 'map'], title: 'A\u2013Z Field Guide', what: 'List all 150 animals in alphabetical order.', data: 'animals[].name' },
-		{ id: 'biome-picker', level: 'medium', uses: ['filter', 'if'], title: 'Biome Picker', what: 'Six buttons, one per biome \u2014 click one and the list swaps.', data: 'biomes[].id' },
-		{ id: 'search-box', level: 'medium', uses: ['filter', 'if'], title: 'Search Box', what: 'Type a name and filter the list as you go.', data: 'animals[].name' },
-		{ id: 'habitat-checklist', level: 'medium', uses: ['map'], title: 'Habitat Checklist', what: 'Show what one animal needs before it will come home.', data: 'animals[].requirements.objects' },
-		{ id: 'hardest-to-please', level: 'medium', uses: ['sort'], title: 'Hardest to Please', what: 'Sort animals by how healthy their biome must be, toughest first.', data: 'animals[].requirements.minHealth' },
-		{ id: 'diet-cards', level: 'medium', uses: ['map'], title: 'Diet Cards', what: 'A card per animal with its diet, shelter and preferred habitat.', data: 'animals[].diet, .shelter' },
-		{ id: 'what-eats-what', level: 'medium', uses: ['map', 'if'], title: 'What Eats What', what: 'Pick an animal and show what it eats and what eats it.', data: 'animals[].eats, .eatenBy' },
-		{ id: 'resource-map', level: 'medium', uses: ['map'], title: 'Resource Map', what: 'Show each biome with the resources you can gather there.', data: 'biomes[].resources' },
-		{ id: 'sources-page', level: 'medium', uses: ['map'], title: 'Sources Page', what: "Show one animal's real-world sources as clickable links.", data: 'animals[].sources' },
-		{ id: 'rarity-badges', level: 'medium', uses: ['if', 'map'], title: 'Rarity Badges', what: 'Give every animal a badge \u2014 common, uncommon or rare.', data: 'animals[].rarity' },
+		{
+			id: 'a-z-guide',
+			level: 'medium',
+			uses: ['sort', 'map'],
+			title: 'A\u2013Z Field Guide',
+			what: 'List all 150 animals in alphabetical order.',
+			data: 'animals[].name',
+			steps: [
+				'Copy the array before sorting. .sort() changes the original in place.',
+				'Sort with (a, b) => a.name.localeCompare(b.name).',
+				'Map to list items and render them.',
+			],
+			done: '150 names, A to Z, with nothing missing off either end.',
+		},
+		{
+			id: 'biome-picker',
+			level: 'medium',
+			uses: ['filter', 'if'],
+			title: 'Biome Picker',
+			what: 'Six buttons, one per biome \u2014 click one and the list swaps.',
+			data: 'biomes[].id',
+			steps: [
+				'Build one button per biome, carrying the biome id on a data attribute.',
+				'On click, filter the animals to that biome and rewrite the list below.',
+				'Mark the pressed button, so it is obvious which biome is showing.',
+			],
+			done: 'Clicking any of the six buttons swaps the list underneath it.',
+		},
+		{
+			id: 'search-box',
+			level: 'medium',
+			uses: ['filter', 'if'],
+			title: 'Search Box',
+			what: 'Type a name and filter the list as you go.',
+			data: 'animals[].name',
+			steps: [
+				'Add an input and listen for its input event, not its change event.',
+				'Compare with .toLowerCase() on both sides, or capitals will break the match.',
+				'Handle the no-match case with a message instead of an empty page.',
+			],
+			done: 'Typing narrows the list as you go, and a search that matches nothing says so.',
+		},
+		{
+			id: 'habitat-checklist',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Habitat Checklist',
+			what: 'Show what one animal needs before it will come home.',
+			data: 'animals[].requirements.objects',
+			steps: [
+				'Log one animal\\'s requirements. objects is an object, not an array.',
+				'Use Object.keys() for the habitat items and the value for how many are needed.',
+				'Show them as a checklist, with minHealth as the heading above it.',
+			],
+			done: 'One animal, the list of what it needs, and the health level it is waiting for.',
+		},
+		{
+			id: 'hardest-to-please',
+			level: 'medium',
+			uses: ['sort'],
+			title: 'Hardest to Please',
+			what: 'Sort animals by how healthy their biome must be, toughest first.',
+			data: 'animals[].requirements.minHealth',
+			steps: [
+				'Copy the array, then sort by requirements.minHealth, largest first.',
+				'Show the number beside each name, so the ordering can be checked.',
+				'Take the top 20 with .slice(0, 20) to keep the page readable.',
+			],
+			done: 'The list runs from the fussiest animal downwards, with the numbers visible.',
+		},
+		{
+			id: 'diet-cards',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Diet Cards',
+			what: 'A card per animal with its diet, shelter and preferred habitat.',
+			data: 'animals[].diet, .shelter',
+			steps: [
+				'Map each animal to a card holding name, diet, shelter and preferredHabitat.',
+				'Label every line, so a reader can tell which fact is which.',
+				'Lay the cards out with CSS grid in styles.css.',
+			],
+			done: 'A grid of cards, each carrying four labeled facts about one animal.',
+		},
+		{
+			id: 'what-eats-what',
+			level: 'medium',
+			uses: ['map', 'if'],
+			title: 'What Eats What',
+			what: 'Pick an animal and show what it eats and what eats it.',
+			data: 'animals[].eats, .eatenBy',
+			steps: [
+				'eats and eatenBy hold ids, not names. Build a lookup from id to animal first.',
+				'Show one animal with two lists: what it eats, and what eats it.',
+				'Handle the empty case. An apex predator has nothing in eatenBy.',
+			],
+			done: 'Both lists show real names, and an apex predator says so rather than showing a blank.',
+		},
+		{
+			id: 'resource-map',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Resource Map',
+			what: 'Show each biome with the resources you can gather there.',
+			data: 'biomes[].resources',
+			steps: [
+				'Log one biome to see how resources is stored before you loop over it.',
+				'Map each biome to its name plus its resources joined with commas.',
+				'Color each biome heading with that biome\\'s own palette color.',
+			],
+			done: 'Six biomes, each listing what you can gather there.',
+		},
+		{
+			id: 'sources-page',
+			level: 'medium',
+			uses: ['map'],
+			title: 'Sources Page',
+			what: 'Show one animal\\'s real-world sources as clickable links.',
+			data: 'animals[].sources',
+			steps: [
+				'Log one animal\\'s sources to see what each entry actually contains.',
+				'Map them to anchor elements with the href set and the title as the text.',
+				'Add target="_blank" and rel="noopener", so a click does not lose your page.',
+			],
+			done: 'A list of real references for one animal, and every one of them opens.',
+		},
+		{
+			id: 'rarity-badges',
+			level: 'medium',
+			uses: ['if', 'map'],
+			title: 'Rarity Badges',
+			what: 'Give every animal a badge \u2014 common, uncommon or rare.',
+			data: 'animals[].rarity',
+			steps: [
+				'Map each animal to its name plus a span carrying its rarity as a class name.',
+				'Style the three classes differently in styles.css.',
+				'Put the word inside the badge as well. Color on its own is not a label.',
+			],
+			done: 'Every animal has a badge, and the three kinds are still tellable apart in gray.',
+		},
 
 		// --- ambitious: reduce, grouping, or real interaction ------------------
-		{ id: 'species-census', level: 'ambitious', uses: ['reduce'], title: 'Species Census', what: 'Count the animals in each biome and draw bars to compare them.', data: 'animals[].biome' },
-		{ id: 'food-web', level: 'ambitious', uses: ['filter', 'if'], title: 'Food Web', what: 'Pick an animal and walk outwards through what eats it.', data: 'animals[].eats, .eatenBy' },
-		{ id: 'trophic-pyramid', level: 'ambitious', uses: ['reduce'], title: 'Trophic Pyramid', what: 'Stack the animals by their role in the food chain.', data: 'animals[].trophic' },
-		{ id: 'restoration-planner', level: 'ambitious', uses: ['filter', 'if'], title: 'Restoration Planner', what: 'Pick a health level and show which animals would return.', data: 'animals[].requirements.minHealth' },
-		{ id: 'rarity-breakdown', level: 'ambitious', uses: ['reduce'], title: 'Rarity Breakdown', what: 'Count common, uncommon and rare, and draw it as a chart.', data: 'animals[].rarity' },
-		{ id: 'two-biomes', level: 'ambitious', uses: ['filter'], title: 'Two-Biome Comparison', what: 'Show two biomes side by side and compare their species.', data: 'animals[].biome' },
-		{ id: 'quiz-mode', level: 'ambitious', uses: ['if'], title: 'Quiz Mode', what: 'Show a fact and ask which animal it belongs to.', data: 'animals[].fact, .name' },
-		{ id: 'water-dependents', level: 'ambitious', uses: ['filter'], title: 'Water Dependents', what: 'Find every animal that needs water to come home.', data: 'animals[].requirements' },
-		{ id: 'guess-the-biome', level: 'ambitious', uses: ['if'], title: 'Guess the Biome', what: 'Show a habitat description and let the player guess where it is.', data: 'animals[].preferredHabitat' },
-		{ id: 'field-journal', level: 'ambitious', uses: ['filter', 'if'], title: 'Field Journal', what: 'Let the reader keep a list of favorites that survives a refresh.', data: 'animals[].name' },
+		{
+			id: 'species-census',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Species Census',
+			what: 'Count the animals in each biome and draw bars to compare them.',
+			data: 'animals[].biome',
+			steps: [
+				'Reduce the animals into an object mapping each biome to a count.',
+				'Turn that object into rows with Object.entries().',
+				'Draw each bar as a div whose width is its share of the largest count.',
+			],
+			done: 'Six bars whose lengths match the numbers printed beside them.',
+		},
+		{
+			id: 'food-web',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Food Web',
+			what: 'Pick an animal and walk outwards through what eats it.',
+			data: 'animals[].eats, .eatenBy',
+			steps: [
+				'Build the id-to-animal lookup once, at the start, not inside the loop.',
+				'Show one animal, and make every name in its two lists clickable.',
+				'A click re-renders the whole view centered on the animal that was clicked.',
+			],
+			done: 'You can walk from any animal to its neighbors, and back again.',
+		},
+		{
+			id: 'trophic-pyramid',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Trophic Pyramid',
+			what: 'Stack the animals by their role in the food chain.',
+			data: 'animals[].trophic',
+			steps: [
+				'Reduce into a count for each trophic value.',
+				'Write the level order yourself. The data is not stored in pyramid order.',
+				'Draw each level as a row, widest at the bottom.',
+			],
+			done: 'A pyramid whose rows are in food-chain order rather than data order.',
+		},
+		{
+			id: 'restoration-planner',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Restoration Planner',
+			what: 'Pick a health level and show which animals would return.',
+			data: 'animals[].requirements.minHealth',
+			steps: [
+				'Add a range input running from 0 to 100.',
+				'On input, keep the animals whose requirements.minHealth is at or below it.',
+				'Show the count, so moving the slider visibly changes something every time.',
+			],
+			done: 'Dragging the slider adds and removes animals as the threshold moves.',
+		},
+		{
+			id: 'rarity-breakdown',
+			level: 'ambitious',
+			uses: ['reduce'],
+			title: 'Rarity Breakdown',
+			what: 'Count common, uncommon and rare, and draw it as a chart.',
+			data: 'animals[].rarity',
+			steps: [
+				'Reduce into counts for the three rarity values.',
+				'Work out each one\\'s share of the total as a percentage.',
+				'Draw three bars, each labeled with its count and its share.',
+			],
+			done: 'Three bars whose percentages add up to 100.',
+		},
+		{
+			id: 'two-biomes',
+			level: 'ambitious',
+			uses: ['filter'],
+			title: 'Two-Biome Comparison',
+			what: 'Show two biomes side by side and compare their species.',
+			data: 'animals[].biome',
+			steps: [
+				'Two select elements, one per side, both built from the biome list.',
+				'Filter the animals twice, once per chosen biome, and render two columns.',
+				'Print how many species each side has, so the columns can be compared.',
+			],
+			done: 'Two columns you can change independently, each with its own count.',
+		},
+		{
+			id: 'quiz-mode',
+			level: 'ambitious',
+			uses: ['if'],
+			title: 'Quiz Mode',
+			what: 'Show a fact and ask which animal it belongs to.',
+			data: 'animals[].fact, .name',
+			steps: [
+				'Pick a random animal and show its fact, without the name.',
+				'Offer four buttons: the right answer and three others picked at random.',
+				'Say whether the guess was right, then offer the next question.',
+			],
+			done: 'You can answer several in a row, and it keeps the score.',
+		},
+		{
+			id: 'water-dependents',
+			level: 'ambitious',
+			uses: ['filter'],
+			title: 'Water Dependents',
+			what: 'Find every animal that needs water to come home.',
+			data: 'animals[].requirements',
+			steps: [
+				'Log a requirements.objects to see what the habitat items are called.',
+				'Keep the animals whose object names mention pond, water or pool.',
+				'Show which item matched, so the filter can be checked rather than trusted.',
+			],
+			done: 'Every animal listed needs water, and the page names the item that proves it.',
+		},
+		{
+			id: 'guess-the-biome',
+			level: 'ambitious',
+			uses: ['if'],
+			title: 'Guess the Biome',
+			what: 'Show a habitat description and let the player guess where it is.',
+			data: 'animals[].preferredHabitat',
+			steps: [
+				'Show one animal\\'s preferredHabitat, with any biome name taken out of it.',
+				'Offer the six biomes as buttons.',
+				'After a guess, reveal both the answer and the animal it described.',
+			],
+			done: 'A round plays all the way through: read, guess, reveal, next.',
+		},
+		{
+			id: 'field-journal',
+			level: 'ambitious',
+			uses: ['filter', 'if'],
+			title: 'Field Journal',
+			what: 'Keep a running list of favorites you can add to and clear.',
+			data: 'animals[].name',
+			steps: [
+				'Keep a favorites array in your own code, and add to it on a button click.',
+				'Re-render both lists after every change, rather than patching one of them.',
+				'Handle the empty journal with a line of text, not an empty box.',
+			],
+			done: 'You can add, see and clear favorites, and the empty state says something.',
+		},
 	];
 
 	/* --------------------------------------------------------------- help text */
@@ -40382,6 +43001,23 @@ body.lab.side-hidden .lab-side-toggle svg {
 		counts[key] = (counts[key] || 0) + 1;
 	}
 
+	/* FIRST VISIT EVER, not first visit this session.
+	 *
+	 * \`view_builder\` is traffic and this is reach: how many different browsers have
+	 * ever opened the page. The gap between the two is how much of the traffic is
+	 * the same people coming back, which for a tool is the difference between
+	 * being used and being reloaded. One bit, readable only by this origin, and
+	 * it identifies nobody. */
+	function bumpFirstEver() {
+		try {
+			if (localStorage.getItem('ww_ever_builder')) return;
+			localStorage.setItem('ww_ever_builder', '1');
+		} catch (e) {
+			/* storage refused: overstating reach a little beats losing it */
+		}
+		bump('unique_builder');
+	}
+
 	/* ------------------------------------------------------- time in the builder
 	 *
 	 * How long a student actually spends here is the number that says whether this
@@ -40391,7 +43027,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 	 * ACTIVE time, not wall-clock: the tab left open over lunch is not an hour of
 	 * building. The clock stops whenever the page is hidden.
 	 *
-	 * BUCKETED, never a raw duration. A precise per-session length is a behavioural
+	 * BUCKETED, never a raw duration. A precise per-session length is a behavioral
 	 * trace of one person; "somewhere between fifteen and thirty minutes" answers
 	 * the question just as well and describes nobody. Same reasoning as everything
 	 * else in this file: if it cannot be a counter, it does not leave the browser.
@@ -40754,6 +43390,64 @@ body.lab.side-hidden .lab-side-toggle svg {
 		/* ---- checkpoints ---- */
 		var cpList = $('#lab-checkpoints');
 		var undo = null;
+		/* Which answers are showing. Deliberately NOT saved with the rest of the
+		   layout: a revealed answer is a moment, not a preference, and coming back
+		   next period to six open answers is not where anyone wants to start. */
+		var openHints = {};
+		/* The panel is 280px because that is enough for a goal and a hint. It is not
+		   enough for \`const response = await fetch("https://wildwillows.app/...")\`,
+		   which wraps to four lines and stops looking like code. So while an answer
+		   is showing the column gets 100px more, and gives it straight back. */
+		function paintHintWidth() {
+			document.body.classList.toggle('hint-open', !!document.querySelector('.cp-code:not([hidden])'));
+		}
+
+		var COPY_KEYS = /Mac|iPhone|iPad/.test(navigator.platform || '') ? 'Cmd+C' : 'Ctrl+C';
+
+		function selectText(node) {
+			if (!node) return false;
+			try {
+				var range = document.createRange();
+				range.selectNodeContents(node);
+				var sel = window.getSelection();
+				sel.removeAllRanges();
+				sel.addRange(range);
+				return true;
+			} catch (e) {
+				return false;
+			}
+		}
+
+		/* THREE WAYS, IN ORDER OF HOW NICE THEY ARE.
+		 *
+		 * The async clipboard is the good one and the one that usually runs. It
+		 * needs a secure context and a permission a managed school profile can
+		 * refuse \u2014 so when it says no, select the block and ask the browser to copy
+		 * the selection, which needs neither. If even that is refused the text is
+		 * left highlighted and the student presses Cmd+C, which is one instruction
+		 * rather than a dead button. */
+		function copyText(text, node) {
+			try {
+				if (navigator.clipboard && navigator.clipboard.writeText)
+					return navigator.clipboard.writeText(text).catch(function () {
+						return legacyCopy(node);
+					});
+			} catch (e) {
+				/* falls through */
+			}
+			return legacyCopy(node);
+		}
+
+		function legacyCopy(node) {
+			if (!selectText(node)) return Promise.reject(new Error('cannot select'));
+			var worked = false;
+			try {
+				worked = document.execCommand('copy');
+			} catch (e) {
+				worked = false;
+			}
+			return worked ? Promise.resolve() : Promise.reject(new Error('selected only'));
+		}
 
 		var cpCount = $('#lab-cp-count');
 
@@ -40806,21 +43500,76 @@ body.lab.side-hidden .lab-side-toggle svg {
 				main.appendChild(el('div', 'cp-goal', cp.goal));
 				main.appendChild(el('div', 'cp-hint', cp.hint));
 
+				/* SHOWS the answer, it does not APPLY it.
+				 *
+				 * This used to overwrite the student's files with the worked version,
+				 * behind a confirm() and a one-shot undo. Two things were wrong with
+				 * that. A student pressing "Show me" is usually stuck and wants to
+				 * LOOK at the answer, and the price of looking was their own work.
+				 * And once it had been applied there was nothing left to compare
+				 * against \u2014 the thing they were stuck on was gone from the screen.
+				 *
+				 * So it reveals the code in place, next to their own, with a Copy
+				 * button. Copying is the same keystrokes as typing it, and it is
+				 * their decision rather than a modal's. Nothing in the editor moves,
+				 * so the checkpoint is not ticked either: looking is not finishing.
+				 */
 				var show = el('button', 'cp-show', 'Show me');
 				show.type = 'button';
-				show.addEventListener('click', function () {
-					var target = Object.keys(cp.show).join(' and ');
-					if (!window.confirm('This will replace what is in ' + target + '. Continue? (You can undo once.)')) return;
-					undo = files();
-					runner.wwSet(cp.show);
-					doneSet[cp.id] = true;
-					save(files(), doneSet, ui);
-					renderCheckpoints();
-					bump('hint_' + cp.id);
-					status('Filled in. Undo is in the toolbar if you want your version back.', 'ok');
-					if (undoBtn) undoBtn.hidden = false;
-				});
+				show.setAttribute('aria-expanded', 'false');
 				main.appendChild(show);
+
+				var codeBox = el('div', 'cp-code');
+				codeBox.hidden = true;
+				Object.keys(cp.show).forEach(function (name) {
+					var head = el('div', 'cp-code-head');
+					head.appendChild(el('span', 'cp-code-name', name));
+
+					var copy = el('button', 'cp-copy', 'Copy');
+					copy.type = 'button';
+					copy.addEventListener('click', function () {
+						var pre = codeBox.querySelector('[data-file="' + name + '"]');
+						copyText(cp.show[name], pre).then(
+							function () {
+								copy.textContent = 'Copied';
+								status('Copied. Paste it into ' + name + ' and change it until it is yours.', 'ok');
+								setTimeout(function () {
+									copy.textContent = 'Copy';
+								}, 1600);
+								bump('copy_' + cp.id);
+							},
+							function () {
+								/* Everything refused. The block is highlighted by now, so the
+								   one thing left to say is which two keys to press. */
+								status('Highlighted for you \u2014 press ' + COPY_KEYS + ' to copy it.', '');
+							},
+						);
+					});
+					head.appendChild(copy);
+					codeBox.appendChild(head);
+
+					var pre = el('pre', 'cp-pre', cp.show[name]);
+					pre.setAttribute('data-file', name);
+					pre.tabIndex = 0;
+					codeBox.appendChild(pre);
+				});
+				main.appendChild(codeBox);
+
+				if (openHints[cp.id]) {
+					codeBox.hidden = false;
+					show.textContent = 'Hide';
+					show.setAttribute('aria-expanded', 'true');
+				}
+
+				show.addEventListener('click', function () {
+					var open = codeBox.hidden;
+					codeBox.hidden = !open;
+					openHints[cp.id] = open;
+					show.textContent = open ? 'Hide' : 'Show me';
+					show.setAttribute('aria-expanded', open ? 'true' : 'false');
+					paintHintWidth();
+					if (open) bump('hint_' + cp.id);
+				});
 
 				li.appendChild(tick);
 				li.appendChild(main);
@@ -40901,6 +43650,19 @@ body.lab.side-hidden .lab-side-toggle svg {
 		/* ---- the brief: whatever idea they picked, kept on screen ---- */
 		var briefBox = $('#lab-current-idea');
 
+		/* The wall of thirty cards is a MENU: one line each, because a paragraph on
+		 * thirty cards is a wall nobody reads. This panel is the opposite problem.
+		 * It shows exactly one idea, the one they chose, and it stays on screen for
+		 * the rest of the period \u2014 so it is the right place for everything the card
+		 * could not carry. "Show every animal whose kind is invertebrate" is enough
+		 * to pick; it is not enough to start.
+		 *
+		 * Built with el() rather than innerHTML. The text is ours, so this is not
+		 * about untrusted input; it is that a brief assembled with \`+\` breaks the
+		 * first time an idea's wording contains an angle bracket, and several of
+		 * these steps talk about elements and tags. */
+		var METHOD_LABEL = { filter: '.filter()', map: '.map()', sort: '.sort()', reduce: '.reduce()', if: 'if / else' };
+
 		function showBrief(idea) {
 			if (!briefBox) return;
 			if (!idea) {
@@ -40915,6 +43677,32 @@ body.lab.side-hidden .lab-side-toggle svg {
 			set('#lab-brief-title', idea.title);
 			set('#lab-brief-what', idea.what);
 			set('#lab-brief-data', 'Uses ' + idea.data);
+
+			var tags = $('#lab-brief-tags');
+			if (tags) {
+				tags.textContent = '';
+				var chips = [idea.level].concat(idea.uses || []);
+				for (var t = 0; t < chips.length; t++)
+					tags.appendChild(
+						el('span', 'brief-tag' + (t === 0 ? ' is-level' : ''), t === 0 ? chips[t] : METHOD_LABEL[chips[t]] || chips[t]),
+					);
+			}
+
+			var list = $('#lab-brief-steps');
+			if (list) {
+				list.textContent = '';
+				var steps = idea.steps || [];
+				for (var i = 0; i < steps.length; i++) list.appendChild(el('li', '', steps[i]));
+				list.hidden = steps.length === 0;
+				var heading = $('.brief-h', briefBox);
+				if (heading) heading.hidden = steps.length === 0;
+			}
+
+			var doneLine = $('#lab-brief-done');
+			if (doneLine) {
+				doneLine.textContent = idea.done ? 'Done when: ' + idea.done : '';
+				doneLine.hidden = !idea.done;
+			}
 		}
 
 		function ideaById(id) {
@@ -41024,8 +43812,19 @@ body.lab.side-hidden .lab-side-toggle svg {
 			status('Added to main.js \u2014 the brief is in the sidebar. Undo is in the toolbar.', 'ok');
 		}
 
+		/* WHERE FOCUS GOES WHEN THIS SHUTS.
+		 *
+		 * Focus moved into the dialog and, on close, was dropped on the document \u2014
+		 * so a keyboard user who opened Ideas, looked, and pressed Escape restarted
+		 * from the top of the page, twenty-odd tab stops from where they were. The
+		 * opener is remembered rather than assumed, because this dialog also opens
+		 * by itself after a few idle minutes, and in that case there is no button
+		 * to go back to. */
+		var modalOpener = null;
+
 		function openModal(why) {
 			if (!modal) return;
+			modalOpener = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
 			modal.hidden = false;
 			renderIdeas();
 			bump(why === 'auto' ? 'ideas_auto_offered' : 'ideas_opened');
@@ -41034,7 +43833,11 @@ body.lab.side-hidden .lab-side-toggle svg {
 		}
 
 		function closeModal() {
-			if (modal) modal.hidden = true;
+			if (!modal || modal.hidden) return;
+			modal.hidden = true;
+			var back = modalOpener && document.contains(modalOpener) ? modalOpener : $('#lab-ideas-open');
+			modalOpener = null;
+			if (back && back.focus) back.focus();
 		}
 
 		var ideasBtn = $('#lab-ideas-open');
@@ -41152,6 +43955,7 @@ body.lab.side-hidden .lab-side-toggle svg {
 
 		bump('builder_open');
 		bump('view_builder');
+		bumpFirstEver();
 		bump('session_total');
 
 		/* Which screens this is actually used on. The page claims to work on a
@@ -41218,6 +44022,1983 @@ body.lab.side-hidden .lab-side-toggle svg {
 	};
 })();
 
+</script>
+</body>
+</html>
+`;
+var developersApiHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Open Game Data: a free public API of 150 real species</title>
+<meta name="description" content="One public endpoint, no key and no sign-up: 150 real animals with diet, shelter, food-web links and habitat requirements, six biomes, and everything the game itself is built from. JavaScript, Python and curl examples, and a free lesson that teaches you to use it.">
+<link rel="canonical" href="https://wildwillows.app/developers/api">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="free public API, open game data, JSON API no key, ecology dataset, species API, food web data, API for students, learn fetch API, public dataset for teaching, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows Open Game Data: a free public API of 150 real species">
+<meta property="og:description" content="One endpoint, no key. 150 real animals with diet, shelter, food-web links and habitat requirements. JavaScript, Python and curl examples.">
+<meta property="og:url" content="https://wildwillows.app/developers/api">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows Open Game Data">
+<meta name="twitter:description" content="A free public API of 150 real species, their diets, their food web and what each one needs to come home. No key, no sign-up.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Wild Willows Open Game Data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "A single public JSON endpoint serving every definition the game Wild Willows is built from: 150 real animal species with diet, shelter, preferred habitat, food-web links and the habitat requirements that decide when each one returns, plus six biomes, 385 habitat items, 355 recipes and 38 gatherable resources.",
+      "documentation": "https://wildwillows.app/developers/api",
+      "termsOfService": "https://wildwillows.app/developers/api#terms",
+      "provider": { "@type": "Person", "name": "Bailey Dunning" },
+      "isAccessibleForFree": true,
+      "license": "https://wildwillows.app/developers/api#terms",
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://wildwillows.app/GameData/", "httpMethod": "GET", "contentType": "application/json" }
+      }
+    },
+    {
+      "@type": "Dataset",
+      "name": "Wild Willows species and habitat data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "150 real animal species across six North American habitat types, each with a scientific name, diet, shelter, preferred habitat, trophic role, rarity, cited sources, what it eats, what eats it, and the habitat conditions required for it to return to a restored landscape.",
+      "keywords": ["ecology", "species", "food web", "habitat", "biodiversity", "restoration", "open data"],
+      "isAccessibleForFree": true,
+      "creator": { "@type": "Person", "name": "Bailey Dunning" },
+      "distribution": {
+        "@type": "DataDownload",
+        "encodingFormat": "application/json",
+        "contentUrl": "https://wildwillows.app/GameData/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Open Game Data", "item": "https://wildwillows.app/developers/api" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a reader who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defenses:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder \u2014 content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other.
+   \`.kit .kit-go\` rather than \`.kit-go\`: this is a <p>, and \`.kit p\` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections \u2014 "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows \u2014 the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+/* Every column but the first is supporting text. Written as "not the first"
+   rather than as a list of column numbers: the science guide's arrival ladder
+   uses the same table with five columns, and a numbered list silently stopped
+   coloring the last two. */
+.trouble td:not(:first-child) {
+	color: var(--ink-soft);
+}
+
+/* Percentages line up under each other, and never wrap mid-number. */
+.trouble .num {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* A short label that reads as broken when it wraps: "Insect-" over "eater" in a
+   column that had the room. Applied per cell rather than per column, because
+   the two tables using this style do not have it in the same place. */
+.trouble .tight {
+	white-space: nowrap;
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* -------------------------------------------------- the specification list
+ *
+ * The block a teacher forwards to whoever approves software. A definition list
+ * rather than a table because every row is one term and one answer, and because
+ * it collapses to stacked pairs on a phone without a horizontal scroller. */
+.spec {
+	margin: 1rem 0 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.spec > div {
+	display: grid;
+	grid-template-columns: 10rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.65rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.spec dt {
+	font-weight: 700;
+	color: var(--green-deep);
+	font-size: 0.94rem;
+	line-height: 1.5;
+}
+
+[data-theme='dark'] .spec dt {
+	color: var(--green-bright);
+}
+
+.spec dd {
+	margin: 0;
+	color: var(--ink-soft);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+	.spec > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+/* ------------------------------------------------------------------ figures
+ *
+ * One screenshot with a caption under it. No lightbox: this page is read on a
+ * prep period and printed, and a gallery is a thing to operate rather than a
+ * thing to read. */
+.gfig {
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.gfig img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	background: var(--panel);
+}
+
+.gfig figcaption {
+	margin: 0.5rem 0 0;
+	font-size: 0.88rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.gfig figcaption b {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol,
+	.gfig,
+	.spec > div {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}
+
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted gray. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+
+<a class="skip-link" href="#main">Skip to the docs</a>
+
+<body class="edu-hub guide">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="#start">Quick start</a>
+    <a class="hide-sm" href="#animal">The animal object</a>
+    <a class="hide-sm" href="#limits">Limits</a>
+    <a class="hide-sm" href="#terms">Terms</a>
+    <a class="btn btn-go" href="/learn" data-track="learn-nav">Learn to use it</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="twrap" id="main" tabindex="-1">
+
+<header class="thero">
+  <p class="kicker">Open Game Data</p>
+  <h1>One endpoint, no key</h1>
+  <p class="lead">Everything Wild Willows is built from is served from a single public URL: 150 real species with their diets, their food web and what each one needs before it will come home, across six habitat types. It is the same data the game itself runs on.</p>
+  <div class="tmeta">
+    <span class="chip">No key, no sign-up</span>
+    <span class="chip">CORS enabled</span>
+    <span class="chip">150 species</span>
+    <span class="chip">6 biomes</span>
+    <span class="chip">JSON</span>
+    <span class="chip warm">Free to use</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>There is nothing to sign up for</h2>
+    <p>No API key, no account and no dashboard to register in. One GET, from a browser or anywhere else, and you have the whole dataset. It sends <code>Access-Control-Allow-Origin: *</code>, so a page you are building can read it directly with no server of your own.</p>
+    <p>There is a rate limit: <b>600 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
+    <p>It exists because a classroom lesson needed a real API to teach against rather than a mock one. That turned out to be useful to more people than students, so it is documented rather than merely public.</p>
+  </div>
+</div>
+
+<section class="tsec" id="start">
+  <h2>Quick start</h2>
+  <p>One endpoint. There are no parameters, no pagination and no other routes: you take the whole thing and pick what you want out of it.</p>
+  <pre class="hcode">GET https://wildwillows.app/GameData/</pre>
+
+  <p class="answer-head">JavaScript &mdash; browser or Node</p>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+const data = await res.json();
+
+const meadow = data.animals.filter((a) =&gt; a.biome === "meadow");
+console.log(\`\${meadow.length} animals live in Willow Meadow\`);
+console.log(meadow.slice(0, 3).map((a) =&gt; \`\${a.name} \u2014 \${a.diet}\`).join("\\n"));</pre>
+
+  <p class="answer-head">Python &mdash; standard library, nothing to install</p>
+  <pre class="hcode">import json, urllib.request
+
+with urllib.request.urlopen("https://wildwillows.app/GameData/") as r:
+    data = json.load(r)
+
+meadow = [a for a in data["animals"] if a["biome"] == "meadow"]
+print(f"{len(meadow)} animals live in Willow Meadow")
+for a in meadow[:3]:
+    print(f"{a['name']} \u2014 {a['diet']}")</pre>
+
+  <p class="answer-head">Both print</p>
+  <pre class="hcode">25 animals live in Willow Meadow
+Grasshopper \u2014 grasses, sedges and broadleaf forbs
+Prairie Vole \u2014 grasses, sedges, seeds and roots, plus bark in winter
+Monarch Butterfly \u2014 caterpillars eat only milkweed; adults sip flower nectar</pre>
+
+  <p class="answer-head">curl</p>
+  <pre class="hcode">curl -s https://wildwillows.app/GameData/ \\
+  | jq -r '.animals[] | select(.biome == "meadow" and .trophic == "apex-predator") | .name'
+
+Red-tailed Hawk
+Coyote
+Barn Owl</pre>
+
+  <p class="note-line">Every snippet on this page was run against the live data before it was published, and the output under each one is what it actually printed. If one of them stops working, that is a bug and I would like to hear about it.</p>
+</section>
+
+<section class="tsec" id="response">
+  <h2>What comes back</h2>
+  <p>One JSON object. These are its keys, all of them arrays except the last two.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Key</th><th>Count</th><th>What it holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>animals</code></td><td class="num">150</td><td>Every species, 25 per biome. The interesting one, and what the rest of this page is mostly about.</td></tr>
+        <tr><td><code>biomes</code></td><td class="num">6</td><td>The six habitat types, with their palettes, their grid size and what can be gathered in each.</td></tr>
+        <tr><td><code>habitatObjects</code></td><td class="num">385</td><td>Everything that can be planted or built, and what each one contributes to habitat.</td></tr>
+        <tr><td><code>recipes</code></td><td class="num">355</td><td>What each item is made from.</td></tr>
+        <tr><td><code>resources</code></td><td class="num">38</td><td>Gatherable materials, and which tool collects them.</td></tr>
+        <tr><td><code>achievements</code></td><td class="num">50</td><td>Named goals, their category and their requirement.</td></tr>
+        <tr><td><code>tools</code></td><td class="num">9</td><td>The tools and their upgrade tiers.</td></tr>
+        <tr><td><code>appearanceOptions</code></td><td class="num">&mdash;</td><td>An object of character-customization lists. Only interesting if you are building something that draws a caretaker.</td></tr>
+        <tr><td><code>nodeRegenSeconds</code></td><td class="num">&mdash;</td><td>A single number, a game-balance constant. Ignore it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sub">Roughly half a megabyte of JSON, about a fifth of that over the wire once compressed. There is no thinner version: see <a href="#terms">using it kindly</a> for how to fetch it once rather than often.</p>
+</section>
+
+<section class="tsec" id="animal">
+  <h2>The animal object</h2>
+  <p>The one worth knowing. Every field below is on every one of the 150 records, and none of them are placeholders: the diets, the shelters and the food-web links were written from cited sources, which travel with the record.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td>Stable kebab-case identifier, <code>"red-fox"</code>. What <code>eats</code>, <code>eatenBy</code> and <code>requirements.animals</code> refer to.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Common name, <code>"Red Fox"</code>.</td></tr>
+        <tr><td><code>scientificName</code></td><td class="tight">string</td><td><code>"Vulpes vulpes"</code>.</td></tr>
+        <tr><td><code>biome</code></td><td class="tight">string</td><td>One of the six biome ids. Exactly 25 species per biome.</td></tr>
+        <tr><td><code>kind</code></td><td class="tight">string</td><td>Broad group: <code>mammal</code>, <code>bird</code>, <code>insect</code>, <code>invertebrate</code>, <code>reptile</code>, <code>amphibian</code>, <code>fish</code>.</td></tr>
+        <tr><td><code>trophic</code></td><td class="tight">string</td><td>Role in the food web. Nine values, listed below.</td></tr>
+        <tr><td><code>rarity</code></td><td class="tight">string</td><td><code>common</code> (69), <code>uncommon</code> (41) or <code>rare</code> (40).</td></tr>
+        <tr><td><code>diet</code></td><td class="tight">string</td><td>A sentence, not a tag list. <code>"grasses, sedges and broadleaf forbs"</code>.</td></tr>
+        <tr><td><code>shelter</code></td><td class="tight">string</td><td>Where it nests, dens or hides, in a sentence.</td></tr>
+        <tr><td><code>preferredHabitat</code></td><td class="tight">string</td><td>The conditions it wants, in a sentence.</td></tr>
+        <tr><td><code>fact</code></td><td class="tight">string</td><td>One true, checkable thing about the species. Good for a card, a quiz or a fact-of-the-day.</td></tr>
+        <tr><td><code>role</code></td><td class="tight">string</td><td>A paragraph on what it does in its ecosystem and who depends on it.</td></tr>
+        <tr><td><code>eats</code></td><td class="tight">string[]</td><td>Ids of other animals in the dataset. Empty for a herbivore.</td></tr>
+        <tr><td><code>eatsOther</code></td><td class="tight">string[]</td><td>Food that is not an animal in the dataset: <code>["grasses", "leaves and forbs", "sedges"]</code>.</td></tr>
+        <tr><td><code>eatenBy</code></td><td class="tight">string[]</td><td>Ids of its predators. Empty for an apex predator, which is a useful thing to check for.</td></tr>
+        <tr><td><code>sources</code></td><td class="tight">object[]</td><td><code>{ name, url }</code> references for the claims above. Real citations, mostly to Animal Diversity Web and state wildlife agencies.</td></tr>
+        <tr><td><code>requirements</code></td><td class="tight">object</td><td>What has to be true before this species returns. Its own section below.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Trophic roles</h3>
+  <div class="vocab">
+    <div class="vrow"><b>herbivore</b><span>Eats plants. 46 species, the widest group.</span></div>
+    <div class="vrow"><b>insectivore</b><span>Eats insects. 29.</span></div>
+    <div class="vrow"><b>mesopredator</b><span>A hunter that is also hunted. 23.</span></div>
+    <div class="vrow"><b>omnivore</b><span>Eats both. 18.</span></div>
+    <div class="vrow"><b>apex-predator</b><span>Nothing in the dataset eats it. 17, and <code>eatenBy</code> is empty for all of them.</span></div>
+    <div class="vrow"><b>detritivore</b><span>Eats dead and rotting material. 10.</span></div>
+    <div class="vrow"><b>filter-feeder</b><span>Strains food from water. 4.</span></div>
+    <div class="vrow"><b>scavenger</b><span>Eats what it did not kill. 2.</span></div>
+    <div class="vrow"><b>decomposer</b><span>Breaks matter back down. 1.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="requirements">
+  <h2>Requirements, and why they are the interesting part</h2>
+  <p>Most species datasets tell you what an animal is. This one also encodes what a place has to become before that animal will live in it, because the game had to decide when each one comes back. That turns the dataset into something you can compute an <em>order</em> from.</p>
+  <pre class="hcode">"requirements": {
+  "minHealth": 65,
+  "minBalance": 40,
+  "objects": { "earthen-fox-den": 1, "native-grass-patch": 2, "brush-pile": 1, "oak-tree": 1 },
+  "signature": "earthen-fox-den",
+  "water": { "tiles": 1 },
+  "animals": ["cottontail-rabbit", "prairie-vole"],
+  "hint": "This one comes back once the small animals do \u2014 and she needs an old burrow she can widen into a nursery."
+}</pre>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>minHealth</code></td><td class="tight">number</td><td>Percentage of habitat recovery the biome needs first. 8 for the first arrival, 80 for the last.</td></tr>
+        <tr><td><code>minBalance</code></td><td class="tight">number</td><td>How evenly spread that recovery has to be. Optional.</td></tr>
+        <tr><td><code>objects</code></td><td class="tight">object</td><td>Habitat item id to how many are needed. The ids are in <code>habitatObjects</code>.</td></tr>
+        <tr><td><code>signature</code></td><td class="tight">string</td><td>The one item most identified with this species, if it has one.</td></tr>
+        <tr><td><code>water</code></td><td class="tight">object</td><td><code>{ tiles: n }</code> when it needs open water. Absent when it does not.</td></tr>
+        <tr><td><code>animals</code></td><td class="tight">string[]</td><td><b>The good one.</b> Other species that must already be present. This is what makes predators arrive last.</td></tr>
+        <tr><td><code>hint</code></td><td class="tight">string</td><td>A written clue, in plain language, for a player working out what is missing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="biome">
+  <h2>The biome object</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td><code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code>, <code>coastal</code>.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland, Graywind Heights, Pelican Shore.</td></tr>
+        <tr><td><code>order</code></td><td class="tight">number</td><td>The order they are restored in, 1 to 6.</td></tr>
+        <tr><td><code>description</code></td><td class="tight">string</td><td>What the place is, and what happened to it.</td></tr>
+        <tr><td><code>restorationGoal</code></td><td class="tight">string</td><td>What a player is being asked to do there.</td></tr>
+        <tr><td><code>palette</code></td><td class="tight">object</td><td><code>{ damaged, healthy }</code>, two hex colors. Useful if you are drawing anything.</td></tr>
+        <tr><td><code>grid</code></td><td class="tight">object</td><td><code>{ cols, rows }</code> &mdash; the meadow is 44 &times; 26.</td></tr>
+        <tr><td><code>resources</code></td><td class="tight">string[]</td><td>What can be gathered on the surface there.</td></tr>
+        <tr><td><code>digResources</code></td><td class="tight">string[]</td><td>What digging turns up. Repeats are weightings, not mistakes.</td></tr>
+        <tr><td><code>unlock</code></td><td class="tight">object</td><td>What opens this biome. <code>null</code> for the meadow, which is where everyone starts.</td></tr>
+        <tr><td><code>explorable</code></td><td class="tight">boolean</td><td>Whether it is a place you can go.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="recipes">
+  <h2>Three things worth building</h2>
+  <p>Each of these runs as written, and the output under it is what it printed.</p>
+
+  <h3>1. The arrival ladder</h3>
+  <p>Sort a biome by <code>minHealth</code> and you get the order life comes back in. Read <code>requirements.animals</code> alongside it and you can see why the hunters are at the bottom of the list.</p>
+  <pre class="hcode">const data = await (await fetch("https://wildwillows.app/GameData/")).json();
+
+const ladder = data.animals
+  .filter((a) =&gt; a.biome === "meadow")
+  .sort((a, b) =&gt; a.requirements.minHealth - b.requirements.minHealth);
+
+const name = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a.name]));
+
+for (const a of ladder.slice(0, 8)) {
+  const waiting = (a.requirements.animals || []).map((id) =&gt; name[id]).join(", ");
+  console.log(\`\${String(a.requirements.minHealth).padStart(3)}%  \${a.name}\${waiting ? "  (needs " + waiting + ")" : ""}\`);
+}</pre>
+  <pre class="hcode">  8%  Grasshopper
+  9%  Pillbug
+ 10%  Prairie Vole
+ 10%  Snail
+ 12%  Ladybug
+ 14%  Ground Squirrel  (needs Grasshopper)
+ 15%  Monarch Butterfly
+ 16%  Song Sparrow  (needs Grasshopper)</pre>
+
+  <h3>2. A census of the food web</h3>
+  <pre class="hcode">import requests
+from collections import Counter
+
+data = requests.get("https://wildwillows.app/GameData/", timeout=30).json()
+
+counts = Counter(a["trophic"] for a in data["animals"])
+for role, n in counts.most_common():
+    print(f"{role:16} {n}")</pre>
+  <pre class="hcode">herbivore        46
+insectivore      29
+mesopredator     23
+omnivore         18
+apex-predator    17
+detritivore      10
+filter-feeder    4
+scavenger        2
+decomposer       1</pre>
+
+  <h3>3. Who eats whom</h3>
+  <p><code>eats</code> and <code>eatenBy</code> hold ids rather than names, so build the lookup once and the whole web is walkable. An empty <code>eatenBy</code> means you have reached the top.</p>
+  <pre class="hcode">const byId = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a]));
+const names = (ids) =&gt; ids.map((id) =&gt; byId[id].name).join(", ");
+
+const fox = byId["red-fox"];
+console.log(\`\${fox.name} eats \${names(fox.eats)}\`);
+console.log(\`and is eaten by \${names(fox.eatenBy) || "nothing in this dataset"}\`);</pre>
+  <p class="sub">Every id in <code>eats</code> and <code>eatenBy</code> resolves to a record in the same response, so the graph is closed and you never have to handle a dangling reference.</p>
+</section>
+
+<section class="tsec" id="caching">
+  <h2>Caching, compression and what a client sees</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Header</th><th>Value</th><th>What it means for you</th></tr></thead>
+      <tbody>
+        <tr><td><code>access-control-allow-origin</code></td><td class="tight"><code>*</code></td><td>Read it straight from a browser. A plain <code>fetch(url)</code> with no custom headers is never preflighted, so there is nothing else to configure.</td></tr>
+        <tr><td><code>cache-control</code></td><td class="tight"><code>no-cache</code></td><td>Not &ldquo;do not cache&rdquo;. It means cache it and revalidate, which is what you want: the data changes only when the game ships a build.</td></tr>
+        <tr><td><code>etag</code></td><td class="tight">build stamp</td><td>Send it back as <code>If-None-Match</code> and an unchanged catalog costs you a 304 with an empty body instead of half a megabyte.</td></tr>
+        <tr><td><code>content-encoding</code></td><td class="tight">br / gzip</td><td>Negotiated from your <code>Accept-Encoding</code>. Every HTTP client you are likely to use asks for this by default.</td></tr>
+        <tr><td><code>vary</code></td><td class="tight"><code>Accept-Encoding</code></td><td>So a shared cache does not hand a gzip body to a client that cannot read it.</td></tr>
+        <tr><td><code>retry-after</code></td><td class="tight"><code>60</code></td><td>Only on a <code>429</code>. Wait that long and you come back to a full budget rather than to another refusal.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="note-line">Only <code>GET</code> and <code>HEAD</code>. There is no <code>POST</code>, no auth, no write path, and nothing that takes a parameter &mdash; so there is also nothing here that can be injected into.</p>
+</section>
+
+<section class="tsec" id="limits">
+  <h2>Rate limits</h2>
+  <p>One limit, on one endpoint, and it is sized so that you have to be doing something strange to meet it.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Limit</th><th>Value</th><th>Why that number</th></tr></thead>
+      <tbody>
+        <tr><td>Per address, sustained</td><td class="num">600 / min</td><td>Ten a second, from one IP, for a file that changes when the game ships a build.</td></tr>
+        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
+        <tr><td>Refill</td><td class="num">10 / s</td><td>Continuous, not a reset on the minute. Ten seconds of quiet buys you a hundred requests back.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Where those numbers come from</h3>
+  <p>Not from a guess. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every re-run is a fresh full request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
+  <p>So the arithmetic is thirty students behind one school NAT, each averaging twenty runs a minute while they work: 600 a minute from a single address, all of it people doing exactly what the lesson asked. That is the sustained rate. The burst is a class pressing Run at the same moment, twice over.</p>
+  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. The <code>etag</code> makes every repeat free.</p>
+
+  <h3>What a refusal looks like</h3>
+  <p>A <code>429</code> with the CORS header on it, so it reaches your <code>catch</code> as a real status rather than as an opaque network failure, and a plain-language body you can show a user.</p>
+  <pre class="hcode">HTTP/1.1 429 Too Many Requests
+access-control-allow-origin: *
+retry-after: 60
+cache-control: no-store
+
+Too many requests for the game catalog. It changes only when the game
+ships a build, so fetch it once and keep it. Wait a minute and try again.</pre>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+if (res.status === 429) {
+  const wait = Number(res.headers.get("retry-after") || 60);
+  console.log(\`Rate limited. Try again in \${wait}s.\`);
+} else {
+  const data = await res.json();
+}</pre>
+  <p class="note-line">Nothing else here is limited, because nothing else here exists: one endpoint, no auth, no writes. If you need a higher ceiling for something real, <a href="mailto:wildwillowsgame@gmail.com">write to me</a> &mdash; it is a number in a config file and I would rather raise it than have you work around it.</p>
+</section>
+
+<section class="tsec" id="stability">
+  <h2>What can change, and what will not</h2>
+  <p>This is a game's internal catalog that has been made public, and being honest about that is more useful than promising an API contract I would then have to keep.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Safe to build on</b>
+      <ul>
+        <li>The URL. It is hardcoded into every copy of the game that has already shipped, so it cannot move.</li>
+        <li>Species <code>id</code>s. They are the keys the save files use.</li>
+        <li>The fields in the tables above. A test in this repo fails the build if one of them is renamed, and it names this page when it does.</li>
+        <li>The six biome ids, and 25 species in each.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>May change without warning</b>
+      <ul>
+        <li>Species being added. Treat 150 as a floor rather than a constant.</li>
+        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
+        <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
+        <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">If you build something that depends on this and you tell me what you are depending on, I will treat it as load-bearing. That is a better offer than a version number I might not honor.</p>
+</section>
+
+<section class="tsec" id="terms">
+  <h2>Using it, and using it kindly</h2>
+  <p><b>Use it for whatever you like</b> &mdash; a class project, a visualisation, a bot, a game of your own, a paper. No permission needed and no attribution required, though a link back is appreciated and I would genuinely like to see what you make.</p>
+  <p><b>Fetch it once, not in a loop.</b> The whole catalog arrives in one response and does not change between deploys, so there is never a reason to request it more than once per session. If you are serving it on to other people, cache it and honor the <code>etag</code>. The <a href="#limits">rate limit</a> is set well above that, and staying well below it is free.</p>
+  <p><b>The species facts are cited, not invented.</b> Each record carries its <code>sources</code>. If you find something wrong, tell me and I will fix the data rather than the page &mdash; several corrections have come in that way already.</p>
+  <p class="sub">Not suitable as a scientific reference. It is a carefully-sourced game catalog: real species with real diets and real relationships, simplified enough to be played. The <code>requirements</code> are a game designer's model of succession, not a published one.</p>
+</section>
+
+<section class="tsec" id="learn">
+  <h2>If this is your first API</h2>
+  <p>There is a free ten-chapter lesson built on exactly this endpoint, with an editor that runs your code as you type and explains errors in plain language. It was written for a high-school classroom and it works fine on your own.</p>
+  <div class="two-up">
+    <a class="tile" href="/learn/web-development" data-track="learn-nav">
+      <span class="tile-k">Start here</span>
+      <b>The Lesson</b>
+      <span>HTML, CSS and JavaScript, what an API is, a real request you can watch happen, and building a page from the response.</span>
+    </a>
+    <a class="tile" href="/learn/code-builder" data-track="learn-nav">
+      <span class="tile-k">Or build something</span>
+      <b>The Code Builder</b>
+      <span>Three files and a live preview, thirty project ideas, and a download button. Your code stays in your browser.</span>
+    </a>
+  </div>
+  <p class="sub">Teaching with it? There is an <a href="/teachers/coding" data-track="edu-nav">educator guide</a> with a lesson plan, an answer key and a troubleshooting table.</p>
+</section>
+
+<div class="tcontact">
+  <h2>Built something?</h2>
+  <p>I would like to see it, and if you are depending on part of this I would rather know than find out by breaking it. Bug reports about the data itself are especially welcome &mdash; a wrong diet is a thing I can fix.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
+    <a class="btn btn-paper" href="/learn" data-track="learn-nav">The lesson</a>
+    <a class="btn btn-paper" href="/" data-track="play">The game</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  /* One counter, once per browser session, on the same contract as the rest of
+     the site (see PRIVACY.md): a name from a fixed list and a number. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'developers', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
+  var fresh = true;
+  var everFresh = false;
+  try {
+    fresh = !sessionStorage.getItem('ww_dev_seen');
+    sessionStorage.setItem('ww_dev_seen', '1');
+  } catch (e) {
+    /* a locked-down profile: counting it is the better failure */
+  }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_developers');
+    if (everFresh) localStorage.setItem('ww_ever_developers', '1');
+  } catch (e) {
+    /* storage refused \u2014 counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
+  if (fresh) {
+    var opening = { view_developers: 1 };
+    if (everFresh) opening.unique_developers = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
+  }
+
+  var NAV = { 'learn-nav': 'nav_learn', 'edu-nav': 'nav_hub', play: 'nav_game' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
 </script>
 </body>
 </html>
@@ -41403,13 +46184,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -41505,7 +46286,7 @@ section{padding:3.4rem 0}
  *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
  *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
  *
- * On a marketing page those carry decorative captions and it is a judgement
+ * On a marketing page those carry decorative captions and it is a judgment
  * call. Here they carry the hint under every checkpoint, the sidebar headings
  * and the editor's line numbers \u2014 content a student has to read, often on a
  * classroom projector or a cheap Chromebook panel in a bright room. The values
@@ -42207,7 +46988,7 @@ body.lesson {
 /* Drawn, not typed, for the reason every icon on these pages is. The column is
    reserved whether or not the tick is showing, so a row does not shift sideways
    the moment it is finished. Pinned to the FIRST line: a two-line title would
-   otherwise centre it between the lines, pointing at nothing. */
+   otherwise center it between the lines, pointing at nothing. */
 .lrail a::after {
 	content: '';
 	grid-column: 3;
@@ -42241,8 +47022,8 @@ body.lesson {
 	font-size: 0.78rem;
 }
 
-/* Where you are now. Both a colour and a weight change, and the marker on the
-   left edge, because "current" carried by colour alone is exactly the thing the
+/* Where you are now. Both a color and a weight change, and the marker on the
+   left edge, because "current" carried by color alone is exactly the thing the
    rest of this project measures its way out of. */
 .lrail a.is-current {
 	color: var(--green-deep);
@@ -42400,7 +47181,7 @@ body.lesson {
 }
 
 /* Not \`display: none\` on the name: that takes it out of the accessibility tree
-   with it, and the tab would announce as an unlabelled button. This is the
+   with it, and the tab would announce as an unlabeled button. This is the
    standard visually-hidden recipe, which leaves it readable to assistive
    technology and invisible to everyone else. */
 .ch ww-runner .wwr-tab-name {
@@ -42466,12 +47247,12 @@ body.lesson {
 }
 
 /* The line under a runner that says what just changed. Tied to the box above it
-   by position and by being the only small grey line on the page.
+   by position and by being the only small gray line on the page.
 
    --ink-soft here is the CLASSROOM value, not site-core's. This page carries
    \`body.lesson\`, which ww-runner.css repoints along with \`body.lab\`: site-core's
    #75765f measures 4.01 on --paper and these captions carry the instruction for
-   the exercise above them ("change forestgreen to your favourite colour"), which
+   the exercise above them ("change forestgreen to your favorite color"), which
    is not a sentence to render in a shade that fails AA. */
 .cap {
 	font-size: 0.86rem;
@@ -42554,7 +47335,7 @@ body.lesson {
 /* A pill beside a heading, for material that is worth doing and not required.
    Beside the heading rather than in a box above it, because a box above says
    "this section is different" and a pill says "this one is a reach", which is
-   the actual message. Carries the words too: a colour alone would tell nobody
+   the actual message. Carries the words too: a color alone would tell nobody
    anything, and it is the same reason the chapter 2 callout gives. */
 .pill {
 	display: inline-block;
@@ -42753,8 +47534,8 @@ body.lesson {
 	font-weight: 700;
 }
 
-/* TYPE COLOURS, AND WHY THESE.
-   The legend under the tree names each one, so colour is never the only carrier
+/* TYPE COLORS, AND WHY THESE.
+   The legend under the tree names each one, so color is never the only carrier
    of meaning: but they still have to be READABLE, and these are small
    monospace text rather than large display type, so the bar is 4.5 and not 3.
 
@@ -43029,7 +47810,7 @@ body.lesson {
 
    The optional panel that closes the lesson. It is a real <details>, so it
    works with no JavaScript, it is keyboard operable for free, and a student who
-   uses find-in-page gets the browser's own "expand to reveal" behaviour rather
+   uses find-in-page gets the browser's own "expand to reveal" behavior rather
    than a search that silently misses half the page.
 
    It STARTS CLOSED, and that is the whole design. A student who has just
@@ -43170,6 +47951,76 @@ body.lesson {
 	color: var(--green-bright);
 }
 
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* Wild Willows \u2014 dark mode for the classroom pages.
  *
  * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
@@ -43191,7 +48042,7 @@ body.lesson {
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -43214,7 +48065,7 @@ body.lesson {
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
@@ -43222,13 +48073,15 @@ body.lesson {
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -43250,7 +48103,7 @@ body.lesson {
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -43267,6 +48120,17 @@ body.lesson {
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {
@@ -43408,6 +48272,8 @@ body.lesson {
 </head>
 <body class="lesson">
 
+<a class="skip-link" href="#lesson-main">Skip to chapter 1</a>
+
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
@@ -43442,7 +48308,7 @@ body.lesson {
   </ol>
 </nav>
 
-<main class="lmain">
+<main class="lmain" id="lesson-main" tabindex="-1">
 
 <header class="lhero">
   <h1>Build with Wild Willows</h1>
@@ -44150,7 +49016,11 @@ JSON.stringify(animal);             /* object -&gt; text, to send or store */</p
     <p class="sub">One line at a time. Each stage runs; run it before you add the next.</p>
   </div>
 
-  <p><code>fetch</code> is the browser's way of asking for something over the internet. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
+  <p><strong>API</strong> stands for <strong>application programming interface</strong>. The word doing the work is <em>interface</em>: a fixed, published way for one program to ask another program for something, so that neither has to know anything else about how the other is built.</p>
+
+  <p>A web API is one of those reachable at a web address. Wild Willows publishes its at <code>https://wildwillows.app/GameData/</code>: ask that address, and it answers with every animal, biome and recipe in the game, written out as text. Your page never touches the game's own database. It only ever sees what the interface hands back, which is why the game can change underneath and your code keeps working.</p>
+
+  <p><code>fetch</code> is the browser's way of sending that request. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
 
   <ww-runner label="step 1: ask" console>
     <script type="text/ww-file" name="main.js">
@@ -44285,7 +49155,7 @@ console.log("second");</pre>
   <div class="ch-head">
     <span class="ch-num">Chapter 6</span>
     <h2>Look inside the data</h2>
-    <p class="sub">You have the whole catalogue. Now reach into it and pull out one thing.</p>
+    <p class="sub">You have the whole catalog. Now reach into it and pull out one thing.</p>
   </div>
 
   <p>Three steps, from the biggest thing to the smallest. Run it and read the console.</p>
@@ -44477,7 +49347,7 @@ if (animal.rarity === "rare") {
   message.textContent = animal.name + " is fairly common.";
 }</pre>
   </ww-runner>
-  <p class="cap">One of the two always happens. Change <code>data.animals[0]</code> to <code>data.animals[3]</code> and see which branch you get.</p>
+  <p class="cap">One of the two always happens. Change <code>data.animals[0]</code> to <code>data.animals[8]</code> and see which branch you get.</p>
 
   <h3><code>else if</code>: more than two outcomes</h3>
   <p>There are exactly three rarities in the game: <code>common</code>, <code>uncommon</code> and <code>rare</code>. Three real values, three outcomes.</p>
@@ -45823,6 +50693,20 @@ for (const animal of data.animals) {
 		area.setAttribute('autocorrect', 'off');
 		area.setAttribute('autocapitalize', 'off');
 
+		/* THE ESCAPE HATCH HAS TO BE ANNOUNCED, not just implemented.
+		 *
+		 * Tab indents instead of moving focus, and Escape-then-Tab moves out (see
+		 * the keydown handler below). A keyboard user who does not know that is in
+		 * a trap whether or not the code has a way out of it, so the way out is
+		 * part of the field's description rather than a comment in this file. */
+		var howto = document.createElement('span');
+		howto.className = 'sr-only';
+		howto.id = 'wwr-howto-' + file.replace(/[^a-z0-9]/gi, '-') + '-' + Math.round(performance.now() * 1000);
+		howto.textContent = 'Tab inserts two spaces. To move focus out of the editor, press Escape and then Tab.';
+		area.setAttribute('aria-describedby', howto.id);
+
+		wrap.appendChild(howto);
+
 		function renderGutter() {
 			var lines = area.value.split('\\n').length;
 			var out = '';
@@ -46020,19 +50904,48 @@ for (const animal of data.animals) {
 			 * button that says nothing to anyone who cannot see it. */
 			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
 			t.title = f.name;
+			t.setAttribute('data-file', f.name);
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			/* ROVING TABINDEX. A tablist is ONE tab stop, and the arrow keys move
+			 * inside it \u2014 that is the whole reason the role exists. Left as three
+			 * plain buttons it announced itself as a tablist and then behaved like
+			 * a toolbar, which is worse than either: a screen-reader user is told
+			 * to press the arrow keys and nothing happens. */
+			t.tabIndex = i === 0 ? 0 : -1;
 			t.addEventListener('click', function () {
-				files.forEach(function (other) {
-					editors[other.name].wrap.hidden = other.name !== f.name;
-				});
-				Array.prototype.forEach.call(tabs.children, function (c) {
-					c.classList.toggle('is-active', c === t);
-					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
-				});
-				metric('tab_' + f.name.split('.').pop(), host);
+				selectTab(t, false);
 			});
 			tabs.appendChild(t);
+		});
+
+		function selectTab(t, focusIt) {
+			var name = t.getAttribute('data-file');
+			files.forEach(function (other) {
+				editors[other.name].wrap.hidden = other.name !== name;
+			});
+			Array.prototype.forEach.call(tabs.children, function (c) {
+				var on = c === t;
+				c.classList.toggle('is-active', on);
+				c.setAttribute('aria-selected', on ? 'true' : 'false');
+				c.tabIndex = on ? 0 : -1;
+			});
+			if (focusIt) t.focus();
+			metric('tab_' + String(name).split('.').pop(), host);
+		}
+
+		tabs.addEventListener('keydown', function (e) {
+			var STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+			var kids = Array.prototype.slice.call(tabs.children);
+			var at = kids.indexOf(document.activeElement);
+			if (at < 0) return;
+			var to = -1;
+			if (STEP[e.key]) to = (at + STEP[e.key] + kids.length) % kids.length;
+			else if (e.key === 'Home') to = 0;
+			else if (e.key === 'End') to = kids.length - 1;
+			if (to < 0) return;
+			e.preventDefault();
+			selectTab(kids[to], true);
 		});
 		/* One file needs no tab strip \u2014 the lesson's inline examples would just be
 		 * wearing chrome that explains nothing. */
@@ -46180,7 +51093,6 @@ for (const animal of data.animals) {
 		}
 		var consoleLines = document.createElement('pre');
 		consoleLines.className = 'wwr-console-lines';
-		consoleLines.setAttribute('aria-live', 'polite');
 		consoleBox.appendChild(consoleLines);
 		host.appendChild(consoleBox);
 
@@ -46188,8 +51100,35 @@ for (const animal of data.animals) {
 		errBox.className = 'wwr-error';
 		errBox.hidden = true;
 		errBox.setAttribute('role', 'status');
-		errBox.setAttribute('aria-live', 'polite');
 		host.appendChild(errBox);
+
+		/* LIVE ONLY WHILE YOU ARE IN IT.
+		 *
+		 * Both of these were \`aria-live="polite"\` from the moment they were built.
+		 * On the Code Builder that is two live regions and fine. On the lesson it
+		 * is thirty-two runners \u2014 SIXTY-FOUR live regions, all of which run their
+		 * examples on load \u2014 so a screen reader opens the page and reads out every
+		 * console on it before the reader has got to chapter 1.
+		 *
+		 * They still have to announce: an error that only appears silently is the
+		 * failure this component exists to prevent. So the announcement follows
+		 * the focus. The runner you are typing in speaks; the thirty-one you are
+		 * not stay quiet. */
+		function setLive(on) {
+			/* \`off\`, not a removed attribute: role="status" carries an IMPLICIT
+			   polite live region, so deleting aria-live leaves the error panel
+			   announcing anyway. An explicit \`off\` is what overrides the role. */
+			var v = on ? 'polite' : 'off';
+			consoleLines.setAttribute('aria-live', v);
+			errBox.setAttribute('aria-live', v);
+		}
+		setLive(false);
+		host.addEventListener('focusin', function () {
+			setLive(true);
+		});
+		host.addEventListener('focusout', function (e) {
+			if (!host.contains(e.relatedTarget)) setLive(false);
+		});
 
 		/* ---- running ---- */
 		var timer = null;
@@ -46252,7 +51191,7 @@ for (const animal of data.animals) {
 			/* Nothing changed \u2014 do not tear the page down to rebuild the same thing.
 			 * Input events fire for plenty of reasons that leave the code identical
 			 * (arrow keys, selection, a tab switch), and every one of those was
-			 * costing a full reload and a flash. Run always honours an explicit
+			 * costing a full reload and a flash. Run always honors an explicit
 			 * press, because "I pressed Run and nothing happened" is worse. */
 			if (doc === lastDoc && how !== 'manual') return;
 			lastDoc = doc;
@@ -46506,7 +51445,7 @@ for (const animal of data.animals) {
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
 	 * not: the glyph comes from whatever font the platform decides, so it lands
-	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * anywhere between a hairline arrow and a full-color emoji, at a size nothing
 	 * else in the toolbar uses. On a school Windows machine missing the font it is
 	 * a blank box on the one button a student needs most. Two SVG paths cost
 	 * nothing and look the same everywhere. */
@@ -46621,14 +51560,14 @@ for (const animal of data.animals) {
 <script>
 /* Wild Willows: the student lesson at /learn/web-development.
  *
- * The page's own behaviour. The editors and previews are ww-runner.js; this file
+ * The page's own behavior. The editors and previews are ww-runner.js; this file
  * is everything the lesson adds around them:
  *
  *   \u2022 the chapter rail: where you are, where you have been, and per-chapter
  *     dwell time bucketed for the dashboard
  *   \u2022 the API probe in chapter 3: a real request to /GameData/, reporting the
  *     status, the time and the size a student's own network actually produced
- *   \u2022 the JSON tree: collapsible, coloured by type, shared by chapters 3 and 5
+ *   \u2022 the JSON tree: collapsible, colored by type, shared by chapters 3 and 5
  *   \u2022 the path explorer in chapter 5: type a path, see which part of the tree
  *     it selected and what type came back
  *   \u2022 the five challenges in chapter 9, and the hand-off into the Code Builder
@@ -46663,6 +51602,23 @@ for (const animal of data.animals) {
 		counts[key] = (counts[key] || 0) + 1;
 	}
 
+	/* FIRST VISIT EVER, not first visit this session.
+	 *
+	 * \`view_lesson\` is traffic and this is reach: how many different browsers have
+	 * ever opened the page. The gap between the two is how much of the traffic is
+	 * the same people coming back, which for a lesson is the difference between
+	 * being used and being reloaded. One bit, readable only by this origin, and
+	 * it identifies nobody. */
+	function bumpFirstEver() {
+		try {
+			if (localStorage.getItem('ww_ever_lesson')) return;
+			localStorage.setItem('ww_ever_lesson', '1');
+		} catch (e) {
+			/* storage refused: overstating reach a little beats losing it */
+		}
+		bump('unique_lesson');
+	}
+
 	/** Counters that describe the session as a whole rather than an event in it:
 	 *  how many chapters were reached, how many challenges ticked, and how long
 	 *  was spent in each chapter. Once per session, at the end. */
@@ -46680,7 +51636,7 @@ for (const animal of data.animals) {
 		}
 	}
 
-	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioural
+	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioral
 	 *  trace of one reader; a band answers "is chapter 7 too long" just as well and
 	 *  describes nobody. Under ten seconds is scrolling past, not reading. */
 	function dwellBand(ms) {
@@ -46879,7 +51835,7 @@ for (const animal of data.animals) {
 	/* --------------------------------------------------------- the JSON tree
 	 *
 	 * Written by hand rather than dumping JSON.stringify into a <pre> for one
-	 * reason: the colours ARE the lesson. Chapter 3 names six types in a table,
+	 * reason: the colors ARE the lesson. Chapter 3 names six types in a table,
 	 * and a tree that paints strings, numbers, booleans and null differently
 	 * means a student sees the type before they read anything about it: and in
 	 * chapter 5 they can see that a path landed on an array rather than a string
@@ -46961,7 +51917,7 @@ for (const animal of data.animals) {
 	 *
 	 * Every icon on these pages is an SVG path, and the reason is the one that
 	 * rules out emoji: a geometric-shape character is whatever glyph the
-	 * platform's font decides: a hairline arrow on one machine, a full-colour
+	 * platform's font decides: a hairline arrow on one machine, a full-color
 	 * pictograph at a size nothing else on the page uses on another, and an empty
 	 * box on a managed Chromebook missing the font. This is a control a student
 	 * hits a hundred times to read one record; it does not get to be a lottery.
@@ -46998,7 +51954,7 @@ for (const animal of data.animals) {
 	}
 
 	/** Children are built the first time a node is opened, not up front. The full
-	 *  catalogue is a few hundred kilobytes of JSON; rendering every node of it
+	 *  catalog is a few hundred kilobytes of JSON; rendering every node of it
 	 *  eagerly is tens of thousands of elements and a visibly janky page on the
 	 *  hardware this lesson is written for. */
 	function buildKids(into, value, depth, openTo) {
@@ -47197,7 +52153,7 @@ for (const animal of data.animals) {
 	 *
 	 * The runners carry \`defer\`, so ww-runner.js leaves them alone at boot and
 	 * they are started here when their panel is first opened. That is not a
-	 * micro-optimisation: every runner renders on start and each owns two
+	 * micro-optimization: every runner renders on start and each owns two
 	 * iframes, and the chapters already open sixty-odd documents before a
 	 * student has read a word. Paying for another twenty on behalf of panels
 	 * most readers never open is the difference between this page being usable
@@ -47357,6 +52313,7 @@ for (const animal of data.animals) {
 
 	function init() {
 		bump('view_lesson');
+		bumpFirstEver();
 		var w = window.innerWidth || 0;
 		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
 
@@ -47587,13 +52544,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white \u2014 barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar \u2014 it just looks broken. Two defences:
+   growing the bar \u2014 it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -47890,6 +52847,76 @@ body.hub {
 	line-height: 1.6;
 }
 
+/* Wild Willows \u2014 the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor \u2014 the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons \u2014 before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than \`display: none\`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" \u2014 which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * \`display: none\`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
 /* Wild Willows \u2014 dark mode for the classroom pages.
  *
  * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
@@ -47911,7 +52938,7 @@ body.hub {
 [data-theme='dark'] {
 	color-scheme: dark;
 
-	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
 	   otherwise trivially satisfied by #fff on #000, which is stark rather than
 	   restful and is the treatment the game's colorblind modes deliberately own. */
 	--paper: #1e2022; /* page background */
@@ -47934,7 +52961,7 @@ body.hub {
 	--clay: #d894a1; /*  6.75 */
 
 	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
-	   near-black on cream, here it is a lifted grey. */
+	   near-black on cream, here it is a lifted gray. */
 	--toast: #2d3033;
 
 	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
@@ -47942,13 +52969,15 @@ body.hub {
 	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
 }
 
-/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab\`,
+   \`body.edu-hub\` and \`.wwr\` for
    daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
-   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light grays would
    win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
    so the dark values hold. Specificity, not source order, decides this one. */
 [data-theme='dark'] body.lab,
 [data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
 [data-theme='dark'] .wwr {
 	--ink-soft: #a2a4a3; /*  6.52 */
 	--ink-faint: #8b8d8c; /*  4.89 */
@@ -47970,7 +52999,7 @@ body.hub {
 	color: #121314; /* 7.18 on --green */
 }
 
-/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
    re-aimed with the accent rather than left as a daylight green in the dark. */
 [data-theme='dark'] .idea-start {
 	box-shadow: 0 3px 0 var(--green-deep);
@@ -47987,6 +53016,17 @@ body.hub {
 /* site-core's chip border and warm variant are literals, not tokens. */
 [data-theme='dark'] .chip {
 	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading \u2014
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
 }
 
 [data-theme='dark'] .chip.warm {
@@ -48128,6 +53168,8 @@ body.hub {
 </head>
 <body class="hub">
 
+<a class="skip-link" href="#main">Skip to the pages</a>
+
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
@@ -48141,7 +53183,7 @@ body.hub {
   </div>
 </div></nav>
 
-<div class="hwrap">
+<main class="hwrap" id="main" tabindex="-1">
 
 <header class="hhero">
   <h1>Learn to code with real game data</h1>
@@ -48204,6 +53246,7 @@ const data = await response.json();
 
 console.log(data.animals[0].name);   // "Banana Slug"</div>
   <p class="sub">You are welcome to use it in your own projects, in or out of school. It is the same data the game runs on, so when the game changes, so does this.</p>
+  <p><a href="/developers/api" data-track="api-docs">The full field reference</a> lists every key in the response, with JavaScript, Python and curl examples.</p>
 </section>
 
 <div class="hteach">
@@ -48212,7 +53255,7 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
   <a class="btn btn-paper" href="/teachers" data-track="edu-nav">For teachers</a>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -48243,7 +53286,13 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
   /* 1. That the page was opened at all, once per browser session. /learn is
         where a student who was handed a bare link arrives, and without this
         their visit begins at whichever of the two pages they picked. */
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back. Neither is an identifier: both are one bit that says "not the
+     first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_learn_seen');
     sessionStorage.setItem('ww_learn_seen', '1');
@@ -48251,11 +53300,20 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
     /* Guest mode or a locked-down profile. Counting it is the better failure:
        a double count on a machine that cannot remember beats a blind spot. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_learn');
+    if (everFresh) localStorage.setItem('ww_ever_learn', '1');
+  } catch (e) {
+    everFresh = true;
+  }
+
   if (fresh) {
     // Nothing about a page view is time-sensitive, so it waits for idle rather
     // than taking uplink while the page is still painting.
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_learn: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_learn: 1 }); }, 500);
+    var opening = { view_learn: 1 };
+    if (everFresh) opening.unique_learn = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   /* 2. WHICH DOOR THEY TOOK. This is the whole reason the page exists, so it is
@@ -48285,19 +53343,20 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
 </html>
 `;
 var ogImageB64 = "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";
-var buildStamp = "0.3.10+2026-08-18T05:53:19.293Z";
+var buildStamp = "0.3.10+2026-08-18T19:39:56.632Z";
 
 // server/page-lastmod.ts
 var pageLastmod = {
-  "/": "2026-08-17",
-  "/privacy.html": "2026-08-17",
-  "/age-rating.html": "2026-08-17",
-  "/support.html": "2026-08-17",
-  "/teachers": "2026-08-17",
-  "/teachers/science": "2026-08-17",
-  "/teachers/coding": "2026-08-17",
-  "/learn": "2026-08-17",
-  "/learn/web-development": "2026-08-17",
+  "/": "2026-08-18",
+  "/privacy.html": "2026-08-18",
+  "/age-rating.html": "2026-08-18",
+  "/support.html": "2026-08-18",
+  "/teachers": "2026-08-18",
+  "/teachers/science": "2026-08-18",
+  "/teachers/coding": "2026-08-18",
+  "/learn": "2026-08-18",
+  "/learn/web-development": "2026-08-18",
+  "/developers/api": "2026-08-18",
   "/educator-guide.pdf": "2026-08-10",
   "/student-worksheets.pdf": "2026-08-09"
 };
@@ -49114,7 +54173,7 @@ var HOME_STYLES = {
     requires: HOME_BUILD_GATE,
     perk: { id: "growth", base: 0.1, perLevel: 0.04, cap: 0.5 }
   },
-  // pale wood + airy blue-grey + green
+  // pale wood + airy blue-gray + green
   stone: {
     name: "Stone Hearth",
     floor: "#a9a499",
@@ -49124,7 +54183,7 @@ var HOME_STYLES = {
     requires: HOME_BUILD_GATE,
     perk: { id: "thrift", base: 0.1, perLevel: 0.05, cap: 0.6 }
   }
-  // slate floor + grey stone + hearth orange
+  // slate floor + gray stone + hearth orange
 };
 var DEFAULT_HOME = { style: "cabin", space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 var HOME_TRACKS = {
@@ -51047,7 +56106,31 @@ var RATE_TIERS = {
   /** Ordinary gameplay writes. Deliberately generous — see above. */
   action: { perMinute: 600, burst: 120 },
   /** Reads that touch the database. */
-  read: { perMinute: 300, burst: 100 }
+  read: { perMinute: 300, burst: 100 },
+  /**
+   * GET /GameData/ — the public catalog. Its own tier, and the numbers come from
+   * a measurement rather than a guess.
+   *
+   * THE PREVIEW HAS NO CACHE. The classroom editor runs student code in an
+   * iframe with sandbox="allow-scripts" and no allow-same-origin, which puts it
+   * on an opaque origin — so it shares no HTTP cache with anything, and none of
+   * its requests ever carry If-None-Match. Measured in a real browser: thirty
+   * debounced edits produced thirty full-body responses and zero 304s. The ETag
+   * makes repeats free for the game and for anyone building against the API; it
+   * does nothing at all for a student typing.
+   *
+   * So the cost really is one full response per run, and a classroom shares one
+   * address. Thirty students averaging twenty runs a minute is 600 from a single
+   * NAT doing exactly what the lesson asks — which is where the sustained rate
+   * comes from. The burst is a class pressing Run together, twice over.
+   *
+   * This was 1200/300 on the same reasoning with a worse estimate. At 100 KB a
+   * response that was two megabytes a second from one address, which is a lot of
+   * egress to leave open on the strength of an assumption. Halving the rate and
+   * cutting the burst by five makes a scripted flood five times less profitable
+   * while still clearing the class it was sized for.
+   */
+  catalog: { perMinute: 600, burst: 60 }
 };
 var RATE_UNKEYED_MULTIPLIER = 50;
 var RATE_GLOBAL_MULTIPLIER = 200;
@@ -51479,6 +56562,9 @@ var GAME_DATA_CORS = {
   "access-control-allow-methods": "GET, HEAD"
 };
 var GameData = class extends PublicEndpoint {
+  static {
+    this.rateTier = "catalog";
+  }
   async get() {
     const { obj, json, etag } = await gameDataCached();
     const reqHeaders = this.getContext?.()?.headers;
@@ -51491,6 +56577,23 @@ var GameData = class extends PublicEndpoint {
         status: 304,
         headers: { etag, "cache-control": cacheControl, ...GAME_DATA_CORS },
         body: nodeBuffer.alloc(0)
+      };
+    }
+    try {
+      rateLimit(this, "catalog");
+    } catch (err) {
+      if (err?.statusCode !== 429) throw err;
+      return {
+        status: 429,
+        headers: {
+          "content-type": "text/plain; charset=utf-8",
+          // The bucket's own refill window, so a client that honors this comes
+          // back to a budget rather than to another refusal.
+          "retry-after": "60",
+          "cache-control": "no-store",
+          ...GAME_DATA_CORS
+        },
+        body: "Too many requests for the game catalog. It changes only when the game ships a build, so fetch it once and keep it. Wait a minute and try again \u2014 see https://wildwillows.app/developers/api for the limits and how to use the ETag."
       };
     }
     const headers = {
@@ -53347,7 +58450,7 @@ function markDemoConversions(rows) {
       supersededByFull: false,
       conversion: {
         // The stamp is exact. Without it, the demo row's last sighting is the
-        // closest honest answer, so it is labelled as an estimate rather than
+        // closest honest answer, so it is labeled as an estimate rather than
         // dressed up as a timestamp.
         at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
         exact: !!r.convertedFromDemoAt,
@@ -55711,12 +60814,29 @@ var LANDING_CLICK_TARGETS = /* @__PURE__ */ new Set([
   "get-nav",
   "gallery",
   "edu-nav",
+  // The landing page's Developers section, which is the door to /learn. One
+  // target rather than three: from here the question is only whether the page
+  // sends anyone into the lesson material at all. Which of the two they took is
+  // already counted on /learn itself, by the classroom beacon.
+  "learn-nav",
+  // The API docs at /developers/api. Its own target rather than folded into
+  // learn-nav: "went to read the reference" and "went to take the lesson" are
+  // two different visitors, and the whole reason the Developers section exists
+  // is to find out whether the first kind shows up at all.
+  "api-docs",
   // /teachers reports itself here, once per browser session, as a click rather
   // than a visit. Visits are ONE undifferentiated series shared by every page
   // that sends them, so a teachers-page visit would silently inflate the landing
   // page's number with no way to unmix them later. Its own target keeps both
   // numbers honest. See the comment in public/teachers.html's script.
   "edu-page",
+  // The three policy pages, each reporting itself once per browser session on
+  // the same trade /teachers made. They reported NOTHING before, which left the
+  // privacy policy — the page a district reads before approving anything — with
+  // no usage data at all.
+  "privacy-page",
+  "support-page",
+  "rating-page",
   "pdf-guide",
   "pdf-worksheets",
   "school-copy",
@@ -56120,7 +61240,7 @@ var LandingStats = class extends DashboardEndpoint {
   }
 };
 var LESSON_ERROR_KEYS = /* @__PURE__ */ new Set([
-  // The runner's plain-English error catalogue, plus its two silent-render hints.
+  // The runner's plain-English error catalog, plus its two silent-render hints.
   "fetch-failed",
   "json-parse",
   "null-property",
@@ -56146,6 +61266,10 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   "view_learn",
   "view_science",
   "view_coding",
+  // /developers/api. Not in the teaching funnel — a developer arriving at the
+  // docs is a different journey from a teacher picking a kit — so it is counted
+  // and shown as a total rather than as a funnel step.
+  "view_developers",
   "view_lesson",
   "view_builder",
   "unique_hub",
@@ -56153,6 +61277,8 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   "unique_coding",
   "unique_lesson",
   "unique_builder",
+  "unique_learn",
+  "unique_developers",
   "ref_internal",
   "ref_search",
   "ref_social",
@@ -56199,6 +61325,12 @@ var LESSON_EXACT = /* @__PURE__ */ new Set([
   "import",
   "import_failed",
   "restored",
+  // Arrived at the builder from the lesson's "open this in the Code Builder"
+  // link, carrying their code across in the URL fragment. It was being sent and
+  // silently folded into `other`, which is exactly the failure the coverage test
+  // now exists to catch: the counter moved and the number said nothing. It is
+  // the one measure of whether the lesson-to-builder handoff is used at all.
+  "carried_in",
   "save_unreadable",
   "storage_unavailable",
   "help_copy",
@@ -56272,6 +61404,10 @@ var LESSON_PATTERNS = [
   // construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
   /^checkpoint_[a-z][a-z0-9-]{0,23}$/,
   /^hint_[a-z][a-z0-9-]{0,23}$/,
+  // hint_ is "revealed the worked version"; copy_ is "took it". The gap between
+  // the two is the number worth having: a checkpoint everybody reveals and
+  // nobody copies is one where the hint above it was almost enough.
+  /^copy_[a-z][a-z0-9-]{0,23}$/,
   /^idea_[a-z][a-z0-9-]{0,31}$/,
   /^challenge_[a-z][a-z0-9-]{0,31}$/
 ];
@@ -56364,14 +61500,76 @@ async function buildLessonStats() {
   }));
   const step = (k) => totals[k] || 0;
   const funnel = [
-    { id: "hub", label: "Teachers hub", n: step("view_hub") },
-    { id: "coding", label: "Coding kit", n: step("view_coding") },
+    /* THE STUDENT'S PATH, and only that.
+     *
+     * It used to start at the teachers hub and the coding kit page. Those are a
+     * TEACHER deciding which kit to run, days earlier and on a different device,
+     * and putting them at the top made every percentage below them a comparison
+     * between two unrelated populations — a lesson opened by thirty students
+     * read as "217% of the previous step" because six teachers had looked at the
+     * kit page. Both are still reported: the hub split under the landing page,
+     * the kit pages in reach. They are just not steps anybody drops out of.
+     *
+     * What is left is close to a real funnel. Everything from the builder down is
+     * a strict subset of the step above it. */
     { id: "lesson", label: "Lesson opened", n: step("view_lesson") },
     { id: "builder", label: "Builder opened", n: step("builder_open") },
     { id: "run", label: "Ran their code", n: step("first_run") },
     { id: "fetch", label: "Fetched the data", n: step("first_fetch_ok") },
     { id: "download", label: "Downloaded a page", n: step("download") }
   ];
+  const reach = [
+    {
+      id: "hub",
+      label: "Teachers hub",
+      path: "/teachers",
+      views: step("view_hub"),
+      unique: step("unique_hub") || null
+    },
+    {
+      id: "science",
+      label: "Science kit",
+      path: "/teachers/science",
+      views: step("view_science"),
+      unique: step("unique_science") || null
+    },
+    {
+      id: "coding",
+      label: "Coding kit",
+      path: "/teachers/coding",
+      views: step("view_coding"),
+      unique: step("unique_coding") || null
+    },
+    {
+      id: "learn",
+      label: "Learn hub",
+      path: "/learn",
+      views: step("view_learn"),
+      unique: step("unique_learn") || null
+    },
+    {
+      id: "lesson",
+      label: "The Lesson",
+      path: "/learn/web-development",
+      views: step("view_lesson"),
+      unique: step("unique_lesson") || null
+    },
+    {
+      id: "builder",
+      label: "Code Builder",
+      path: "/learn/code-builder",
+      views: step("view_builder"),
+      unique: step("unique_builder") || null
+    },
+    {
+      id: "developers",
+      label: "API docs",
+      path: "/developers/api",
+      views: step("view_developers"),
+      unique: step("unique_developers") || null
+    }
+  ];
+  const arrivals = ["direct", "search", "social", "internal", "other"].map((k) => ({ key: k, n: step("ref_" + k) })).filter((a) => a.n > 0);
   const errors = Object.entries(totals).filter(([k]) => k.indexOf("errors_") === 0).map(([k, n]) => ({ key: k.slice("errors_".length), n })).sort((a, b) => b.n - a.n);
   const ideas = Object.entries(totals).filter(([k]) => k.indexOf("idea_") === 0 && k !== "idea_started").map(([k, n]) => ({ id: k.slice("idea_".length), n })).sort((a, b) => b.n - a.n);
   return {
@@ -56380,6 +61578,8 @@ async function buildLessonStats() {
     sessions,
     totals,
     funnel,
+    reach,
+    arrivals,
     errors,
     ideas,
     /* The health strip. A school filter that blocks the API breaks the lesson
@@ -56434,6 +61634,11 @@ var PUBLIC_PAGES = {
   // changes job rather than changing address.
   "teachers-science": { path: "/teachers/science", redirect: true, sitemap: true },
   "teachers-coding": { path: "/teachers/coding", redirect: true, sitemap: true },
+  // The API docs. /developers serves the same document and is deliberately NOT
+  // listed: two URLs in a sitemap for one page is the split-signal problem the
+  // comment at the top of this table is about. The page's canonical says which
+  // of the two is the real one.
+  "developers-api": { path: "/developers/api", redirect: true, sitemap: true },
   // The classroom student pages live under /learn/<slug>, resolved by ONE
   // resource reading getId() — the same shape /img/<name>.webp already uses.
   // The builder is `noindex` in its own <head> (it is a tool, not a document,
@@ -56549,6 +61754,24 @@ var LEARN_PAGES = {
   "": { key: "learn", html: learnIndexHtml },
   "code-builder": { key: "learn-code-builder", html: learnCodeBuilderHtml },
   "web-development": { key: "learn-web-development", html: learnWebDevelopmentHtml }
+};
+var DEVELOPER_PAGES = {
+  "": { key: "developers-api", html: developersApiHtml },
+  api: { key: "developers-api", html: developersApiHtml }
+};
+var DevelopersPage = class extends PublicEndpoint {
+  async get() {
+    const slug = String(this.getId?.() || "").trim().replace(/^\/+|\/+$/g, "");
+    const page = Object.prototype.hasOwnProperty.call(DEVELOPER_PAGES, slug) ? DEVELOPER_PAGES[slug] : null;
+    if (!page) {
+      return {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+        body: "Not found"
+      };
+    }
+    return htmlPage(this, page.key, page.html);
+  }
 };
 var LearnPage = class extends PublicEndpoint {
   async get() {
@@ -56765,6 +61988,7 @@ export {
   Version,
   AgeRatingPage as "age-rating",
   DashboardPage as dashboard,
+  DevelopersPage as developers,
   EducatorGuidePdf as "educator-guide",
   EducatorGuidePdf as "educator-guide.pdf",
   Favicon as favicon,

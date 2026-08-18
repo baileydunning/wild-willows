@@ -1,0 +1,69 @@
+/* Wild Willows — the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor — the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons — before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than `display: none`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" — which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * `display: none`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}

@@ -160,3 +160,47 @@ describe('the catalog is rate limited', () => {
 		expect(mod.GameData.rateTier).toBe('catalog');
 	});
 });
+
+describe('the shared cache is what protects the origin', () => {
+	/*
+	 * A 304 is cheap in bytes and NOT free in requests. Something has to compare
+	 * the etag, and if that something is this server then the classroom case —
+	 * thirty students behind one address, twenty runs a minute each — is still
+	 * 600 requests a minute arriving here, whatever the response body weighs.
+	 *
+	 * So the header carries two answers. The browser is told its copy is stale on
+	 * arrival, because a deploy has to show up immediately. A shared cache is told
+	 * it may serve the same body for a day, because the catalog only changes when
+	 * a build ships — and a deploy purges the edge (scripts/purge-cache.mjs), so
+	 * the long window is safe rather than a day-long lie.
+	 */
+	const cacheControl = async (ip: string) => {
+		const res = await w.fetch<any>('GameData', hdrs(ip));
+		return String(res.headers['cache-control'] || '');
+	};
+
+	it('tells a browser to check every time', async () => {
+		const cc = await cacheControl('203.0.113.60');
+		expect(cc).toContain('max-age=0');
+		expect(cc).toContain('must-revalidate');
+		// The value this replaced was `public, max-age=300, stale-while-revalidate=604800`,
+		// under which a new build could take a week to reach a player.
+		expect(cc).not.toContain('stale-while-revalidate');
+	});
+
+	it('and tells a shared cache it may hold the catalog for a day', async () => {
+		expect(await cacheControl('203.0.113.61')).toContain('s-maxage=86400');
+	});
+
+	it('says the same thing on a revalidation, so the edge does not lose the window', async () => {
+		const first = await w.fetch<any>('GameData', hdrs('203.0.113.62'));
+		const etag = String(first.headers.etag || '');
+		expect(etag, 'the catalog should carry an etag').toBeTruthy();
+		const second = await w.fetch<any>('GameData', { ...hdrs('203.0.113.62'), 'if-none-match': etag });
+		expect(second.status).toBe(304);
+		// A 304 that dropped the caching directives would leave the edge with a
+		// fresh body and no instruction about how long it may keep it.
+		expect(String(second.headers['cache-control'])).toContain('s-maxage=86400');
+		expect(second.headers.etag).toBe(etag);
+	});
+});

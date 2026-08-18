@@ -99,7 +99,7 @@ body.lesson {
 /* Drawn, not typed, for the reason every icon on these pages is. The column is
    reserved whether or not the tick is showing, so a row does not shift sideways
    the moment it is finished. Pinned to the FIRST line: a two-line title would
-   otherwise centre it between the lines, pointing at nothing. */
+   otherwise center it between the lines, pointing at nothing. */
 .lrail a::after {
 	content: '';
 	grid-column: 3;
@@ -133,8 +133,8 @@ body.lesson {
 	font-size: 0.78rem;
 }
 
-/* Where you are now. Both a colour and a weight change, and the marker on the
-   left edge, because "current" carried by colour alone is exactly the thing the
+/* Where you are now. Both a color and a weight change, and the marker on the
+   left edge, because "current" carried by color alone is exactly the thing the
    rest of this project measures its way out of. */
 .lrail a.is-current {
 	color: var(--green-deep);
@@ -292,7 +292,7 @@ body.lesson {
 }
 
 /* Not `display: none` on the name: that takes it out of the accessibility tree
-   with it, and the tab would announce as an unlabelled button. This is the
+   with it, and the tab would announce as an unlabeled button. This is the
    standard visually-hidden recipe, which leaves it readable to assistive
    technology and invisible to everyone else. */
 .ch ww-runner .wwr-tab-name {
@@ -358,12 +358,12 @@ body.lesson {
 }
 
 /* The line under a runner that says what just changed. Tied to the box above it
-   by position and by being the only small grey line on the page.
+   by position and by being the only small gray line on the page.
 
    --ink-soft here is the CLASSROOM value, not site-core's. This page carries
    `body.lesson`, which ww-runner.css repoints along with `body.lab`: site-core's
    #75765f measures 4.01 on --paper and these captions carry the instruction for
-   the exercise above them ("change forestgreen to your favourite colour"), which
+   the exercise above them ("change forestgreen to your favorite color"), which
    is not a sentence to render in a shade that fails AA. */
 .cap {
 	font-size: 0.86rem;
@@ -446,7 +446,7 @@ body.lesson {
 /* A pill beside a heading, for material that is worth doing and not required.
    Beside the heading rather than in a box above it, because a box above says
    "this section is different" and a pill says "this one is a reach", which is
-   the actual message. Carries the words too: a colour alone would tell nobody
+   the actual message. Carries the words too: a color alone would tell nobody
    anything, and it is the same reason the chapter 2 callout gives. */
 .pill {
 	display: inline-block;
@@ -645,8 +645,8 @@ body.lesson {
 	font-weight: 700;
 }
 
-/* TYPE COLOURS, AND WHY THESE.
-   The legend under the tree names each one, so colour is never the only carrier
+/* TYPE COLORS, AND WHY THESE.
+   The legend under the tree names each one, so color is never the only carrier
    of meaning: but they still have to be READABLE, and these are small
    monospace text rather than large display type, so the bar is 4.5 and not 3.
 
@@ -921,7 +921,7 @@ body.lesson {
 
    The optional panel that closes the lesson. It is a real <details>, so it
    works with no JavaScript, it is keyboard operable for free, and a student who
-   uses find-in-page gets the browser's own "expand to reveal" behaviour rather
+   uses find-in-page gets the browser's own "expand to reveal" behavior rather
    than a search that silently misses half the page.
 
    It STARTS CLOSED, and that is the whole design. A student who has just

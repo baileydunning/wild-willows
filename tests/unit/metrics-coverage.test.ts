@@ -155,9 +155,52 @@ describe('reach is measured separately from traffic', () => {
 
 	it('and the server hands both back per page', () => {
 		expect(RESOURCES).toMatch(/const reach = \[/);
-		expect(RESOURCES).toMatch(/views: step\('view_hub'\), unique: step\('unique_hub'\)/);
+		// Matched across lines: the file is formatted with each field on its own
+		// line, so a single-line regex only ever tested the formatter.
+		expect(RESOURCES).toMatch(/views: step\('view_hub'\),\s*unique: step\('unique_hub'\)/);
 		// null rather than 0 for a page that does not report it: "nobody new" and
 		// "not measured" are different answers.
 		expect(RESOURCES).toMatch(/unique: step\('unique_\w+'\) \|\| null/);
+	});
+});
+
+describe('time in the lesson is reported, allowed, and shown', () => {
+	// A counter the server folds into `other` and a counter the dashboard never
+	// draws fail the same way: the number moves and nobody sees it. Per-chapter
+	// dwell was collected from the day the lesson shipped and displayed nowhere.
+	const LESSON_JS = readFileSync(resolve(root, 'public/partials/ww-lesson.js'), 'utf8');
+	const DASHBOARD = readFileSync(resolve(root, 'public/dashboard.html'), 'utf8');
+	const SESSION_BANDS = ['lt2m', '2to10m', '10to30m', '30to60m', 'gt60m'];
+
+	it('the lesson knows the bands it can send', () => {
+		for (const b of SESSION_BANDS) expect(LESSON_JS).toContain(`'${b}'`);
+		expect(LESSON_JS).toContain("bump('dwell_lesson_' + whole)");
+	});
+
+	it('the server keeps every one of them', () => {
+		for (const b of SESSION_BANDS) expect(allowed(`dwell_lesson_${b}`), `dwell_lesson_${b}`).toBe(true);
+	});
+
+	it('and rejects a raw duration, which is the thing that must never arrive', () => {
+		expect(allowed('dwell_lesson_1832411')).toBe(false);
+		expect(allowed('dwell_lesson')).toBe(false);
+	});
+
+	it('the rollup hands back both shapes', () => {
+		// Whole visits answer "does it fit in a period"; per-chapter answers "which
+		// chapter is too long". Neither is derivable from the other.
+		expect(RESOURCES).toMatch(/const time = \{/);
+		expect(RESOURCES).toContain("session: banded(SESSION_BANDS, (b) => 'dwell_lesson_' + b)");
+		expect(RESOURCES).toContain("'dwell_chapter-' + ch + '_' + b");
+		// The midpoints travel with the buckets so the dashboard does not invent a
+		// second, quietly different estimate.
+		expect(RESOURCES).toMatch(/meanMinutes/);
+	});
+
+	it('and the dashboard draws them', () => {
+		expect(DASHBOARD).toContain('Typical time in the lesson');
+		expect(DASHBOARD).toContain('Time in the lesson');
+		expect(DASHBOARD).toContain('Where that time goes');
+		expect(DASHBOARD).toContain('CLASSROOM.time');
 	});
 });

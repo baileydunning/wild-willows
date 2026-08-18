@@ -259,7 +259,9 @@ test.describe('a phone', () => {
 		await area.click();
 		await area.press('ControlOrMeta+a');
 		await area.fill('<h1>typed on a phone</h1>');
-		await page.waitForTimeout(1200);
+		// An edit only marks the button now; the render is the press.
+		await page.locator('#chapter-1 ww-runner .wwr-run').first().click();
+		await page.waitForTimeout(800);
 		const frame = page.frameLocator('#chapter-1 iframe.wwr-preview.is-live').first();
 		await expect(frame.locator('h1')).toHaveText('typed on a phone');
 	});

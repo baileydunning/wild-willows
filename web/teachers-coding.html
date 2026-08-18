@@ -94,10 +94,13 @@
 <!-- @include public/partials/site-core.css -->
 <!-- @include public/partials/ww-teachers.css -->
 <!-- @include public/partials/ww-guide.css -->
+<!-- @include public/partials/ww-a11y.css -->
 <!-- @include public/partials/ww-dark.css -->
 </style>
 </head>
 <body class="edu-hub guide">
+
+<a class="skip-link" href="#main">Skip to the guide</a>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
@@ -113,7 +116,7 @@
   </div>
 </div></nav>
 
-<div class="twrap">
+<main class="twrap" id="main" tabindex="-1">
 
 <header class="thero">
   <p class="kicker">Coding kit &middot; Grades 9&ndash;12</p>
@@ -235,7 +238,6 @@
       <div class="tl"><b>Day 2</b><span>The API and its data. Chapters 4 to 6: the request, the response, the types in it, and reaching into them.</span></div>
       <div class="tl"><b>Day 3</b><span>Decisions, looping, rendering and build. Chapters 7 to 10.</span></div>
     </div>
-    <p class="note-line"><b>Chapters 7 and 8 are the heart of the module.</b> If a day is going to run long, let it be that one.</p>
   </div>
 </section>
 
@@ -271,12 +273,8 @@
   <h3>What is a webpage?</h3>
   <p>Put any page on the projector. Ask three questions and let them guess before you name anything: what decides the words, what decides the colors, and what happens when I click this. You will get to structure, appearance and behavior on your own, in their words, which is a better start than three definitions.</p>
   <h3>What is an API?</h3>
-  <p>Skip the restaurant-waiter analogy and get to the real thing in under a minute.</p>
-  <div class="dialogue">
-    <p><b>Browser:</b> Wild Willows API, give me the game data.</p>
-    <p><b>API:</b> <code>{ "animals": [...], "biomes": [...] }</code></p>
-  </div>
-  <p>Then open chapter 4 on the projector and press <b>See the real API response</b>. It reports the status, the time and the size from your own school network. A class watching <code>200 &middot; 412 ms &middot; 486 KB</code> appear has understood something a diagram cannot teach.</p>
+  <p>Do not define it first. Open chapter 4 on the projector and press <b>See the real API response</b>. The page reports the status, the time and the size of the request it just made over your school&rsquo;s own network, then shows the data that came back. Ask what they think happened before you name any of it.</p>
+  <p>The definition afterwards fits in a line: one program asked another program, on a different computer, for something, and got it back as text. The rest of the lesson is reading that text.</p>
 </section>
 
 <section class="tsec" id="assessment">
@@ -425,7 +423,7 @@ loadGameData();</pre>
   </div>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -442,16 +440,34 @@ loadGameData();</pre>
     }
   }
 
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_coding_kit_seen');
     sessionStorage.setItem('ww_coding_kit_seen', '1');
   } catch (e) {
     /* Guest mode or a locked-down profile: counting it is the better failure. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_coding');
+    if (everFresh) localStorage.setItem('ww_ever_coding', '1');
+  } catch (e) {
+    /* storage refused — counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
   if (fresh) {
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_coding: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_coding: 1 }); }, 500);
+    var opening = { view_coding: 1 };
+    if (everFresh) opening.unique_coding = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   var NAV = { 'lesson-nav': 'nav_lesson', 'builder-nav': 'nav_builder', 'science-kit': 'nav_science', 'edu-nav': 'nav_hub' };

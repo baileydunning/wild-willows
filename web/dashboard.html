@@ -57,16 +57,16 @@
 				--accent: #4a7c59;
 				--accent-dark: #39604a; /* 5.61 worst surface */
 				--accent-soft: #eaf3dd;
-				/* ---- the four series colours ----
+				/* ---- the four series colors ----
 				   MEASURED, not chosen. The previous set (#4a7c59 #7fb069 #6ea8c8
 				   #d77b8f) failed three of the five computable checks against this
 				   page's cream surface (#fdfaf1):
 
 				     chroma floor        #4a7c59 C=0.077, #6ea8c8 C=0.077 — under
 				                         0.10, which is the point where a hue stops
-				                         reading as a colour and starts reading grey
+				                         reading as a color and starts reading gray
 				     normal-vision floor #6ea8c8 vs #7fb069  ΔE 14.3 — under 15, so
-				                         full-colour readers could not reliably tell
+				                         full-color readers could not reliably tell
 				                         the sage and the sky apart
 				     contrast vs surface 2.42 / 2.48 / 2.83 — three of four under 3:1
 
@@ -90,12 +90,12 @@
 				--s4: #b0446a;
 				/* Lighter steps of the same four hues, for the left end of a bar
 				   gradient. Same hue angle, +0.17 OKLCH lightness, chroma at 0.8 —
-				   a step of the same ramp rather than a different colour. */
+				   a step of the same ramp rather than a different color. */
 				--s1-lift: #69ab79;
 				--s2-lift: #669ad6;
 				--s3-lift: #f2b474;
 				--s4-lift: #de829e;
-				/* Slot 3 as TEXT, or as a chip behind white text. The mark colour
+				/* Slot 3 as TEXT, or as a chip behind white text. The mark color
 				   (#c47a1a) is 3.27 on cream and carries white at 3.42 — fine for a
 				   fill, short of AA for anything with letters in it. Same hue, two
 				   steps darker: 4.96 on cream, 5.18 under white. Same split as
@@ -142,7 +142,7 @@
 			   announced itself as "Wild Willows Metrics" above the form, with a nav,
 			   a version filter and a Problems toggle — so anyone who found the URL
 			   learned that it exists, what it reports and roughly how it is
-			   organised, without a password.
+			   organized, without a password.
 			   Signed out, the page is a wordmark-free form on a cream background and
 			   nothing else. The title is neutral in the markup too; the real one is
 			   set from script once there is a session. */
@@ -193,7 +193,7 @@
 			}
 
 			/* The site nav, which this page did not have. Full-bleed like the rest of
-			   the dashboard rather than site-core's centred 1080px wrap. */
+			   the dashboard rather than site-core's centered 1080px wrap. */
 			.nav .wrap {
 				max-width: 1180px;
 				padding: 0 clamp(0.9rem, 3vw, 2rem);
@@ -253,7 +253,7 @@
 			[hidden] {
 				display: none !important;
 			}
-			/* Sign-in screen. Small, centred, and the only thing on the page — there is
+			/* Sign-in screen. Small, centered, and the only thing on the page — there is
 			   nothing else to look at until it is answered. */
 			.loginwrap {
 				display: flex;
@@ -327,7 +327,7 @@
 				cursor: pointer;
 			}
 			/* The Problems toggle. Neutral until something is actually wrong, then it
-			   goes amber — so the button's colour carries the state without needing to
+			   goes amber — so the button's color carries the state without needing to
 			   be read. */
 			button.refresh.probs.on {
 				background: var(--accent-soft);
@@ -772,7 +772,7 @@
 			/* Demo is a FILLED sage chip, full a tinted one. They used to differ by hue
 			   (gold-on-cream vs green-on-green); now that the demo series is sage
 			   everywhere else — donut, legend, vs-table bars — the chips have to agree
-			   with it, so the two are told apart by fill weight rather than colour. */
+			   with it, so the two are told apart by fill weight rather than color. */
 			.hledi.demo {
 				color: #ffffff;
 				background: var(--s3-ink);
@@ -849,7 +849,7 @@
 				font-variant-numeric: tabular-nums;
 				white-space: nowrap;
 			}
-			/* Finished the chain: the number goes the accent colour so a completed
+			/* Finished the chain: the number goes the accent color so a completed
 			   board reads at a glance without the bar having to be measured. */
 			.hlchain.done .num {
 				color: var(--accent-dark);
@@ -963,7 +963,7 @@
 				margin: 0.15rem 0;
 			}
 			/* The channel is the reason this list exists, so it reads first and loudest
-			   — everything beside it is a plain grey chip. */
+			   — everything beside it is a plain gray chip. */
 			.acchan {
 				background: var(--accent);
 				color: #fff;
@@ -1034,8 +1034,8 @@
 				color: var(--ink);
 			}
 			/* Super-user-only remove control at the foot of the player modal. Same
-			   red pair as button.delbtn so there is one "destructive" colour on the
-			   page, but boxed and labelled rather than a bare × — this one has no
+			   red pair as button.delbtn so there is one "destructive" color on the
+			   page, but boxed and labeled rather than a bare × — this one has no
 			   undo, and it should not look like the counter deletes that do. */
 			.dangerzone {
 				display: flex;
@@ -1498,7 +1498,7 @@
 			}
 			/* A date is wider than its column and overhangs both sides. In the middle
 			   of the strip that is fine; at the ends it hangs past the chart and gets
-			   clipped, so the outermost dates align to their edge instead of centring
+			   clipped, so the outermost dates align to their edge instead of centering
 			   on it — the last day is exactly the one you most want to read. */
 			.dcol:first-child .dl {
 				align-self: flex-start;
@@ -2317,7 +2317,7 @@
 			 * shown as its own row rather than folded into a real store, so the
 			 * backfill gap stays visible instead of padding whichever one you read first. */
 			/* detectOS() in src/platform.ts returns exactly these. Shared, because the
-			   keyboard gate reads them too and a phone has to be recognisable as a
+			   keyboard gate reads them too and a phone has to be recognizable as a
 			   phone in both places. */
 			/* The ten-goal starter chain (starterTasks() in server/resources.ts), keyed
 			 * by task id. Labels live here rather than coming down with the payload
@@ -2527,14 +2527,14 @@
 			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
 			 * which puts a number and a label under every column — fine for four
 			 * tutorial steps, unreadable at ninety days. Here the count lives in the
-			 * tooltip and the axis is labelled at intervals. */
+			 * tooltip and the axis is labeled at intervals. */
 			function dayCols(days, key) {
 				if (!days.length) return `<div class="emptynote">No days in this range.</div>`;
 				const max = Math.max(...days.map((d) => n(d[key])), 1);
 				/* Every column ships its count and its date; which of them survive is
 				 * decided by fitDayCharts() from the width the columns actually got.
 				 * Deriving that from the day count alone was wrong at every width but
-				 * the one it was tuned on — on a phone it produced a grey smear.
+				 * the one it was tuned on — on a phone it produced a gray smear.
 				 * Zeros stay blank: the flat tick already says nothing happened, and a
 				 * row of 0s over empty days is noise competing with the real numbers. */
 				const fmtDay = (iso) => {
@@ -2565,7 +2565,7 @@
 			 * Column width is not knowable when the markup is built — it depends on the
 			 * card, the viewport, and whether the strip ended up scrolling — so labels
 			 * and counts are dropped here, after layout, and again on resize. A date
-			 * needs roughly 34px to sit under its bar without touching its neighbour;
+			 * needs roughly 34px to sit under its bar without touching its neighbor;
 			 * a two-digit count needs about 17px. Labels are spaced backwards from the
 			 * last column so the most recent day is always the one that keeps its date. */
 			function fitDayCharts() {
@@ -2804,7 +2804,7 @@
 			 * first shipped showing em-dashes on a healthy server. Not adjustable in
 			 * the UI either: a 24h window makes ServerHealth read to its 4,000-row
 			 * cap and it became the slowest endpoint on the instance. The endpoint
-			 * still honours ?minutes= for anyone reading it directly. */
+			 * still honors ?minutes= for anyone reading it directly. */
 			const SERVER_WINDOW = 60;
 
 			/** How this caretaker has their settings — every option in Settings →
@@ -2820,7 +2820,7 @@
 			 *  not just spot the ones that are on. `interactHint` is inverted here
 			 *  because it ships ON: what is worth seeing is that this player turned it
 			 *  off. Everything with more than two values (colorblind mode, text size,
-			 *  font, theme) gets a labelled row instead, using the same label maps as
+			 *  font, theme) gets a labeled row instead, using the same label maps as
 			 *  the site-wide rollup. */
 			function prefsCardHTML(p) {
 				const pr = p.prefs;
@@ -3374,7 +3374,7 @@
 					}
 				}
 
-				// One way back, shown only when you are not already home. Labelling a
+				// One way back, shown only when you are not already home. Labeling a
 				// mode switch by what it conceals leaves you hunting for the way out.
 				const back = document.getElementById('backbtn');
 				if (back) back.hidden = MODE === 'dashboard';
@@ -3459,7 +3459,7 @@
 					const day = (ms) =>
 						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
 					/* In a window, the count column shows what happened IN it, with the
-					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * all-time figure kept beside it in gray. A row whose buckets predate
 					 * the per-day counters reads "—" rather than 0: there is no evidence
 					 * either way, and printing a zero would be inventing some. */
 					const hits = (r) => {
@@ -3621,7 +3621,26 @@
 				 * work queue for explanation copy, the ideas say which prompts students
 				 * actually pick, and the health strip is the only way to find out that
 				 * a school network is silently blocking the API. */
-				let classroomSection = '';
+				/* EDUCATION IS TWO KITS, NOT ONE SECTION.
+				 *
+				 * These used to be a single "Classroom" block, which put a grades-5-8
+				 * ecology activity and a grades-9-12 web-development course under one
+				 * heading and one funnel. They share a hub and nothing else: different
+				 * ages, different subjects, different teachers, and completely
+				 * different shapes of evidence. The science kit is measured by pages
+				 * read and PDFs taken away, because the activity happens in the game
+				 * and on paper; the coding kit is measured by what students did in the
+				 * editor, because all of it happens on this site.
+				 *
+				 * Averaging those together produced numbers that described neither. */
+				let codingSection = '';
+				/* Set inside the two payload blocks below and read by the science
+				   section, which is assembled last because it needs both. */
+				let reachById = {};
+				let kitSplit = null;
+				let pdfDownloads = null;
+				let pdfToday = 0;
+				let schoolCopies = 0;
 				if (CLASSROOM && CLASSROOM.totals) {
 					const C = CLASSROOM.totals;
 					const cN = (k) => n(C[k]) || 0;
@@ -3639,7 +3658,7 @@
 						'fetch-failed': 'Could not reach the data',
 						'null-property': 'Element not on the page',
 						'undefined-property': 'Field not in the data',
-						'not-defined': 'Name not recognised',
+						'not-defined': 'Name not recognized',
 						'not-a-function': 'Not something you can call',
 						'unexpected-eof': 'Something left open',
 						'json-parse': 'Answer was not JSON',
@@ -3662,21 +3681,47 @@
 					];
 					const durationRows = DURATIONS.map(([label, key]) => [label, cN(key)]).filter((r) => r[1]);
 					const sessions = n(CLASSROOM.sessions) || 0;
-					/* A midpoint estimate, labelled as one. The buckets are deliberate —
-					 * a precise per-session duration is a behavioural trace of one person
+					/* A midpoint estimate, labeled as one. The buckets are deliberate —
+					 * a precise per-session duration is a behavioral trace of one person
 					 * — so this is the honest way to answer "roughly how long?" from them. */
 					const MIDPOINT = { duration_lt5m: 2.5, duration_5to15m: 10, duration_15to30m: 22, duration_30to60m: 45, duration_gt60m: 75 };
 					const bucketed = DURATIONS.reduce((a, [, k]) => a + cN(k), 0);
 					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
 					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
 
+					/* `unique` is null for a page that does not report first-visits yet,
+					   and that is not the same as zero: one means "nobody new", the other
+					   means "not measured". The row shows nothing rather than a 0. */
+					for (const r of CLASSROOM.reach || []) reachById[r.id] = r;
+					kitSplit = { science: cN('nav_science'), coding: cN('nav_coding') };
+
+					/* The coding kit's own pages. The science page and the teachers hub
+					   are deliberately not here: one belongs to the other kit, and the
+					   hub belongs to both, so it is reported with the site rather than
+					   claimed by either. */
+					const CODING_PAGES = ['coding', 'learn', 'lesson', 'builder', 'developers'];
+					const reachRows = (CLASSROOM.reach || [])
+						.filter((r) => CODING_PAGES.includes(r.id) && n(r.views) > 0)
+						.sort((a, b) => n(b.views) - n(a.views))
+						.map((r) => [r.label, n(r.views), r.unique == null ? null : n(r.unique), r.path]);
+					const reachMax = Math.max(...reachRows.map((r) => r[1]), 1);
+
+					const ARRIVAL_LABELS = {
+						direct: 'Typed it or had it bookmarked',
+						search: 'A search engine',
+						social: 'Reddit, Bluesky or another social site',
+						internal: 'Another page on this site',
+						other: 'Somewhere else',
+					};
+					const arrivalRows = (CLASSROOM.arrivals || []).map((a) => [ARRIVAL_LABELS[a.key] || a.key, a.n]);
+
 					const h = CLASSROOM.health || {};
 					const fetchTotal = n(h.fetchOk) + n(h.fetchFailed);
 					const blockedPct = fetchTotal ? Math.round((n(h.fetchFailed) / fetchTotal) * 100) : 0;
 
-					classroomSection = sec(
-						'Classroom',
-						'wildwillows.app/learn — the coding kit, anonymous counters only',
+					codingSection = sec(
+						'Coding kit',
+						'/learn and /developers — intro to APIs & web development, grades 9-12',
 						`<div class="grid kpis">${[
 							kpi(fmt(sessions), 'Builder sessions', `${fmt(cN('returning_day2') + cN('returning_day3'))} came back another day`),
 							kpi(
@@ -3692,8 +3737,49 @@
 							),
 						].join('')}</div>` +
 							`<div style="margin-top:.8rem">` +
-							cardTitled('Funnel', 'where the kit loses people', barRows(funnelRows)) +
+							cardTitled('Funnel', 'the student path, and where it loses people', barRows(funnelRows)) +
 							`</div>` +
+							/* REACH, next to the funnel and deliberately not inside it.
+							 *
+							 * The funnel is ONE path: hub, coding kit, lesson, builder, run,
+							 * fetch, download. Most of the site is not on it — the science kit
+							 * is a different classroom, the API docs are for somebody who is
+							 * not in a classroom at all — and forcing them in as "steps" made
+							 * every drop-off percentage below them meaningless.
+							 *
+							 * Two numbers per page. Views is traffic; first-time browsers is
+							 * reach. A page whose two numbers are close is finding new people;
+							 * one where views run far ahead is being reloaded by the same few,
+							 * and those are opposite problems. */
+							`<div style="margin-top:.8rem">` +
+							cardTitled(
+								'Its pages, side by side',
+								'visits this period, and how many of them were somebody new',
+								reachRows.length
+									? `<div class="bars">${reachRows
+											.map(
+												([lab, views, uniq, path]) =>
+													`<div class="bar"><span class="lab" title="${esc(path)}">${esc(lab)}</span>` +
+													`<span class="track" style="position:relative"><span class="fill" style="width:${Math.max(2, (views / reachMax) * 100)}%"></span>` +
+													/* The first-visit share, drawn INSIDE the same track rather than as
+													   a second bar: the question is what fraction of this page's traffic
+													   was somebody new, and two bars side by side make that a subtraction
+													   the reader has to do. */
+													(uniq == null
+														? ''
+														: `<span class="fill" style="width:${Math.max(2, (uniq / reachMax) * 100)}%;opacity:.45;position:absolute;left:0;top:0"></span>`) +
+													`</span>` +
+													`<span class="num">${fmt(views)}${uniq == null ? '' : ` · ${fmt(uniq)} new`}</span></div>`,
+											)
+											.join('')}</div>`
+									: `<div class="emptynote">No page views recorded yet.</div>`,
+							) +
+							`</div>` +
+							(arrivalRows.length
+								? `<div style="margin-top:.8rem">` +
+									cardTitled('How they arrived', 'resolved in the browser, never sent as a URL', barRows(arrivalRows)) +
+									`</div>`
+								: '') +
 							`<div class="grid two" style="margin-top:.8rem">` +
 							cardTitled(
 								'Errors students hit',
@@ -3743,7 +3829,14 @@
 						support: 'Support page',
 						'get-nav': 'Get the game (nav)',
 						'edu-nav': 'For teachers (nav)',
-						'edu-page': 'Teachers page (viewed)',
+						// `edu-page` is the science kit's OLD self-report. Its page view moved
+						// to /LessonEvent/ as `view_science` so it could be compared with the
+						// other kits; the historical series stays labeled and readable
+						// rather than being quietly renamed under its own numbers.
+						'edu-page': 'Science kit (viewed, before Aug 2026)',
+						'privacy-page': 'Privacy policy (viewed)',
+						'support-page': 'Support page (viewed)',
+						'rating-page': 'Age suitability (viewed)',
 						'pdf-guide': 'Educator guide (click)',
 						'pdf-worksheets': 'Worksheets (click)',
 						'school-copy': 'Classroom copy request',
@@ -3776,6 +3869,12 @@
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
+					/* Handed to the science section below. The PDFs ARE the science kit —
+					   the guide and the six worksheets — so the breakdown belongs with it
+					   rather than under the landing page that happens to link to them. */
+					pdfDownloads = dl;
+					pdfToday = Object.values(dlToday).reduce((a, v) => a + n(v), 0);
+					schoolCopies = n((lt.clicks || {})['school-copy']);
 					/* Where people arrived from, in the only vocabulary this site has:
 					 * nine buckets, resolved in the visitor's own browser. The referrer
 					 * URL is never sent — see LANDING_SOURCES in server/resources.ts.
@@ -3820,7 +3919,7 @@
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app — visits, arrivals, link clicks & classroom PDFs',
+						'wildwillows.app — visits, arrivals, link clicks and where the hub sends people',
 						`<div class="grid kpis">${[
 							kpi(fmt(lt.visits), 'Visits', `${fmt(lt.uniques)} first-time visitors`),
 							kpi(
@@ -3850,10 +3949,19 @@
 								'all-time',
 								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
+							/* Where the Classroom PDFs card used to sit. It moved into the
+							   science kit's own section; what belongs here instead is the
+							   thing the hub is FOR, which is deciding which kit to take. */
 							cardTitled(
-								'Classroom PDFs',
-								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
-								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'gold' }),
+								'The teachers hub',
+								'/teachers — which kit a visitor took from it',
+								kitSplit && (kitSplit.science || kitSplit.coding)
+									? barRows([
+											['Took the science kit', kitSplit.science],
+											['Took the coding kit', kitSplit.coding],
+											reachById.hub ? ['Reached the hub at all', n(reachById.hub.views)] : null,
+										])
+									: '<div class="emptynote">No hub navigation recorded yet.</div>',
 							) +
 							`</div>` +
 							// Acquisition is its own question — not a breakdown of the
@@ -3957,11 +4065,80 @@
 				 * number on this page: how many people arrived at all. High but not
 				 * first is the compromise — the game numbers lead, the traffic follows
 				 * immediately. */
+				/* ---- Science kit ----
+				 *
+				 * Assembled here rather than with the other two because it needs BOTH
+				 * payloads: its reach comes from /LessonStats/ and its downloads from
+				 * /LandingStats/, since the PDF links are shared with the landing page
+				 * and always have been.
+				 *
+				 * IT IS MEASURED DIFFERENTLY ON PURPOSE. There is no funnel here and no
+				 * error ranking, because there is almost nothing to instrument: the
+				 * activity happens inside the game and on paper. What a teacher does on
+				 * this site is read the guide and take the PDFs away, so reach and
+				 * downloads are not a thin version of the coding numbers — they are the
+				 * whole of what this kit can honestly report. */
+				let scienceSection = '';
+				{
+					const sci = reachById.science;
+					const guide = n((pdfDownloads || {}).guide);
+					const sheets = n((pdfDownloads || {}).worksheets);
+					const anything = (sci && n(sci.views)) || guide || sheets || schoolCopies;
+					if (anything) {
+						scienceSection = sec(
+							'Science kit',
+							'/teachers/science — ecosystems & habitat, grades 5-8',
+							`<div class="grid kpis">${[
+								kpi(
+									fmt(sci ? sci.views : 0),
+									'Kit page views',
+									sci && sci.unique != null ? `${fmt(sci.unique)} first-time visitors` : 'first-time visitors not measured yet',
+								),
+								kpi(fmt(guide + sheets), 'PDFs taken', `${fmt(pdfToday)} today`),
+								kpi(fmt(guide), 'Educator guides', 'the eight-page lesson plan'),
+								kpi(
+									schoolCopies ? `<span class="accent">${fmt(schoolCopies)}</span>` : '0',
+									'Classroom copy requests',
+									'teachers asking for free copies of the game',
+								),
+							].join('')}</div>` +
+								`<div class="grid two" style="margin-top:.8rem">` +
+								cardTitled(
+									'What they took away',
+									'downloaded all-time — the kit itself',
+									pdfDownloads && Object.keys(pdfDownloads).length
+										? barRows(objToEntries(pdfDownloads), {
+												labelMap: { guide: 'Educator Guide', worksheets: 'Student Worksheets' },
+												cls: 'gold',
+											})
+										: '<div class="emptynote">No downloads recorded yet.</div>',
+								) +
+								cardTitled(
+									'Read, then taken',
+									'how much of the reading turns into a download',
+									sci && n(sci.views)
+										? barRows([
+												['Opened the kit page', n(sci.views)],
+												[`Took a PDF (${Math.round(((guide + sheets) / n(sci.views)) * 100)}% of readers)`, guide + sheets],
+												schoolCopies ? [`Asked for classroom copies`, schoolCopies] : null,
+											])
+										: '<div class="emptynote">No page views recorded yet.</div>',
+								) +
+								`</div>` +
+								`<p class="emptynote" style="margin-top:.8rem">Nothing else is counted here, and that is not a gap. The science activity happens in the game and on the worksheets, so once a teacher has the PDFs this site stops being able to see anything — by design.</p>`,
+							'website',
+						);
+					}
+				}
+
 				if (landingSection) out.push(landingSection);
 
-				/* Directly under Landing page: both are site numbers rather than game
-				 * numbers, and the classroom funnel starts where the landing one ends. */
-				if (classroomSection) out.push(classroomSection);
+				/* Directly under Landing page: all three are site numbers rather than
+				 * game numbers, and the education funnels start where the landing one
+				 * ends. Science first because it is the older and larger of the two
+				 * kits, and because its numbers are the shorter read. */
+				if (scienceSection) out.push(scienceSection);
+				if (codingSection) out.push(codingSection);
 
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
@@ -4089,7 +4266,7 @@
 								.slice(0, 2)
 								.map((t) => `<span class="hltag">${t}</span>`)
 								.join('');
-							// The green border is the ask, but colour alone isn't a reliable cue, so the
+							// The green border is the ask, but color alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? `<span class="hltag hllive">Active now</span>` : '';
 							// The best thing a card can say about a player: they played the
@@ -4874,7 +5051,7 @@
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
 
-			/** Grey out the "Range" selector unless a specific version is chosen. */
+			/** Gray out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
 				const wrap = document.getElementById('version-mode-wrap');
 				const sel = document.getElementById('version-mode');
@@ -5211,7 +5388,7 @@
 				};
 				const round1v = (x) => Math.round(n(x) * 10) / 10;
 				const gt = ht.gameplayTiming;
-				// Colour only past the point where it is worth looking at. Under a
+				// Color only past the point where it is worth looking at. Under a
 				// second a slow call is a curiosity; past that a player feels it.
 				const slowTone = (ms) => (n(ms) >= 1000 ? '<span class="accent">' : '<span>');
 				// Not rounded to a whole percent: 4MB in a 286GB volume is 0.0014%, and
@@ -5540,7 +5717,7 @@
 
 			/* Which range object a picker drives. Keyed by the `data-range-scope`
 			 * dayRangePicker() stamps on every control it builds, so a second chart is
-			 * a new entry here and nothing else. An unrecognised scope is ignored
+			 * a new entry here and nothing else. An unrecognized scope is ignored
 			 * rather than defaulting to the first one — silently moving the wrong
 			 * chart is worse than doing nothing. */
 			const DAY_RANGE_SCOPES = { daily: DAY_RANGE, landing: LANDING_DAY_RANGE };

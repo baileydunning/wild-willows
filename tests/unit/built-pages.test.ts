@@ -131,6 +131,76 @@ describe('the built Code Builder page', () => {
 	});
 });
 
+describe('the lesson says what an API is before asking anyone to use one', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+
+	it('expands the acronym in full', () => {
+		// It never did. Chapter 4 introduced the idea and chapter 5 went straight to
+		// fetch(), so a student could finish the lesson using an API without ever
+		// being told what the three letters stand for.
+		expect(html.toLowerCase()).toContain('application programming interface');
+	});
+
+	it('and does it where the word is introduced, not where it is used', () => {
+		// Chapter 4 is where "API" first appears as a thing rather than a word. The
+		// expansion lived in chapter 5 for a while, which meant a student met the
+		// term, read a page about it, and only then found out what it stood for.
+		const ch4 = html.slice(html.indexOf('id="chapter-4"'), html.indexOf('id="chapter-5"'));
+		expect(ch4.toLowerCase()).toContain('application programming interface');
+		expect(ch4).toContain('interface');
+		// And chapter 5, where they first send one a request, still names the
+		// address they are sending it to.
+		const ch5 = html.slice(html.indexOf('id="chapter-5"'), html.indexOf('id="chapter-6"'));
+		expect(ch5).toContain('https://wildwillows.app/GameData');
+		expect(ch5).toContain('web API');
+	});
+});
+
+describe('the landing page nav actually goes where it says', () => {
+	const html = builtPage('landingHtml');
+
+	// EVERY NAV LINK LANDED AT THE FOOTER. `content-visibility: auto` gave each
+	// off-screen section a `contain-intrinsic-size` placeholder — measured at
+	// 412px, a phone, where cards stack. Applied at every width those estimates
+	// were hundreds of pixels too tall each, so the document claimed ~12,900px on
+	// a desktop; clicking a nav link started a smooth scroll toward an offset
+	// computed from that, the sections resolved to their real heights on the way
+	// past, the page collapsed ~2,000px underneath the animation, and the scroll
+	// clamped to the bottom. Anything below Accessibility went to the footer.
+	it('only applies the phone placeholders at phone widths', () => {
+		const block = /@media\(max-width:820px\)\{\n#look[^]*?\n\}/.exec(html);
+		expect(block, 'the containment block should be inside a max-width media query').toBeTruthy();
+		expect(block![0]).toContain('content-visibility:auto');
+		// and nowhere else: an unscoped copy is the bug coming back.
+		const unscoped = html.replace(block![0], '');
+		expect(unscoped).not.toContain('content-visibility:auto');
+		expect(unscoped).not.toContain('contain-intrinsic-size');
+	});
+
+	it('gives every named section a placeholder, including the newest', () => {
+		const block = /@media\(max-width:820px\)\{\n#look[^]*?\n\}/.exec(html)![0];
+		// #developers was added after this block was written and had none, so it
+		// was the one section whose estimate was zero while its neighbours were
+		// over-estimated.
+		for (const id of ['look', 'reviews', 'everyone', 'educators', 'developers', 'soundtrack', 'updates', 'faq', 'get'])
+			expect(block, `#${id}`).toContain(`#${id}{contain-intrinsic-size:`);
+	});
+
+	it('and every anchor clears the sticky nav when you land on it', () => {
+		// Without this the heading you jumped to sits behind the 59px header and
+		// the first thing you see is the paragraph after it.
+		const m = /#look,#reviews,[^{]*\{scroll-margin-top:([\d.]+)rem\}/.exec(html);
+		expect(m, 'the landing sections should set scroll-margin-top').toBeTruthy();
+		expect(parseFloat(m![1]) * 16).toBeGreaterThan(59);
+	});
+
+	it('every nav target is a section that exists', () => {
+		const nav = /<div class="links">([\s\S]*?)<\/div>/.exec(html)![1];
+		for (const [, id] of nav.matchAll(/href="#([a-z]+)"/g))
+			expect(html, `#${id}`).toMatch(new RegExp(`<(section|header)[^>]*id="${id}"`));
+	});
+});
+
 describe('no public page names the Steam build', () => {
 	// A product decision, not a style one: the storefronts the site points at are
 	// the Mac App Store and itch.io, and a page that names a third one it does not
@@ -189,7 +259,7 @@ describe('the landing page routes to the rest of the site', () => {
 		expect(html).toContain('href="/learn/web-development"');
 		expect(html).toContain('href="/learn/code-builder"');
 		expect(html).toContain('href="/learn"');
-		expect(html).toContain('https://wildwillows.app/GameData/');
+		expect(html).toContain('https://wildwillows.app/GameData');
 	});
 
 	it('reports those clicks on a target the endpoint accepts', () => {
@@ -547,5 +617,192 @@ describe('the dashboard', () => {
 		// identical whether there is nothing to report or the feed failed.
 		expect(html).toContain("const VIEW_KEY = 'wwDashboardView'");
 		expect(html).toContain('function noteEmptyView');
+	});
+});
+
+describe('the two classroom pages link out to the API docs', () => {
+	// A student in the editor and a teacher reading over their shoulder both end
+	// up wanting the endpoint's own page: what it returns, what the fields are,
+	// what the limits are. It was two clicks away through the footer.
+	const PAGES: Array<[string, string]> = [
+		['learnWebDevelopmentHtml', 'the lesson'],
+		['learnCodeBuilderHtml', 'the code builder'],
+	];
+
+	it.each(PAGES)('%s has it in the header', (exportName) => {
+		const html = builtPage(exportName);
+		const nav = html.slice(html.indexOf('<nav class="nav">'), html.indexOf('</nav>'));
+		expect(nav).toContain('href="/developers/api"');
+		expect(nav).toContain('API docs');
+	});
+
+	it.each(PAGES)('%s opens it in a new tab, without handing over the opener', (exportName) => {
+		const html = builtPage(exportName);
+		const link = /<a[^>]*href="\/developers\/api"[^>]*>/.exec(html);
+		expect(link, 'the API docs link should be findable').toBeTruthy();
+		expect(link![0]).toContain('target="_blank"');
+		// Without rel=noopener the opened page gets a handle on window.opener.
+		expect(link![0]).toContain('rel="noopener"');
+	});
+
+	it.each(PAGES)('%s says out loud that it opens in a new tab', (exportName) => {
+		const html = builtPage(exportName);
+		// A drawn arrow is a convention a sighted reader has learned. It is not an
+		// announcement, so the words ride along for anyone who is listening.
+		const i = html.indexOf('href="/developers/api"');
+		expect(html.slice(i, i + 700)).toContain('(opens in a new tab)');
+	});
+
+	it.each(PAGES)('%s counts the click', (exportName) => {
+		const html = builtPage(exportName);
+		expect(html).toContain('data-track="api-nav"');
+		expect(html).toContain("'api-nav': 'nav_api'");
+	});
+
+	it.each(PAGES)('%s sizes the icon, because an unsized svg is 300x150', (exportName) => {
+		const html = builtPage(exportName);
+		// site-core also sets svg { display: block } sitewide, which dropped the
+		// arrow onto a line of its own under the label the first time.
+		const i = html.indexOf('.nav .links a .ext');
+		expect(i, 'the rule should be in the page').toBeGreaterThan(-1);
+		// Read a window rather than matching to the closing brace: the rule carries
+		// a comment that contains a } of its own, and [^}]* stops at that one.
+		const rule = html.slice(i, i + 500);
+		expect(rule).toContain('display: inline-block');
+		expect(rule).toContain('width: 0.78em');
+	});
+});
+
+describe('the lesson says where to look things up before it asks anyone to', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+	const section = html.slice(html.indexOf('id="look-things-up"'), html.indexOf('id="chapter-1"'));
+
+	it('comes before chapter 1', () => {
+		// A student who needs this needs it at minute three, not in an optional
+		// panel at the bottom of a 2,000-line page.
+		const at = html.indexOf('id="look-things-up"');
+		expect(at).toBeGreaterThan(-1);
+		expect(at).toBeLessThan(html.indexOf('id="chapter-1"'));
+	});
+
+	it('is not a chapter, and the rail must not think it is', () => {
+		// ww-lesson.js picks up `.ch[id^="chapter-"]`, counts CHAPTERS = 10, and
+		// keys per-chapter dwell off the number in the id. An eleventh section
+		// matching that selector would put an unnumbered entry in the rail and send
+		// `chapter_NaN_reached` to a server that would fold it into `other`.
+		expect(section).not.toContain('id="chapter-');
+		const chapterSections = [...html.matchAll(/<section class="ch" id="chapter-(\d+)"/g)].map((m) => Number(m[1]));
+		expect(chapterSections).toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+		expect(html).toContain('var CHAPTERS = 10');
+	});
+
+	it('names references a student can actually reach', () => {
+		for (const host of ['developer.mozilla.org', 'javascript.info', 'caniuse.com', 'stackoverflow.com', 'devdocs.io'])
+			expect(section, host).toContain(host);
+		// The panel three inches above their code answers half of it, and it is free.
+		expect(section).toContain('The error panel on this page');
+	});
+
+	it('opens every one of them in a new tab, and says so out loud', () => {
+		const links = [...section.matchAll(/<a[^>]*href="https?:[^"]*"[^>]*>/g)].map((m) => m[0]);
+		expect(links.length).toBeGreaterThanOrEqual(6);
+		for (const a of links) {
+			// Losing the editor mid-lesson to a documentation link is the whole
+			// reason these are _blank.
+			expect(a, a).toContain('target="_blank"');
+			expect(a, a).toContain('rel="noopener"');
+		}
+		expect((section.match(/\(opens in a new tab\)/g) || []).length).toBeGreaterThanOrEqual(links.length);
+	});
+
+	it('warns about the site that outranks all of them', () => {
+		// W3Schools is the first result for nearly every question a beginner types.
+		expect(section).toContain('W3Schools');
+		expect(section).toMatch(/out of date/i);
+	});
+
+	it('gives one testable rule for code a student did not write', () => {
+		expect(section).toContain('could you tell if it was wrong?');
+	});
+
+	it('claims only what it can stand behind about how professionals use AI', () => {
+		// "A lot of" rather than a percentage or "nearly every". A figure would date
+		// and would invite an argument with a teacher about the exact number, and
+		// the paragraph does not rest on how large the share is — it rests on the
+		// difference between going faster and skipping the understanding.
+		expect(section).toContain('A lot of professional software engineers use it');
+		expect(section).not.toMatch(/\b\d{1,3}%/);
+	});
+
+	it('and does not pretend they can avoid it forever', () => {
+		// Vague disapproval is ignorable and, on this subject, wrong. The line the
+		// section draws is between going faster at something you understand and
+		// skipping the understanding, which is a line a student can actually apply.
+		expect(section).toMatch(/no version of this advice where you never touch it/);
+		expect(section).toMatch(/go faster at something you understand/);
+		expect(section).toMatch(/skip understanding/);
+		// And it says why the next ten chapters are the exception, in terms of what
+		// the student gets rather than what they are not allowed to do.
+		expect(section).toMatch(/typing it yourself is not busywork/);
+	});
+
+	it('leaves the teacher in charge', () => {
+		expect(section).toMatch(/their rule wins/);
+	});
+});
+
+describe('chapter 3 says what const, let and var are', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+	const ch3 = html.slice(html.indexOf('id="chapter-3"'), html.indexOf('id="chapter-4"'));
+	const main = ch3.slice(0, ch3.indexOf('<details class="deeper"'));
+
+	it('compares the three in the main body, not only in an optional panel', () => {
+		// The variables section introduces `const` and then every example uses it.
+		// A student who wonders why it is not `let` should not have to open a
+		// collapsed panel to find out.
+		for (const word of ['const', 'let', 'var']) expect(main).toContain(`<code>${word}</code>`);
+		expect(main).toMatch(/Use <code>const<\/code> until something has to change/);
+	});
+
+	it('warns about the thing const does not do', () => {
+		// `const` protects the name, not the contents. Nearly everyone assumes
+		// otherwise once, usually while pushing to an array.
+		expect(main).toContain('assignment to constant variable');
+		expect(main).toMatch(/protects the name, not what the name holds/);
+	});
+
+	it('and the panel adds scope rather than repeating the table', () => {
+		const deeper = ch3.slice(ch3.indexOf('<details class="deeper"'));
+		expect(deeper).toContain('Where a name lives');
+		// The old panel restated the whole comparison, including the same example.
+		expect(deeper).not.toContain('Almost every example on this page uses');
+		expect(deeper).not.toContain('animals.push("Red Fox")');
+	});
+});
+
+describe('chapter 5 says what an HTTP method is', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+	const ch5 = html.slice(html.indexOf('id="chapter-5"'), html.indexOf('id="chapter-6"'));
+
+	it('names the four a student will meet', () => {
+		// A student sends a request in this chapter and then spends five more
+		// chapters sending the same kind without ever being told it has a kind.
+		for (const method of ['GET', 'POST', 'PUT', 'PATCH', 'DELETE']) expect(ch5).toContain(`<code>${method}</code>`);
+	});
+
+	it('says fetch defaults to GET, and how to send anything else', () => {
+		expect(ch5).toMatch(/with nothing after the address is a <code>GET<\/code>/);
+		expect(ch5).toContain('method: "POST"');
+	});
+
+	it('and says why the whole lesson is GET', () => {
+		// Not "we are keeping it simple". The endpoint is read-only, which is the
+		// property that makes every request in the lesson safe to repeat.
+		expect(ch5).toMatch(/read-only/);
+		expect(ch5).toMatch(/safe to send twice/);
+	});
+
+	it('warns that a GET which changes something is a bug', () => {
+		expect(ch5).toMatch(/delete link/i);
 	});
 });

@@ -227,3 +227,70 @@ describe('the Going Deeper panel', () => {
 		for (const key of panels) expect(key, key).toMatch(/^deeper_[a-z][a-z0-9-]{0,23}$/);
 	});
 });
+
+describe('how long a student spent, and what does not count as spending it', () => {
+	/*
+	 * The old clock added wall-clock time on every tick with nothing to stop it,
+	 * so a tab left open on chapter 7 over a weekend reported chapter 7 as the
+	 * longest chapter on the page. Both gates below only ever REMOVE time, which
+	 * makes every number the lesson reports a floor — the right direction to be
+	 * wrong in for a figure a teacher plans a period against.
+	 */
+	const MIN = 60000;
+
+	it('counts time on a visible page', () => {
+		const now = Date.now();
+		L.setPresence(true, now);
+		expect(L.countable(now - 30000, now)).toBe(30000);
+	});
+
+	it('counts nothing at all while the tab is in the background', () => {
+		const now = Date.now();
+		L.setPresence(false, now);
+		expect(L.countable(now - 30 * MIN, now)).toBe(0);
+	});
+
+	it('stops five minutes after the last scroll, key or tap', () => {
+		const now = Date.now();
+		// Somebody walked away twenty minutes ago. Five of those are credited —
+		// reading a chapter without touching anything is real — and fifteen are not.
+		L.setPresence(true, now - 20 * MIN);
+		expect(L.countable(now - 20 * MIN, now)).toBe(5 * MIN);
+	});
+
+	it('and gives nothing for a window that has been idle since before the interval began', () => {
+		const now = Date.now();
+		L.setPresence(true, now - 60 * MIN);
+		expect(L.countable(now - 10 * MIN, now)).toBe(0);
+	});
+
+	it('never returns a negative interval', () => {
+		const now = Date.now();
+		L.setPresence(true, now);
+		expect(L.countable(now + 5000, now)).toBe(0);
+	});
+
+	describe('the bands it reports', () => {
+		it('says nothing about a visit too short to be one', () => {
+			// A prefetch, a bot, a mis-click. There is no answer in it.
+			expect(L.sessionBand(0)).toBe(null);
+			expect(L.sessionBand(4999)).toBe(null);
+		});
+
+		it('cuts where the answers differ', () => {
+			expect(L.sessionBand(30000)).toBe('lt2m'); // a look
+			expect(L.sessionBand(5 * MIN)).toBe('2to10m');
+			expect(L.sessionBand(20 * MIN)).toBe('10to30m');
+			expect(L.sessionBand(45 * MIN)).toBe('30to60m'); // a class period
+			expect(L.sessionBand(90 * MIN)).toBe('gt60m');
+		});
+
+		it('is a band and never a duration', () => {
+			// The privacy contract: a precise session length is a trace of one
+			// reader. Every band here describes nobody.
+			const src = readFileSync(join(process.cwd(), 'public/partials/ww-lesson.js'), 'utf8');
+			expect(src).toMatch(/bump\('dwell_lesson_' \+ whole\)/);
+			expect(src).not.toMatch(/bump\('dwell_lesson_' \+ (ms|totalMs|Math)/);
+		});
+	});
+});

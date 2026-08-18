@@ -17,7 +17,7 @@
  *    <textarea> genuinely is enough for a 40-line file.
  *  • The preview iframe is sandbox="allow-scripts" WITHOUT allow-same-origin, so
  *    student code runs on an opaque origin and cannot touch this page. That is
- *    why GET /GameData/ sends Access-Control-Allow-Origin (see GAME_DATA_CORS in
+ *    why GET /GameData sends Access-Control-Allow-Origin (see GAME_DATA_CORS in
  *    server/resources.ts) — without it, the fetch the whole lesson is about fails
  *    from inside here.
  *  • Errors surface in the UI, never only in a console the student will not open.
@@ -124,7 +124,7 @@
 			title: "Couldn't reach the Wild Willows data",
 			help:
 				'The request for the game data did not get through. Check the address is exactly ' +
-				'https://wildwillows.app/GameData/ and if it looks right, ask your teacher: some school ' +
+				'https://wildwillows.app/GameData and if it looks right, ask your teacher: some school ' +
 				'networks block outside websites.',
 		},
 		{
@@ -494,7 +494,6 @@
 
 	/* ------------------------------------------------------------- the element */
 
-	var DEBOUNCE_MS = 400;
 	var uid = 0;
 
 	/** Insert text at the caret while keeping the browser's undo stack.
@@ -633,8 +632,24 @@
 		var files = readFiles(host);
 		var mode = files.length > 1 ? 'multi' : 'single';
 		var showConsole = host.hasAttribute('console');
-		var autorun = !host.hasAttribute('manual');
 		var label = host.getAttribute('label') || '';
+
+		/* DOES THIS EXAMPLE TALK TO THE SERVER?
+		 *
+		 * It decides whether the example may render itself when the page opens.
+		 * The lesson holds forty-two of these and twenty-seven of them fetch the
+		 * game catalog, so rendering all of them on load meant one reader arriving
+		 * at the page sent twenty-two requests for the full catalog before reading
+		 * a word — and a class of thirty on one school connection sent six hundred
+		 * and sixty, which is over the limit the endpoint allows a single address
+		 * in a minute. The lesson was capable of rate-limiting its own classroom.
+		 *
+		 * An example that only draws HTML and CSS costs nothing to render, so it
+		 * still renders on arrival and the page looks alive. One that goes to the
+		 * network waits for a press. */
+		var callsNetwork = files.some(function (f) {
+			return /\bfetch\s*\(/.test(f.code);
+		});
 
 		/* A JAVASCRIPT-ONLY EXAMPLE HAS NO PAGE TO SHOW.
 		 *
@@ -844,6 +859,40 @@
 		var live = 0;
 		frames[0].classList.add('is-live');
 
+		/* WHAT SITS OVER THE PREVIEW WHEN THE PREVIEW IS OUT OF DATE.
+		 *
+		 * A pulsing Run button is enough of a signal once you know what it means,
+		 * and nothing at all if you do not. A student who edits a line and looks at
+		 * an unchanged page has to be told, in the place they are looking, that the
+		 * page they are looking at is the old one. */
+		var prompt = document.createElement('p');
+		prompt.className = 'wwr-prompt';
+		prompt.hidden = true;
+		/* A console-only example has its preview column hidden, so a message placed
+		 * over the preview is a message placed inside display: none — which is
+		 * exactly what happened the first time, on the twenty-seven examples that
+		 * need it most. Those get it under the toolbar instead, above the code. */
+		if (consoleOnly) host.appendChild(prompt);
+		else out.appendChild(prompt);
+
+		/* Rendered at all, which is not the same question as whether the student has
+		 * pressed anything: an HTML example renders itself on arrival, and the line
+		 * for an edit to something already on screen is "update", not "see". */
+		var rendered = false;
+
+		function showPrompt() {
+			prompt.textContent = rendered
+				? 'Press Run to update this.'
+				: callsNetwork
+					? 'Press Run to send the request.'
+					: 'Press Run to see your page.';
+			prompt.hidden = false;
+		}
+
+		function hidePrompt() {
+			prompt.hidden = true;
+		}
+
 		/* The console spans the FULL width beneath both columns, rather than sitting
 		 * in the right-hand column under the preview.
 		 *
@@ -995,7 +1044,6 @@
 		});
 
 		/* ---- running ---- */
-		var timer = null;
 		var firstRunDone = false;
 		var firstFetchDone = false;
 
@@ -1016,19 +1064,27 @@
 			return f.context && f.context[kind] ? f.context[kind] : '';
 		}
 
+		/* TYPING NEVER RUNS ANYTHING.
+		 *
+		 * This used to run the code four hundred milliseconds after the last
+		 * keystroke. On the HTML and CSS chapters that was a nice trick; on every
+		 * chapter from five onward it meant a fresh request for the whole game
+		 * catalog every time a student paused — and because the preview is an
+		 * opaque-origin frame it shares no HTTP cache, so not one of those was a
+		 * cheap revalidation. Editing one line of a fetch example could cost
+		 * thirty full downloads.
+		 *
+		 * So an edit only marks the Run button, and the student decides when the
+		 * request goes out. Which is also the honest version of what chapter 5 is
+		 * teaching: asking a server for something is an act, not a side effect of
+		 * typing. */
 		function schedule() {
-			if (!autorun) {
-				markDirty();
-				return;
-			}
-			clearTimeout(timer);
-			timer = setTimeout(function () {
-				run('auto');
-			}, DEBOUNCE_MS);
+			markDirty();
 		}
 
 		function markDirty() {
 			runBtn.classList.add('is-dirty');
+			showPrompt();
 		}
 
 		var lastDoc = null;
@@ -1047,8 +1103,9 @@
 		var syntaxProblem = null;
 
 		function run(how) {
-			clearTimeout(timer);
 			runBtn.classList.remove('is-dirty');
+			hidePrompt();
+			rendered = true;
 			var src = currentSources();
 			var doc = assembleDocument(src.html, src.css, src.js, HARNESS);
 
@@ -1097,10 +1154,16 @@
 
 			next.srcdoc = doc;
 
-			metric(how === 'manual' ? 'runs_manual' : 'runs_debounced', host);
-			if (!firstRunDone) {
-				firstRunDone = true;
-				metric('first_run', host);
+			/* Only a press counts. The render an example does when the page opens is
+			 * the page loading, not a student running anything, and counting it as
+			 * one made `first_run` a synonym for `view` — the funnel step called
+			 * "Ran their code" was measuring arrivals. */
+			if (how === 'manual') {
+				metric('runs_manual', host);
+				if (!firstRunDone) {
+					firstRunDone = true;
+					metric('first_run', host);
+				}
 			}
 		}
 
@@ -1263,6 +1326,12 @@
 
 		/* Public surface, used by the builder page for save/download/seeding. */
 		host.wwGet = currentSources;
+		/* Seeding the editor is not the student pressing Run.
+		 *
+		 * The builder calls this when an idea is picked, when a save is restored and
+		 * on undo. Running it there would put the code in front of them and send the
+		 * request in the same motion, which is the behavior this whole change exists
+		 * to remove. The new code arrives; the button says the rest. */
 		host.wwSet = function (next) {
 			files.forEach(function (f) {
 				if (next[f.name] != null) {
@@ -1270,13 +1339,16 @@
 					editors[f.name].refresh();
 				}
 			});
-			run('manual');
+			markDirty();
 		};
 		host.wwRun = function () {
 			run('manual');
 		};
 
-		run('auto');
+		/* An example that draws nothing but its own HTML and CSS renders on arrival,
+		 * because that costs a frame and no traffic. Everything else waits. */
+		if (callsNetwork) showPrompt();
+		else run('auto');
 	}
 
 	/* One icon per file kind, keyed off the extension.

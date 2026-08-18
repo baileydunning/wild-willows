@@ -350,6 +350,10 @@ describe('the assembled preview actually parses', () => {
 	const assembledScripts = (js: string): string[] => {
 		document.body.innerHTML = `<ww-runner console><script type="text/ww-file" name="main.js">${js}</script></ww-runner>`;
 		new Function(SRC)();
+		// An example that fetches does not render itself on arrival any more — it
+		// waits for a press — so press it. Assembling the document is what this
+		// block is testing; how it gets asked for is not.
+		(document.querySelector('.wwr-run') as HTMLButtonElement).click();
 		const blocks = [...renderedDoc().matchAll(/<script>\n([\s\S]*?)\n<\/script>/g)].map((m) => m[1]);
 		expect(blocks.length, 'the assembled document should contain script blocks').toBeGreaterThan(0);
 		return blocks;

@@ -101,8 +101,13 @@ const localGameData = () => {
 	return gameData;
 };
 
-/** The production URL the pages ship with, and what it becomes locally. */
-const API_ABSOLUTE = 'https://wildwillows.app/GameData/';
+/** The production URL the pages ship with, and what it becomes locally.
+ *
+ * Both spellings, and the longer one first: the pages settled on the version
+ * without a trailing slash, and a plain string replace that ran the short one
+ * first would leave the slash behind as a stray character in the middle of the
+ * rewritten URL. */
+const API_ABSOLUTE = ['https://wildwillows.app/GameData/', 'https://wildwillows.app/GameData'];
 
 const MIME = {
 	'.html': 'text/html; charset=utf-8',
@@ -136,7 +141,7 @@ const server = createServer((req, res) => {
 	 * The endpoint does not exist yet (it is the next phase), and a 404 in the
 	 * dev-tools console while you are debugging something else is pure noise —
 	 * worse, it looks like a symptom of whatever you are actually chasing. */
-	if (pathname === '/LessonEvent') {
+	if (pathname === '/LessonEvent' || pathname === '/LandingEvent') {
 		res.writeHead(204, { 'access-control-allow-origin': '*' });
 		res.end();
 		return;
@@ -158,9 +163,8 @@ const server = createServer((req, res) => {
 	const pageFile = PAGES[pathname] || PAGES[pathname + '.html'];
 	if (pageFile) {
 		try {
-			const html = expandIncludes(readFileSync(join(root, pageFile), 'utf8'), pageFile)
-				.split(API_ABSOLUTE)
-				.join('/GameData/');
+			let html = expandIncludes(readFileSync(join(root, pageFile), 'utf8'), pageFile);
+			for (const absolute of API_ABSOLUTE) html = html.split(absolute).join('/GameData');
 			res.writeHead(200, { 'content-type': MIME['.html'], 'cache-control': 'no-store' });
 			res.end(html);
 		} catch (err) {
@@ -200,7 +204,7 @@ server.listen(port, '127.0.0.1', () => {
 	console.log(`\n  Wild Willows — local page preview\n`);
 	for (const p of Object.keys(PAGES)) console.log(`    ${url}${p === '/' ? '' : p}`);
 	console.log(`\n  Files are read fresh on every request — edit public/, then just refresh.`);
-	console.log(`  /GameData/ is served locally from data/*.json, and ${API_ABSOLUTE}`);
+	console.log(`  /GameData is served locally from data/*.json, and ${API_ABSOLUTE[1]} is rewritten to it`);
 	console.log(`  is rewritten to it — so the code builder works before the CORS header deploys.`);
 	console.log(`  Ctrl+C to stop.\n`);
 	if (shouldOpen) {

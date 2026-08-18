@@ -47,6 +47,8 @@ const BRITISH: Array<[string, string]> = [
 	['optimisation', 'optimization'],
 	['customise', 'customize'],
 	['customisation', 'customization'],
+	['visualise', 'visualize'],
+	['visualisation', 'visualization'],
 	['serialise', 'serialize'],
 	['summarise', 'summarize'],
 	['apologise', 'apologize'],

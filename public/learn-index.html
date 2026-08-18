@@ -62,7 +62,7 @@
   <section class="door">
     <span class="door-kicker">Start here</span>
     <h2>The Lesson</h2>
-    <p class="door-sub">Ten chapters, from &ldquo;what is HTML&rdquo; to a working page full of live data. Every code sample is editable and runs as you type, so you cannot get to the end without having written something.</p>
+    <p class="door-sub">Ten chapters, from &ldquo;what is HTML&rdquo; to a working page full of live data. Every code sample is editable, and you press Run when you want to see what it does. You cannot get to the end without having written something.</p>
     <ul>
       <li>HTML, CSS and JavaScript, and what each one is for</li>
       <li>What an API is, and a real request you can watch happen</li>
@@ -76,7 +76,7 @@
   <section class="door">
     <span class="door-kicker">Or build something</span>
     <h2>The Code Builder</h2>
-    <p class="door-sub">Three files, a live preview and the same game data. Open it when you have an idea of your own, or when you finish the Lesson and want room to work.</p>
+    <p class="door-sub">Three files, a preview and the same game data. Open it when you have an idea of your own, or when you finish the Lesson and want room to work.</p>
     <ul>
       <li><code>index.html</code>, <code>styles.css</code> and <code>main.js</code>, side by side with the page they make</li>
       <li>Thirty project ideas if you need one</li>
@@ -100,9 +100,9 @@
 <section class="hsec">
   <h2>The data</h2>
   <p>One address, open to anyone, no key required. It answers with every animal, biome, resource, recipe and craftable object in the game.</p>
-  <div class="hcode">https://wildwillows.app/GameData/</div>
+  <div class="hcode">https://wildwillows.app/GameData</div>
   <p>Which means this is a whole program that shows you something real:</p>
-  <div class="hcode">const response = await fetch("https://wildwillows.app/GameData/");
+  <div class="hcode">const response = await fetch("https://wildwillows.app/GameData");
 const data = await response.json();
 
 console.log(data.animals[0].name);   // "Banana Slug"</div>

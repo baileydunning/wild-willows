@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Wild Willows Code Builder &mdash; write HTML, CSS and JavaScript in your browser</title>
-<meta name="description" content="A free browser code editor for students. Three files, a live preview, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
+<meta name="description" content="A free browser code editor for students. Three files, a preview you run when you are ready, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
 <link rel="canonical" href="https://wildwillows.app/learn/code-builder">
 <!-- The builder is a tool, not a document: there is nothing here for a search
      engine to rank, and an indexed code editor competes with the lesson that
@@ -46,6 +46,7 @@
     <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="hide-sm" href="/developers/api" target="_blank" rel="noopener" data-track="api-nav">API docs<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4.5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
     <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the Lesson</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -62,7 +63,7 @@
   <div class="lab-blocked-inner">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
     <h1>This one needs a bigger screen</h1>
-    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <p>The Code Builder puts three files and a preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
     <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
     <p class="lab-blocked-go">
       <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the Lesson instead</a>
@@ -153,7 +154,7 @@
       </script>
       <script type="text/ww-file" name="main.js">
         async function loadGameData() {
-          const response = await fetch("https://wildwillows.app/GameData/");
+          const response = await fetch("https://wildwillows.app/GameData");
           const data = await response.json();
 
           // TODO: put something from `data` on the page
@@ -165,7 +166,7 @@
     </ww-runner>
 
     <p class="lab-note">
-      The preview updates a moment after you stop typing. Press <b>Run</b> to update it straight away.
+      Nothing runs until you say so. Edit as much as you like, then press <b>Run</b> to see it.
     </p>
   </section>
 </main>

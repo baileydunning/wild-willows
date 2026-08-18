@@ -10,7 +10,25 @@
  * repoint of the same tokens in ww-dark.css.
  */
 
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder — content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
 body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
 	background: var(--paper);
 	color: var(--ink);
 	font-family: var(--f);
@@ -153,9 +171,13 @@ body.edu-hub {
 }
 
 /* Pushes the button to the bottom so two cards of different length still line
-   their calls to action up with each other. */
-.kit-go {
-	margin-top: auto;
+   their calls to action up with each other.
+   `.kit .kit-go` rather than `.kit-go`: this is a <p>, and `.kit p` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
 }
 
 .kit .btn {
@@ -164,6 +186,17 @@ body.edu-hub {
 }
 
 /* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections — "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
 
 .tsec {
 	margin-top: 3rem;

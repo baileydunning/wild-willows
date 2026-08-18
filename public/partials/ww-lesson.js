@@ -5,7 +5,7 @@
  *
  *   • the chapter rail: where you are, where you have been, and per-chapter
  *     dwell time bucketed for the dashboard
- *   • the API probe in chapter 3: a real request to /GameData/, reporting the
+ *   • the API probe in chapter 3: a real request to /GameData, reporting the
  *     status, the time and the size a student's own network actually produced
  *   • the JSON tree: collapsible, colored by type, shared by chapters 3 and 5
  *   • the path explorer in chapter 5: type a path, see which part of the tree
@@ -22,7 +22,7 @@
 	'use strict';
 
 	var CHAPTERS = 10;
-	var API_URL = 'https://wildwillows.app/GameData/';
+	var API_URL = 'https://wildwillows.app/GameData';
 	var DONE_KEY = 'wwLessonDone'; // chapters seen, for the rail's ticks
 	var CHAL_KEY = 'wwLessonChallenges'; // which of chapter 9's five are ticked
 
@@ -74,11 +74,36 @@
 			var band = dwellBand(dwell[c] || 0);
 			if (band) bump('dwell_chapter-' + c + '_' + band);
 		}
+
+		/* HOW LONG THE WHOLE VISIT WAS, which the per-chapter bands cannot answer.
+		 * Summing them would count only the time a chapter was the current one and
+		 * would miss every session that never settled on one; and the question a
+		 * teacher actually asks is about the period, not about chapter 7. */
+		var whole = sessionBand(totalMs);
+		if (whole) bump('dwell_lesson_' + whole);
 	}
 
 	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioral
 	 *  trace of one reader; a band answers "is chapter 7 too long" just as well and
 	 *  describes nobody. Under ten seconds is scrolling past, not reading. */
+	/* Bands for a whole visit, cut where the answers differ: under two minutes is
+	 * a look rather than a lesson, an hour is a full period, and the two in
+	 * between are the difference between one sitting and most of a class. Under
+	 * five seconds is a prefetch, a bot or a mis-click, and says nothing.
+	 *
+	 * Bucketed for the same reason every other duration here is (see PRIVACY.md):
+	 * a precise session length is a trace of one reader, and a band answers "does
+	 * this fit in a period" just as well while describing nobody. */
+	function sessionBand(ms) {
+		if (ms < 5000) return null;
+		var m = ms / 60000;
+		if (m < 2) return 'lt2m';
+		if (m < 10) return '2to10m';
+		if (m < 30) return '10to30m';
+		if (m < 60) return '30to60m';
+		return 'gt60m';
+	}
+
 	function dwellBand(ms) {
 		if (ms < 10000) return null;
 		var m = ms / 60000;
@@ -123,8 +148,19 @@
 	});
 
 	document.addEventListener('visibilitychange', function () {
-		tickDwell();
-		if (document.visibilityState === 'hidden') flush(false);
+		if (document.visibilityState === 'hidden') {
+			tickDwell(); // bank what was earned up to this moment…
+			visible = false; // …and then stop the clock
+			flush(false);
+			return;
+		}
+		/* Back on screen. Restart from now, or the next tick would quietly count
+		 * the whole time the tab spent in the background — the exact thing the
+		 * gates above exist to prevent. Switching back is itself an interaction. */
+		visible = true;
+		lastInput = Date.now();
+		if (since) since = Date.now();
+		totalSince = Date.now();
 	});
 	window.addEventListener('pagehide', function () {
 		flush(true);
@@ -161,14 +197,57 @@
 
 	/* ------------------------------------------- the rail, and chapter dwell */
 
-	var dwell = {}; // chapter number -> milliseconds visible
+	var dwell = {}; // chapter number -> milliseconds actually spent
+	var totalMs = 0; // the whole session, same clock
 	var currentCh = 0;
 	var since = 0;
+	var totalSince = Date.now();
+
+	/* TIME IS ONLY COUNTED WHILE SOMEBODY IS ACTUALLY HERE.
+	 *
+	 * Wall-clock is the wrong measure and it was the one being used. The old
+	 * version added `now - since` on every tick with nothing to stop it, so a tab
+	 * left open on chapter 7 over a weekend reported chapter 7 as gt10m — the
+	 * lesson's longest chapter, made to look longer by a browser nobody was
+	 * looking at. Two gates fix it:
+	 *
+	 *   VISIBLE. A background tab counts for nothing. Note that the flag is kept
+	 *   here rather than read at tick time: the handler has to bank the time up
+	 *   to the moment of hiding, and by then visibilityState already says hidden.
+	 *
+	 *   RECENT. Five minutes past the last scroll, key or tap the clock stops,
+	 *   and starts again on the next one. Long enough to read a chapter without
+	 *   touching anything, short enough that a class that walked out at the bell
+	 *   does not read as an hour of study.
+	 *
+	 * Both gates only ever REMOVE time, so every number this produces is a floor.
+	 * That is the right direction for a figure a teacher plans a period against. */
+	var IDLE_MS = 300000;
+	var visible = document.visibilityState !== 'hidden';
+	var lastInput = Date.now();
+
+	['pointerdown', 'keydown', 'wheel', 'touchstart', 'scroll'].forEach(function (ev) {
+		window.addEventListener(
+			ev,
+			function () {
+				lastInput = Date.now();
+			},
+			{ passive: true, capture: true },
+		);
+	});
+
+	/** Milliseconds between `from` and now that anybody was present for. */
+	function countable(from, now) {
+		if (!visible || !from) return 0;
+		return Math.max(0, Math.min(now, lastInput + IDLE_MS) - from);
+	}
 
 	function tickDwell() {
-		if (!currentCh || !since) return;
 		var now = Date.now();
-		dwell[currentCh] = (dwell[currentCh] || 0) + (now - since);
+		totalMs += countable(totalSince, now);
+		totalSince = now;
+		if (!currentCh || !since) return;
+		dwell[currentCh] = (dwell[currentCh] || 0) + countable(since, now);
 		since = now;
 	}
 
@@ -618,6 +697,7 @@
 		'builder-nav': 'nav_builder',
 		'hub-nav': 'nav_hub',
 		'game-nav': 'nav_game',
+		'api-nav': 'nav_api',
 	};
 
 	function initNav() {
@@ -795,6 +875,15 @@
 		describe: describe,
 		typeOf: typeOf,
 		dwellBand: dwellBand,
+		sessionBand: sessionBand,
+		/* The clock, exposed so its two gates can be tested rather than argued
+		 * about. `countable` is the whole rule: what it refuses to count is the
+		 * difference between "time in the lesson" and "a tab that was open". */
+		countable: countable,
+		setPresence: function (isVisible, lastInputAt) {
+			visible = isVisible;
+			lastInput = lastInputAt;
+		},
 		literal: literal,
 	};
 })();

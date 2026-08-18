@@ -1,0 +1,2025 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Open Game Data: a free public API of 150 real species</title>
+<meta name="description" content="One public endpoint, no key and no sign-up: 150 real animals with diet, shelter, food-web links and habitat requirements, six biomes, and everything the game itself is built from. JavaScript, Python and curl examples, and a free lesson that teaches you to use it.">
+<link rel="canonical" href="https://wildwillows.app/developers/api">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="free public API, open game data, JSON API no key, ecology dataset, species API, food web data, API for students, learn fetch API, public dataset for teaching, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows Open Game Data: a free public API of 150 real species">
+<meta property="og:description" content="One endpoint, no key. 150 real animals with diet, shelter, food-web links and habitat requirements. JavaScript, Python and curl examples.">
+<meta property="og:url" content="https://wildwillows.app/developers/api">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows Open Game Data">
+<meta name="twitter:description" content="A free public API of 150 real species, their diets, their food web and what each one needs to come home. No key, no sign-up.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "WebAPI",
+      "name": "Wild Willows Open Game Data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "A single public JSON endpoint serving every definition the game Wild Willows is built from: 150 real animal species with diet, shelter, preferred habitat, food-web links and the habitat requirements that decide when each one returns, plus six biomes, 385 habitat items, 355 recipes and 38 gatherable resources.",
+      "documentation": "https://wildwillows.app/developers/api",
+      "termsOfService": "https://wildwillows.app/developers/api#terms",
+      "provider": { "@type": "Person", "name": "Bailey Dunning" },
+      "isAccessibleForFree": true,
+      "license": "https://wildwillows.app/developers/api#terms",
+      "potentialAction": {
+        "@type": "ConsumeAction",
+        "target": { "@type": "EntryPoint", "urlTemplate": "https://wildwillows.app/GameData/", "httpMethod": "GET", "contentType": "application/json" }
+      }
+    },
+    {
+      "@type": "Dataset",
+      "name": "Wild Willows species and habitat data",
+      "url": "https://wildwillows.app/developers/api",
+      "description": "150 real animal species across six North American habitat types, each with a scientific name, diet, shelter, preferred habitat, trophic role, rarity, cited sources, what it eats, what eats it, and the habitat conditions required for it to return to a restored landscape.",
+      "keywords": ["ecology", "species", "food web", "habitat", "biodiversity", "restoration", "open data"],
+      "isAccessibleForFree": true,
+      "creator": { "@type": "Person", "name": "Bailey Dunning" },
+      "distribution": {
+        "@type": "DataDownload",
+        "encodingFormat": "application/json",
+        "contentUrl": "https://wildwillows.app/GameData/"
+      }
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "Open Game Data", "item": "https://wildwillows.app/developers/api" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a reader who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows — light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation — which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists — see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes — sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() — the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows — the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block — if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white — barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar — it just looks broken. Two defenses:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768–834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about — 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows — the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder — content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other.
+   `.kit .kit-go` rather than `.kit-go`: this is a <p>, and `.kit p` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections — "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}
+
+/* Wild Willows — the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+/* Every column but the first is supporting text. Written as "not the first"
+   rather than as a list of column numbers: the science guide's arrival ladder
+   uses the same table with five columns, and a numbered list silently stopped
+   coloring the last two. */
+.trouble td:not(:first-child) {
+	color: var(--ink-soft);
+}
+
+/* Percentages line up under each other, and never wrap mid-number. */
+.trouble .num {
+	font-variant-numeric: tabular-nums;
+	white-space: nowrap;
+}
+
+/* A short label that reads as broken when it wraps: "Insect-" over "eater" in a
+   column that had the room. Applied per cell rather than per column, because
+   the two tables using this style do not have it in the same place. */
+.trouble .tight {
+	white-space: nowrap;
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* -------------------------------------------------- the specification list
+ *
+ * The block a teacher forwards to whoever approves software. A definition list
+ * rather than a table because every row is one term and one answer, and because
+ * it collapses to stacked pairs on a phone without a horizontal scroller. */
+.spec {
+	margin: 1rem 0 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.spec > div {
+	display: grid;
+	grid-template-columns: 10rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.65rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.spec dt {
+	font-weight: 700;
+	color: var(--green-deep);
+	font-size: 0.94rem;
+	line-height: 1.5;
+}
+
+[data-theme='dark'] .spec dt {
+	color: var(--green-bright);
+}
+
+.spec dd {
+	margin: 0;
+	color: var(--ink-soft);
+	font-size: 0.94rem;
+	line-height: 1.6;
+}
+
+@media (max-width: 560px) {
+	.spec > div {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+/* ------------------------------------------------------------------ figures
+ *
+ * One screenshot with a caption under it. No lightbox: this page is read on a
+ * prep period and printed, and a gallery is a thing to operate rather than a
+ * thing to read. */
+.gfig {
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.gfig img {
+	display: block;
+	width: 100%;
+	height: auto;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	background: var(--panel);
+}
+
+.gfig figcaption {
+	margin: 0.5rem 0 0;
+	font-size: 0.88rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+}
+
+.gfig figcaption b {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol,
+	.gfig,
+	.spec > div {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}
+
+/* A plain list inside a docs section. The page's other lists live inside a .cut
+   card and borrow its type; this one stands on its own, so it says so rather
+   than inheriting the browser's default 16px and 1.15 leading next to prose set
+   at 0.95/1.65. */
+.tsec ul.tlist {
+	margin: 0.2rem 0 0.9rem;
+	padding-left: 1.15rem;
+	line-height: 1.65;
+	max-width: 46rem;
+}
+
+.tsec ul.tlist li {
+	margin-bottom: 0.45rem;
+}
+
+/* Wild Willows — the bits of the classroom pages that only a keyboard or a
+ * screen reader ever meets.
+ *
+ * Its own partial because the pages that need it do not otherwise share a
+ * stylesheet: the lesson has ww-lesson.css, the builder has ww-builder.css, the
+ * hubs and the teacher guides have ww-teachers.css. One definition included six
+ * times beats four copies that drift.
+ *
+ * site-core.css would be the natural home and is not available: it is byte-locked
+ * to the landing page's own <style> block (tests/unit/site-css.test.ts), so a
+ * rule added there has to be hand-copied into three other pages to keep the lock.
+ */
+
+/* ------------------------------------------------------------- the skip link
+ *
+ * MEASURED, NOT GUESSED. On the Code Builder it was 38 tab stops from the top of
+ * the document to the code editor — the whole nav, the toolbar, six checkpoints
+ * with two controls each, the help panel and its copy buttons — before reaching
+ * the one thing the page exists for. The lesson is worse: it has 42 editors, and
+ * the rail in front of them.
+ *
+ * Off-screen rather than `display: none`, because a link that is not rendered is
+ * not focusable, and a skip link that cannot be focused is decoration. */
+.skip-link {
+	position: absolute;
+	left: -9999px;
+	top: 0;
+	z-index: 200;
+	padding: 0.55rem 1rem;
+	border-radius: 0 0 10px 0;
+	background: var(--green-deep, #39604a);
+	color: #fff;
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-weight: 700;
+	font-size: 0.9rem;
+	text-decoration: none;
+}
+
+.skip-link:focus {
+	left: 0;
+}
+
+.skip-link:focus-visible {
+	outline: 2px solid var(--paper, #f4eeda);
+	outline-offset: -4px;
+}
+
+/* The target of a skip link is not naturally focusable, so it is given
+   tabindex="-1" — which some browsers then draw a focus ring around, on a whole
+   page region. The ring belongs on the link, not on the destination. */
+[tabindex='-1']:focus {
+	outline: none;
+}
+
+/* ------------------------------------------------------- the standard recipe
+ *
+ * Readable to assistive technology, invisible to everyone else. Not
+ * `display: none`, which takes it out of the accessibility tree as well. */
+.sr-only {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+/* Wild Willows — dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' — ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED — the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral grays, color left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band — sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 — muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 — small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text · 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 — the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted gray. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night — depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab`,
+   `body.edu-hub` and `.wwr` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above — so without this the light grays would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] body.edu-hub,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 — below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid color ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+/* --green-deep is a DAYLIGHT green. On the dark --sprout tint it measures 4.33,
+   which is under AA for the chip's 13px bold and for the reassurance heading —
+   both of which sit on exactly that fill. --green-bright is the same hue family
+   aimed the other way and measures 7.22 on it. Same correction the runner's
+   sprout callouts already carry; the surface is what makes it necessary, so
+   anything drawn on --sprout in the dark belongs in this list. */
+[data-theme='dark'] .chip,
+[data-theme='dark'] .reassure h2 {
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute — so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+
+<a class="skip-link" href="#main">Skip to the docs</a>
+
+<body class="edu-hub guide">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="#start">Quick start</a>
+    <a class="hide-sm" href="#animal">The animal object</a>
+    <a class="hide-sm" href="#limits">Limits</a>
+    <a class="hide-sm" href="#corrections">Corrections</a>
+    <a class="hide-sm" href="#terms">Terms</a>
+    <a class="btn btn-go" href="/learn" data-track="learn-nav">Learn to use it</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="twrap" id="main" tabindex="-1">
+
+<header class="thero">
+  <p class="kicker">Open Game Data</p>
+  <h1>One endpoint, no key</h1>
+  <p class="lead">Everything Wild Willows is built from is served from a single public URL: 150 real species with their diets, their food web and what each one needs before it will come home, across six habitat types. It is the same data the game itself runs on.</p>
+  <div class="tmeta">
+    <span class="chip">No key, no sign-up</span>
+    <span class="chip">CORS enabled</span>
+    <span class="chip">150 species</span>
+    <span class="chip">6 biomes</span>
+    <span class="chip">JSON</span>
+    <span class="chip warm">Free to use</span>
+  </div>
+</header>
+
+<div class="reassure">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3.5 4.5 6.5v5.2c0 4.4 3.1 7.6 7.5 8.8 4.4-1.2 7.5-4.4 7.5-8.8V6.5z"/><path d="m9 12 2.2 2.2L15.5 10"/></svg>
+  <div>
+    <h2>There is nothing to sign up for</h2>
+    <p>No API key, no account and no dashboard to register in. One GET, from a browser or anywhere else, and you have the whole dataset. It sends <code>Access-Control-Allow-Origin: *</code>, so a page you are building can read it directly with no server of your own.</p>
+    <p>There is a rate limit: <b>600 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
+    <p>It exists because a classroom lesson needed a real API to teach against rather than a mock one. That turned out to be useful to more people than students, so it is documented rather than merely public.</p>
+  </div>
+</div>
+
+<section class="tsec" id="start">
+  <h2>Quick start</h2>
+  <p>One endpoint. There are no parameters, no pagination and no other routes: you take the whole thing and pick what you want out of it.</p>
+  <pre class="hcode">GET https://wildwillows.app/GameData/</pre>
+
+  <p class="answer-head">JavaScript &mdash; browser or Node</p>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+const data = await res.json();
+
+const meadow = data.animals.filter((a) =&gt; a.biome === "meadow");
+console.log(`${meadow.length} animals live in Willow Meadow`);
+console.log(meadow.slice(0, 3).map((a) =&gt; `${a.name} — ${a.diet}`).join("\n"));</pre>
+
+  <p class="answer-head">Python &mdash; standard library, nothing to install</p>
+  <pre class="hcode">import json, urllib.request
+
+with urllib.request.urlopen("https://wildwillows.app/GameData/") as r:
+    data = json.load(r)
+
+meadow = [a for a in data["animals"] if a["biome"] == "meadow"]
+print(f"{len(meadow)} animals live in Willow Meadow")
+for a in meadow[:3]:
+    print(f"{a['name']} — {a['diet']}")</pre>
+
+  <p class="answer-head">Both print</p>
+  <pre class="hcode">25 animals live in Willow Meadow
+Grasshopper — grasses, sedges and broadleaf forbs
+Prairie Vole — grasses, sedges, seeds and roots, plus bark in winter
+Monarch Butterfly — caterpillars eat only milkweed; adults sip flower nectar</pre>
+
+  <p class="answer-head">curl</p>
+  <pre class="hcode">curl -s https://wildwillows.app/GameData/ \
+  | jq -r '.animals[] | select(.biome == "meadow" and .trophic == "apex-predator") | .name'
+
+Red-tailed Hawk
+Coyote
+Barn Owl</pre>
+
+  <p class="note-line">Every snippet on this page was run against the live data before it was published, and the output under each one is what it actually printed. If one of them stops working, that is a bug and I would like to hear about it.</p>
+</section>
+
+<section class="tsec" id="response">
+  <h2>What comes back</h2>
+  <p>One JSON object. These are its keys, all of them arrays except the last two.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Key</th><th>Count</th><th>What it holds</th></tr></thead>
+      <tbody>
+        <tr><td><code>animals</code></td><td class="num">150</td><td>Every species, 25 per biome. The interesting one, and what the rest of this page is mostly about.</td></tr>
+        <tr><td><code>biomes</code></td><td class="num">6</td><td>The six habitat types, with their palettes, their grid size and what can be gathered in each.</td></tr>
+        <tr><td><code>habitatObjects</code></td><td class="num">385</td><td>Everything that can be planted or built, and what each one contributes to habitat.</td></tr>
+        <tr><td><code>recipes</code></td><td class="num">355</td><td>What each item is made from.</td></tr>
+        <tr><td><code>resources</code></td><td class="num">38</td><td>Gatherable materials, and which tool collects them.</td></tr>
+        <tr><td><code>achievements</code></td><td class="num">50</td><td>Named goals, their category and their requirement.</td></tr>
+        <tr><td><code>tools</code></td><td class="num">9</td><td>The tools and their upgrade tiers.</td></tr>
+        <tr><td><code>appearanceOptions</code></td><td class="num">&mdash;</td><td>An object of character-customization lists. Only interesting if you are building something that draws a caretaker.</td></tr>
+        <tr><td><code>nodeRegenSeconds</code></td><td class="num">&mdash;</td><td>A single number, a game-balance constant. Ignore it.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <p class="sub">Roughly half a megabyte of JSON, about a fifth of that over the wire once compressed. There is no thinner version: see <a href="#terms">using it kindly</a> for how to fetch it once rather than often.</p>
+</section>
+
+<section class="tsec" id="animal">
+  <h2>The animal object</h2>
+  <p>The one worth knowing. Every field below is on every one of the 150 records, and none of them are placeholders: the diets, the shelters and the food-web links were written from cited sources, which travel with the record.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td>Stable kebab-case identifier, <code>"red-fox"</code>. What <code>eats</code>, <code>eatenBy</code> and <code>requirements.animals</code> refer to.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Common name, <code>"Red Fox"</code>.</td></tr>
+        <tr><td><code>scientificName</code></td><td class="tight">string</td><td><code>"Vulpes vulpes"</code>.</td></tr>
+        <tr><td><code>biome</code></td><td class="tight">string</td><td>One of the six biome ids. Exactly 25 species per biome.</td></tr>
+        <tr><td><code>kind</code></td><td class="tight">string</td><td>Broad group: <code>mammal</code>, <code>bird</code>, <code>insect</code>, <code>invertebrate</code>, <code>reptile</code>, <code>amphibian</code>, <code>fish</code>.</td></tr>
+        <tr><td><code>trophic</code></td><td class="tight">string</td><td>Role in the food web. Nine values, listed below.</td></tr>
+        <tr><td><code>rarity</code></td><td class="tight">string</td><td><code>common</code> (69), <code>uncommon</code> (41) or <code>rare</code> (40).</td></tr>
+        <tr><td><code>diet</code></td><td class="tight">string</td><td>A sentence, not a tag list. <code>"grasses, sedges and broadleaf forbs"</code>.</td></tr>
+        <tr><td><code>shelter</code></td><td class="tight">string</td><td>Where it nests, dens or hides, in a sentence.</td></tr>
+        <tr><td><code>preferredHabitat</code></td><td class="tight">string</td><td>The conditions it wants, in a sentence.</td></tr>
+        <tr><td><code>fact</code></td><td class="tight">string</td><td>One true, checkable thing about the species. Good for a card, a quiz or a fact-of-the-day.</td></tr>
+        <tr><td><code>role</code></td><td class="tight">string</td><td>A paragraph on what it does in its ecosystem and who depends on it.</td></tr>
+        <tr><td><code>eats</code></td><td class="tight">string[]</td><td>Ids of other animals in the dataset. Empty for a herbivore.</td></tr>
+        <tr><td><code>eatsOther</code></td><td class="tight">string[]</td><td>Food that is not an animal in the dataset: <code>["grasses", "leaves and forbs", "sedges"]</code>.</td></tr>
+        <tr><td><code>eatenBy</code></td><td class="tight">string[]</td><td>Ids of its predators. Empty for an apex predator, which is a useful thing to check for.</td></tr>
+        <tr><td><code>sources</code></td><td class="tight">object[]</td><td><code>{ name, url }</code> references for the claims above. Real citations, mostly to Animal Diversity Web and state wildlife agencies.</td></tr>
+        <tr><td><code>requirements</code></td><td class="tight">object</td><td>What has to be true before this species returns. Its own section below.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Trophic roles</h3>
+  <div class="vocab">
+    <div class="vrow"><b>herbivore</b><span>Eats plants. 46 species, the widest group.</span></div>
+    <div class="vrow"><b>insectivore</b><span>Eats insects. 29.</span></div>
+    <div class="vrow"><b>mesopredator</b><span>A hunter that is also hunted. 23.</span></div>
+    <div class="vrow"><b>omnivore</b><span>Eats both. 18.</span></div>
+    <div class="vrow"><b>apex-predator</b><span>Nothing in the dataset eats it. 17, and <code>eatenBy</code> is empty for all of them.</span></div>
+    <div class="vrow"><b>detritivore</b><span>Eats dead and rotting material. 10.</span></div>
+    <div class="vrow"><b>filter-feeder</b><span>Strains food from water. 4.</span></div>
+    <div class="vrow"><b>scavenger</b><span>Eats what it did not kill. 2.</span></div>
+    <div class="vrow"><b>decomposer</b><span>Breaks matter back down. 1.</span></div>
+  </div>
+</section>
+
+<section class="tsec" id="requirements">
+  <h2>Requirements, and why they are the interesting part</h2>
+  <p>Most species datasets tell you what an animal is. This one also encodes what a place has to become before that animal will live in it, because the game had to decide when each one comes back. That turns the dataset into something you can compute an <em>order</em> from.</p>
+  <pre class="hcode">"requirements": {
+  "minHealth": 65,
+  "minBalance": 40,
+  "objects": { "earthen-fox-den": 1, "native-grass-patch": 2, "brush-pile": 1, "oak-tree": 1 },
+  "signature": "earthen-fox-den",
+  "water": { "tiles": 1 },
+  "animals": ["cottontail-rabbit", "prairie-vole"],
+  "hint": "This one comes back once the small animals do — and she needs an old burrow she can widen into a nursery."
+}</pre>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>minHealth</code></td><td class="tight">number</td><td>Percentage of habitat recovery the biome needs first. 8 for the first arrival, 80 for the last.</td></tr>
+        <tr><td><code>minBalance</code></td><td class="tight">number</td><td>How evenly spread that recovery has to be. Optional.</td></tr>
+        <tr><td><code>objects</code></td><td class="tight">object</td><td>Habitat item id to how many are needed. The ids are in <code>habitatObjects</code>.</td></tr>
+        <tr><td><code>signature</code></td><td class="tight">string</td><td>The one item most identified with this species, if it has one.</td></tr>
+        <tr><td><code>water</code></td><td class="tight">object</td><td><code>{ tiles: n }</code> when it needs open water. Absent when it does not.</td></tr>
+        <tr><td><code>animals</code></td><td class="tight">string[]</td><td><b>The good one.</b> Other species that must already be present. This is what makes predators arrive last.</td></tr>
+        <tr><td><code>hint</code></td><td class="tight">string</td><td>A written clue, in plain language, for a player working out what is missing.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="biome">
+  <h2>The biome object</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Field</th><th>Type</th><th>What it is</th></tr></thead>
+      <tbody>
+        <tr><td><code>id</code></td><td class="tight">string</td><td><code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code>, <code>coastal</code>.</td></tr>
+        <tr><td><code>name</code></td><td class="tight">string</td><td>Willow Meadow, Old Hollow Forest, Rushwater Wetland, Redstone Scrubland, Graywind Heights, Pelican Shore.</td></tr>
+        <tr><td><code>order</code></td><td class="tight">number</td><td>The order they are restored in, 1 to 6.</td></tr>
+        <tr><td><code>description</code></td><td class="tight">string</td><td>What the place is, and what happened to it.</td></tr>
+        <tr><td><code>restorationGoal</code></td><td class="tight">string</td><td>What a player is being asked to do there.</td></tr>
+        <tr><td><code>palette</code></td><td class="tight">object</td><td><code>{ damaged, healthy }</code>, two hex colors. Useful if you are drawing anything.</td></tr>
+        <tr><td><code>grid</code></td><td class="tight">object</td><td><code>{ cols, rows }</code> &mdash; the meadow is 44 &times; 26.</td></tr>
+        <tr><td><code>resources</code></td><td class="tight">string[]</td><td>What can be gathered on the surface there.</td></tr>
+        <tr><td><code>digResources</code></td><td class="tight">string[]</td><td>What digging turns up. Repeats are weightings, not mistakes.</td></tr>
+        <tr><td><code>unlock</code></td><td class="tight">object</td><td>What opens this biome. <code>null</code> for the meadow, which is where everyone starts.</td></tr>
+        <tr><td><code>explorable</code></td><td class="tight">boolean</td><td>Whether it is a place you can go.</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="tsec" id="recipes">
+  <h2>Three things worth building</h2>
+  <p>Each of these runs as written, and the output under it is what it printed.</p>
+
+  <h3>1. The arrival ladder</h3>
+  <p>Sort a biome by <code>minHealth</code> and you get the order life comes back in. Read <code>requirements.animals</code> alongside it and you can see why the hunters are at the bottom of the list.</p>
+  <pre class="hcode">const data = await (await fetch("https://wildwillows.app/GameData/")).json();
+
+const ladder = data.animals
+  .filter((a) =&gt; a.biome === "meadow")
+  .sort((a, b) =&gt; a.requirements.minHealth - b.requirements.minHealth);
+
+const name = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a.name]));
+
+for (const a of ladder.slice(0, 8)) {
+  const waiting = (a.requirements.animals || []).map((id) =&gt; name[id]).join(", ");
+  console.log(`${String(a.requirements.minHealth).padStart(3)}%  ${a.name}${waiting ? "  (needs " + waiting + ")" : ""}`);
+}</pre>
+  <pre class="hcode">  8%  Grasshopper
+  9%  Pillbug
+ 10%  Prairie Vole
+ 10%  Snail
+ 12%  Ladybug
+ 14%  Ground Squirrel  (needs Grasshopper)
+ 15%  Monarch Butterfly
+ 16%  Song Sparrow  (needs Grasshopper)</pre>
+
+  <h3>2. A census of the food web</h3>
+  <pre class="hcode">import requests
+from collections import Counter
+
+data = requests.get("https://wildwillows.app/GameData/", timeout=30).json()
+
+counts = Counter(a["trophic"] for a in data["animals"])
+for role, n in counts.most_common():
+    print(f"{role:16} {n}")</pre>
+  <pre class="hcode">herbivore        46
+insectivore      29
+mesopredator     23
+omnivore         18
+apex-predator    17
+detritivore      10
+filter-feeder    4
+scavenger        2
+decomposer       1</pre>
+
+  <h3>3. Who eats whom</h3>
+  <p><code>eats</code> and <code>eatenBy</code> hold ids rather than names, so build the lookup once and the whole web is walkable. An empty <code>eatenBy</code> means you have reached the top.</p>
+  <pre class="hcode">const byId = Object.fromEntries(data.animals.map((a) =&gt; [a.id, a]));
+const names = (ids) =&gt; ids.map((id) =&gt; byId[id].name).join(", ");
+
+const fox = byId["red-fox"];
+console.log(`${fox.name} eats ${names(fox.eats)}`);
+console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`);</pre>
+  <p class="sub">Every id in <code>eats</code> and <code>eatenBy</code> resolves to a record in the same response, so the graph is closed and you never have to handle a dangling reference.</p>
+</section>
+
+<section class="tsec" id="caching">
+  <h2>Caching, compression and what a client sees</h2>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Header</th><th>Value</th><th>What it means for you</th></tr></thead>
+      <tbody>
+        <tr><td><code>access-control-allow-origin</code></td><td class="tight"><code>*</code></td><td>Read it straight from a browser. A plain <code>fetch(url)</code> with no custom headers is never preflighted, so there is nothing else to configure.</td></tr>
+        <tr><td><code>cache-control</code></td><td class="tight"><code>public, max-age=0,<br>must-revalidate,<br>s-maxage=86400</code></td><td>Two answers in one header. Your browser holds a copy but checks it on every load, so a new build shows up immediately. A shared cache may serve it for a day, which is why most repeats are answered at the edge and never reach the origin at all.</td></tr>
+        <tr><td><code>etag</code></td><td class="tight">build stamp</td><td>Send it back as <code>If-None-Match</code> and an unchanged catalog answers with a 304 and an empty body instead of half a megabyte. Cheap, not free: it is still a request and a round trip, so it is a fallback for code that has to check, not a substitute for keeping the result.</td></tr>
+        <tr><td><code>content-encoding</code></td><td class="tight">br / gzip</td><td>Negotiated from your <code>Accept-Encoding</code>. Every HTTP client you are likely to use asks for this by default.</td></tr>
+        <tr><td><code>vary</code></td><td class="tight"><code>Accept-Encoding</code></td><td>So a shared cache does not hand a gzip body to a client that cannot read it.</td></tr>
+        <tr><td><code>retry-after</code></td><td class="tight"><code>60</code></td><td>Only on a <code>429</code>. Wait that long and you come back to a full budget rather than to another refusal.</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <h3>Where a repeat actually ends up</h3>
+  <p>This host sits behind a CDN, and the catalog is one file that only changes when a build ships, so the edge is allowed to keep it for a day and a deploy purges it. Most repeat requests are therefore answered near you and never reach the database at all, which is the arrangement that lets the limits below be generous.</p>
+  <p class="sub">Worth knowing if you are measuring: a <code>304</code> saves you the half megabyte, but something still has to compare your <code>etag</code> against the current one. That is a request, wherever it lands. Keeping the result in a variable is the only thing that costs nothing.</p>
+  <p class="note-line">Only <code>GET</code> and <code>HEAD</code>. There are no request parameters and no write operations, which keeps the public attack surface intentionally small.</p>
+</section>
+
+<section class="tsec" id="limits">
+  <h2>Rate limits</h2>
+  <p>One limit, on one endpoint, and it is sized so that you have to be doing something strange to meet it.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Limit</th><th>Value</th><th>Why that number</th></tr></thead>
+      <tbody>
+        <tr><td>Per address, sustained</td><td class="num">600 / min</td><td>Ten a second, from one IP, for a file that changes when the game ships a build.</td></tr>
+        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
+        <tr><td>Refill</td><td class="num">10 / s</td><td>Continuous, not a reset on the minute. Ten seconds of quiet buys you a hundred requests back.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Where those numbers come from</h3>
+  <p>Not from a guess. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every re-run is a fresh full request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
+  <p>So the arithmetic is thirty students behind one school NAT, each averaging twenty runs a minute while they work: 600 a minute from a single address, all of it people doing exactly what the lesson asked. That is the sustained rate. The burst is a class pressing Run at the same moment, twice over.</p>
+  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. Sending the <code>etag</code> back makes a repeat cheap rather than free: half a megabyte becomes a few hundred bytes, but it is still a request, and the limit counts requests.</p>
+
+  <h3>What a refusal looks like</h3>
+  <p>A <code>429</code> with the CORS header on it, so it reaches your <code>catch</code> as a real status rather than as an opaque network failure, and a plain-language body you can show a user.</p>
+  <pre class="hcode">HTTP/1.1 429 Too Many Requests
+access-control-allow-origin: *
+retry-after: 60
+cache-control: no-store
+
+Too many requests for the game catalog. It changes only when the game
+ships a build, so fetch it once and keep it. Wait a minute and try again.</pre>
+  <pre class="hcode">const res = await fetch("https://wildwillows.app/GameData/");
+if (res.status === 429) {
+  const wait = Number(res.headers.get("retry-after") || 60);
+  console.log(`Rate limited. Try again in ${wait}s.`);
+} else {
+  const data = await res.json();
+}</pre>
+  <p class="note-line">Nothing else here is limited, because nothing else here exists: one endpoint, no auth, no writes. If you need a higher ceiling for something real, <a href="mailto:wildwillowsgame@gmail.com">write to me</a> &mdash; it is a number in a config file and I would rather raise it than have you work around it.</p>
+</section>
+
+<section class="tsec" id="stability">
+  <h2>What can change, and what will not</h2>
+  <p>This is a game's internal catalog that has been made public, and being honest about that is more useful than promising an API contract I would then have to keep.</p>
+  <div class="cuts">
+    <div class="cut keep">
+      <b>Safe to build on</b>
+      <ul>
+        <li>The URL. It is hardcoded into every copy of the game that has already shipped, so it cannot move.</li>
+        <li>Species <code>id</code>s. They are the keys the save files use.</li>
+        <li>The fields in the tables above. A test in this repo fails the build if one of them is renamed, and it names this page when it does.</li>
+        <li>The six biome ids, and 25 species in each.</li>
+      </ul>
+    </div>
+    <div class="cut skip">
+      <b>May change without warning</b>
+      <ul>
+        <li>Species being added. Treat 150 as a floor rather than a constant.</li>
+        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
+        <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
+        <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
+      </ul>
+    </div>
+  </div>
+  <p class="sub">If you build something that depends on this and you tell me what you are depending on, I will treat it as load-bearing. That is a better offer than a version number I might not honor. If what you have found is not a change but a mistake, <a href="#corrections">ask me to fix it</a>.</p>
+</section>
+
+<section class="tsec" id="corrections">
+  <h2>Something in the data is wrong. Now what?</h2>
+  <p>Ask me to change it, and I will. The catalog is one file compiled from cited sources, so a correction is an edit to the source data rather than a note appended to a page: once it goes out, every copy of the game and everyone reading this endpoint gets the fixed version.</p>
+
+  <p><b>Email <a href="mailto:wildwillowsgame@gmail.com?subject=Wild%20Willows%20data">wildwillowsgame@gmail.com</a></b> with as much of this as you have. None of it is required, but each part is one fewer thing I have to work out:</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Tell me</th><th>Example</th><th>Why</th></tr></thead>
+      <tbody>
+        <tr><td>The <code>id</code></td><td class="tight"><code>red-fox</code></td><td>Names repeat across regions and ids do not. It is the first field on every record.</td></tr>
+        <tr><td>The field</td><td class="tight"><code>diet</code>, <code>eats</code>, <code>fact</code></td><td>Says whether this is a wording fix, a food-web link, or a number.</td></tr>
+        <tr><td>What it should say</td><td class="tight">&ldquo;also takes insects and fruit&rdquo;</td><td>A proposed correction moves faster than a report that something is off.</td></tr>
+        <tr><td>Where that comes from</td><td class="tight">a link, a paper, a field guide</td><td>Every record carries its own <code>sources</code>, and a correction has to be able to join them.</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>What happens next</h3>
+  <p>I check the claim against the record&rsquo;s existing <code>sources</code> and against yours. If they disagree I will tell you which one I went with and why. A fix lands in the data file, the tests that guard the shape of every record have to pass, and it ships with the next build &mdash; at which point the <code>etag</code> changes, the edge copy is purged, and your next request gets the new catalog without you doing anything.</p>
+  <p>Some things I will push back on, and it is fairer to say so here than in a reply. This is a game catalog: diets are simplified to what a ten-year-old can act on, one species eats a handful of others rather than forty, and the <code>requirements</code> are a designer&rsquo;s model of succession rather than a published one. A correction that makes a record more accurate and still playable gets in. One that makes it more accurate and unplayable probably does not, and I will say which of the two I think it is.</p>
+
+  <h3>Other kinds of request</h3>
+  <ul class="tlist">
+    <li><b>A species is missing.</b> Send it with a source and a biome. The six biomes hold 25 each and that count is fixed, so an addition is usually a swap; tell me what you think it should replace and why.</li>
+    <li><b>A field you wish existed.</b> Say what you would do with it. Fields that carry a real use get added far more easily than fields that would be nice to have.</li>
+    <li><b>You are depending on something.</b> Not a correction, but the most useful mail I get. Tell me which fields your project reads and I will treat them as load-bearing rather than finding out by breaking you.</li>
+  </ul>
+  <p class="sub">One person reads this inbox, so there is no ticket number and no service-level promise. There is a reply, and data corrections go to the front of the queue &mdash; a wrong fact that a class reads is worse than a bug in the game.</p>
+</section>
+
+<section class="tsec" id="terms">
+  <h2>Using it, and using it kindly</h2>
+  <p><b>Use it for whatever you like</b> &mdash; a class project, a visualisation, a bot, a game of your own, a paper. No permission needed and no attribution required, though a link back is appreciated and I would genuinely like to see what you make.</p>
+  <p><b>Fetch it once, not in a loop.</b> The whole catalog arrives in one response and does not change between deploys, so there is never a reason to request it more than once per session. If you are serving it on to other people, cache it and honor the <code>etag</code>. The <a href="#limits">rate limit</a> is set well above that, and nothing bad happens to you for sitting comfortably under it.</p>
+  <p><b>The species facts are cited, not invented.</b> Each record carries its <code>sources</code>. If you find something wrong, tell me and I will fix the data rather than the page &mdash; several corrections have come in that way already.</p>
+  <p class="sub">Not suitable as a scientific reference. It is a carefully-sourced game catalog: real species with real diets and real relationships, simplified enough to be played. The <code>requirements</code> are a game designer's model of succession, not a published one.</p>
+</section>
+
+<section class="tsec" id="learn">
+  <h2>If this is your first API</h2>
+  <p>There is a free ten-chapter lesson built on exactly this endpoint, with an editor that runs your code on a button press and explains errors in plain language. It was written for a high-school classroom and it works fine on your own.</p>
+  <div class="two-up">
+    <a class="tile" href="/learn/web-development" data-track="learn-nav">
+      <span class="tile-k">Start here</span>
+      <b>The Lesson</b>
+      <span>HTML, CSS and JavaScript, what an API is, a real request you can watch happen, and building a page from the response.</span>
+    </a>
+    <a class="tile" href="/learn/code-builder" data-track="learn-nav">
+      <span class="tile-k">Or build something</span>
+      <b>The Code Builder</b>
+      <span>Three files and a preview, thirty project ideas, and a download button. Your code stays in your browser.</span>
+    </a>
+  </div>
+  <p class="sub">Teaching with it? There is an <a href="/teachers/coding" data-track="edu-nav">educator guide</a> with a lesson plan, an answer key and a troubleshooting table.</p>
+</section>
+
+<div class="tcontact">
+  <h2>Built something?</h2>
+  <p>I would like to see it, and if you are depending on part of this I would rather know than find out by breaking it. Bug reports about the data itself are especially welcome &mdash; a wrong diet is a thing I can fix.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
+    <a class="btn btn-paper" href="/learn" data-track="learn-nav">The lesson</a>
+    <a class="btn btn-paper" href="/" data-track="play">The game</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  /* One counter, once per browser session, on the same contract as the rest of
+     the site (see PRIVACY.md): a name from a fixed list and a number. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'developers', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
+  var fresh = true;
+  var everFresh = false;
+  try {
+    fresh = !sessionStorage.getItem('ww_dev_seen');
+    sessionStorage.setItem('ww_dev_seen', '1');
+  } catch (e) {
+    /* a locked-down profile: counting it is the better failure */
+  }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_developers');
+    if (everFresh) localStorage.setItem('ww_ever_developers', '1');
+  } catch (e) {
+    /* storage refused — counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
+  if (fresh) {
+    var opening = { view_developers: 1 };
+    if (everFresh) opening.unique_developers = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
+  }
+
+  var NAV = { 'learn-nav': 'nav_learn', 'edu-nav': 'nav_hub', play: 'nav_game' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>

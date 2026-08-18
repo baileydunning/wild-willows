@@ -83,10 +83,13 @@
 <style>
 <!-- @include public/partials/site-core.css -->
 <!-- @include public/partials/ww-teachers.css -->
+<!-- @include public/partials/ww-a11y.css -->
 <!-- @include public/partials/ww-dark.css -->
 </style>
 </head>
 <body class="edu-hub">
+
+<a class="skip-link" href="#main">Skip to the kits</a>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
@@ -101,7 +104,7 @@
   </div>
 </div></nav>
 
-<div class="twrap">
+<main class="twrap" id="main" tabindex="-1">
 
 <header class="thero">
   <p class="kicker">For teachers</p>
@@ -213,7 +216,7 @@
   </div>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -235,16 +238,34 @@
     }
   }
 
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_edu_hub_seen');
     sessionStorage.setItem('ww_edu_hub_seen', '1');
   } catch (e) {
     /* Guest mode or a locked-down profile: counting it is the better failure. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_hub');
+    if (everFresh) localStorage.setItem('ww_ever_hub', '1');
+  } catch (e) {
+    /* storage refused — counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
   if (fresh) {
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_hub: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_hub: 1 }); }, 500);
+    var opening = { view_hub: 1 };
+    if (everFresh) opening.unique_hub = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   /* WHICH KIT THEY TOOK. The one number worth having about a hub. */

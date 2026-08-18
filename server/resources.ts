@@ -5993,15 +5993,45 @@ export class GameData extends PublicEndpoint {
 		const reqHeaders: any = (this.getContext?.() as any)?.headers;
 		if (!reqHeaders || typeof reqHeaders.get !== 'function') return obj;
 
-		// `no-cache` means "cache it, but revalidate every time" — NOT "don't cache".
-		// The catalog changes on deploy (new hats, hairstyles, skin tones), and the
-		// old value here — `public, max-age=300, stale-while-revalidate=604800` —
-		// meant a browser served the OLD catalog from cache for 5 minutes without
-		// asking, then served it stale for up to 7 more days while revalidating in
-		// the background. A deploy could take a week to show up in a browser, which
-		// looked exactly like "the new options didn't ship". Revalidation is cheap:
-		// the etag below is the build stamp, so an unchanged catalog costs a 304.
-		const cacheControl = 'no-cache';
+		/* TWO AUDIENCES, TWO ANSWERS, IN ONE HEADER.
+		 *
+		 * `max-age=0, must-revalidate` is for the BROWSER: the copy it holds is
+		 * stale the instant it lands, so it asks every time and the etag below turns
+		 * that into a 304. That is deliberate. The catalog changes on deploy (new
+		 * hats, hairstyles, skin tones), and an earlier value here —
+		 * `public, max-age=300, stale-while-revalidate=604800` — let a browser serve
+		 * the OLD catalog for five minutes without asking and then serve it stale
+		 * for up to seven more days while revalidating behind the player's back. A
+		 * deploy could take a week to show up, which looks exactly like "the new
+		 * options didn't ship".
+		 *
+		 * `s-maxage=86400` is for the SHARED cache, and it is the one that protects
+		 * the origin. A 304 is cheap in bytes and not free in requests: something
+		 * still has to compare the etag, and if that something is Harper then a
+		 * classroom sending 600 revalidations a minute is still 600 requests a
+		 * minute at the database. wildwillows.app is behind Cloudflare, so with a
+		 * cache rule on this path the edge answers the repeats from its own copy and
+		 * Harper sees roughly one request per edge location per day.
+		 *
+		 * The day is long on purpose, because a deploy PURGES it — see
+		 * scripts/purge-cache.mjs, which npm run deploy:purge calls. Without the
+		 * purge this would be a day-long lie; with it, new data is live the moment
+		 * it ships and the quiet time in between costs nothing.
+		 *
+		 * WHAT A BROWSER ACTUALLY RECEIVES IS NOT THIS STRING. The Cloudflare cache
+		 * rule on /GameData* is set to take its edge TTL from this header and to
+		 * rewrite the browser TTL to ten minutes, so what arrives at a browser is
+		 * `max-age=600`, not `max-age=0`. That is deliberate and it is the reason
+		 * `must-revalidate` is still worth sending: ten minutes is short enough that
+		 * a deploy is visible almost immediately, and long enough that a student
+		 * pressing Run twenty times in a period pays for one request rather than
+		 * twenty. If that rule is ever removed, this header alone is still correct;
+		 * the browser simply goes back to revalidating every time.
+		 *
+		 * Order matters to nobody but a reader: a shared cache reads s-maxage and
+		 * ignores max-age, a browser does the opposite. must-revalidate binds only
+		 * once a response IS stale, which for the edge is after the day is up. */
+		const cacheControl = 'public, max-age=0, must-revalidate, s-maxage=86400';
 		// Revalidation hit: same build the client already has → send nothing.
 		// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
 		const norm = (s: string) => s.replace(/^W\//, '').trim();
@@ -13043,6 +13073,12 @@ const LESSON_EXACT = new Set([
 	'nav_learn',
 	'nav_hub',
 	'nav_game',
+	/* The API docs, opened from the lesson and the builder headers: a student or
+	   a teacher going looking for the endpoint itself. */
+	'nav_api',
+	// The subreddit, from the API docs' sign-off. The landing page counts its own
+	// reddit clicks through LANDING_CLICK_TARGETS; this is the classroom-side one.
+	'nav_reddit',
 	// Which kit a teacher took from the hub. The one number worth having about a
 	// hub: if everybody leaves through the same side it is a redirect with extra
 	// steps rather than a choice.
@@ -13144,6 +13180,10 @@ const LESSON_PATTERNS: RegExp[] = [
 	/^challenges_[1-5]$/,
 	/^hints_chapter-([1-9]|10)$/,
 	/^dwell_chapter-([1-9]|10)_(lt1m|1to3m|3to10m|gt10m)$/,
+	// The whole visit rather than one chapter of it, on its own set of bands: the
+	// question is whether the lesson fits in a period, and the per-chapter bands
+	// cannot be summed into an answer (they only run while a chapter is current).
+	/^dwell_lesson_(lt2m|2to10m|10to30m|30to60m|gt60m)$/,
 	/^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
 	/^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
 	// Topics inside "Going Deeper". Same shape and same reasoning as iter_ and
@@ -13432,6 +13472,59 @@ async function buildLessonStats(): Promise<any> {
 		.map((k) => ({ key: k, n: step('ref_' + k) }))
 		.filter((a) => a.n > 0);
 
+	/* HOW LONG A VISIT LASTS, and where that time goes.
+	 *
+	 * Two different questions, and they need two different shapes. `session` is
+	 * the distribution of whole visits, which is what you plan a period against.
+	 * `chapters` is where the time inside a visit went, which is what tells you a
+	 * chapter is too long — the thing per-chapter dwell was collected for since it
+	 * was written, and never once displayed.
+	 *
+	 * Both are bands, never durations: the pages only ever send a bucket name (see
+	 * PRIVACY.md), so this can report a distribution and could not reconstruct one
+	 * reader's session if it tried.
+	 *
+	 * `midpoint` exists so the dashboard can rank and compare without inventing a
+	 * number of its own: it is the middle of each band in minutes, and the open
+	 * top band is quoted at its floor rather than at a guess. Anything derived
+	 * from it is an estimate and the labels say so.
+	 */
+	const SESSION_BANDS: Array<[string, string, number]> = [
+		['lt2m', 'Under 2 min', 1],
+		['2to10m', '2 to 10 min', 6],
+		['10to30m', '10 to 30 min', 20],
+		['30to60m', '30 to 60 min', 45],
+		['gt60m', 'Over an hour', 60],
+	];
+	const CHAPTER_BANDS: Array<[string, string, number]> = [
+		['lt1m', 'Under a minute', 0.5],
+		['1to3m', '1 to 3 min', 2],
+		['3to10m', '3 to 10 min', 6.5],
+		['gt10m', 'Over 10 min', 10],
+	];
+
+	const banded = (bands: typeof SESSION_BANDS, key: (b: string) => string) => {
+		const buckets = bands.map(([id, label, midpoint]) => ({ id, label, midpoint, n: step(key(id)) }));
+		const n = buckets.reduce((a, b) => a + b.n, 0);
+		return {
+			buckets,
+			n,
+			// Minutes, weighted by the midpoints above. An estimate from bands, and
+			// the only honest one available — which is the point of shipping it here
+			// rather than letting each caller invent its own arithmetic.
+			meanMinutes: n ? Math.round((buckets.reduce((a, b) => a + b.n * b.midpoint, 0) / n) * 10) / 10 : null,
+		};
+	};
+
+	const time = {
+		session: banded(SESSION_BANDS, (b) => 'dwell_lesson_' + b),
+		chapters: Array.from({ length: 10 }, (_, i) => {
+			const ch = i + 1;
+			const row = banded(CHAPTER_BANDS, (b) => 'dwell_chapter-' + ch + '_' + b);
+			return { chapter: ch, reached: step('chapter_' + ch + '_reached'), ...row };
+		}).filter((c) => c.n > 0 || c.reached > 0),
+	};
+
 	/** Errors, ranked. This is the work queue for explanation copy. */
 	const errors = Object.entries(totals)
 		.filter(([k]) => k.indexOf('errors_') === 0)
@@ -13452,6 +13545,7 @@ async function buildLessonStats(): Promise<any> {
 		funnel,
 		reach,
 		arrivals,
+		time,
 		errors,
 		ideas,
 		/* The health strip. A school filter that blocks the API breaks the lesson

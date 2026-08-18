@@ -223,3 +223,52 @@ describe('LessonStats', () => {
 		}
 	});
 });
+
+describe('how long a visit lasted', () => {
+	/*
+	 * The lesson sends a band per visit and nothing else — no duration, ever. So
+	 * the rollup's job is to turn a pile of band counts into the two answers a
+	 * teacher wants: does this fit in a period, and which chapter eats it.
+	 */
+	it('reports the distribution of whole visits', async () => {
+		await send({ dwell_lesson_2to10m: 4 }, 'lesson');
+		await send({ dwell_lesson_30to60m: 2 }, 'lesson');
+		await send({ dwell_lesson_gt60m: 1 }, 'lesson');
+		const out = await w.get<any>('LessonStats');
+		const s = out.time.session;
+		expect(s.n).toBe(7);
+		expect(s.buckets.find((b: any) => b.id === '30to60m').n).toBe(2);
+		expect(s.buckets.find((b: any) => b.id === 'lt2m').n).toBe(0);
+		// Weighted by the midpoints the server publishes: (4×6 + 2×45 + 1×60)/7.
+		expect(s.meanMinutes).toBeCloseTo(24.9, 1);
+	});
+
+	it('and where the time went inside one', async () => {
+		await send({ 'dwell_chapter-7_gt10m': 3, 'dwell_chapter-1_lt1m': 5, chapter_7_reached: 3 }, 'lesson');
+		const out = await w.get<any>('LessonStats');
+		const ch7 = out.time.chapters.find((c: any) => c.chapter === 7);
+		const ch1 = out.time.chapters.find((c: any) => c.chapter === 1);
+		expect(ch7.n).toBe(3);
+		expect(ch7.reached).toBe(3);
+		expect(ch7.meanMinutes).toBeGreaterThan(ch1.meanMinutes);
+		// A chapter nobody has reached is absent rather than a row of zeroes.
+		expect(out.time.chapters.some((c: any) => c.chapter === 4)).toBe(false);
+	});
+
+	it('says "not measured" rather than zero minutes when nothing has arrived', async () => {
+		await send({ view_lesson: 1 }, 'lesson');
+		const out = await w.get<any>('LessonStats');
+		expect(out.time.session.n).toBe(0);
+		// null, not 0. "Nobody stayed" and "nobody has been measured" are different
+		// answers, and a KPI reading "0m" would assert the first one.
+		expect(out.time.session.meanMinutes).toBe(null);
+	});
+
+	it('refuses a raw duration, which is the whole privacy contract', async () => {
+		await send({ dwell_lesson_1832411: 1, dwell_lesson: 42 }, 'lesson');
+		const out = await w.get<any>('LessonStats');
+		expect(out.totals.dwell_lesson_1832411).toBeUndefined();
+		expect(out.totals.dwell_lesson).toBeUndefined();
+		expect(out.time.session.n).toBe(0);
+	});
+});
