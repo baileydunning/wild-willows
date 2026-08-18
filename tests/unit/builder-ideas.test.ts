@@ -18,7 +18,16 @@ import { resolve } from 'node:path';
 
 const SRC = readFileSync(resolve(__dirname, '../../public/partials/ww-builder.js'), 'utf8');
 
-type Idea = { id: string; level: string; uses: string[]; title: string; what: string; data: string; steps: string[]; done: string };
+type Idea = {
+	id: string;
+	level: string;
+	uses: string[];
+	title: string;
+	what: string;
+	data: string;
+	steps: string[];
+	done: string;
+};
 
 const IDEAS: Idea[] = (() => {
 	const m = /\tvar IDEAS = \[([\s\S]*?)\n\t\];/.exec(SRC);
@@ -35,7 +44,11 @@ describe('the ideas pool', () => {
 		// Three pages say "thirty project ideas" in prose. They said it when there
 		// were twenty-nine.
 		expect(IDEAS).toHaveLength(30);
-		for (const level of LEVELS) expect(IDEAS.filter((i) => i.level === level), level).toHaveLength(10);
+		for (const level of LEVELS)
+			expect(
+				IDEAS.filter((i) => i.level === level),
+				level,
+			).toHaveLength(10);
 	});
 
 	it('has no duplicate ids, because the counter is keyed on them', () => {
@@ -103,7 +116,14 @@ describe('the brief panel renders all of it', () => {
 	const PAGE = readFileSync(resolve(__dirname, '../../public/learn-code-builder.html'), 'utf8');
 
 	it('has somewhere to put every field', () => {
-		for (const id of ['lab-brief-title', 'lab-brief-what', 'lab-brief-tags', 'lab-brief-steps', 'lab-brief-done', 'lab-brief-data'])
+		for (const id of [
+			'lab-brief-title',
+			'lab-brief-what',
+			'lab-brief-tags',
+			'lab-brief-steps',
+			'lab-brief-done',
+			'lab-brief-data',
+		])
 			expect(PAGE, id).toContain(`id="${id}"`);
 	});
 
@@ -127,7 +147,6 @@ describe('the brief panel renders all of it', () => {
 		expect(SRC).toMatch(/METHOD_LABEL = \{[^}]*if: 'if \/ else'/);
 	});
 });
-
 
 describe('"Show me" reveals the answer, it does not apply it', () => {
 	// IT USED TO OVERWRITE THEIR FILES, behind a confirm() and a one-shot undo.

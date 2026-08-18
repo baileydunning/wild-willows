@@ -191,7 +191,9 @@ describe('the teacher pages inherit the classroom inks', () => {
 		// --green-deep measures 4.33. Under AA for 13px bold, and the chips carry
 		// the grade level and the running time.
 		const DARK = readFileSync(resolve(__dirname, '../../public/partials/ww-dark.css'), 'utf8');
-		expect(DARK).toMatch(/\[data-theme='dark'\] \.chip,\s*\n\[data-theme='dark'\] \.reassure h2 \{\s*\n\s*color: var\(--green-bright\)/);
+		expect(DARK).toMatch(
+			/\[data-theme='dark'\] \.chip,\s*\n\[data-theme='dark'\] \.reassure h2 \{\s*\n\s*color: var\(--green-bright\)/,
+		);
 	});
 
 	it('the guide sheet colours every table column, not the first two', () => {

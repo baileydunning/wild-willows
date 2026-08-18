@@ -80,12 +80,13 @@ describe('the arrival bucket', () => {
 
 	it('the science kit reports its arrival on the classroom vocabulary instead', () => {
 		const s = src('teachers-science.html');
-		expect(s).toContain("counts[refBucket()] = 1;".replace(/ /g, '').length ? 'counts[refBucket()]' : '');
+		expect(s).toContain('counts[refBucket()] = 1;'.replace(/ /g, '').length ? 'counts[refBucket()]' : '');
 		expect(s).toContain('new URL(r).hostname');
 		for (const k of ['ref_direct', 'ref_internal', 'ref_search', 'ref_social', 'ref_other']) expect(s).toContain(k);
 		// Same five names the lesson uses, so the two are addable.
 		const lesson = readFileSync(join(root, 'public/partials/ww-lesson.js'), 'utf8');
-		for (const k of ['ref_direct', 'ref_internal', 'ref_search', 'ref_social', 'ref_other']) expect(lesson).toContain(k);
+		for (const k of ['ref_direct', 'ref_internal', 'ref_search', 'ref_social', 'ref_other'])
+			expect(lesson).toContain(k);
 	});
 
 	it('never sends a bucket outside the nine the server accepts', () => {
@@ -119,15 +120,13 @@ describe('sourceBucket, run', () => {
 		const fn = /function sourceBucket\(\)\{[\s\S]*?\n  \}/.exec(html);
 		expect(hosts, 'SOURCE_HOSTS not found').toBeTruthy();
 		expect(fn, 'sourceBucket not found').toBeTruthy();
-		return new Function(
-			'document',
-			'location',
-			`${hosts![0]}\n${fn![0]}\nreturn sourceBucket;`,
-		) as (d: unknown, l: unknown) => () => string | null;
+		return new Function('document', 'location', `${hosts![0]}\n${fn![0]}\nreturn sourceBucket;`) as (
+			d: unknown,
+			l: unknown,
+		) => () => string | null;
 	};
 
-	const bucketFor = (referrer: string) =>
-		build()({ referrer }, { hostname: 'wildwillows.app' })();
+	const bucketFor = (referrer: string) => build()({ referrer }, { hostname: 'wildwillows.app' })();
 
 	it.each([
 		['https://www.google.com/search?q=teach+kids+apis', 'google'],

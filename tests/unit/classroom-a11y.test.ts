@@ -43,7 +43,9 @@ describe('every classroom page can be skipped into', () => {
 		const target = m![1];
 		// The destination has to exist AND be focusable, or the link moves the
 		// viewport and leaves focus at the top — which looks fixed and is not.
-		expect(html, `#${target} is not in ${name}`).toMatch(new RegExp(`id="${target}"[^>]*tabindex="-1"|tabindex="-1"[^>]*id="${target}"`));
+		expect(html, `#${target} is not in ${name}`).toMatch(
+			new RegExp(`id="${target}"[^>]*tabindex="-1"|tabindex="-1"[^>]*id="${target}"`),
+		);
 	});
 
 	it.each(CLASSROOM)('%s loads the sheet that makes the link visible on focus', (name) => {
@@ -79,7 +81,7 @@ describe('the editor is escapable, and says so', () => {
 
 describe('the file tabs behave like the tablist they claim to be', () => {
 	it('keeps one tab stop, not one per file', () => {
-		expect(RUNNER).toContain("t.tabIndex = i === 0 ? 0 : -1;");
+		expect(RUNNER).toContain('t.tabIndex = i === 0 ? 0 : -1;');
 		expect(RUNNER).toContain('c.tabIndex = on ? 0 : -1;');
 	});
 

@@ -124,7 +124,8 @@ describe('the catalog is rate limited', () => {
 
 	it('and a revalidation does not eat the budget of a real request either', async () => {
 		const first = await w.fetch<any>('GameData', hdrs('203.0.113.60'));
-		for (let i = 0; i < 3000; i++) await w.fetch<any>('GameData', { ...hdrs('203.0.113.60'), 'if-none-match': first.headers.etag });
+		for (let i = 0; i < 3000; i++)
+			await w.fetch<any>('GameData', { ...hdrs('203.0.113.60'), 'if-none-match': first.headers.etag });
 		// 3000 revalidations later, the full-body budget is untouched.
 		const full = await w.fetch<any>('GameData', hdrs('203.0.113.60'));
 		expect(full.status ?? 200).toBe(200);

@@ -81,10 +81,25 @@ test.describe('the two kit pages', () => {
 	test('and carries what a teacher actually needs', async ({ page }) => {
 		await page.goto('/teachers/science');
 		const ids = await page.locator('section.tsec[id]').evaluateAll((els) => els.map((e) => e.id));
-		for (const id of ['objectives', 'vocab', 'prep', 'flow', 'ladder', 'cut', 'opener', 'assessment', 'trouble', 'answers', 'practical', 'privacy'])
+		for (const id of [
+			'objectives',
+			'vocab',
+			'prep',
+			'flow',
+			'ladder',
+			'cut',
+			'opener',
+			'assessment',
+			'trouble',
+			'answers',
+			'practical',
+			'privacy',
+		])
 			expect(ids, id).toContain(id);
 		// Nothing opens pre-expanded, including the answer key.
-		expect(await page.locator('details.tfaq').evaluateAll((els) => els.filter((e) => (e as HTMLDetailsElement).open).length)).toBe(0);
+		expect(
+			await page.locator('details.tfaq').evaluateAll((els) => els.filter((e) => (e as HTMLDetailsElement).open).length),
+		).toBe(0);
 	});
 
 	test('the arrival ladder is the whole meadow, in order', async ({ page }) => {
@@ -108,7 +123,18 @@ test.describe('the two kit pages', () => {
 		await expect(page.locator('h1')).toContainText('Build a webpage with real game data');
 		await expect(page.locator('.reassure')).toContainText('do not need to know JavaScript');
 		await expect(page.locator('a[href="/learn/web-development"]').first()).toBeVisible();
-		for (const id of ['objectives', 'vocab', 'prep', 'flow', 'cut', 'opener', 'assessment', 'trouble', 'answers', 'privacy'])
+		for (const id of [
+			'objectives',
+			'vocab',
+			'prep',
+			'flow',
+			'cut',
+			'opener',
+			'assessment',
+			'trouble',
+			'answers',
+			'privacy',
+		])
 			await expect(page.locator(`#${id}`), id).toHaveCount(1);
 	});
 });

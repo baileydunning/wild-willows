@@ -169,7 +169,8 @@ describe('the landing page routes to the rest of the site', () => {
 
 	it('and every one of them is a section that exists', () => {
 		const nav = /<div class="links">([\s\S]*?)<\/div>/.exec(html)![1];
-		for (const [, id] of nav.matchAll(/href="#([a-z]+)"/g)) expect(html, `#${id}`).toMatch(new RegExp(`<section[^>]*id="${id}"`));
+		for (const [, id] of nav.matchAll(/href="#([a-z]+)"/g))
+			expect(html, `#${id}`).toMatch(new RegExp(`<section[^>]*id="${id}"`));
 	});
 
 	it('sends teachers to both kits, not just the science one', () => {
@@ -292,8 +293,7 @@ describe('the built lesson page', () => {
 		const refs = [...markup.matchAll(/[Cc]hapters?\s+(\d+)(?:\s+(?:and|to)\s+(\d+))?/g)];
 		expect(refs.length).toBeGreaterThan(20);
 		for (const m of refs)
-			for (const n of [m[1], m[2]].filter(Boolean))
-				expect(Number(n), `"${m[0]}"`).toBeLessThanOrEqual(10);
+			for (const n of [m[1], m[2]].filter(Boolean)) expect(Number(n), `"${m[0]}"`).toBeLessThanOrEqual(10);
 	});
 
 	it('is readable with scripting switched off', () => {
@@ -344,8 +344,7 @@ describe('the built lesson page', () => {
 		// appeared to suggest otherwise.
 		const ch10 = html.slice(html.indexOf('id="chapter-10"'));
 		const runner = ch10.slice(ch10.indexOf('<ww-runner'), ch10.indexOf('</ww-runner>'));
-		for (const file of ['index.html', 'styles.css', 'main.js'])
-			expect(runner, file).toContain(`name="${file}">`); // no ` context` after the name
+		for (const file of ['index.html', 'styles.css', 'main.js']) expect(runner, file).toContain(`name="${file}">`); // no ` context` after the name
 		expect(runner).not.toMatch(/name="(index\.html|styles\.css)" context/);
 	});
 
@@ -390,7 +389,7 @@ describe('the built lesson page', () => {
 		expect(html).not.toContain('href="#going-deeper"');
 	});
 
-	it('holds the panel\'s runners back until it is opened', () => {
+	it("holds the panel's runners back until it is opened", () => {
 		// Every runner renders on start and each owns two iframes; the nine
 		// chapters already open fifty-two documents before a word is read.
 		// Charging a Chromebook for another twelve on behalf of a panel most

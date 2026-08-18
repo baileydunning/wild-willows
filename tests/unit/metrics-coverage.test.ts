@@ -27,7 +27,9 @@ const listIn = (re: RegExp, what: string): string[] => {
 
 const LESSON_EXACT = new Set(listIn(/const LESSON_EXACT = new Set\(\[([\s\S]*?)\n\]\);/, 'LESSON_EXACT'));
 const LESSON_ERRORS = new Set(listIn(/const LESSON_ERROR_KEYS = new Set\(\[([\s\S]*?)\n\]\);/, 'LESSON_ERROR_KEYS'));
-const LANDING_TARGETS = new Set(listIn(/const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\n\]\);/, 'LANDING_CLICK_TARGETS'));
+const LANDING_TARGETS = new Set(
+	listIn(/const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\n\]\);/, 'LANDING_CLICK_TARGETS'),
+);
 const LESSON_PATTERNS = (() => {
 	const m = /const LESSON_PATTERNS[^=]*= \[([\s\S]*?)\n\];/.exec(RESOURCES);
 	expect(m, 'LESSON_PATTERNS should be findable').toBeTruthy();

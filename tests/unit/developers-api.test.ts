@@ -11,7 +11,9 @@ import { resolve } from 'node:path';
 
 const root = process.cwd();
 const PAGE = readFileSync(resolve(root, 'public/developers-api.html'), 'utf8');
-const text = PAGE.replace(/<[^>]+>/g, ' ').replace(/&mdash;/g, '—').replace(/\s+/g, ' ');
+const text = PAGE.replace(/<[^>]+>/g, ' ')
+	.replace(/&mdash;/g, '—')
+	.replace(/\s+/g, ' ');
 
 const records = (file: string): any[] => {
 	const j = JSON.parse(readFileSync(resolve(root, 'data', file), 'utf8'));

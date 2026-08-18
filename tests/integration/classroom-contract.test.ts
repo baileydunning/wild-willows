@@ -283,7 +283,7 @@ describe('the claims /learn/web-development makes about specific records', () =>
 		expect(apex.length).toBe(17);
 	});
 
-	it('the biome named in chapter 6\'s empty-state guard still does not exist', async () => {
+	it("the biome named in chapter 6's empty-state guard still does not exist", async () => {
 		// The guard example filters for "tundra" ON PURPOSE, so the zero branch
 		// runs and the student sees the empty-state message. If a tundra biome
 		// ever shipped, that example would quietly start taking the other branch.

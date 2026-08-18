@@ -13375,13 +13375,55 @@ async function buildLessonStats(): Promise<any> {
 	 * 0 for a page that does not report it yet, because "none" and "not measured"
 	 * are different answers and a zero would read as the first one. */
 	const reach = [
-		{ id: 'hub', label: 'Teachers hub', path: '/teachers', views: step('view_hub'), unique: step('unique_hub') || null },
-		{ id: 'science', label: 'Science kit', path: '/teachers/science', views: step('view_science'), unique: step('unique_science') || null },
-		{ id: 'coding', label: 'Coding kit', path: '/teachers/coding', views: step('view_coding'), unique: step('unique_coding') || null },
-		{ id: 'learn', label: 'Learn hub', path: '/learn', views: step('view_learn'), unique: step('unique_learn') || null },
-		{ id: 'lesson', label: 'The Lesson', path: '/learn/web-development', views: step('view_lesson'), unique: step('unique_lesson') || null },
-		{ id: 'builder', label: 'Code Builder', path: '/learn/code-builder', views: step('view_builder'), unique: step('unique_builder') || null },
-		{ id: 'developers', label: 'API docs', path: '/developers/api', views: step('view_developers'), unique: step('unique_developers') || null },
+		{
+			id: 'hub',
+			label: 'Teachers hub',
+			path: '/teachers',
+			views: step('view_hub'),
+			unique: step('unique_hub') || null,
+		},
+		{
+			id: 'science',
+			label: 'Science kit',
+			path: '/teachers/science',
+			views: step('view_science'),
+			unique: step('unique_science') || null,
+		},
+		{
+			id: 'coding',
+			label: 'Coding kit',
+			path: '/teachers/coding',
+			views: step('view_coding'),
+			unique: step('unique_coding') || null,
+		},
+		{
+			id: 'learn',
+			label: 'Learn hub',
+			path: '/learn',
+			views: step('view_learn'),
+			unique: step('unique_learn') || null,
+		},
+		{
+			id: 'lesson',
+			label: 'The Lesson',
+			path: '/learn/web-development',
+			views: step('view_lesson'),
+			unique: step('unique_lesson') || null,
+		},
+		{
+			id: 'builder',
+			label: 'Code Builder',
+			path: '/learn/code-builder',
+			views: step('view_builder'),
+			unique: step('unique_builder') || null,
+		},
+		{
+			id: 'developers',
+			label: 'API docs',
+			path: '/developers/api',
+			views: step('view_developers'),
+			unique: step('unique_developers') || null,
+		},
 	];
 
 	/* How people arrived, across every classroom page that reports it. Five
