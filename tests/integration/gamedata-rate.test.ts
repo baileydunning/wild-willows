@@ -56,16 +56,35 @@ describe('the catalog is rate limited', () => {
 		expect(String(refused.body)).toContain('/developers/api');
 	});
 
-	it('is generous enough for a class behind one address', async () => {
-		// Thirty students, each re-fetching as they type. If this fails, a whole
-		// classroom starts seeing errors halfway through the period and every one
-		// of them reads it as their own code being wrong.
+	it('clears a class opening the builder at the same moment', async () => {
+		// The burst case, and the only one that happens with no time passing:
+		// thirty students loading the page together, then pressing Run. If this
+		// fails a whole classroom sees errors in the first minute of the period,
+		// and every one of them reads it as their own code being wrong.
 		let ok = 0;
-		for (let i = 0; i < 300; i++) {
+		for (let i = 0; i < 60; i++) {
 			const res = await w.fetch<any>('GameData', hdrs('198.51.100.7'));
 			if ((res.status ?? 200) === 200) ok++;
 		}
-		expect(ok).toBe(300);
+		expect(ok).toBe(60);
+	});
+
+	it('is sized on a measurement, not on a guess', async () => {
+		// The preview runs on an opaque origin (sandbox without allow-same-origin),
+		// so it shares no HTTP cache and never sends If-None-Match — every re-run is
+		// a full response. Thirty students × twenty runs a minute is the 600.
+		const src = readFileSync(resolve(__dirname, '../../server/resources.ts'), 'utf8');
+		const m = /catalog: \{ perMinute: (\d+), burst: (\d+) \}/.exec(src);
+		expect(m).toBeTruthy();
+		expect(Number(m![1])).toBe(600);
+		expect(Number(m![2])).toBe(60);
+		// The sandbox attribute this whole number depends on. If it ever gains
+		// allow-same-origin the preview starts caching and this can come down.
+		const runner = readFileSync(resolve(__dirname, '../../public/partials/ww-runner.js'), 'utf8');
+		const attr = /setAttribute\('sandbox', '([^']*)'\)/.exec(runner);
+		expect(attr, 'the preview should set a sandbox attribute').toBeTruthy();
+		expect(attr![1]).toBe('allow-scripts');
+		expect(attr![1]).not.toContain('allow-same-origin');
 	});
 
 	it('does not limit one caller because of another', async () => {

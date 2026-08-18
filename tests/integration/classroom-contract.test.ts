@@ -222,6 +222,21 @@ describe('the claims /learn/web-development makes about specific records', () =>
 	// the ones where a data change would not break the page, it would break the
 	// lesson, silently, in a way only a teacher standing in the room would notice.
 
+	it("chapter 7's if/else exercise actually reaches the other branch", async () => {
+		// The exercise says: change data.animals[0] to data.animals[8] and see which
+		// branch you get. It only teaches anything if the two indices land on
+		// DIFFERENT sides of `rarity === "rare"`.
+		//
+		// It used to say animals[3]. That is the Porcupine, which is uncommon — the
+		// same else branch as animals[0] — so a student followed the instruction,
+		// watched nothing change, and had no way to tell whether they had done it
+		// wrong. The numbers are printed in the lesson copy, so they get pinned.
+		const d = await catalog();
+		expect(d.animals[0].rarity).not.toBe('rare');
+		expect(d.animals[8].rarity).toBe('rare');
+		expect(d.animals[8].name).toBe('Black Bear');
+	});
+
 	it('chapter 6 opens on an animal that is NOT rare', async () => {
 		// The chapter's whole first beat is running `if (rarity === "rare")` on
 		// data.animals[0] and having NOTHING happen — "the code ran fine, the

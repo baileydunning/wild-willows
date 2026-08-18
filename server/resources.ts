@@ -5093,24 +5093,29 @@ const RATE_TIERS = {
 	/** Reads that touch the database. */
 	read: { perMinute: 300, burst: 100 },
 	/**
-	 * GET /GameData/ — the public catalog. Its own tier because its callers are
-	 * unlike anything else here, and sizing it as a `read` would break the thing
-	 * it exists for.
+	 * GET /GameData/ — the public catalog. Its own tier, and the numbers come from
+	 * a measurement rather than a guess.
 	 *
-	 * A CLASSROOM SHARES ONE ADDRESS. Thirty students behind a school NAT are one
-	 * caller to this limiter, and every one of them is running code that re-fetches
-	 * on a debounce as they type. Twenty fetches a minute each is not an unusual
-	 * afternoon, and that is 600 from a single address doing exactly what the
-	 * lesson asks. At the `read` tier of 300 the whole class would start seeing
-	 * 429s halfway through the period, which looks to a student exactly like their
-	 * own code being wrong.
+	 * THE PREVIEW HAS NO CACHE. The classroom editor runs student code in an
+	 * iframe with sandbox="allow-scripts" and no allow-same-origin, which puts it
+	 * on an opaque origin — so it shares no HTTP cache with anything, and none of
+	 * its requests ever carry If-None-Match. Measured in a real browser: thirty
+	 * debounced edits produced thirty full-body responses and zero 304s. The ETag
+	 * makes repeats free for the game and for anyone building against the API; it
+	 * does nothing at all for a student typing.
 	 *
-	 * So: roomy per caller, and the ceiling is there to bound a scripted flood
-	 * rather than to shape real load. The response is served from an in-memory
-	 * cache and pre-compressed once per build, so the marginal cost of a hit is
-	 * sending bytes; a conditional request costs almost nothing at all.
+	 * So the cost really is one full response per run, and a classroom shares one
+	 * address. Thirty students averaging twenty runs a minute is 600 from a single
+	 * NAT doing exactly what the lesson asks — which is where the sustained rate
+	 * comes from. The burst is a class pressing Run together, twice over.
+	 *
+	 * This was 1200/300 on the same reasoning with a worse estimate. At 100 KB a
+	 * response that was two megabytes a second from one address, which is a lot of
+	 * egress to leave open on the strength of an assumption. Halving the rate and
+	 * cutting the burst by five makes a scripted flood five times less profitable
+	 * while still clearing the class it was sized for.
 	 */
-	catalog: { perMinute: 1200, burst: 300 },
+	catalog: { perMinute: 600, burst: 60 },
 } as const;
 
 type RateTier = keyof typeof RATE_TIERS;

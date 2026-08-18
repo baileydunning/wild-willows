@@ -129,7 +129,7 @@
   <div>
     <h2>There is nothing to sign up for</h2>
     <p>No API key, no account and no dashboard to register in. One GET, from a browser or anywhere else, and you have the whole dataset. It sends <code>Access-Control-Allow-Origin: *</code>, so a page you are building can read it directly with no server of your own.</p>
-    <p>There is a rate limit, and it is generous: <b>1,200 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers are below.</a></p>
+    <p>There is a rate limit: <b>600 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
     <p>It exists because a classroom lesson needed a real API to teach against rather than a mock one. That turned out to be useful to more people than students, so it is documented rather than merely public.</p>
   </div>
 </div>
@@ -371,16 +371,17 @@ console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`
     <table class="trouble">
       <thead><tr><th>Limit</th><th>Value</th><th>Why that number</th></tr></thead>
       <tbody>
-        <tr><td>Per address, sustained</td><td class="num">1,200 / min</td><td>Twenty a second, from one IP, for a file that changes when the game ships a build.</td></tr>
-        <tr><td>Per address, burst</td><td class="num">300</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
-        <tr><td>Refill</td><td class="num">60 s</td><td>The bucket fills continuously; a minute of quiet restores it completely.</td></tr>
+        <tr><td>Per address, sustained</td><td class="num">600 / min</td><td>Ten a second, from one IP, for a file that changes when the game ships a build.</td></tr>
+        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
+        <tr><td>Refill</td><td class="num">10 / s</td><td>Continuous, not a reset on the minute. Ten seconds of quiet buys you a hundred requests back.</td></tr>
       </tbody>
     </table>
   </div>
 
-  <h3>Why it is that high</h3>
-  <p>Because <b>a classroom shares one address</b>. Thirty students behind a school NAT are a single caller to a rate limiter, and every one of them is running code that re-fetches on a debounce as they type. Six hundred requests a minute from one address can be thirty people doing exactly what the lesson asked. A tighter limit would start refusing them halfway through the period, and to a student that looks precisely like their own code being wrong.</p>
-  <p>So the ceiling is there to bound a script that has got away from someone, not to shape ordinary use. If you are anywhere near it by accident, the fix is almost always to fetch once and keep the result rather than to ask for more headroom.</p>
+  <h3>Where those numbers come from</h3>
+  <p>Not from a guess. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every re-run is a fresh full request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
+  <p>So the arithmetic is thirty students behind one school NAT, each averaging twenty runs a minute while they work: 600 a minute from a single address, all of it people doing exactly what the lesson asked. That is the sustained rate. The burst is a class pressing Run at the same moment, twice over.</p>
+  <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. The <code>etag</code> makes every repeat free.</p>
 
   <h3>What a refusal looks like</h3>
   <p>A <code>429</code> with the CORS header on it, so it reaches your <code>catch</code> as a real status rather than as an opaque network failure, and a plain-language body you can show a user.</p>
@@ -408,7 +409,7 @@ if (res.status === 429) {
     <div class="cut keep">
       <b>Safe to build on</b>
       <ul>
-        <li>The URL. It is hardcoded into every shipped desktop, Steam and Mac App Store build, so it cannot move.</li>
+        <li>The URL. It is hardcoded into every copy of the game that has already shipped, so it cannot move.</li>
         <li>Species <code>id</code>s. They are the keys the save files use.</li>
         <li>The fields in the tables above. A test in this repo fails the build if one of them is renamed, and it names this page when it does.</li>
         <li>The six biome ids, and 25 species in each.</li>

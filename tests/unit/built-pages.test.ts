@@ -131,6 +131,32 @@ describe('the built Code Builder page', () => {
 	});
 });
 
+describe('no public page names the Steam build', () => {
+	// A product decision, not a style one: the storefronts the site points at are
+	// the Mac App Store and itch.io, and a page that names a third one it does not
+	// link to raises a question it then does not answer.
+	const PUBLIC = [
+		'landingHtml',
+		'privacyHtml',
+		'supportHtml',
+		'ageRatingHtml',
+		'teachersIndexHtml',
+		'teachersScienceHtml',
+		'teachersCodingHtml',
+		'developersApiHtml',
+		'learnIndexHtml',
+		'learnWebDevelopmentHtml',
+		'learnCodeBuilderHtml',
+	];
+
+	it.each(PUBLIC)('%s', (name) => {
+		const html = builtPage(name);
+		expect(html).not.toMatch(/\bSteam\b/);
+		expect(html).not.toContain('steampowered');
+		expect(html).not.toMatch(/\bValve\b/);
+	});
+});
+
 describe('the landing page routes to the rest of the site', () => {
 	const html = builtPage('landingHtml');
 

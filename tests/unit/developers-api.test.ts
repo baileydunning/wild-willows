@@ -151,7 +151,7 @@ describe('the documented rate limit is the one the server enforces', () => {
 		// Printed with a thousands separator on the page, without one in the code.
 		expect(text).toContain(perMinute.toLocaleString('en-US'));
 		expect(text).toContain(String(burst));
-		expect(text).toContain('1,200 requests a minute per address');
+		expect(text).toContain(`${perMinute.toLocaleString('en-US')} requests a minute per address`);
 	});
 
 	it('no longer claims there is no limit', () => {
