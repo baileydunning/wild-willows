@@ -119,6 +119,10 @@ describe('the runner layout', () => {
 		const RUNNER_JS = readFileSync(resolve(__dirname, '../../public/partials/ww-runner.js'), 'utf8');
 		expect(RUNNER_JS).toContain('host.appendChild(consoleBox)');
 		expect(RUNNER_JS).not.toContain('out.appendChild(consoleBox)');
-		expect(RUNNER).toMatch(/\.wwr-console\s*\{[^}]*min-height:\s*7\.5rem/);
+		// Height is set inline by the drag handle now, so the rule carries no fixed
+		// min-height any more — what matters is that it is a full-width row of its
+		// own and that the drag handle exists to size it.
+		expect(RUNNER).toMatch(/\.wwr-console\s*\{[^}]*flex:\s*0 0 auto/);
+		expect(RUNNER).toMatch(/\.wwr-console-head\s*\{[^}]*cursor:\s*ns-resize/);
 	});
 });

@@ -347,6 +347,35 @@
 			send('error', { message: String(e.message || e.error || 'Error'), line: e.lineno || null });
 		});
 
+		/* Did the student's own fetch get through?
+		 *
+		 * This is the single most important thing to know about a classroom we
+		 * cannot see. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes the site is broken, we never
+		 * hear about it, and they do not come back. A failed fetch also looks
+		 * exactly like a mistake in the student's code from where they are sitting.
+		 *
+		 * Reports ONLY whether it succeeded — never the URL, never the response. */
+		var nativeFetch = window.fetch;
+		if (typeof nativeFetch === 'function') {
+			window.fetch = function () {
+				var p = nativeFetch.apply(window, arguments);
+				try {
+					p.then(
+						function (r) {
+							send('fetch', { ok: !!(r && r.ok) });
+						},
+						function () {
+							send('fetch', { ok: false });
+						},
+					);
+				} catch (e) {
+					/* a thenable that is not a promise — not ours to fix */
+				}
+				return p;
+			};
+		}
+
 		window.addEventListener('unhandledrejection', function (e) {
 			var r = e.reason;
 			send('error', { message: String((r && r.message) || r || 'Something failed'), line: null });
@@ -840,6 +869,7 @@
 		/* ---- running ---- */
 		var timer = null;
 		var firstRunDone = false;
+		var firstFetchDone = false;
 
 		function currentSources() {
 			return {
@@ -1076,6 +1106,14 @@
 					showError(hint.title, '', hint.help, null);
 					logToConsole('warn', hint.title);
 					metric('errors_' + d.payload.key, host);
+				}
+			} else if (d.kind === 'fetch') {
+				metric(d.payload.ok ? 'fetch_ok' : 'fetch_failed', host);
+				if (d.payload.ok && !firstFetchDone) {
+					firstFetchDone = true;
+					/* The funnel step that says a student got all the way to real data.
+					 * Everything before it is setup; everything after is their own work. */
+					metric('first_fetch_ok', host);
 				}
 			} else if (d.kind === 'console') {
 				logToConsole(d.payload.level, d.payload.text);

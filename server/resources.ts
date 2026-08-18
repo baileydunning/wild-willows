@@ -12179,6 +12179,32 @@ const LANDING_CLICK_TARGETS = new Set([
 	// many people the page actually sends to the community.
 	'reddit',
 ]);
+
+/**
+ * Where a visitor arrived from, as ONE WORD from a fixed list.
+ *
+ * The beacon used to send `ref` — 200 characters of raw document.referrer, which
+ * can carry a search query — on every single event, and this endpoint read none
+ * of it. Both halves of that were wrong: it was more data than the question
+ * needs, and it answered nothing. The referrer is now bucketed in the browser
+ * (see sourceBucket() in public/landing.html) and only the bucket is sent, so
+ * the URL never leaves the visitor's machine.
+ *
+ * Nine buckets is the whole vocabulary. It is enough to answer "are teachers
+ * finding this through search or through Reddit"; it is not enough to describe
+ * one person. Anything unrecognised becomes 'other' rather than being stored.
+ */
+const LANDING_SOURCES = new Set([
+	'google',
+	'bing',
+	'duckduckgo',
+	'reddit',
+	'itch',
+	'apple',
+	'bluesky',
+	'direct', // no referrer at all: typed, bookmarked, or a stripped referrer
+	'other',
+]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
 const LANDING_STATS_CACHE_MS = 15_000;
@@ -12204,6 +12230,7 @@ async function buildLandingStats(): Promise<any> {
 		uniques: 0,
 		clicks: {} as Record<string, number>,
 		downloads: {} as Record<string, number>,
+		sources: {} as Record<string, number>,
 	};
 	for (const r of rows) {
 		totals.visits += r.visits || 0;
@@ -12211,6 +12238,8 @@ async function buildLandingStats(): Promise<any> {
 		for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
 		for (const [k, v] of Object.entries(r.downloads || {}))
 			totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
+		for (const [k, v] of Object.entries(r.sources || {}))
+			totals.sources[k] = (totals.sources[k] || 0) + (Number(v) || 0);
 	}
 	/* How many day-rows ride along with the totals.
 	 *
@@ -12230,6 +12259,7 @@ async function buildLandingStats(): Promise<any> {
 		totalClicks: sumValues(r.clicks),
 		downloads: r.downloads || {},
 		totalDownloads: sumValues(r.downloads),
+		sources: r.sources || {},
 	}));
 	return {
 		generatedAt: now,
@@ -12238,6 +12268,7 @@ async function buildLandingStats(): Promise<any> {
 			...totals,
 			totalClicks: sumValues(totals.clicks),
 			totalDownloads: sumValues(totals.downloads),
+			totalSources: sumValues(totals.sources),
 		},
 		days,
 	};
@@ -12291,6 +12322,7 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 			uniques: Number(stored?.uniques) || 0,
 			clicks: countMap(stored?.clicks),
 			downloads: countMap(stored?.downloads),
+			sources: countMap(stored?.sources),
 		};
 		mutate(row);
 		row.updatedAt = now;
@@ -12311,12 +12343,21 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
 }
 
 /**
- * POST /LandingEvent/ {type: "visit"|"click", target?, first?} — anonymous
+ * POST /LandingEvent/ {type: "visit"|"click", target?, first?, from?} — anonymous
  * landing-page beacon, aggregated straight into today's LandingStat row.
  *   visit — one per browser session (sessionStorage-guarded client-side);
  *           first:true additionally counts a first-ever visitor (localStorage).
  *   click — an outbound link tap; `target` must be a known data-track name or
  *           it lands in "other".
+ *   from  — an arrival bucket, present ONLY on a page's once-per-session ping
+ *           (a 'visit' on the landing page, the 'edu-page' click on /teachers).
+ *           Counted independently of type so both pages feed the same series.
+ *
+ * Every field is a name from a fixed list or a number. The endpoint reads
+ * nothing else off the body — if a future page starts sending a field, it is
+ * dropped here rather than stored, which is the property that made removing
+ * `ref` and `lang` a client-side change with no migration.
+ *
  * Always answers ok:true — analytics never gets to break the page.
  */
 export class LandingEvent extends PublicEndpoint {
@@ -12325,10 +12366,20 @@ export class LandingEvent extends PublicEndpoint {
 		const body = await bodyOf(data, this);
 		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
 		if (!type) return { ok: true }; // unknown ping — accept and drop
+		// A bucket the client did not send, or sent something unrecognised for, is
+		// not stored at all. 'other' is a real bucket a client can send on purpose;
+		// it is not the fallback for a malformed one, because a rising 'other' should
+		// mean "arrived from somewhere off the list" and nothing else.
+		const rawFrom = String(body.from || '')
+			.toLowerCase()
+			.replace(/[^a-z]/g, '')
+			.slice(0, 16);
+		const from = LANDING_SOURCES.has(rawFrom) ? rawFrom : null;
 		if (type === 'visit') {
 			await bumpLandingStat((r) => {
 				r.visits = (r.visits || 0) + 1;
 				if (body.first === true) r.uniques = (r.uniques || 0) + 1;
+				if (from) r.sources[from] = (r.sources[from] || 0) + 1;
 			});
 		} else {
 			const raw = String(body.target || '')
@@ -12338,6 +12389,7 @@ export class LandingEvent extends PublicEndpoint {
 			const target = LANDING_CLICK_TARGETS.has(raw) ? raw : 'other';
 			await bumpLandingStat((r) => {
 				r.clicks[target] = (r.clicks[target] || 0) + 1;
+				if (from) r.sources[from] = (r.sources[from] || 0) + 1;
 			});
 		}
 		return { ok: true };
@@ -12812,6 +12864,395 @@ export class SaveHealth extends DashboardEndpoint {
 export class LandingStats extends DashboardEndpoint {
 	async get() {
 		return landingStatsCache.get(Date.now());
+	}
+}
+
+// ---------------------------------------------------------------- classroom
+//
+// Usage counters for /teachers, /learn/web-development and /learn/code-builder.
+//
+// Built on the LandingStat pattern deliberately — same one-row-per-UTC-day
+// shape, same read-modify-write, same "analytics losing the odd count to a rare
+// race is acceptable" trade. What is NOT shared is the table: landing's `visits`
+// is a single undifferentiated series that every page reporting one inflates,
+// which is why /teachers already has to disguise itself as a click. Three more
+// pages with real funnels, per-chapter progress and per-error counts would make
+// that unworkable.
+//
+// THE CONTRACT, which is written into PRIVACY.md and printed on the pages:
+// aggregate counters only. No identifiers, no class codes, no free text, no
+// timings, and nothing a student typed. The moment one of those appears here
+// this stops being an anonymous counter and becomes an education record, with
+// FERPA, district review and data-subject requests attached — for a free lesson
+// page. LESSON_KEYS below is what enforces it: a key that is not allowlisted is
+// not stored, so the way to add a metric is to name it here, in the open.
+
+/** Buckets a key may carry, for the families where the suffix is open-ended. */
+const LESSON_ERROR_KEYS = new Set([
+	// The runner's plain-English error catalogue, plus its two silent-render hints.
+	'fetch-failed',
+	'json-parse',
+	'null-property',
+	'undefined-property',
+	'not-defined',
+	'not-a-function',
+	'await-async',
+	'const-assign',
+	'not-iterable',
+	'unexpected-eof',
+	'syntax',
+	'masked',
+	'object-object',
+	'undefined-text',
+	'other',
+]);
+
+/**
+ * Every counter the classroom pages may report.
+ *
+ * Exact names where the set is small and fixed; a bounded pattern where the tail
+ * is genuinely open (a checkpoint id, an idea slug, a chapter number). NEVER a
+ * blanket pattern: this endpoint is public and unauthenticated, so an unbounded
+ * key space is an unbounded write amplification with someone else's hand on the
+ * dial. Same reasoning as LANDING_CLICK_TARGETS, one size up.
+ */
+const LESSON_EXACT = new Set([
+	// reach
+	'view_hub',
+	'view_science',
+	'view_coding',
+	'view_lesson',
+	'view_builder',
+	'unique_hub',
+	'unique_science',
+	'unique_coding',
+	'unique_lesson',
+	'unique_builder',
+	'ref_internal',
+	'ref_search',
+	'ref_social',
+	'ref_direct',
+	'ref_other',
+	// Where a student went NEXT from a classroom page. Three destinations, so
+	// three keys — the marketing side's data-track names post to /LandingEvent/
+	// and would be counted in the wrong system entirely.
+	'nav_lesson',
+	'nav_hub',
+	'nav_game',
+	// funnel
+	'lesson_start',
+	'builder_open',
+	'first_run',
+	'first_fetch_ok',
+	'challenge_chosen',
+	'download',
+	// lesson interactions
+	'types_legend-opened',
+	'types_tree-expanded',
+	// builder health
+	'runs_manual',
+	'runs_debounced',
+	'fetch_ok',
+	'fetch_failed',
+	'fetch_blocked',
+	'open_tab',
+	'reset',
+	'reset_project',
+	'undo',
+	'import',
+	'import_failed',
+	'restored',
+	'save_unreadable',
+	'storage_unavailable',
+	'help_copy',
+	'brief_cleared',
+	'idea_started',
+	'ideas_opened',
+	'ideas_shuffled',
+	'ideas_surprise',
+	'ideas_auto_offered',
+	'ideas_dismissed',
+	// chrome
+	'tab_html',
+	'tab_css',
+	'tab_js',
+	'view_split',
+	'view_code',
+	'view_preview',
+	'console_collapsed',
+	'console_expanded',
+	'console_resized',
+	'theme_light',
+	'theme_dark',
+	'panel_checkpoints_open',
+	'panel_checkpoints_closed',
+	'panel_help_open',
+	'panel_help_closed',
+	// environment
+	'env_viewport-sm',
+	'env_viewport-md',
+	'env_viewport-lg',
+	// session shape
+	'session_total',
+	'duration_lt5m',
+	'duration_5to15m',
+	'duration_15to30m',
+	'duration_30to60m',
+	'duration_gt60m',
+	'returning_day2',
+	'returning_day3',
+]);
+
+/** Bounded families: a fixed prefix plus a constrained tail. */
+const LESSON_PATTERNS: RegExp[] = [
+	/^chapter_[1-9]_reached$/,
+	/^chapters_[1-9]$/,
+	/^challenges_[1-5]$/,
+	/^hints_chapter-[1-9]$/,
+	/^dwell_chapter-[1-9]_(lt1m|1to3m|3to10m|gt10m)$/,
+	/^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
+	/^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
+	/^edits_(html|css|js)_(1to5|6to20|21to50|50plus)$/,
+	// Checkpoint and hint ids, and idea slugs. Kebab-case and short by
+	// construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
+	/^checkpoint_[a-z][a-z0-9-]{0,23}$/,
+	/^hint_[a-z][a-z0-9-]{0,23}$/,
+	/^idea_[a-z][a-z0-9-]{0,31}$/,
+	/^challenge_[a-z][a-z0-9-]{0,31}$/,
+];
+
+/**
+ * How many distinct counters one day-row may hold before the rest collapse into
+ * `other`.
+ *
+ * The patterns above are already bounded, so this should never be reached in
+ * normal use — roughly 150 keys is the realistic ceiling. It is the backstop for
+ * the case the patterns cannot cover: someone posting thousands of valid-looking
+ * idea slugs to grow a single record without limit. A row that stops taking new
+ * keys still counts everything it already knows, which is the right failure.
+ */
+const LESSON_MAX_KEYS = 400;
+
+function lessonKeyAllowed(key: string): boolean {
+	if (LESSON_EXACT.has(key)) return true;
+	// `errors_<name>` is checked against the runner's own catalogue rather than a
+	// pattern: the whole point of ranking these is to decide which explanation to
+	// write next, and a ranking that can be seeded with invented names is not a
+	// work queue, it is a suggestion box for strangers.
+	if (key.indexOf('errors_') === 0) return LESSON_ERROR_KEYS.has(key.slice('errors_'.length));
+	for (const re of LESSON_PATTERNS) if (re.test(key)) return true;
+	return false;
+}
+
+const lessonDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
+const LESSON_STATS_CACHE_MS = 15_000;
+
+/**
+ * Apply one batch of counters to today's LessonStat row.
+ *
+ * READ THE NOTE ON bumpLandingStat BEFORE CHANGING THIS. The mutation is applied
+ * to a plain object rebuilt from the stored row, never to the record the
+ * database handed back: those come back FROZEN, this bundle is ESM (so strict
+ * mode), and `row.counts[k] = n` on a fetched record throws — into a catch, and
+ * silently. That is exactly how the landing counters flatlined at 1/day for
+ * weeks while every test passed. The harness freezes reads now so it cannot
+ * happen unnoticed a second time; this function is written the safe way from the
+ * start rather than discovering it again.
+ */
+async function bumpLessonStat(counts: Record<string, number>, sessions: number): Promise<void> {
+	try {
+		const table = (db() as any).LessonStat;
+		if (!table) return; // schema table not created yet — drop the count, not the request
+		const now = Date.now();
+		const day = lessonDay(now);
+		const id = `day:${day}`;
+		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
+		// would look like "first event of the day" and reset the row to zero.
+		const stored = await findCounterRow(table, id);
+		const row: any = {
+			id,
+			day,
+			sessions: Number(stored?.sessions) || 0,
+			counts: countMap(stored?.counts),
+		};
+
+		row.sessions += sessions;
+		for (const [key, value] of Object.entries(counts)) {
+			const n = Math.floor(Number(value));
+			if (!Number.isFinite(n) || n <= 0) continue;
+			const target =
+				Object.prototype.hasOwnProperty.call(row.counts, key) || Object.keys(row.counts).length < LESSON_MAX_KEYS
+					? key
+					: 'other';
+			// Clamp per event batch. One page-session cannot legitimately produce
+			// thousands of anything, and a clamp keeps a broken (or hostile) client
+			// from skewing a day's numbers past the point of being readable.
+			row.counts[target] = (row.counts[target] || 0) + Math.min(n, 5000);
+		}
+
+		row.updatedAt = now;
+		await table.put(row);
+		lessonStatsCache.invalidate(); // new numbers — the next LessonStats read refreshes
+	} catch (e: any) {
+		console.error('lesson stat bump failed —', e?.message || e);
+	}
+}
+
+/**
+ * POST /LessonEvent/ {page, counts: {key: n}} — the classroom pages' beacon.
+ *
+ * ONE request per page-session, not one per event. The preview re-renders on
+ * every debounce and a whole classroom shares one NAT'd school IP, so per-event
+ * posting would exhaust the telemetry tier for everyone in the room by mid-
+ * lesson. The client accumulates in memory and flushes on pagehide with
+ * sendBeacon — which survives the tab closing, unlike fetch, and therefore keeps
+ * exactly the sessions that ran to completion.
+ *
+ * Always answers ok:true. A telemetry hiccup must never surface in a lesson.
+ */
+export class LessonEvent extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client beacon
+
+	async post(data: any) {
+		const body = await bodyOf(data, this);
+		const raw = body && typeof body.counts === 'object' && !Array.isArray(body.counts) ? body.counts : null;
+		if (!raw) return { ok: true }; // unknown shape — accept and drop
+
+		const page = String(body.page || '')
+			.toLowerCase()
+			.replace(/[^a-z-]/g, '')
+			.slice(0, 16);
+
+		const clean: Record<string, number> = {};
+		let dropped = 0;
+		for (const [key, value] of Object.entries(raw)) {
+			const name = String(key)
+				.toLowerCase()
+				.replace(/[^a-z0-9_-]/g, '')
+				.slice(0, 48);
+			if (!lessonKeyAllowed(name)) {
+				// Counted, not stored. A rising `other` is the signal that a page is
+				// reporting something this list has not been taught about yet — which
+				// is a prompt to add it here, deliberately, rather than a reason to
+				// accept anything.
+				dropped++;
+				continue;
+			}
+			clean[name] = (clean[name] || 0) + (Number(value) || 0);
+		}
+		if (dropped) clean.other = (clean.other || 0) + dropped;
+
+		/* `page` is read, validated and then deliberately NOT stored. Every counter
+		 * a page reports already names itself (view_builder, runs_manual), so a
+		 * second per-page dimension would only add a way for the two to disagree.
+		 * It is parsed at all so that a malformed one is rejected here rather than
+		 * discovered later. */
+		if (!page) return { ok: true };
+		if (!Object.keys(clean).length) return { ok: true };
+		await bumpLessonStat(clean, 1);
+		return { ok: true };
+	}
+}
+
+/**
+ * The classroom rollup: scan every LessonStat day-row, sum the totals, and hand
+ * the /dashboard classroom section per-day rows plus lifetime figures.
+ *
+ * Behind a stale-while-revalidate cache for the same reason the landing rollup
+ * is: bumpLessonStat fires on every session and would otherwise drop this on the
+ * floor each time.
+ */
+async function buildLessonStats(): Promise<any> {
+	const now = Date.now();
+	const t = db() as any;
+	let rows: any[] = [];
+	try {
+		rows = t.LessonStat ? await allOf(t.LessonStat) : [];
+	} catch {
+		rows = [];
+	}
+	rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
+
+	const totals: Record<string, number> = {};
+	let sessions = 0;
+	for (const r of rows) {
+		sessions += Number(r.sessions) || 0;
+		for (const [k, v] of Object.entries(r.counts || {})) totals[k] = (totals[k] || 0) + (Number(v) || 0);
+	}
+
+	/* Sized to cover the widest dashboard preset with room to spare — the landing
+	 * rollup shipped 60 rows behind a 90-day pill for a while, and a chart that
+	 * quietly renders less than its label claims is the kind of wrong that never
+	 * announces itself. These are small integers; the extra months cost nothing. */
+	const LESSON_DAYS_RETURNED = 180;
+	const days = rows.slice(-LESSON_DAYS_RETURNED).map((r: any) => ({
+		day: r.day,
+		sessions: Number(r.sessions) || 0,
+		counts: r.counts || {},
+		total: sumValues(r.counts),
+	}));
+
+	/* The funnel, in order, precomputed here so the dashboard renders a shape
+	 * rather than deriving one. It is the number worth acting on: read as a
+	 * drop-off curve it says where the lesson loses people, and every other
+	 * counter here is context for it. */
+	const step = (k: string) => totals[k] || 0;
+	const funnel = [
+		{ id: 'hub', label: 'Teachers hub', n: step('view_hub') },
+		{ id: 'coding', label: 'Coding kit', n: step('view_coding') },
+		{ id: 'lesson', label: 'Lesson opened', n: step('view_lesson') },
+		{ id: 'builder', label: 'Builder opened', n: step('builder_open') },
+		{ id: 'run', label: 'Ran their code', n: step('first_run') },
+		{ id: 'fetch', label: 'Fetched the data', n: step('first_fetch_ok') },
+		{ id: 'download', label: 'Downloaded a page', n: step('download') },
+	];
+
+	/** Errors, ranked. This is the work queue for explanation copy. */
+	const errors = Object.entries(totals)
+		.filter(([k]) => k.indexOf('errors_') === 0)
+		.map(([k, n]) => ({ key: k.slice('errors_'.length), n }))
+		.sort((a, b) => b.n - a.n);
+
+	/** Which ideas students pick, and which they pick and abandon. */
+	const ideas = Object.entries(totals)
+		.filter(([k]) => k.indexOf('idea_') === 0 && k !== 'idea_started')
+		.map(([k, n]) => ({ id: k.slice('idea_'.length), n }))
+		.sort((a, b) => b.n - a.n);
+
+	return {
+		generatedAt: now,
+		today: lessonDay(now),
+		sessions,
+		totals,
+		funnel,
+		errors,
+		ideas,
+		/* The health strip. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes it is broken, we never hear
+		 * about it, and they do not come back. This turns that into a number. */
+		health: {
+			fetchOk: step('fetch_ok'),
+			fetchFailed: step('fetch_failed'),
+			storageUnavailable: step('storage_unavailable'),
+			saveUnreadable: step('save_unreadable'),
+		},
+		days,
+	};
+}
+
+const lessonStatsCache = new RollupCache<any>(LESSON_STATS_CACHE_MS, buildLessonStats, undefined, () => db());
+
+/**
+ * GET /LessonStats/ — the classroom rollup, for the /dashboard section.
+ *
+ * ADMIN ONLY, on the same argument as LandingStats: nothing here is sensitive —
+ * it is counts, and it would stay harmless if it were public — but how a product
+ * is doing is not something to hand to anyone who asks. POST /LessonEvent/ stays
+ * public, because the pages have to be able to write to it.
+ */
+export class LessonStats extends DashboardEndpoint {
+	async get() {
+		return lessonStatsCache.get(Date.now());
 	}
 }
 

@@ -192,3 +192,21 @@ type PlayerNameIndex @table(database: "wildwillows") { id: ID @primaryKey } # id
 #               to the /dashboard landing section.
 type LandingStat @table(database: "wildwillows") { id: ID @primaryKey }
 
+# ---------- classroom pages: analytics (dynamic) ----------
+# LessonStat : ONE row per UTC day (`day:YYYY-MM-DD`) · day, sessions,
+#              counts { key: n }, updatedAt. Fed by POST /LessonEvent/ and read
+#              by the LessonStats rollup for the /dashboard classroom section.
+#
+# SEPARATE from LandingStat on purpose. Landing's `visits` is one
+# undifferentiated series shared by every page that reports one — which is why
+# /teachers has to report itself as a click instead. Three more pages with real
+# funnels would make that worse, and the classroom pages need per-chapter and
+# per-error keys the landing schema has nowhere to put.
+#
+# AGGREGATE COUNTERS ONLY, and this is a promise made in PRIVACY.md and on the
+# pages themselves: no identifiers, no free text, no timings, and nothing a
+# student typed. The endpoint enforces it by allowlisting every key it will
+# store — see LESSON_KEYS in server/resources.ts. Anything that cannot be
+# counted does not belong in this table.
+type LessonStat @table(database: "wildwillows") { id: ID @primaryKey }
+

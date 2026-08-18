@@ -787,12 +787,33 @@ body.ready .star,body.ready .fly{animation-play-state:running}
      Anonymous, aggregate-only: one "visit" ping per browser session and a
      "click" ping per outbound link (see data-track attributes). Counted per
      day in Harper (POST /LandingEvent/) and shown on /dashboard. */
-  function track(type,target){
+  /* Where the visitor arrived from, resolved HERE and never sent raw.
+     The beacon used to carry 200 characters of document.referrer — which can
+     include a search query — and the server read none of it. This sends one
+     word from a fixed list instead: enough to answer "are teachers finding
+     this through search or through Reddit", and not enough to describe anyone.
+     A same-site referrer returns null, so clicking through from the landing
+     page does not register as an arrival from somewhere. */
+  var SOURCE_HOSTS=[['google','google'],['bing','bing'],['duckduckgo','duckduckgo'],
+    ['reddit','reddit'],['itch','itch'],['apple','apple'],
+    /* Bluesky's hosts are bsky.app and bsky.social — 'bluesky' appears in its
+       name and in none of its domains, so matching on the bucket name would
+       have produced a counter that could never be anything but zero. */
+    ['bsky','bluesky']];
+  function sourceBucket(){
+    try{
+      if(!document.referrer)return 'direct';
+      var h=new URL(document.referrer).hostname.toLowerCase().replace(/^www\./,'');
+      if(h===location.hostname)return null;
+      for(var i=0;i<SOURCE_HOSTS.length;i++)if(h.indexOf(SOURCE_HOSTS[i][0])>-1)return SOURCE_HOSTS[i][1];
+      return 'other';
+    }catch(e){return 'other';}
+  }
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
         first:type==='visit'?firstVisit:undefined,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -808,8 +829,8 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     try{
       if(!localStorage.getItem('ww_seen')){firstVisit=true;localStorage.setItem('ww_seen','1');}
       if(sessionStorage.getItem('ww_visit'))return;
-      sessionStorage.setItem('ww_visit','1');track('visit');
-    }catch(e){track('visit');}
+      sessionStorage.setItem('ww_visit','1');track('visit',null,sourceBucket());
+    }catch(e){track('visit',null,sourceBucket());}
   }
   function scheduleVisit(){
     if(window.requestIdleCallback)requestIdleCallback(sendVisit,{timeout:3000});

@@ -20,6 +20,7 @@
 
 	var SAVE_KEY = 'wildWillowsCodeLab';
 	var SAVE_VERSION = 1;
+	var SEEN_KEY = 'wildWillowsCodeLabSeen';
 	var API = 'https://wildwillows.app/GameData/';
 
 	var FILES = ['index.html', 'styles.css', 'main.js'];
@@ -229,19 +230,75 @@
 	 * ran to completion, which are the ones worth counting.
 	 */
 	var counts = {};
-	var sent = false;
+	var durationSent = false;
 
 	function bump(key) {
 		counts[key] = (counts[key] || 0) + 1;
 	}
 
-	function flush() {
-		if (sent) return;
-		var keys = Object.keys(counts);
-		if (!keys.length) return;
-		sent = true;
+	/* ------------------------------------------------------- time in the builder
+	 *
+	 * How long a student actually spends here is the number that says whether this
+	 * is a five-minute curiosity or the thing they did for a whole period — and it
+	 * is the one figure a teacher will ask about that nothing else answers.
+	 *
+	 * ACTIVE time, not wall-clock: the tab left open over lunch is not an hour of
+	 * building. The clock stops whenever the page is hidden.
+	 *
+	 * BUCKETED, never a raw duration. A precise per-session length is a behavioural
+	 * trace of one person; "somewhere between fifteen and thirty minutes" answers
+	 * the question just as well and describes nobody. Same reasoning as everything
+	 * else in this file: if it cannot be a counter, it does not leave the browser.
+	 */
+	var activeMs = 0;
+	var since = Date.now();
+
+	function tickActive() {
+		var now = Date.now();
+		if (document.visibilityState !== 'hidden') activeMs += now - since;
+		since = now;
+	}
+
+	function durationBucket(ms) {
+		var m = ms / 60000;
+		if (m < 5) return 'duration_lt5m';
+		if (m < 15) return 'duration_5to15m';
+		if (m < 30) return 'duration_15to30m';
+		if (m < 60) return 'duration_30to60m';
+		return 'duration_gt60m';
+	}
+
+	/* Send whatever has accumulated and START A NEW BATCH.
+	 *
+	 * `final` marks the flush that happens because the session is ending — a tab
+	 * closing or a navigation away — as opposed to an interim one from a tab
+	 * switch or the periodic timer.
+	 *
+	 * TWO THINGS HERE ARE NOT OPTIONAL, both learned the hard way:
+	 *
+	 *   • `counts` is emptied on every send. It used to survive the send behind a
+	 *     `sent` latch, so a student who switched tabs once had that first batch
+	 *     sent, kept, and sent AGAIN by the five-minute timer — every counter
+	 *     before the first tab switch was recorded twice. Clearing after the send
+	 *     also makes the latch unnecessary: pagehide and visibilitychange both
+	 *     firing on the way out is harmless, because the second one finds nothing
+	 *     to send.
+	 *   • The duration bucket rides on the FINAL flush only. A session that runs
+	 *     past a boundary would otherwise land in two bands at once (lt5m and
+	 *     then 5to15m), and a distribution where one student appears in three
+	 *     bands is not a distribution.
+	 */
+	function flush(final) {
+		tickActive();
+		if (final && !durationSent) {
+			durationSent = true;
+			bump(durationBucket(activeMs));
+		}
+		if (!Object.keys(counts).length) return;
+		var batch = counts;
+		counts = {};
 		try {
-			var body = JSON.stringify({ page: 'builder', counts: counts });
+			var body = JSON.stringify({ page: 'builder', counts: batch });
 			if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
 		} catch (e) {
 			/* analytics never gets to break the page */
@@ -251,18 +308,19 @@
 	document.addEventListener('ww:metric', function (e) {
 		if (e && e.detail && e.detail.key) bump(e.detail.key);
 	});
+	/* A tab switch is not the end of a session — the student is looking something
+	 * up and will be back. Send what we have, keep the clock running. */
 	document.addEventListener('visibilitychange', function () {
-		if (document.visibilityState === 'hidden') flush();
+		tickActive();
+		if (document.visibilityState === 'hidden') flush(false);
 	});
-	window.addEventListener('pagehide', flush);
+	window.addEventListener('pagehide', function () {
+		flush(true);
+	});
 	/* Long lessons: a student can sit in here for a whole period without ever
 	 * hiding the tab, and a session that never reports is a session we cannot see. */
 	setInterval(function () {
-		if (Object.keys(counts).length) {
-			sent = false;
-			flush();
-			counts = {};
-		}
+		flush(false);
 	}, 300000);
 
 	/* --------------------------------------------------------------- persistence */
@@ -820,6 +878,59 @@
 		});
 
 		bump('builder_open');
+		bump('view_builder');
+		bump('session_total');
+
+		/* Which screens this is actually used on. The page claims to work on a
+		 * Chromebook; this is how that claim gets checked. */
+		var w = window.innerWidth || 0;
+		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
+
+		/* How they got here, as one word from a fixed list. The referrer URL is
+		 * read in this browser and thrown away in this browser; only the bucket is
+		 * ever sent. A referrer from our own host is 'internal', which is the
+		 * difference between "arrived from the lesson" and "arrived from Google". */
+		try {
+			var r = document.referrer;
+			var host = r ? new URL(r).hostname.toLowerCase().replace(/^www\./, '') : '';
+			bump(
+				!r
+					? 'ref_direct'
+					: host === location.hostname
+						? 'ref_internal'
+						: /google|bing|duckduckgo|ecosia|yahoo/.test(host)
+							? 'ref_search'
+							: /reddit|bluesky|bsky|mastodon|facebook|instagram|linkedin/.test(host)
+								? 'ref_social'
+								: 'ref_other',
+			);
+		} catch (e) {
+			bump('ref_other');
+		}
+
+		/* Where they went next. The nav links leave the page, so this has to be a
+		 * plain click listener rather than anything that waits for a response —
+		 * bump() batches into the pagehide flush, which fires on the way out. */
+		var NAV = { 'lesson-nav': 'nav_lesson', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		document.addEventListener('click', function (e) {
+			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
+		});
+
+		/* Did they come back? Stored as a DATE, not an identifier — it says "this
+		 * browser has been here before", which is all the question needs. */
+		try {
+			var today = new Date().toISOString().slice(0, 10);
+			var firstDay = localStorage.getItem(SEEN_KEY);
+			if (!firstDay) localStorage.setItem(SEEN_KEY, today);
+			else if (firstDay !== today) {
+				var days = Math.round((Date.parse(today) - Date.parse(firstDay)) / 86400000);
+				if (days === 1) bump('returning_day2');
+				else if (days >= 2) bump('returning_day3');
+			}
+		} catch (e) {
+			/* storage unavailable — see load(); the lesson does not depend on this */
+		}
 	}
 
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);

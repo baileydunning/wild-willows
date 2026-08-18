@@ -71,12 +71,29 @@ describe('site-core.css', () => {
 			expect(core, `${cls} is used by the classroom pages`).toContain(cls);
 	});
 
-	it('stops before anything page-specific', () => {
-		// The shared block ends at the section-head rules; everything after it in
-		// landing.html is that page's own hero and section styling, which the
-		// classroom pages must not inherit.
+	it('is the whole block every page shares, and no more', () => {
+		// The boundary is not a judgement call: /teachers, /age-rating and /support
+		// each carry a byte-identical copy of landing's sheet up to a point, and
+		// diverge after it. That common prefix IS the shared design system — hero
+		// styles and all, which surprised me: they are shared, so they belong here.
+		//
+		// Asserting the maximal prefix catches both failure modes at once. Extract
+		// too little and the classroom pages miss rules the others have; too much
+		// and they inherit something only the landing page wanted.
 		const core = extracted();
-		expect(core).not.toContain('.hero-scene');
+		const landing = styleOf('landing.html');
+		const from = landing.indexOf(':root{');
+
+		let shared = core.length;
+		for (const page of ['teachers.html', 'age-rating.html', 'support.html']) {
+			const other = styleOf(page);
+			const at = other.indexOf(':root{');
+			let i = 0;
+			while (i < landing.length - from && i < other.length - at && landing[from + i] === other[at + i]) i++;
+			shared = Math.min(shared, i);
+		}
+
+		expect(core.length, 'site-core.css should be exactly the shared prefix').toBe(shared);
 		expect(core.trimEnd().endsWith('}')).toBe(true);
 	});
 });

@@ -38,7 +38,25 @@ You may optionally include an **email address** if you'd like a reply. It is use
 
 ## What I don't do
 
-I do not sell, rent, or share your data with anyone. The game contains no advertising, no tracking SDKs, no third-party analytics, and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)
+I do not sell, rent, or share your data with anyone. The game and the website contain no advertising, no tracking SDKs, no third-party analytics, no cookies and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)
+
+## The website and the classroom pages
+
+The pages on wildwillows.app — the landing page, the teachers pages, and the classroom coding kit at `/learn` — count how they are used. **Only counts.** There is no account, no cookie, no third-party analytics, and no identifier of any kind, so nothing here can be tied to a person or a device.
+
+What is counted is a fixed list of named events: which page was opened, which buttons and links were used, how far through the lesson a reader got, which errors the code editor explained, and roughly how long a session in the code editor lasted. That last one is recorded as a band — under 5 minutes, 5–15, 15–30, 30–60, over an hour — never as an exact duration, because a precise session length describes one person while a band describes none.
+
+The server accepts only names from that list. Anything else is discarded and counted as "other", so the list is the whole of what can ever be stored.
+
+**In the code editor, your code never leaves your browser.** It is saved in that browser's own storage so it is still there when you come back, and it is sent nowhere — not when you run it, not when it produces an error, and not in the usage counts. The only way your work leaves your machine is if you press Download and save the file yourself.
+
+Counters are sent once at the end of a visit, as a single anonymous total. No IP addresses are stored and nothing anyone typed is transmitted.
+
+**Referring URLs are never sent.** If you arrive from a link, your browser knows where you came from; that address is read in your browser, reduced there to a single word from a fixed list of nine — Google, Bing, DuckDuckGo, Reddit, itch.io, Apple, Bluesky, direct or bookmarked, somewhere else — and only that word is sent. The address itself, including anything you searched for to get here, never leaves your machine. A visit from one page of this site to another is not counted as an arrival at all.
+
+### For teachers and schools
+
+The classroom pages need no student accounts, no logins and no class codes, and none exist. Because nothing identifies a student, a class, or a school, there is no student record here to request, correct or delete — there is nothing but a daily tally of anonymous counts. If your district needs a written answer, this section is it, and you are welcome to email me for anything more specific.
 
 ## Where data is stored
 
@@ -51,6 +69,8 @@ Gameplay snapshots are kept so long-term trends stay visible; each save slot has
 ## Children
 
 Wild Willows is suitable for all ages. I do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact me and I will delete it.
+
+This applies with particular force to the classroom pages, which are built for use by minors in schools: they ask for nothing, store nothing about the individual, and transmit nothing a student writes. See **The website and the classroom pages** above.
 
 ## The browser version
 

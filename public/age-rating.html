@@ -686,11 +686,10 @@ section[id]{scroll-margin-top:66px}
      need adding to LANDING_CLICK_TARGETS in server/resources.ts or it just
      collapses into 'other'. Neither is worth a server change for a policy
      page, so this page counts outbound clicks and nothing else. */
-  function track(type,target){
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}

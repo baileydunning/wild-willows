@@ -42,6 +42,79 @@ describe('LandingEvent + LandingStats', () => {
 		expect(out.days[0].totalClicks).toBe(4);
 	});
 
+	// The arrival bucket. This replaced `ref` — 200 characters of raw
+	// document.referrer that the client sent on EVERY event and this endpoint
+	// never read. The contract now is: one word, from a fixed list of nine,
+	// resolved in the browser, counted only on a page's once-per-session ping.
+	describe('arrival sources', () => {
+		it('counts an allowlisted bucket from either kind of page ping', async () => {
+			// The landing page reports its session as a visit; /teachers reports its
+			// as an 'edu-page' click. Both are one arrival and both feed this series,
+			// which is why `from` is read before the type is branched on.
+			await w.post('LandingEvent', { type: 'visit', from: 'reddit' });
+			await w.post('LandingEvent', { type: 'click', target: 'edu-page', from: 'reddit' });
+			await w.post('LandingEvent', { type: 'visit', from: 'direct' });
+
+			const out = await w.get('LandingStats');
+			expect(out.totals.sources.reddit).toBe(2);
+			expect(out.totals.sources.direct).toBe(1);
+			expect(out.totals.totalSources).toBe(3);
+			expect(out.days[0].sources.reddit).toBe(2);
+		});
+
+		it('drops a bucket that is not on the list rather than inventing one', async () => {
+			// Note this differs from click targets, which fall back to 'other'.
+			// 'other' is a bucket a client sends ON PURPOSE, meaning "arrived from
+			// somewhere off the list". If a malformed value also landed there, a
+			// rising 'other' would stop meaning anything.
+			await w.post('LandingEvent', { type: 'visit', from: 'evil.example.com/?q=secret' });
+			await w.post('LandingEvent', { type: 'visit', from: 'facebook' });
+			await w.post('LandingEvent', { type: 'visit', from: 'other' });
+
+			const out = await w.get('LandingStats');
+			expect(out.totals.sources.other).toBe(1);
+			expect(Object.keys(out.totals.sources)).toEqual(['other']);
+			expect(out.totals.visits).toBe(3); // the visit still counts; only the bucket is dropped
+		});
+
+		it('stores no bucket at all when the client sends none', async () => {
+			// /privacy, /support and /age-rating send clicks and no page ping, so
+			// they contribute no arrival. An absent `from` must not become 'direct'.
+			await w.post('LandingEvent', { type: 'click', target: 'privacy' });
+			const out = await w.get('LandingStats');
+			expect(out.totals.sources).toEqual({});
+			expect(out.totals.totalSources).toBe(0);
+		});
+
+		it('keeps counting arrivals after the day’s row exists', async () => {
+			// Same frozen-record hazard as visits and clicks: `sources` is a THIRD
+			// map on the row and had to be added to the plain-object rebuild in
+			// bumpLandingStat. If it was missed, the first arrival of the day would
+			// be the only one ever recorded.
+			for (let i = 0; i < 4; i++) await w.post('LandingEvent', { type: 'visit', from: 'google' });
+			const out = await w.get('LandingStats');
+			expect(out.totals.sources.google).toBe(4);
+		});
+
+		it('reads nothing else off the body', async () => {
+			// The old fields, sent by a client that has not been redeployed yet.
+			// They must be ignored, not stored — that is what made removing them a
+			// client-only change with no migration behind it.
+			await w.post('LandingEvent', {
+				type: 'visit',
+				from: 'bing',
+				ref: 'https://www.google.com/search?q=something+personal',
+				lang: 'en-GB',
+			});
+			const rows = [];
+			for await (const row of w.db.LandingStat.search()) rows.push(row);
+			const stored = JSON.stringify(rows[0]);
+			expect(stored).not.toContain('something+personal');
+			expect(stored).not.toContain('en-GB');
+			expect(rows[0].sources.bing).toBe(1);
+		});
+	});
+
 	// Regression: Harper hands back FROZEN records (the harness does too, since the
 	// day this bit us), so a counter that mutated the fetched row in place threw
 	// "Cannot assign to read only property" inside bumpLandingStat's catch. Every

@@ -130,3 +130,70 @@ describe('the built Code Builder page', () => {
 		expect(html).toContain("id: 'fails'"); // last checkpoint
 	});
 });
+
+describe('the dashboard', () => {
+	const html = builtPage('dashboardHtml');
+
+	it('is built on the site stylesheet rather than its own palette', () => {
+		// It had a near-miss green-and-cream of its own, three values of which
+		// failed AA on the site's creams (--muted 4.29, --faint 2.31, --accent
+		// 4.24) while carrying every sub-label, hint and axis on the page.
+		expect(html).toContain('--green-deep:#39604a'); // site-core, inlined
+		expect(html).toContain('--bg: var(--paper)');
+		expect(html).toContain('font: 15px/1.55 var(--f)');
+		expect(html).toContain('family=Quicksand');
+	});
+
+	it('offers the four views', () => {
+		for (const view of ['game', 'website', 'harper', 'problems'])
+			expect(html, view).toContain(`data-view-tab="${view}"`);
+		// The site's own chips, not a lookalike control.
+		expect(html).toContain('class="chip on" role="tab" data-view-tab="game"');
+	});
+
+	it('hides the sections that do not match the chosen view', () => {
+		for (const view of ['game', 'website', 'harper', 'problems'])
+			expect(html, view).toContain(`body[data-view='${view}'] section[data-view]:not([data-view='${view}'])`);
+	});
+
+	it('files every section under a view', () => {
+		// sec() defaults to 'game', so this only has to pin the ones that are not.
+		expect(html).toContain("'problems',"); // What is going wrong · Save health
+		expect(html).toContain("'website',"); // Landing page · Classroom
+		expect(html).toContain("'harper',"); // Server health, both branches
+		expect(html).toContain('section data-view=');
+	});
+
+	it('gives nothing away on the sign-in screen', () => {
+		// Before this, the page announced itself as "Wild Willows Metrics" above the
+		// form, with a nav, a version filter and a Problems toggle — so anyone who
+		// found the URL learned that it exists, what it reports and roughly how it
+		// is organised, without a password.
+		expect(html).toContain('<title>Wild Willows</title>');
+		expect(html).not.toContain('<title>Wild Willows — Metrics Dashboard</title>');
+		expect(html).toContain('content="noindex, nofollow"');
+		for (const sel of ['body.signed-out .nav', 'body.signed-out header.top', 'body.signed-out .views'])
+			expect(html, sel).toContain(sel);
+		// Concealed at boot, not after the first auth check: a flash of the real
+		// header is the same disclosure, just briefer.
+		expect(html).toContain("document.body.classList.add('signed-out')");
+		// The title is part of it — a tab or a history entry says as much as the page.
+		expect(html).toContain('function setSignedOut');
+	});
+
+	it('leaves no stray section arguments in the markup', () => {
+		// A brace-balancing edit once walked past a template literal and inserted a
+		// section's view argument AFTER </html>, which rendered as the literal text
+		// "'harper'," at the bottom of the page.
+		expect(html.trimEnd().endsWith('</html>')).toBe(true);
+		expect(html).not.toMatch(/<\/html>\s*,/);
+	});
+
+	it('remembers the view, and says when one is empty', () => {
+		// Whoever opens this at 3am to find out why it is on fire wants Problems,
+		// and should not have to choose it every time. And an empty view looks
+		// identical whether there is nothing to report or the feed failed.
+		expect(html).toContain("const VIEW_KEY = 'wwDashboardView'");
+		expect(html).toContain('function noteEmptyView');
+	});
+});

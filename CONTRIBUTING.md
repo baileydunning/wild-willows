@@ -245,7 +245,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | Endpoint | Does |
 |---|---|
 | `GET /Version/` | Build stamp (app version + build time) baked into the bundle; `deploy.sh` polls it after a deploy to catch a stale node, and the demo backend probe pings it |
-| `GET /GameData/` | All static definitions + character appearance options. On the hosted Harper the ~300 KB JSON is served **brotli/gzip-compressed (~65 KB)** with a build-stamped ETag + `Cache-Control`, so repeat opens revalidate to an empty 304; the in-app solo backend receives the same data as a plain object |
+| `GET /GameData/` | All static definitions + character appearance options. Sends `Access-Control-Allow-Origin: *` — the classroom code editor runs student code in an opaque-origin sandbox, and downloaded projects run from `file://`, so both read this cross-origin. On the hosted Harper the ~300 KB JSON is served **brotli/gzip-compressed (~65 KB)** with a build-stamped ETag + `Cache-Control`, so repeat opens revalidate to an empty 304; the in-app solo backend receives the same data as a plain object |
 | `POST /CreatePlayer/` · `POST /LoginPlayer/` · `POST /DeletePlayer/` | Create / load / delete a save (name + passcode) |
 | `POST /DeleteDemoSave/` · `POST /ExportDemoSave/` | Demo-only, passcode-free: delete or export a demo save — both refuse anything not tagged `edition:'demo'`, so a real save can't be touched |
 | `POST /ChangePasscode/` · `POST /UpdateAppearance/` | Change a save's passcode (current one must match) / restyle your caretaker anytime |
@@ -280,6 +280,9 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /DevTools/` | Developer-only testing helpers (restricted to one save) |
 | `GET /privacy.html` · `GET /age-rating.html` · `GET /support.html` | Store-listing pages (privacy policy, age suitability, support/FAQ) served as endpoints — HTML inlined from `public/*.html` by `scripts/build-pages.mjs` |
 | `GET /img/<name>.webp` | The landing + teachers page screenshots, content-hashed and served `immutable` for a year. They were base64 data URIs inside the HTML until the pages hit 470 KB and 260 KB of render-blocking document; as real URLs the pages are ~66 KB each, the images cache independently, and the four screenshots BOTH pages use are fetched once. Bytes ride along in `server/img-assets.ts` (generated from `public/img/`) |
+| `GET /learn/<slug>` | The classroom student pages — `web-development` (the lesson) and `code-builder` (a three-file browser code editor with a live preview). One resource dispatching on `getId()`, same mechanism as `/img/<name>.webp`; unknown slugs 404 from an explicit map. `noindex` on the builder: it is a tool, and an indexed code editor competes with the lesson that explains it |
+| `POST /LessonEvent/` | The classroom pages' anonymous counter beacon — ONE batched request per page-session (`sendBeacon` on pagehide), allowlisted counter names only. No identifiers, no free text, no raw durations, and nothing a student typed. Public, `telemetry` tier; see `LESSON_EXACT` in `server/resources.ts` for the whole of what can be stored |
+| `GET /LessonStats/` | **Super-user only.** Rollup of those counters for the /dashboard **Classroom** section: the funnel, errors ranked as a work queue for explanation copy, which ideas students pick, time-in-builder buckets, and the blocked-school-network signal |
 | `GET /teachers` | The classroom page — what the game teaches, the 45–60 min lesson arc, discussion prompts, and the two free PDFs. Same inlining path as the pages above; its own URL rather than an anchor on `/` because teachers arrive from a different search and need something shareable |
 
 ---

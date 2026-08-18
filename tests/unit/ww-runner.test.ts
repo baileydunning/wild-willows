@@ -16,6 +16,21 @@ import { join } from 'node:path';
 
 let R: any;
 
+/**
+ * The document the runner most recently rendered.
+ *
+ * NOT simply the first iframe. The runner double-buffers: it renders into the
+ * hidden frame and swaps on load, so on the very first run the frame carrying
+ * the content is the second one. Reading `querySelector('iframe')` got the empty
+ * one and every assertion below silently had nothing to look at.
+ */
+const renderedDoc = (): string => {
+	const frames = [...document.querySelectorAll('iframe.wwr-preview')] as HTMLIFrameElement[];
+	const withDoc = frames.map((f) => f.srcdoc).filter(Boolean);
+	expect(withDoc.length, 'the runner should have rendered into one of its buffers').toBeGreaterThan(0);
+	return withDoc[withDoc.length - 1];
+};
+
 beforeAll(() => {
 	const src = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
 	// jsdom gives us a real document; the IIFE finds no <ww-runner> elements and
@@ -316,19 +331,30 @@ describe('the assembled preview actually parses', () => {
 
 	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
 
-	const assembledScript = (js: string): string => {
+	/* EVERY script block in the assembled document, in order.
+	 *
+	 * This used to grab one block with a GREEDY /<script>\n([\s\S]*)\n<\/script>/.
+	 * That was right when there was one block and quietly wrong the moment the
+	 * harness moved into its own — the match ran from the first <script> to the
+	 * LAST </script> and swallowed the HTML between them, so every one of these
+	 * assertions failed on `Unexpected token '<'` and was reporting the regex
+	 * rather than the document. Non-greedy, and check them all: the reason the
+	 * harness is in a separate block is that both have to parse independently. */
+	const assembledScripts = (js: string): string[] => {
 		document.body.innerHTML = `<ww-runner console><script type="text/ww-file" name="main.js">${js}</script></ww-runner>`;
 		new Function(SRC)();
-		const frame = document.querySelector('iframe.wwr-preview') as HTMLIFrameElement;
-		expect(frame, 'the runner should have rendered a preview frame').toBeTruthy();
-		const m = /<script>\n([\s\S]*)\n<\/script>/.exec(frame.srcdoc);
-		expect(m, 'the assembled document should contain one script block').toBeTruthy();
-		return m![1];
+		const blocks = [...renderedDoc().matchAll(/<script>\n([\s\S]*?)\n<\/script>/g)].map((m) => m[1]);
+		expect(blocks.length, 'the assembled document should contain script blocks').toBeGreaterThan(0);
+		return blocks;
+	};
+	const expectAllParse = (js: string) => {
+		for (const [i, block] of assembledScripts(js).entries())
+			// new Function throws on a syntax error without executing anything.
+			expect(() => new Function(block), `script block ${i} should parse`).not.toThrow();
 	};
 
 	it('produces a preview script that is valid JavaScript', () => {
-		// new Function throws on a syntax error without executing anything.
-		expect(() => new Function(assembledScript('console.log(1);'))).not.toThrow();
+		expectAllParse('console.log(1);');
 	});
 
 	it('stays valid with the starter project in it', () => {
@@ -340,11 +366,11 @@ describe('the assembled preview actually parses', () => {
 			'}',
 			'loadGameData();',
 		].join('\n');
-		expect(() => new Function(assembledScript(starter))).not.toThrow();
+		expectAllParse(starter);
 	});
 
 	it('stays valid when the student writes a closing script tag', () => {
-		expect(() => new Function(assembledScript('const s = "</scr" + "ipt>";'))).not.toThrow();
+		expectAllParse('const s = "</scr" + "ipt>";');
 	});
 
 	it('builds the harness from a real function rather than string literals', () => {
@@ -374,9 +400,8 @@ describe("a syntax error in the student's code still gets reported", () => {
 	const previewBlocks = (js: string) => {
 		document.body.innerHTML = `<ww-runner console><script type="text/ww-file" name="main.js">${js}</script></ww-runner>`;
 		new Function(SRC)();
-		const frame = document.querySelector('iframe.wwr-preview') as HTMLIFrameElement;
-		const doc = new DOMParser().parseFromString(frame.srcdoc, 'text/html');
-		return [...doc.querySelectorAll('script')].map((n) => n.textContent || '');
+		const parsed = new DOMParser().parseFromString(renderedDoc(), 'text/html');
+		return [...parsed.querySelectorAll('script')].map((n) => n.textContent || '');
 	};
 
 	it('puts the harness in a block of its own', () => {
