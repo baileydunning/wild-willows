@@ -49,6 +49,8 @@ const PAGES = {
 	'/learn': 'public/learn-index.html',
 	'/learn/code-builder': 'public/learn-code-builder.html',
 	'/learn/web-development': 'public/learn-web-development.html',
+	'/developers': 'public/developers-api.html',
+	'/developers/api': 'public/developers-api.html',
 };
 
 /* Same directive and same rules as scripts/build-pages.mjs. Duplicated on

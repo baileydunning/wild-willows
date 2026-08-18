@@ -557,6 +557,20 @@
 		area.setAttribute('autocorrect', 'off');
 		area.setAttribute('autocapitalize', 'off');
 
+		/* THE ESCAPE HATCH HAS TO BE ANNOUNCED, not just implemented.
+		 *
+		 * Tab indents instead of moving focus, and Escape-then-Tab moves out (see
+		 * the keydown handler below). A keyboard user who does not know that is in
+		 * a trap whether or not the code has a way out of it, so the way out is
+		 * part of the field's description rather than a comment in this file. */
+		var howto = document.createElement('span');
+		howto.className = 'sr-only';
+		howto.id = 'wwr-howto-' + file.replace(/[^a-z0-9]/gi, '-') + '-' + Math.round(performance.now() * 1000);
+		howto.textContent = 'Tab inserts two spaces. To move focus out of the editor, press Escape and then Tab.';
+		area.setAttribute('aria-describedby', howto.id);
+
+		wrap.appendChild(howto);
+
 		function renderGutter() {
 			var lines = area.value.split('\n').length;
 			var out = '';
@@ -754,19 +768,48 @@
 			 * button that says nothing to anyone who cannot see it. */
 			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
 			t.title = f.name;
+			t.setAttribute('data-file', f.name);
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			/* ROVING TABINDEX. A tablist is ONE tab stop, and the arrow keys move
+			 * inside it — that is the whole reason the role exists. Left as three
+			 * plain buttons it announced itself as a tablist and then behaved like
+			 * a toolbar, which is worse than either: a screen-reader user is told
+			 * to press the arrow keys and nothing happens. */
+			t.tabIndex = i === 0 ? 0 : -1;
 			t.addEventListener('click', function () {
-				files.forEach(function (other) {
-					editors[other.name].wrap.hidden = other.name !== f.name;
-				});
-				Array.prototype.forEach.call(tabs.children, function (c) {
-					c.classList.toggle('is-active', c === t);
-					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
-				});
-				metric('tab_' + f.name.split('.').pop(), host);
+				selectTab(t, false);
 			});
 			tabs.appendChild(t);
+		});
+
+		function selectTab(t, focusIt) {
+			var name = t.getAttribute('data-file');
+			files.forEach(function (other) {
+				editors[other.name].wrap.hidden = other.name !== name;
+			});
+			Array.prototype.forEach.call(tabs.children, function (c) {
+				var on = c === t;
+				c.classList.toggle('is-active', on);
+				c.setAttribute('aria-selected', on ? 'true' : 'false');
+				c.tabIndex = on ? 0 : -1;
+			});
+			if (focusIt) t.focus();
+			metric('tab_' + String(name).split('.').pop(), host);
+		}
+
+		tabs.addEventListener('keydown', function (e) {
+			var STEP = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
+			var kids = Array.prototype.slice.call(tabs.children);
+			var at = kids.indexOf(document.activeElement);
+			if (at < 0) return;
+			var to = -1;
+			if (STEP[e.key]) to = (at + STEP[e.key] + kids.length) % kids.length;
+			else if (e.key === 'Home') to = 0;
+			else if (e.key === 'End') to = kids.length - 1;
+			if (to < 0) return;
+			e.preventDefault();
+			selectTab(kids[to], true);
 		});
 		/* One file needs no tab strip — the lesson's inline examples would just be
 		 * wearing chrome that explains nothing. */
@@ -914,7 +957,6 @@
 		}
 		var consoleLines = document.createElement('pre');
 		consoleLines.className = 'wwr-console-lines';
-		consoleLines.setAttribute('aria-live', 'polite');
 		consoleBox.appendChild(consoleLines);
 		host.appendChild(consoleBox);
 
@@ -922,8 +964,35 @@
 		errBox.className = 'wwr-error';
 		errBox.hidden = true;
 		errBox.setAttribute('role', 'status');
-		errBox.setAttribute('aria-live', 'polite');
 		host.appendChild(errBox);
+
+		/* LIVE ONLY WHILE YOU ARE IN IT.
+		 *
+		 * Both of these were `aria-live="polite"` from the moment they were built.
+		 * On the Code Builder that is two live regions and fine. On the lesson it
+		 * is thirty-two runners — SIXTY-FOUR live regions, all of which run their
+		 * examples on load — so a screen reader opens the page and reads out every
+		 * console on it before the reader has got to chapter 1.
+		 *
+		 * They still have to announce: an error that only appears silently is the
+		 * failure this component exists to prevent. So the announcement follows
+		 * the focus. The runner you are typing in speaks; the thirty-one you are
+		 * not stay quiet. */
+		function setLive(on) {
+			/* `off`, not a removed attribute: role="status" carries an IMPLICIT
+			   polite live region, so deleting aria-live leaves the error panel
+			   announcing anyway. An explicit `off` is what overrides the role. */
+			var v = on ? 'polite' : 'off';
+			consoleLines.setAttribute('aria-live', v);
+			errBox.setAttribute('aria-live', v);
+		}
+		setLive(false);
+		host.addEventListener('focusin', function () {
+			setLive(true);
+		});
+		host.addEventListener('focusout', function (e) {
+			if (!host.contains(e.relatedTarget)) setLive(false);
+		});
 
 		/* ---- running ---- */
 		var timer = null;
@@ -986,7 +1055,7 @@
 			/* Nothing changed — do not tear the page down to rebuild the same thing.
 			 * Input events fire for plenty of reasons that leave the code identical
 			 * (arrow keys, selection, a tab switch), and every one of those was
-			 * costing a full reload and a flash. Run always honours an explicit
+			 * costing a full reload and a flash. Run always honors an explicit
 			 * press, because "I pressed Run and nothing happened" is worse. */
 			if (doc === lastDoc && how !== 'manual') return;
 			lastDoc = doc;
@@ -1240,7 +1309,7 @@
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
 	 * not: the glyph comes from whatever font the platform decides, so it lands
-	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * anywhere between a hairline arrow and a full-color emoji, at a size nothing
 	 * else in the toolbar uses. On a school Windows machine missing the font it is
 	 * a blank box on the one button a student needs most. Two SVG paths cost
 	 * nothing and look the same everywhere. */

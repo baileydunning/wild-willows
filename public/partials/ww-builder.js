@@ -370,7 +370,7 @@
 				'Label every line, so a reader can tell which fact is which.',
 				'Lay the cards out with CSS grid in styles.css.',
 			],
-			done: 'A grid of cards, each carrying four labelled facts about one animal.',
+			done: 'A grid of cards, each carrying four labeled facts about one animal.',
 		},
 		{
 			id: 'what-eats-what',
@@ -396,7 +396,7 @@
 			steps: [
 				'Log one biome to see how resources is stored before you loop over it.',
 				'Map each biome to its name plus its resources joined with commas.',
-				'Colour each biome heading with that biome\'s own palette color.',
+				'Color each biome heading with that biome\'s own palette color.',
 			],
 			done: 'Six biomes, each listing what you can gather there.',
 		},
@@ -426,7 +426,7 @@
 				'Style the three classes differently in styles.css.',
 				'Put the word inside the badge as well. Color on its own is not a label.',
 			],
-			done: 'Every animal has a badge, and the three kinds are still tellable apart in grey.',
+			done: 'Every animal has a badge, and the three kinds are still tellable apart in gray.',
 		},
 
 		// --- ambitious: reduce, grouping, or real interaction ------------------
@@ -454,9 +454,9 @@
 			steps: [
 				'Build the id-to-animal lookup once, at the start, not inside the loop.',
 				'Show one animal, and make every name in its two lists clickable.',
-				'A click re-renders the whole view centred on the animal that was clicked.',
+				'A click re-renders the whole view centered on the animal that was clicked.',
 			],
-			done: 'You can walk from any animal to its neighbours, and back again.',
+			done: 'You can walk from any animal to its neighbors, and back again.',
 		},
 		{
 			id: 'trophic-pyramid',
@@ -496,7 +496,7 @@
 			steps: [
 				'Reduce into counts for the three rarity values.',
 				'Work out each one\'s share of the total as a percentage.',
-				'Draw three bars, each labelled with its count and its share.',
+				'Draw three bars, each labeled with its count and its share.',
 			],
 			done: 'Three bars whose percentages add up to 100.',
 		},
@@ -635,6 +635,23 @@
 		counts[key] = (counts[key] || 0) + 1;
 	}
 
+	/* FIRST VISIT EVER, not first visit this session.
+	 *
+	 * `view_builder` is traffic and this is reach: how many different browsers have
+	 * ever opened the page. The gap between the two is how much of the traffic is
+	 * the same people coming back, which for a tool is the difference between
+	 * being used and being reloaded. One bit, readable only by this origin, and
+	 * it identifies nobody. */
+	function bumpFirstEver() {
+		try {
+			if (localStorage.getItem('ww_ever_builder')) return;
+			localStorage.setItem('ww_ever_builder', '1');
+		} catch (e) {
+			/* storage refused: overstating reach a little beats losing it */
+		}
+		bump('unique_builder');
+	}
+
 	/* ------------------------------------------------------- time in the builder
 	 *
 	 * How long a student actually spends here is the number that says whether this
@@ -644,7 +661,7 @@
 	 * ACTIVE time, not wall-clock: the tab left open over lunch is not an hour of
 	 * building. The clock stops whenever the page is hidden.
 	 *
-	 * BUCKETED, never a raw duration. A precise per-session length is a behavioural
+	 * BUCKETED, never a raw duration. A precise per-session length is a behavioral
 	 * trace of one person; "somewhere between fifteen and thirty minutes" answers
 	 * the question just as well and describes nobody. Same reasoning as everything
 	 * else in this file: if it cannot be a counter, it does not leave the browser.
@@ -1429,8 +1446,19 @@
 			status('Added to main.js — the brief is in the sidebar. Undo is in the toolbar.', 'ok');
 		}
 
+		/* WHERE FOCUS GOES WHEN THIS SHUTS.
+		 *
+		 * Focus moved into the dialog and, on close, was dropped on the document —
+		 * so a keyboard user who opened Ideas, looked, and pressed Escape restarted
+		 * from the top of the page, twenty-odd tab stops from where they were. The
+		 * opener is remembered rather than assumed, because this dialog also opens
+		 * by itself after a few idle minutes, and in that case there is no button
+		 * to go back to. */
+		var modalOpener = null;
+
 		function openModal(why) {
 			if (!modal) return;
+			modalOpener = document.activeElement && document.activeElement !== document.body ? document.activeElement : null;
 			modal.hidden = false;
 			renderIdeas();
 			bump(why === 'auto' ? 'ideas_auto_offered' : 'ideas_opened');
@@ -1439,7 +1467,11 @@
 		}
 
 		function closeModal() {
-			if (modal) modal.hidden = true;
+			if (!modal || modal.hidden) return;
+			modal.hidden = true;
+			var back = modalOpener && document.contains(modalOpener) ? modalOpener : $('#lab-ideas-open');
+			modalOpener = null;
+			if (back && back.focus) back.focus();
 		}
 
 		var ideasBtn = $('#lab-ideas-open');
@@ -1557,6 +1589,7 @@
 
 		bump('builder_open');
 		bump('view_builder');
+		bumpFirstEver();
 		bump('session_total');
 
 		/* Which screens this is actually used on. The page claims to work on a

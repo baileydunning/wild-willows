@@ -24,10 +24,13 @@
 <!-- @include public/partials/site-core.css -->
 <!-- @include public/partials/ww-runner.css -->
 <!-- @include public/partials/ww-lesson.css -->
+<!-- @include public/partials/ww-a11y.css -->
 <!-- @include public/partials/ww-dark.css -->
 </style>
 </head>
 <body class="lesson">
+
+<a class="skip-link" href="#lesson-main">Skip to chapter 1</a>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
@@ -63,7 +66,7 @@
   </ol>
 </nav>
 
-<main class="lmain">
+<main class="lmain" id="lesson-main" tabindex="-1">
 
 <header class="lhero">
   <h1>Build with Wild Willows</h1>
@@ -906,7 +909,7 @@ console.log("second");</pre>
   <div class="ch-head">
     <span class="ch-num">Chapter 6</span>
     <h2>Look inside the data</h2>
-    <p class="sub">You have the whole catalogue. Now reach into it and pull out one thing.</p>
+    <p class="sub">You have the whole catalog. Now reach into it and pull out one thing.</p>
   </div>
 
   <p>Three steps, from the biggest thing to the smallest. Run it and read the console.</p>

@@ -65,6 +65,7 @@ import {
 	dashboardHtml,
 	landingHtml,
 	teachersIndexHtml,
+	developersApiHtml,
 	teachersScienceHtml,
 	teachersCodingHtml,
 	learnCodeBuilderHtml,
@@ -539,7 +540,7 @@ async function toArray(iterable: any, label = '?'): Promise<any[]> {
 	// but not free: it wraps every element in a resolved promise and awaits it, so
 	// a snapshot's six table reads cost one microtask turn PER ROW — thousands of
 	// them on a built-out save, on the same thread that draws the frame. A sync
-	// loop over an array we already hold is identical in behaviour (same null
+	// loop over an array we already hold is identical in behavior (same null
 	// handling, same drop accounting) and skips all of it.
 	if (Array.isArray(iterable)) {
 		for (const item of iterable) {
@@ -1536,7 +1537,7 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
  * an inflated animal total and a soft-locked gate indefinitely.
  *
  * Login passes `force`, because login is once per session and already pays for
- * these reads: the marker is an optimisation for the heartbeat path, not a
+ * these reads: the marker is an optimization for the heartbeat path, not a
  * promise that a save is only ever looked at once.
  */
 // REV 2: every save that logged in against the broken definition set (223
@@ -1874,7 +1875,7 @@ const HOME_STYLES: Record<
 		materials: { wildflowers: 6, fiber: 10, clay: 4 },
 		requires: HOME_BUILD_GATE,
 		perk: { id: 'growth', base: 0.1, perLevel: 0.04, cap: 0.5 },
-	}, // pale wood + airy blue-grey + green
+	}, // pale wood + airy blue-gray + green
 	stone: {
 		name: 'Stone Hearth',
 		floor: '#a9a499',
@@ -1883,7 +1884,7 @@ const HOME_STYLES: Record<
 		materials: { stones: 14, clay: 6 },
 		requires: HOME_BUILD_GATE,
 		perk: { id: 'thrift', base: 0.1, perLevel: 0.05, cap: 0.6 },
-	}, // slate floor + grey stone + hearth orange
+	}, // slate floor + gray stone + hearth orange
 };
 const DEFAULT_HOME = { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 
@@ -1966,7 +1967,7 @@ function homePerk(player: any): { id: HomePerkDef['id']; strength: number } | nu
 	return { id: perk.id, strength };
 }
 
-/** Interior floor rectangle (tile coords) for a player's home, centred in the grid. */
+/** Interior floor rectangle (tile coords) for a player's home, centered in the grid. */
 function homeRoom(player: any) {
 	const inner = HOME_TRACKS.space.levels[(homeOf(player).space || 1) - 1]?.inner || { w: 8, h: 6 };
 	const x0 = Math.floor((GRID_W - inner.w) / 2);
@@ -1985,7 +1986,7 @@ function tentBiomeOf(area: any): string | null {
 	const m = /^tent-([a-z][a-z-]*)$/.exec(String(area || ''));
 	return m ? m[1] : null;
 }
-/** Interior floor rectangle for a trail tent (fixed size, centred like the home). */
+/** Interior floor rectangle for a trail tent (fixed size, centered like the home). */
 function tentRoom() {
 	const x0 = Math.floor((GRID_W - TENT_INNER.w) / 2);
 	const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
@@ -2000,7 +2001,7 @@ function tentRoom() {
 // copy that counts — the frontend is never trusted.
 const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag']);
 
-/** The door tile of an interior: bottom wall, horizontally centred. Must match
+/** The door tile of an interior: bottom wall, horizontally centered. Must match
  *  `roomSpec()` in the client, which derives it from the same rectangle. */
 function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): { x: number; y: number } {
 	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
@@ -2008,7 +2009,7 @@ function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): {
 
 /**
  * True if a bed at (tx, ty) would sit on, or in the ring immediately around, the
- * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbours are
+ * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbors are
  * all refused — enough to always leave a clear step in and out.
  */
 function blocksDoorway(
@@ -2297,7 +2298,7 @@ const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
 
 /** Load an existing player or fail — creation only happens via /CreatePlayer/. */
 /**
- * Serialise everything that touches one player's row.
+ * Serialize everything that touches one player's row.
  *
  * Every mutating endpoint here is read-modify-write: read the player, compute the
  * new inventory / craftedItems / tools, patch it back. Two requests for the same
@@ -2754,7 +2755,7 @@ function gateGeomOf(d: any, area: string): { gateY: number; landRight: number; w
  * next biome — you cannot stand next to the gate to use it. The gate tile, one
  * row either side of it and the two columns in from that edge are all refused.
  * Tilled and watered beds are walkable, so only the flood step is blocked.
- * Mirrored by blocksGateTrail() in src/game/interactions.ts, which greys the
+ * Mirrored by blocksGateTrail() in src/game/interactions.ts, which grays the
  * click out before it ever reaches here.
  */
 function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf>): boolean {
@@ -3118,7 +3119,7 @@ function computeBalance(d: any, biomeId: string, returnedIds: Set<string>): numb
  * Analyze the player's open-water tiles (terraformed type 'water') in a biome.
  * Returns total tile count, the largest connected body ("lake"), and the
  * longest connected span ("river") — long, thin channels score high on river,
- * big blobs score high on lake. 4-neighbour connectivity.
+ * big blobs score high on lake. 4-neighbor connectivity.
  */
 function analyzeWater(terrain: any[], playerOnly = false) {
 	// `playerOnly` drops the pre-seeded starting channels (the wetland ships with a
@@ -4567,7 +4568,7 @@ function goalText(goal: CustomGoal, ctx: TaskCtx): string {
  * animals come home when the habitat is right — and it needs exactly what the
  * two goals before it produce: a crafted grass patch, placed. Harvest follows
  * planting because it needs something grown. The bugs goal sits where a planted,
- * flowering meadow has started drawing small neighbours in on its own.
+ * flowering meadow has started drawing small neighbors in on its own.
  *
  * The finale is deliberate: shaping open water is the most advanced thing the
  * land lets you do, and building a house is the biggest thing you can make.
@@ -4590,7 +4591,7 @@ function starterTasks(ctx: TaskCtx): any[] {
 	const planted = (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
 	const harvested = (ctx.placements || []).some((p: any) => typeof p.lastHarvestAt === 'number');
 	// "Bugs" in the way a caretaker means it: the small crawling, flying, creeping
-	// neighbours. The definitions split `kind` into 'insect' (grasshopper, ladybug,
+	// neighbors. The definitions split `kind` into 'insect' (grasshopper, ladybug,
 	// bumblebee) and 'invertebrate' (snail, pillbug, garden spider) for display;
 	// both are bugs to a player, and splitting them here would make the goal a
 	// puzzle about the data model rather than about the meadow.
@@ -4774,7 +4775,7 @@ function starterTaskIds(): string[] {
  * The whole point of the chain is to hand the board over: ten goals that teach
  * the game and then get out of the way. So the number that matters is not how
  * many players finished it — it's how many went on to write a goal of their own
- * afterwards, which is the behaviour the chain is trying to produce. `step` is
+ * afterwards, which is the behavior the chain is trying to produce. `step` is
  * where the rest stalled, and it's the only way to tell "quit the game" from
  * "stuck on Build a home".
  *
@@ -5091,6 +5092,25 @@ const RATE_TIERS = {
 	action: { perMinute: 600, burst: 120 },
 	/** Reads that touch the database. */
 	read: { perMinute: 300, burst: 100 },
+	/**
+	 * GET /GameData/ — the public catalog. Its own tier because its callers are
+	 * unlike anything else here, and sizing it as a `read` would break the thing
+	 * it exists for.
+	 *
+	 * A CLASSROOM SHARES ONE ADDRESS. Thirty students behind a school NAT are one
+	 * caller to this limiter, and every one of them is running code that re-fetches
+	 * on a debounce as they type. Twenty fetches a minute each is not an unusual
+	 * afternoon, and that is 600 from a single address doing exactly what the
+	 * lesson asks. At the `read` tier of 300 the whole class would start seeing
+	 * 429s halfway through the period, which looks to a student exactly like their
+	 * own code being wrong.
+	 *
+	 * So: roomy per caller, and the ceiling is there to bound a scripted flood
+	 * rather than to shape real load. The response is served from an in-memory
+	 * cache and pre-compressed once per build, so the marginal cost of a hit is
+	 * sending bytes; a conditional request costs almost nothing at all.
+	 */
+	catalog: { perMinute: 1200, burst: 300 },
 } as const;
 
 type RateTier = keyof typeof RATE_TIERS;
@@ -5525,7 +5545,7 @@ async function awardAchievements(
 		 * terrain, for those biomes alone, and re-run just those triggers.
 		 *
 		 * Generic on purpose: no achievement id is hard-coded, so a new water-based
-		 * achievement costs nothing to add and keeps this optimisation.
+		 * achievement costs nothing to add and keeps this optimization.
 		 */
 		const NO_WATER = { tiles: 0, lake: 0, river: 0 };
 		const waterCache = new Map<string, { tiles: number; lake: number; river: number }>();
@@ -5684,7 +5704,7 @@ function isSuperUser(user: any): boolean {
  * Authentication is still entirely Harper's — this only decides WHICH
  * authenticated users get through, and it fails closed: no user object, no
  * access. It deliberately does not fall back to "allow if we can't tell", which
- * is the shape that turns an unrecognised user object into an open endpoint.
+ * is the shape that turns an unrecognized user object into an open endpoint.
  *
  * Endpoints carrying more than gameplay numbers do NOT use this. ListFeedback
  * holds players' reply emails and SystemProbe reports server internals; both stay
@@ -5749,7 +5769,7 @@ export class Version extends PublicEndpoint {
  * we make it cheap two ways:
  *
  *  1. Revalidation. The payload is fully determined by the build (buildStamp),
- *     so we tag it with a build-stamped ETag and honour If-None-Match: repeat
+ *     so we tag it with a build-stamped ETag and honor If-None-Match: repeat
  *     opens get an empty 304 instead of re-downloading the whole catalog.
  *  2. Compression. Harper's REST path does NOT compress resource responses, and
  *     this JSON is highly repetitive, so we brotli/gzip it per the client's
@@ -5958,6 +5978,8 @@ const GAME_DATA_CORS: Record<string, string> = {
 };
 
 export class GameData extends PublicEndpoint {
+	static rateTier = 'catalog';
+
 	async get() {
 		const { obj, json, etag } = await gameDataCached();
 		// No HTTP request context → the in-app solo backend (or any internal JS
@@ -5986,6 +6008,50 @@ export class GameData extends PublicEndpoint {
 				status: 304,
 				headers: { etag, 'cache-control': cacheControl, ...GAME_DATA_CORS },
 				body: nodeBuffer.alloc(0),
+			};
+		}
+
+		/* CHARGED HERE, AND DELIBERATELY NOT ONE LINE EARLIER.
+		 *
+		 * Everything above this point is free: no context is the in-app backend, and
+		 * a matching If-None-Match is a 304 with an empty body. Both return before
+		 * the limiter is ever consulted, so NO CLIENT THAT CACHES CAN BE REFUSED —
+		 * which is the property that matters, because the one caller that must never
+		 * break is the game.
+		 *
+		 * For the record, the game is safe twice over. Desktop, Steam and Mac App
+		 * Store builds never make this call at all: src/api.ts serves /GameData/ from
+		 * the bundle on desktop, which is what makes the title screen work offline.
+		 * The browser demo calls it exactly once per session, on mount, with no
+		 * retry, through a Worker that forwards cf-connecting-ip so one player is one
+		 * caller rather than all of them sharing a bucket. A player would have to
+		 * reload the demo twenty times a second to see this.
+		 *
+		 * THE REFUSAL IS ANSWERED, NOT THROWN. Every other endpoint lets rateLimit
+		 * throw and Harper renders the 429. This one cannot: its browser callers are
+		 * cross-origin — student code in an opaque-origin sandbox, a downloaded page
+		 * on file://, anyone building against the documented API — and a 429 without
+		 * Access-Control-Allow-Origin does not reach their catch block as a 429. It
+		 * arrives as an opaque network failure with no status and no message, which
+		 * is indistinguishable from the student's own code being broken.
+		 */
+		try {
+			rateLimit(this, 'catalog');
+		} catch (err: any) {
+			// GameError carries `statusCode`, not `status`. Reading the wrong one
+			// rethrows every refusal and makes the answer below dead code.
+			if (err?.statusCode !== 429) throw err;
+			return {
+				status: 429,
+				headers: {
+					'content-type': 'text/plain; charset=utf-8',
+					// The bucket's own refill window, so a client that honors this comes
+					// back to a budget rather than to another refusal.
+					'retry-after': '60',
+					'cache-control': 'no-store',
+					...GAME_DATA_CORS,
+				},
+				body: 'Too many requests for the game catalog. It changes only when the game ships a build, so fetch it once and keep it. Wait a minute and try again — see https://wildwillows.app/developers/api for the limits and how to use the ETag.',
 			};
 		}
 
@@ -6641,7 +6707,7 @@ export class CollectResource extends PublicEndpoint {
 				// (see weatherSnapshot), which is what the client draws its sky and its gather
 				// nodes from. Recomputing the live sky here instead meant "set weather: rain"
 				// produced falling rain and rainwater nodes that then refused to be picked up —
-				// the override was honoured everywhere except the one check that mattered.
+				// the override was honored everywhere except the one check that mattered.
 				const forced = player?.devWeather?.type || null;
 				const base = weatherTimeFromPlay(player);
 				const matches = forced
@@ -8311,7 +8377,7 @@ export class Heartbeat extends PublicEndpoint {
 		// Which menu was open at the moment of the beat, if any and if we know it.
 		const openMenu = typeof panel === 'string' && MENU_PANELS.has(panel) ? panel : null;
 		// Menu opens counted by the client since its last successful beat. Merged
-		// here rather than sent as their own request; anything unrecognised, not a
+		// here rather than sent as their own request; anything unrecognized, not a
 		// positive number, or implausibly large for one beat is dropped.
 		if (panelOpens && typeof panelOpens === 'object' && !Array.isArray(panelOpens)) {
 			for (const [menu, raw] of Object.entries(panelOpens as Record<string, unknown>)) {
@@ -8662,7 +8728,7 @@ function markDemoConversions(rows: any[]): any[] {
 			supersededByFull: false,
 			conversion: {
 				// The stamp is exact. Without it, the demo row's last sighting is the
-				// closest honest answer, so it is labelled as an estimate rather than
+				// closest honest answer, so it is labeled as an estimate rather than
 				// dressed up as a timestamp.
 				at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
 				exact: !!r.convertedFromDemoAt,
@@ -8737,7 +8803,7 @@ function compareVersions(a: string, b: string): number {
  *
  * GET /Metrics/ (no id) used to return the whole analytics roll-up — the global
  * aggregates AND a row per player carrying names, first/last activity timestamps,
- * OS, accessibility preferences and behaviour — to anyone who asked for it. That
+ * OS, accessibility preferences and behavior — to anyone who asked for it. That
  * was the leak. The roll-up now lives behind Harper admin auth, split in two:
  *
  *   GET /MetricsSummary/            — the aggregates (~6 KB): what a dashboard or cron wants
@@ -9980,7 +10046,7 @@ export class MetricsSummary extends DashboardEndpoint {
  *
  * Admin-only for the same reason as MetricsSummary — these rows are the sensitive
  * half: display names, exact first/last activity, OS, accessibility preferences,
- * appearance and behaviour.
+ * appearance and behavior.
  *
  * Paging: `?limit=` (default 100, max 500) and `?cursor=`, where the cursor is the
  * opaque token handed back as `nextCursor`. Rows are sorted deterministically
@@ -10138,7 +10204,7 @@ export class ServerHealth extends DashboardEndpoint {
 		 * sides to bare lowercase letters and match on that: mainThreadUtilization,
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
-		 * unrecognised name is visible on the page instead of silently absent. */
+		 * unrecognized name is visible on the page instead of silently absent. */
 		const norm = (s: any) =>
 			String(s || '')
 				.toLowerCase()
@@ -10413,7 +10479,7 @@ export class ServerHealth extends DashboardEndpoint {
 			 * percent", which held for cpu-usage and then met main-thread-utilization
 			 * reporting 89,876 — rendered, with total confidence, as "89876%". Some
 			 * unit is being used here that this code does not know (microseconds of
-			 * busy time, most likely), and the correct response to an unrecognised
+			 * busy time, most likely), and the correct response to an unrecognized
 			 * unit is to decline rather than to print it with a % sign on the end.
 			 * The raw value is published on the metric so it stays diagnosable. */
 			if (n > 100) return null;
@@ -11312,7 +11378,7 @@ export class DevTools extends PublicEndpoint {
 				// lake + winding river (where the biome holds water), every animal home
 				// and comfortable, and health/balance pinned at 100 — with at least one of
 				// EVERY object the biome can build standing somewhere, so the shot doubles
-				// as a look at the whole catalogue. Every run lays out a DIFFERENT scene,
+				// as a look at the whole catalog. Every run lays out a DIFFERENT scene,
 				// so you can keep hitting the button until one frames well; pass back the
 				// `seed` from the log to rebuild an exact one. Chests are kept (and not
 				// added); all other placements + terrain here are replaced for a clean look.
@@ -11658,7 +11724,7 @@ export class DevTools extends PublicEndpoint {
 
 				// ---- coverage: one of EVERY buildable thing this biome has ----
 				// The passes above pick at random, so a showcase shot would routinely
-				// miss half the catalogue — no good when the point is to see all of it
+				// miss half the catalog — no good when the point is to see all of it
 				// at once. Anything not already standing gets planted here: random tries
 				// first (so it lands scattered, like the accent pass), then a systematic
 				// sweep so a crowded map can't silently drop an object.
@@ -12174,12 +12240,24 @@ const LANDING_CLICK_TARGETS = new Set([
 	// sends anyone into the lesson material at all. Which of the two they took is
 	// already counted on /learn itself, by the classroom beacon.
 	'learn-nav',
+	// The API docs at /developers/api. Its own target rather than folded into
+	// learn-nav: "went to read the reference" and "went to take the lesson" are
+	// two different visitors, and the whole reason the Developers section exists
+	// is to find out whether the first kind shows up at all.
+	'api-docs',
 	// /teachers reports itself here, once per browser session, as a click rather
 	// than a visit. Visits are ONE undifferentiated series shared by every page
 	// that sends them, so a teachers-page visit would silently inflate the landing
 	// page's number with no way to unmix them later. Its own target keeps both
 	// numbers honest. See the comment in public/teachers.html's script.
 	'edu-page',
+	// The three policy pages, each reporting itself once per browser session on
+	// the same trade /teachers made. They reported NOTHING before, which left the
+	// privacy policy — the page a district reads before approving anything — with
+	// no usage data at all.
+	'privacy-page',
+	'support-page',
+	'rating-page',
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
@@ -12201,7 +12279,7 @@ const LANDING_CLICK_TARGETS = new Set([
  *
  * Nine buckets is the whole vocabulary. It is enough to answer "are teachers
  * finding this through search or through Reddit"; it is not enough to describe
- * one person. Anything unrecognised becomes 'other' rather than being stored.
+ * one person. Anything unrecognized becomes 'other' rather than being stored.
  */
 const LANDING_SOURCES = new Set([
 	'google',
@@ -12375,7 +12453,7 @@ export class LandingEvent extends PublicEndpoint {
 		const body = await bodyOf(data, this);
 		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
 		if (!type) return { ok: true }; // unknown ping — accept and drop
-		// A bucket the client did not send, or sent something unrecognised for, is
+		// A bucket the client did not send, or sent something unrecognized for, is
 		// not stored at all. 'other' is a real bucket a client can send on purpose;
 		// it is not the fallback for a malformed one, because a rising 'other' should
 		// mean "arrived from somewhere off the list" and nothing else.
@@ -12898,7 +12976,7 @@ export class LandingStats extends DashboardEndpoint {
 
 /** Buckets a key may carry, for the families where the suffix is open-ended. */
 const LESSON_ERROR_KEYS = new Set([
-	// The runner's plain-English error catalogue, plus its two silent-render hints.
+	// The runner's plain-English error catalog, plus its two silent-render hints.
 	'fetch-failed',
 	'json-parse',
 	'null-property',
@@ -12934,6 +13012,10 @@ const LESSON_EXACT = new Set([
 	'view_learn',
 	'view_science',
 	'view_coding',
+	// /developers/api. Not in the teaching funnel — a developer arriving at the
+	// docs is a different journey from a teacher picking a kit — so it is counted
+	// and shown as a total rather than as a funnel step.
+	'view_developers',
 	'view_lesson',
 	'view_builder',
 	'unique_hub',
@@ -12941,6 +13023,8 @@ const LESSON_EXACT = new Set([
 	'unique_coding',
 	'unique_lesson',
 	'unique_builder',
+	'unique_learn',
+	'unique_developers',
 	'ref_internal',
 	'ref_search',
 	'ref_social',
@@ -12987,6 +13071,12 @@ const LESSON_EXACT = new Set([
 	'import',
 	'import_failed',
 	'restored',
+	// Arrived at the builder from the lesson's "open this in the Code Builder"
+	// link, carrying their code across in the URL fragment. It was being sent and
+	// silently folded into `other`, which is exactly the failure the coverage test
+	// now exists to catch: the counter moved and the number said nothing. It is
+	// the one measure of whether the lesson-to-builder handoff is used at all.
+	'carried_in',
 	'save_unreadable',
 	'storage_unavailable',
 	'help_copy',
@@ -13084,7 +13174,7 @@ const LESSON_MAX_KEYS = 400;
 
 function lessonKeyAllowed(key: string): boolean {
 	if (LESSON_EXACT.has(key)) return true;
-	// `errors_<name>` is checked against the runner's own catalogue rather than a
+	// `errors_<name>` is checked against the runner's own catalog rather than a
 	// pattern: the whole point of ranking these is to decide which explanation to
 	// write next, and a ranking that can be seeded with invented names is not a
 	// work queue, it is a suggestion box for strangers.
@@ -13247,14 +13337,53 @@ async function buildLessonStats(): Promise<any> {
 	 * counter here is context for it. */
 	const step = (k: string) => totals[k] || 0;
 	const funnel = [
-		{ id: 'hub', label: 'Teachers hub', n: step('view_hub') },
-		{ id: 'coding', label: 'Coding kit', n: step('view_coding') },
+		/* THE STUDENT'S PATH, and only that.
+		 *
+		 * It used to start at the teachers hub and the coding kit page. Those are a
+		 * TEACHER deciding which kit to run, days earlier and on a different device,
+		 * and putting them at the top made every percentage below them a comparison
+		 * between two unrelated populations — a lesson opened by thirty students
+		 * read as "217% of the previous step" because six teachers had looked at the
+		 * kit page. Both are still reported: the hub split under the landing page,
+		 * the kit pages in reach. They are just not steps anybody drops out of.
+		 *
+		 * What is left is close to a real funnel. Everything from the builder down is
+		 * a strict subset of the step above it. */
 		{ id: 'lesson', label: 'Lesson opened', n: step('view_lesson') },
 		{ id: 'builder', label: 'Builder opened', n: step('builder_open') },
 		{ id: 'run', label: 'Ran their code', n: step('first_run') },
 		{ id: 'fetch', label: 'Fetched the data', n: step('first_fetch_ok') },
 		{ id: 'download', label: 'Downloaded a page', n: step('download') },
 	];
+
+	/* REACH, which the funnel above deliberately is not.
+	 *
+	 * The funnel is one path — a teacher finds the hub, takes the coding kit, and
+	 * a student ends up downloading a page. Most of the site is not on that path:
+	 * the science kit is a different classroom entirely, the API docs are for
+	 * somebody who is not in a classroom at all, and neither belongs as a "step"
+	 * anybody drops out of. Forcing them in was making the drop-off percentages
+	 * mean nothing.
+	 *
+	 * So: every page that reports itself, side by side, with views and the number
+	 * of distinct browsers that have ever opened it. `unique` is null rather than
+	 * 0 for a page that does not report it yet, because "none" and "not measured"
+	 * are different answers and a zero would read as the first one. */
+	const reach = [
+		{ id: 'hub', label: 'Teachers hub', path: '/teachers', views: step('view_hub'), unique: step('unique_hub') || null },
+		{ id: 'science', label: 'Science kit', path: '/teachers/science', views: step('view_science'), unique: step('unique_science') || null },
+		{ id: 'coding', label: 'Coding kit', path: '/teachers/coding', views: step('view_coding'), unique: step('unique_coding') || null },
+		{ id: 'learn', label: 'Learn hub', path: '/learn', views: step('view_learn'), unique: step('unique_learn') || null },
+		{ id: 'lesson', label: 'The Lesson', path: '/learn/web-development', views: step('view_lesson'), unique: step('unique_lesson') || null },
+		{ id: 'builder', label: 'Code Builder', path: '/learn/code-builder', views: step('view_builder'), unique: step('unique_builder') || null },
+		{ id: 'developers', label: 'API docs', path: '/developers/api', views: step('view_developers'), unique: step('unique_developers') || null },
+	];
+
+	/* How people arrived, across every classroom page that reports it. Five
+	 * buckets, resolved in the browser and never sent as a URL. */
+	const arrivals = ['direct', 'search', 'social', 'internal', 'other']
+		.map((k) => ({ key: k, n: step('ref_' + k) }))
+		.filter((a) => a.n > 0);
 
 	/** Errors, ranked. This is the work queue for explanation copy. */
 	const errors = Object.entries(totals)
@@ -13274,6 +13403,8 @@ async function buildLessonStats(): Promise<any> {
 		sessions,
 		totals,
 		funnel,
+		reach,
+		arrivals,
 		errors,
 		ideas,
 		/* The health strip. A school filter that blocks the API breaks the lesson
@@ -13393,6 +13524,11 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	// changes job rather than changing address.
 	'teachers-science': { path: '/teachers/science', redirect: true, sitemap: true },
 	'teachers-coding': { path: '/teachers/coding', redirect: true, sitemap: true },
+	// The API docs. /developers serves the same document and is deliberately NOT
+	// listed: two URLs in a sitemap for one page is the split-signal problem the
+	// comment at the top of this table is about. The page's canonical says which
+	// of the two is the real one.
+	'developers-api': { path: '/developers/api', redirect: true, sitemap: true },
 	// The classroom student pages live under /learn/<slug>, resolved by ONE
 	// resource reading getId() — the same shape /img/<name>.webp already uses.
 	// The builder is `noindex` in its own <head> (it is a tool, not a document,
@@ -13608,6 +13744,39 @@ const LEARN_PAGES: Record<string, { key: string; html: string }> = {
 	'web-development': { key: 'learn-web-development', html: learnWebDevelopmentHtml },
 };
 
+/**
+ * /developers and /developers/api — the public-API documentation.
+ *
+ * Both paths serve the same document, and the page canonicalises to
+ * /developers/api. `/developers` is what somebody types; `/developers/api` is
+ * what the plan named and what leaves room for a second doc later, so it is the
+ * one in the sitemap and the one the canonical points at.
+ *
+ * Same getId() dispatch as the two sections above, and an unknown slug 404s
+ * rather than quietly serving the docs from any URL under /developers.
+ */
+const DEVELOPER_PAGES: Record<string, { key: string; html: string }> = {
+	'': { key: 'developers-api', html: developersApiHtml },
+	api: { key: 'developers-api', html: developersApiHtml },
+};
+
+class DevelopersPage extends PublicEndpoint {
+	async get() {
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(DEVELOPER_PAGES, slug) ? DEVELOPER_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
+	}
+}
+
 class LearnPage extends PublicEndpoint {
 	async get() {
 		const slug = String((this as any).getId?.() || '')
@@ -13691,7 +13860,7 @@ function decodedBinary(key: string, b64: string): any {
  * Names are content-hashed by the build, so the answer is `immutable` with a
  * one-year max-age: a changed screenshot gets a new filename, and a name that
  * never changes never needs revalidating. That also makes the lookup its own
- * path-traversal defence — the key either exists in the generated record or the
+ * path-traversal defense — the key either exists in the generated record or the
  * request is a 404, and nothing here ever touches a filesystem path.
  *
  * Not in PUBLIC_PAGES: these are not pages, so there is no canonical to redirect
@@ -13911,6 +14080,7 @@ export {
 	SupportPage as support,
 	TeachersPage as teachers,
 	LearnPage as learn,
+	DevelopersPage as developers,
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',

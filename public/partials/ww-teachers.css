@@ -187,6 +187,17 @@ body.edu-hub {
 
 /* ------------------------------------------------------------- the sections */
 
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections — "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
+
 .tsec {
 	margin-top: 3rem;
 	padding-top: 2rem;

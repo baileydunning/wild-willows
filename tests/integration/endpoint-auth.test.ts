@@ -128,6 +128,7 @@ const PUBLIC = [
 	'support',
 	'teachers',
 	'learn', // /learn/<slug> — the classroom student pages
+	'developers', // /developers and /developers/api — the public-API documentation
 	'dashboard', // the SHELL only: a login form cannot live behind the login
 	'og-image',
 	'favicon',

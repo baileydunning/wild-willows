@@ -39,11 +39,20 @@ describe('the /LandingEvent/ beacon', () => {
 });
 
 describe('the arrival bucket', () => {
-	// Only the two pages with a once-per-session ping resolve one. The policy
-	// pages send clicks and no page ping, so they have no arrival to report and
-	// must not carry the bucketer at all.
-	const WITH = ['landing.html', 'teachers-science.html'];
-	const WITHOUT = ['privacy.html', 'support.html', 'age-rating.html'];
+	// ONE page resolves a nine-name bucket now: the landing page, which is the
+	// only one whose arrivals are worth splitting that finely.
+	//
+	// /teachers/science used to be the second. Its page view moved to
+	// /LessonEvent/ as `view_science` so the two kits could finally be compared
+	// with each other, and it reports its arrival there with the same five
+	// `ref_*` buckets the lesson and the builder already use. Two nearly-agreeing
+	// vocabularies across the classroom pages was worse than either.
+	//
+	// The policy pages report themselves as a click and carry no bucketer: an
+	// arrival at the privacy policy is internal almost every time, and fifteen
+	// lines to say so is not worth it.
+	const WITH = ['landing.html'];
+	const WITHOUT = ['privacy.html', 'support.html', 'age-rating.html', 'teachers-science.html'];
 
 	it.each(WITH)('%s resolves the referrer in the browser', (page) => {
 		const s = src(page);
@@ -67,6 +76,16 @@ describe('the arrival bucket', () => {
 
 	it.each(WITHOUT)('%s reports no arrival at all', (page) => {
 		expect(src(page)).not.toContain('sourceBucket');
+	});
+
+	it('the science kit reports its arrival on the classroom vocabulary instead', () => {
+		const s = src('teachers-science.html');
+		expect(s).toContain("counts[refBucket()] = 1;".replace(/ /g, '').length ? 'counts[refBucket()]' : '');
+		expect(s).toContain('new URL(r).hostname');
+		for (const k of ['ref_direct', 'ref_internal', 'ref_search', 'ref_social', 'ref_other']) expect(s).toContain(k);
+		// Same five names the lesson uses, so the two are addable.
+		const lesson = readFileSync(join(root, 'public/partials/ww-lesson.js'), 'utf8');
+		for (const k of ['ref_direct', 'ref_internal', 'ref_search', 'ref_social', 'ref_other']) expect(lesson).toContain(k);
 	});
 
 	it('never sends a bucket outside the nine the server accepts', () => {

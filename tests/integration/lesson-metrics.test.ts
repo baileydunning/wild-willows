@@ -170,16 +170,17 @@ describe('LessonStats', () => {
 			download: 1,
 		});
 		const out = await w.get<any>('LessonStats');
+		// The hub and the kit pages are NOT steps: they are a teacher choosing a
+		// kit, not a student dropping out of one. They are reported in `reach` and
+		// under the landing page instead. What is left is the student's own path.
 		expect(out.funnel.map((f: any) => f.id)).toEqual([
-			'hub',
-			'coding',
 			'lesson',
 			'builder',
 			'run',
 			'fetch',
 			'download',
 		]);
-		expect(out.funnel.map((f: any) => f.n)).toEqual([10, 6, 5, 4, 3, 2, 1]);
+		expect(out.funnel.map((f: any) => f.n)).toEqual([5, 4, 3, 2, 1]);
 	});
 
 	it('ranks errors so the worst one is the next thing to explain', async () => {

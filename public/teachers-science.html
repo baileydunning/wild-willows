@@ -115,11 +115,14 @@
 <!-- @include public/partials/site-core.css -->
 <!-- @include public/partials/ww-teachers.css -->
 <!-- @include public/partials/ww-guide.css -->
+<!-- @include public/partials/ww-a11y.css -->
 <!-- @include public/partials/ww-dark.css -->
 </style>
 </head>
 
 <body class="edu-hub guide">
+
+<a class="skip-link" href="#main">Skip to the guide</a>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
@@ -136,7 +139,7 @@
   </div>
 </div></nav>
 
-<div class="twrap">
+<main class="twrap" id="main" tabindex="-1">
 
 <header class="thero">
   <p class="kicker">Science kit &middot; Grades 5&ndash;8</p>
@@ -710,7 +713,7 @@
   </div>
 </div>
 
-</div>
+</main>
 
 <script>
 (function(){
@@ -736,21 +739,6 @@
      this through search or through Reddit", and not enough to describe anyone.
      A same-site referrer returns null, so clicking through from the landing
      page does not register as an arrival from somewhere. */
-  var SOURCE_HOSTS=[['google','google'],['bing','bing'],['duckduckgo','duckduckgo'],
-    ['reddit','reddit'],['itch','itch'],['apple','apple'],
-    /* Bluesky's hosts are bsky.app and bsky.social — 'bluesky' appears in its
-       name and in none of its domains, so matching on the bucket name would
-       have produced a counter that could never be anything but zero. */
-    ['bsky','bluesky']];
-  function sourceBucket(){
-    try{
-      if(!document.referrer)return 'direct';
-      var h=new URL(document.referrer).hostname.toLowerCase().replace(/^www\./,'');
-      if(h===location.hostname)return null;
-      for(var i=0;i<SOURCE_HOSTS.length;i++)if(h.indexOf(SOURCE_HOSTS[i][0])>-1)return SOURCE_HOSTS[i][1];
-      return 'other';
-    }catch(e){return 'other';}
-  }
   function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
@@ -764,12 +752,54 @@
      Nothing about it is time-sensitive, so it waits for idle after load — the
      timeout keeps it honest on tabs that never go idle, and pagehide catches
      the teacher who leaves before either fires. */
+  /* TWO BEACONS ON THIS ONE PAGE, on purpose.
+   *
+   * The clicks stay on /LandingEvent/ because 'pdf-guide', 'pdf-worksheets' and
+   * 'school-copy' are shared with the landing page, and a teacher who downloads
+   * the guide from here belongs in the same bucket as one who downloads it from
+   * there. Where they clicked from is not the number worth having.
+   *
+   * The PAGE VIEW moved to /LessonEvent/ as `view_science`. Its three siblings —
+   * the hub, the coding kit and the API docs — all report themselves there, and
+   * this page reporting itself as a click on 'edu-page' instead meant the older
+   * and better-known of the two kits could not be compared with anything next to
+   * it. Which kit a teacher takes is the whole question the hub exists to answer.
+   *
+   * `unique_science` rides along on a localStorage flag rather than the session
+   * one: views tell you traffic, first-visits tell you reach, and the gap between
+   * them is how much of it is the same people coming back. */
+  function reportLesson(counts){
+    try{
+      var body=JSON.stringify({page:'teachers-science',counts:counts});
+      if(navigator.sendBeacon)navigator.sendBeacon('/LessonEvent/',new Blob([body],{type:'application/json'}));
+    }catch(e){}
+  }
+  function firstTime(store,k){
+    try{ if(store.getItem(k))return false; store.setItem(k,'1'); return true; }catch(e){ return true; }
+  }
+  /* Where they arrived from, as one word from a fixed list. Same five buckets the
+     lesson and the builder already report, rather than this page's own nine-name
+     scheme: those belonged to /LandingEvent/, and the page view no longer lives
+     there. One vocabulary across the classroom pages beats two that nearly agree. */
+  function refBucket(){
+    try{
+      var r=document.referrer;
+      if(!r)return 'ref_direct';
+      var h=new URL(r).hostname.toLowerCase().replace(/^www\./,'');
+      if(h===location.hostname)return 'ref_internal';
+      if(/google|bing|duckduckgo|ecosia|yahoo/.test(h))return 'ref_search';
+      if(/reddit|bsky|mastodon|facebook|instagram|linkedin/.test(h))return 'ref_social';
+      return 'ref_other';
+    }catch(e){return 'ref_other';}
+  }
   function sendPageView(){
     if(sendPageView.done)return; sendPageView.done=true;
-    try{
-      if(sessionStorage.getItem('ww_edu_seen'))return;
-      sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page',sourceBucket());
-    }catch(e){track('click','edu-page',sourceBucket());}
+    var counts={};
+    if(firstTime(window.sessionStorage,'ww_edu_seen'))counts.view_science=1;
+    if(firstTime(window.localStorage,'ww_ever_science'))counts.unique_science=1;
+    if(!counts.view_science)return;
+    counts[refBucket()]=1;
+    reportLesson(counts);
   }
   function schedulePageView(){
     if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});

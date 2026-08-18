@@ -43,10 +43,10 @@ body.lab .nav {
 
 /* Full-bleed nav, to match the bar underneath it.
  *
- * site-core wraps the nav in .wrap — max-width 1080px, centred — because on the
- * marketing pages it sits above centred prose and should line up with it. This
+ * site-core wraps the nav in .wrap — max-width 1080px, centered — because on the
+ * marketing pages it sits above centered prose and should line up with it. This
  * page is a tool: the bar below it, the sidebar and the editor all run to the
- * window edges, so a centred nav left the brand indented from "Code Builder" and
+ * window edges, so a centered nav left the brand indented from "Code Builder" and
  * the two rows' right-hand buttons visibly out of step. Same horizontal padding
  * as .lab-bar, so every row on the page starts and ends on the same two lines. */
 body.lab .nav .wrap {
@@ -184,7 +184,7 @@ body.lab .nav .wrap {
 
 /* ------------------------------------------------ collapsible side sections
  *
- * A real <details>, not a JS accordion: keyboard and screen-reader behaviour
+ * A real <details>, not a JS accordion: keyboard and screen-reader behavior
  * comes free, and it still works if the controller fails to boot.
  *
  * The summary carries the progress count, so a student who has collapsed the
@@ -578,7 +578,7 @@ body.lab.hint-open {
 
 /* Numbered, because they are in order and the first one is meant to be done
    first. Counter rather than a list marker so the number can be given the
-   accent colour without dragging the text with it. */
+   accent color without dragging the text with it. */
 .brief-steps {
 	list-style: none;
 	counter-reset: brief;
@@ -739,7 +739,7 @@ body.lab.hint-open {
 }
 
 /* The card's call to action. It had only size rules and no .btn class, so it
- * rendered as the browser's default grey chrome in the middle of a page that has
+ * rendered as the browser's default gray chrome in the middle of a page that has
  * a perfectly good button of its own — see the screenshot that prompted this. */
 .idea-start {
 	align-self: flex-start;
@@ -975,7 +975,7 @@ body.lab.side-hidden .lab-stage {
 	width: 1.05rem;
 	height: 1.05rem;
 	flex: none;
-	transform: translateX(-1px); /* a chevron's ink sits right of its box centre */
+	transform: translateX(-1px); /* a chevron's ink sits right of its box center */
 }
 
 body.lab.side-hidden .lab-side-toggle svg {

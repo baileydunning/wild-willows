@@ -23,10 +23,13 @@
 <style>
 <!-- @include public/partials/site-core.css -->
 <!-- @include public/partials/ww-hub.css -->
+<!-- @include public/partials/ww-a11y.css -->
 <!-- @include public/partials/ww-dark.css -->
 </style>
 </head>
 <body class="hub">
+
+<a class="skip-link" href="#main">Skip to the pages</a>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
@@ -41,7 +44,7 @@
   </div>
 </div></nav>
 
-<div class="hwrap">
+<main class="hwrap" id="main" tabindex="-1">
 
 <header class="hhero">
   <h1>Learn to code with real game data</h1>
@@ -104,6 +107,7 @@ const data = await response.json();
 
 console.log(data.animals[0].name);   // "Banana Slug"</div>
   <p class="sub">You are welcome to use it in your own projects, in or out of school. It is the same data the game runs on, so when the game changes, so does this.</p>
+  <p><a href="/developers/api" data-track="api-docs">The full field reference</a> lists every key in the response, with JavaScript, Python and curl examples.</p>
 </section>
 
 <div class="hteach">
@@ -112,7 +116,7 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
   <a class="btn btn-paper" href="/teachers" data-track="edu-nav">For teachers</a>
 </div>
 
-</div>
+</main>
 
 <script>
 (function () {
@@ -143,7 +147,13 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
   /* 1. That the page was opened at all, once per browser session. /learn is
         where a student who was handed a bare link arrives, and without this
         their visit begins at whichever of the two pages they picked. */
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back. Neither is an identifier: both are one bit that says "not the
+     first time", readable only by this origin. */
   var fresh = true;
+  var everFresh = false;
   try {
     fresh = !sessionStorage.getItem('ww_learn_seen');
     sessionStorage.setItem('ww_learn_seen', '1');
@@ -151,11 +161,20 @@ console.log(data.animals[0].name);   // "Banana Slug"</div>
     /* Guest mode or a locked-down profile. Counting it is the better failure:
        a double count on a machine that cannot remember beats a blind spot. */
   }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_learn');
+    if (everFresh) localStorage.setItem('ww_ever_learn', '1');
+  } catch (e) {
+    everFresh = true;
+  }
+
   if (fresh) {
     // Nothing about a page view is time-sensitive, so it waits for idle rather
     // than taking uplink while the page is still painting.
-    if (window.requestIdleCallback) requestIdleCallback(function () { report({ view_learn: 1 }); }, { timeout: 3000 });
-    else setTimeout(function () { report({ view_learn: 1 }); }, 500);
+    var opening = { view_learn: 1 };
+    if (everFresh) opening.unique_learn = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
   }
 
   /* 2. WHICH DOOR THEY TOOK. This is the whole reason the page exists, so it is

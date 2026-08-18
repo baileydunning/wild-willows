@@ -21,7 +21,7 @@ const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 //
 // The obvious shortcut — stamp every URL with the build time — is worse than
 // having no lastmod at all. It claims all six pages changed every time anything
-// deploys, and Google's stated behaviour is to fall back on its own crawl
+// deploys, and Google's stated behavior is to fall back on its own crawl
 // signals once a site's lastmod proves unreliable. So the rule here is: emit a
 // date only when we can prove one, and omit the element entirely otherwise.
 // Silence is a legal sitemap; a confident wrong date is a liability.
@@ -103,6 +103,10 @@ const pages = {
 	// @include directives pulling in public/partials/ww-*.{css,js}, so the editor
 	// component stays a single source shared with the lesson page.
 	learnCodeBuilderHtml: 'public/learn-code-builder.html',
+	// The public-API documentation at /developers/api. Same shell as the teacher
+	// guides, and the only page on the site whose audience is not a player, a
+	// student or a teacher.
+	developersApiHtml: 'public/developers-api.html',
 	// The nine-chapter student lesson, served at /learn/web-development. Assembled
 	// the same way as the builder and sharing ww-runner.{css,js} with it, so every
 	// one of its fifteen editable examples behaves exactly like the builder a
@@ -169,7 +173,7 @@ const contextAt = (html, index) => {
  *
  * So the build fixes it rather than trusting anyone to remember:
  *   • into a <script> — escape the slash. Inside JavaScript that is the SAME
- *     string, so this can never change behaviour, only prevent the break.
+ *     string, so this can never change behavior, only prevent the break.
  *   • into a <style>  — throw instead. A backslash in CSS is an escape
  *     character, so "fixing" it could silently change a selector; and there is
  *     no legitimate reason for a closing style tag to appear in a stylesheet.
@@ -333,6 +337,7 @@ const sitemapSources = {
 	// URL the sitemap never emits would be dead weight in the generated file.
 	'/learn': 'public/learn-index.html',
 	'/learn/web-development': 'public/learn-web-development.html',
+	'/developers/api': 'public/developers-api.html',
 	'/educator-guide.pdf': `public/pdfs/${pdfs.educatorGuidePdfB64}`,
 	'/student-worksheets.pdf': `public/pdfs/${pdfs.studentWorksheetsPdfB64}`,
 };
