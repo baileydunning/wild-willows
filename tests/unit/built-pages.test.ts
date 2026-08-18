@@ -161,8 +161,9 @@ describe('the Code Builder on a screen too small for it', () => {
 	});
 
 	it('can collapse its side panel out of the way', () => {
-		// The toggle lives in the toolbar rather than on the panel, because it is
-		// the one control that has to still be there once the panel is gone.
+		// The toggle rides the seam between the panel and the editor rather than
+		// living inside the panel, because it is the one control that has to still
+		// be there once the panel is gone.
 		expect(html).toContain('id="lab-side-toggle"');
 		expect(html).toContain('aria-controls="lab-side"');
 		expect(html).toContain('<aside class="lab-side" id="lab-side">');

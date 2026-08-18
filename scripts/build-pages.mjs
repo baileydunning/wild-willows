@@ -84,10 +84,20 @@ const pages = {
 	// the policy pages. Regenerate with scripts/build-landing.mjs when screenshots
 	// or copy change.
 	landingHtml: 'public/landing.html',
-	// The teachers page, served at /teachers. Same deal as the landing page: a
-	// self-contained single string with its screenshots inlined as data URIs, and
-	// its <style> is the landing page's copied verbatim so the two cannot drift.
-	teachersHtml: 'public/teachers.html',
+	// The teachers section, three pages under one resource. The science page is
+	// the one that used to be /teachers: self-contained, screenshots inlined as
+	// data URIs, and its <style> is the landing page's copied verbatim so the two
+	// cannot drift. The hub and the coding guide are assembled from partials like
+	// the /learn pages are.
+	//
+	// /teachers is a hub now: two kit cards and the material that belongs to
+	// both. The science lesson it used to be moved to /teachers/science with its
+	// title, description, keywords and LearningResource markup intact, because
+	// two URLs claiming to be the same grades 5-8 activity is the one thing a
+	// split like this must not do.
+	teachersIndexHtml: 'public/teachers-index.html',
+	teachersScienceHtml: 'public/teachers-science.html',
+	teachersCodingHtml: 'public/teachers-coding.html',
 	// The classroom Code Builder, served at /learn/code-builder. Unlike the pages
 	// above this one is assembled from parts: its <style> and <script> blocks are
 	// @include directives pulling in public/partials/ww-*.{css,js}, so the editor
@@ -315,7 +325,9 @@ const sitemapSources = {
 	'/privacy.html': 'public/privacy.html',
 	'/age-rating.html': 'public/age-rating.html',
 	'/support.html': 'public/support.html',
-	'/teachers': 'public/teachers.html',
+	'/teachers': 'public/teachers-index.html',
+	'/teachers/science': 'public/teachers-science.html',
+	'/teachers/coding': 'public/teachers-coding.html',
 	// The lesson is in the sitemap (see PUBLIC_PAGES in server/resources.ts); the
 	// Code Builder is not, so it is deliberately absent here too. A lastmod for a
 	// URL the sitemap never emits would be dead weight in the generated file.

@@ -1,0 +1,495 @@
+/* Wild Willows — the coding educator guide at /teachers/coding.
+ *
+ * Layered on ww-teachers.css, which the hub and this page share. Everything
+ * here is a component the hub does not have: the reassurance banner, the
+ * vocabulary grid, the lesson-flow timelines, the rubric, the troubleshooting
+ * table and the answer key.
+ *
+ * The audience is a teacher who may never have written JavaScript, reading on a
+ * prep period. So: no wall of prose, everything scannable, and every block
+ * answers one question a teacher would actually ask out loud.
+ */
+
+/* --------------------------------------------------------- the reassurance
+ *
+ * The single most load-bearing block on the page. A teacher who believes they
+ * need to know JavaScript will not run this lesson, and no amount of good
+ * material further down will reach them. So it is above everything, it is the
+ * only thing on the page with its own background, and it says how it is true
+ * rather than only that it is. */
+.reassure {
+	display: grid;
+	grid-template-columns: 2rem minmax(0, 1fr);
+	gap: 1rem;
+	align-items: start;
+	margin: 1.8rem 0 0;
+	max-width: 46rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+}
+
+.reassure svg {
+	width: 2rem;
+	height: 2rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .reassure svg {
+	color: var(--green-bright);
+}
+
+.reassure h2 {
+	font-size: 1.15rem;
+	margin: 0 0 0.5rem;
+	line-height: 1.25;
+}
+
+.reassure p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink);
+}
+
+.reassure p:last-child {
+	margin-bottom: 0;
+	color: var(--ink-soft);
+}
+
+/* ---------------------------------------------------- the two student pages */
+
+.two-up {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+	max-width: 46rem;
+}
+
+.tile {
+	display: block;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	text-decoration: none;
+	color: inherit;
+}
+
+.tile:hover {
+	border-color: var(--green);
+}
+
+.tile-k {
+	display: block;
+	font-size: 0.64rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.tile b {
+	display: block;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+	margin-bottom: 0.25rem;
+}
+
+[data-theme='dark'] .tile b {
+	color: var(--green-bright);
+}
+
+.tile span:last-child {
+	display: block;
+	font-size: 0.9rem;
+	line-height: 1.55;
+	color: var(--ink-soft);
+}
+
+/* ------------------------------------------------------------- lists & steps */
+
+.objectives,
+.steps {
+	line-height: 1.65;
+	margin: 0.8rem 0 1rem;
+	padding-left: 1.3rem;
+}
+
+.objectives {
+	list-style: none;
+	padding-left: 0;
+}
+
+.objectives li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+}
+
+.objectives li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.55rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .objectives li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+.steps li {
+	margin-bottom: 0.6rem;
+}
+
+/* ------------------------------------------------------------- vocabulary
+ *
+ * Two columns of term and meaning, printable. A table would be semantically
+ * tidier and wraps badly at this width; these are definitions rather than data,
+ * so the grid is the honest shape. */
+.vocab {
+	border-top: 1px solid var(--panel-edge);
+	margin: 0.9rem 0 0;
+}
+
+.vrow {
+	display: grid;
+	grid-template-columns: 9rem minmax(0, 1fr);
+	gap: 0.9rem;
+	padding: 0.45rem 0.2rem;
+	border-bottom: 1px solid var(--panel-edge);
+	line-height: 1.5;
+	font-size: 0.94rem;
+}
+
+.vrow b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .vrow b {
+	color: var(--green-bright);
+}
+
+.vrow span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.vrow {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.1rem;
+	}
+}
+
+/* -------------------------------------------------------------- lesson flows */
+
+.flowcard {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1.1rem 1.2rem;
+	margin: 0 0 0.9rem;
+}
+
+.flowcard h3 {
+	margin: 0 0 0.7rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .flowcard h3 {
+	color: var(--green-bright);
+}
+
+.timeline {
+	border-left: 2px solid var(--panel-edge);
+	padding-left: 1rem;
+	margin-left: 0.3rem;
+}
+
+.tl {
+	display: grid;
+	grid-template-columns: 4.6rem minmax(0, 1fr);
+	gap: 0.8rem;
+	padding: 0.4rem 0;
+	position: relative;
+	line-height: 1.55;
+	font-size: 0.93rem;
+}
+
+.tl::before {
+	content: '';
+	position: absolute;
+	left: -1.35rem;
+	top: 0.75rem;
+	width: 0.5rem;
+	height: 0.5rem;
+	border-radius: 50%;
+	background: var(--green);
+}
+
+.tl b {
+	color: var(--ink);
+	font-variant-numeric: tabular-nums;
+}
+
+.tl span {
+	color: var(--ink-soft);
+}
+
+@media (max-width: 560px) {
+	.tl {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0.15rem;
+	}
+}
+
+.note-line {
+	margin: 0.8rem 0 0;
+	padding: 0.7rem 0.9rem;
+	background: var(--sprout);
+	border-radius: 10px;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+/* ---------------------------------------------------------- keep versus cut */
+
+.cuts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.cut {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+	background: var(--panel);
+}
+
+.cut > b {
+	display: block;
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	margin-bottom: 0.5rem;
+}
+
+.cut ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.cut li {
+	margin-bottom: 0.3rem;
+}
+
+.cut.keep {
+	border-left: 3px solid var(--green);
+}
+
+.cut.keep > b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .cut.keep {
+	border-left-color: var(--green-bright);
+}
+
+[data-theme='dark'] .cut.keep > b {
+	color: var(--green-bright);
+}
+
+/* Dashed, and named "enrichment" rather than "cut": these are good material
+   that a short period cannot fit, not filler. */
+.cut.skip {
+	border-style: dashed;
+	border-left: 3px solid var(--ink-faint);
+	border-left-style: solid;
+}
+
+.cut.skip > b {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- openers */
+
+.dialogue {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	margin: 0.8rem 0 1rem;
+	line-height: 1.7;
+}
+
+.dialogue p {
+	margin: 0;
+}
+
+.dialogue b {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .dialogue b {
+	color: var(--green-bright);
+}
+
+.dialogue code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.88em;
+}
+
+/* ------------------------------------------------------------------ rubric */
+
+.rubric {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr));
+	gap: 0.9rem;
+	margin: 1rem 0;
+}
+
+.rcol {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 1rem 1.1rem;
+}
+
+.rcol > b {
+	display: block;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .rcol > b {
+	color: var(--green-bright);
+}
+
+.rcol ul {
+	margin: 0;
+	padding-left: 1.1rem;
+	line-height: 1.6;
+	font-size: 0.93rem;
+	color: var(--ink-soft);
+}
+
+.rcol li {
+	margin-bottom: 0.35rem;
+}
+
+/* --------------------------------------------------------- troubleshooting */
+
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+.trouble {
+	width: 100%;
+	border-collapse: collapse;
+	margin: 0.9rem 0 0;
+	font-size: 0.92rem;
+	min-width: 34rem;
+}
+
+.trouble th,
+.trouble td {
+	text-align: left;
+	padding: 0.6rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.55;
+}
+
+.trouble th {
+	font-size: 0.7rem;
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.trouble td:first-child {
+	font-weight: 700;
+	color: var(--ink);
+}
+
+.trouble td:nth-child(2),
+.trouble td:nth-child(3) {
+	color: var(--ink-soft);
+}
+
+.trouble tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+/* -------------------------------------------------------------- answer key */
+
+.answer {
+	margin: 0.8rem 0 1.4rem;
+}
+
+.answer-head {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-soft);
+	margin: 1rem 0 0.3rem;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.8rem 1rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0 0 0.9rem;
+}
+
+/* --------------------------------------------------------------- printing
+ *
+ * Teachers print these. Nav, theme toggle and calls to action are furniture on
+ * paper; the collapsed answers have to be open or the printout is missing them. */
+@media print {
+	.nav,
+	.theme-toggle,
+	.tcontact,
+	.two-up {
+		display: none;
+	}
+
+	.tfaq-body {
+		display: block;
+	}
+
+	.tsec {
+		break-inside: avoid;
+		border-top: 1px solid #ccc;
+	}
+
+	.flowcard,
+	.cut,
+	.rcol {
+		break-inside: avoid;
+	}
+
+	body.guide {
+		background: #fff;
+	}
+}

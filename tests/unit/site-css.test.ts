@@ -6,7 +6,7 @@ import { join } from 'node:path';
 // buttons, chips, nav, wrap, section heads — extracted VERBATIM from the landing
 // page's <style> so the classroom pages can @include it.
 //
-// The landing page, /teachers, /age-rating and /support each still carry their
+// The landing page, /teachers/science, /age-rating and /support each still carry their
 // own hand-copied duplicate of exactly these bytes, with a comment on each
 // telling the next person to re-copy rather than tweak. That instruction is only
 // as good as whoever reads it, and a classroom page that quietly drifts a shade
@@ -72,7 +72,7 @@ describe('site-core.css', () => {
 	});
 
 	it('is the whole block every page shares, and no more', () => {
-		// The boundary is not a judgement call: /teachers, /age-rating and /support
+		// The boundary is not a judgement call: /teachers/science, /age-rating and /support
 		// each carry a byte-identical copy of landing's sheet up to a point, and
 		// diverge after it. That common prefix IS the shared design system — hero
 		// styles and all, which surprised me: they are shared, so they belong here.
@@ -85,7 +85,7 @@ describe('site-core.css', () => {
 		const from = landing.indexOf(':root{');
 
 		let shared = core.length;
-		for (const page of ['teachers.html', 'age-rating.html', 'support.html']) {
+		for (const page of ['teachers-science.html', 'age-rating.html', 'support.html']) {
 			const other = styleOf(page);
 			const at = other.indexOf(':root{');
 			let i = 0;

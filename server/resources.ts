@@ -64,7 +64,9 @@ import {
 	supportHtml,
 	dashboardHtml,
 	landingHtml,
-	teachersHtml,
+	teachersIndexHtml,
+	teachersScienceHtml,
+	teachersCodingHtml,
 	learnCodeBuilderHtml,
 	learnWebDevelopmentHtml,
 	learnIndexHtml,
@@ -12947,6 +12949,11 @@ const LESSON_EXACT = new Set([
 	'nav_learn',
 	'nav_hub',
 	'nav_game',
+	// Which kit a teacher took from the hub. The one number worth having about a
+	// hub: if everybody leaves through the same side it is a redirect with extra
+	// steps rather than a choice.
+	'nav_science',
+	'nav_coding',
 	// funnel
 	'lesson_start',
 	'builder_open',
@@ -13372,6 +13379,11 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	// and share. Harper serves /teachers.html too (it strips the suffix), which
 	// costs nothing and cannot be linked to by accident.
 	teachers: { path: '/teachers', redirect: true, sitemap: true },
+	// The two kits the hub leads to. /teachers stays a 200 and keeps its equity:
+	// it is an established URL printed in both PDFs and linked externally, so it
+	// changes job rather than changing address.
+	'teachers-science': { path: '/teachers/science', redirect: true, sitemap: true },
+	'teachers-coding': { path: '/teachers/coding', redirect: true, sitemap: true },
 	// The classroom student pages live under /learn/<slug>, resolved by ONE
 	// resource reading getId() — the same shape /img/<name>.webp already uses.
 	// The builder is `noindex` in its own <head> (it is a tool, not a document,
@@ -13527,9 +13539,41 @@ class DashboardPage extends PublicEndpoint {
  * on its own terms. Splitting it also means the landing page stops paying for
  * copy that only teachers read.
  */
+/**
+ * GET /teachers and /teachers/<slug> — the classroom hub and its two kits.
+ *
+ * Same shape as LearnPage, and for the same reason: Harper resolves the FIRST
+ * path segment to a resource and hands the rest to getId(), so one resource
+ * covers the section and the hub is the empty slug rather than a separate
+ * export.
+ *
+ * /teachers used to BE the science lesson. It stays a 200 rather than
+ * redirecting to /teachers/science: it is an established URL, printed inside
+ * both classroom PDFs and linked from outside, and an established URL should
+ * change job rather than change address. The lesson's title, description,
+ * keywords and LearningResource markup went with it to the new path, so the two
+ * pages target two different intents instead of competing for one.
+ */
+const TEACHER_PAGES: Record<string, { key: string; html: string }> = {
+	'': { key: 'teachers', html: teachersIndexHtml },
+	science: { key: 'teachers-science', html: teachersScienceHtml },
+	coding: { key: 'teachers-coding', html: teachersCodingHtml },
+};
+
 class TeachersPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(this, 'teachers', teachersHtml);
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(TEACHER_PAGES, slug) ? TEACHER_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
 	}
 }
 

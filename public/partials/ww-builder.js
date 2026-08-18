@@ -703,9 +703,9 @@
 		 * know. A student writing a long chained expression wants the window.
 		 *
 		 * All the way out rather than narrower, because a squeezed sidebar is the
-		 * worst of both: still taking room, no longer readable. The toggle stays
-		 * in the toolbar in both states, which is the only control that has to
-		 * survive the panel disappearing.
+		 * worst of both: still taking room, no longer readable. The bubble rides
+		 * the seam and stays in the same place in both states, which it has to:
+		 * it is the only control that survives the panel disappearing.
 		 *
 		 * Remembered with the rest of the layout, for the same reason the panels
 		 * themselves are: somebody who collapsed it on day two did not mean "until
@@ -719,6 +719,8 @@
 				sideToggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
 				// The control says what pressing it will DO, not what the state is.
 				sideToggle.title = hidden ? 'Show the side panel' : 'Hide the side panel';
+				// The bubble shows a chevron and nothing else, so this label is the
+				// only wording a screen reader has. It is hidden, not absent.
 				if (sideLabel) sideLabel.textContent = hidden ? 'Show panel' : 'Hide panel';
 			}
 

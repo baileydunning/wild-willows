@@ -17,7 +17,7 @@ import { join } from 'node:path';
 // promise, and the cheapest place to check a promise is where it is written.
 
 const root = process.cwd();
-const PAGES = ['landing.html', 'teachers.html', 'privacy.html', 'support.html', 'age-rating.html'];
+const PAGES = ['landing.html', 'teachers-science.html', 'privacy.html', 'support.html', 'age-rating.html'];
 const src = (p: string) => readFileSync(join(root, 'public', p), 'utf8');
 
 describe('the /LandingEvent/ beacon', () => {
@@ -42,7 +42,7 @@ describe('the arrival bucket', () => {
 	// Only the two pages with a once-per-session ping resolve one. The policy
 	// pages send clicks and no page ping, so they have no arrival to report and
 	// must not carry the bucketer at all.
-	const WITH = ['landing.html', 'teachers.html'];
+	const WITH = ['landing.html', 'teachers-science.html'];
 	const WITHOUT = ['privacy.html', 'support.html', 'age-rating.html'];
 
 	it.each(WITH)('%s resolves the referrer in the browser', (page) => {

@@ -26,6 +26,9 @@ body {
 }
 
 body.lab {
+	/* One number for the panel column, because two things depend on it: the grid
+	   that draws it and the bubble that sits on its edge. */
+	--lab-side-w: 280px;
 	display: flex;
 	flex-direction: column;
 	overflow: hidden;
@@ -130,9 +133,10 @@ body.lab .nav .wrap {
 /* ------------------------------------------------------------------- layout */
 
 .lab-main {
+	position: relative; /* the collapse bubble is positioned against this */
 	flex: 1 1 auto;
 	display: grid;
-	grid-template-columns: 280px 1fr;
+	grid-template-columns: var(--lab-side-w) 1fr;
 	min-height: 0;
 }
 
@@ -742,27 +746,62 @@ body.lab.side-hidden .lab-side {
 	display: none;
 }
 
+/* A bubble on the seam between the panel and the editor. Absolutely positioned
+   against .lab-main rather than dropped into either column, because it has to be
+   in the same place whether the panel is there or not: a control that runs away
+   when you press it is a control you have to find twice. The chevron points the
+   way the next press moves the panel. */
 .lab-side-toggle {
-	display: inline-flex;
-	align-items: center;
-	gap: 0.4rem;
-	flex: none;
+	position: absolute;
+	top: 50%;
+	left: var(--lab-side-w);
+	z-index: 3;
+	display: grid;
+	place-items: center;
+	width: 1.9rem;
+	height: 1.9rem;
+	padding: 0;
+	margin: 0;
+	transform: translate(-50%, -50%);
 	font: inherit;
-	font-size: 0.82rem;
-	font-weight: 600;
-	padding: 0.3rem 0.7rem 0.3rem 0.5rem;
-	margin-right: 0.2rem;
 	border: 1.5px solid var(--panel-edge);
-	border-radius: 999px;
+	border-radius: 50%;
 	background: var(--panel);
 	color: var(--ink-soft);
 	cursor: pointer;
+	box-shadow: 0 1px 5px rgba(59, 66, 50, 0.18);
+}
+
+[data-theme='dark'] .lab-side-toggle {
+	box-shadow: 0 1px 5px rgba(0, 0, 0, 0.4);
+}
+
+/* With the panel gone there is no seam to sit on, so it tucks against the left
+   edge of the window and the editor is given room for it. */
+body.lab.side-hidden .lab-side-toggle {
+	left: 0;
+	transform: translate(0.55rem, -50%);
+}
+
+body.lab.side-hidden .lab-stage {
+	padding-left: 2.9rem;
 }
 
 .lab-side-toggle svg {
-	width: 1rem;
-	height: 1rem;
+	width: 1.05rem;
+	height: 1.05rem;
 	flex: none;
+	transform: translateX(-1px); /* a chevron's ink sits right of its box centre */
+}
+
+body.lab.side-hidden .lab-side-toggle svg {
+	transform: translateX(1px) rotate(180deg);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.lab-side-toggle svg {
+		transition: transform 0.18s ease;
+	}
 }
 
 .lab-side-toggle:hover {
@@ -779,12 +818,19 @@ body.lab.side-hidden .lab-side {
 	outline-offset: 2px;
 }
 
-/* The left column of the icon fills in when the panel is showing, so the button
-   is a picture of the state as well as a label for the action. */
-.lab-side-toggle[aria-expanded='true'] svg path {
-	stroke-width: 6;
-	stroke-linecap: butt;
-	opacity: 0.35;
+/* The label is the only thing that says which way this goes, and the bubble has
+   no room for it. Hidden the standard way rather than with `display: none`, so
+   it stays in the accessibility tree and the button is not announced bare. */
+.lab-side-toggle-text {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
 }
 
 /* On a narrow screen the panel is already stacked under the editor rather than
@@ -797,5 +843,9 @@ body.lab.side-hidden .lab-side {
 
 	body.lab.side-hidden .lab-side {
 		display: block;
+	}
+
+	body.lab.side-hidden .lab-stage {
+		padding-left: 1.2rem;
 	}
 }

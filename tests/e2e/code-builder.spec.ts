@@ -302,7 +302,7 @@ test.describe('a screen too small for this page', () => {
 
 	test('offers the lesson, which does work here', async ({ page }) => {
 		await page.goto('/learn/code-builder');
-		await page.getByRole('link', { name: 'Read the lesson instead' }).click();
+		await page.getByRole('link', { name: 'Read the Lesson instead' }).click();
 		await expect(page).toHaveURL(/\/learn\/web-development$/);
 		// …and it really is usable at this size: an editor a student can type in.
 		await expect(page.locator('#chapter-1 ww-runner.wwr')).toBeVisible();
@@ -332,11 +332,34 @@ test.describe('the side panel collapses out of the way', () => {
 		const wide = (await stage.boundingBox())!.width;
 		expect(wide).toBeGreaterThan(narrow + 200);
 
-		// The toggle is the one control that has to survive the panel vanishing.
+		// The toggle is the one control that has to survive the panel vanishing,
+		// and it has to still be where it was: a button that runs away when you
+		// press it is one you have to find twice.
 		await expect(toggle).toBeVisible();
 		await toggle.click();
 		await expect(side).toBeVisible();
 		await expect(toggle).toContainText('Hide panel');
+	});
+
+	test('is a bubble on the seam, with no room for words', async ({ page }) => {
+		// It carries a chevron and nothing else, so the only wording is the hidden
+		// label — which must still be there, or the button announces bare.
+		const toggle = page.locator('#lab-side-toggle');
+		const box = (await toggle.boundingBox())!;
+		expect(Math.abs(box.width - box.height)).toBeLessThan(2);
+		expect(box.width).toBeLessThan(40);
+		await expect(toggle).toHaveCSS('border-radius', '50%');
+
+		const label = page.locator('.lab-side-toggle-text');
+		expect((await label.boundingBox())!.width).toBeLessThan(3);
+		await expect(label).toHaveText('Hide panel');
+
+		// Clear of the editor in both states, or it sits on top of the code.
+		const runner = page.locator('.lab-stage ww-runner');
+		expect(box.x + box.width).toBeLessThanOrEqual((await runner.boundingBox())!.x);
+		await toggle.click();
+		const moved = (await toggle.boundingBox())!;
+		expect(moved.x + moved.width).toBeLessThanOrEqual((await runner.boundingBox())!.x);
 	});
 
 	test('remembers the choice', async ({ page }) => {
