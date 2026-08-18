@@ -403,7 +403,49 @@
 
 	/* ------------------------------------------------------------------- boot */
 
+	/* THE BUILDER DRAWS A LINE THE LESSON DOES NOT.
+	 *
+	 * The lesson works on a phone, editors and all, and should: its examples are
+	 * a dozen lines each, most chapters are read rather than typed, and a student
+	 * on a bus getting through chapter 4 is a win.
+	 *
+	 * This page is the opposite shape. It is three files, a live preview and a
+	 * console, all on screen together, and it exists to be typed into for a whole
+	 * period. On a phone the soft keyboard covers the line being written, there
+	 * is no Tab key, and autocorrect fights punctuation the entire way. Shipping
+	 * a version of that is not generosity, it is a period spent on the keyboard
+	 * instead of on the code.
+	 *
+	 * So a phone gets a straight answer and a link to the thing that does work,
+	 * and the runner is never mounted: it carries `defer`, so no editor is built
+	 * and no preview iframes are opened on a device that cannot use them.
+	 *
+	 * The second clause is the landscape phone, wide enough to look like a tablet
+	 * with 400px of height and a keyboard over half of it. An iPad in portrait is
+	 * 744px or more and is not caught by either. */
+	function tooSmall() {
+		if (!window.matchMedia) return false;
+		return window.matchMedia('(max-width: 700px), (pointer: coarse) and (max-height: 460px)').matches;
+	}
+
 	function init() {
+		if (tooSmall()) {
+			var blocked = document.getElementById('lab-blocked');
+			if (blocked) blocked.hidden = false;
+			document.body.classList.add('is-too-small');
+			bump('env_too-small');
+			flush(true);
+			return;
+		}
+		var host = document.querySelector('ww-runner[defer]');
+		if (host && window.WwRunner && window.WwRunner.mount) {
+			host.removeAttribute('defer');
+			window.WwRunner.mount(host);
+		}
+		start();
+	}
+
+	function start() {
 		var runner = $('ww-runner');
 		if (!runner || !window.WwRunner) return;
 
@@ -432,8 +474,53 @@
 			}, 4000);
 		}
 
+		/* ---- arriving from the lesson ----
+		 *
+		 * The last chapter of /learn/web-development hands the student's own work
+		 * across rather than dropping them into a starter project that throws it
+		 * away. It travels in the URL FRAGMENT, which browsers do not send to the
+		 * server: their code stays theirs, and the promise this page and
+		 * PRIVACY.md both make stays true.
+		 *
+		 * It wins over the autosave, and that is the right way round. Someone who
+		 * clicked "Open the Code Builder" at the end of the lesson thirty seconds
+		 * ago means the thing they were just looking at, not whatever they left
+		 * here last week. The old work is not lost either: this does not save
+		 * over it until they type something. */
+		var carried = null;
+		try {
+			var m = /[#&]start=([^&]+)/.exec(location.hash || '');
+			if (m) {
+				var payload = JSON.parse(decodeURIComponent(m[1]));
+				if (payload && typeof payload === 'object') {
+					carried = {
+						'index.html': typeof payload.html === 'string' ? payload.html : undefined,
+						'styles.css': typeof payload.css === 'string' ? payload.css : undefined,
+						'main.js': typeof payload.js === 'string' ? payload.js : undefined,
+					};
+					// The fragment is long and means nothing to a reader. Take it out of
+					// the bar so a reload or a bookmark is a plain /learn/code-builder.
+					if (history.replaceState) history.replaceState(null, '', location.pathname);
+				}
+			}
+		} catch (e) {
+			/* Anything unparseable in a hash a student may well have edited by hand
+			 * is not worth a broken page: fall through to the normal opening. */
+		}
+		if (carried) {
+			var only = {};
+			for (var name in carried) if (carried[name] !== undefined) only[name] = carried[name];
+			if (Object.keys(only).length) {
+				runner.wwSet(only);
+				status('Brought your code over from the lesson.', 'ok');
+				bump('carried_in');
+			} else {
+				carried = null;
+			}
+		}
+
 		/* ---- restore ---- */
-		var restored = load();
+		var restored = carried ? null : load();
 		if (restored) {
 			runner.wwSet({ 'index.html': restored.html, 'styles.css': restored.css, 'main.js': restored.js });
 			doneSet = restored.done || {};
@@ -608,6 +695,44 @@
 			});
 		}
 		renderCheckpoints();
+
+		/* ---- the side panel, collapsed to nothing ----
+		 *
+		 * The checkpoints and the help are reference: worth having open while you
+		 * are working out what to do next, and 280px of permanent tax once you
+		 * know. A student writing a long chained expression wants the window.
+		 *
+		 * All the way out rather than narrower, because a squeezed sidebar is the
+		 * worst of both: still taking room, no longer readable. The toggle stays
+		 * in the toolbar in both states, which is the only control that has to
+		 * survive the panel disappearing.
+		 *
+		 * Remembered with the rest of the layout, for the same reason the panels
+		 * themselves are: somebody who collapsed it on day two did not mean "until
+		 * I reload". */
+		var sideToggle = $('#lab-side-toggle');
+		if (sideToggle) {
+			var sideLabel = $('.lab-side-toggle-text', sideToggle);
+
+			function paintSide() {
+				var hidden = document.body.classList.contains('side-hidden');
+				sideToggle.setAttribute('aria-expanded', hidden ? 'false' : 'true');
+				// The control says what pressing it will DO, not what the state is.
+				sideToggle.title = hidden ? 'Show the side panel' : 'Hide the side panel';
+				if (sideLabel) sideLabel.textContent = hidden ? 'Show panel' : 'Hide panel';
+			}
+
+			if (ui.sideHidden === true) document.body.classList.add('side-hidden');
+			paintSide();
+
+			sideToggle.addEventListener('click', function () {
+				var hidden = document.body.classList.toggle('side-hidden');
+				ui.sideHidden = hidden;
+				save(files(), doneSet, ui);
+				paintSide();
+				bump(hidden ? 'panel_side_hidden' : 'panel_side_shown');
+			});
+		}
 
 		/* ---- collapsible side panels ---- */
 		[
@@ -911,7 +1036,7 @@
 		/* Where they went next. The nav links leave the page, so this has to be a
 		 * plain click listener rather than anything that waits for a response —
 		 * bump() batches into the pagehide flush, which fires on the way out. */
-		var NAV = { 'lesson-nav': 'nav_lesson', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		var NAV = { 'lesson-nav': 'nav_lesson', 'learn-nav': 'nav_learn', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
 		document.addEventListener('click', function (e) {
 			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
 			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);

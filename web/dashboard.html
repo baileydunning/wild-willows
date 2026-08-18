@@ -3,32 +3,115 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Wild Willows — Metrics Dashboard</title>
-		<meta
-			name="description"
-			content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim."
+		<!-- Deliberately neutral until signed in. Anyone who reaches this URL
+		     without credentials should learn nothing from it — not what the page is
+		     for, not what it reports, not that it reports anything. The real title
+		     is set from script once a session is established. -->
+		<title>Wild Willows</title>
+		<meta name="description" content="Wild Willows." />
+		<meta name="robots" content="noindex, nofollow" />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+			media="print"
+			onload="this.media='all'"
+			fetchpriority="low"
 		/>
-		<meta name="robots" content="noindex" />
+		<noscript
+			><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+		/></noscript>
+
 		<style>
+<!-- @include public/partials/site-core.css -->
+
+			/* The dashboard's palette, repointed at the SITE's tokens rather than its
+			   own near-misses, so this page reads as part of Wild Willows instead of
+			   as an admin tool someone bolted on. site-core.css is included above and
+			   is byte-locked to the landing page (tests/unit/site-css.test.ts), so
+			   these follow the site automatically rather than being a copy that
+			   drifts.
+			
+			   The dashboard's own rules come AFTER the include and win every tie —
+			   which matters for the five selectors both sheets define (.wrap, .brand,
+			   body, html, section). The three this page wanted most — .btn, .chip and
+			   .nav — the dashboard never defined at all, so they arrive for free and
+			   the view tabs are real site chips.
+			
+			   THREE OF THE OLD VALUES FAILED AA on the site's creams, measured:
+			     --muted  #6b7263 -> 4.29 on --paper, 3.92 on --paper-deep
+			     --faint  #9aa189 -> 2.31 / 2.11
+			     --accent #4a7c46 -> 4.24 / 3.88   (used as text, not just fills)
+			   They carried every sub-label, hint and axis on the page. Repointing to
+			   the site's inks fixes the contrast and the consistency in one move. */
 			:root {
-				--bg: #eef2e3;
-				--bg2: #e5ecd6;
-				--card: #fffdf7;
-				--ink: #2f3a27;
-				--muted: #6b7263;
-				--faint: #9aa189;
-				--accent: #4a7c46;
-				--accent-dark: #35602f;
-				--accent-soft: #dceccf;
-				/* The third series colour. Was a gold (#d9a441) and read as a warning
-				   next to the greens; it is a light sage now, one step brighter than
-				   --accent so the two stay distinguishable side by side in a donut. */
-				--gold: #7fb069;
-				--sky: #6ea8c8;
-				--rose: #d77b8f;
-				--rule: #dfe0cf;
+				--bg: var(--paper);
+				--bg2: var(--paper-deep);
+				--card: var(--panel);
+				--ink: #3b4232;
+				--muted: #61624b; /* 4.92 worst surface */
+				--faint: #66674f; /* 4.57 worst surface */
+				/* Fills keep the site green; TEXT uses --accent-dark, which clears AA. */
+				--accent: #4a7c59;
+				--accent-dark: #39604a; /* 5.61 worst surface */
+				--accent-soft: #eaf3dd;
+				/* ---- the four series colours ----
+				   MEASURED, not chosen. The previous set (#4a7c59 #7fb069 #6ea8c8
+				   #d77b8f) failed three of the five computable checks against this
+				   page's cream surface (#fdfaf1):
+
+				     chroma floor        #4a7c59 C=0.077, #6ea8c8 C=0.077 — under
+				                         0.10, which is the point where a hue stops
+				                         reading as a colour and starts reading grey
+				     normal-vision floor #6ea8c8 vs #7fb069  ΔE 14.3 — under 15, so
+				                         full-colour readers could not reliably tell
+				                         the sage and the sky apart
+				     contrast vs surface 2.42 / 2.48 / 2.83 — three of four under 3:1
+
+				   These four pass all five, in this slot order:
+				     lightness band ok · chroma ok · adjacent-pair ΔE 15.4 under
+				     deuteranopia · 18.1 normal vision · all >= 3:1 on cream.
+
+				   ASSIGN BY ENTITY, IN THIS ORDER, NEVER BY RANK — a filter that
+				   drops a series must not repaint the ones that survive.
+
+				   The order is validated on ADJACENT pairs, which is the right check
+				   for bars, funnels and donuts where the sequence is ours to choose.
+				   s1 and s4 (green and rose) are only ΔE 5.3 apart under deuteranopia,
+				   so they must never be the only thing telling two marks apart: every
+				   legend on this page carries a text label beside its swatch and every
+				   bar row carries its name and number, which is what makes that legal.
+				   Putting them adjacent in a new chart is not. */
+				--s1: #1f7a3f;
+				--s2: #2166ad;
+				--s3: #c47a1a;
+				--s4: #b0446a;
+				/* Lighter steps of the same four hues, for the left end of a bar
+				   gradient. Same hue angle, +0.17 OKLCH lightness, chroma at 0.8 —
+				   a step of the same ramp rather than a different colour. */
+				--s1-lift: #69ab79;
+				--s2-lift: #669ad6;
+				--s3-lift: #f2b474;
+				--s4-lift: #de829e;
+				/* Slot 3 as TEXT, or as a chip behind white text. The mark colour
+				   (#c47a1a) is 3.27 on cream and carries white at 3.42 — fine for a
+				   fill, short of AA for anything with letters in it. Same hue, two
+				   steps darker: 4.96 on cream, 5.18 under white. Same split as
+				   --accent / --accent-dark, for the same reason. */
+				--s3-ink: #9c5f0e;
+				/* Kept as aliases so the existing .fill.gold / .fill.sky / .fill.rose
+				   class names and their call sites keep working. New charts should
+				   name the slot (--s2) rather than the hue (--sky): the slot is the
+				   contract, the hue is an implementation detail that has now changed
+				   once and may change again. */
+				--gold: var(--s3);
+				--sky: var(--s2);
+				--rose: var(--s4);
+				--rule: #e3d9bc;
 				--shadow: 0 1px 2px rgba(47, 58, 39, 0.06), 0 6px 20px rgba(47, 58, 39, 0.07);
-				--radius: 18px;
+				--radius: 14px; /* --r */
 			}
 			* {
 				box-sizing: border-box;
@@ -39,24 +122,81 @@
 			body {
 				margin: 0;
 				background:
-					radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
+					radial-gradient(1200px 480px at 80% -10%, #fbf7ea 0%, transparent 60%),
 					linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
 				background-attachment: fixed;
 				color: var(--ink);
-				font:
-					15px/1.55 -apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					Helvetica,
-					Arial,
-					sans-serif;
+				/* Quicksand, like every other page. Loaded the same non-blocking way. */
+				font: 15px/1.55 var(--f);
+				font-weight: 500;
 				min-height: 100vh;
 			}
 			.wrap {
 				max-width: 1180px;
 				margin: 0 auto;
 				padding: clamp(1rem, 3vw, 2.5rem) clamp(0.9rem, 3vw, 2rem) 5rem;
+			}
+
+			/* ---- signed out ----
+			   A sign-in screen should give nothing away. Before this, the page
+			   announced itself as "Wild Willows Metrics" above the form, with a nav,
+			   a version filter and a Problems toggle — so anyone who found the URL
+			   learned that it exists, what it reports and roughly how it is
+			   organised, without a password.
+			   Signed out, the page is a wordmark-free form on a cream background and
+			   nothing else. The title is neutral in the markup too; the real one is
+			   set from script once there is a session. */
+			body.signed-out .nav,
+			body.signed-out header.top,
+			body.signed-out .views,
+			body.signed-out .meta,
+			body.signed-out footer {
+				display: none;
+			}
+			body.signed-out .wrap {
+				padding-top: clamp(4rem, 18vh, 10rem);
+			}
+
+			/* ---- view tabs ----
+			   Filtering, not re-rendering: every section is built once and the ones
+			   that do not match are hidden, so switching is instant and nothing is
+			   refetched. The chips are the site's own (.chip / .chip.on from
+			   site-core.css), so this control looks like the ones on /learn. */
+			.views {
+				display: flex;
+				gap: 0.35rem;
+				flex-wrap: wrap;
+				align-self: center;
+			}
+			.views .chip {
+				font-family: var(--f);
+				font-size: 0.85rem;
+				padding: 0.3rem 0.9rem;
+				cursor: pointer;
+			}
+			body[data-view='game'] section[data-view]:not([data-view='game']),
+			body[data-view='website'] section[data-view]:not([data-view='website']),
+			body[data-view='harper'] section[data-view]:not([data-view='harper']),
+			body[data-view='problems'] section[data-view]:not([data-view='problems']) {
+				display: none;
+			}
+			/* A view whose sections all failed to load should say so rather than
+			   showing an empty page that looks broken. */
+			.viewempty {
+				margin: 2rem 0;
+				padding: 2rem;
+				text-align: center;
+				color: var(--muted);
+				background: var(--card);
+				border: 1.5px solid var(--rule);
+				border-radius: var(--radius);
+			}
+
+			/* The site nav, which this page did not have. Full-bleed like the rest of
+			   the dashboard rather than site-core's centred 1080px wrap. */
+			.nav .wrap {
+				max-width: 1180px;
+				padding: 0 clamp(0.9rem, 3vw, 2rem);
 			}
 
 			/* ---- header ---- */
@@ -368,7 +508,14 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				text-transform: capitalize;
+			}
+			/* Was text-transform: capitalize, which uppercases EVERY word and had
+			   been quietly rendering the itch.io label as "Itch.Io" — invisible on
+			   the other labels only because they were already title case. The label
+			   maps carry the intended casing; this just lifts the first letter of a
+			   raw key that has no map entry. */
+			.bar .lab::first-letter {
+				text-transform: uppercase;
 			}
 			.bar .track {
 				display: block;
@@ -382,7 +529,7 @@
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 				min-width: 3px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -394,13 +541,13 @@
 				text-align: right;
 			}
 			.fill.sky {
-				background: linear-gradient(90deg, #8cc0da, var(--sky));
+				background: linear-gradient(90deg, var(--s2-lift), var(--s2));
 			}
 			.fill.gold {
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 			}
 			.fill.rose {
-				background: linear-gradient(90deg, #e5a0af, var(--rose));
+				background: linear-gradient(90deg, var(--s4-lift), var(--s4));
 			}
 
 			/* ---- funnel ----
@@ -542,7 +689,7 @@
 				display: inline-block;
 				margin-top: 0.25rem;
 				font-size: 0.66rem;
-				color: var(--gold);
+				color: var(--s3-ink);
 				font-weight: 700;
 				letter-spacing: 0.02em;
 			}
@@ -628,7 +775,7 @@
 			   with it, so the two are told apart by fill weight rather than colour. */
 			.hledi.demo {
 				color: #ffffff;
-				background: var(--gold);
+				background: var(--s3-ink);
 			}
 			.hledi.full {
 				color: var(--accent-dark);
@@ -693,7 +840,7 @@
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 			}
 			.hlchain .num {
 				font-size: 0.64rem;
@@ -1262,7 +1409,7 @@
 			.vsrow .vbar i {
 				display: block;
 				height: 100%;
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 				border-radius: 999px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -1574,6 +1721,22 @@
 		/>
 	</head>
 	<body>
+		<nav class="nav">
+				<div class="wrap">
+					<a class="brand" href="/"
+						><svg viewBox="0 0 24 24" aria-hidden="true">
+							<circle cx="12" cy="12" r="11" fill="#4a7c59" />
+							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
+						> Wild Willows</a
+					>
+					<div class="links">
+						<a class="hide-sm" href="/">The game</a>
+						<a class="hide-sm" href="/teachers">For teachers</a>
+						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
+					</div>
+				</div>
+		</nav>
+
 		<div class="wrap">
 			<header class="top">
 				<div class="brand">
@@ -1586,6 +1749,12 @@
 					<div>
 						<h1>Wild Willows Metrics</h1>
 					</div>
+				</div>
+				<div class="views" id="view-tabs" role="tablist" aria-label="What to show" hidden>
+					<button type="button" class="chip on" role="tab" data-view-tab="game" aria-selected="true">Game</button>
+					<button type="button" class="chip" role="tab" data-view-tab="website" aria-selected="false">Website</button>
+					<button type="button" class="chip" role="tab" data-view-tab="harper" aria-selected="false">Harper</button>
+					<button type="button" class="chip" role="tab" data-view-tab="problems" aria-selected="false">Problems</button>
 				</div>
 				<div class="meta">
 					<div id="whoami" hidden></div>
@@ -2054,7 +2223,7 @@
 				};
 			}
 			function vsTable(rows, demo, full) {
-				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:#7fb069"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>`;
+				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:var(--s3)"></span>Demo</span><span class="li"><span class="sw" style="background:var(--s1)"></span>Full</span></div>`;
 				const body = rows
 					.map((row) => {
 						const dv = demo[row.key],
@@ -2071,8 +2240,69 @@
 				return `${legend}<div class="vs">${body}</div>`;
 			}
 
-			function sec(title, sub, body) {
-				return `<section><div class="sec-head"><h2>${title}</h2>${sub ? `<span class="sub">${sub}</span>` : ''}</div>${body}</section>`;
+			/* Every section declares which VIEW it belongs to, and the tab bar shows one
+			   view at a time.
+			
+			   This page had grown to eighteen sections covering four unrelated
+			   questions — how the game is doing, how the website is doing, whether
+			   Harper is healthy, and what is currently broken — stacked in one column.
+			   Answering any one of them meant scrolling past the other three, and the
+			   two that matter when something is on fire (Problems, Harper) sat at the
+			   bottom.
+			
+			   Filtering rather than re-rendering: every section is built once and CSS
+			   hides the ones that do not match, so switching views is instant and no
+			   data is refetched. */
+			/* Which view is showing. Remembered, because whoever opens this page at
+			   3am to find out why it is on fire wants Problems, and should not have to
+			   choose it every time. */
+			const VIEW_KEY = 'wwDashboardView';
+			const VIEWS = ['game', 'website', 'harper', 'problems'];
+
+			function applyView(view) {
+				if (VIEWS.indexOf(view) === -1) view = 'game';
+				document.body.setAttribute('data-view', view);
+				document.querySelectorAll('[data-view-tab]').forEach((b) => {
+					const on = b.getAttribute('data-view-tab') === view;
+					b.classList.toggle('on', on);
+					b.setAttribute('aria-selected', on ? 'true' : 'false');
+				});
+				try {
+					localStorage.setItem(VIEW_KEY, view);
+				} catch (e) {
+					/* private window — the choice just does not persist */
+				}
+				noteEmptyView(view);
+			}
+
+			/* An empty view is ambiguous: it looks the same whether there is nothing
+			   to report or the feed behind it failed to load. */
+			function noteEmptyView(view) {
+				const host = document.getElementById('root');
+				if (!host) return;
+				const old = host.querySelector('.viewempty');
+				if (old) old.remove();
+				if (!host.querySelector('section[data-view="' + view + '"]')) {
+					const LABEL = {
+						game: 'No gameplay metrics yet.',
+						website: 'No website or classroom numbers yet — /LandingStats/ and /LessonStats/ may not be deployed on this instance.',
+						harper: 'No Harper telemetry — /ServerHealth/ could not be read.',
+						problems: 'Nothing is going wrong. Refusals, crashes and save failures all report here.',
+					};
+					const p = document.createElement('div');
+					p.className = 'viewempty';
+					p.textContent = LABEL[view] || 'Nothing to show.';
+					host.appendChild(p);
+				}
+			}
+
+			document.addEventListener('click', (e) => {
+				const tab = e.target.closest && e.target.closest('[data-view-tab]');
+				if (tab) applyView(tab.getAttribute('data-view-tab'));
+			});
+
+			function sec(title, sub, body, view) {
+				return `<section data-view="${view || 'game'}"><div class="sec-head"><h2>${title}</h2>${sub ? `<span class="sub">${sub}</span>` : ''}</div>${body}</section>`;
 			}
 			function card(inner) {
 				return `<div class="card">${inner}</div>`;
@@ -2562,6 +2792,7 @@
 			let PLAYERS_BY_ID = {};
 			let modalEl = null;
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
+			let CLASSROOM = null; // latest GET /LessonStats/ payload (same contract)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
 			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload — Harper's own telemetry
@@ -3319,6 +3550,7 @@
 									`Refusals are ordinary — a player short on materials makes one — so if this stays empty during real play, ` +
 									`check that the <code>Refusal</code> and <code>ClientError</code> tables exist.</p></div>`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -3362,6 +3594,7 @@
 								? `<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>` +
 									`<table class="tbl"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${rows}</tbody></table></div>`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -3376,6 +3609,126 @@
 				 *
 				 * Built here (it needs `LANDING`) and pushed under Engagement — see the
 				 * push a little further down. */
+
+				/* ---- Classroom (the coding kit) ----
+				 * Fed by GET /LessonStats/. Anonymous counters only — see the contract
+				 * note on LessonEvent in server/resources.ts. Same best-effort loading
+				 * as the landing section: if the endpoint isn't deployed, the section
+				 * simply doesn't render.
+				 *
+				 * The FUNNEL leads, because it is the only number here that tells you
+				 * what to do next. Everything else is context for it: the errors are a
+				 * work queue for explanation copy, the ideas say which prompts students
+				 * actually pick, and the health strip is the only way to find out that
+				 * a school network is silently blocking the API. */
+				let classroomSection = '';
+				if (CLASSROOM && CLASSROOM.totals) {
+					const C = CLASSROOM.totals;
+					const cN = (k) => n(C[k]) || 0;
+
+					/* Drop-off, expressed against the step before it rather than the top.
+					 * "Half the people who opened the builder ran their code" is a
+					 * sentence you can act on; "6% of hub visitors downloaded" is not. */
+					const funnelRows = (CLASSROOM.funnel || []).map((f, i, all) => {
+						const prev = i ? n(all[i - 1].n) : 0;
+						const drop = i && prev ? Math.round((n(f.n) / prev) * 100) : null;
+						return [f.label + (drop != null ? ` (${drop}% of previous)` : ''), n(f.n)];
+					});
+
+					const ERROR_LABELS = {
+						'fetch-failed': 'Could not reach the data',
+						'null-property': 'Element not on the page',
+						'undefined-property': 'Field not in the data',
+						'not-defined': 'Name not recognised',
+						'not-a-function': 'Not something you can call',
+						'unexpected-eof': 'Something left open',
+						'json-parse': 'Answer was not JSON',
+						'await-async': 'await outside async',
+						'const-assign': 'Reassigned a const',
+						'not-iterable': 'Not a list',
+						'object-object': 'Rendered [object Object]',
+						'undefined-text': 'Rendered "undefined"',
+						masked: 'Browser hid the reason',
+						syntax: 'Other syntax mistake',
+						other: 'Unclassified',
+					};
+
+					const DURATIONS = [
+						['Under 5 min', 'duration_lt5m'],
+						['5–15 min', 'duration_5to15m'],
+						['15–30 min', 'duration_15to30m'],
+						['30–60 min', 'duration_30to60m'],
+						['Over an hour', 'duration_gt60m'],
+					];
+					const durationRows = DURATIONS.map(([label, key]) => [label, cN(key)]).filter((r) => r[1]);
+					const sessions = n(CLASSROOM.sessions) || 0;
+					/* A midpoint estimate, labelled as one. The buckets are deliberate —
+					 * a precise per-session duration is a behavioural trace of one person
+					 * — so this is the honest way to answer "roughly how long?" from them. */
+					const MIDPOINT = { duration_lt5m: 2.5, duration_5to15m: 10, duration_15to30m: 22, duration_30to60m: 45, duration_gt60m: 75 };
+					const bucketed = DURATIONS.reduce((a, [, k]) => a + cN(k), 0);
+					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
+					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
+
+					const h = CLASSROOM.health || {};
+					const fetchTotal = n(h.fetchOk) + n(h.fetchFailed);
+					const blockedPct = fetchTotal ? Math.round((n(h.fetchFailed) / fetchTotal) * 100) : 0;
+
+					classroomSection = sec(
+						'Classroom',
+						'wildwillows.app/learn — the coding kit, anonymous counters only',
+						`<div class="grid kpis">${[
+							kpi(fmt(sessions), 'Builder sessions', `${fmt(cN('returning_day2') + cN('returning_day3'))} came back another day`),
+							kpi(
+								`<span class="accent">${typicalMin ? typicalMin + 'm' : '—'}</span>`,
+								'Typical time in the builder',
+								`${fmt(longSessions)} ${longSessions === 1 ? 'session' : 'sessions'} over half an hour`,
+							),
+							kpi(fmt(cN('first_fetch_ok')), 'Reached real data', 'students whose own fetch worked'),
+							kpi(
+								blockedPct > 10 ? `<span class="accent">${blockedPct}%</span>` : `${blockedPct}%`,
+								'Fetches that failed',
+								fetchTotal ? `${fmt(h.fetchFailed)} of ${fmt(fetchTotal)} — a blocked school network looks like this` : 'no fetches yet',
+							),
+						].join('')}</div>` +
+							`<div style="margin-top:.8rem">` +
+							cardTitled('Funnel', 'where the kit loses people', barRows(funnelRows)) +
+							`</div>` +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Errors students hit',
+								'ranked — this is the queue for explanation copy',
+								barRows((CLASSROOM.errors || []).map((e) => [ERROR_LABELS[e.key] || e.key, e.n])),
+							) +
+							cardTitled('Time in the builder', 'active time, bucketed', barRows(durationRows)) +
+							`</div>` +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Ideas students picked',
+								'which prompts earn their place',
+								barRows((CLASSROOM.ideas || []).slice(0, 12).map((i) => [i.id.replace(/-/g, ' '), i.n])),
+							) +
+							cardTitled(
+								'How it is used',
+								'view, theme and console choices',
+								barRows(
+									[
+										['Split view', cN('view_split')],
+										['Code only', cN('view_code')],
+										['Page only', cN('view_preview')],
+										['Opened in a new tab', cN('open_tab')],
+										['Downloaded', cN('download')],
+										['Dark mode', cN('theme_dark')],
+										['Console collapsed', cN('console_collapsed')],
+										['Ideas opened', cN('ideas_opened')],
+									].filter((r) => r[1]),
+								),
+							) +
+							`</div>`,
+										'website',
+					);
+				}
+
 				let landingSection = '';
 				if (LANDING && LANDING.totals) {
 					const lt = LANDING.totals;
@@ -3423,6 +3776,31 @@
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
+					/* Where people arrived from, in the only vocabulary this site has:
+					 * nine buckets, resolved in the visitor's own browser. The referrer
+					 * URL is never sent — see LANDING_SOURCES in server/resources.ts.
+					 *
+					 * Counted on a page's once-per-session ping, so this is arrivals,
+					 * not events: a visitor who clicks six links still arrived once. */
+					const SOURCE_LABELS = {
+						google: 'Google',
+						bing: 'Bing',
+						duckduckgo: 'DuckDuckGo',
+						reddit: 'Reddit',
+						itch: 'itch.io',
+						apple: 'Apple',
+						bluesky: 'Bluesky',
+						direct: 'Direct or bookmarked',
+						other: 'Somewhere else',
+					};
+					const srcTotal = Object.values(lt.sources || {}).reduce((a, v) => a + n(v), 0);
+					const sourcesCard = cardTitled(
+						'Where visitors come from',
+						srcTotal
+							? `${fmt(srcTotal)} ${srcTotal === 1 ? 'arrival' : 'arrivals'} all-time`
+							: 'nothing recorded yet — this starts filling once the change is deployed',
+						barRows(objToEntries(lt.sources), { labelMap: SOURCE_LABELS, cls: 'sky' }),
+					);
 					/* Daily visits used to be a fixed last-14-days histogram wedged into
 					 * the two-up grid beside "Clicks by link". It now gets the same
 					 * control — and the same dense day-column chart — as New caretakers
@@ -3442,7 +3820,7 @@
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app — visits, link clicks & classroom PDFs',
+						'wildwillows.app — visits, arrivals, link clicks & classroom PDFs',
 						`<div class="grid kpis">${[
 							kpi(fmt(lt.visits), 'Visits', `${fmt(lt.uniques)} first-time visitors`),
 							kpi(
@@ -3475,9 +3853,14 @@
 							cardTitled(
 								'Classroom PDFs',
 								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
-								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
+								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'gold' }),
 							) +
-							`</div>`,
+							`</div>` +
+							// Acquisition is its own question — not a breakdown of the
+							// clicks above it — so it gets its own full-width row rather
+							// than a third column squeezed into the two-up grid.
+							`<div style="margin-top:.8rem">${sourcesCard}</div>`,
+										'website',
 					);
 				}
 
@@ -3576,6 +3959,10 @@
 				 * immediately. */
 				if (landingSection) out.push(landingSection);
 
+				/* Directly under Landing page: both are site numbers rather than game
+				 * numbers, and the classroom funnel starts where the landing one ends. */
+				if (classroomSection) out.push(classroomSection);
+
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
 				const demoPlayers = players.filter((p) => edOf(p) === 'demo');
@@ -3586,7 +3973,7 @@
 				const playersDonut = donut(
 					[
 						{ label: 'Full', value: edSum.full != null ? edSum.full : fStat.count, color: '#4a7c46' },
-						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#7fb069' },
+						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: 'var(--s3)' },
 					].filter((x) => x.value),
 				);
 				const vsRows = [
@@ -4218,7 +4605,7 @@
 					langs = s.languages || {};
 				const platSeg = [
 					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
-					{ label: 'Web', value: plat.web, color: '#6ea8c8' },
+					{ label: 'Web', value: plat.web, color: 'var(--s2)' },
 				].filter((x) => x.value);
 				out.push(
 					sec(
@@ -4462,6 +4849,19 @@
 				}
 
 				document.getElementById('root').innerHTML = out.join('');
+
+				/* The tabs are hidden until there is something to switch between —
+				 * a switcher above a sign-in form is furniture. */
+				const tabs = document.getElementById('view-tabs');
+				if (tabs) tabs.hidden = false;
+				let saved = 'game';
+				try {
+					saved = localStorage.getItem(VIEW_KEY) || 'game';
+				} catch (e) {
+					/* private window — start on Game */
+				}
+				applyView(saved);
+
 				// Charts can only be fitted once they are in the document and measurable.
 				fitDayCharts();
 			}
@@ -4624,7 +5024,16 @@
 			/* ------------------------------------------------------------------ *
 			 * Sign in
 			 * ------------------------------------------------------------------ */
+			/** Reveal or conceal everything that is not the sign-in form. */
+			function setSignedOut(out) {
+				document.body.classList.toggle('signed-out', !!out);
+				/* The title is part of the disclosure: "Metrics Dashboard" in a tab
+				 * or a browser-history entry says as much as the page would. */
+				document.title = out ? 'Wild Willows' : 'Wild Willows — Metrics Dashboard';
+			}
+
 			function showLogin(message) {
+				setSignedOut(true);
 				const gen = document.getElementById('generated');
 				if (gen) gen.textContent = '';
 				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
@@ -4783,6 +5192,7 @@
 								`can do the same is still unestablished — Harper's super-user role carries explicit read permission on the system tables and a ` +
 								`read-only role may not. If this panel fills in as super-user and not otherwise, that is the answer.</p>`,
 						),
+										'harper',
 					);
 				}
 				const t = h.threads || {},
@@ -4897,6 +5307,7 @@
 							: '') +
 						trafficHTML(ht) +
 						allMetricsHTML(h),
+					'harper',
 				);
 			}
 
@@ -4914,6 +5325,7 @@
 			async function load() {
 				// The page is public and the data is not, so every path in starts here.
 				if (!AUTH) return showLogin();
+				setSignedOut(false);
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
@@ -4936,6 +5348,12 @@
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', req())
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
+					// The classroom kit's counters. Same best-effort contract: an instance
+					// that predates /LessonStats/ hides the section rather than breaking
+					// the page.
+					const classroomReq = fetch('../LessonStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
@@ -4966,6 +5384,7 @@
 					// Rebuild the shape render() has always received.
 					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
+					CLASSROOM = await classroomReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
 					SERVERHEALTH = await serverReq;
@@ -5270,6 +5689,10 @@
 			window.__openActiveNowModal = openActiveNowModal;
 			// Pick up an existing session before deciding what to show — a refresh
 			// mid-investigation should land back on the numbers, not on a login form.
+			/* Start concealed. loadAuth() may restore a session a moment later, but
+			 * until it does the page must not show what it is — a flash of the real
+			 * header is the same disclosure, just briefer. */
+			document.body.classList.add('signed-out');
 			loadAuth();
 			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();

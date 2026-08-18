@@ -661,11 +661,10 @@ section[id]{scroll-margin-top:66px}
      Also deliberately no page-level ping: 'visit' is one undifferentiated
      series shared by every page that sends it, so a ping from here would
      silently inflate the landing page's number with no way to unmix them. */
-  function track(type,target){
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}

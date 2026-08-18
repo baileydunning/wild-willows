@@ -191,3 +191,88 @@ describe('GameData — counts the lesson prints in its own prose', () => {
 		expect(d.animals.filter((a: any) => a.requirements.minHealth > 50).length).toBeGreaterThan(0);
 	});
 });
+
+describe('the /learn section routes', () => {
+	// One resource for the whole section, dispatching on getId(). The hub is the
+	// EMPTY slug, which is the case that shape was chosen for; a resource per page
+	// would have left /learn itself with nothing to serve.
+	const learn = async (slug: string) => w.fetch<any>('learn', {}, slug);
+
+	it('serves the hub at /learn', async () => {
+		const res = await learn('');
+		expect(res.status ?? 200).toBe(200);
+		expect(String(res.body)).toContain('Learn to code with real game data');
+	});
+
+	it('serves both student pages under it', async () => {
+		expect(String((await learn('web-development')).body)).toContain('Build with Wild Willows');
+		expect(String((await learn('code-builder')).body)).toContain('Code Builder');
+	});
+
+	it('404s an unknown slug rather than serving the wrong lesson', async () => {
+		// A typo'd link a teacher hands thirty students should say so plainly.
+		const res = await learn('web-developement');
+		expect(res.status).toBe(404);
+	});
+});
+
+describe('the claims /learn/web-development makes about specific records', () => {
+	// The chapters below do not just read fields — they are written around what
+	// PARTICULAR records contain, and the teaching depends on the value. These are
+	// the ones where a data change would not break the page, it would break the
+	// lesson, silently, in a way only a teacher standing in the room would notice.
+
+	it('chapter 6 opens on an animal that is NOT rare', async () => {
+		// The chapter's whole first beat is running `if (rarity === "rare")` on
+		// data.animals[0] and having NOTHING happen — "the code ran fine, the
+		// condition was false" — before the student changes the value and watches
+		// it fire. If animals[0] ever became rare, the example would print on the
+		// first run and the lesson would lose the point it is built on.
+		const first = (await catalog()).animals[0];
+		expect(first.rarity).not.toBe('rare');
+		expect(first.name).toBeTruthy();
+	});
+
+	it('chapter 3 can still point at a null and a true', async () => {
+		// The six-type table cites `"unlock": null` on the meadow and
+		// `"explorable": true` as its examples of null and boolean. There is no
+		// other null in the catalog a beginner would meet this early.
+		const d = await catalog();
+		const meadow = d.biomes.find((b: any) => b.id === 'meadow');
+		expect(meadow.unlock).toBeNull();
+		expect(typeof meadow.explorable).toBe('boolean');
+	});
+
+	it("chapter 5's example paths all resolve", async () => {
+		// The explorer ships five preset paths as buttons. A preset that returns
+		// undefined would teach the wrong thing on the first click.
+		const d = await catalog();
+		expect(Array.isArray(d.animals)).toBe(true);
+		expect(typeof d.animals[0]).toBe('object');
+		expect(typeof d.biomes[2].name).toBe('string');
+		expect(typeof d.animals[7].diet).toBe('string');
+		expect(d.animals[999]).toBeUndefined(); // the deliberate one
+	});
+
+	it("chapter 7's .find() example finds the Red Fox, with a diet to print", async () => {
+		const fox = (await catalog()).animals.find((a: any) => a.name === 'Red Fox');
+		expect(fox, 'the .find() example names this animal literally').toBeTruthy();
+		expect(typeof fox.diet).toBe('string');
+		expect(typeof fox.fact).toBe('string');
+	});
+
+	it('chapter 9 challenge 5 has the 17 apex predators it promises', async () => {
+		// The challenge text says "There are 17 of them", which is how a student
+		// checks their own answer. A number in prose is a contract like any other.
+		const apex = (await catalog()).animals.filter((a: any) => a.trophic === 'apex-predator');
+		expect(apex.length).toBe(17);
+	});
+
+	it('the biome named in chapter 6\'s empty-state guard still does not exist', async () => {
+		// The guard example filters for "tundra" ON PURPOSE, so the zero branch
+		// runs and the student sees the empty-state message. If a tundra biome
+		// ever shipped, that example would quietly start taking the other branch.
+		const d = await catalog();
+		expect(d.animals.some((a: any) => a.biome === 'tundra')).toBe(false);
+	});
+});

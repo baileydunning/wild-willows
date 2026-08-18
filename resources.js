@@ -24735,16 +24735,16 @@ section[id]{scroll-margin-top:66px}
      lands in the same bucket as the same click from the landing page.
 
      There is a certain irony in a privacy policy carrying analytics, so for
-     the record this is what it sends: an event type, one of a fixed list of
-     target names, the referrer, and the browser's language. No identifier, no
-     cookie, no storage \u2014 it cannot tell one visitor from another, which is
-     why the page-level 'visit' ping is absent here as on the other policy
-     pages. That is the same reasoning as "What I never do" above. */
-  function track(type,target){
+     the record this is what it sends: an event type and one of a fixed list
+     of target names. Two fields. No identifier, no cookie, no storage, and \u2014
+     as of this change \u2014 no referrer and no browser language either; both used
+     to be transmitted and neither was ever read. It cannot tell one visitor
+     from another, which is why the page-level 'visit' ping is absent here as
+     on the other policy pages. Same reasoning as "What I never do" above. */
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -25447,11 +25447,10 @@ section[id]{scroll-margin-top:66px}
      need adding to LANDING_CLICK_TARGETS in server/resources.ts or it just
      collapses into 'other'. Neither is worth a server change for a policy
      page, so this page counts outbound clicks and nothing else. */
-  function track(type,target){
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -26129,11 +26128,10 @@ section[id]{scroll-margin-top:66px}
      Also deliberately no page-level ping: 'visit' is one undifferentiated
      series shared by every page that sends it, so a ping from here would
      silently inflate the landing page's number with no way to unmix them. */
-  function track(type,target){
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -26153,32 +26151,239 @@ var dashboardHtml = `<!doctype html>
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Wild Willows \u2014 Metrics Dashboard</title>
-		<meta
-			name="description"
-			content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim."
+		<!-- Deliberately neutral until signed in. Anyone who reaches this URL
+		     without credentials should learn nothing from it \u2014 not what the page is
+		     for, not what it reports, not that it reports anything. The real title
+		     is set from script once a session is established. -->
+		<title>Wild Willows</title>
+		<meta name="description" content="Wild Willows." />
+		<meta name="robots" content="noindex, nofollow" />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+			media="print"
+			onload="this.media='all'"
+			fetchpriority="low"
 		/>
-		<meta name="robots" content="noindex" />
+		<noscript
+			><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+		/></noscript>
+
 		<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+
+			/* The dashboard's palette, repointed at the SITE's tokens rather than its
+			   own near-misses, so this page reads as part of Wild Willows instead of
+			   as an admin tool someone bolted on. site-core.css is included above and
+			   is byte-locked to the landing page (tests/unit/site-css.test.ts), so
+			   these follow the site automatically rather than being a copy that
+			   drifts.
+			
+			   The dashboard's own rules come AFTER the include and win every tie \u2014
+			   which matters for the five selectors both sheets define (.wrap, .brand,
+			   body, html, section). The three this page wanted most \u2014 .btn, .chip and
+			   .nav \u2014 the dashboard never defined at all, so they arrive for free and
+			   the view tabs are real site chips.
+			
+			   THREE OF THE OLD VALUES FAILED AA on the site's creams, measured:
+			     --muted  #6b7263 -> 4.29 on --paper, 3.92 on --paper-deep
+			     --faint  #9aa189 -> 2.31 / 2.11
+			     --accent #4a7c46 -> 4.24 / 3.88   (used as text, not just fills)
+			   They carried every sub-label, hint and axis on the page. Repointing to
+			   the site's inks fixes the contrast and the consistency in one move. */
 			:root {
-				--bg: #eef2e3;
-				--bg2: #e5ecd6;
-				--card: #fffdf7;
-				--ink: #2f3a27;
-				--muted: #6b7263;
-				--faint: #9aa189;
-				--accent: #4a7c46;
-				--accent-dark: #35602f;
-				--accent-soft: #dceccf;
-				/* The third series colour. Was a gold (#d9a441) and read as a warning
-				   next to the greens; it is a light sage now, one step brighter than
-				   --accent so the two stay distinguishable side by side in a donut. */
-				--gold: #7fb069;
-				--sky: #6ea8c8;
-				--rose: #d77b8f;
-				--rule: #dfe0cf;
+				--bg: var(--paper);
+				--bg2: var(--paper-deep);
+				--card: var(--panel);
+				--ink: #3b4232;
+				--muted: #61624b; /* 4.92 worst surface */
+				--faint: #66674f; /* 4.57 worst surface */
+				/* Fills keep the site green; TEXT uses --accent-dark, which clears AA. */
+				--accent: #4a7c59;
+				--accent-dark: #39604a; /* 5.61 worst surface */
+				--accent-soft: #eaf3dd;
+				/* ---- the four series colours ----
+				   MEASURED, not chosen. The previous set (#4a7c59 #7fb069 #6ea8c8
+				   #d77b8f) failed three of the five computable checks against this
+				   page's cream surface (#fdfaf1):
+
+				     chroma floor        #4a7c59 C=0.077, #6ea8c8 C=0.077 \u2014 under
+				                         0.10, which is the point where a hue stops
+				                         reading as a colour and starts reading grey
+				     normal-vision floor #6ea8c8 vs #7fb069  \u0394E 14.3 \u2014 under 15, so
+				                         full-colour readers could not reliably tell
+				                         the sage and the sky apart
+				     contrast vs surface 2.42 / 2.48 / 2.83 \u2014 three of four under 3:1
+
+				   These four pass all five, in this slot order:
+				     lightness band ok \xB7 chroma ok \xB7 adjacent-pair \u0394E 15.4 under
+				     deuteranopia \xB7 18.1 normal vision \xB7 all >= 3:1 on cream.
+
+				   ASSIGN BY ENTITY, IN THIS ORDER, NEVER BY RANK \u2014 a filter that
+				   drops a series must not repaint the ones that survive.
+
+				   The order is validated on ADJACENT pairs, which is the right check
+				   for bars, funnels and donuts where the sequence is ours to choose.
+				   s1 and s4 (green and rose) are only \u0394E 5.3 apart under deuteranopia,
+				   so they must never be the only thing telling two marks apart: every
+				   legend on this page carries a text label beside its swatch and every
+				   bar row carries its name and number, which is what makes that legal.
+				   Putting them adjacent in a new chart is not. */
+				--s1: #1f7a3f;
+				--s2: #2166ad;
+				--s3: #c47a1a;
+				--s4: #b0446a;
+				/* Lighter steps of the same four hues, for the left end of a bar
+				   gradient. Same hue angle, +0.17 OKLCH lightness, chroma at 0.8 \u2014
+				   a step of the same ramp rather than a different colour. */
+				--s1-lift: #69ab79;
+				--s2-lift: #669ad6;
+				--s3-lift: #f2b474;
+				--s4-lift: #de829e;
+				/* Slot 3 as TEXT, or as a chip behind white text. The mark colour
+				   (#c47a1a) is 3.27 on cream and carries white at 3.42 \u2014 fine for a
+				   fill, short of AA for anything with letters in it. Same hue, two
+				   steps darker: 4.96 on cream, 5.18 under white. Same split as
+				   --accent / --accent-dark, for the same reason. */
+				--s3-ink: #9c5f0e;
+				/* Kept as aliases so the existing .fill.gold / .fill.sky / .fill.rose
+				   class names and their call sites keep working. New charts should
+				   name the slot (--s2) rather than the hue (--sky): the slot is the
+				   contract, the hue is an implementation detail that has now changed
+				   once and may change again. */
+				--gold: var(--s3);
+				--sky: var(--s2);
+				--rose: var(--s4);
+				--rule: #e3d9bc;
 				--shadow: 0 1px 2px rgba(47, 58, 39, 0.06), 0 6px 20px rgba(47, 58, 39, 0.07);
-				--radius: 18px;
+				--radius: 14px; /* --r */
 			}
 			* {
 				box-sizing: border-box;
@@ -26189,24 +26394,81 @@ var dashboardHtml = `<!doctype html>
 			body {
 				margin: 0;
 				background:
-					radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
+					radial-gradient(1200px 480px at 80% -10%, #fbf7ea 0%, transparent 60%),
 					linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
 				background-attachment: fixed;
 				color: var(--ink);
-				font:
-					15px/1.55 -apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					Helvetica,
-					Arial,
-					sans-serif;
+				/* Quicksand, like every other page. Loaded the same non-blocking way. */
+				font: 15px/1.55 var(--f);
+				font-weight: 500;
 				min-height: 100vh;
 			}
 			.wrap {
 				max-width: 1180px;
 				margin: 0 auto;
 				padding: clamp(1rem, 3vw, 2.5rem) clamp(0.9rem, 3vw, 2rem) 5rem;
+			}
+
+			/* ---- signed out ----
+			   A sign-in screen should give nothing away. Before this, the page
+			   announced itself as "Wild Willows Metrics" above the form, with a nav,
+			   a version filter and a Problems toggle \u2014 so anyone who found the URL
+			   learned that it exists, what it reports and roughly how it is
+			   organised, without a password.
+			   Signed out, the page is a wordmark-free form on a cream background and
+			   nothing else. The title is neutral in the markup too; the real one is
+			   set from script once there is a session. */
+			body.signed-out .nav,
+			body.signed-out header.top,
+			body.signed-out .views,
+			body.signed-out .meta,
+			body.signed-out footer {
+				display: none;
+			}
+			body.signed-out .wrap {
+				padding-top: clamp(4rem, 18vh, 10rem);
+			}
+
+			/* ---- view tabs ----
+			   Filtering, not re-rendering: every section is built once and the ones
+			   that do not match are hidden, so switching is instant and nothing is
+			   refetched. The chips are the site's own (.chip / .chip.on from
+			   site-core.css), so this control looks like the ones on /learn. */
+			.views {
+				display: flex;
+				gap: 0.35rem;
+				flex-wrap: wrap;
+				align-self: center;
+			}
+			.views .chip {
+				font-family: var(--f);
+				font-size: 0.85rem;
+				padding: 0.3rem 0.9rem;
+				cursor: pointer;
+			}
+			body[data-view='game'] section[data-view]:not([data-view='game']),
+			body[data-view='website'] section[data-view]:not([data-view='website']),
+			body[data-view='harper'] section[data-view]:not([data-view='harper']),
+			body[data-view='problems'] section[data-view]:not([data-view='problems']) {
+				display: none;
+			}
+			/* A view whose sections all failed to load should say so rather than
+			   showing an empty page that looks broken. */
+			.viewempty {
+				margin: 2rem 0;
+				padding: 2rem;
+				text-align: center;
+				color: var(--muted);
+				background: var(--card);
+				border: 1.5px solid var(--rule);
+				border-radius: var(--radius);
+			}
+
+			/* The site nav, which this page did not have. Full-bleed like the rest of
+			   the dashboard rather than site-core's centred 1080px wrap. */
+			.nav .wrap {
+				max-width: 1180px;
+				padding: 0 clamp(0.9rem, 3vw, 2rem);
 			}
 
 			/* ---- header ---- */
@@ -26518,7 +26780,14 @@ var dashboardHtml = `<!doctype html>
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				text-transform: capitalize;
+			}
+			/* Was text-transform: capitalize, which uppercases EVERY word and had
+			   been quietly rendering the itch.io label as "Itch.Io" \u2014 invisible on
+			   the other labels only because they were already title case. The label
+			   maps carry the intended casing; this just lifts the first letter of a
+			   raw key that has no map entry. */
+			.bar .lab::first-letter {
+				text-transform: uppercase;
 			}
 			.bar .track {
 				display: block;
@@ -26532,7 +26801,7 @@ var dashboardHtml = `<!doctype html>
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 				min-width: 3px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -26544,13 +26813,13 @@ var dashboardHtml = `<!doctype html>
 				text-align: right;
 			}
 			.fill.sky {
-				background: linear-gradient(90deg, #8cc0da, var(--sky));
+				background: linear-gradient(90deg, var(--s2-lift), var(--s2));
 			}
 			.fill.gold {
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 			}
 			.fill.rose {
-				background: linear-gradient(90deg, #e5a0af, var(--rose));
+				background: linear-gradient(90deg, var(--s4-lift), var(--s4));
 			}
 
 			/* ---- funnel ----
@@ -26692,7 +26961,7 @@ var dashboardHtml = `<!doctype html>
 				display: inline-block;
 				margin-top: 0.25rem;
 				font-size: 0.66rem;
-				color: var(--gold);
+				color: var(--s3-ink);
 				font-weight: 700;
 				letter-spacing: 0.02em;
 			}
@@ -26778,7 +27047,7 @@ var dashboardHtml = `<!doctype html>
 			   with it, so the two are told apart by fill weight rather than colour. */
 			.hledi.demo {
 				color: #ffffff;
-				background: var(--gold);
+				background: var(--s3-ink);
 			}
 			.hledi.full {
 				color: var(--accent-dark);
@@ -26843,7 +27112,7 @@ var dashboardHtml = `<!doctype html>
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 			}
 			.hlchain .num {
 				font-size: 0.64rem;
@@ -27412,7 +27681,7 @@ var dashboardHtml = `<!doctype html>
 			.vsrow .vbar i {
 				display: block;
 				height: 100%;
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 				border-radius: 999px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -27724,6 +27993,22 @@ var dashboardHtml = `<!doctype html>
 		/>
 	</head>
 	<body>
+		<nav class="nav">
+				<div class="wrap">
+					<a class="brand" href="/"
+						><svg viewBox="0 0 24 24" aria-hidden="true">
+							<circle cx="12" cy="12" r="11" fill="#4a7c59" />
+							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
+						> Wild Willows</a
+					>
+					<div class="links">
+						<a class="hide-sm" href="/">The game</a>
+						<a class="hide-sm" href="/teachers">For teachers</a>
+						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
+					</div>
+				</div>
+		</nav>
+
 		<div class="wrap">
 			<header class="top">
 				<div class="brand">
@@ -27736,6 +28021,12 @@ var dashboardHtml = `<!doctype html>
 					<div>
 						<h1>Wild Willows Metrics</h1>
 					</div>
+				</div>
+				<div class="views" id="view-tabs" role="tablist" aria-label="What to show" hidden>
+					<button type="button" class="chip on" role="tab" data-view-tab="game" aria-selected="true">Game</button>
+					<button type="button" class="chip" role="tab" data-view-tab="website" aria-selected="false">Website</button>
+					<button type="button" class="chip" role="tab" data-view-tab="harper" aria-selected="false">Harper</button>
+					<button type="button" class="chip" role="tab" data-view-tab="problems" aria-selected="false">Problems</button>
 				</div>
 				<div class="meta">
 					<div id="whoami" hidden></div>
@@ -28204,7 +28495,7 @@ var dashboardHtml = `<!doctype html>
 				};
 			}
 			function vsTable(rows, demo, full) {
-				const legend = \`<div class="vslegend"><span class="li"><span class="sw" style="background:#7fb069"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>\`;
+				const legend = \`<div class="vslegend"><span class="li"><span class="sw" style="background:var(--s3)"></span>Demo</span><span class="li"><span class="sw" style="background:var(--s1)"></span>Full</span></div>\`;
 				const body = rows
 					.map((row) => {
 						const dv = demo[row.key],
@@ -28221,8 +28512,69 @@ var dashboardHtml = `<!doctype html>
 				return \`\${legend}<div class="vs">\${body}</div>\`;
 			}
 
-			function sec(title, sub, body) {
-				return \`<section><div class="sec-head"><h2>\${title}</h2>\${sub ? \`<span class="sub">\${sub}</span>\` : ''}</div>\${body}</section>\`;
+			/* Every section declares which VIEW it belongs to, and the tab bar shows one
+			   view at a time.
+			
+			   This page had grown to eighteen sections covering four unrelated
+			   questions \u2014 how the game is doing, how the website is doing, whether
+			   Harper is healthy, and what is currently broken \u2014 stacked in one column.
+			   Answering any one of them meant scrolling past the other three, and the
+			   two that matter when something is on fire (Problems, Harper) sat at the
+			   bottom.
+			
+			   Filtering rather than re-rendering: every section is built once and CSS
+			   hides the ones that do not match, so switching views is instant and no
+			   data is refetched. */
+			/* Which view is showing. Remembered, because whoever opens this page at
+			   3am to find out why it is on fire wants Problems, and should not have to
+			   choose it every time. */
+			const VIEW_KEY = 'wwDashboardView';
+			const VIEWS = ['game', 'website', 'harper', 'problems'];
+
+			function applyView(view) {
+				if (VIEWS.indexOf(view) === -1) view = 'game';
+				document.body.setAttribute('data-view', view);
+				document.querySelectorAll('[data-view-tab]').forEach((b) => {
+					const on = b.getAttribute('data-view-tab') === view;
+					b.classList.toggle('on', on);
+					b.setAttribute('aria-selected', on ? 'true' : 'false');
+				});
+				try {
+					localStorage.setItem(VIEW_KEY, view);
+				} catch (e) {
+					/* private window \u2014 the choice just does not persist */
+				}
+				noteEmptyView(view);
+			}
+
+			/* An empty view is ambiguous: it looks the same whether there is nothing
+			   to report or the feed behind it failed to load. */
+			function noteEmptyView(view) {
+				const host = document.getElementById('root');
+				if (!host) return;
+				const old = host.querySelector('.viewempty');
+				if (old) old.remove();
+				if (!host.querySelector('section[data-view="' + view + '"]')) {
+					const LABEL = {
+						game: 'No gameplay metrics yet.',
+						website: 'No website or classroom numbers yet \u2014 /LandingStats/ and /LessonStats/ may not be deployed on this instance.',
+						harper: 'No Harper telemetry \u2014 /ServerHealth/ could not be read.',
+						problems: 'Nothing is going wrong. Refusals, crashes and save failures all report here.',
+					};
+					const p = document.createElement('div');
+					p.className = 'viewempty';
+					p.textContent = LABEL[view] || 'Nothing to show.';
+					host.appendChild(p);
+				}
+			}
+
+			document.addEventListener('click', (e) => {
+				const tab = e.target.closest && e.target.closest('[data-view-tab]');
+				if (tab) applyView(tab.getAttribute('data-view-tab'));
+			});
+
+			function sec(title, sub, body, view) {
+				return \`<section data-view="\${view || 'game'}"><div class="sec-head"><h2>\${title}</h2>\${sub ? \`<span class="sub">\${sub}</span>\` : ''}</div>\${body}</section>\`;
 			}
 			function card(inner) {
 				return \`<div class="card">\${inner}</div>\`;
@@ -28712,6 +29064,7 @@ var dashboardHtml = `<!doctype html>
 			let PLAYERS_BY_ID = {};
 			let modalEl = null;
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
+			let CLASSROOM = null; // latest GET /LessonStats/ payload (same contract)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload \u2014 records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload \u2014 refusals + interface crashes
 			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload \u2014 Harper's own telemetry
@@ -29469,6 +29822,7 @@ var dashboardHtml = `<!doctype html>
 									\`Refusals are ordinary \u2014 a player short on materials makes one \u2014 so if this stays empty during real play, \` +
 									\`check that the <code>Refusal</code> and <code>ClientError</code> tables exist.</p></div>\`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -29512,6 +29866,7 @@ var dashboardHtml = `<!doctype html>
 								? \`<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>\` +
 									\`<table class="tbl"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>\${rows}</tbody></table></div>\`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -29526,6 +29881,126 @@ var dashboardHtml = `<!doctype html>
 				 *
 				 * Built here (it needs \`LANDING\`) and pushed under Engagement \u2014 see the
 				 * push a little further down. */
+
+				/* ---- Classroom (the coding kit) ----
+				 * Fed by GET /LessonStats/. Anonymous counters only \u2014 see the contract
+				 * note on LessonEvent in server/resources.ts. Same best-effort loading
+				 * as the landing section: if the endpoint isn't deployed, the section
+				 * simply doesn't render.
+				 *
+				 * The FUNNEL leads, because it is the only number here that tells you
+				 * what to do next. Everything else is context for it: the errors are a
+				 * work queue for explanation copy, the ideas say which prompts students
+				 * actually pick, and the health strip is the only way to find out that
+				 * a school network is silently blocking the API. */
+				let classroomSection = '';
+				if (CLASSROOM && CLASSROOM.totals) {
+					const C = CLASSROOM.totals;
+					const cN = (k) => n(C[k]) || 0;
+
+					/* Drop-off, expressed against the step before it rather than the top.
+					 * "Half the people who opened the builder ran their code" is a
+					 * sentence you can act on; "6% of hub visitors downloaded" is not. */
+					const funnelRows = (CLASSROOM.funnel || []).map((f, i, all) => {
+						const prev = i ? n(all[i - 1].n) : 0;
+						const drop = i && prev ? Math.round((n(f.n) / prev) * 100) : null;
+						return [f.label + (drop != null ? \` (\${drop}% of previous)\` : ''), n(f.n)];
+					});
+
+					const ERROR_LABELS = {
+						'fetch-failed': 'Could not reach the data',
+						'null-property': 'Element not on the page',
+						'undefined-property': 'Field not in the data',
+						'not-defined': 'Name not recognised',
+						'not-a-function': 'Not something you can call',
+						'unexpected-eof': 'Something left open',
+						'json-parse': 'Answer was not JSON',
+						'await-async': 'await outside async',
+						'const-assign': 'Reassigned a const',
+						'not-iterable': 'Not a list',
+						'object-object': 'Rendered [object Object]',
+						'undefined-text': 'Rendered "undefined"',
+						masked: 'Browser hid the reason',
+						syntax: 'Other syntax mistake',
+						other: 'Unclassified',
+					};
+
+					const DURATIONS = [
+						['Under 5 min', 'duration_lt5m'],
+						['5\u201315 min', 'duration_5to15m'],
+						['15\u201330 min', 'duration_15to30m'],
+						['30\u201360 min', 'duration_30to60m'],
+						['Over an hour', 'duration_gt60m'],
+					];
+					const durationRows = DURATIONS.map(([label, key]) => [label, cN(key)]).filter((r) => r[1]);
+					const sessions = n(CLASSROOM.sessions) || 0;
+					/* A midpoint estimate, labelled as one. The buckets are deliberate \u2014
+					 * a precise per-session duration is a behavioural trace of one person
+					 * \u2014 so this is the honest way to answer "roughly how long?" from them. */
+					const MIDPOINT = { duration_lt5m: 2.5, duration_5to15m: 10, duration_15to30m: 22, duration_30to60m: 45, duration_gt60m: 75 };
+					const bucketed = DURATIONS.reduce((a, [, k]) => a + cN(k), 0);
+					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
+					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
+
+					const h = CLASSROOM.health || {};
+					const fetchTotal = n(h.fetchOk) + n(h.fetchFailed);
+					const blockedPct = fetchTotal ? Math.round((n(h.fetchFailed) / fetchTotal) * 100) : 0;
+
+					classroomSection = sec(
+						'Classroom',
+						'wildwillows.app/learn \u2014 the coding kit, anonymous counters only',
+						\`<div class="grid kpis">\${[
+							kpi(fmt(sessions), 'Builder sessions', \`\${fmt(cN('returning_day2') + cN('returning_day3'))} came back another day\`),
+							kpi(
+								\`<span class="accent">\${typicalMin ? typicalMin + 'm' : '\u2014'}</span>\`,
+								'Typical time in the builder',
+								\`\${fmt(longSessions)} \${longSessions === 1 ? 'session' : 'sessions'} over half an hour\`,
+							),
+							kpi(fmt(cN('first_fetch_ok')), 'Reached real data', 'students whose own fetch worked'),
+							kpi(
+								blockedPct > 10 ? \`<span class="accent">\${blockedPct}%</span>\` : \`\${blockedPct}%\`,
+								'Fetches that failed',
+								fetchTotal ? \`\${fmt(h.fetchFailed)} of \${fmt(fetchTotal)} \u2014 a blocked school network looks like this\` : 'no fetches yet',
+							),
+						].join('')}</div>\` +
+							\`<div style="margin-top:.8rem">\` +
+							cardTitled('Funnel', 'where the kit loses people', barRows(funnelRows)) +
+							\`</div>\` +
+							\`<div class="grid two" style="margin-top:.8rem">\` +
+							cardTitled(
+								'Errors students hit',
+								'ranked \u2014 this is the queue for explanation copy',
+								barRows((CLASSROOM.errors || []).map((e) => [ERROR_LABELS[e.key] || e.key, e.n])),
+							) +
+							cardTitled('Time in the builder', 'active time, bucketed', barRows(durationRows)) +
+							\`</div>\` +
+							\`<div class="grid two" style="margin-top:.8rem">\` +
+							cardTitled(
+								'Ideas students picked',
+								'which prompts earn their place',
+								barRows((CLASSROOM.ideas || []).slice(0, 12).map((i) => [i.id.replace(/-/g, ' '), i.n])),
+							) +
+							cardTitled(
+								'How it is used',
+								'view, theme and console choices',
+								barRows(
+									[
+										['Split view', cN('view_split')],
+										['Code only', cN('view_code')],
+										['Page only', cN('view_preview')],
+										['Opened in a new tab', cN('open_tab')],
+										['Downloaded', cN('download')],
+										['Dark mode', cN('theme_dark')],
+										['Console collapsed', cN('console_collapsed')],
+										['Ideas opened', cN('ideas_opened')],
+									].filter((r) => r[1]),
+								),
+							) +
+							\`</div>\`,
+										'website',
+					);
+				}
+
 				let landingSection = '';
 				if (LANDING && LANDING.totals) {
 					const lt = LANDING.totals;
@@ -29573,6 +30048,31 @@ var dashboardHtml = `<!doctype html>
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
+					/* Where people arrived from, in the only vocabulary this site has:
+					 * nine buckets, resolved in the visitor's own browser. The referrer
+					 * URL is never sent \u2014 see LANDING_SOURCES in server/resources.ts.
+					 *
+					 * Counted on a page's once-per-session ping, so this is arrivals,
+					 * not events: a visitor who clicks six links still arrived once. */
+					const SOURCE_LABELS = {
+						google: 'Google',
+						bing: 'Bing',
+						duckduckgo: 'DuckDuckGo',
+						reddit: 'Reddit',
+						itch: 'itch.io',
+						apple: 'Apple',
+						bluesky: 'Bluesky',
+						direct: 'Direct or bookmarked',
+						other: 'Somewhere else',
+					};
+					const srcTotal = Object.values(lt.sources || {}).reduce((a, v) => a + n(v), 0);
+					const sourcesCard = cardTitled(
+						'Where visitors come from',
+						srcTotal
+							? \`\${fmt(srcTotal)} \${srcTotal === 1 ? 'arrival' : 'arrivals'} all-time\`
+							: 'nothing recorded yet \u2014 this starts filling once the change is deployed',
+						barRows(objToEntries(lt.sources), { labelMap: SOURCE_LABELS, cls: 'sky' }),
+					);
 					/* Daily visits used to be a fixed last-14-days histogram wedged into
 					 * the two-up grid beside "Clicks by link". It now gets the same
 					 * control \u2014 and the same dense day-column chart \u2014 as New caretakers
@@ -29592,7 +30092,7 @@ var dashboardHtml = `<!doctype html>
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app \u2014 visits, link clicks & classroom PDFs',
+						'wildwillows.app \u2014 visits, arrivals, link clicks & classroom PDFs',
 						\`<div class="grid kpis">\${[
 							kpi(fmt(lt.visits), 'Visits', \`\${fmt(lt.uniques)} first-time visitors\`),
 							kpi(
@@ -29625,9 +30125,14 @@ var dashboardHtml = `<!doctype html>
 							cardTitled(
 								'Classroom PDFs',
 								\`downloaded all-time \xB7 \${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today\`,
-								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
+								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'gold' }),
 							) +
-							\`</div>\`,
+							\`</div>\` +
+							// Acquisition is its own question \u2014 not a breakdown of the
+							// clicks above it \u2014 so it gets its own full-width row rather
+							// than a third column squeezed into the two-up grid.
+							\`<div style="margin-top:.8rem">\${sourcesCard}</div>\`,
+										'website',
 					);
 				}
 
@@ -29726,6 +30231,10 @@ var dashboardHtml = `<!doctype html>
 				 * immediately. */
 				if (landingSection) out.push(landingSection);
 
+				/* Directly under Landing page: both are site numbers rather than game
+				 * numbers, and the classroom funnel starts where the landing one ends. */
+				if (classroomSection) out.push(classroomSection);
+
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
 				const demoPlayers = players.filter((p) => edOf(p) === 'demo');
@@ -29736,7 +30245,7 @@ var dashboardHtml = `<!doctype html>
 				const playersDonut = donut(
 					[
 						{ label: 'Full', value: edSum.full != null ? edSum.full : fStat.count, color: '#4a7c46' },
-						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#7fb069' },
+						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: 'var(--s3)' },
 					].filter((x) => x.value),
 				);
 				const vsRows = [
@@ -30368,7 +30877,7 @@ var dashboardHtml = `<!doctype html>
 					langs = s.languages || {};
 				const platSeg = [
 					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
-					{ label: 'Web', value: plat.web, color: '#6ea8c8' },
+					{ label: 'Web', value: plat.web, color: 'var(--s2)' },
 				].filter((x) => x.value);
 				out.push(
 					sec(
@@ -30612,6 +31121,19 @@ var dashboardHtml = `<!doctype html>
 				}
 
 				document.getElementById('root').innerHTML = out.join('');
+
+				/* The tabs are hidden until there is something to switch between \u2014
+				 * a switcher above a sign-in form is furniture. */
+				const tabs = document.getElementById('view-tabs');
+				if (tabs) tabs.hidden = false;
+				let saved = 'game';
+				try {
+					saved = localStorage.getItem(VIEW_KEY) || 'game';
+				} catch (e) {
+					/* private window \u2014 start on Game */
+				}
+				applyView(saved);
+
 				// Charts can only be fitted once they are in the document and measurable.
 				fitDayCharts();
 			}
@@ -30774,7 +31296,16 @@ var dashboardHtml = `<!doctype html>
 			/* ------------------------------------------------------------------ *
 			 * Sign in
 			 * ------------------------------------------------------------------ */
+			/** Reveal or conceal everything that is not the sign-in form. */
+			function setSignedOut(out) {
+				document.body.classList.toggle('signed-out', !!out);
+				/* The title is part of the disclosure: "Metrics Dashboard" in a tab
+				 * or a browser-history entry says as much as the page would. */
+				document.title = out ? 'Wild Willows' : 'Wild Willows \u2014 Metrics Dashboard';
+			}
+
 			function showLogin(message) {
+				setSignedOut(true);
 				const gen = document.getElementById('generated');
 				if (gen) gen.textContent = '';
 				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
@@ -30933,6 +31464,7 @@ var dashboardHtml = `<!doctype html>
 								\`can do the same is still unestablished \u2014 Harper's super-user role carries explicit read permission on the system tables and a \` +
 								\`read-only role may not. If this panel fills in as super-user and not otherwise, that is the answer.</p>\`,
 						),
+										'harper',
 					);
 				}
 				const t = h.threads || {},
@@ -31047,6 +31579,7 @@ var dashboardHtml = `<!doctype html>
 							: '') +
 						trafficHTML(ht) +
 						allMetricsHTML(h),
+					'harper',
 				);
 			}
 
@@ -31064,6 +31597,7 @@ var dashboardHtml = `<!doctype html>
 			async function load() {
 				// The page is public and the data is not, so every path in starts here.
 				if (!AUTH) return showLogin();
+				setSignedOut(false);
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = \`<div class="skeleton">Gathering the meadow\u2019s numbers\u2026</div>\`;
@@ -31086,6 +31620,12 @@ var dashboardHtml = `<!doctype html>
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', req())
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
+					// The classroom kit's counters. Same best-effort contract: an instance
+					// that predates /LessonStats/ hides the section rather than breaking
+					// the page.
+					const classroomReq = fetch('../LessonStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
@@ -31116,6 +31656,7 @@ var dashboardHtml = `<!doctype html>
 					// Rebuild the shape render() has always received.
 					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
+					CLASSROOM = await classroomReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
 					SERVERHEALTH = await serverReq;
@@ -31420,6 +31961,10 @@ var dashboardHtml = `<!doctype html>
 			window.__openActiveNowModal = openActiveNowModal;
 			// Pick up an existing session before deciding what to show \u2014 a refresh
 			// mid-investigation should land back on the numbers, not on a login form.
+			/* Start concealed. loadAuth() may restore a session a moment later, but
+			 * until it does the page must not show what it is \u2014 a flash of the real
+			 * header is the same disclosure, just briefer. */
+			document.body.classList.add('signed-out');
 			loadAuth();
 			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();
@@ -32216,12 +32761,33 @@ body.ready .star,body.ready .fly{animation-play-state:running}
      Anonymous, aggregate-only: one "visit" ping per browser session and a
      "click" ping per outbound link (see data-track attributes). Counted per
      day in Harper (POST /LandingEvent/) and shown on /dashboard. */
-  function track(type,target){
+  /* Where the visitor arrived from, resolved HERE and never sent raw.
+     The beacon used to carry 200 characters of document.referrer \u2014 which can
+     include a search query \u2014 and the server read none of it. This sends one
+     word from a fixed list instead: enough to answer "are teachers finding
+     this through search or through Reddit", and not enough to describe anyone.
+     A same-site referrer returns null, so clicking through from the landing
+     page does not register as an arrival from somewhere. */
+  var SOURCE_HOSTS=[['google','google'],['bing','bing'],['duckduckgo','duckduckgo'],
+    ['reddit','reddit'],['itch','itch'],['apple','apple'],
+    /* Bluesky's hosts are bsky.app and bsky.social \u2014 'bluesky' appears in its
+       name and in none of its domains, so matching on the bucket name would
+       have produced a counter that could never be anything but zero. */
+    ['bsky','bluesky']];
+  function sourceBucket(){
+    try{
+      if(!document.referrer)return 'direct';
+      var h=new URL(document.referrer).hostname.toLowerCase().replace(/^www\\./,'');
+      if(h===location.hostname)return null;
+      for(var i=0;i<SOURCE_HOSTS.length;i++)if(h.indexOf(SOURCE_HOSTS[i][0])>-1)return SOURCE_HOSTS[i][1];
+      return 'other';
+    }catch(e){return 'other';}
+  }
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
         first:type==='visit'?firstVisit:undefined,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -32237,8 +32803,8 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     try{
       if(!localStorage.getItem('ww_seen')){firstVisit=true;localStorage.setItem('ww_seen','1');}
       if(sessionStorage.getItem('ww_visit'))return;
-      sessionStorage.setItem('ww_visit','1');track('visit');
-    }catch(e){track('visit');}
+      sessionStorage.setItem('ww_visit','1');track('visit',null,sourceBucket());
+    }catch(e){track('visit',null,sourceBucket());}
   }
   function scheduleVisit(){
     if(window.requestIdleCallback)requestIdleCallback(sendVisit,{timeout:3000});
@@ -33232,11 +33798,32 @@ body.ready .star,body.ready .fly{animation-play-state:running}
         from here lands in the same bucket as one who downloads it from the
         landing page. That is the number worth having; where they clicked from
         is not. */
-  function track(type,target){
+  /* Where the visitor arrived from, resolved HERE and never sent raw.
+     The beacon used to carry 200 characters of document.referrer \u2014 which can
+     include a search query \u2014 and the server read none of it. This sends one
+     word from a fixed list instead: enough to answer "are teachers finding
+     this through search or through Reddit", and not enough to describe anyone.
+     A same-site referrer returns null, so clicking through from the landing
+     page does not register as an arrival from somewhere. */
+  var SOURCE_HOSTS=[['google','google'],['bing','bing'],['duckduckgo','duckduckgo'],
+    ['reddit','reddit'],['itch','itch'],['apple','apple'],
+    /* Bluesky's hosts are bsky.app and bsky.social \u2014 'bluesky' appears in its
+       name and in none of its domains, so matching on the bucket name would
+       have produced a counter that could never be anything but zero. */
+    ['bsky','bluesky']];
+  function sourceBucket(){
+    try{
+      if(!document.referrer)return 'direct';
+      var h=new URL(document.referrer).hostname.toLowerCase().replace(/^www\\./,'');
+      if(h===location.hostname)return null;
+      for(var i=0;i<SOURCE_HOSTS.length;i++)if(h.indexOf(SOURCE_HOSTS[i][0])>-1)return SOURCE_HOSTS[i][1];
+      return 'other';
+    }catch(e){return 'other';}
+  }
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
@@ -33250,8 +33837,8 @@ body.ready .star,body.ready .fly{animation-play-state:running}
     if(sendPageView.done)return; sendPageView.done=true;
     try{
       if(sessionStorage.getItem('ww_edu_seen'))return;
-      sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page');
-    }catch(e){track('click','edu-page');}
+      sessionStorage.setItem('ww_edu_seen','1');track('click','edu-page',sourceBucket());
+    }catch(e){track('click','edu-page',sourceBucket());}
   }
   function schedulePageView(){
     if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
@@ -33325,16 +33912,8863 @@ body.ready .star,body.ready .fly{animation-play-state:running}
 
 </html>
 `;
+var learnCodeBuilderHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Code Builder &mdash; write HTML, CSS and JavaScript in your browser</title>
+<meta name="description" content="A free browser code editor for students. Three files, a live preview, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
+<link rel="canonical" href="https://wildwillows.app/learn/code-builder">
+<!-- The builder is a tool, not a document: there is nothing here for a search
+     engine to rank, and an indexed code editor competes with the lesson that
+     explains it. The lesson page and /teachers/coding are the indexable pair. -->
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#2b3149">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Quicksand at the three weights the site uses (body 500, semibold 600,
+     headings 700), loaded the same non-blocking way as every other page. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 <ww-runner> styles.
+ *
+ * Inlined into both classroom student pages by scripts/build-pages.mjs alongside
+ * ww-runner.js. Everything is scoped under .wwr so it cannot leak into the page
+ * around it.
+ *
+ * Built on the site's own design tokens from public/partials/site-core.css \u2014
+ * the same --paper / --panel / --ink / --green cream-and-leaf palette, the same
+ * Quicksand stack, the same radii \u2014 so the editor reads as part of Wild Willows
+ * rather than a developer tool someone bolted on.
+ *
+ * Every var() carries a literal fallback. The tokens come from a sheet included
+ * ahead of this one, and if that include is ever dropped the runner should look
+ * slightly plain rather than unreadable (unset custom properties collapse to
+ * transparent text on transparent backgrounds).
+ *
+ * Monospace is the ONE place this departs from the site's type: code has to be
+ * monospaced, and Quicksand's lovely round glyphs actively hide the difference
+ * between l, 1 and I \u2014 which is a real source of "why doesn't my code work" for
+ * a beginner.
+ */
+
+/* [hidden] is only display:none in the UA stylesheet, so ANY author rule that
+ * sets display wins and the element stays visible. Both of the things this
+ * component hides \u2014 the inactive file panes and the tab strip in one-file mode \u2014
+ * are flex containers, so \`el.hidden = true\` did nothing at all: clicking a file
+ * tab appeared to do nothing because every pane was still stacked on screen.
+ * These two rules are the fix; the attribute selector adds the specificity the
+ * base rules already had. */
+.wwr-editor[hidden],
+.wwr-tabs[hidden],
+.wwr [hidden] {
+	display: none;
+}
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the classroom pages only rather than edited
+ * upstream. Measured against the four cream surfaces these actually sit on
+ * (--paper, --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On a marketing page those carry decorative captions and it is a judgement
+ * call. Here they carry the hint under every checkpoint, the sidebar headings
+ * and the editor's line numbers \u2014 content a student has to read, often on a
+ * classroom projector or a cheap Chromebook panel in a bright room. The values
+ * below keep the sheet's warm olive cast and clear 4.5 on every surface.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.lab,
+body.lesson,
+.wwr {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+}
+
+.wwr {
+	display: block;
+	margin: 1.5rem 0;
+	border: 1.5px solid var(--panel-edge, #e3d9bc);
+	border-radius: var(--r, 14px);
+	overflow: hidden;
+	background: var(--panel, #fdfaf1);
+	box-shadow: var(--shadow, 0 2px 3px rgba(52, 58, 40, 0.08));
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ toolbar */
+
+.wwr-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.45rem 0.7rem;
+	background: var(--sprout, #eaf3dd);
+	border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	flex-wrap: wrap;
+}
+
+.wwr-label {
+	font-weight: 700;
+	color: var(--green-deep, #39604a);
+	font-size: 0.85rem;
+}
+
+.wwr-spacer {
+	flex: 1 1 auto;
+}
+
+.wwr-tabs {
+	display: flex;
+	gap: 0.25rem;
+}
+
+/* File tabs read as the site's chips \u2014 same pill, same weights \u2014 so the one
+ * genuinely new control on the page still looks like something they have
+ * already seen on /teachers. */
+.wwr-tab {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.2rem 0.75rem;
+	border: 1.5px solid transparent;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #75765f);
+	cursor: pointer;
+}
+
+.wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.wwr-tab.is-active {
+	background: var(--green, #4a7c59);
+	border-color: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.35rem 0.9rem;
+	border: none;
+	border-radius: 10px;
+	background: var(--panel, #fdfaf1);
+	color: var(--green-deep, #39604a);
+	box-shadow: 0 2px 0 var(--panel-edge, #e3d9bc);
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.wwr-ico {
+	width: 14px;
+	height: 14px;
+	flex: none;
+}
+
+.wwr-btn:hover {
+	filter: brightness(1.06);
+}
+
+.wwr-btn:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge, #e3d9bc);
+}
+
+/* The site's primary button, at toolbar scale. */
+.wwr-run {
+	background: var(--green, #4a7c59);
+	color: #fff;
+	box-shadow: 0 2px 0 var(--green-deep, #39604a);
+}
+
+.wwr-run:active {
+	box-shadow: 0 1px 0 var(--green-deep, #39604a);
+}
+
+/* Unrun edits: a pulse rather than a color change alone, so it reads as "there
+ * is something to do" at a glance. */
+.wwr-run.is-dirty {
+	animation: wwr-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wwr-pulse {
+	50% {
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 4px rgba(124, 181, 100, 0.35);
+	}
+}
+
+/* --------------------------------------------------------------- view modes
+ *
+ * Split is the teaching default \u2014 cause and effect in one eyeful, which is the
+ * whole device the lesson is built on. But at 1366px on a Chromebook two half
+ * columns is cramped for both, and a student writing a long function or showing
+ * a classmate what they made wants one thing full width. */
+.wwr-views {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.55);
+}
+
+.wwr-view {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.85rem;
+	height: 1.6rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #61624b);
+	cursor: pointer;
+}
+
+.wwr-view svg {
+	width: 15px;
+	height: 15px;
+	display: block;
+}
+
+.wwr-view:hover {
+	background: rgba(255, 255, 255, 0.8);
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-view.is-on {
+	background: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr--view-code .wwr-out,
+.wwr--view-preview .wwr-panes {
+	display: none;
+}
+
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.wwr--view-code .wwr-panes {
+	border-right: 0;
+}
+
+/* -------------------------------------------------------------------- panes */
+
+/* THE HEIGHT CHAIN, and every link matters.
+ *
+ * The editor used to grow with the file. Add thirty lines and the whole panel
+ * got taller, pushing the console down and out of the card \u2014 which is what the
+ * screenshot of a console stranded in the middle of the editor was.
+ *
+ * The culprit was the line-number gutter: it is \`white-space: pre\` with one line
+ * per row, so its INTRINSIC height is the length of the file. \`overflow: hidden\`
+ * does not stop that \u2014 it stops scrolling, not growing. And because grid and
+ * flex children both default to \`min-height: auto\`, that intrinsic height was
+ * free to push every ancestor open.
+ *
+ * So each level is pinned: minmax(0, 1fr) tracks here, min-height: 0 on the
+ * children, and the textarea is the ONLY thing that scrolls. Remove any one of
+ * these and the growth comes back. */
+.wwr-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
+	min-height: 240px;
+}
+
+/* One-file examples in the lesson are short; side-by-side keeps the cause and
+ * its effect in one eyeful, which is the entire teaching device. */
+.wwr--single .wwr-body {
+	min-height: 180px;
+}
+
+.wwr-panes {
+	border-right: 1.5px solid var(--panel-edge, #e3d9bc);
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-editor {
+	display: flex;
+	height: 100%;
+	min-height: 0;
+	background: var(--panel, #fdfaf1);
+}
+
+.wwr-gutter {
+	flex: 0 0 auto;
+	padding: 0.6rem 0.4rem 0.6rem 0.6rem;
+	margin: 0;
+	text-align: right;
+	color: var(--ink-faint, #9d9c85);
+	background: var(--paper-deep, #ece4cb);
+	border-right: 1px solid var(--panel-edge, #e3d9bc);
+	white-space: pre;
+	overflow: hidden;
+	min-height: 0;
+	user-select: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.wwr-code {
+	flex: 1 1 auto;
+	border: 0;
+	outline: 0;
+	resize: none;
+	padding: 0.6rem;
+	background: transparent;
+	color: var(--ink, #3b4232);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+	tab-size: 2;
+	height: 100%;
+	min-height: 0;
+	/* \`pre\`, not \`pre-wrap\`: a long line scrolls sideways rather than silently
+	 * rewrapping. Wrapping looks tidier and teaches the wrong thing \u2014 a student
+	 * cannot see that their line is 200 characters long if the editor hides it. */
+	white-space: pre;
+	overflow: auto;
+}
+
+.wwr-code:focus {
+	background: #fff;
+	box-shadow: inset 0 0 0 2px rgba(74, 124, 89, 0.35);
+}
+
+/* ------------------------------------------------------------ output column */
+
+.wwr-out {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	/* White, not --panel: this is the student's OWN page, and it should look like
+	 * a browser window rather than another panel of ours. */
+	background: #fff;
+}
+
+/* Both buffers occupy the same box; only the live one is visible. Crossfading by
+ * opacity rather than swapping display keeps the layout perfectly still \u2014 a
+ * reflow on every render would be its own kind of flicker. */
+.wwr-preview {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: #fff;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.wwr-preview.is-live {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Full-width row under both columns. Height is generous but bounded: a beginner's
+ * first instruction is console.log(data) on the whole 300 KB catalog, and a
+ * three-line box makes that look like the code failed. */
+/* Full-width row under both columns, and RESIZABLE \u2014 height is set inline by the
+ * drag handle. How much console a student wants is entirely situational: none at
+ * all while laying out HTML, as much as possible on the chapter that is only
+ * about reading logged data. Anything fixed is wrong for somebody. */
+.wwr-console {
+	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
+	background: var(--paper, #f4eeda);
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-console.is-collapsed {
+	height: auto;
+}
+
+.wwr-console.is-collapsed .wwr-console-lines {
+	display: none;
+}
+
+/* The header IS the drag handle. A separate 4px grab strip is the conventional
+ * answer and a bad one here: it is a fiddly target on a trackpad, invisible
+ * until you find it, and this bar was otherwise doing nothing but holding a
+ * word. */
+.wwr-console-head {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: none;
+	padding: 0.3rem 0.5rem 0.3rem 0.7rem;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--ink-faint, #66674f);
+	border-bottom: 1px solid var(--panel-edge, #e3d9bc);
+	cursor: ns-resize;
+	user-select: none;
+	touch-action: none;
+}
+
+.wwr-console-head:hover {
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-console-head:focus-visible {
+	outline: 2px solid var(--green, #4a7c59);
+	outline-offset: -2px;
+}
+
+/* Two grip lines, so the bar reads as draggable before anyone tries. */
+.wwr-console-head::after {
+	content: '';
+	width: 26px;
+	height: 6px;
+	margin-left: 0.2rem;
+	border-top: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	opacity: 0.35;
+	order: 1;
+}
+
+.wwr-console-head .wwr-spacer {
+	order: 2;
+}
+
+.wwr-fold {
+	order: 3;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wwr-fold svg {
+	width: 13px;
+	height: 13px;
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.is-collapsed .wwr-fold svg {
+	transform: rotate(-90deg);
+}
+
+.wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+/* While dragging, nothing else on the page should select or steal the cursor \u2014
+ * and the iframes must stop swallowing pointer events, or the drag dies the
+ * moment it crosses the preview. */
+body.wwr-resizing {
+	cursor: ns-resize;
+	user-select: none;
+}
+
+body.wwr-resizing iframe {
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-fold svg {
+		transition: none;
+	}
+}
+
+.wwr-console-lines {
+	margin: 0;
+	padding: 0.4rem 0.7rem;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--ink, #3b4232);
+	white-space: pre-wrap;
+	word-break: break-word;
+	min-height: 3.2em;
+}
+
+/* An empty console is ambiguous: it looks identical whether nothing was logged,
+ * the code never ran, or the pane is broken. Say which. */
+.wwr-console-lines:empty::before {
+	content: 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+	color: var(--ink-faint, #66674f);
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-size: 0.82rem;
+}
+
+.wwr-console-line + .wwr-console-line {
+	border-top: 1px dotted var(--panel-edge, #e3d9bc);
+	padding-top: 0.2rem;
+	margin-top: 0.2rem;
+}
+
+.wwr-console-line.is-warn {
+	color: #77591f; /* 5.30 on --paper */
+}
+
+.wwr-console-line.is-error {
+	/* --clay measures 3.25 on --paper. This is the line that tells a student
+	   something went wrong; it does not get to be the hardest one to read. */
+	color: #93392c; /* 6.32 */
+}
+
+/* -------------------------------------------------------------- error panel */
+
+/* The site's warm chip palette (.chip.warm), not a red siren. Errors are the
+ * normal state of writing code, and the panel should read like help rather than
+ * punishment \u2014 especially for someone whose first ever error this may be. */
+.wwr-error {
+	border-top: 1.5px solid #e6d2a8;
+	background: #f7ead2;
+	padding: 0.7rem 0.9rem;
+}
+
+.wwr-error-title {
+	font-weight: 700;
+	color: #6f521c; /* 6.09 on the panel's #f7ead2 */
+	margin-bottom: 0.3rem;
+}
+
+.wwr-error-msg {
+	display: block;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	color: #6f521c; /* 6.62 over the lightened panel */
+	background: rgba(255, 255, 255, 0.55);
+	border-radius: 8px;
+	padding: 0.25rem 0.5rem;
+	margin-bottom: 0.4rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wwr-error-help {
+	margin: 0;
+	color: var(--ink, #3b4232);
+	font-size: 0.92rem;
+	line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ failure */
+
+/* If the component itself throws, the static fallback markup inside the element
+ * stays visible and readable. The lesson degrades to a normal article rather
+ * than to a row of empty boxes. */
+.wwr--failed .wwr-body {
+	display: none;
+}
+
+/* ------------------------------------------------------------- small screens */
+
+@media (max-width: 820px) {
+	.wwr-body {
+		grid-template-columns: 1fr;
+	}
+
+	.wwr-panes {
+		border-right: 0;
+		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	}
+
+	.wwr-code,
+	.wwr-preview {
+		min-height: 150px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-run.is-dirty {
+		animation: none;
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 3px rgba(124, 181, 100, 0.4);
+	}
+}
+
+/* Wild Willows \u2014 Code Builder page styles.
+ *
+ * Layered ON TOP of public/partials/site-core.css, which is included ahead of
+ * this file: the tokens, .btn / .btn-go / .btn-paper, .chip and .nav all come
+ * from there, so the builder uses the site's real controls rather than
+ * look-alikes. Only what is genuinely new to this page lives here.
+ *
+ * The one deliberate departure from the other pages: site-core sets a cream
+ * document that scrolls. This page is a TOOL \u2014 the editor should fill the
+ * viewport so a student on a Chromebook never has to scroll to see their own
+ * code \u2014 so the body becomes a flex column and the stage takes the remaining
+ * height. Everything inside it is still the site's panels and buttons.
+ */
+
+/* Same trap as .wwr-editor (see ww-runner.css): site-core's .btn is
+ * display:inline-flex, which outranks the UA stylesheet's [hidden], so the Undo
+ * button sat there permanently even before there was anything to undo. */
+.btn[hidden],
+.lab-section[hidden] {
+	display: none;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body.lab {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* The sticky nav from site-core assumes a scrolling document; in a flex column
+ * it just needs to not shrink. */
+body.lab .nav {
+	position: static;
+	flex: 0 0 auto;
+}
+
+/* Full-bleed nav, to match the bar underneath it.
+ *
+ * site-core wraps the nav in .wrap \u2014 max-width 1080px, centred \u2014 because on the
+ * marketing pages it sits above centred prose and should line up with it. This
+ * page is a tool: the bar below it, the sidebar and the editor all run to the
+ * window edges, so a centred nav left the brand indented from "Code Builder" and
+ * the two rows' right-hand buttons visibly out of step. Same horizontal padding
+ * as .lab-bar, so every row on the page starts and ends on the same two lines. */
+body.lab .nav .wrap {
+	max-width: none;
+	padding: 0 1.2rem;
+}
+
+/* Inline SVG icons inside the site's buttons. Drawn, never typed: an emoji is a
+ * different font on every machine, renders at a size nothing else on the page
+ * uses, and on a school Windows box is as likely to be a blank box as a die. */
+.ico {
+	width: 16px;
+	height: 16px;
+	flex: none;
+}
+
+.btn .ico {
+	margin-right: -0.1rem;
+}
+
+/* ---------------------------------------------------------------- lab header */
+
+.lab-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	padding: 0.6rem 1.2rem;
+	background: var(--panel);
+	border-bottom: 1.5px solid var(--panel-edge);
+	flex: 0 0 auto;
+}
+
+.lab-bar h1 {
+	margin: 0;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+}
+
+.lab-bar .btn {
+	font-size: 0.88rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 11px;
+}
+
+.lab-spacer {
+	flex: 1 1 auto;
+}
+
+/* Announcements ("Picking up where you left off", "Downloaded") reuse the game's
+ * toast chip. It sits in the bar rather than floating: a message that fades away
+ * is exactly the wrong shape for something a student may look up at ten seconds
+ * later, having been heads-down in their code. */
+.lab-status {
+	margin: 0;
+	min-height: 1.6rem;
+	flex-basis: 100%;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+.lab-status:empty {
+	min-height: 0;
+}
+
+.lab-status.is-ok,
+.lab-status.is-warn {
+	display: inline-block;
+	background: var(--toast);
+	color: #f0eeda;
+	font-weight: 600;
+	border-radius: 10px;
+	padding: 0.3rem 0.8rem;
+	flex-basis: auto;
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.lab-status.is-warn {
+	background: #f7ead2;
+	color: #8a6a2a;
+	box-shadow: 0 2px 0 #e6d2a8;
+}
+
+/* ------------------------------------------------------------------- layout */
+
+.lab-main {
+	flex: 1 1 auto;
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	min-height: 0;
+}
+
+.lab-side {
+	background: var(--paper-deep);
+	border-right: 1.5px solid var(--panel-edge);
+	overflow: auto;
+	padding: 1rem 1.1rem 1.5rem;
+}
+
+.lab-stage {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem 1.2rem 1.2rem;
+	gap: 0.6rem;
+	overflow: hidden;
+}
+
+/* The runner fills the stage rather than sitting at its natural height \u2014 this is
+ * the one page where the editor IS the content. */
+.lab-stage .wwr {
+	margin: 0;
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 420px;
+}
+
+/* min-height:0 is load-bearing: a flex child defaults to min-height:auto, so
+ * without it the grid inside would grow to fit the file rather than scroll. See
+ * the height-chain note in ww-runner.css. */
+.lab-stage .wwr-body {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.lab-note {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- checkpoints */
+
+/* ------------------------------------------------ collapsible side sections
+ *
+ * A real <details>, not a JS accordion: keyboard and screen-reader behaviour
+ * comes free, and it still works if the controller fails to boot.
+ *
+ * The summary carries the progress count, so a student who has collapsed the
+ * list can still see where they are \u2014 which is the only reason collapsing it is
+ * safe to offer at all. */
+.lab-details > summary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	cursor: pointer;
+	list-style: none;
+	margin-bottom: 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+}
+
+.lab-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+/* The disclosure triangle, drawn rather than inherited, so it matches the type. */
+.lab-details > summary::before {
+	content: '';
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex: none;
+}
+
+.lab-details[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.lab-details > summary:hover {
+	color: var(--green-deep);
+}
+
+.lab-details > summary:focus-visible {
+	outline: 2px solid var(--green);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+.cp-count {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--ink-faint);
+}
+
+.cp-count.is-complete {
+	color: var(--green-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lab-details > summary::before {
+		transition: none;
+	}
+}
+
+.lab-side h2 {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+	margin: 0 0 0.6rem;
+}
+
+.lab-side h2 + * {
+	margin-top: 0;
+}
+
+.lab-section + .lab-section {
+	margin-top: 1.6rem;
+	padding-top: 1.2rem;
+	border-top: 1.5px solid var(--panel-edge);
+}
+
+#lab-checkpoints {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.cp-day {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--ink-faint);
+	margin: 0.9rem 0 0.35rem;
+}
+
+.cp-day:first-child {
+	margin-top: 0;
+}
+
+.cp {
+	display: flex;
+	gap: 0.6rem;
+	padding: 0.55rem 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+/* The tick doubles as the step number until it is done \u2014 one control, and the
+ * list still reads as an ordered set of steps before anything is ticked. */
+.cp-tick {
+	flex: 0 0 auto;
+	width: 1.7rem;
+	height: 1.7rem;
+	border-radius: 999px;
+	border: 1.5px solid #cfe0bd;
+	background: var(--sprout);
+	color: var(--green-deep);
+	font-family: var(--f);
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	line-height: 1;
+}
+
+.cp.is-done .cp-tick {
+	background: var(--green);
+	border-color: var(--green);
+	color: #fff;
+}
+
+.cp-main {
+	min-width: 0;
+}
+
+.cp-goal {
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.35;
+	color: var(--ink);
+}
+
+.cp.is-done .cp-goal {
+	color: var(--ink-faint);
+}
+
+.cp-hint {
+	font-size: 0.82rem;
+	color: var(--ink-soft);
+	line-height: 1.45;
+	margin-top: 0.15rem;
+}
+
+.cp-show {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.75rem;
+	margin-top: 0.4rem;
+	padding: 0.2rem 0.65rem;
+	border: none;
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--green-deep);
+	box-shadow: 0 2px 0 var(--panel-edge);
+	cursor: pointer;
+}
+
+.cp-show:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge);
+}
+
+/* ---------------------------------------------------------------- help panel */
+
+.help-title {
+	font-size: 1rem;
+	margin: 0 0 0.2rem;
+	color: var(--green-deep);
+}
+
+.help-body {
+	margin: 0 0 0.7rem;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+	line-height: 1.5;
+}
+
+.help-snip {
+	margin-bottom: 0.7rem;
+}
+
+.help-label {
+	font-size: 0.76rem;
+	font-weight: 600;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.help-code {
+	margin: 0;
+	padding: 0.45rem 0.55rem;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-word;
+	color: var(--ink);
+}
+
+.help-insert {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.72rem;
+	margin-top: 0.25rem;
+	padding: 0.15rem 0.6rem;
+	border: 1.5px solid #cfe0bd;
+	border-radius: 999px;
+	background: var(--sprout);
+	color: var(--green-deep);
+	cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- the brief
+ *
+ * The idea a student chose, kept in front of them while they build it. Without
+ * this the prompt lived only in a modal they dismissed, and two minutes later
+ * "what was I making?" is a real question \u2014 especially on day 3, when the modal
+ * was opened at the start of the period and never again. */
+.lab-brief {
+	border-left: 3px solid var(--green);
+	padding-left: 0.8rem;
+}
+
+.brief-title {
+	margin: 0 0 0.25rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+.brief-what {
+	margin: 0 0 0.4rem;
+	font-size: 0.88rem;
+	line-height: 1.5;
+	color: var(--ink);
+}
+
+.brief-data {
+	margin: 0 0 0.7rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+.brief-actions {
+	display: flex;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+}
+
+.brief-actions .btn {
+	font-size: 0.78rem;
+	padding: 0.28rem 0.7rem;
+	border-radius: 999px;
+}
+
+/* --------------------------------------------------------------- ideas modal */
+
+.lab-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(36, 43, 66, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	z-index: 60;
+}
+
+.lab-modal[hidden] {
+	display: none;
+}
+
+.lab-modal-inner {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	max-width: 940px;
+	width: 100%;
+	max-height: 90vh;
+	overflow: auto;
+	padding: 1.4rem;
+	box-shadow: var(--shadow);
+}
+
+.lab-modal h2 {
+	margin: 0 0 0.2rem;
+}
+
+.lab-modal-sub {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+}
+
+.lab-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin-bottom: 0.7rem;
+	align-items: center;
+}
+
+.lab-filters > span {
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-right: 0.2rem;
+}
+
+/* The filter pills ARE the site's .chip \u2014 see site-core.css. \`.chip.on\` is the
+ * selected state there, so nothing new is invented here. */
+.chip[data-idea-filter] {
+	cursor: pointer;
+	font-family: var(--f);
+}
+
+.idea-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 0.8rem;
+	margin: 1rem 0;
+}
+
+.idea {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 0.9rem;
+	background: var(--paper);
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.idea-title {
+	margin: 0;
+	font-size: 1.05rem;
+}
+
+.idea-what {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--ink);
+	line-height: 1.5;
+	flex: 1 1 auto;
+}
+
+.idea-data {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+/* The card's call to action. It had only size rules and no .btn class, so it
+ * rendered as the browser's default grey chrome in the middle of a page that has
+ * a perfectly good button of its own \u2014 see the screenshot that prompted this. */
+.idea-start {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.45rem 1rem;
+	border: none;
+	border-radius: 11px;
+	background: var(--green);
+	color: #fff;
+	box-shadow:
+		0 3px 0 var(--green-deep),
+		var(--shadow);
+	cursor: pointer;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.idea-start:hover {
+	filter: brightness(1.06);
+}
+
+.idea-start:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--green-deep);
+}
+
+.idea-start:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+/* The card lifts with it, so the whole tile reads as the target. */
+.idea:hover {
+	border-color: #cfe0bd;
+}
+
+.idea-empty {
+	color: var(--ink-soft);
+	grid-column: 1 / -1;
+}
+
+.lab-modal-actions {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------- small screens */
+
+@media (max-width: 940px) {
+	.lab-main {
+		grid-template-columns: 1fr;
+	}
+
+	body.lab {
+		overflow: auto;
+	}
+
+	.lab-side {
+		border-right: 0;
+		border-bottom: 1.5px solid var(--panel-edge);
+	}
+
+	.lab-stage .wwr {
+		min-height: 360px;
+	}
+}
+
+/* A phone can read this page but cannot comfortably write code on it, and
+ * pretending otherwise wastes a student's period. Say so plainly, in the site's
+ * own warm chip rather than a scary banner. */
+.lab-small-screen {
+	display: none;
+}
+
+@media (max-width: 560px) {
+	.lab-small-screen {
+		display: block;
+		margin: 0;
+		padding: 0.7rem 1.2rem;
+		background: #f7ead2;
+		border-bottom: 1.5px solid #e6d2a8;
+		color: #8a6a2a;
+		font-size: 0.88rem;
+	}
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="lab">
+
+<p class="lab-small-screen">This works best on a laptop or a tablet with a keyboard &mdash; writing code on a phone is hard going.</p>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
+    <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="lab-bar">
+  <h1>Code Builder</h1>
+  <span class="lab-spacer"></span>
+  <button type="button" class="btn btn-go" id="lab-ideas-open"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.6v.1h6v-.1c0-.6.3-1.2.8-1.6A6.5 6.5 0 0 0 12 2.5z"/></svg> Ideas</button>
+  <button type="button" class="btn btn-paper" id="lab-undo" hidden>Undo</button>
+  <button type="button" class="btn btn-paper" id="lab-import">Open&hellip;</button>
+  <input type="file" id="lab-import-input" accept=".html,text/html" hidden>
+  <button type="button" class="btn btn-paper" id="lab-download">Download</button>
+  <button type="button" class="btn btn-paper" id="lab-reset">Start over</button>
+  <p class="lab-status" id="lab-status" role="status" aria-live="polite"></p>
+</div>
+
+<main class="lab-main">
+  <aside class="lab-side">
+    <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
+         deliberately: once they have chosen something to build, the brief is
+         what they are working to and the checkpoints become reference. -->
+    <section class="lab-section lab-brief" id="lab-current-idea" hidden>
+      <h2>What you&rsquo;re building</h2>
+      <h3 class="brief-title" id="lab-brief-title"></h3>
+      <p class="brief-what" id="lab-brief-what"></p>
+      <p class="brief-data" id="lab-brief-data"></p>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-paper" id="lab-brief-change">Pick another</button>
+        <button type="button" class="btn btn-paper" id="lab-brief-clear">Clear</button>
+      </div>
+    </section>
+
+    <details class="lab-section lab-details" id="lab-checkpoints-details" open>
+      <summary>Checkpoints <span class="cp-count" id="lab-cp-count"></span></summary>
+      <ol id="lab-checkpoints"></ol>
+    </details>
+
+    <details class="lab-section lab-details" id="lab-help-details" open>
+      <summary>Need help?</summary>
+      <div id="lab-help"></div>
+    </details>
+
+    <div class="lab-section">
+      <p class="lab-note">
+        Your code stays in this browser. It is never sent to us, and there is no
+        account to make. Use <b>Download</b> to keep a copy you can open on any computer.
+      </p>
+    </div>
+  </aside>
+
+  <section class="lab-stage">
+    <!-- console: the lesson sends students here straight after chapter 4, and a
+         locked-down Chromebook makes DevTools a bad answer.
+         \`manual\` is deliberately NOT set: the preview follows their typing, and
+         Run is there for students who want cause and effect to be discrete. -->
+    <ww-runner console label="Your project">
+      <script type="text/ww-file" name="index.html">
+        <h1>Wild Willows Explorer</h1>
+        <p id="message">Loading game data...</p>
+      </script>
+      <script type="text/ww-file" name="styles.css">
+        body {
+          font-family: sans-serif;
+          padding: 2rem;
+        }
+
+        h1 {
+          color: seagreen;
+        }
+      </script>
+      <script type="text/ww-file" name="main.js">
+        async function loadGameData() {
+          const response = await fetch("https://wildwillows.app/GameData/");
+          const data = await response.json();
+
+          // TODO: put something from \`data\` on the page
+          console.log(data);
+        }
+
+        loadGameData();
+      </script>
+    </ww-runner>
+
+    <p class="lab-note">
+      The preview updates a moment after you stop typing. Press <b>Run</b> to update it straight away.
+    </p>
+  </section>
+</main>
+
+<div class="lab-modal" id="lab-ideas" hidden role="dialog" aria-modal="true" aria-labelledby="lab-ideas-title">
+  <div class="lab-modal-inner">
+    <h2 id="lab-ideas-title">Something to build</h2>
+    <p class="lab-modal-sub">Every one of these uses the real Wild Willows data. Pick one, or shuffle for three more.</p>
+
+    <div class="lab-filters">
+      <span>How hard:</span>
+      <button type="button" class="chip on" data-idea-filter="level" data-value="all">Any</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="easy">Easy</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="medium">Medium</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="ambitious">Ambitious</button>
+    </div>
+    <div class="lab-filters">
+      <span>Practice:</span>
+      <button type="button" class="chip on" data-idea-filter="uses" data-value="all">Anything</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="if">if / else</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="filter">.filter()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="map">.map()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="sort">.sort()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="reduce">.reduce()</button>
+    </div>
+
+    <div class="idea-cards" id="lab-idea-cards"></div>
+
+    <div class="lab-modal-actions">
+      <button type="button" class="btn btn-paper" id="lab-ideas-shuffle"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4"/><circle cx="8.4" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="8.4" cy="15.6" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="15.6" r="1.35" fill="currentColor" stroke="none"/></svg> Shuffle</button>
+      <button type="button" class="btn btn-go" id="lab-ideas-surprise">Surprise me</button>
+      <button type="button" class="btn btn-paper" id="lab-ideas-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Wild Willows \u2014 <ww-runner>
+ *
+ * The shared code-editor-and-live-preview element behind BOTH classroom student
+ * pages. /learn/web-development uses it ~15 times in one-file mode for its inline
+ * examples; /learn/code-builder uses it once in three-file mode with tabs. One
+ * implementation, so a student who has used the lesson's examples already knows
+ * how the builder behaves.
+ *
+ * Inlined into both pages at build time by scripts/build-pages.mjs (see the
+ * @include directive there) \u2014 NOT served as its own file. The hosted Harper
+ * serves no static files, and duplicating this in two hand-maintained pages is
+ * exactly the drift the include exists to prevent.
+ *
+ * DESIGN CONSTRAINTS, all deliberate:
+ *  \u2022 No dependencies. No CodeMirror, no Monaco, no CDN. School networks block
+ *    CDNs, the page has to inline into resources.js as one string, and a styled
+ *    <textarea> genuinely is enough for a 40-line file.
+ *  \u2022 The preview iframe is sandbox="allow-scripts" WITHOUT allow-same-origin, so
+ *    student code runs on an opaque origin and cannot touch this page. That is
+ *    why GET /GameData/ sends Access-Control-Allow-Origin (see GAME_DATA_CORS in
+ *    server/resources.ts) \u2014 without it, the fetch the whole lesson is about fails
+ *    from inside here.
+ *  \u2022 Errors surface in the UI, never only in a console the student will not open.
+ *    A blank preview with a silent error is the #1 way a beginner concludes they
+ *    are bad at this and stops.
+ */
+(function () {
+	'use strict';
+
+	/* ---------------------------------------------------------------- assembly */
+
+	/**
+	 * Three sources -> one HTML document for the preview iframe.
+	 *
+	 * Exposed on window for the unit tests (tests/unit/ww-runner.test.ts) and for
+	 * the builder's Download, which must produce the SAME bytes the preview ran \u2014
+	 * a downloaded file that behaves differently from the preview is the worst
+	 * possible ending to the lesson.
+	 */
+	function assembleDocument(html, css, js, harness) {
+		return (
+			'<!DOCTYPE html>\\n<html lang="en">\\n<head>\\n<meta charset="utf-8">\\n' +
+			'<meta name="viewport" content="width=device-width, initial-scale=1">\\n' +
+			'<style>\\n' +
+			escapeForStyle(css || '') +
+			'\\n</style>\\n</head>\\n<body>\\n' +
+			(html || '') +
+			/* THE HARNESS GETS ITS OWN SCRIPT BLOCK, and this is not tidiness.
+			 *
+			 * It used to be concatenated in front of the student's code in ONE block,
+			 * and that quietly broke the most important case this component handles.
+			 * A syntax error is a PARSE-time failure: the browser throws out the
+			 * whole block before executing any of it. So a student who left a \`var\`
+			 * dangling took the harness down with them \u2014 window.onerror was never
+			 * installed, nothing was posted to the host, and the result was a blank
+			 * preview, an empty console, and an error visible only in devtools.
+			 * Which is precisely the "I have no idea what is wrong" moment the error
+			 * panel exists to prevent.
+			 *
+			 * Two blocks: the harness parses and installs on its own, then a parse
+			 * error in the student's block fires window.onerror and gets reported
+			 * like any other mistake.
+			 *
+			 * Omitted entirely when there is no harness \u2014 that path is Download, and
+			 * the file a student takes home carries none of our plumbing. */
+			(harness ? '\\n<script>\\n' + escapeForScript(harness) + '\\n<\\/script>' : '') +
+			'\\n<script>\\n' +
+			escapeForScript(js || '') +
+			'\\n<\\/script>\\n</body>\\n</html>\\n'
+		);
+	}
+
+	/**
+	 * The bug this prevents: a student writes a closing script tag inside a string
+	 * \u2014 in a template literal building HTML, say \u2014 and the HTML parser ends the
+	 * script block THERE. The rest of their JavaScript renders as visible text and
+	 * the page silently does nothing. No error, no clue, and it looks like the
+	 * editor ate their code.
+	 *
+	 * Only that one sequence matters, and only case-insensitively; escaping the
+	 * slash keeps the JavaScript semantically identical, because inside a string
+	 * "<\\/script>" and the unescaped form are the same three-word value.
+	 *
+	 * NOTE, and this is not a joke: this comment used to spell the sequence out
+	 * literally. This whole file is inlined INTO a <script> block by
+	 * scripts/build-pages.mjs, so the comment explaining the trap sprang the trap
+	 * \u2014 the browser ended the block mid-file and rendered the rest of the runner
+	 * as text on the page. Do not write it out here. build-pages now escapes it
+	 * on the way in as a backstop, and tests/unit/built-pages.test.ts asserts the
+	 * generated page has balanced tags.
+	 */
+	function escapeForScript(code) {
+		return String(code).replace(/<\\/(script)/gi, '<\\\\/$1');
+	}
+
+	/** Same class of problem for </style> inside a CSS string or comment. */
+	function escapeForStyle(code) {
+		return String(code).replace(/<\\/(style)/gi, '<\\\\/$1');
+	}
+
+	/* ------------------------------------------------- friendly error messages */
+
+	/**
+	 * Plain-English explanations for the errors beginners actually hit, ordered
+	 * most-specific-first because several of these substrings overlap.
+	 *
+	 * Every entry says WHAT IT MEANS and WHAT TO CHECK. A raw \`TypeError: Cannot
+	 * read properties of null\` teaches nothing to someone in week one; "the page
+	 * couldn't find the element you asked for \u2014 check the spelling of your id"
+	 * fixes the bug and teaches what null is in the same breath.
+	 *
+	 * Three of these are data-type errors wearing different hats (null, undefined,
+	 * text-vs-number), and they deliberately name the type \u2014 that is where the
+	 * lesson's types material gets used, rather than in a chapter nobody rereads.
+	 *
+	 * Add to this list from real usage: the builder counts which errors fire
+	 * (ww:metric -> errors_*), so the ranking tells you which explanation to write
+	 * next instead of guessing.
+	 */
+	var ERROR_HELP = [
+		{
+			key: 'fetch-failed',
+			match: /failed to fetch|networkerror|load failed/i,
+			title: "Couldn't reach the Wild Willows data",
+			help:
+				'The request for the game data did not get through. Check the address is exactly ' +
+				'https://wildwillows.app/GameData/ \u2014 and if it looks right, ask your teacher: some school ' +
+				'networks block outside websites.',
+		},
+		{
+			key: 'json-parse',
+			match: /unexpected token '?<'?|is not valid json/i,
+			title: 'That answer was not the data',
+			help:
+				'The server sent back a webpage (usually an error page) where your code expected JSON. ' +
+				'Check the address you passed to fetch().',
+		},
+		{
+			key: 'null-property',
+			match: /(reading|properties) (of )?'?null'?|of null/i,
+			title: 'That element is not on the page',
+			help:
+				'querySelector gives you null when it cannot find what you asked for, and null means ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript \u2014 and remember ' +
+				'#name looks for id="name", while .name looks for class="name".',
+		},
+		{
+			key: 'undefined-property',
+			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
+			title: 'That piece of the data is not there',
+			help:
+				'undefined means "nothing found". You asked for something the data does not have \u2014 check the ' +
+				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
+				'not data.animals.name).',
+		},
+		{
+			key: 'not-defined',
+			match: /is not defined/i,
+			title: 'JavaScript does not recognize that name',
+			help:
+				'Either it is spelled differently from where you created it, or it does not exist yet. ' +
+				'Capital letters count: animal and Animal are two different names.',
+		},
+		{
+			key: 'not-a-function',
+			match: /is not a function/i,
+			title: 'That is not something you can call',
+			help:
+				'You put () after something that is not a function \u2014 often a typo in the method name, or a ' +
+				'value that turned out to be undefined.',
+		},
+		{
+			key: 'await-async',
+			match: /await is only valid|await outside/i,
+			title: 'await needs an async function',
+			help: 'await only works inside a function marked async. Check that the word async is on the function it sits in.',
+		},
+		{
+			key: 'const-assign',
+			match: /assignment to constant|invalid assignment/i,
+			title: 'That value cannot be changed',
+			help: 'A const can be set once. Use let instead if you need to change it later.',
+		},
+		{
+			key: 'not-iterable',
+			match: /is not iterable/i,
+			title: 'That is not a list',
+			help:
+				'for...of and the array methods need an array. Check what you actually got \u2014 it may be a single ' +
+				'object, or undefined.',
+		},
+		{
+			key: 'unexpected-eof',
+			/* Chrome: "Unexpected end of input". Safari: "Unexpected end of script",
+			 * and sometimes "Unexpected EOF". Same mistake, three wordings \u2014 and the
+			 * students most likely to hit it are the least able to tell that those
+			 * are the same thing. */
+			match: /unexpected end of (input|script)|unexpected eof/i,
+			title: 'Something was left open',
+			help: 'Usually a missing } or ) or a missing closing quote. Check the end of the last few lines you wrote.',
+		},
+		{
+			key: 'masked',
+			/* Safari's placeholder for an error it will not describe across an origin
+			 * boundary. syntaxErrorIn() should have caught the common cause first, so
+			 * reaching this means something rarer \u2014 but it still must not leave a
+			 * student staring at two words. */
+			match: /^\\s*script error\\.?\\s*$/i,
+			title: 'Your code stopped, and the browser would not say why',
+			help:
+				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
+				'changed, and try commenting lines out until the page runs again \u2014 the last line you removed ' +
+				'is the one to look at.',
+		},
+		{
+			key: 'syntax',
+			match: /syntaxerror|unexpected token|unexpected identifier/i,
+			title: 'JavaScript could not read that',
+			help:
+				'A typo somewhere in the shape of the code \u2014 a missing comma, bracket or quote. The line number ' +
+				'is where JavaScript gave up, so the real mistake is often just above it.',
+		},
+	];
+
+	/* Calibrate how \`new Function\` reports line numbers.
+	 *
+	 * It wraps the code in a synthetic function, so a reported line is offset from
+	 * the student's by however many lines that wrapper adds \u2014 which differs by
+	 * engine and by version. Measuring it once with a known-broken probe is exact,
+	 * and cheap: the error is on line 3 of the probe, so whatever it claims minus
+	 * three is the wrapper's contribution. */
+	var SYNTAX_LINE_OFFSET = (function () {
+		try {
+			new Function('\\n\\n(');
+		} catch (e) {
+			if (typeof e.line === 'number') return e.line - 3; // Safari reports .line
+			var m = /<anonymous>:(\\d+)/.exec(String(e.stack || ''));
+			if (m) return Number(m[1]) - 3;
+		}
+		return 0;
+	})();
+
+	/**
+	 * Compile the student's JavaScript HERE, in the host page, purely to find out
+	 * whether it parses \u2014 and if not, what is actually wrong with it.
+	 *
+	 * WHY THIS EXISTS. The preview runs in a sandboxed, opaque-origin iframe, and
+	 * Safari refuses to tell a cross-origin listener anything about a script error
+	 * in one: \`window.onerror\` receives the string "Script error." with no message,
+	 * no file and no line. Chrome hands over the real message, which is exactly why
+	 * this survived a browser test \u2014 one browser was being helpful.
+	 *
+	 * "Script error." is worse than useless to a beginner. It names nothing, points
+	 * nowhere, and is indistinguishable from every other failure.
+	 *
+	 * The host has the source and no origin barrier, so compiling it here gets the
+	 * real SyntaxError. new Function only PARSES \u2014 it never runs the code, so this
+	 * cannot have side effects.
+	 *
+	 * Not a substitute for the in-frame harness: that still reports everything that
+	 * happens at RUN time, which no amount of parsing can predict.
+	 */
+	function syntaxErrorIn(js) {
+		if (!js || !js.trim()) return null;
+		try {
+			new Function(js);
+			return null;
+		} catch (e) {
+			if (!(e instanceof SyntaxError)) return null;
+			var line = null;
+			if (typeof e.line === 'number') line = e.line - SYNTAX_LINE_OFFSET;
+			else {
+				var m = /<anonymous>:(\\d+)/.exec(String(e.stack || ''));
+				if (m) line = Number(m[1]) - SYNTAX_LINE_OFFSET;
+			}
+			var total = js.split('\\n').length;
+			if (!(line > 0)) line = null;
+			else if (line > total) line = total;
+
+			var message = String(e.message || 'SyntaxError');
+			/* Undo the wrapper's fingerprint. new Function appends a closing brace of
+			 * its own, so when the student leaves something open the parser trips on
+			 * THAT brace and reports "Unexpected token '}'" \u2014 blaming a character the
+			 * student never typed and cannot find. A complaint about the wrapper's
+			 * own brace is, by construction, the unterminated case; say so. */
+			if (/unexpected token '?\\}'?/i.test(message)) message = 'Unexpected end of input';
+			return { message: message, line: line };
+		}
+	}
+
+	function explain(message) {
+		for (var i = 0; i < ERROR_HELP.length; i++) {
+			if (ERROR_HELP[i].match.test(message)) return ERROR_HELP[i];
+		}
+		return { key: 'other', title: 'Something went wrong', help: 'Read the message above and check the line it names.' };
+	}
+
+	/* --------------------------------------------------------------- telemetry */
+
+	/**
+	 * Fire-and-forget counter. The page listens for these and batches them into
+	 * one beacon (see the LessonEvent notes in server/resources.ts); the component
+	 * deliberately knows nothing about transport, so the lesson page and the
+	 * builder can count different things without touching this file.
+	 *
+	 * Counters only, ever. No code, no text the student typed, no identifiers.
+	 */
+	function metric(key, host) {
+		try {
+			(host || document).dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: String(key) } }));
+		} catch (e) {
+			/* analytics must never break a lesson in progress */
+		}
+	}
+
+	/* ----------------------------------------------------- the runtime injected
+	 * into every preview, ahead of the student's own code.
+	 *
+	 * Reports errors and console output OUT to the host via postMessage, because
+	 * the iframe is opaque-origin and the host cannot reach in. Kept small and
+	 * defensive: it runs before student code and must survive whatever follows.
+	 */
+	/* The reporting harness that runs inside every preview, ahead of the student's
+	 * own code. It reports errors and console output OUT to the host by
+	 * postMessage, because the iframe is opaque-origin and the host cannot reach in.
+	 *
+	 * WRITTEN AS A REAL FUNCTION and stringified, NOT as an array of string
+	 * literals. It was the latter, and that is a trap: the harness is a JavaScript
+	 * program expressed inside JavaScript string literals, so every backslash needs
+	 * doubling and nothing checks that you did it. A single \`\\n\` meant to be two
+	 * characters became an actual newline, which split a string across two lines
+	 * and made the whole harness fail to parse \u2014 so the preview threw
+	 * \`SyntaxError: Unexpected EOF\` before running a line, and the console stayed
+	 * empty with no clue why. Stringifying a real function means this file's own
+	 * parser checks the harness, and there is no escaping to get wrong.
+	 */
+	function harnessProgram() {
+		var send = function (kind, payload) {
+			try {
+				parent.postMessage({ __ww: true, kind: kind, payload: payload }, '*');
+			} catch (e) {
+				/* nothing useful to do from in here */
+			}
+		};
+
+		window.addEventListener('error', function (e) {
+			send('error', { message: String(e.message || e.error || 'Error'), line: e.lineno || null });
+		});
+
+		/* Did the student's own fetch get through?
+		 *
+		 * This is the single most important thing to know about a classroom we
+		 * cannot see. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes the site is broken, we never
+		 * hear about it, and they do not come back. A failed fetch also looks
+		 * exactly like a mistake in the student's code from where they are sitting.
+		 *
+		 * Reports ONLY whether it succeeded \u2014 never the URL, never the response. */
+		var nativeFetch = window.fetch;
+		if (typeof nativeFetch === 'function') {
+			window.fetch = function () {
+				var p = nativeFetch.apply(window, arguments);
+				try {
+					p.then(
+						function (r) {
+							send('fetch', { ok: !!(r && r.ok) });
+						},
+						function () {
+							send('fetch', { ok: false });
+						},
+					);
+				} catch (e) {
+					/* a thenable that is not a promise \u2014 not ours to fix */
+				}
+				return p;
+			};
+		}
+
+		window.addEventListener('unhandledrejection', function (e) {
+			var r = e.reason;
+			send('error', { message: String((r && r.message) || r || 'Something failed'), line: null });
+		});
+
+		/* HARD CAPS, and they are the difference between a working console and a
+		 * hung tab. Chapter 4's instruction is literally console.log(data) on the
+		 * whole game catalog: ~300 KB of JSON, which pretty-printed is ~600 KB of
+		 * string, posted across a message channel and then written into the DOM.
+		 * The browser sat there doing that instead of painting, which reads to a
+		 * student as "the console is broken". A beginner learns exactly as much
+		 * from the first two thousand characters. */
+		var MAX_CHARS = 2000;
+		var MAX_LINES = 200;
+		var sent = 0;
+
+		['log', 'warn', 'error', 'info'].forEach(function (level) {
+			var original = console[level];
+			console[level] = function () {
+				try {
+					original.apply(console, arguments);
+				} catch (e) {
+					/* the real console is not our problem */
+				}
+				if (sent > MAX_LINES) return;
+				if (sent === MAX_LINES) {
+					sent++;
+					send('console', { level: 'warn', text: '... more output was hidden.' });
+					return;
+				}
+				sent++;
+				var parts = [];
+				for (var i = 0; i < arguments.length; i++) parts.push(format(arguments[i]));
+				var text = parts.join(' ');
+				if (text.length > MAX_CHARS)
+					text = text.slice(0, MAX_CHARS) + '\\n... (' + (text.length - MAX_CHARS) + ' more characters)';
+				send('console', { level: level, text: text });
+			};
+		});
+
+		/* Beginners log whole objects constantly; [object Object] would make the
+		 * console useless for exactly the chapter it exists to support. And 150
+		 * animal records is the normal case here, so the count plus the first few
+		 * IS the useful answer to console.log(data.animals) \u2014 and one a student can
+		 * actually read. */
+		function format(v) {
+			if (typeof v === 'string') return v;
+			if (v instanceof Error) return v.message;
+			if (Array.isArray(v) && v.length > 8) {
+				var head = v.slice(0, 3).map(function (x) {
+					return format(x);
+				});
+				return 'Array(' + v.length + ') [\\n  ' + head.join(',\\n  ') + ',\\n  ... ' + (v.length - 3) + ' more\\n]';
+			}
+			try {
+				return JSON.stringify(v, null, 2);
+			} catch (e) {
+				return String(v);
+			}
+		}
+
+		/* The silent failure: nothing is thrown, the page just renders the word
+		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
+		 * student stares at it with no idea what to search for. */
+		window.addEventListener('load', function () {
+			setTimeout(function () {
+				var text = document.body ? document.body.innerText : '';
+				if (/\\[object Object\\]/.test(text)) send('hint', { key: 'object-object' });
+				else if (/\\bundefined\\b/.test(text)) send('hint', { key: 'undefined-text' });
+			}, 300);
+		});
+	}
+
+	var HARNESS = '(' + harnessProgram.toString() + ')();';
+
+	var SILENT_HINTS = {
+		'object-object': {
+			title: 'Your page is showing [object Object]',
+			help:
+				'You are putting a whole object on the page where you meant one part of it. ' +
+				'Try adding the piece you want \u2014 for example .name instead of the whole animal.',
+		},
+		'undefined-text': {
+			title: 'Your page is showing the word "undefined"',
+			help:
+				'Something you asked for was not there. Check the spelling of the property, and check the data ' +
+				'actually arrived before you used it.',
+		},
+	};
+
+	/* ------------------------------------------------------------- the element */
+
+	var DEBOUNCE_MS = 400;
+	var uid = 0;
+
+	/** Insert text at the caret while keeping the browser's undo stack.
+	 *  Returns false if the browser refused, so callers can fall back. */
+	function insertText(area, text) {
+		try {
+			area.focus();
+			return document.execCommand && document.execCommand('insertText', false, text);
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Replace a whole file's contents, still undoably where possible.
+	 *
+	 * This is what "Show me", the idea scaffolds, Reset and Open all go through.
+	 * Selecting everything and inserting means one Cmd+Z puts the student's own
+	 * version back \u2014 which matters most for exactly those actions, because they
+	 * are the ones that throw work away.
+	 *
+	 * A hidden textarea cannot take focus, so those fall back to assignment; the
+	 * builder's own Undo button covers that case.
+	 */
+	function replaceValue(area, text) {
+		if (area.value === text) return;
+		var wasFocused = document.activeElement;
+		var scroll = area.scrollTop;
+		var ok = false;
+		if (!area.closest || !area.closest('[hidden]')) {
+			try {
+				area.focus();
+				area.select();
+				ok = document.execCommand && document.execCommand('insertText', false, text);
+			} catch (e) {
+				ok = false;
+			}
+		}
+		if (!ok) area.value = text;
+		area.scrollTop = scroll;
+		if (wasFocused && wasFocused !== area && wasFocused.focus) wasFocused.focus();
+	}
+
+	function makeEditor(file, value, onInput) {
+		var wrap = document.createElement('div');
+		wrap.className = 'wwr-editor';
+
+		var gutter = document.createElement('div');
+		gutter.className = 'wwr-gutter';
+		gutter.setAttribute('aria-hidden', 'true');
+
+		var area = document.createElement('textarea');
+		area.className = 'wwr-code';
+		area.value = value || '';
+		area.spellcheck = false;
+		area.setAttribute('aria-label', file + ' \u2014 code editor');
+		/* Real keyboards, real settings: without these a browser will happily
+		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
+		area.setAttribute('autocomplete', 'off');
+		area.setAttribute('autocorrect', 'off');
+		area.setAttribute('autocapitalize', 'off');
+
+		function renderGutter() {
+			var lines = area.value.split('\\n').length;
+			var out = '';
+			for (var i = 1; i <= lines; i++) out += i + '\\n';
+			gutter.textContent = out;
+		}
+
+		/* Tab indents rather than moving focus \u2014 but Esc first releases the trap,
+		 * so the field is still escapable by keyboard alone. Without this a
+		 * keyboard-only student is stuck in the textarea with no way out, which
+		 * fails the page outright. */
+		var escaping = false;
+		area.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				escaping = true;
+				return;
+			}
+			if (e.key === 'Tab' && !escaping) {
+				e.preventDefault();
+				/* insertText, NOT \`area.value = ...\`.
+				 *
+				 * Assigning .value replaces the field's contents wholesale, and the
+				 * browser throws away its undo history when you do \u2014 so Cmd/Ctrl+Z
+				 * silently stopped working from the first time a student pressed Tab.
+				 * They would try to undo a mistake, get nothing, and have no idea why.
+				 *
+				 * execCommand('insertText') is formally deprecated and remains the
+				 * only way to edit a textarea while keeping native undo intact. Every
+				 * browser supports it; the direct assignment below is the fallback for
+				 * one that ever stops. */
+				if (!insertText(area, '  ')) {
+					var start = area.selectionStart;
+					var end = area.selectionEnd;
+					area.value = area.value.slice(0, start) + '  ' + area.value.slice(end);
+					area.selectionStart = area.selectionEnd = start + 2;
+				}
+				renderGutter();
+				onInput();
+				return;
+			}
+			escaping = false;
+		});
+
+		area.addEventListener('input', function () {
+			renderGutter();
+			onInput();
+		});
+		area.addEventListener('scroll', function () {
+			gutter.scrollTop = area.scrollTop;
+		});
+
+		renderGutter();
+		wrap.appendChild(gutter);
+		wrap.appendChild(area);
+		return { wrap: wrap, area: area, refresh: renderGutter };
+	}
+
+	function WwRunner(host) {
+		var id = ++uid;
+		var files = readFiles(host);
+		var mode = files.length > 1 ? 'multi' : 'single';
+		var showConsole = host.hasAttribute('console');
+		var autorun = !host.hasAttribute('manual');
+		var label = host.getAttribute('label') || '';
+
+		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		host.innerHTML = '';
+
+		/* ---- toolbar ---- */
+		var bar = document.createElement('div');
+		bar.className = 'wwr-bar';
+		if (label) {
+			var tag = document.createElement('span');
+			tag.className = 'wwr-label';
+			tag.textContent = label;
+			bar.appendChild(tag);
+		}
+
+		var tabs = document.createElement('div');
+		tabs.className = 'wwr-tabs';
+		tabs.setAttribute('role', 'tablist');
+		bar.appendChild(tabs);
+
+		var spacer = document.createElement('span');
+		spacer.className = 'wwr-spacer';
+		bar.appendChild(spacer);
+
+		/* View modes.
+		 *
+		 * Split is the teaching default \u2014 cause and effect in one eyeful. But a
+		 * student writing a long function wants the width, and one showing a
+		 * classmate what they made wants the page. On a Chromebook at 1366px, two
+		 * half-columns is genuinely cramped for both. */
+		var views = document.createElement('div');
+		views.className = 'wwr-views';
+		views.setAttribute('role', 'group');
+		views.setAttribute('aria-label', 'What to show');
+
+		var VIEWS = [
+			{ id: 'split', label: 'Split', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M12 4.5v15"/>' },
+			{ id: 'code', label: 'Code', icon: '<path d="M9 7.5 4.5 12 9 16.5M15 7.5 19.5 12 15 16.5"/>' },
+			{ id: 'preview', label: 'Page', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 9h18"/>' },
+		];
+		var viewBtns = {};
+		VIEWS.forEach(function (v) {
+			var b = document.createElement('button');
+			b.type = 'button';
+			b.className = 'wwr-view' + (v.id === 'split' ? ' is-on' : '');
+			b.title = v.label;
+			b.setAttribute('aria-label', 'Show ' + v.label.toLowerCase());
+			b.setAttribute('aria-pressed', v.id === 'split' ? 'true' : 'false');
+			b.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+				v.icon +
+				'</svg>';
+			b.addEventListener('click', function () {
+				setView(v.id);
+			});
+			viewBtns[v.id] = b;
+			views.appendChild(b);
+		});
+		bar.appendChild(views);
+
+		var runBtn = button('Run', 'wwr-run', ICON_RUN);
+		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
+		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
+		openBtn.title = 'Open your page in a new tab';
+		bar.appendChild(openBtn);
+		bar.appendChild(runBtn);
+		bar.appendChild(resetBtn);
+		host.appendChild(bar);
+
+		function setView(id) {
+			host.classList.remove('wwr--view-split', 'wwr--view-code', 'wwr--view-preview');
+			host.classList.add('wwr--view-' + id);
+			VIEWS.forEach(function (v) {
+				viewBtns[v.id].classList.toggle('is-on', v.id === id);
+				viewBtns[v.id].setAttribute('aria-pressed', v.id === id ? 'true' : 'false');
+			});
+			metric('view_' + id, host);
+		}
+		host.classList.add('wwr--view-split');
+
+		/* ---- panes ---- */
+		var body = document.createElement('div');
+		body.className = 'wwr-body';
+		host.appendChild(body);
+
+		var editors = {};
+		var pane = document.createElement('div');
+		pane.className = 'wwr-panes';
+		body.appendChild(pane);
+
+		files.forEach(function (f, i) {
+			var ed = makeEditor(f.name, f.code, schedule);
+			ed.wrap.hidden = i !== 0;
+			editors[f.name] = ed;
+			pane.appendChild(ed.wrap);
+
+			var t = document.createElement('button');
+			t.type = 'button';
+			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
+			t.textContent = f.name;
+			t.setAttribute('role', 'tab');
+			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			t.addEventListener('click', function () {
+				files.forEach(function (other) {
+					editors[other.name].wrap.hidden = other.name !== f.name;
+				});
+				Array.prototype.forEach.call(tabs.children, function (c) {
+					c.classList.toggle('is-active', c === t);
+					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
+				});
+				metric('tab_' + f.name.split('.').pop(), host);
+			});
+			tabs.appendChild(t);
+		});
+		/* One file needs no tab strip \u2014 the lesson's inline examples would just be
+		 * wearing chrome that explains nothing. */
+		if (mode === 'single') tabs.hidden = true;
+
+		var out = document.createElement('div');
+		out.className = 'wwr-out';
+		body.appendChild(out);
+
+		/* TWO preview frames, not one.
+		 *
+		 * Assigning srcdoc tears the document down and rebuilds it, and the frame
+		 * paints white in between. At a 400 ms debounce that is a white flash every
+		 * time a student pauses typing \u2014 the page visibly flickering while they
+		 * work, which is what it was doing.
+		 *
+		 * So: render into the hidden frame, and swap only once it has loaded. The
+		 * student keeps looking at the last working render until the new one is
+		 * ready, and never sees the gap. */
+		function makeFrame() {
+			var f = document.createElement('iframe');
+			f.className = 'wwr-preview';
+			f.title = 'Live preview' + (label ? ' \u2014 ' + label : '');
+			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
+			 * origin and cannot reach this page, its storage, or its cookies. */
+			f.setAttribute('sandbox', 'allow-scripts');
+			out.appendChild(f);
+			return f;
+		}
+
+		var frames = [makeFrame(), makeFrame()];
+		var live = 0;
+		frames[0].classList.add('is-live');
+
+		/* The console spans the FULL width beneath both columns, rather than sitting
+		 * in the right-hand column under the preview.
+		 *
+		 * It was nested in .wwr-out, which gave it half the width and stacked it
+		 * against the student's own page \u2014 so a logged object wrapped after about
+		 * forty characters and the preview lost a third of its height to a panel
+		 * that is empty most of the time. console.log(data) on the game catalog is
+		 * a chapter-4 instruction; it needs room to be readable. */
+		var consoleBox = document.createElement('div');
+		consoleBox.className = 'wwr-console';
+		consoleBox.hidden = !showConsole;
+		if (showConsole) {
+			var chead = document.createElement('div');
+			chead.className = 'wwr-console-head';
+			chead.title = 'Drag to resize, or double-click to collapse';
+
+			var ctitle = document.createElement('span');
+			ctitle.textContent = 'Console';
+			chead.appendChild(ctitle);
+
+			var cspace = document.createElement('span');
+			cspace.className = 'wwr-spacer';
+			chead.appendChild(cspace);
+
+			var cfold = document.createElement('button');
+			cfold.type = 'button';
+			cfold.className = 'wwr-fold';
+			cfold.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15l6-5.5"/></svg>';
+			chead.appendChild(cfold);
+			consoleBox.appendChild(chead);
+
+			/* Resizable, because how much console a student wants is entirely
+			 * situational: none at all while laying out HTML, and as much as
+			 * possible on the chapter that is only about reading logged data.
+			 * Anything fixed is wrong for somebody. */
+			var MIN_H = 64;
+			var collapsed = false;
+			var lastHeight = 150;
+
+			function setCollapsed(next) {
+				collapsed = next;
+				consoleBox.classList.toggle('is-collapsed', collapsed);
+				consoleBox.style.height = collapsed ? '' : lastHeight + 'px';
+				cfold.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+				cfold.setAttribute('aria-label', collapsed ? 'Show the console' : 'Hide the console');
+				metric(collapsed ? 'console_collapsed' : 'console_expanded', host);
+			}
+
+			cfold.addEventListener('click', function (e) {
+				e.stopPropagation();
+				setCollapsed(!collapsed);
+			});
+			chead.addEventListener('dblclick', function () {
+				setCollapsed(!collapsed);
+			});
+
+			var dragFrom = 0;
+			var dragH = 0;
+
+			function onMove(e) {
+				/* Upwards is taller: the panel is anchored at the bottom of the card,
+				 * so the handle moving up has to grow it, not shrink it. */
+				var next = Math.max(MIN_H, dragH + (dragFrom - e.clientY));
+				var ceiling = Math.max(MIN_H, host.getBoundingClientRect().height - 140);
+				lastHeight = Math.min(next, ceiling);
+				consoleBox.style.height = lastHeight + 'px';
+			}
+
+			function endDrag() {
+				document.removeEventListener('pointermove', onMove);
+				document.removeEventListener('pointerup', endDrag);
+				document.body.classList.remove('wwr-resizing');
+				metric('console_resized', host);
+			}
+
+			chead.addEventListener('pointerdown', function (e) {
+				if (e.target.closest && e.target.closest('.wwr-fold')) return;
+				if (collapsed) setCollapsed(false);
+				e.preventDefault();
+				dragFrom = e.clientY;
+				dragH = consoleBox.getBoundingClientRect().height;
+				/* On <body>, not the handle: it stops the drag selecting text across
+				 * the whole page, and keeps the resize cursor while the pointer
+				 * inevitably wanders off the 20px strip being dragged. */
+				document.body.classList.add('wwr-resizing');
+				document.addEventListener('pointermove', onMove);
+				document.addEventListener('pointerup', endDrag);
+			});
+
+			/* Keyboard: the handle is a real control, so it has to be operable
+			 * without a pointer. Arrows resize, Enter folds. */
+			chead.tabIndex = 0;
+			chead.setAttribute('role', 'separator');
+			chead.setAttribute('aria-orientation', 'horizontal');
+			chead.setAttribute('aria-label', 'Console size');
+			chead.addEventListener('keydown', function (e) {
+				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+					e.preventDefault();
+					if (collapsed) setCollapsed(false);
+					lastHeight = Math.max(MIN_H, lastHeight + (e.key === 'ArrowUp' ? 24 : -24));
+					consoleBox.style.height = lastHeight + 'px';
+				} else if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					setCollapsed(!collapsed);
+				}
+			});
+
+			setCollapsed(false);
+		}
+		var consoleLines = document.createElement('pre');
+		consoleLines.className = 'wwr-console-lines';
+		consoleLines.setAttribute('aria-live', 'polite');
+		consoleBox.appendChild(consoleLines);
+		host.appendChild(consoleBox);
+
+		var errBox = document.createElement('div');
+		errBox.className = 'wwr-error';
+		errBox.hidden = true;
+		errBox.setAttribute('role', 'status');
+		errBox.setAttribute('aria-live', 'polite');
+		host.appendChild(errBox);
+
+		/* ---- running ---- */
+		var timer = null;
+		var firstRunDone = false;
+		var firstFetchDone = false;
+
+		function currentSources() {
+			return {
+				html: editors['index.html'] ? editors['index.html'].area.value : mode === 'single' ? singleValue('html') : '',
+				css: editors['styles.css'] ? editors['styles.css'].area.value : mode === 'single' ? singleValue('css') : '',
+				js: editors['main.js'] ? editors['main.js'].area.value : mode === 'single' ? singleValue('js') : '',
+			};
+		}
+
+		/* In single-file mode the one editor holds whichever language the example
+		 * teaches; the other two come from the element's static attributes, so a
+		 * CSS example can still render against fixed HTML. */
+		function singleValue(kind) {
+			var f = files[0];
+			if (f.kind === kind) return editors[f.name].area.value;
+			return f.context && f.context[kind] ? f.context[kind] : '';
+		}
+
+		function schedule() {
+			if (!autorun) {
+				markDirty();
+				return;
+			}
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				run('auto');
+			}, DEBOUNCE_MS);
+		}
+
+		function markDirty() {
+			runBtn.classList.add('is-dirty');
+		}
+
+		var lastDoc = null;
+		var consoleCount = 0;
+		/* How many lines of OUR document sit above the student's code.
+		 *
+		 * \`e.lineno\` on a script error is relative to the whole document, and the
+		 * document begins with a <head>, their HTML, and a hundred-odd lines of
+		 * reporting harness. So a mistake on line 3 of a twelve-line file was
+		 * reported as "line 103" \u2014 a number that does not exist in anything the
+		 * student can see, and which sends them scrolling for code that is not
+		 * theirs. Subtracting this is the difference between a line number that
+		 * helps and one that actively misleads. */
+		var jsLineOffset = 0;
+		/* The parse error we already reported for this render, if any. */
+		var syntaxProblem = null;
+
+		function run(how) {
+			clearTimeout(timer);
+			runBtn.classList.remove('is-dirty');
+			var src = currentSources();
+			var doc = assembleDocument(src.html, src.css, src.js, HARNESS);
+
+			/* Nothing changed \u2014 do not tear the page down to rebuild the same thing.
+			 * Input events fire for plenty of reasons that leave the code identical
+			 * (arrow keys, selection, a tab switch), and every one of those was
+			 * costing a full reload and a flash. Run always honours an explicit
+			 * press, because "I pressed Run and nothing happened" is worse. */
+			if (doc === lastDoc && how !== 'manual') return;
+			lastDoc = doc;
+
+			clearError();
+			consoleLines.textContent = '';
+			consoleCount = 0;
+
+			/* Parse the student's JavaScript here, where the real message is
+			 * available, and report it before the frame gets a chance to hand us
+			 * Safari's "Script error." instead. The page still renders \u2014 their HTML
+			 * and CSS are probably fine, and seeing the rest of their work survive is
+			 * a better experience than a blank rectangle. */
+			syntaxProblem = syntaxErrorIn(src.js);
+			if (syntaxProblem) {
+				var si = explain(syntaxProblem.message);
+				showError(si.title, syntaxProblem.message, si.help, syntaxProblem.line);
+				logToConsole('error', syntaxProblem.message + (syntaxProblem.line ? '  (line ' + syntaxProblem.line + ')' : ''));
+				metric('errors_' + si.key, host);
+			}
+
+			var next = frames[1 - live];
+			next.onload = function () {
+				next.onload = null;
+				var old = frames[live];
+				next.classList.add('is-live');
+				old.classList.remove('is-live');
+				live = 1 - live;
+				/* Blank the retired frame so its timers, listeners and any runaway
+				 * loop stop. Without this a student's setInterval would keep running
+				 * \u2014 invisibly \u2014 once per render, forever. */
+				old.onload = null;
+				old.srcdoc = '';
+			};
+			/* The student's block is always the last one in the document. */
+			var marker = '\\n<script>\\n';
+			var at = doc.lastIndexOf(marker);
+			jsLineOffset = at < 0 ? 0 : doc.slice(0, at + marker.length).split('\\n').length - 1;
+
+			next.srcdoc = doc;
+
+			metric(how === 'manual' ? 'runs_manual' : 'runs_debounced', host);
+			if (!firstRunDone) {
+				firstRunDone = true;
+				metric('first_run', host);
+			}
+		}
+
+		/** The student's page on its own, with none of our reporting harness \u2014
+		 *  byte-identical to what Download produces. */
+		function standaloneDoc() {
+			var src = currentSources();
+			return assembleDocument(src.html, src.css, src.js);
+		}
+
+		var openedUrl = null;
+		function openInTab() {
+			try {
+				if (openedUrl) URL.revokeObjectURL(openedUrl);
+				openedUrl = URL.createObjectURL(new Blob([standaloneDoc()], { type: 'text/html' }));
+				/* A blob: URL rather than the srcdoc: the new tab gets a real origin,
+				 * so fetch works there exactly as it does in a downloaded file \u2014 which
+				 * is the point of offering this at all. */
+				window.open(openedUrl, '_blank', 'noopener');
+				metric('open_tab', host);
+			} catch (e) {
+				showError('Could not open a new tab', '', 'Your browser blocked the pop-up. Allow pop-ups for this page and try again.', null);
+			}
+		}
+
+		function logToConsole(level, text) {
+			if (!showConsole) return;
+			var lineEl = document.createElement('div');
+			lineEl.className = 'wwr-console-line is-' + level;
+			lineEl.textContent = text;
+			consoleLines.appendChild(lineEl);
+			/* Second cap, on this side of the channel. The harness bounds what it
+			 * sends per run; this bounds what the DOM has to hold across a long
+			 * period of a student pressing Run over and over. */
+			consoleCount++;
+			while (consoleCount > 250 && consoleLines.firstChild) {
+				consoleLines.removeChild(consoleLines.firstChild);
+				consoleCount--;
+			}
+			consoleLines.scrollTop = consoleLines.scrollHeight;
+		}
+
+		function showError(title, message, help, line) {
+			errBox.hidden = false;
+			errBox.innerHTML = '';
+			var h = document.createElement('div');
+			h.className = 'wwr-error-title';
+			h.textContent = title;
+			errBox.appendChild(h);
+			if (message) {
+				var m = document.createElement('code');
+				m.className = 'wwr-error-msg';
+				m.textContent = message + (line ? '  \u2014 line ' + line : '');
+				errBox.appendChild(m);
+			}
+			var p = document.createElement('p');
+			p.className = 'wwr-error-help';
+			p.textContent = help;
+			errBox.appendChild(p);
+		}
+
+		function clearError() {
+			errBox.hidden = true;
+			errBox.textContent = '';
+		}
+
+		window.addEventListener('message', function (e) {
+			var d = e && e.data;
+			if (!d || d.__ww !== true) return;
+			/* Every runner on the page hears every runner's messages, so match on the
+			 * frames this instance owns rather than trusting anything in the payload.
+			 * BOTH buffers count: the incoming render starts talking before it has
+			 * been swapped in, and dropping those would lose the first console line
+			 * and any error thrown during load \u2014 which is most of them. */
+			if (e.source !== frames[0].contentWindow && e.source !== frames[1].contentWindow) return;
+
+			if (d.kind === 'error') {
+				/* We already described this failure from the host, where the message is
+				 * real. The frame is about to report the same thing \u2014 as "Script error."
+				 * in Safari, and as a duplicate in Chrome. One failure, one message.
+				 *
+				 * But take its LINE NUMBER if we lack one. The two sources are good at
+				 * different halves of the problem: the host has the true message and no
+				 * origin barrier, while Chrome attaches no line to a SyntaxError raised
+				 * by new Function \u2014 and the frame, which parsed the code as a real
+				 * script, knows exactly where it gave up. Message from one, position
+				 * from the other. */
+				if (syntaxProblem) {
+					if (!syntaxProblem.line && d.payload.line) {
+						var fromFrame = d.payload.line - jsLineOffset;
+						var lines = currentSources().js.split('\\n').length;
+						if (fromFrame > 0) {
+							syntaxProblem.line = Math.min(fromFrame, lines);
+							var si2 = explain(syntaxProblem.message);
+							showError(si2.title, syntaxProblem.message, si2.help, syntaxProblem.line);
+							if (consoleLines.lastChild) consoleLines.lastChild.textContent += '  (line ' + syntaxProblem.line + ')';
+						}
+					}
+					return;
+				}
+				var info = explain(d.payload.message);
+				/* Report the line in THEIR file, or no line at all. A wrong line number
+				 * is worse than none: it looks authoritative.
+				 *
+				 * Clamped to the length of the file because an end-of-input error is
+				 * reported at the line AFTER the last one \u2014 Chrome is pointing at
+				 * where input ran out, which is correct and useless. "Line 4" in a
+				 * three-line file just reads as broken; the last line is where they
+				 * actually need to look. */
+				var line = d.payload.line ? d.payload.line - jsLineOffset : null;
+				if (line > 0) {
+					var total = currentSources().js.split('\\n').length;
+					line = Math.min(line, total);
+				} else {
+					line = null;
+				}
+				showError(info.title, d.payload.message, info.help, line);
+				/* ALSO echo it into the console pane.
+				 *
+				 * Every console a student will ever meet shows errors alongside logs,
+				 * so an error that appears only in a separate panel reads as the
+				 * console being broken \u2014 especially in the case that matters most: a
+				 * syntax error means NONE of their code ran, so nothing they logged
+				 * shows up and the pane sits there empty with no explanation. The
+				 * panel is the friendly version; this is the record of what happened. */
+				logToConsole('error', d.payload.message + (line ? '  (line ' + line + ')' : ''));
+				metric('errors_' + info.key, host);
+			} else if (d.kind === 'hint') {
+				var hint = SILENT_HINTS[d.payload.key];
+				if (hint) {
+					showError(hint.title, '', hint.help, null);
+					logToConsole('warn', hint.title);
+					metric('errors_' + d.payload.key, host);
+				}
+			} else if (d.kind === 'fetch') {
+				metric(d.payload.ok ? 'fetch_ok' : 'fetch_failed', host);
+				if (d.payload.ok && !firstFetchDone) {
+					firstFetchDone = true;
+					/* The funnel step that says a student got all the way to real data.
+					 * Everything before it is setup; everything after is their own work. */
+					metric('first_fetch_ok', host);
+				}
+			} else if (d.kind === 'console') {
+				logToConsole(d.payload.level, d.payload.text);
+			}
+		});
+
+		runBtn.addEventListener('click', function () {
+			run('manual');
+		});
+		openBtn.addEventListener('click', openInTab);
+		resetBtn.addEventListener('click', function () {
+			files.forEach(function (f) {
+				replaceValue(editors[f.name].area, f.code);
+				editors[f.name].refresh();
+			});
+			metric('reset', host);
+			run('manual');
+		});
+
+		/* Public surface, used by the builder page for save/download/seeding. */
+		host.wwGet = currentSources;
+		host.wwSet = function (next) {
+			files.forEach(function (f) {
+				if (next[f.name] != null) {
+					replaceValue(editors[f.name].area, next[f.name]);
+					editors[f.name].refresh();
+				}
+			});
+			run('manual');
+		};
+		host.wwRun = function () {
+			run('manual');
+		};
+
+		run('auto');
+	}
+
+	/* Icons are DRAWN, never typed.
+	 *
+	 * A play triangle and a reset arrow look like safe characters, and they are
+	 * not: the glyph comes from whatever font the platform decides, so it lands
+	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * else in the toolbar uses. On a school Windows machine missing the font it is
+	 * a blank box on the one button a student needs most. Two SVG paths cost
+	 * nothing and look the same everywhere. */
+	var ICON_RUN = '<path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor" stroke="none"/>';
+	var ICON_OPEN =
+		'<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/>' +
+		'<path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>';
+	var ICON_RESET =
+		'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 4v5h5"/>';
+
+	function button(text, cls, icon) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'wwr-btn ' + cls;
+		b.innerHTML =
+			'<svg class="wwr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			icon +
+			'</svg>' +
+			text;
+		return b;
+	}
+
+	/**
+	 * Read the starter files out of the element's <script type="text/ww-file">
+	 * children.
+	 *
+	 * A script tag rather than a textarea or an attribute: the browser will not
+	 * execute or render an unknown script type, so student-facing starter code can
+	 * contain < and & and quotes without being HTML-escaped by hand in the page
+	 * source. That matters \u2014 the starter code IS HTML in one of the three files.
+	 */
+	function readFiles(host) {
+		var nodes = host.querySelectorAll('script[type="text/ww-file"]');
+		var files = [];
+		var context = {};
+		Array.prototype.forEach.call(nodes, function (n) {
+			var name = n.getAttribute('name') || 'main.js';
+			var code = dedent(n.textContent || '');
+			var kind = name.split('.').pop();
+			if (n.hasAttribute('context')) {
+				context[kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html'] = code;
+				return;
+			}
+			files.push({ name: name, code: code, kind: kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html' });
+		});
+		if (!files.length) files.push({ name: 'main.js', code: '', kind: 'js' });
+		files[0].context = context;
+		return files;
+	}
+
+	/** Starter code is indented to match the page's HTML; students should not see
+	 *  that indentation. Strip the common leading whitespace, tabs or spaces. */
+	function dedent(text) {
+		var lines = String(text).replace(/^\\n+|\\s+$/g, '').split('\\n');
+		var indent = null;
+		lines.forEach(function (l) {
+			if (!l.trim()) return;
+			var m = l.match(/^[\\t ]*/)[0];
+			if (indent === null || m.length < indent.length) indent = m;
+		});
+		if (!indent) return lines.join('\\n');
+		return lines
+			.map(function (l) {
+				return l.indexOf(indent) === 0 ? l.slice(indent.length) : l;
+			})
+			.join('\\n');
+	}
+
+	function init() {
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner'), function (host) {
+			if (host.dataset.wwReady) return;
+			host.dataset.wwReady = '1';
+			try {
+				WwRunner(host);
+			} catch (e) {
+				/* A broken runner must not take the rest of the lesson down with it \u2014
+				 * the page is readable without any of them (see the static fallback
+				 * markup each one wraps). */
+				host.classList.add('wwr--failed');
+				if (window.console) console.error('ww-runner failed to start', e);
+			}
+		});
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwRunner = { assembleDocument: assembleDocument, explain: explain, escapeForScript: escapeForScript, dedent: dedent };
+})();
+
+</script>
+<script>
+/* Wild Willows \u2014 Code Builder controller.
+ *
+ * Everything on /learn/code-builder that is NOT the editor itself: saving,
+ * downloading, importing, the checkpoint list, the ideas modal, the help
+ * sidebar, and the metrics beacon. The editing and preview come from
+ * <ww-runner> (public/partials/ww-runner.js), which this file drives through the
+ * small wwGet/wwSet/wwRun surface that element publishes.
+ *
+ * Inlined at build time by scripts/build-pages.mjs. No dependencies, no network
+ * beyond the one anonymous counter beacon at the end of the session.
+ *
+ * NOTHING a student types leaves the browser. Not on save, not on error, not in
+ * the beacon. That claim is printed on the page and in PRIVACY.md, and it is a
+ * load-bearing part of why a district lets thirty minors use this \u2014 so treat any
+ * change that sends more than a bounded counter as a change to the privacy
+ * policy first and a feature second.
+ */
+(function () {
+	'use strict';
+
+	var SAVE_KEY = 'wildWillowsCodeLab';
+	var SAVE_VERSION = 1;
+	var SEEN_KEY = 'wildWillowsCodeLabSeen';
+	var API = 'https://wildwillows.app/GameData/';
+
+	var FILES = ['index.html', 'styles.css', 'main.js'];
+
+	/* The starter project is defined ONCE, in the page's own <ww-runner> markup,
+	 * and captured here at boot before any saved work is restored.
+	 *
+	 * It was a constant in this file to begin with, duplicating the markup. That
+	 * is a bug waiting to happen in the quietest possible way: edit the page,
+	 * forget this copy, and now "Start over" hands the student a project that is
+	 * not the one the lesson describes \u2014 while the idle-detection below, which
+	 * compares against the starter to decide whether anyone has typed anything,
+	 * silently stops firing. One source, no drift. */
+	var starter = null;
+
+	/* ------------------------------------------------------------- checkpoints
+	 *
+	 * Grouped by day so a student always knows where the class is and where they
+	 * are. Ticks persist in the save, which on day 2 gives them a small "look what
+	 * I already did" for free.
+	 *
+	 * \`show\` is working code. \`hint\` is the nudge that comes first \u2014 the button is
+	 * a fallback, not the path, and a student who reads the hint and writes it
+	 * themselves has learned more.
+	 */
+	var CHECKPOINTS = [
+		{
+			id: 'title',
+			day: 'Day 1 \u2014 the parts',
+			file: 'index.html',
+			goal: 'Put your name in the page title',
+			hint: 'Change the text between <h1> and </h1>.',
+			show: { 'index.html': '<h1>Ada\u2019s Wild Willows Explorer</h1>\\n<p id="message">Loading game data...</p>' },
+		},
+		{
+			id: 'meadow',
+			day: 'Day 1 \u2014 the parts',
+			file: 'styles.css',
+			goal: 'Make the background look like a meadow',
+			hint: 'Add a background color to the body rule. Try #eef5e2.',
+			show: {
+				'styles.css':
+					'body {\\n  font-family: sans-serif;\\n  padding: 2rem;\\n  background: #eef5e2;\\n}\\n\\nh1 {\\n  color: seagreen;\\n}',
+			},
+		},
+		{
+			id: 'fetch',
+			day: 'Day 2 \u2014 the data',
+			file: 'main.js',
+			goal: 'Fetch the game data and look at it',
+			hint: 'The starter code already does this. Open the Console panel and press Run.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\\n  const response = await fetch("' +
+					API +
+					'");\\n  const data = await response.json();\\n\\n  console.log(data);\\n}\\n\\nloadGameData();',
+			},
+		},
+		{
+			id: 'one',
+			day: 'Day 2 \u2014 the data',
+			file: 'main.js',
+			goal: "Show one animal's name on the page",
+			hint: 'data.animals[0].name is the first one. Put it into #message with textContent.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\\n  const response = await fetch("' +
+					API +
+					'");\\n  const data = await response.json();\\n\\n  document.querySelector("#message").textContent = data.animals[0].name;\\n}\\n\\nloadGameData();',
+			},
+		},
+		{
+			id: 'many',
+			day: 'Day 2 \u2014 the data',
+			file: 'main.js',
+			goal: 'Show six animals, using a loop',
+			hint: 'Use .slice(0, 6) then .map() to build <li> items, and .join("") to glue them together.',
+			show: {
+				'index.html': '<h1>Wild Willows Explorer</h1>\\n<ul id="animal-list"></ul>',
+				'main.js':
+					'async function loadGameData() {\\n  const response = await fetch("' +
+					API +
+					'");\\n  const data = await response.json();\\n\\n  const items = data.animals\\n    .slice(0, 6)\\n    .map(animal => \`<li>\${animal.name}</li>\`)\\n    .join("");\\n\\n  document.querySelector("#animal-list").innerHTML = items;\\n}\\n\\nloadGameData();',
+			},
+		},
+		{
+			id: 'fails',
+			day: 'Day 3 \u2014 make it yours',
+			file: 'main.js',
+			goal: 'Say something useful when the data will not load',
+			hint: 'Wrap the fetch in try / catch, and put a friendly message on the page in the catch.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\\n  try {\\n    const response = await fetch("' +
+					API +
+					'");\\n    if (!response.ok) {\\n      throw new Error("The server said no");\\n    }\\n    const data = await response.json();\\n\\n    const items = data.animals\\n      .slice(0, 6)\\n      .map(animal => \`<li>\${animal.name}</li>\`)\\n      .join("");\\n\\n    document.querySelector("#animal-list").innerHTML = items;\\n  } catch (error) {\\n    document.querySelector("#animal-list").textContent =\\n      "Could not load the animals right now. Try again in a moment.";\\n  }\\n}\\n\\nloadGameData();',
+			},
+		},
+	];
+
+	/* ------------------------------------------------------------------- ideas
+	 *
+	 * The escape hatch for the student who finishes early, and for the one who
+	 * cannot think of anything and is thirty seconds from disengaging. "Build
+	 * something with the data" is paralyzing; "show every animal that eats
+	 * berries" is a task you can start immediately.
+	 *
+	 * Every idea is real and checkable against /GameData/ \u2014 the contract test in
+	 * tests/integration/classroom-contract.test.ts pins the fields and values
+	 * these depend on, because an idea that silently returns an empty list is
+	 * worse than no idea at all.
+	 *
+	 * Keep each \`what\` to ONE sentence. The moment an idea needs a paragraph it is
+	 * an assignment, not an idea, and students stop reading.
+	 */
+	var IDEAS = [
+		// --- easy: one filter or one map -------------------------------------
+		{ id: 'meadow-roll-call', level: 'easy', uses: ['filter'], title: 'Meadow Roll Call', what: 'List every animal that lives in Willow Meadow.', data: 'animals[].biome' },
+		{ id: 'berry-eaters', level: 'easy', uses: ['filter'], title: 'Berry Eaters', what: 'Show only the animals whose diet mentions berries.', data: 'animals[].diet' },
+		{ id: 'name-that-species', level: 'easy', uses: ['map'], title: 'Name That Species', what: "Show each animal's name with its scientific name in italics underneath.", data: 'animals[].scientificName' },
+		{ id: 'rare-finds', level: 'easy', uses: ['filter'], title: 'Rare Finds', what: 'Show only the animals marked rare.', data: 'animals[].rarity' },
+		{ id: 'top-of-chain', level: 'easy', uses: ['filter'], title: 'Top of the Chain', what: 'Show every apex predator in the preserve.', data: 'animals[].trophic' },
+		{ id: 'fact-of-the-day', level: 'easy', uses: ['if'], title: 'Fact of the Day', what: 'Show one random animal fact, with a button for another.', data: 'animals[].fact' },
+		{ id: 'biome-colors', level: 'easy', uses: ['map'], title: 'Biome Colors', what: "Show each biome's name styled with its own color from the data.", data: 'biomes[].palette.healthy' },
+		{ id: 'tiny-things', level: 'easy', uses: ['filter'], title: 'Tiny Things', what: 'Show every animal whose kind is invertebrate.', data: 'animals[].kind' },
+		{ id: 'six-biomes', level: 'easy', uses: ['map'], title: 'Six Biomes', what: 'Show all six biomes with their descriptions.', data: 'biomes[].description' },
+
+		// --- medium: filter plus sort, or two fields together -----------------
+		{ id: 'a-z-guide', level: 'medium', uses: ['sort', 'map'], title: 'A\u2013Z Field Guide', what: 'List all 150 animals in alphabetical order.', data: 'animals[].name' },
+		{ id: 'biome-picker', level: 'medium', uses: ['filter', 'if'], title: 'Biome Picker', what: 'Six buttons, one per biome \u2014 click one and the list swaps.', data: 'biomes[].id' },
+		{ id: 'search-box', level: 'medium', uses: ['filter', 'if'], title: 'Search Box', what: 'Type a name and filter the list as you go.', data: 'animals[].name' },
+		{ id: 'habitat-checklist', level: 'medium', uses: ['map'], title: 'Habitat Checklist', what: 'Show what one animal needs before it will come home.', data: 'animals[].requirements.objects' },
+		{ id: 'hardest-to-please', level: 'medium', uses: ['sort'], title: 'Hardest to Please', what: 'Sort animals by how healthy their biome must be, toughest first.', data: 'animals[].requirements.minHealth' },
+		{ id: 'diet-cards', level: 'medium', uses: ['map'], title: 'Diet Cards', what: 'A card per animal with its diet, shelter and preferred habitat.', data: 'animals[].diet, .shelter' },
+		{ id: 'what-eats-what', level: 'medium', uses: ['map', 'if'], title: 'What Eats What', what: 'Pick an animal and show what it eats and what eats it.', data: 'animals[].eats, .eatenBy' },
+		{ id: 'resource-map', level: 'medium', uses: ['map'], title: 'Resource Map', what: 'Show each biome with the resources you can gather there.', data: 'biomes[].resources' },
+		{ id: 'sources-page', level: 'medium', uses: ['map'], title: 'Sources Page', what: "Show one animal's real-world sources as clickable links.", data: 'animals[].sources' },
+		{ id: 'rarity-badges', level: 'medium', uses: ['if', 'map'], title: 'Rarity Badges', what: 'Give every animal a badge \u2014 common, uncommon or rare.', data: 'animals[].rarity' },
+
+		// --- ambitious: reduce, grouping, or real interaction ------------------
+		{ id: 'species-census', level: 'ambitious', uses: ['reduce'], title: 'Species Census', what: 'Count the animals in each biome and draw bars to compare them.', data: 'animals[].biome' },
+		{ id: 'food-web', level: 'ambitious', uses: ['filter', 'if'], title: 'Food Web', what: 'Pick an animal and walk outwards through what eats it.', data: 'animals[].eats, .eatenBy' },
+		{ id: 'trophic-pyramid', level: 'ambitious', uses: ['reduce'], title: 'Trophic Pyramid', what: 'Stack the animals by their role in the food chain.', data: 'animals[].trophic' },
+		{ id: 'restoration-planner', level: 'ambitious', uses: ['filter', 'if'], title: 'Restoration Planner', what: 'Pick a health level and show which animals would return.', data: 'animals[].requirements.minHealth' },
+		{ id: 'rarity-breakdown', level: 'ambitious', uses: ['reduce'], title: 'Rarity Breakdown', what: 'Count common, uncommon and rare, and draw it as a chart.', data: 'animals[].rarity' },
+		{ id: 'two-biomes', level: 'ambitious', uses: ['filter'], title: 'Two-Biome Comparison', what: 'Show two biomes side by side and compare their species.', data: 'animals[].biome' },
+		{ id: 'quiz-mode', level: 'ambitious', uses: ['if'], title: 'Quiz Mode', what: 'Show a fact and ask which animal it belongs to.', data: 'animals[].fact, .name' },
+		{ id: 'water-dependents', level: 'ambitious', uses: ['filter'], title: 'Water Dependents', what: 'Find every animal that needs water to come home.', data: 'animals[].requirements' },
+		{ id: 'guess-the-biome', level: 'ambitious', uses: ['if'], title: 'Guess the Biome', what: 'Show a habitat description and let the player guess where it is.', data: 'animals[].preferredHabitat' },
+		{ id: 'field-journal', level: 'ambitious', uses: ['filter', 'if'], title: 'Field Journal', what: 'Let the reader keep a list of favorites that survives a refresh.', data: 'animals[].name' },
+	];
+
+	/* --------------------------------------------------------------- help text */
+
+	var HELP = {
+		'index.html': {
+			title: 'HTML',
+			body: 'HTML creates the things you see on the page.',
+			snippets: [
+				{ label: 'A heading', code: '<h1>My page</h1>' },
+				{ label: 'A paragraph with an id', code: '<p id="message">Loading...</p>' },
+				{ label: 'An empty list to fill in', code: '<ul id="animal-list"></ul>' },
+			],
+		},
+		'styles.css': {
+			title: 'CSS',
+			body: 'CSS changes how those things look.',
+			snippets: [
+				{ label: 'Color a heading', code: 'h1 {\\n  color: seagreen;\\n}' },
+				{ label: 'A card', code: '.card {\\n  border: 1px solid #ccc;\\n  border-radius: 8px;\\n  padding: 1rem;\\n}' },
+				{ label: 'Side by side', code: '.list {\\n  display: flex;\\n  flex-wrap: wrap;\\n  gap: 1rem;\\n}' },
+			],
+		},
+		'main.js': {
+			title: 'JavaScript',
+			body: 'JavaScript can change the page and fetch data.',
+			snippets: [
+				{ label: 'Fetch the game data', code: 'const response = await fetch("' + API + '");\\nconst data = await response.json();' },
+				{ label: 'Show one value', code: 'document.querySelector("#message").textContent = value;' },
+				{ label: 'Keep only some animals', code: 'const meadow = data.animals.filter(animal => animal.biome === "meadow");' },
+				{ label: 'Build a list', code: 'const items = list.map(animal => \`<li>\${animal.name}</li>\`).join("");' },
+				{ label: 'Handle nothing found', code: 'if (matches.length === 0) {\\n  list.textContent = "Nothing matched.";\\n}' },
+			],
+		},
+	};
+
+	/* ------------------------------------------------------------------ helpers */
+
+	var $ = function (sel, root) {
+		return (root || document).querySelector(sel);
+	};
+	var el = function (tag, cls, text) {
+		var n = document.createElement(tag);
+		if (cls) n.className = cls;
+		if (text != null) n.textContent = text;
+		return n;
+	};
+
+	/* ----------------------------------------------------------------- metrics
+	 *
+	 * Counters accumulate in memory and go out as ONE beacon per session.
+	 *
+	 * Not one request per event: the preview fires on every debounce and a whole
+	 * classroom shares one NAT'd school IP, so per-event posting would exhaust the
+	 * telemetry rate tier for everyone in the room. sendBeacon because it survives
+	 * the tab closing \u2014 a plain fetch on pagehide loses exactly the sessions that
+	 * ran to completion, which are the ones worth counting.
+	 */
+	var counts = {};
+	var durationSent = false;
+
+	function bump(key) {
+		counts[key] = (counts[key] || 0) + 1;
+	}
+
+	/* ------------------------------------------------------- time in the builder
+	 *
+	 * How long a student actually spends here is the number that says whether this
+	 * is a five-minute curiosity or the thing they did for a whole period \u2014 and it
+	 * is the one figure a teacher will ask about that nothing else answers.
+	 *
+	 * ACTIVE time, not wall-clock: the tab left open over lunch is not an hour of
+	 * building. The clock stops whenever the page is hidden.
+	 *
+	 * BUCKETED, never a raw duration. A precise per-session length is a behavioural
+	 * trace of one person; "somewhere between fifteen and thirty minutes" answers
+	 * the question just as well and describes nobody. Same reasoning as everything
+	 * else in this file: if it cannot be a counter, it does not leave the browser.
+	 */
+	var activeMs = 0;
+	var since = Date.now();
+
+	function tickActive() {
+		var now = Date.now();
+		if (document.visibilityState !== 'hidden') activeMs += now - since;
+		since = now;
+	}
+
+	function durationBucket(ms) {
+		var m = ms / 60000;
+		if (m < 5) return 'duration_lt5m';
+		if (m < 15) return 'duration_5to15m';
+		if (m < 30) return 'duration_15to30m';
+		if (m < 60) return 'duration_30to60m';
+		return 'duration_gt60m';
+	}
+
+	/* Send whatever has accumulated and START A NEW BATCH.
+	 *
+	 * \`final\` marks the flush that happens because the session is ending \u2014 a tab
+	 * closing or a navigation away \u2014 as opposed to an interim one from a tab
+	 * switch or the periodic timer.
+	 *
+	 * TWO THINGS HERE ARE NOT OPTIONAL, both learned the hard way:
+	 *
+	 *   \u2022 \`counts\` is emptied on every send. It used to survive the send behind a
+	 *     \`sent\` latch, so a student who switched tabs once had that first batch
+	 *     sent, kept, and sent AGAIN by the five-minute timer \u2014 every counter
+	 *     before the first tab switch was recorded twice. Clearing after the send
+	 *     also makes the latch unnecessary: pagehide and visibilitychange both
+	 *     firing on the way out is harmless, because the second one finds nothing
+	 *     to send.
+	 *   \u2022 The duration bucket rides on the FINAL flush only. A session that runs
+	 *     past a boundary would otherwise land in two bands at once (lt5m and
+	 *     then 5to15m), and a distribution where one student appears in three
+	 *     bands is not a distribution.
+	 */
+	function flush(final) {
+		tickActive();
+		if (final && !durationSent) {
+			durationSent = true;
+			bump(durationBucket(activeMs));
+		}
+		if (!Object.keys(counts).length) return;
+		var batch = counts;
+		counts = {};
+		try {
+			var body = JSON.stringify({ page: 'builder', counts: batch });
+			if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+		} catch (e) {
+			/* analytics never gets to break the page */
+		}
+	}
+
+	document.addEventListener('ww:metric', function (e) {
+		if (e && e.detail && e.detail.key) bump(e.detail.key);
+	});
+	/* A tab switch is not the end of a session \u2014 the student is looking something
+	 * up and will be back. Send what we have, keep the clock running. */
+	document.addEventListener('visibilitychange', function () {
+		tickActive();
+		if (document.visibilityState === 'hidden') flush(false);
+	});
+	window.addEventListener('pagehide', function () {
+		flush(true);
+	});
+	/* Long lessons: a student can sit in here for a whole period without ever
+	 * hiding the tab, and a session that never reports is a session we cannot see. */
+	setInterval(function () {
+		flush(false);
+	}, 300000);
+
+	/* --------------------------------------------------------------- persistence */
+
+	function load() {
+		try {
+			var raw = localStorage.getItem(SAVE_KEY);
+			if (!raw) return null;
+			var save = JSON.parse(raw);
+			/* A save from a future/older format is not something to guess at. Say so
+			 * and keep the starter files, rather than showing an empty editor with no
+			 * explanation \u2014 which reads as "it deleted my work". */
+			if (!save || save.version !== SAVE_VERSION) return null;
+			return save;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function save(files, done, ui) {
+		try {
+			localStorage.setItem(
+				SAVE_KEY,
+				JSON.stringify({
+					version: SAVE_VERSION,
+					html: files.html,
+					css: files.css,
+					js: files.js,
+					done: done,
+					ui: ui || {},
+					updatedAt: Date.now(),
+				}),
+			);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/* ------------------------------------------------- download / import format
+	 *
+	 * Download produces EXACTLY what assembleDocument() gives the preview (minus
+	 * the reporting harness). A file that behaves differently from the preview
+	 * would be the worst possible ending to the lesson, so there is one function
+	 * and one format.
+	 *
+	 * Import parses that same format back into three files. This pair is the real
+	 * save system: managed Chromebook carts often do not hand a student the same
+	 * machine twice, so localStorage cannot be the only way work survives to the
+	 * next period. Round-trip fidelity is asserted in tests/unit/ww-builder.test.ts.
+	 */
+	function buildDownload(files) {
+		return window.WwRunner.assembleDocument(files.html, files.css, files.js);
+	}
+
+	function parseProject(text) {
+		var css = /<style>\\n([\\s\\S]*?)\\n<\\/style>\\n<\\/head>/.exec(text);
+		/* The JS group is GREEDY and the tail is anchored to the document's exact
+		 * ending. A lazy match would stop at the first closing script tag it saw,
+		 * and a student whose code contains one (escaped, as the regex above spells
+		 * it) would get their file silently truncated on import \u2014 losing work, with
+		 * no error. Anchoring to the document's own final closing tags means only
+		 * the real one can end the match.
+		 *
+		 * Do NOT write that sequence out literally anywhere in this file: it is
+		 * inlined into a <script> block, so the comment would end the block. See the
+		 * note in ww-runner.js, which learned this the hard way. */
+		var rest = /<body>\\n([\\s\\S]*?)\\n<script>\\n([\\s\\S]*)\\n<\\/script>\\n<\\/body>/.exec(text);
+		if (!rest) return null;
+		/* Undo the escapes assembleDocument applied on the way out, so a student who
+		 * wrote a closing script or style tag gets their source back byte-for-byte.
+		 * BOTH directions or neither: escaping on write without unescaping on read
+		 * silently corrupts the file a little more on every save/open cycle. */
+		return {
+			html: rest[1],
+			css: css ? css[1].replace(/<\\\\\\/(style)/gi, '</$1') : '',
+			js: rest[2].replace(/<\\\\\\/(script)/gi, '</$1'),
+		};
+	}
+
+	/* ------------------------------------------------------------------- boot */
+
+	function init() {
+		var runner = $('ww-runner');
+		if (!runner || !window.WwRunner) return;
+
+		var statusEl = $('#lab-status');
+		var doneSet = {};
+
+		function files() {
+			return runner.wwGet();
+		}
+
+		/* Before anything is restored or seeded \u2014 this IS the starter project. */
+		starter = files();
+
+		/* Which side panels are open. Remembered because a student who collapsed
+		 * the checkpoints on day 2 did not mean "only until I reload". */
+		var ui = {};
+
+		function status(text, kind) {
+			if (!statusEl) return;
+			statusEl.textContent = text;
+			statusEl.className = 'lab-status' + (kind ? ' is-' + kind : '');
+			clearTimeout(status._t);
+			status._t = setTimeout(function () {
+				statusEl.textContent = '';
+				statusEl.className = 'lab-status';
+			}, 4000);
+		}
+
+		/* ---- restore ---- */
+		var restored = load();
+		if (restored) {
+			runner.wwSet({ 'index.html': restored.html, 'styles.css': restored.css, 'main.js': restored.js });
+			doneSet = restored.done || {};
+			ui = restored.ui || {};
+			status('Picking up where you left off.', 'ok');
+			bump('restored');
+		} else if (localStorage.getItem(SAVE_KEY)) {
+			status('Your saved work could not be opened, so this is a fresh start.', 'warn');
+			bump('save_unreadable');
+		}
+
+		/* ---- autosave ---- */
+		var saveTimer = null;
+		var warnedNoStorage = false;
+		document.addEventListener('input', function () {
+			clearTimeout(saveTimer);
+			saveTimer = setTimeout(function () {
+				if (!save(files(), doneSet, ui) && !warnedNoStorage) {
+					warnedNoStorage = true;
+					bump('storage_unavailable');
+					status('This browser will not let the page save. Use Download to keep your work.', 'warn');
+				}
+			}, 800);
+		});
+
+		/* ---- download ---- */
+		var dl = $('#lab-download');
+		if (dl)
+			dl.addEventListener('click', function () {
+				var blob = new Blob([buildDownload(files())], { type: 'text/html' });
+				var url = URL.createObjectURL(blob);
+				var a = el('a');
+				a.href = url;
+				a.download = 'my-wild-willows-page.html';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				setTimeout(function () {
+					URL.revokeObjectURL(url);
+				}, 1000);
+				bump('download');
+				status('Downloaded. Open it any time, or bring it back here with Open.', 'ok');
+			});
+
+		/* ---- import ---- */
+		var picker = $('#lab-import-input');
+		var open = $('#lab-import');
+		if (open && picker) {
+			open.addEventListener('click', function () {
+				picker.click();
+			});
+			picker.addEventListener('change', function () {
+				var file = picker.files && picker.files[0];
+				if (!file) return;
+				var reader = new FileReader();
+				reader.onload = function () {
+					var parsed = parseProject(String(reader.result));
+					if (!parsed) {
+						bump('import_failed');
+						status('That file was not a page saved from here.', 'warn');
+						return;
+					}
+					runner.wwSet({ 'index.html': parsed.html, 'styles.css': parsed.css, 'main.js': parsed.js });
+					bump('import');
+					status('Opened. Carry on where you left off.', 'ok');
+				};
+				reader.readAsText(file);
+				picker.value = '';
+			});
+		}
+
+		/* ---- reset ---- */
+		var reset = $('#lab-reset');
+		if (reset)
+			reset.addEventListener('click', function () {
+				if (!window.confirm('Start over with the original files? Your current work will be replaced.')) return;
+				runner.wwSet({ 'index.html': starter.html, 'styles.css': starter.css, 'main.js': starter.js });
+				doneSet = {};
+				save(files(), doneSet, ui);
+				renderCheckpoints();
+				bump('reset_project');
+				status('Back to the starting files.', 'ok');
+			});
+
+		/* ---- checkpoints ---- */
+		var cpList = $('#lab-checkpoints');
+		var undo = null;
+
+		var cpCount = $('#lab-cp-count');
+
+		/* The count in the summary is what makes collapsing safe to offer: a
+		 * student who has folded the list away can still see where they are, so
+		 * "out of sight" does not become "forgot there were steps". */
+		function renderCount() {
+			if (!cpCount) return;
+			var done = CHECKPOINTS.filter(function (cp) {
+				return doneSet[cp.id];
+			}).length;
+			cpCount.textContent = done + '/' + CHECKPOINTS.length;
+			cpCount.classList.toggle('is-complete', done === CHECKPOINTS.length);
+		}
+
+		function renderCheckpoints() {
+			renderCount();
+			if (!cpList) return;
+			cpList.innerHTML = '';
+			var lastDay = null;
+			CHECKPOINTS.forEach(function (cp, i) {
+				if (cp.day !== lastDay) {
+					lastDay = cp.day;
+					cpList.appendChild(el('li', 'cp-day', cp.day));
+				}
+				var li = el('li', 'cp' + (doneSet[cp.id] ? ' is-done' : ''));
+
+				var tick = el('button', 'cp-tick');
+				tick.type = 'button';
+				tick.setAttribute('aria-pressed', doneSet[cp.id] ? 'true' : 'false');
+				tick.setAttribute('aria-label', 'Mark "' + cp.goal + '" as done');
+				/* Drawn, not typed. A check character is a different font on every
+				 * platform and lands anywhere from a hairline to a green emoji tick. */
+				if (doneSet[cp.id]) {
+					tick.innerHTML =
+						'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" ' +
+						'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ' +
+						'style="width:11px;height:11px;display:block;margin:0 auto"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></svg>';
+				} else {
+					tick.textContent = String(i + 1);
+				}
+				tick.addEventListener('click', function () {
+					doneSet[cp.id] = !doneSet[cp.id];
+					if (doneSet[cp.id]) bump('checkpoint_' + cp.id);
+					save(files(), doneSet, ui);
+					renderCheckpoints();
+				});
+
+				var main = el('div', 'cp-main');
+				main.appendChild(el('div', 'cp-goal', cp.goal));
+				main.appendChild(el('div', 'cp-hint', cp.hint));
+
+				var show = el('button', 'cp-show', 'Show me');
+				show.type = 'button';
+				show.addEventListener('click', function () {
+					var target = Object.keys(cp.show).join(' and ');
+					if (!window.confirm('This will replace what is in ' + target + '. Continue? (You can undo once.)')) return;
+					undo = files();
+					runner.wwSet(cp.show);
+					doneSet[cp.id] = true;
+					save(files(), doneSet, ui);
+					renderCheckpoints();
+					bump('hint_' + cp.id);
+					status('Filled in. Undo is in the toolbar if you want your version back.', 'ok');
+					if (undoBtn) undoBtn.hidden = false;
+				});
+				main.appendChild(show);
+
+				li.appendChild(tick);
+				li.appendChild(main);
+				cpList.appendChild(li);
+			});
+		}
+
+		var undoBtn = $('#lab-undo');
+		if (undoBtn) {
+			undoBtn.hidden = true;
+			undoBtn.addEventListener('click', function () {
+				if (!undo) return;
+				runner.wwSet({ 'index.html': undo.html, 'styles.css': undo.css, 'main.js': undo.js });
+				undo = null;
+				undoBtn.hidden = true;
+				bump('undo');
+				status('Put back the way it was.', 'ok');
+			});
+		}
+		renderCheckpoints();
+
+		/* ---- collapsible side panels ---- */
+		[
+			['checkpoints', $('#lab-checkpoints-details')],
+			['help', $('#lab-help-details')],
+		].forEach(function (pair) {
+			var name = pair[0];
+			var panel = pair[1];
+			if (!panel) return;
+			if (ui[name] === false) panel.open = false;
+			panel.addEventListener('toggle', function () {
+				ui[name] = panel.open;
+				save(files(), doneSet, ui);
+				bump('panel_' + name + '_' + (panel.open ? 'open' : 'closed'));
+			});
+		});
+
+		/* ---- the brief: whatever idea they picked, kept on screen ---- */
+		var briefBox = $('#lab-current-idea');
+
+		function showBrief(idea) {
+			if (!briefBox) return;
+			if (!idea) {
+				briefBox.hidden = true;
+				return;
+			}
+			briefBox.hidden = false;
+			var set = function (sel, text) {
+				var n = $(sel);
+				if (n) n.textContent = text;
+			};
+			set('#lab-brief-title', idea.title);
+			set('#lab-brief-what', idea.what);
+			set('#lab-brief-data', 'Uses ' + idea.data);
+		}
+
+		function ideaById(id) {
+			for (var i = 0; i < IDEAS.length; i++) if (IDEAS[i].id === id) return IDEAS[i];
+			return null;
+		}
+
+		var briefChange = $('#lab-brief-change');
+		if (briefChange)
+			briefChange.addEventListener('click', function () {
+				openModal('click');
+			});
+
+		var briefClear = $('#lab-brief-clear');
+		if (briefClear)
+			briefClear.addEventListener('click', function () {
+				ui.idea = null;
+				showBrief(null);
+				save(files(), doneSet, ui);
+				bump('brief_cleared');
+			});
+
+		/* ---- ideas modal ---- */
+		var modal = $('#lab-ideas');
+		var cards = $('#lab-idea-cards');
+		var level = 'all';
+		var uses = 'all';
+		var offered = false;
+
+		function pick(n) {
+			var pool = IDEAS.filter(function (idea) {
+				return (level === 'all' || idea.level === level) && (uses === 'all' || idea.uses.indexOf(uses) !== -1);
+			});
+			/* Shuffle a copy \u2014 Math.random in sort() is not a shuffle, it is a
+			 * biased mess that keeps showing the same three cards. */
+			for (var i = pool.length - 1; i > 0; i--) {
+				var j = Math.floor(Math.random() * (i + 1));
+				var t = pool[i];
+				pool[i] = pool[j];
+				pool[j] = t;
+			}
+			return pool.slice(0, n);
+		}
+
+		function renderIdeas() {
+			if (!cards) return;
+			cards.innerHTML = '';
+			var chosen = pick(3);
+			if (!chosen.length) {
+				cards.appendChild(el('p', 'idea-empty', 'No ideas match those filters \u2014 try widening them.'));
+				return;
+			}
+			chosen.forEach(function (idea) {
+				var card = el('article', 'idea');
+				card.appendChild(el('h3', 'idea-title', idea.title));
+				card.appendChild(el('p', 'idea-what', idea.what));
+				card.appendChild(el('p', 'idea-data', 'Uses ' + idea.data));
+				var go = el('button', 'idea-start', 'Start this');
+				go.type = 'button';
+				go.addEventListener('click', function () {
+					startIdea(idea);
+				});
+				card.appendChild(go);
+				cards.appendChild(card);
+			});
+		}
+
+		/* Seeds a scaffold of TODO comments, NEVER working code. The idea should
+		 * hand over a starting point; doing the assignment defeats the point of
+		 * having one. */
+		function startIdea(idea) {
+			var current = files();
+			undo = current;
+			if (undoBtn) undoBtn.hidden = false;
+			var scaffold =
+				'// Idea: ' +
+				idea.title +
+				' \u2014 ' +
+				idea.what +
+				'\\n' +
+				'// Data you need: ' +
+				idea.data +
+				'\\n' +
+				'//\\n' +
+				'// 1. fetch the game data\\n' +
+				'// 2. pick out the part you want\\n' +
+				'// 3. put it on the page\\n\\n' +
+				'async function loadGameData() {\\n' +
+				'  const response = await fetch("' +
+				API +
+				'");\\n' +
+				'  const data = await response.json();\\n\\n' +
+				'  // your code goes here\\n' +
+				'  console.log(data);\\n' +
+				'}\\n\\n' +
+				'loadGameData();\\n';
+			runner.wwSet({ 'main.js': scaffold });
+			/* The brief outlives the modal. Before this, the prompt vanished the
+			 * moment the dialog closed, and a student two minutes in had nothing to
+			 * check what they had agreed to build. */
+			ui.idea = idea.id;
+			showBrief(idea);
+			save(files(), doneSet, ui);
+			closeModal();
+			bump('idea_started');
+			bump('idea_' + idea.id);
+			status('Added to main.js \u2014 the brief is in the sidebar. Undo is in the toolbar.', 'ok');
+		}
+
+		function openModal(why) {
+			if (!modal) return;
+			modal.hidden = false;
+			renderIdeas();
+			bump(why === 'auto' ? 'ideas_auto_offered' : 'ideas_opened');
+			var first = modal.querySelector('button');
+			if (first) first.focus();
+		}
+
+		function closeModal() {
+			if (modal) modal.hidden = true;
+		}
+
+		var ideasBtn = $('#lab-ideas-open');
+		if (ideasBtn)
+			ideasBtn.addEventListener('click', function () {
+				openModal('click');
+			});
+		var shuffle = $('#lab-ideas-shuffle');
+		if (shuffle)
+			shuffle.addEventListener('click', function () {
+				renderIdeas();
+				bump('ideas_shuffled');
+			});
+		var surprise = $('#lab-ideas-surprise');
+		if (surprise)
+			surprise.addEventListener('click', function () {
+				var one = pick(1)[0];
+				if (one) startIdea(one);
+				bump('ideas_surprise');
+			});
+		var closeBtn = $('#lab-ideas-close');
+		if (closeBtn)
+			closeBtn.addEventListener('click', function () {
+				closeModal();
+				bump('ideas_dismissed');
+			});
+		if (modal)
+			modal.addEventListener('click', function (e) {
+				if (e.target === modal) {
+					closeModal();
+					bump('ideas_dismissed');
+				}
+			});
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && modal && !modal.hidden) {
+				closeModal();
+				bump('ideas_dismissed');
+			}
+		});
+
+		Array.prototype.forEach.call(document.querySelectorAll('[data-idea-filter]'), function (b) {
+			b.addEventListener('click', function () {
+				var group = b.getAttribute('data-idea-filter');
+				var value = b.getAttribute('data-value');
+				if (group === 'level') level = value;
+				else uses = value;
+				/* \`on\` is the site's own selected-chip state (see .chip.on in
+				 * site-core.css) \u2014 the filters are real site chips, not look-alikes. */
+				Array.prototype.forEach.call(document.querySelectorAll('[data-idea-filter="' + group + '"]'), function (o) {
+					o.classList.toggle('on', o === b);
+				});
+				renderIdeas();
+			});
+		});
+
+		/* The idle offer. The student this feature exists for is the one who has
+		 * stopped typing and is about to give up \u2014 so offer once, unprompted, then
+		 * never again this session. */
+		var idle = null;
+		function resetIdle() {
+			clearTimeout(idle);
+			if (offered) return;
+			idle = setTimeout(function () {
+				if (offered) return;
+				var f = files();
+				var untouched = f.html === starter.html && f.css === starter.css && f.js === starter.js;
+				if (untouched && modal && modal.hidden) {
+					offered = true;
+					openModal('auto');
+				}
+			}, 90000);
+		}
+		document.addEventListener('input', resetIdle);
+		resetIdle();
+
+		/* Restore whatever they were building, after IDEAS and showBrief exist. */
+		if (ui.idea) showBrief(ideaById(ui.idea));
+
+		/* ---- help sidebar follows the open file ---- */
+		var helpBox = $('#lab-help');
+		function renderHelp(fileName) {
+			if (!helpBox) return;
+			var h = HELP[fileName];
+			if (!h) return;
+			helpBox.innerHTML = '';
+			helpBox.appendChild(el('h2', 'help-title', h.title));
+			helpBox.appendChild(el('p', 'help-body', h.body));
+			h.snippets.forEach(function (s) {
+				var row = el('div', 'help-snip');
+				row.appendChild(el('div', 'help-label', s.label));
+				row.appendChild(el('pre', 'help-code', s.code));
+				var insert = el('button', 'help-insert', 'Copy');
+				insert.type = 'button';
+				insert.addEventListener('click', function () {
+					try {
+						navigator.clipboard.writeText(s.code);
+						insert.textContent = 'Copied';
+						setTimeout(function () {
+							insert.textContent = 'Copy';
+						}, 1500);
+						bump('help_copy');
+					} catch (e) {
+						/* clipboard blocked \u2014 the code is on screen and selectable anyway */
+					}
+				});
+				row.appendChild(insert);
+				helpBox.appendChild(row);
+			});
+		}
+		renderHelp('index.html');
+		runner.addEventListener('click', function (e) {
+			var tab = e.target.closest && e.target.closest('.wwr-tab');
+			if (tab) renderHelp(tab.textContent.trim());
+		});
+
+		bump('builder_open');
+		bump('view_builder');
+		bump('session_total');
+
+		/* Which screens this is actually used on. The page claims to work on a
+		 * Chromebook; this is how that claim gets checked. */
+		var w = window.innerWidth || 0;
+		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
+
+		/* How they got here, as one word from a fixed list. The referrer URL is
+		 * read in this browser and thrown away in this browser; only the bucket is
+		 * ever sent. A referrer from our own host is 'internal', which is the
+		 * difference between "arrived from the lesson" and "arrived from Google". */
+		try {
+			var r = document.referrer;
+			var host = r ? new URL(r).hostname.toLowerCase().replace(/^www\\./, '') : '';
+			bump(
+				!r
+					? 'ref_direct'
+					: host === location.hostname
+						? 'ref_internal'
+						: /google|bing|duckduckgo|ecosia|yahoo/.test(host)
+							? 'ref_search'
+							: /reddit|bluesky|bsky|mastodon|facebook|instagram|linkedin/.test(host)
+								? 'ref_social'
+								: 'ref_other',
+			);
+		} catch (e) {
+			bump('ref_other');
+		}
+
+		/* Where they went next. The nav links leave the page, so this has to be a
+		 * plain click listener rather than anything that waits for a response \u2014
+		 * bump() batches into the pagehide flush, which fires on the way out. */
+		var NAV = { 'lesson-nav': 'nav_lesson', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		document.addEventListener('click', function (e) {
+			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
+		});
+
+		/* Did they come back? Stored as a DATE, not an identifier \u2014 it says "this
+		 * browser has been here before", which is all the question needs. */
+		try {
+			var today = new Date().toISOString().slice(0, 10);
+			var firstDay = localStorage.getItem(SEEN_KEY);
+			if (!firstDay) localStorage.setItem(SEEN_KEY, today);
+			else if (firstDay !== today) {
+				var days = Math.round((Date.parse(today) - Date.parse(firstDay)) / 86400000);
+				if (days === 1) bump('returning_day2');
+				else if (days >= 2) bump('returning_day3');
+			}
+		} catch (e) {
+			/* storage unavailable \u2014 see load(); the lesson does not depend on this */
+		}
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwBuilder = {
+		FILES: FILES,
+		CHECKPOINTS: CHECKPOINTS,
+		IDEAS: IDEAS,
+		buildDownload: buildDownload,
+		parseProject: parseProject,
+	};
+})();
+
+</script>
+</body>
+</html>
+`;
+var learnWebDevelopmentHtml = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Build with Wild Willows &mdash; learn HTML, CSS, JavaScript and APIs with real game data</title>
+<meta name="description" content="A free nine-chapter web development lesson for high school students. Learn HTML, CSS, JavaScript, and how to fetch a real API \u2014 every code sample on the page is editable and runs in your browser. No accounts, no installs.">
+<link rel="canonical" href="https://wildwillows.app/learn/web-development">
+<meta name="theme-color" content="#f4eeda">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows \u2014 light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation \u2014 which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists \u2014 see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes \u2014 sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() \u2014 the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows \u2014 the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block \u2014 if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white \u2014 barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar \u2014 it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768\u2013834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about \u2014 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows \u2014 <ww-runner> styles.
+ *
+ * Inlined into both classroom student pages by scripts/build-pages.mjs alongside
+ * ww-runner.js. Everything is scoped under .wwr so it cannot leak into the page
+ * around it.
+ *
+ * Built on the site's own design tokens from public/partials/site-core.css \u2014
+ * the same --paper / --panel / --ink / --green cream-and-leaf palette, the same
+ * Quicksand stack, the same radii \u2014 so the editor reads as part of Wild Willows
+ * rather than a developer tool someone bolted on.
+ *
+ * Every var() carries a literal fallback. The tokens come from a sheet included
+ * ahead of this one, and if that include is ever dropped the runner should look
+ * slightly plain rather than unreadable (unset custom properties collapse to
+ * transparent text on transparent backgrounds).
+ *
+ * Monospace is the ONE place this departs from the site's type: code has to be
+ * monospaced, and Quicksand's lovely round glyphs actively hide the difference
+ * between l, 1 and I \u2014 which is a real source of "why doesn't my code work" for
+ * a beginner.
+ */
+
+/* [hidden] is only display:none in the UA stylesheet, so ANY author rule that
+ * sets display wins and the element stays visible. Both of the things this
+ * component hides \u2014 the inactive file panes and the tab strip in one-file mode \u2014
+ * are flex containers, so \`el.hidden = true\` did nothing at all: clicking a file
+ * tab appeared to do nothing because every pane was still stacked on screen.
+ * These two rules are the fix; the attribute selector adds the specificity the
+ * base rules already had. */
+.wwr-editor[hidden],
+.wwr-tabs[hidden],
+.wwr [hidden] {
+	display: none;
+}
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the classroom pages only rather than edited
+ * upstream. Measured against the four cream surfaces these actually sit on
+ * (--paper, --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On a marketing page those carry decorative captions and it is a judgement
+ * call. Here they carry the hint under every checkpoint, the sidebar headings
+ * and the editor's line numbers \u2014 content a student has to read, often on a
+ * classroom projector or a cheap Chromebook panel in a bright room. The values
+ * below keep the sheet's warm olive cast and clear 4.5 on every surface.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.lab,
+body.lesson,
+.wwr {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+}
+
+.wwr {
+	display: block;
+	margin: 1.5rem 0;
+	border: 1.5px solid var(--panel-edge, #e3d9bc);
+	border-radius: var(--r, 14px);
+	overflow: hidden;
+	background: var(--panel, #fdfaf1);
+	box-shadow: var(--shadow, 0 2px 3px rgba(52, 58, 40, 0.08));
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ toolbar */
+
+.wwr-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.45rem 0.7rem;
+	background: var(--sprout, #eaf3dd);
+	border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	flex-wrap: wrap;
+}
+
+.wwr-label {
+	font-weight: 700;
+	color: var(--green-deep, #39604a);
+	font-size: 0.85rem;
+}
+
+.wwr-spacer {
+	flex: 1 1 auto;
+}
+
+.wwr-tabs {
+	display: flex;
+	gap: 0.25rem;
+}
+
+/* File tabs read as the site's chips \u2014 same pill, same weights \u2014 so the one
+ * genuinely new control on the page still looks like something they have
+ * already seen on /teachers. */
+.wwr-tab {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.2rem 0.75rem;
+	border: 1.5px solid transparent;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #75765f);
+	cursor: pointer;
+}
+
+.wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.wwr-tab.is-active {
+	background: var(--green, #4a7c59);
+	border-color: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.35rem 0.9rem;
+	border: none;
+	border-radius: 10px;
+	background: var(--panel, #fdfaf1);
+	color: var(--green-deep, #39604a);
+	box-shadow: 0 2px 0 var(--panel-edge, #e3d9bc);
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.wwr-ico {
+	width: 14px;
+	height: 14px;
+	flex: none;
+}
+
+.wwr-btn:hover {
+	filter: brightness(1.06);
+}
+
+.wwr-btn:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge, #e3d9bc);
+}
+
+/* The site's primary button, at toolbar scale. */
+.wwr-run {
+	background: var(--green, #4a7c59);
+	color: #fff;
+	box-shadow: 0 2px 0 var(--green-deep, #39604a);
+}
+
+.wwr-run:active {
+	box-shadow: 0 1px 0 var(--green-deep, #39604a);
+}
+
+/* Unrun edits: a pulse rather than a color change alone, so it reads as "there
+ * is something to do" at a glance. */
+.wwr-run.is-dirty {
+	animation: wwr-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wwr-pulse {
+	50% {
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 4px rgba(124, 181, 100, 0.35);
+	}
+}
+
+/* --------------------------------------------------------------- view modes
+ *
+ * Split is the teaching default \u2014 cause and effect in one eyeful, which is the
+ * whole device the lesson is built on. But at 1366px on a Chromebook two half
+ * columns is cramped for both, and a student writing a long function or showing
+ * a classmate what they made wants one thing full width. */
+.wwr-views {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.55);
+}
+
+.wwr-view {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.85rem;
+	height: 1.6rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #61624b);
+	cursor: pointer;
+}
+
+.wwr-view svg {
+	width: 15px;
+	height: 15px;
+	display: block;
+}
+
+.wwr-view:hover {
+	background: rgba(255, 255, 255, 0.8);
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-view.is-on {
+	background: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr--view-code .wwr-out,
+.wwr--view-preview .wwr-panes {
+	display: none;
+}
+
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.wwr--view-code .wwr-panes {
+	border-right: 0;
+}
+
+/* -------------------------------------------------------------------- panes */
+
+/* THE HEIGHT CHAIN, and every link matters.
+ *
+ * The editor used to grow with the file. Add thirty lines and the whole panel
+ * got taller, pushing the console down and out of the card \u2014 which is what the
+ * screenshot of a console stranded in the middle of the editor was.
+ *
+ * The culprit was the line-number gutter: it is \`white-space: pre\` with one line
+ * per row, so its INTRINSIC height is the length of the file. \`overflow: hidden\`
+ * does not stop that \u2014 it stops scrolling, not growing. And because grid and
+ * flex children both default to \`min-height: auto\`, that intrinsic height was
+ * free to push every ancestor open.
+ *
+ * So each level is pinned: minmax(0, 1fr) tracks here, min-height: 0 on the
+ * children, and the textarea is the ONLY thing that scrolls. Remove any one of
+ * these and the growth comes back. */
+.wwr-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
+	min-height: 240px;
+}
+
+/* One-file examples in the lesson are short; side-by-side keeps the cause and
+ * its effect in one eyeful, which is the entire teaching device. */
+.wwr--single .wwr-body {
+	min-height: 180px;
+}
+
+.wwr-panes {
+	border-right: 1.5px solid var(--panel-edge, #e3d9bc);
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-editor {
+	display: flex;
+	height: 100%;
+	min-height: 0;
+	background: var(--panel, #fdfaf1);
+}
+
+.wwr-gutter {
+	flex: 0 0 auto;
+	padding: 0.6rem 0.4rem 0.6rem 0.6rem;
+	margin: 0;
+	text-align: right;
+	color: var(--ink-faint, #9d9c85);
+	background: var(--paper-deep, #ece4cb);
+	border-right: 1px solid var(--panel-edge, #e3d9bc);
+	white-space: pre;
+	overflow: hidden;
+	min-height: 0;
+	user-select: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.wwr-code {
+	flex: 1 1 auto;
+	border: 0;
+	outline: 0;
+	resize: none;
+	padding: 0.6rem;
+	background: transparent;
+	color: var(--ink, #3b4232);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+	tab-size: 2;
+	height: 100%;
+	min-height: 0;
+	/* \`pre\`, not \`pre-wrap\`: a long line scrolls sideways rather than silently
+	 * rewrapping. Wrapping looks tidier and teaches the wrong thing \u2014 a student
+	 * cannot see that their line is 200 characters long if the editor hides it. */
+	white-space: pre;
+	overflow: auto;
+}
+
+.wwr-code:focus {
+	background: #fff;
+	box-shadow: inset 0 0 0 2px rgba(74, 124, 89, 0.35);
+}
+
+/* ------------------------------------------------------------ output column */
+
+.wwr-out {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	/* White, not --panel: this is the student's OWN page, and it should look like
+	 * a browser window rather than another panel of ours. */
+	background: #fff;
+}
+
+/* Both buffers occupy the same box; only the live one is visible. Crossfading by
+ * opacity rather than swapping display keeps the layout perfectly still \u2014 a
+ * reflow on every render would be its own kind of flicker. */
+.wwr-preview {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: #fff;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.wwr-preview.is-live {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Full-width row under both columns. Height is generous but bounded: a beginner's
+ * first instruction is console.log(data) on the whole 300 KB catalog, and a
+ * three-line box makes that look like the code failed. */
+/* Full-width row under both columns, and RESIZABLE \u2014 height is set inline by the
+ * drag handle. How much console a student wants is entirely situational: none at
+ * all while laying out HTML, as much as possible on the chapter that is only
+ * about reading logged data. Anything fixed is wrong for somebody. */
+.wwr-console {
+	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
+	background: var(--paper, #f4eeda);
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-console.is-collapsed {
+	height: auto;
+}
+
+.wwr-console.is-collapsed .wwr-console-lines {
+	display: none;
+}
+
+/* The header IS the drag handle. A separate 4px grab strip is the conventional
+ * answer and a bad one here: it is a fiddly target on a trackpad, invisible
+ * until you find it, and this bar was otherwise doing nothing but holding a
+ * word. */
+.wwr-console-head {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: none;
+	padding: 0.3rem 0.5rem 0.3rem 0.7rem;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--ink-faint, #66674f);
+	border-bottom: 1px solid var(--panel-edge, #e3d9bc);
+	cursor: ns-resize;
+	user-select: none;
+	touch-action: none;
+}
+
+.wwr-console-head:hover {
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-console-head:focus-visible {
+	outline: 2px solid var(--green, #4a7c59);
+	outline-offset: -2px;
+}
+
+/* Two grip lines, so the bar reads as draggable before anyone tries. */
+.wwr-console-head::after {
+	content: '';
+	width: 26px;
+	height: 6px;
+	margin-left: 0.2rem;
+	border-top: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	opacity: 0.35;
+	order: 1;
+}
+
+.wwr-console-head .wwr-spacer {
+	order: 2;
+}
+
+.wwr-fold {
+	order: 3;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wwr-fold svg {
+	width: 13px;
+	height: 13px;
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.is-collapsed .wwr-fold svg {
+	transform: rotate(-90deg);
+}
+
+.wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+/* While dragging, nothing else on the page should select or steal the cursor \u2014
+ * and the iframes must stop swallowing pointer events, or the drag dies the
+ * moment it crosses the preview. */
+body.wwr-resizing {
+	cursor: ns-resize;
+	user-select: none;
+}
+
+body.wwr-resizing iframe {
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-fold svg {
+		transition: none;
+	}
+}
+
+.wwr-console-lines {
+	margin: 0;
+	padding: 0.4rem 0.7rem;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--ink, #3b4232);
+	white-space: pre-wrap;
+	word-break: break-word;
+	min-height: 3.2em;
+}
+
+/* An empty console is ambiguous: it looks identical whether nothing was logged,
+ * the code never ran, or the pane is broken. Say which. */
+.wwr-console-lines:empty::before {
+	content: 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+	color: var(--ink-faint, #66674f);
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-size: 0.82rem;
+}
+
+.wwr-console-line + .wwr-console-line {
+	border-top: 1px dotted var(--panel-edge, #e3d9bc);
+	padding-top: 0.2rem;
+	margin-top: 0.2rem;
+}
+
+.wwr-console-line.is-warn {
+	color: #77591f; /* 5.30 on --paper */
+}
+
+.wwr-console-line.is-error {
+	/* --clay measures 3.25 on --paper. This is the line that tells a student
+	   something went wrong; it does not get to be the hardest one to read. */
+	color: #93392c; /* 6.32 */
+}
+
+/* -------------------------------------------------------------- error panel */
+
+/* The site's warm chip palette (.chip.warm), not a red siren. Errors are the
+ * normal state of writing code, and the panel should read like help rather than
+ * punishment \u2014 especially for someone whose first ever error this may be. */
+.wwr-error {
+	border-top: 1.5px solid #e6d2a8;
+	background: #f7ead2;
+	padding: 0.7rem 0.9rem;
+}
+
+.wwr-error-title {
+	font-weight: 700;
+	color: #6f521c; /* 6.09 on the panel's #f7ead2 */
+	margin-bottom: 0.3rem;
+}
+
+.wwr-error-msg {
+	display: block;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	color: #6f521c; /* 6.62 over the lightened panel */
+	background: rgba(255, 255, 255, 0.55);
+	border-radius: 8px;
+	padding: 0.25rem 0.5rem;
+	margin-bottom: 0.4rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wwr-error-help {
+	margin: 0;
+	color: var(--ink, #3b4232);
+	font-size: 0.92rem;
+	line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ failure */
+
+/* If the component itself throws, the static fallback markup inside the element
+ * stays visible and readable. The lesson degrades to a normal article rather
+ * than to a row of empty boxes. */
+.wwr--failed .wwr-body {
+	display: none;
+}
+
+/* ------------------------------------------------------------- small screens */
+
+@media (max-width: 820px) {
+	.wwr-body {
+		grid-template-columns: 1fr;
+	}
+
+	.wwr-panes {
+		border-right: 0;
+		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	}
+
+	.wwr-code,
+	.wwr-preview {
+		min-height: 150px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-run.is-dirty {
+		animation: none;
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 3px rgba(124, 181, 100, 0.4);
+	}
+}
+
+/* Wild Willows \u2014 the student lesson at /learn/web-development.
+ *
+ * Only what the lesson adds. Tokens, buttons, chips, nav and .wrap come from
+ * site-core.css; the editor and preview come from ww-runner.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css and needs almost nothing here.
+ *
+ * Two things drive the layout:
+ *
+ *   \u2022 A CHAPTER IS A LANDMARK, not a card. Nine of them stacked as cards reads
+ *     as a form to fill in. They are sections of one document with a rule
+ *     between them, and the runners are the only boxes on the page \u2014 so the eye
+ *     goes to the thing you can type in.
+ *   \u2022 THE RAIL IS THE SYLLABUS. A student who scrolls away from chapter 4 needs
+ *     to know there are five more and which one they are in. It is a real nav
+ *     landmark with real links, so it works with no JavaScript at all.
+ */
+
+body.lesson {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+/* ------------------------------------------------------------- the shell */
+
+.lwrap {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+	display: grid;
+	grid-template-columns: 15rem minmax(0, 1fr);
+	gap: 2.4rem;
+	align-items: start;
+}
+
+/* minmax(0,1fr) above and min-width:0 here for the same reason as the editor
+   panes: a <pre> or a wide table inside a grid child has an intrinsic width, and
+   a track sized \`1fr\` will grow to fit it and push the rail off screen. */
+.lmain {
+	min-width: 0;
+}
+
+@media (max-width: 900px) {
+	.lwrap {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
+	}
+}
+
+/* --------------------------------------------------------------- the rail */
+
+.lrail {
+	position: sticky;
+	top: 4.6rem;
+	align-self: start;
+	padding: 1rem 0 0;
+	font-size: 0.85rem;
+}
+
+.lrail h2 {
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	margin: 0 0 0.7rem 0.75rem;
+	font-weight: 700;
+}
+
+.lrail ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	/* The nine chapters plus the hand-off make a tall column; on a short laptop
+	   window the rail must scroll rather than run off the bottom. */
+	max-height: calc(100vh - 8rem);
+	overflow: auto;
+}
+
+.lrail a {
+	display: grid;
+	grid-template-columns: 1.35rem minmax(0, 1fr);
+	gap: 0.55rem;
+	align-items: baseline;
+	padding: 0.34rem 0.75rem;
+	border-radius: 8px;
+	color: var(--ink-soft);
+	text-decoration: none;
+	line-height: 1.3;
+	border-left: 2px solid transparent;
+}
+
+.lrail a:hover {
+	background: var(--sprout);
+	color: var(--ink);
+}
+
+/* --ink-soft rather than --ink-faint, because this number sits on --sprout when
+   the row is current or hovered, and --ink-faint measures 4.09 against the dark
+   sprout \u2014 under AA for text this small. --ink-soft clears it on both (5.47
+   light, 5.44 dark). */
+.lrail .rnum {
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
+	font-weight: 700;
+	font-size: 0.78rem;
+}
+
+/* Where you are now. Both a colour and a weight change, and the marker on the
+   left edge, because "current" carried by colour alone is exactly the thing the
+   rest of this project measures its way out of. */
+.lrail a.is-current {
+	color: var(--green-deep);
+	font-weight: 700;
+	border-left-color: var(--green);
+	background: var(--sprout);
+}
+
+.lrail a.is-current .rnum {
+	color: var(--green-deep);
+}
+
+/* Where you have been. The tick replaces the number rather than sitting beside
+   it: a row that says both "4" and "done" is two facts competing for 1.3rem. */
+.lrail a.is-done .rnum::after {
+	content: '';
+	display: block;
+	width: 0.55rem;
+	height: 0.3rem;
+	margin-top: 0.15rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+.lrail a.is-done .rnum {
+	color: transparent;
+	line-height: 0.9;
+}
+
+@media (max-width: 900px) {
+	.lrail {
+		position: static;
+		max-height: none;
+		padding: 0.6rem 0 1.2rem;
+	}
+	.lrail ol {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+		max-height: none;
+		overflow: visible;
+	}
+	.lrail a {
+		padding: 0.28rem 0.6rem;
+		border-left: 0;
+		border: 1.5px solid var(--panel-edge);
+		background: var(--panel);
+	}
+	.lrail a.is-current {
+		border-color: var(--green);
+	}
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.lhero {
+	padding: 2.6rem 0 1.4rem;
+}
+
+.lhero h1 {
+	font-size: clamp(1.9rem, 4.2vw, 2.9rem);
+	line-height: 1.1;
+	margin: 0 0 0.6rem;
+	color: var(--ink);
+}
+
+.lhero .lead {
+	font-size: 1.06rem;
+	color: var(--ink-soft);
+	max-width: 46rem;
+	margin: 0 0 1.1rem;
+	line-height: 1.6;
+}
+
+.lmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	margin-bottom: 1.3rem;
+}
+
+/* ------------------------------------------------------------- a chapter */
+
+.ch {
+	padding: 2.6rem 0 0.6rem;
+	border-top: 1px solid var(--panel-edge);
+	/* The rail is sticky under a sticky nav, so an anchor jump would otherwise
+	   land the heading underneath both. */
+	scroll-margin-top: 4.8rem;
+}
+
+.ch-head {
+	margin-bottom: 1rem;
+}
+
+.ch-num {
+	display: inline-block;
+	font-size: 0.68rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin-bottom: 0.35rem;
+}
+
+.ch h2 {
+	font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+	line-height: 1.2;
+	margin: 0 0 0.45rem;
+}
+
+.ch h3 {
+	font-size: 1.02rem;
+	margin: 1.7rem 0 0.5rem;
+	color: var(--green-deep);
+}
+
+.ch p {
+	line-height: 1.65;
+	max-width: 46rem;
+	margin: 0 0 0.9rem;
+	color: var(--ink);
+}
+
+.ch p.sub {
+	color: var(--ink-soft);
+}
+
+.ch ul,
+.ch ol.steps {
+	line-height: 1.65;
+	max-width: 46rem;
+	color: var(--ink);
+}
+
+.ch li {
+	margin-bottom: 0.35rem;
+}
+
+.ch code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	background: var(--sprout);
+	border-radius: 5px;
+	padding: 0.08em 0.34em;
+}
+
+.ch ww-runner {
+	margin: 1rem 0 0.5rem;
+}
+
+/* The line under a runner that says what just changed. Tied to the box above it
+   by position and by being the only small grey line on the page.
+
+   --ink-soft here is the CLASSROOM value, not site-core's. This page carries
+   \`body.lesson\`, which ww-runner.css repoints along with \`body.lab\` \u2014 site-core's
+   #75765f measures 4.01 on --paper and these captions carry the instruction for
+   the exercise above them ("change forestgreen to your favourite colour"), which
+   is not a sentence to render in a shade that fails AA. */
+.cap {
+	font-size: 0.86rem;
+	color: var(--ink-soft);
+	margin: 0.15rem 0 1.4rem;
+	max-width: 46rem;
+	line-height: 1.55;
+}
+
+.cap strong {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- callouts */
+
+.note {
+	border-left: 3px solid var(--green);
+	background: var(--sprout);
+	border-radius: 0 10px 10px 0;
+	padding: 0.75rem 1rem;
+	margin: 1rem 0 1.3rem;
+	max-width: 46rem;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+.note p {
+	margin: 0;
+	max-width: none;
+}
+
+.note p + p {
+	margin-top: 0.5rem;
+}
+
+.note-t {
+	display: block;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin-bottom: 0.2rem;
+	font-size: 0.82rem;
+	letter-spacing: 0.02em;
+}
+
+/* The trap notes \u2014 one \`=\` versus three, quotes around a number. Warm rather
+   than red: these are things that will happen to you, not things you did wrong.
+   Same palette as the runner's error panel, deliberately. */
+.note.warn {
+	border-left-color: var(--gold);
+	background: #f8efdc;
+}
+
+[data-theme='dark'] .note.warn {
+	background: #33291a;
+	border-left-color: #a8802f;
+}
+
+.note.warn .note-t {
+	color: #7a5312;
+}
+
+[data-theme='dark'] .note.warn .note-t {
+	color: #e0c08a;
+}
+
+/* Optional material. Marked in the page's own UI so a student who does not get
+   .reduce() can skip it and know they were meant to be able to. */
+.note.stretch {
+	border-left-color: var(--ink-faint);
+	background: var(--panel);
+	border: 1.5px dashed var(--panel-edge);
+	border-left-width: 3px;
+	border-left-style: solid;
+}
+
+.note.stretch .note-t {
+	color: var(--ink-soft);
+}
+
+/* ----------------------------------------------------------------- tables */
+
+.ltable {
+	width: 100%;
+	max-width: 46rem;
+	border-collapse: collapse;
+	margin: 0.8rem 0 1.4rem;
+	font-size: 0.92rem;
+}
+
+.ltable th,
+.ltable td {
+	text-align: left;
+	padding: 0.5rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.5;
+}
+
+.ltable th {
+	font-size: 0.72rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.ltable tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.ltable code {
+	white-space: nowrap;
+}
+
+/* Horizontal scroll rather than a squeezed table on a phone. */
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+/* -------------------------------------------------------- the API probe */
+
+.probe {
+	border: 1.5px solid var(--panel-edge);
+	background: var(--panel);
+	border-radius: var(--r);
+	padding: 1rem;
+	margin: 1rem 0 1.3rem;
+	max-width: 46rem;
+}
+
+.probe-url {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	color: var(--ink-soft);
+	word-break: break-all;
+	margin: 0 0 0.7rem;
+}
+
+.probe-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+	gap: 0.7rem;
+	margin-top: 0.9rem;
+}
+
+.pstat {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.55rem 0.7rem;
+}
+
+.pstat b {
+	display: block;
+	font-size: 1.15rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--green-deep);
+	line-height: 1.2;
+}
+
+.pstat span {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.probe-note {
+	font-size: 0.84rem;
+	color: var(--ink-soft);
+	margin: 0.8rem 0 0;
+	line-height: 1.55;
+}
+
+/* ------------------------------------------------------- the JSON tree */
+
+.jtree {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.65;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.8rem;
+	margin-top: 0.9rem;
+	max-height: 26rem;
+	overflow: auto;
+}
+
+.jrow {
+	white-space: pre;
+	display: flex;
+	align-items: baseline;
+	gap: 0.3rem;
+	border-radius: 4px;
+	padding: 0 0.2rem;
+}
+
+/* Chapter 5 lights up the row a line of code just selected. */
+.jrow.is-lit {
+	background: var(--sprout);
+	box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+/* The fold control. Sized to match .jspace exactly so a leaf row's value lines
+   up with a container row's key \u2014 a tree whose columns do not agree is harder to
+   read than no tree. The chevron inside is an SVG (see setChevron). */
+.jtoggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	background: none;
+	padding: 0;
+	margin: 0;
+	width: 1rem;
+	height: 1.2em;
+	flex: none;
+	color: var(--ink-faint);
+	cursor: pointer;
+	font: inherit;
+}
+
+/* The "show N more" control is the same element with words in it, so it has to
+   opt out of the fixed icon width. */
+.jtoggle.jmore {
+	width: auto;
+	justify-content: flex-start;
+	font-size: 0.78rem;
+	text-decoration: underline;
+	padding-left: 1rem;
+}
+
+.jtoggle:hover {
+	color: var(--green-deep);
+}
+
+.jspace {
+	width: 1rem;
+	flex: none;
+}
+
+.jkids {
+	padding-left: 1.1rem;
+	border-left: 1px solid var(--panel-edge);
+	margin-left: 0.45rem;
+}
+
+.jkey {
+	color: var(--ink);
+	font-weight: 700;
+}
+
+/* TYPE COLOURS, AND WHY THESE.
+   The legend under the tree names each one, so colour is never the only carrier
+   of meaning \u2014 but they still have to be READABLE, and these are small
+   monospace text rather than large display type, so the bar is 4.5 and not 3.
+
+   MEASURED AGAINST THE SURFACE THEY ACTUALLY SIT ON, which is --paper-deep
+   (#ece4cb), the .jtree background \u2014 NOT the page behind it. A first pass here
+   used --paper and shipped three values that read as passing and were not:
+   #1f7a3f measured 4.62 on the page and 4.22 in the box it is actually drawn
+   in. Ratios below are on #ece4cb, the worst of the three surfaces these ever
+   appear on (tree #ece4cb / page #f4eeda / panel #fdfaf1). */
+.jstr {
+	color: #176634;
+} /* 5.53 */
+.jnum {
+	color: #1f5fa8;
+} /* 5.07 */
+.jbool {
+	color: #8e4a12;
+} /* 5.27 */
+.jnull {
+	color: #5d5e4c;
+} /* 5.21 */
+/* Array(150) and { 17 } are the TYPE of the row, not decoration \u2014 a student is
+   meant to read them \u2014 so this needs the classroom --ink-faint (#66674f, 4.57 on
+   the worst cream surface) rather than site-core's #9d9c85, which measures 2.20
+   against this box. See the override in ww-runner.css. */
+.jmeta {
+	color: var(--ink-faint);
+}
+
+/* Dark mode is SELECTED, not flipped: each of these is a step of the same hue
+   picked against the dark tree surface (--paper-deep, #17191b), which is what
+   the light values were picked against on their own side. Ratios measured. */
+[data-theme='dark'] .jstr {
+	color: #7ecb95;
+} /* 9.12 on #17191b */
+[data-theme='dark'] .jnum {
+	color: #82b6ea;
+} /* 8.25 */
+[data-theme='dark'] .jbool {
+	color: #e0a463;
+} /* 8.11 */
+[data-theme='dark'] .jnull {
+	color: #a2a4a3;
+} /* 7.03 */
+
+.jlegend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1rem;
+	margin-top: 0.8rem;
+	font-size: 0.8rem;
+	color: var(--ink-soft);
+}
+
+.jleg {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.35rem;
+}
+
+.jleg code {
+	background: none;
+	padding: 0;
+	font-weight: 700;
+}
+
+/* ------------------------------------------------------- the flow diagram */
+
+.flow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 1.1rem 0 1.3rem;
+	font-size: 0.9rem;
+}
+
+.flow-step {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	padding: 0.4rem 0.85rem;
+	font-weight: 600;
+}
+
+.flow-step.is-lit {
+	border-color: var(--green);
+	background: var(--sprout);
+	color: var(--green-deep);
+}
+
+.flow-arrow {
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.flow-step {
+		transition:
+			background 0.25s ease,
+			border-color 0.25s ease,
+			color 0.25s ease;
+	}
+}
+
+/* --------------------------------------------------------- ch 9 challenges */
+
+.chals {
+	list-style: none;
+	margin: 1rem 0 1.4rem;
+	padding: 0;
+	max-width: 46rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.chal {
+	display: grid;
+	grid-template-columns: 1.6rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: start;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	line-height: 1.55;
+}
+
+.chal.is-done {
+	border-color: var(--green);
+	background: var(--sprout);
+}
+
+.chal-box {
+	width: 1.2rem;
+	height: 1.2rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 6px;
+	background: var(--panel);
+	cursor: pointer;
+	padding: 0;
+	position: relative;
+	flex: none;
+	margin-top: 0.1rem;
+}
+
+.chal.is-done .chal-box {
+	background: var(--green);
+	border-color: var(--green);
+}
+
+.chal.is-done .chal-box::after {
+	content: '';
+	position: absolute;
+	left: 0.28rem;
+	top: 0.16rem;
+	width: 0.32rem;
+	height: 0.6rem;
+	border-right: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+	transform: rotate(42deg);
+}
+
+[data-theme='dark'] .chal.is-done .chal-box::after {
+	border-color: #121314;
+}
+
+.chal-box:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+.chal-t {
+	font-weight: 700;
+}
+
+.chal-h {
+	color: var(--ink-soft);
+	font-size: 0.9rem;
+}
+
+/* ------------------------------------------------------------- hand-off */
+
+.handoff {
+	margin: 2.4rem 0 0;
+	padding: 1.5rem;
+	border-radius: var(--rlg);
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.handoff h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.3rem;
+}
+
+.handoff p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+	max-width: none;
+}
+
+/* --------------------------------------------------------- no-JS fallback */
+
+/* Every runner wraps a static copy of its own starter code so the lesson is
+   readable with scripting off \u2014 a real constraint on a locked-down school
+   machine, not a hypothetical. The runner replaces the element's contents on
+   boot, so this only ever shows when it did not. */
+.static-fallback {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 1rem 0;
+}
+
+/* A short line for anyone who reaches the page without JavaScript. Hidden by
+   the stylesheet and revealed by <noscript>, so it costs nothing otherwise. */
+.nojs {
+	display: none;
+}
+
+.small-screen {
+	display: none;
+}
+
+@media (max-width: 640px) {
+	.small-screen {
+		display: block;
+		margin: 0.8rem 0 0;
+		font-size: 0.88rem;
+		color: var(--ink-soft);
+		background: var(--panel);
+		border: 1.5px solid var(--panel-edge);
+		border-radius: 10px;
+		padding: 0.6rem 0.8rem;
+		line-height: 1.5;
+	}
+}
+
+/* ------------------------------------------------ dark-mode green direction
+
+   --green-deep is the DARKER green: correct under white text and on cream, and
+   backwards on a dark surface. Every place below is green text sitting on the
+   dark --sprout (#26302a) or the dark page, where the deep step measures 4.33 \u2014
+   under AA for body text. The bright step is the one the dark palette pairs with
+   a dark ground, exactly as ww-dark.css does for the primary buttons.
+
+   Ratios on #26302a: --green-deep 4.33 \xB7 --green 5.26 \xB7 --green-bright 7.22. */
+[data-theme='dark'] .lrail a.is-current,
+[data-theme='dark'] .lrail a.is-current .rnum,
+[data-theme='dark'] .note-t,
+[data-theme='dark'] .flow-step.is-lit {
+	color: var(--green-bright);
+}
+
+/* The rail's done-tick is a border, not text, so it takes the accent rather than
+   the ink \u2014 and it needs to read against the page, not against a fill. */
+[data-theme='dark'] .lrail a.is-done .rnum::after {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Wild Willows \u2014 dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' \u2014 ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED \u2014 the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band \u2014 sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 \u2014 muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 \u2014 small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text \xB7 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 \u2014 the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night \u2014 depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on \`body.lab, .wwr\` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above \u2014 so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 \u2014 below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute \u2014 so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="lesson">
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
+    <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="btn btn-paper" href="/learn/code-builder" data-track="builder-nav">Code Builder</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<div class="lwrap">
+
+<!-- The rail is a real <nav> with real anchors, so it works with scripting off
+     and a teacher can link a class straight to #chapter-6. -->
+<nav class="lrail" aria-label="Chapters">
+  <h2>Chapters</h2>
+  <ol>
+    <li><a href="#chapter-1" data-ch="1"><span class="rnum">1</span><span>Three languages, one webpage</span></a></li>
+    <li><a href="#chapter-2" data-ch="2"><span class="rnum">2</span><span>JavaScript can change HTML</span></a></li>
+    <li><a href="#chapter-3" data-ch="3"><span class="rnum">3</span><span>Programs talking to programs</span></a></li>
+    <li><a href="#chapter-4" data-ch="4"><span class="rnum">4</span><span>Fetch your first API</span></a></li>
+    <li><a href="#chapter-5" data-ch="5"><span class="rnum">5</span><span>Look inside the data</span></a></li>
+    <li><a href="#chapter-6" data-ch="6"><span class="rnum">6</span><span>Make decisions</span></a></li>
+    <li><a href="#chapter-7" data-ch="7"><span class="rnum">7</span><span>Loop through the data</span></a></li>
+    <li><a href="#chapter-8" data-ch="8"><span class="rnum">8</span><span>Put API data on your page</span></a></li>
+    <li><a href="#chapter-9" data-ch="9"><span class="rnum">9</span><span>Your turn</span></a></li>
+  </ol>
+</nav>
+
+<main class="lmain">
+
+<header class="lhero">
+  <h1>Build with Wild Willows</h1>
+  <p class="lead">Nine short chapters that take you from &ldquo;what is HTML&rdquo; to a webpage you built yourself, filled with live data from a real API. Every code sample below is editable and runs as you type &mdash; you cannot get to the bottom of this page without having written something.</p>
+  <div class="lmeta">
+    <span class="chip">No account</span>
+    <span class="chip">Nothing to install</span>
+    <span class="chip">Real API, real data</span>
+    <span class="chip">About 3 class periods</span>
+  </div>
+  <a class="btn btn-go" href="#chapter-1">Start chapter 1</a>
+  <p class="small-screen">This page works on a phone, but the code editors are much easier on a laptop or a tablet with a keyboard.</p>
+  <noscript><p class="nojs" style="display:block;margin-top:1rem">JavaScript is switched off, so the editors below will not run. You can still read every chapter &mdash; each example is printed in full.</p></noscript>
+</header>
+
+<!-- ============================================================ chapter 1 -->
+<section class="ch" id="chapter-1">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 1</span>
+    <h2>Three languages, one webpage</h2>
+    <p class="sub">Every webpage you have ever used is made of three things. Here they are, one at a time, on the same small card.</p>
+  </div>
+
+  <h3>HTML &mdash; what is here?</h3>
+  <p>HTML is labeled text. A <code>&lt;h1&gt;</code> is a heading, a <code>&lt;p&gt;</code> is a paragraph, and the labels are what tell the browser which is which. Change the words and press nothing &mdash; it updates as you type.</p>
+
+  <ww-runner label="index.html" data-concept="chapter_1_reached">
+    <script type="text/ww-file" name="index.html">
+      <h1>Wild Willows Animals</h1>
+      <p>Animals return when their habitat is healthy.</p>
+    </script>
+    <pre class="static-fallback">&lt;h1&gt;Wild Willows Animals&lt;/h1&gt;
+&lt;p&gt;Animals return when their habitat is healthy.&lt;/p&gt;</pre>
+  </ww-runner>
+  <p class="cap">That is a webpage. Plain, unstyled, and completely real &mdash; you could put that file on the internet right now.</p>
+
+  <h3>CSS &mdash; what does it look like?</h3>
+  <p>Same HTML. CSS says how it should look, and it only ever needs three ideas: <strong>which thing</strong> (the selector), <strong>what about it</strong> (the property), and <strong>set to what</strong> (the value).</p>
+
+  <ww-runner label="styles.css">
+    <script type="text/ww-file" name="index.html" context>
+      <h1>Wild Willows Animals</h1>
+      <p>Animals return when their habitat is healthy.</p>
+    </script>
+    <script type="text/ww-file" name="styles.css">
+      h1 { color: forestgreen; }
+      p  { font-size: 18px; }
+    </script>
+    <pre class="static-fallback">h1 { color: forestgreen; }
+p  { font-size: 18px; }</pre>
+  </ww-runner>
+  <p class="cap"><strong>Your first challenge, ten seconds in:</strong> change <code>forestgreen</code> to your favorite color and watch the heading change. Try <code>rebeccapurple</code>, <code>tomato</code>, or <code>#4a7c59</code>.</p>
+
+  <h3>JavaScript &mdash; what does it do?</h3>
+  <p>JavaScript makes a page respond. Also three ideas: <strong>find</strong> the element, <strong>listen</strong> for something to happen, <strong>change</strong> it. Click the heading in the preview.</p>
+
+  <ww-runner label="main.js">
+    <script type="text/ww-file" name="index.html" context>
+      <h1>Wild Willows Animals</h1>
+      <p>Animals return when their habitat is healthy.</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      const heading = document.querySelector("h1");
+
+      heading.addEventListener("click", () => {
+        heading.textContent = "You found an animal!";
+      });
+    </script>
+    <pre class="static-fallback">const heading = document.querySelector("h1");
+
+heading.addEventListener("click", () =&gt; {
+  heading.textContent = "You found an animal!";
+});</pre>
+  </ww-runner>
+  <p class="cap">HTML is the content. CSS is the appearance. JavaScript is the behavior. That is the whole map, and the rest of this lesson is one of those three getting more interesting.</p>
+</section>
+
+<!-- ============================================================ chapter 2 -->
+<section class="ch" id="chapter-2">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 2</span>
+    <h2>JavaScript can change HTML</h2>
+    <p class="sub">This is the small idea that everything else in this lesson is built on. It is worth two minutes.</p>
+  </div>
+
+  <p>An HTML element can be given an <code>id</code> &mdash; a name. JavaScript can then go and find the element with that name, and change it.</p>
+
+  <ww-runner label="an id, and the code that finds it">
+    <script type="text/ww-file" name="index.html" context>
+      <p id="animal-count">Loading...</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      const element = document.querySelector("#animal-count");
+
+      element.textContent = "150 animals";
+    </script>
+    <pre class="static-fallback">&lt;p id="animal-count"&gt;Loading...&lt;/p&gt;
+
+const element = document.querySelector("#animal-count");
+element.textContent = "150 animals";</pre>
+  </ww-runner>
+
+  <div class="note">
+    <span class="note-t">The whole idea, in two steps</span>
+    <p>1. <code>document.querySelector("#animal-count")</code> found the HTML element whose <code>id</code> is <code>animal-count</code>. The <code>#</code> means &ldquo;the thing with this id&rdquo;.</p>
+    <p>2. <code>element.textContent = "150 animals"</code> changed its text.</p>
+    <p>The page said <code>Loading...</code> for a moment and then said something else, because JavaScript reached in and rewrote it. Chapters 4 to 8 are that same move &mdash; except the new text comes from the internet instead of from the line above it.</p>
+  </div>
+
+  <p class="cap">Change <code>"150 animals"</code> to anything you like. Then change the <code>id</code> in the HTML to <code>total</code> without changing the JavaScript, and watch the error panel tell you exactly what broke.</p>
+</section>
+
+<!-- ============================================================ chapter 3 -->
+<section class="ch" id="chapter-3">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 3</span>
+    <h2>Programs can talk to other programs</h2>
+    <p class="sub">An API is how one program asks another program a question.</p>
+  </div>
+
+  <p>The Wild Willows game knows about animals, plants, biomes, recipes and everything else in it. The Wild Willows <strong>API</strong> is a web address that hands that information to any program that asks &mdash; including the webpage you are about to write.</p>
+
+  <div class="flow" id="ch3-flow">
+    <span class="flow-step">Your webpage</span>
+    <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="flow-step">asks the API</span>
+    <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="flow-step">API sends back data</span>
+  </div>
+
+  <p>Not a diagram of something happening elsewhere &mdash; press the button and it happens here, on this machine, on this network.</p>
+
+  <div class="probe" id="api-probe">
+    <p class="probe-url">GET https://wildwillows.app/GameData/</p>
+    <button type="button" class="btn btn-go" id="probe-go">See the real API response</button>
+    <div class="probe-stats" id="probe-out" hidden></div>
+    <div class="jtree" id="probe-tree" role="region" aria-label="The API response, as a tree"></div>
+    <p class="probe-note">Those numbers are yours. The time is how long the request took from where you are sitting, and the size is how much data came back &mdash; the same request from a phone on mobile data gives a different answer.</p>
+  </div>
+
+  <p>Open <code>animals</code>, then <code>0</code>, and you are looking at one animal from the game as the program sees it.</p>
+
+  <h3>What the data is made of</h3>
+  <p>That tree is colored by <strong>type</strong>. Six types is the whole vocabulary, and you have just been looking at all of them.</p>
+
+  <div class="ltable-scroll">
+  <table class="ltable">
+    <thead><tr><th>In the data</th><th>Called</th><th>From /GameData/</th></tr></thead>
+    <tbody>
+      <tr><td>words in quotes</td><td><strong>string</strong></td><td><code>"name": "Red Fox"</code></td></tr>
+      <tr><td>plain numbers</td><td><strong>number</strong></td><td><code>"minHealth": 35</code></td></tr>
+      <tr><td><code>true</code> / <code>false</code></td><td><strong>boolean</strong></td><td><code>"explorable": true</code></td></tr>
+      <tr><td><code>[ &hellip; ]</code></td><td><strong>array</strong> &mdash; a list</td><td><code>"eatsOther": ["berries", "carrion"]</code></td></tr>
+      <tr><td><code>{ &hellip; }</code></td><td><strong>object</strong> &mdash; a thing with named parts</td><td>one whole animal</td></tr>
+      <tr><td><code>null</code></td><td><strong>nothing, on purpose</strong></td><td><code>"unlock": null</code> on the meadow</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <details id="types-legend">
+    <summary>What the colors in the tree mean</summary>
+    <div class="jlegend">
+      <span class="jleg"><code class="jstr">"text"</code> string</span>
+      <span class="jleg"><code class="jnum">35</code> number</span>
+      <span class="jleg"><code class="jbool">true</code> boolean</span>
+      <span class="jleg"><code class="jnull">null</code> null</span>
+      <span class="jleg"><code class="jmeta">Array(150)</code> a list you can open</span>
+      <span class="jleg"><code class="jmeta">{ 17 }</code> an object you can open</span>
+    </div>
+  </details>
+
+  <div class="note warn">
+    <span class="note-t">Quotes mean text</span>
+    <p><code>35</code> is a number you can do arithmetic with. <code>"35"</code> is text that happens to look like a number, and text does not do arithmetic. That one distinction causes more beginner bugs than everything else on this page put together, and it comes back in chapter 6 the moment you compare <code>minHealth &gt; 50</code>.</p>
+  </div>
+</section>
+
+<!-- ============================================================ chapter 4 -->
+<section class="ch" id="chapter-4">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 4</span>
+    <h2>Fetch your first API</h2>
+    <p class="sub">One line at a time. Each stage runs; run it before you add the next.</p>
+  </div>
+
+  <p><code>fetch</code> is the browser's way of asking for something over the internet. On its own it does exactly that and nothing else &mdash; ask, and hold on to the answer.</p>
+
+  <ww-runner label="step 1 \u2014 ask" console>
+    <script type="text/ww-file" name="main.js">
+      fetch("https://wildwillows.app/GameData/");
+
+      console.log("asked!");
+    </script>
+    <pre class="static-fallback">fetch("https://wildwillows.app/GameData/");
+console.log("asked!");</pre>
+  </ww-runner>
+  <p class="cap">Nothing visible happened, and that is correct. The request went out; nobody did anything with the answer.</p>
+
+  <p><code>.then()</code> means <em>and after that</em>. The answer arrives as a <code>Response</code> &mdash; an envelope. <code>.json()</code> opens the envelope.</p>
+
+  <ww-runner label="step 2 \u2014 open the envelope" console>
+    <script type="text/ww-file" name="main.js">
+      fetch("https://wildwillows.app/GameData/")
+        .then(response => response.json())
+        .then(data => {
+          console.log(data);
+        });
+    </script>
+    <pre class="static-fallback">fetch("https://wildwillows.app/GameData/")
+  .then(response =&gt; response.json())
+  .then(data =&gt; {
+    console.log(data);
+  });</pre>
+  </ww-runner>
+  <p class="cap">The chain reads in the order it happens: <strong>ask, then convert, then use</strong>. That is why we start here rather than with the shorter version below.</p>
+
+  <h3>The same thing, written the modern way</h3>
+  <p><code>await</code> means &ldquo;wait here until this arrives, then carry on&rdquo;. It does exactly what the chain above does, and now that you have watched the chain, <code>await</code> has something to mean.</p>
+
+  <ww-runner label="async / await" console>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        console.log(data);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">async function loadGameData() {
+  const response = await fetch("https://wildwillows.app/GameData/");
+  const data = await response.json();
+  console.log(data);
+}
+loadGameData();</pre>
+  </ww-runner>
+  <p class="cap"><code>await</code> only works inside a function marked <code>async</code>. If you forget the <code>async</code>, the error panel will say so &mdash; try deleting it.</p>
+
+  <h3>What if it fails?</h3>
+  <p>Networks go down and school wifi blocks things. A fetch that fails and says nothing is a blank page and a lost class period, so handle it from the start.</p>
+
+  <ww-runner label="when it goes wrong" console>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        try {
+          const response = await fetch("https://wildwillows.app/NotARealAddress/");
+          const data = await response.json();
+          console.log(data);
+        } catch (error) {
+          console.log("Could not load the game data.");
+          console.log(error.message);
+        }
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">try {
+  const response = await fetch("https://wildwillows.app/NotARealAddress/");
+  const data = await response.json();
+} catch (error) {
+  console.log("Could not load the game data.");
+}</pre>
+  </ww-runner>
+  <p class="cap"><code>try</code> means &ldquo;attempt this&rdquo;; <code>catch</code> means &ldquo;and if it goes wrong, do this instead&rdquo;. Change the address back to <code>/GameData/</code> and the <code>catch</code> block never runs.</p>
+</section>
+
+<!-- ============================================================ chapter 5 -->
+<section class="ch" id="chapter-5">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 5</span>
+    <h2>Look inside the data</h2>
+    <p class="sub">You have the whole catalogue. Now reach into it and pull out one thing.</p>
+  </div>
+
+  <p>Three steps, from the biggest thing to the smallest. Run it and read the console.</p>
+
+  <ww-runner label="from the whole thing to one value" console>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        console.log(data.animals);         // an array of 150 things
+        console.log(data.animals[0]);      // one animal
+        console.log(data.animals[0].name); // one value
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">console.log(data.animals);         // an array of 150 things
+console.log(data.animals[0]);      // one animal
+console.log(data.animals[0].name); // one value</pre>
+  </ww-runner>
+
+  <p>A dot reaches into an <strong>object</strong> by name. Square brackets reach into an <strong>array</strong> by position, and positions start at <code>0</code>, not <code>1</code>.</p>
+
+  <h3>Try a path yourself</h3>
+  <p>Type a path and see what comes back &mdash; both the value and, more usefully, <em>what type</em> it is.</p>
+
+  <div class="probe" id="ch5-explorer">
+    <p>
+      <label for="ch5-path" style="display:block;font-size:.8rem;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-faint);font-weight:700;margin-bottom:.3rem">Path</label>
+      <input type="text" id="ch5-path" value="data.animals[0].name" spellcheck="false" autocomplete="off"
+             style="width:100%;max-width:26rem;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.9rem;padding:.45rem .6rem;border:1.5px solid var(--panel-edge);border-radius:8px;background:var(--panel);color:var(--ink)">
+    </p>
+    <p style="display:flex;flex-wrap:wrap;gap:.4rem;align-items:center">
+      <button type="button" class="btn btn-go" id="ch5-go">Look it up</button>
+      <button type="button" class="chip" data-path="data.animals">data.animals</button>
+      <button type="button" class="chip" data-path="data.animals[0]">data.animals[0]</button>
+      <button type="button" class="chip" data-path="data.biomes[2].name">data.biomes[2].name</button>
+      <button type="button" class="chip" data-path="data.animals[7].diet">data.animals[7].diet</button>
+      <button type="button" class="chip" data-path="data.animals[999]">data.animals[999]</button>
+    </p>
+    <p class="cap" id="ch5-out">Press <strong>Look it up</strong>, or pick one of the paths above.</p>
+    <div class="jtree" id="ch5-tree" role="region" aria-label="What that path selected"></div>
+  </div>
+
+  <div class="note warn">
+    <span class="note-t">Two things worth meeting now</span>
+    <p><code>data.animals.length</code> is a <strong>number</strong> &mdash; 150. <code>"150 animals"</code> is a <strong>string</strong>. Writing <code>data.animals.length + " animals"</code> glues them together: <code>+</code> means <em>add</em> for numbers and <em>join</em> for text, and it decides based on what you gave it.</p>
+    <p>Ask for something that is not there &mdash; try <code>data.animals[999]</code> above &mdash; and you get <strong><code>undefined</code></strong>. Not an error, not zero, not empty. It is JavaScript saying &ldquo;there is nothing here&rdquo;, and it is behind about half of the confusing errors you will meet later.</p>
+  </div>
+</section>
+
+<!-- ============================================================ chapter 6 -->
+<section class="ch" id="chapter-6">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 6</span>
+    <h2>Make decisions</h2>
+    <p class="sub">Asking a question with a yes-or-no answer. This is the piece that makes chapter 7 easy.</p>
+  </div>
+
+  <p>Run this one before reading the next paragraph.</p>
+
+  <ww-runner label="if" console data-concept="cond_if">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const animal = data.animals[0];
+        console.log("Looking at:", animal.name);
+
+        if (animal.rarity === "rare") {
+          console.log(animal.name + " is a rare find!");
+        }
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const animal = data.animals[0];
+
+if (animal.rarity === "rare") {
+  console.log(animal.name + " is a rare find!");
+}</pre>
+  </ww-runner>
+
+  <div class="note">
+    <span class="note-t">Nothing happened, and nothing is broken</span>
+    <p><code>data.animals[0]</code> is the Banana Slug, and its <code>rarity</code> is <code>"common"</code>. So the question was asked, the answer was no, and the block was skipped. The code ran perfectly.</p>
+    <p>This matters because a beginner's instinct is that nothing happening means broken. Now change <code>"rare"</code> to <code>"common"</code> and run it again.</p>
+  </div>
+
+  <h3><code>else</code> &mdash; always do one or the other</h3>
+
+  <ww-runner label="if / else" data-concept="cond_else">
+    <script type="text/ww-file" name="index.html" context>
+      <p id="message">Loading...</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const animal = data.animals[0];
+        const message = document.querySelector("#message");
+
+        if (animal.rarity === "rare") {
+          message.textContent = animal.name + " is a rare find!";
+        } else {
+          message.textContent = animal.name + " is fairly common.";
+        }
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">if (animal.rarity === "rare") {
+  message.textContent = animal.name + " is a rare find!";
+} else {
+  message.textContent = animal.name + " is fairly common.";
+}</pre>
+  </ww-runner>
+  <p class="cap">One of the two always happens. Change <code>data.animals[0]</code> to <code>data.animals[3]</code> and see which branch you get.</p>
+
+  <h3><code>else if</code> &mdash; more than two outcomes</h3>
+  <p>There are exactly three rarities in the game: <code>common</code>, <code>uncommon</code> and <code>rare</code>. Three real values, three outcomes.</p>
+
+  <ww-runner label="else if" data-concept="cond_else-if">
+    <script type="text/ww-file" name="index.html" context>
+      <p id="badge">Loading...</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const animal = data.animals[12];
+        let label;
+
+        if (animal.rarity === "rare") {
+          label = "Rare find";
+        } else if (animal.rarity === "uncommon") {
+          label = "Uncommon";
+        } else {
+          label = "Common";
+        }
+
+        document.querySelector("#badge").textContent = animal.name + " \u2014 " + label;
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">if (animal.rarity === "rare")           label = "Rare find";
+else if (animal.rarity === "uncommon")  label = "Uncommon";
+else                                    label = "Common";</pre>
+  </ww-runner>
+  <p class="cap"><strong>Move the <code>else</code> branch to the top</strong> and see what happens to every animal. The first true branch wins and the rest are skipped &mdash; a rule that is much easier to see than to be told.</p>
+
+  <h3>Comparisons</h3>
+  <div class="ltable-scroll">
+  <table class="ltable">
+    <thead><tr><th></th><th>Means</th><th>Use on</th></tr></thead>
+    <tbody>
+      <tr><td><code>===</code></td><td>is exactly the same as</td><td>text or numbers</td></tr>
+      <tr><td><code>!==</code></td><td>is not the same as</td><td>text or numbers</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td><td>bigger / smaller than</td><td>numbers only</td></tr>
+    </tbody>
+  </table>
+  </div>
+
+  <ww-runner label="text and numbers compare differently" console data-concept="cond_comparison">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const animal = data.animals[0];
+
+        // text \u2014 quotes, and ===
+        console.log(animal.biome === "forest");
+
+        // number \u2014 no quotes, and > works
+        console.log(animal.requirements.minHealth > 50);
+        console.log("minHealth is", animal.requirements.minHealth);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">console.log(animal.biome === "forest");
+console.log(animal.requirements.minHealth &gt; 50);</pre>
+  </ww-runner>
+
+  <div class="note warn">
+    <span class="note-t">One equals sets, three equals asks</span>
+    <p><code>=</code> puts a value into something. <code>===</code> asks whether two things are the same. Typing one when you meant three is the most common mistake in this whole lesson, and the error it causes does not mention <code>=</code> anywhere.</p>
+  </div>
+
+  <h3><code>&amp;&amp;</code> and <code>||</code> &mdash; asking two things at once</h3>
+
+  <ww-runner label="and / or" console data-concept="cond_and-or">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        // BOTH must be true
+        const rareMeadow = data.animals.filter(animal =>
+          animal.rarity === "rare" && animal.biome === "meadow"
+        );
+
+        console.log("rare AND in the meadow:", rareMeadow.length);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">animal.rarity === "rare" &amp;&amp; animal.biome === "meadow"</pre>
+  </ww-runner>
+  <p class="cap">Swap the <code>&amp;&amp;</code> for <code>||</code> and run it again. <code>&amp;&amp;</code> means both, <code>||</code> means either &mdash; and the count tells you the difference better than a definition does.</p>
+
+  <h3>The empty-state guard</h3>
+  <p>This is the one you will reuse in everything you build. Without it, a search that finds nothing renders a blank page, and every student in the room assumes their code is broken.</p>
+
+  <ww-runner label="say something when there is nothing" data-concept="cond_empty-guard">
+    <script type="text/ww-file" name="index.html" context>
+      <p id="result">Loading...</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+        const result = document.querySelector("#result");
+
+        // no animal lives in the "tundra" \u2014 this biome does not exist
+        const matches = data.animals.filter(animal => animal.biome === "tundra");
+
+        if (matches.length === 0) {
+          result.textContent = "No animals matched. Try another biome.";
+        } else {
+          result.textContent = matches.length + " animals found.";
+        }
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">if (matches.length === 0) {
+  result.textContent = "No animals matched. Try another biome.";
+} else {
+  result.textContent = matches.length + " animals found.";
+}</pre>
+  </ww-runner>
+  <p class="cap">Change <code>"tundra"</code> to a real biome &mdash; <code>meadow</code>, <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code> or <code>coastal</code> &mdash; and the other branch runs.</p>
+
+  <div class="note stretch">
+    <span class="note-t">Optional &mdash; the <code>?</code> <code>:</code> shorthand</span>
+    <p><code>const label = animal.rarity === "rare" ? "Rare find" : "";</code></p>
+    <p>If the question is true use the first thing, otherwise the second. It does exactly what an <code>if</code>/<code>else</code> does, in one line, and it is what makes chapter 8's list code readable. Skip it if it looks like noise &mdash; nothing later depends on it.</p>
+  </div>
+
+  <div class="note">
+    <span class="note-t">Where this is going</span>
+    <p><code>animal.rarity === "rare"</code> is a question with a yes-or-no answer, and you just used it in an <code>if</code>. In the next chapter you hand that same question to <code>.filter()</code> and let it ask about all 150 animals at once.</p>
+  </div>
+</section>
+
+<!-- ============================================================ chapter 7 -->
+<section class="ch" id="chapter-7">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 7</span>
+    <h2>Loop through the data</h2>
+    <p class="sub">One animal was a demo. 150 is a webpage.</p>
+  </div>
+
+  <h3><code>for...of</code> &mdash; do this for each one</h3>
+  <p>The honest starting point, and the one that reads like English. <strong>This always works and is never wrong.</strong> Everything after it is a shorter way of saying one particular kind of loop &mdash; which is worth knowing up front, so the methods below feel like conveniences rather than magic words.</p>
+
+  <ww-runner label="for...of" console data-concept="iter_for-of">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        for (const animal of data.animals) {
+          console.log(animal.name);
+        }
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">for (const animal of data.animals) {
+  console.log(animal.name);
+}</pre>
+  </ww-runner>
+
+  <h3><code>.forEach()</code> &mdash; the same thing, shorter</h3>
+  <p>Here is the piece the rest of the chapter rests on. <code>animal =&gt;</code> means: <em>for each one, call it</em> <code>animal</code>, <em>and here is what to do with it</em>. That is an <strong>arrow function</strong> &mdash; a small piece of code you hand to something else to run.</p>
+
+  <ww-runner label=".forEach()" console data-concept="iter_forEach">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        data.animals.forEach(animal => {
+          console.log(animal.name);
+        });
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">data.animals.forEach(animal =&gt; {
+  console.log(animal.name);
+});</pre>
+  </ww-runner>
+  <p class="cap">The name <code>animal</code> is yours to choose. Rename it to <code>creature</code> in <em>both</em> places and it works exactly the same &mdash; it is just a label for &ldquo;the one we are on&rdquo;.</p>
+
+  <h3><code>.map()</code> &mdash; turn each one into something else</h3>
+  <p>150 objects go in. 150 strings come out. Same length, different contents.</p>
+
+  <ww-runner label=".map()" console data-concept="iter_map">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const names = data.animals.map(animal => animal.name);
+
+        console.log("in: ", data.animals.length, "animals");
+        console.log("out:", names.length, "names");
+        console.log(names);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const names = data.animals.map(animal =&gt; animal.name);</pre>
+  </ww-runner>
+  <p class="cap"><code>.map()</code> is the most useful thing in this chapter, because it is how a list of data becomes a list of HTML. Chapter 8 cashes that in.</p>
+
+  <h3><code>.filter()</code> &mdash; keep only some of them</h3>
+  <p>Give it the yes-or-no question from chapter 6 and it asks that question about every animal, keeping the ones that answer yes.</p>
+
+  <ww-runner label=".filter()" console data-concept="iter_filter">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const meadow = data.animals.filter(animal => animal.biome === "meadow");
+
+        console.log(meadow.length + " animals live in the meadow");
+        console.log(meadow.map(animal => animal.name));
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const meadow = data.animals.filter(animal =&gt; animal.biome === "meadow");</pre>
+  </ww-runner>
+  <p class="cap">150 in, 25 out. Change <code>"meadow"</code> to <code>forest</code>, <code>wetland</code>, <code>desert</code>, <code>alpine</code> or <code>coastal</code>. Then filter on something else entirely: <code>animal.rarity === "rare"</code>, or <code>animal.trophic === "apex-predator"</code>.</p>
+
+  <div class="note warn">
+    <span class="note-t">Use the real values, or you get an empty list</span>
+    <p>A filter for a value that does not exist returns nothing, and an empty list looks exactly like broken code. These are the actual values in the data:</p>
+    <p><strong>biome</strong> &mdash; <code>meadow</code> <code>forest</code> <code>wetland</code> <code>desert</code> <code>alpine</code> <code>coastal</code><br>
+       <strong>rarity</strong> &mdash; <code>common</code> <code>uncommon</code> <code>rare</code><br>
+       <strong>kind</strong> &mdash; <code>mammal</code> <code>bird</code> <code>fish</code> <code>insect</code> <code>reptile</code> <code>amphibian</code> <code>invertebrate</code><br>
+       <strong>trophic</strong> &mdash; <code>herbivore</code> <code>insectivore</code> <code>omnivore</code> <code>mesopredator</code> <code>apex-predator</code> <code>detritivore</code> <code>decomposer</code> <code>scavenger</code> <code>filter-feeder</code></p>
+    <p>And the type rule from chapter 3, at the moment it matters: <code>.filter(a =&gt; a.biome === "meadow")</code> compares <strong>text</strong>, so it needs quotes. <code>.filter(a =&gt; a.requirements.minHealth &gt; 50)</code> compares a <strong>number</strong>, so it does not &mdash; and <code>"50"</code> in quotes is text, and text does not do arithmetic.</p>
+  </div>
+
+  <h3><code>.find()</code> &mdash; get exactly one</h3>
+
+  <ww-runner label=".find()" console data-concept="iter_find">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const fox = data.animals.find(animal => animal.name === "Red Fox");
+
+        console.log(fox.diet);
+        console.log(fox.fact);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const fox = data.animals.find(animal =&gt; animal.name === "Red Fox");
+console.log(fox.diet);</pre>
+  </ww-runner>
+
+  <div class="note">
+    <span class="note-t">The difference people trip on</span>
+    <p><code>.filter()</code> gives you back an <strong>array</strong>, even if only one thing matched. <code>.find()</code> gives you back <strong>the thing itself</strong>. That is why the code above says <code>fox.diet</code> and not <code>fox[0].diet</code>.</p>
+    <p>Change <code>.find</code> to <code>.filter</code> and run it. Read what the error panel says &mdash; then you will remember this permanently.</p>
+  </div>
+
+  <h3><code>.sort()</code> &mdash; put them in order</h3>
+
+  <ww-runner label=".sort()" console data-concept="iter_sort">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        // the [...] makes a COPY first \u2014 see the note below
+        const alphabetical = [...data.animals]
+          .sort((a, b) => a.name.localeCompare(b.name));
+
+        console.log(alphabetical.map(animal => animal.name));
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const alphabetical = [...data.animals]
+  .sort((a, b) =&gt; a.name.localeCompare(b.name));</pre>
+  </ww-runner>
+  <p class="cap"><code>.sort()</code> reorders the original array rather than making a new one, which is why we copy it first with <code>[...]</code>. That is a real bug that is very hard to find later &mdash; something you sorted once stays sorted everywhere else in your program.</p>
+
+  <div class="note stretch">
+    <span class="note-t">Optional &mdash; <code>.reduce()</code>, a running total</span>
+    <p>Everything after this works fine without <code>.reduce()</code>. Come back to it.</p>
+  </div>
+
+  <ww-runner label=".reduce()" console data-concept="iter_reduce">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        // start the running total at 0, add 1 for each animal
+        const total = data.animals.reduce((runningTotal, animal) => runningTotal + 1, 0);
+        console.log("total:", total);
+
+        // more useful: count them per biome
+        const perBiome = data.animals.reduce((counts, animal) => {
+          counts[animal.biome] = (counts[animal.biome] || 0) + 1;
+          return counts;
+        }, {});
+        console.log(perBiome);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const perBiome = data.animals.reduce((counts, animal) =&gt; {
+  counts[animal.biome] = (counts[animal.biome] || 0) + 1;
+  return counts;
+}, {});</pre>
+  </ww-runner>
+
+  <h3>Chain them</h3>
+  <p>Each of these hands its answer to the next one. This is the payoff.</p>
+
+  <ww-runner label="filter, then sort, then map" console data-concept="iter_chained">
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const list = data.animals
+          .filter(animal => animal.biome === "meadow")
+          .sort((a, b) => a.name.localeCompare(b.name))
+          .map(animal => animal.name)
+          .join(", ");
+
+        console.log(list);
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">data.animals
+  .filter(animal =&gt; animal.biome === "meadow")
+  .sort((a, b) =&gt; a.name.localeCompare(b.name))
+  .map(animal =&gt; animal.name)
+  .join(", ");</pre>
+  </ww-runner>
+  <p class="cap"><strong>Now move <code>.map()</code> above <code>.filter()</code></strong> and run it. It breaks, and the error tells you why: after <code>.map()</code> you no longer have animals, you have names &mdash; and a name has no <code>.biome</code>. Order matters, and watching it fail takes four hundred milliseconds.</p>
+
+  <h3>The one block worth keeping</h3>
+  <div class="ltable-scroll">
+  <table class="ltable">
+    <thead><tr><th>Method</th><th>Gives you back</th><th>Use it when</th></tr></thead>
+    <tbody>
+      <tr><td><code>for...of</code></td><td>nothing</td><td>you just want to do something with each one</td></tr>
+      <tr><td><code>.forEach()</code></td><td>nothing</td><td>the same, in a shorter form</td></tr>
+      <tr><td><code>.map()</code></td><td>a new array, same length</td><td>you want to turn each one into something else</td></tr>
+      <tr><td><code>.filter()</code></td><td>a new array, shorter</td><td>you only want some of them</td></tr>
+      <tr><td><code>.find()</code></td><td>one item, or <code>undefined</code></td><td>you want one specific one</td></tr>
+      <tr><td><code>.reduce()</code></td><td>one value of any kind</td><td>you want to combine them all</td></tr>
+      <tr><td><code>.sort()</code></td><td>the array, reordered</td><td>you want them in a particular order</td></tr>
+    </tbody>
+  </table>
+  </div>
+</section>
+
+<!-- ============================================================ chapter 8 -->
+<section class="ch" id="chapter-8">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 8</span>
+    <h2>Put API data on your webpage</h2>
+    <p class="sub">Every chapter so far, in one file.</p>
+  </div>
+
+  <p>Chapter 2 changed some text. Chapter 4 fetched some data. Here they meet.</p>
+
+  <ww-runner label="one animal, from the API, on the page">
+    <script type="text/ww-file" name="index.html" context>
+      <h1>Wild Willows</h1>
+      <p id="animal-name">Loading animal...</p>
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        document.querySelector("#animal-name").textContent = data.animals[0].name;
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">document.querySelector("#animal-name").textContent = data.animals[0].name;</pre>
+  </ww-runner>
+
+  <div class="flow" id="ch8-flow">
+    <span class="flow-step">API</span>
+    <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="flow-step">JavaScript</span>
+    <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="flow-step">HTML</span>
+    <span class="flow-arrow" aria-hidden="true">&rarr;</span>
+    <span class="flow-step">the page you see</span>
+  </div>
+
+  <h3>Now do it twenty-five times, in fewer lines</h3>
+  <p>This is the moment the whole lesson pays off.</p>
+
+  <ww-runner label="a whole list, built from data">
+    <script type="text/ww-file" name="index.html" context>
+      <h1>Willow Meadow</h1>
+      <ul id="animal-list"></ul>
+    </script>
+    <script type="text/ww-file" name="styles.css" context>
+      body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
+      h1   { color: #39604a; }
+      li   { margin-bottom: .3rem; }
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const items = data.animals
+          .filter(animal => animal.biome === "meadow")
+          .map(animal => \`<li>\${animal.name}</li>\`)
+          .join("");
+
+        document.querySelector("#animal-list").innerHTML = items;
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const items = data.animals
+  .filter(animal =&gt; animal.biome === "meadow")
+  .map(animal =&gt; \`&lt;li&gt;\${animal.name}&lt;/li&gt;\`)
+  .join("");
+
+document.querySelector("#animal-list").innerHTML = items;</pre>
+  </ww-runner>
+
+  <div class="note">
+    <span class="note-t">Read those three lines again</span>
+    <p><code>.filter()</code> chose 25 animals. <code>.map()</code> turned each one into a piece of HTML. <code>.join("")</code> glued them into one string. Then one line put it on the page.</p>
+    <p>Change <code>"meadow"</code> to <code>"forest"</code>. One word, a different twenty-five, a whole new page.</p>
+  </div>
+
+  <div class="note warn">
+    <span class="note-t">One honest note about <code>innerHTML</code></span>
+    <p><code>innerHTML</code> will run anything it is given. That is fine here, because we are building HTML from data we trust, out of our own API. If the text came from strangers on the internet you would use <code>textContent</code> instead, which puts text on the page and never runs it.</p>
+  </div>
+</section>
+
+<!-- ============================================================ chapter 9 -->
+<section class="ch" id="chapter-9">
+  <div class="ch-head">
+    <span class="ch-num">Chapter 9</span>
+    <h2>Your turn</h2>
+    <p class="sub">Five changes to the code below. Tick them off as you go.</p>
+  </div>
+
+  <ww-runner label="your page" console data-carry>
+    <script type="text/ww-file" name="index.html" context>
+      <h1 id="title">Willow Meadow</h1>
+      <ul id="animal-list"></ul>
+    </script>
+    <script type="text/ww-file" name="styles.css" context>
+      body { font-family: system-ui, sans-serif; padding: 1rem; color: #3b4232; }
+      h1   { color: #39604a; }
+      li   { margin-bottom: .3rem; }
+    </script>
+    <script type="text/ww-file" name="main.js">
+      async function loadGameData() {
+        const response = await fetch("https://wildwillows.app/GameData/");
+        const data = await response.json();
+
+        const items = data.animals
+          .filter(animal => animal.biome === "meadow")
+          .map(animal => \`<li>\${animal.name}</li>\`)
+          .join("");
+
+        document.querySelector("#animal-list").innerHTML = items;
+      }
+
+      loadGameData();
+    </script>
+    <pre class="static-fallback">const items = data.animals
+  .filter(animal =&gt; animal.biome === "meadow")
+  .map(animal =&gt; \`&lt;li&gt;\${animal.name}&lt;/li&gt;\`)
+  .join("");</pre>
+  </ww-runner>
+
+  <ul class="chals" id="challenges">
+    <li class="chal" data-chal="heading">
+      <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 1 done"></button>
+      <span><span class="chal-t">Change the heading.</span> <span class="chal-h">It is in <code>index.html</code>. Call the page whatever you like.</span></span>
+    </li>
+    <li class="chal" data-chal="color">
+      <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 2 done"></button>
+      <span><span class="chal-t">Change its color.</span> <span class="chal-h">That one is in <code>styles.css</code> &mdash; chapter 1.</span></span>
+    </li>
+    <li class="chal" data-chal="value">
+      <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 3 done"></button>
+      <span><span class="chal-t">Show a different value.</span> <span class="chal-h">Instead of <code>animal.name</code>, try <code>animal.diet</code> or <code>animal.fact</code>. Chapter 5 has the paths.</span></span>
+    </li>
+    <li class="chal" data-chal="biome">
+      <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 4 done"></button>
+      <span><span class="chal-t">Show a different biome.</span> <span class="chal-h">One word in the <code>.filter()</code> &mdash; chapter 7.</span></span>
+    </li>
+    <li class="chal" data-chal="apex">
+      <button type="button" class="chal-box" aria-pressed="false" aria-label="Mark challenge 5 done"></button>
+      <span><span class="chal-t">Show only the apex predators, in alphabetical order.</span> <span class="chal-h">Filter on <code>animal.trophic</code>, then <code>.sort()</code> &mdash; chapters 6 and 7 together. There are 17 of them.</span></span>
+    </li>
+  </ul>
+
+  <p class="cap">If the last two gave you trouble, that is useful information rather than a problem &mdash; number 4 is chapter 7 and number 5 is chapters 6 and 7 together, so you know exactly where to scroll back to.</p>
+
+  <div class="handoff">
+    <h2>Ready to build something of your own?</h2>
+    <p>The Code Builder gives you the same three files with room to work, thirty project ideas, and everything you just learned still in your hands. Your code from the editor above comes with you.</p>
+    <a class="btn btn-go" id="to-builder" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a>
+  </div>
+</section>
+
+</main>
+</div>
+
+<script>
+/* Wild Willows \u2014 <ww-runner>
+ *
+ * The shared code-editor-and-live-preview element behind BOTH classroom student
+ * pages. /learn/web-development uses it ~15 times in one-file mode for its inline
+ * examples; /learn/code-builder uses it once in three-file mode with tabs. One
+ * implementation, so a student who has used the lesson's examples already knows
+ * how the builder behaves.
+ *
+ * Inlined into both pages at build time by scripts/build-pages.mjs (see the
+ * @include directive there) \u2014 NOT served as its own file. The hosted Harper
+ * serves no static files, and duplicating this in two hand-maintained pages is
+ * exactly the drift the include exists to prevent.
+ *
+ * DESIGN CONSTRAINTS, all deliberate:
+ *  \u2022 No dependencies. No CodeMirror, no Monaco, no CDN. School networks block
+ *    CDNs, the page has to inline into resources.js as one string, and a styled
+ *    <textarea> genuinely is enough for a 40-line file.
+ *  \u2022 The preview iframe is sandbox="allow-scripts" WITHOUT allow-same-origin, so
+ *    student code runs on an opaque origin and cannot touch this page. That is
+ *    why GET /GameData/ sends Access-Control-Allow-Origin (see GAME_DATA_CORS in
+ *    server/resources.ts) \u2014 without it, the fetch the whole lesson is about fails
+ *    from inside here.
+ *  \u2022 Errors surface in the UI, never only in a console the student will not open.
+ *    A blank preview with a silent error is the #1 way a beginner concludes they
+ *    are bad at this and stops.
+ */
+(function () {
+	'use strict';
+
+	/* ---------------------------------------------------------------- assembly */
+
+	/**
+	 * Three sources -> one HTML document for the preview iframe.
+	 *
+	 * Exposed on window for the unit tests (tests/unit/ww-runner.test.ts) and for
+	 * the builder's Download, which must produce the SAME bytes the preview ran \u2014
+	 * a downloaded file that behaves differently from the preview is the worst
+	 * possible ending to the lesson.
+	 */
+	function assembleDocument(html, css, js, harness) {
+		return (
+			'<!DOCTYPE html>\\n<html lang="en">\\n<head>\\n<meta charset="utf-8">\\n' +
+			'<meta name="viewport" content="width=device-width, initial-scale=1">\\n' +
+			'<style>\\n' +
+			escapeForStyle(css || '') +
+			'\\n</style>\\n</head>\\n<body>\\n' +
+			(html || '') +
+			/* THE HARNESS GETS ITS OWN SCRIPT BLOCK, and this is not tidiness.
+			 *
+			 * It used to be concatenated in front of the student's code in ONE block,
+			 * and that quietly broke the most important case this component handles.
+			 * A syntax error is a PARSE-time failure: the browser throws out the
+			 * whole block before executing any of it. So a student who left a \`var\`
+			 * dangling took the harness down with them \u2014 window.onerror was never
+			 * installed, nothing was posted to the host, and the result was a blank
+			 * preview, an empty console, and an error visible only in devtools.
+			 * Which is precisely the "I have no idea what is wrong" moment the error
+			 * panel exists to prevent.
+			 *
+			 * Two blocks: the harness parses and installs on its own, then a parse
+			 * error in the student's block fires window.onerror and gets reported
+			 * like any other mistake.
+			 *
+			 * Omitted entirely when there is no harness \u2014 that path is Download, and
+			 * the file a student takes home carries none of our plumbing. */
+			(harness ? '\\n<script>\\n' + escapeForScript(harness) + '\\n<\\/script>' : '') +
+			'\\n<script>\\n' +
+			escapeForScript(js || '') +
+			'\\n<\\/script>\\n</body>\\n</html>\\n'
+		);
+	}
+
+	/**
+	 * The bug this prevents: a student writes a closing script tag inside a string
+	 * \u2014 in a template literal building HTML, say \u2014 and the HTML parser ends the
+	 * script block THERE. The rest of their JavaScript renders as visible text and
+	 * the page silently does nothing. No error, no clue, and it looks like the
+	 * editor ate their code.
+	 *
+	 * Only that one sequence matters, and only case-insensitively; escaping the
+	 * slash keeps the JavaScript semantically identical, because inside a string
+	 * "<\\/script>" and the unescaped form are the same three-word value.
+	 *
+	 * NOTE, and this is not a joke: this comment used to spell the sequence out
+	 * literally. This whole file is inlined INTO a <script> block by
+	 * scripts/build-pages.mjs, so the comment explaining the trap sprang the trap
+	 * \u2014 the browser ended the block mid-file and rendered the rest of the runner
+	 * as text on the page. Do not write it out here. build-pages now escapes it
+	 * on the way in as a backstop, and tests/unit/built-pages.test.ts asserts the
+	 * generated page has balanced tags.
+	 */
+	function escapeForScript(code) {
+		return String(code).replace(/<\\/(script)/gi, '<\\\\/$1');
+	}
+
+	/** Same class of problem for </style> inside a CSS string or comment. */
+	function escapeForStyle(code) {
+		return String(code).replace(/<\\/(style)/gi, '<\\\\/$1');
+	}
+
+	/* ------------------------------------------------- friendly error messages */
+
+	/**
+	 * Plain-English explanations for the errors beginners actually hit, ordered
+	 * most-specific-first because several of these substrings overlap.
+	 *
+	 * Every entry says WHAT IT MEANS and WHAT TO CHECK. A raw \`TypeError: Cannot
+	 * read properties of null\` teaches nothing to someone in week one; "the page
+	 * couldn't find the element you asked for \u2014 check the spelling of your id"
+	 * fixes the bug and teaches what null is in the same breath.
+	 *
+	 * Three of these are data-type errors wearing different hats (null, undefined,
+	 * text-vs-number), and they deliberately name the type \u2014 that is where the
+	 * lesson's types material gets used, rather than in a chapter nobody rereads.
+	 *
+	 * Add to this list from real usage: the builder counts which errors fire
+	 * (ww:metric -> errors_*), so the ranking tells you which explanation to write
+	 * next instead of guessing.
+	 */
+	var ERROR_HELP = [
+		{
+			key: 'fetch-failed',
+			match: /failed to fetch|networkerror|load failed/i,
+			title: "Couldn't reach the Wild Willows data",
+			help:
+				'The request for the game data did not get through. Check the address is exactly ' +
+				'https://wildwillows.app/GameData/ \u2014 and if it looks right, ask your teacher: some school ' +
+				'networks block outside websites.',
+		},
+		{
+			key: 'json-parse',
+			match: /unexpected token '?<'?|is not valid json/i,
+			title: 'That answer was not the data',
+			help:
+				'The server sent back a webpage (usually an error page) where your code expected JSON. ' +
+				'Check the address you passed to fetch().',
+		},
+		{
+			key: 'null-property',
+			match: /(reading|properties) (of )?'?null'?|of null/i,
+			title: 'That element is not on the page',
+			help:
+				'querySelector gives you null when it cannot find what you asked for, and null means ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript \u2014 and remember ' +
+				'#name looks for id="name", while .name looks for class="name".',
+		},
+		{
+			key: 'undefined-property',
+			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
+			title: 'That piece of the data is not there',
+			help:
+				'undefined means "nothing found". You asked for something the data does not have \u2014 check the ' +
+				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
+				'not data.animals.name).',
+		},
+		{
+			key: 'not-defined',
+			match: /is not defined/i,
+			title: 'JavaScript does not recognize that name',
+			help:
+				'Either it is spelled differently from where you created it, or it does not exist yet. ' +
+				'Capital letters count: animal and Animal are two different names.',
+		},
+		{
+			key: 'not-a-function',
+			match: /is not a function/i,
+			title: 'That is not something you can call',
+			help:
+				'You put () after something that is not a function \u2014 often a typo in the method name, or a ' +
+				'value that turned out to be undefined.',
+		},
+		{
+			key: 'await-async',
+			match: /await is only valid|await outside/i,
+			title: 'await needs an async function',
+			help: 'await only works inside a function marked async. Check that the word async is on the function it sits in.',
+		},
+		{
+			key: 'const-assign',
+			match: /assignment to constant|invalid assignment/i,
+			title: 'That value cannot be changed',
+			help: 'A const can be set once. Use let instead if you need to change it later.',
+		},
+		{
+			key: 'not-iterable',
+			match: /is not iterable/i,
+			title: 'That is not a list',
+			help:
+				'for...of and the array methods need an array. Check what you actually got \u2014 it may be a single ' +
+				'object, or undefined.',
+		},
+		{
+			key: 'unexpected-eof',
+			/* Chrome: "Unexpected end of input". Safari: "Unexpected end of script",
+			 * and sometimes "Unexpected EOF". Same mistake, three wordings \u2014 and the
+			 * students most likely to hit it are the least able to tell that those
+			 * are the same thing. */
+			match: /unexpected end of (input|script)|unexpected eof/i,
+			title: 'Something was left open',
+			help: 'Usually a missing } or ) or a missing closing quote. Check the end of the last few lines you wrote.',
+		},
+		{
+			key: 'masked',
+			/* Safari's placeholder for an error it will not describe across an origin
+			 * boundary. syntaxErrorIn() should have caught the common cause first, so
+			 * reaching this means something rarer \u2014 but it still must not leave a
+			 * student staring at two words. */
+			match: /^\\s*script error\\.?\\s*$/i,
+			title: 'Your code stopped, and the browser would not say why',
+			help:
+				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
+				'changed, and try commenting lines out until the page runs again \u2014 the last line you removed ' +
+				'is the one to look at.',
+		},
+		{
+			key: 'syntax',
+			match: /syntaxerror|unexpected token|unexpected identifier/i,
+			title: 'JavaScript could not read that',
+			help:
+				'A typo somewhere in the shape of the code \u2014 a missing comma, bracket or quote. The line number ' +
+				'is where JavaScript gave up, so the real mistake is often just above it.',
+		},
+	];
+
+	/* Calibrate how \`new Function\` reports line numbers.
+	 *
+	 * It wraps the code in a synthetic function, so a reported line is offset from
+	 * the student's by however many lines that wrapper adds \u2014 which differs by
+	 * engine and by version. Measuring it once with a known-broken probe is exact,
+	 * and cheap: the error is on line 3 of the probe, so whatever it claims minus
+	 * three is the wrapper's contribution. */
+	var SYNTAX_LINE_OFFSET = (function () {
+		try {
+			new Function('\\n\\n(');
+		} catch (e) {
+			if (typeof e.line === 'number') return e.line - 3; // Safari reports .line
+			var m = /<anonymous>:(\\d+)/.exec(String(e.stack || ''));
+			if (m) return Number(m[1]) - 3;
+		}
+		return 0;
+	})();
+
+	/**
+	 * Compile the student's JavaScript HERE, in the host page, purely to find out
+	 * whether it parses \u2014 and if not, what is actually wrong with it.
+	 *
+	 * WHY THIS EXISTS. The preview runs in a sandboxed, opaque-origin iframe, and
+	 * Safari refuses to tell a cross-origin listener anything about a script error
+	 * in one: \`window.onerror\` receives the string "Script error." with no message,
+	 * no file and no line. Chrome hands over the real message, which is exactly why
+	 * this survived a browser test \u2014 one browser was being helpful.
+	 *
+	 * "Script error." is worse than useless to a beginner. It names nothing, points
+	 * nowhere, and is indistinguishable from every other failure.
+	 *
+	 * The host has the source and no origin barrier, so compiling it here gets the
+	 * real SyntaxError. new Function only PARSES \u2014 it never runs the code, so this
+	 * cannot have side effects.
+	 *
+	 * Not a substitute for the in-frame harness: that still reports everything that
+	 * happens at RUN time, which no amount of parsing can predict.
+	 */
+	function syntaxErrorIn(js) {
+		if (!js || !js.trim()) return null;
+		try {
+			new Function(js);
+			return null;
+		} catch (e) {
+			if (!(e instanceof SyntaxError)) return null;
+			var line = null;
+			if (typeof e.line === 'number') line = e.line - SYNTAX_LINE_OFFSET;
+			else {
+				var m = /<anonymous>:(\\d+)/.exec(String(e.stack || ''));
+				if (m) line = Number(m[1]) - SYNTAX_LINE_OFFSET;
+			}
+			var total = js.split('\\n').length;
+			if (!(line > 0)) line = null;
+			else if (line > total) line = total;
+
+			var message = String(e.message || 'SyntaxError');
+			/* Undo the wrapper's fingerprint. new Function appends a closing brace of
+			 * its own, so when the student leaves something open the parser trips on
+			 * THAT brace and reports "Unexpected token '}'" \u2014 blaming a character the
+			 * student never typed and cannot find. A complaint about the wrapper's
+			 * own brace is, by construction, the unterminated case; say so. */
+			if (/unexpected token '?\\}'?/i.test(message)) message = 'Unexpected end of input';
+			return { message: message, line: line };
+		}
+	}
+
+	function explain(message) {
+		for (var i = 0; i < ERROR_HELP.length; i++) {
+			if (ERROR_HELP[i].match.test(message)) return ERROR_HELP[i];
+		}
+		return { key: 'other', title: 'Something went wrong', help: 'Read the message above and check the line it names.' };
+	}
+
+	/* --------------------------------------------------------------- telemetry */
+
+	/**
+	 * Fire-and-forget counter. The page listens for these and batches them into
+	 * one beacon (see the LessonEvent notes in server/resources.ts); the component
+	 * deliberately knows nothing about transport, so the lesson page and the
+	 * builder can count different things without touching this file.
+	 *
+	 * Counters only, ever. No code, no text the student typed, no identifiers.
+	 */
+	function metric(key, host) {
+		try {
+			(host || document).dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: String(key) } }));
+		} catch (e) {
+			/* analytics must never break a lesson in progress */
+		}
+	}
+
+	/* ----------------------------------------------------- the runtime injected
+	 * into every preview, ahead of the student's own code.
+	 *
+	 * Reports errors and console output OUT to the host via postMessage, because
+	 * the iframe is opaque-origin and the host cannot reach in. Kept small and
+	 * defensive: it runs before student code and must survive whatever follows.
+	 */
+	/* The reporting harness that runs inside every preview, ahead of the student's
+	 * own code. It reports errors and console output OUT to the host by
+	 * postMessage, because the iframe is opaque-origin and the host cannot reach in.
+	 *
+	 * WRITTEN AS A REAL FUNCTION and stringified, NOT as an array of string
+	 * literals. It was the latter, and that is a trap: the harness is a JavaScript
+	 * program expressed inside JavaScript string literals, so every backslash needs
+	 * doubling and nothing checks that you did it. A single \`\\n\` meant to be two
+	 * characters became an actual newline, which split a string across two lines
+	 * and made the whole harness fail to parse \u2014 so the preview threw
+	 * \`SyntaxError: Unexpected EOF\` before running a line, and the console stayed
+	 * empty with no clue why. Stringifying a real function means this file's own
+	 * parser checks the harness, and there is no escaping to get wrong.
+	 */
+	function harnessProgram() {
+		var send = function (kind, payload) {
+			try {
+				parent.postMessage({ __ww: true, kind: kind, payload: payload }, '*');
+			} catch (e) {
+				/* nothing useful to do from in here */
+			}
+		};
+
+		window.addEventListener('error', function (e) {
+			send('error', { message: String(e.message || e.error || 'Error'), line: e.lineno || null });
+		});
+
+		/* Did the student's own fetch get through?
+		 *
+		 * This is the single most important thing to know about a classroom we
+		 * cannot see. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes the site is broken, we never
+		 * hear about it, and they do not come back. A failed fetch also looks
+		 * exactly like a mistake in the student's code from where they are sitting.
+		 *
+		 * Reports ONLY whether it succeeded \u2014 never the URL, never the response. */
+		var nativeFetch = window.fetch;
+		if (typeof nativeFetch === 'function') {
+			window.fetch = function () {
+				var p = nativeFetch.apply(window, arguments);
+				try {
+					p.then(
+						function (r) {
+							send('fetch', { ok: !!(r && r.ok) });
+						},
+						function () {
+							send('fetch', { ok: false });
+						},
+					);
+				} catch (e) {
+					/* a thenable that is not a promise \u2014 not ours to fix */
+				}
+				return p;
+			};
+		}
+
+		window.addEventListener('unhandledrejection', function (e) {
+			var r = e.reason;
+			send('error', { message: String((r && r.message) || r || 'Something failed'), line: null });
+		});
+
+		/* HARD CAPS, and they are the difference between a working console and a
+		 * hung tab. Chapter 4's instruction is literally console.log(data) on the
+		 * whole game catalog: ~300 KB of JSON, which pretty-printed is ~600 KB of
+		 * string, posted across a message channel and then written into the DOM.
+		 * The browser sat there doing that instead of painting, which reads to a
+		 * student as "the console is broken". A beginner learns exactly as much
+		 * from the first two thousand characters. */
+		var MAX_CHARS = 2000;
+		var MAX_LINES = 200;
+		var sent = 0;
+
+		['log', 'warn', 'error', 'info'].forEach(function (level) {
+			var original = console[level];
+			console[level] = function () {
+				try {
+					original.apply(console, arguments);
+				} catch (e) {
+					/* the real console is not our problem */
+				}
+				if (sent > MAX_LINES) return;
+				if (sent === MAX_LINES) {
+					sent++;
+					send('console', { level: 'warn', text: '... more output was hidden.' });
+					return;
+				}
+				sent++;
+				var parts = [];
+				for (var i = 0; i < arguments.length; i++) parts.push(format(arguments[i]));
+				var text = parts.join(' ');
+				if (text.length > MAX_CHARS)
+					text = text.slice(0, MAX_CHARS) + '\\n... (' + (text.length - MAX_CHARS) + ' more characters)';
+				send('console', { level: level, text: text });
+			};
+		});
+
+		/* Beginners log whole objects constantly; [object Object] would make the
+		 * console useless for exactly the chapter it exists to support. And 150
+		 * animal records is the normal case here, so the count plus the first few
+		 * IS the useful answer to console.log(data.animals) \u2014 and one a student can
+		 * actually read. */
+		function format(v) {
+			if (typeof v === 'string') return v;
+			if (v instanceof Error) return v.message;
+			if (Array.isArray(v) && v.length > 8) {
+				var head = v.slice(0, 3).map(function (x) {
+					return format(x);
+				});
+				return 'Array(' + v.length + ') [\\n  ' + head.join(',\\n  ') + ',\\n  ... ' + (v.length - 3) + ' more\\n]';
+			}
+			try {
+				return JSON.stringify(v, null, 2);
+			} catch (e) {
+				return String(v);
+			}
+		}
+
+		/* The silent failure: nothing is thrown, the page just renders the word
+		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
+		 * student stares at it with no idea what to search for. */
+		window.addEventListener('load', function () {
+			setTimeout(function () {
+				var text = document.body ? document.body.innerText : '';
+				if (/\\[object Object\\]/.test(text)) send('hint', { key: 'object-object' });
+				else if (/\\bundefined\\b/.test(text)) send('hint', { key: 'undefined-text' });
+			}, 300);
+		});
+	}
+
+	var HARNESS = '(' + harnessProgram.toString() + ')();';
+
+	var SILENT_HINTS = {
+		'object-object': {
+			title: 'Your page is showing [object Object]',
+			help:
+				'You are putting a whole object on the page where you meant one part of it. ' +
+				'Try adding the piece you want \u2014 for example .name instead of the whole animal.',
+		},
+		'undefined-text': {
+			title: 'Your page is showing the word "undefined"',
+			help:
+				'Something you asked for was not there. Check the spelling of the property, and check the data ' +
+				'actually arrived before you used it.',
+		},
+	};
+
+	/* ------------------------------------------------------------- the element */
+
+	var DEBOUNCE_MS = 400;
+	var uid = 0;
+
+	/** Insert text at the caret while keeping the browser's undo stack.
+	 *  Returns false if the browser refused, so callers can fall back. */
+	function insertText(area, text) {
+		try {
+			area.focus();
+			return document.execCommand && document.execCommand('insertText', false, text);
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Replace a whole file's contents, still undoably where possible.
+	 *
+	 * This is what "Show me", the idea scaffolds, Reset and Open all go through.
+	 * Selecting everything and inserting means one Cmd+Z puts the student's own
+	 * version back \u2014 which matters most for exactly those actions, because they
+	 * are the ones that throw work away.
+	 *
+	 * A hidden textarea cannot take focus, so those fall back to assignment; the
+	 * builder's own Undo button covers that case.
+	 */
+	function replaceValue(area, text) {
+		if (area.value === text) return;
+		var wasFocused = document.activeElement;
+		var scroll = area.scrollTop;
+		var ok = false;
+		if (!area.closest || !area.closest('[hidden]')) {
+			try {
+				area.focus();
+				area.select();
+				ok = document.execCommand && document.execCommand('insertText', false, text);
+			} catch (e) {
+				ok = false;
+			}
+		}
+		if (!ok) area.value = text;
+		area.scrollTop = scroll;
+		if (wasFocused && wasFocused !== area && wasFocused.focus) wasFocused.focus();
+	}
+
+	function makeEditor(file, value, onInput) {
+		var wrap = document.createElement('div');
+		wrap.className = 'wwr-editor';
+
+		var gutter = document.createElement('div');
+		gutter.className = 'wwr-gutter';
+		gutter.setAttribute('aria-hidden', 'true');
+
+		var area = document.createElement('textarea');
+		area.className = 'wwr-code';
+		area.value = value || '';
+		area.spellcheck = false;
+		area.setAttribute('aria-label', file + ' \u2014 code editor');
+		/* Real keyboards, real settings: without these a browser will happily
+		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
+		area.setAttribute('autocomplete', 'off');
+		area.setAttribute('autocorrect', 'off');
+		area.setAttribute('autocapitalize', 'off');
+
+		function renderGutter() {
+			var lines = area.value.split('\\n').length;
+			var out = '';
+			for (var i = 1; i <= lines; i++) out += i + '\\n';
+			gutter.textContent = out;
+		}
+
+		/* Tab indents rather than moving focus \u2014 but Esc first releases the trap,
+		 * so the field is still escapable by keyboard alone. Without this a
+		 * keyboard-only student is stuck in the textarea with no way out, which
+		 * fails the page outright. */
+		var escaping = false;
+		area.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				escaping = true;
+				return;
+			}
+			if (e.key === 'Tab' && !escaping) {
+				e.preventDefault();
+				/* insertText, NOT \`area.value = ...\`.
+				 *
+				 * Assigning .value replaces the field's contents wholesale, and the
+				 * browser throws away its undo history when you do \u2014 so Cmd/Ctrl+Z
+				 * silently stopped working from the first time a student pressed Tab.
+				 * They would try to undo a mistake, get nothing, and have no idea why.
+				 *
+				 * execCommand('insertText') is formally deprecated and remains the
+				 * only way to edit a textarea while keeping native undo intact. Every
+				 * browser supports it; the direct assignment below is the fallback for
+				 * one that ever stops. */
+				if (!insertText(area, '  ')) {
+					var start = area.selectionStart;
+					var end = area.selectionEnd;
+					area.value = area.value.slice(0, start) + '  ' + area.value.slice(end);
+					area.selectionStart = area.selectionEnd = start + 2;
+				}
+				renderGutter();
+				onInput();
+				return;
+			}
+			escaping = false;
+		});
+
+		area.addEventListener('input', function () {
+			renderGutter();
+			onInput();
+		});
+		area.addEventListener('scroll', function () {
+			gutter.scrollTop = area.scrollTop;
+		});
+
+		renderGutter();
+		wrap.appendChild(gutter);
+		wrap.appendChild(area);
+		return { wrap: wrap, area: area, refresh: renderGutter };
+	}
+
+	function WwRunner(host) {
+		var id = ++uid;
+		var files = readFiles(host);
+		var mode = files.length > 1 ? 'multi' : 'single';
+		var showConsole = host.hasAttribute('console');
+		var autorun = !host.hasAttribute('manual');
+		var label = host.getAttribute('label') || '';
+
+		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		host.innerHTML = '';
+
+		/* ---- toolbar ---- */
+		var bar = document.createElement('div');
+		bar.className = 'wwr-bar';
+		if (label) {
+			var tag = document.createElement('span');
+			tag.className = 'wwr-label';
+			tag.textContent = label;
+			bar.appendChild(tag);
+		}
+
+		var tabs = document.createElement('div');
+		tabs.className = 'wwr-tabs';
+		tabs.setAttribute('role', 'tablist');
+		bar.appendChild(tabs);
+
+		var spacer = document.createElement('span');
+		spacer.className = 'wwr-spacer';
+		bar.appendChild(spacer);
+
+		/* View modes.
+		 *
+		 * Split is the teaching default \u2014 cause and effect in one eyeful. But a
+		 * student writing a long function wants the width, and one showing a
+		 * classmate what they made wants the page. On a Chromebook at 1366px, two
+		 * half-columns is genuinely cramped for both. */
+		var views = document.createElement('div');
+		views.className = 'wwr-views';
+		views.setAttribute('role', 'group');
+		views.setAttribute('aria-label', 'What to show');
+
+		var VIEWS = [
+			{ id: 'split', label: 'Split', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M12 4.5v15"/>' },
+			{ id: 'code', label: 'Code', icon: '<path d="M9 7.5 4.5 12 9 16.5M15 7.5 19.5 12 15 16.5"/>' },
+			{ id: 'preview', label: 'Page', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 9h18"/>' },
+		];
+		var viewBtns = {};
+		VIEWS.forEach(function (v) {
+			var b = document.createElement('button');
+			b.type = 'button';
+			b.className = 'wwr-view' + (v.id === 'split' ? ' is-on' : '');
+			b.title = v.label;
+			b.setAttribute('aria-label', 'Show ' + v.label.toLowerCase());
+			b.setAttribute('aria-pressed', v.id === 'split' ? 'true' : 'false');
+			b.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+				v.icon +
+				'</svg>';
+			b.addEventListener('click', function () {
+				setView(v.id);
+			});
+			viewBtns[v.id] = b;
+			views.appendChild(b);
+		});
+		bar.appendChild(views);
+
+		var runBtn = button('Run', 'wwr-run', ICON_RUN);
+		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
+		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
+		openBtn.title = 'Open your page in a new tab';
+		bar.appendChild(openBtn);
+		bar.appendChild(runBtn);
+		bar.appendChild(resetBtn);
+		host.appendChild(bar);
+
+		function setView(id) {
+			host.classList.remove('wwr--view-split', 'wwr--view-code', 'wwr--view-preview');
+			host.classList.add('wwr--view-' + id);
+			VIEWS.forEach(function (v) {
+				viewBtns[v.id].classList.toggle('is-on', v.id === id);
+				viewBtns[v.id].setAttribute('aria-pressed', v.id === id ? 'true' : 'false');
+			});
+			metric('view_' + id, host);
+		}
+		host.classList.add('wwr--view-split');
+
+		/* ---- panes ---- */
+		var body = document.createElement('div');
+		body.className = 'wwr-body';
+		host.appendChild(body);
+
+		var editors = {};
+		var pane = document.createElement('div');
+		pane.className = 'wwr-panes';
+		body.appendChild(pane);
+
+		files.forEach(function (f, i) {
+			var ed = makeEditor(f.name, f.code, schedule);
+			ed.wrap.hidden = i !== 0;
+			editors[f.name] = ed;
+			pane.appendChild(ed.wrap);
+
+			var t = document.createElement('button');
+			t.type = 'button';
+			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
+			t.textContent = f.name;
+			t.setAttribute('role', 'tab');
+			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			t.addEventListener('click', function () {
+				files.forEach(function (other) {
+					editors[other.name].wrap.hidden = other.name !== f.name;
+				});
+				Array.prototype.forEach.call(tabs.children, function (c) {
+					c.classList.toggle('is-active', c === t);
+					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
+				});
+				metric('tab_' + f.name.split('.').pop(), host);
+			});
+			tabs.appendChild(t);
+		});
+		/* One file needs no tab strip \u2014 the lesson's inline examples would just be
+		 * wearing chrome that explains nothing. */
+		if (mode === 'single') tabs.hidden = true;
+
+		var out = document.createElement('div');
+		out.className = 'wwr-out';
+		body.appendChild(out);
+
+		/* TWO preview frames, not one.
+		 *
+		 * Assigning srcdoc tears the document down and rebuilds it, and the frame
+		 * paints white in between. At a 400 ms debounce that is a white flash every
+		 * time a student pauses typing \u2014 the page visibly flickering while they
+		 * work, which is what it was doing.
+		 *
+		 * So: render into the hidden frame, and swap only once it has loaded. The
+		 * student keeps looking at the last working render until the new one is
+		 * ready, and never sees the gap. */
+		function makeFrame() {
+			var f = document.createElement('iframe');
+			f.className = 'wwr-preview';
+			f.title = 'Live preview' + (label ? ' \u2014 ' + label : '');
+			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
+			 * origin and cannot reach this page, its storage, or its cookies. */
+			f.setAttribute('sandbox', 'allow-scripts');
+			out.appendChild(f);
+			return f;
+		}
+
+		var frames = [makeFrame(), makeFrame()];
+		var live = 0;
+		frames[0].classList.add('is-live');
+
+		/* The console spans the FULL width beneath both columns, rather than sitting
+		 * in the right-hand column under the preview.
+		 *
+		 * It was nested in .wwr-out, which gave it half the width and stacked it
+		 * against the student's own page \u2014 so a logged object wrapped after about
+		 * forty characters and the preview lost a third of its height to a panel
+		 * that is empty most of the time. console.log(data) on the game catalog is
+		 * a chapter-4 instruction; it needs room to be readable. */
+		var consoleBox = document.createElement('div');
+		consoleBox.className = 'wwr-console';
+		consoleBox.hidden = !showConsole;
+		if (showConsole) {
+			var chead = document.createElement('div');
+			chead.className = 'wwr-console-head';
+			chead.title = 'Drag to resize, or double-click to collapse';
+
+			var ctitle = document.createElement('span');
+			ctitle.textContent = 'Console';
+			chead.appendChild(ctitle);
+
+			var cspace = document.createElement('span');
+			cspace.className = 'wwr-spacer';
+			chead.appendChild(cspace);
+
+			var cfold = document.createElement('button');
+			cfold.type = 'button';
+			cfold.className = 'wwr-fold';
+			cfold.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15l6-5.5"/></svg>';
+			chead.appendChild(cfold);
+			consoleBox.appendChild(chead);
+
+			/* Resizable, because how much console a student wants is entirely
+			 * situational: none at all while laying out HTML, and as much as
+			 * possible on the chapter that is only about reading logged data.
+			 * Anything fixed is wrong for somebody. */
+			var MIN_H = 64;
+			var collapsed = false;
+			var lastHeight = 150;
+
+			function setCollapsed(next) {
+				collapsed = next;
+				consoleBox.classList.toggle('is-collapsed', collapsed);
+				consoleBox.style.height = collapsed ? '' : lastHeight + 'px';
+				cfold.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+				cfold.setAttribute('aria-label', collapsed ? 'Show the console' : 'Hide the console');
+				metric(collapsed ? 'console_collapsed' : 'console_expanded', host);
+			}
+
+			cfold.addEventListener('click', function (e) {
+				e.stopPropagation();
+				setCollapsed(!collapsed);
+			});
+			chead.addEventListener('dblclick', function () {
+				setCollapsed(!collapsed);
+			});
+
+			var dragFrom = 0;
+			var dragH = 0;
+
+			function onMove(e) {
+				/* Upwards is taller: the panel is anchored at the bottom of the card,
+				 * so the handle moving up has to grow it, not shrink it. */
+				var next = Math.max(MIN_H, dragH + (dragFrom - e.clientY));
+				var ceiling = Math.max(MIN_H, host.getBoundingClientRect().height - 140);
+				lastHeight = Math.min(next, ceiling);
+				consoleBox.style.height = lastHeight + 'px';
+			}
+
+			function endDrag() {
+				document.removeEventListener('pointermove', onMove);
+				document.removeEventListener('pointerup', endDrag);
+				document.body.classList.remove('wwr-resizing');
+				metric('console_resized', host);
+			}
+
+			chead.addEventListener('pointerdown', function (e) {
+				if (e.target.closest && e.target.closest('.wwr-fold')) return;
+				if (collapsed) setCollapsed(false);
+				e.preventDefault();
+				dragFrom = e.clientY;
+				dragH = consoleBox.getBoundingClientRect().height;
+				/* On <body>, not the handle: it stops the drag selecting text across
+				 * the whole page, and keeps the resize cursor while the pointer
+				 * inevitably wanders off the 20px strip being dragged. */
+				document.body.classList.add('wwr-resizing');
+				document.addEventListener('pointermove', onMove);
+				document.addEventListener('pointerup', endDrag);
+			});
+
+			/* Keyboard: the handle is a real control, so it has to be operable
+			 * without a pointer. Arrows resize, Enter folds. */
+			chead.tabIndex = 0;
+			chead.setAttribute('role', 'separator');
+			chead.setAttribute('aria-orientation', 'horizontal');
+			chead.setAttribute('aria-label', 'Console size');
+			chead.addEventListener('keydown', function (e) {
+				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+					e.preventDefault();
+					if (collapsed) setCollapsed(false);
+					lastHeight = Math.max(MIN_H, lastHeight + (e.key === 'ArrowUp' ? 24 : -24));
+					consoleBox.style.height = lastHeight + 'px';
+				} else if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					setCollapsed(!collapsed);
+				}
+			});
+
+			setCollapsed(false);
+		}
+		var consoleLines = document.createElement('pre');
+		consoleLines.className = 'wwr-console-lines';
+		consoleLines.setAttribute('aria-live', 'polite');
+		consoleBox.appendChild(consoleLines);
+		host.appendChild(consoleBox);
+
+		var errBox = document.createElement('div');
+		errBox.className = 'wwr-error';
+		errBox.hidden = true;
+		errBox.setAttribute('role', 'status');
+		errBox.setAttribute('aria-live', 'polite');
+		host.appendChild(errBox);
+
+		/* ---- running ---- */
+		var timer = null;
+		var firstRunDone = false;
+		var firstFetchDone = false;
+
+		function currentSources() {
+			return {
+				html: editors['index.html'] ? editors['index.html'].area.value : mode === 'single' ? singleValue('html') : '',
+				css: editors['styles.css'] ? editors['styles.css'].area.value : mode === 'single' ? singleValue('css') : '',
+				js: editors['main.js'] ? editors['main.js'].area.value : mode === 'single' ? singleValue('js') : '',
+			};
+		}
+
+		/* In single-file mode the one editor holds whichever language the example
+		 * teaches; the other two come from the element's static attributes, so a
+		 * CSS example can still render against fixed HTML. */
+		function singleValue(kind) {
+			var f = files[0];
+			if (f.kind === kind) return editors[f.name].area.value;
+			return f.context && f.context[kind] ? f.context[kind] : '';
+		}
+
+		function schedule() {
+			if (!autorun) {
+				markDirty();
+				return;
+			}
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				run('auto');
+			}, DEBOUNCE_MS);
+		}
+
+		function markDirty() {
+			runBtn.classList.add('is-dirty');
+		}
+
+		var lastDoc = null;
+		var consoleCount = 0;
+		/* How many lines of OUR document sit above the student's code.
+		 *
+		 * \`e.lineno\` on a script error is relative to the whole document, and the
+		 * document begins with a <head>, their HTML, and a hundred-odd lines of
+		 * reporting harness. So a mistake on line 3 of a twelve-line file was
+		 * reported as "line 103" \u2014 a number that does not exist in anything the
+		 * student can see, and which sends them scrolling for code that is not
+		 * theirs. Subtracting this is the difference between a line number that
+		 * helps and one that actively misleads. */
+		var jsLineOffset = 0;
+		/* The parse error we already reported for this render, if any. */
+		var syntaxProblem = null;
+
+		function run(how) {
+			clearTimeout(timer);
+			runBtn.classList.remove('is-dirty');
+			var src = currentSources();
+			var doc = assembleDocument(src.html, src.css, src.js, HARNESS);
+
+			/* Nothing changed \u2014 do not tear the page down to rebuild the same thing.
+			 * Input events fire for plenty of reasons that leave the code identical
+			 * (arrow keys, selection, a tab switch), and every one of those was
+			 * costing a full reload and a flash. Run always honours an explicit
+			 * press, because "I pressed Run and nothing happened" is worse. */
+			if (doc === lastDoc && how !== 'manual') return;
+			lastDoc = doc;
+
+			clearError();
+			consoleLines.textContent = '';
+			consoleCount = 0;
+
+			/* Parse the student's JavaScript here, where the real message is
+			 * available, and report it before the frame gets a chance to hand us
+			 * Safari's "Script error." instead. The page still renders \u2014 their HTML
+			 * and CSS are probably fine, and seeing the rest of their work survive is
+			 * a better experience than a blank rectangle. */
+			syntaxProblem = syntaxErrorIn(src.js);
+			if (syntaxProblem) {
+				var si = explain(syntaxProblem.message);
+				showError(si.title, syntaxProblem.message, si.help, syntaxProblem.line);
+				logToConsole('error', syntaxProblem.message + (syntaxProblem.line ? '  (line ' + syntaxProblem.line + ')' : ''));
+				metric('errors_' + si.key, host);
+			}
+
+			var next = frames[1 - live];
+			next.onload = function () {
+				next.onload = null;
+				var old = frames[live];
+				next.classList.add('is-live');
+				old.classList.remove('is-live');
+				live = 1 - live;
+				/* Blank the retired frame so its timers, listeners and any runaway
+				 * loop stop. Without this a student's setInterval would keep running
+				 * \u2014 invisibly \u2014 once per render, forever. */
+				old.onload = null;
+				old.srcdoc = '';
+			};
+			/* The student's block is always the last one in the document. */
+			var marker = '\\n<script>\\n';
+			var at = doc.lastIndexOf(marker);
+			jsLineOffset = at < 0 ? 0 : doc.slice(0, at + marker.length).split('\\n').length - 1;
+
+			next.srcdoc = doc;
+
+			metric(how === 'manual' ? 'runs_manual' : 'runs_debounced', host);
+			if (!firstRunDone) {
+				firstRunDone = true;
+				metric('first_run', host);
+			}
+		}
+
+		/** The student's page on its own, with none of our reporting harness \u2014
+		 *  byte-identical to what Download produces. */
+		function standaloneDoc() {
+			var src = currentSources();
+			return assembleDocument(src.html, src.css, src.js);
+		}
+
+		var openedUrl = null;
+		function openInTab() {
+			try {
+				if (openedUrl) URL.revokeObjectURL(openedUrl);
+				openedUrl = URL.createObjectURL(new Blob([standaloneDoc()], { type: 'text/html' }));
+				/* A blob: URL rather than the srcdoc: the new tab gets a real origin,
+				 * so fetch works there exactly as it does in a downloaded file \u2014 which
+				 * is the point of offering this at all. */
+				window.open(openedUrl, '_blank', 'noopener');
+				metric('open_tab', host);
+			} catch (e) {
+				showError('Could not open a new tab', '', 'Your browser blocked the pop-up. Allow pop-ups for this page and try again.', null);
+			}
+		}
+
+		function logToConsole(level, text) {
+			if (!showConsole) return;
+			var lineEl = document.createElement('div');
+			lineEl.className = 'wwr-console-line is-' + level;
+			lineEl.textContent = text;
+			consoleLines.appendChild(lineEl);
+			/* Second cap, on this side of the channel. The harness bounds what it
+			 * sends per run; this bounds what the DOM has to hold across a long
+			 * period of a student pressing Run over and over. */
+			consoleCount++;
+			while (consoleCount > 250 && consoleLines.firstChild) {
+				consoleLines.removeChild(consoleLines.firstChild);
+				consoleCount--;
+			}
+			consoleLines.scrollTop = consoleLines.scrollHeight;
+		}
+
+		function showError(title, message, help, line) {
+			errBox.hidden = false;
+			errBox.innerHTML = '';
+			var h = document.createElement('div');
+			h.className = 'wwr-error-title';
+			h.textContent = title;
+			errBox.appendChild(h);
+			if (message) {
+				var m = document.createElement('code');
+				m.className = 'wwr-error-msg';
+				m.textContent = message + (line ? '  \u2014 line ' + line : '');
+				errBox.appendChild(m);
+			}
+			var p = document.createElement('p');
+			p.className = 'wwr-error-help';
+			p.textContent = help;
+			errBox.appendChild(p);
+		}
+
+		function clearError() {
+			errBox.hidden = true;
+			errBox.textContent = '';
+		}
+
+		window.addEventListener('message', function (e) {
+			var d = e && e.data;
+			if (!d || d.__ww !== true) return;
+			/* Every runner on the page hears every runner's messages, so match on the
+			 * frames this instance owns rather than trusting anything in the payload.
+			 * BOTH buffers count: the incoming render starts talking before it has
+			 * been swapped in, and dropping those would lose the first console line
+			 * and any error thrown during load \u2014 which is most of them. */
+			if (e.source !== frames[0].contentWindow && e.source !== frames[1].contentWindow) return;
+
+			if (d.kind === 'error') {
+				/* We already described this failure from the host, where the message is
+				 * real. The frame is about to report the same thing \u2014 as "Script error."
+				 * in Safari, and as a duplicate in Chrome. One failure, one message.
+				 *
+				 * But take its LINE NUMBER if we lack one. The two sources are good at
+				 * different halves of the problem: the host has the true message and no
+				 * origin barrier, while Chrome attaches no line to a SyntaxError raised
+				 * by new Function \u2014 and the frame, which parsed the code as a real
+				 * script, knows exactly where it gave up. Message from one, position
+				 * from the other. */
+				if (syntaxProblem) {
+					if (!syntaxProblem.line && d.payload.line) {
+						var fromFrame = d.payload.line - jsLineOffset;
+						var lines = currentSources().js.split('\\n').length;
+						if (fromFrame > 0) {
+							syntaxProblem.line = Math.min(fromFrame, lines);
+							var si2 = explain(syntaxProblem.message);
+							showError(si2.title, syntaxProblem.message, si2.help, syntaxProblem.line);
+							if (consoleLines.lastChild) consoleLines.lastChild.textContent += '  (line ' + syntaxProblem.line + ')';
+						}
+					}
+					return;
+				}
+				var info = explain(d.payload.message);
+				/* Report the line in THEIR file, or no line at all. A wrong line number
+				 * is worse than none: it looks authoritative.
+				 *
+				 * Clamped to the length of the file because an end-of-input error is
+				 * reported at the line AFTER the last one \u2014 Chrome is pointing at
+				 * where input ran out, which is correct and useless. "Line 4" in a
+				 * three-line file just reads as broken; the last line is where they
+				 * actually need to look. */
+				var line = d.payload.line ? d.payload.line - jsLineOffset : null;
+				if (line > 0) {
+					var total = currentSources().js.split('\\n').length;
+					line = Math.min(line, total);
+				} else {
+					line = null;
+				}
+				showError(info.title, d.payload.message, info.help, line);
+				/* ALSO echo it into the console pane.
+				 *
+				 * Every console a student will ever meet shows errors alongside logs,
+				 * so an error that appears only in a separate panel reads as the
+				 * console being broken \u2014 especially in the case that matters most: a
+				 * syntax error means NONE of their code ran, so nothing they logged
+				 * shows up and the pane sits there empty with no explanation. The
+				 * panel is the friendly version; this is the record of what happened. */
+				logToConsole('error', d.payload.message + (line ? '  (line ' + line + ')' : ''));
+				metric('errors_' + info.key, host);
+			} else if (d.kind === 'hint') {
+				var hint = SILENT_HINTS[d.payload.key];
+				if (hint) {
+					showError(hint.title, '', hint.help, null);
+					logToConsole('warn', hint.title);
+					metric('errors_' + d.payload.key, host);
+				}
+			} else if (d.kind === 'fetch') {
+				metric(d.payload.ok ? 'fetch_ok' : 'fetch_failed', host);
+				if (d.payload.ok && !firstFetchDone) {
+					firstFetchDone = true;
+					/* The funnel step that says a student got all the way to real data.
+					 * Everything before it is setup; everything after is their own work. */
+					metric('first_fetch_ok', host);
+				}
+			} else if (d.kind === 'console') {
+				logToConsole(d.payload.level, d.payload.text);
+			}
+		});
+
+		runBtn.addEventListener('click', function () {
+			run('manual');
+		});
+		openBtn.addEventListener('click', openInTab);
+		resetBtn.addEventListener('click', function () {
+			files.forEach(function (f) {
+				replaceValue(editors[f.name].area, f.code);
+				editors[f.name].refresh();
+			});
+			metric('reset', host);
+			run('manual');
+		});
+
+		/* Public surface, used by the builder page for save/download/seeding. */
+		host.wwGet = currentSources;
+		host.wwSet = function (next) {
+			files.forEach(function (f) {
+				if (next[f.name] != null) {
+					replaceValue(editors[f.name].area, next[f.name]);
+					editors[f.name].refresh();
+				}
+			});
+			run('manual');
+		};
+		host.wwRun = function () {
+			run('manual');
+		};
+
+		run('auto');
+	}
+
+	/* Icons are DRAWN, never typed.
+	 *
+	 * A play triangle and a reset arrow look like safe characters, and they are
+	 * not: the glyph comes from whatever font the platform decides, so it lands
+	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * else in the toolbar uses. On a school Windows machine missing the font it is
+	 * a blank box on the one button a student needs most. Two SVG paths cost
+	 * nothing and look the same everywhere. */
+	var ICON_RUN = '<path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor" stroke="none"/>';
+	var ICON_OPEN =
+		'<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/>' +
+		'<path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>';
+	var ICON_RESET =
+		'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 4v5h5"/>';
+
+	function button(text, cls, icon) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'wwr-btn ' + cls;
+		b.innerHTML =
+			'<svg class="wwr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			icon +
+			'</svg>' +
+			text;
+		return b;
+	}
+
+	/**
+	 * Read the starter files out of the element's <script type="text/ww-file">
+	 * children.
+	 *
+	 * A script tag rather than a textarea or an attribute: the browser will not
+	 * execute or render an unknown script type, so student-facing starter code can
+	 * contain < and & and quotes without being HTML-escaped by hand in the page
+	 * source. That matters \u2014 the starter code IS HTML in one of the three files.
+	 */
+	function readFiles(host) {
+		var nodes = host.querySelectorAll('script[type="text/ww-file"]');
+		var files = [];
+		var context = {};
+		Array.prototype.forEach.call(nodes, function (n) {
+			var name = n.getAttribute('name') || 'main.js';
+			var code = dedent(n.textContent || '');
+			var kind = name.split('.').pop();
+			if (n.hasAttribute('context')) {
+				context[kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html'] = code;
+				return;
+			}
+			files.push({ name: name, code: code, kind: kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html' });
+		});
+		if (!files.length) files.push({ name: 'main.js', code: '', kind: 'js' });
+		files[0].context = context;
+		return files;
+	}
+
+	/** Starter code is indented to match the page's HTML; students should not see
+	 *  that indentation. Strip the common leading whitespace, tabs or spaces. */
+	function dedent(text) {
+		var lines = String(text).replace(/^\\n+|\\s+$/g, '').split('\\n');
+		var indent = null;
+		lines.forEach(function (l) {
+			if (!l.trim()) return;
+			var m = l.match(/^[\\t ]*/)[0];
+			if (indent === null || m.length < indent.length) indent = m;
+		});
+		if (!indent) return lines.join('\\n');
+		return lines
+			.map(function (l) {
+				return l.indexOf(indent) === 0 ? l.slice(indent.length) : l;
+			})
+			.join('\\n');
+	}
+
+	function init() {
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner'), function (host) {
+			if (host.dataset.wwReady) return;
+			host.dataset.wwReady = '1';
+			try {
+				WwRunner(host);
+			} catch (e) {
+				/* A broken runner must not take the rest of the lesson down with it \u2014
+				 * the page is readable without any of them (see the static fallback
+				 * markup each one wraps). */
+				host.classList.add('wwr--failed');
+				if (window.console) console.error('ww-runner failed to start', e);
+			}
+		});
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwRunner = { assembleDocument: assembleDocument, explain: explain, escapeForScript: escapeForScript, dedent: dedent };
+})();
+
+</script>
+<script>
+/* Wild Willows \u2014 the student lesson at /learn/web-development.
+ *
+ * The page's own behaviour. The editors and previews are ww-runner.js; this file
+ * is everything the lesson adds around them:
+ *
+ *   \u2022 the chapter rail \u2014 where you are, where you have been, and per-chapter
+ *     dwell time bucketed for the dashboard
+ *   \u2022 the API probe in chapter 3 \u2014 a real request to /GameData/, reporting the
+ *     status, the time and the size a student's own network actually produced
+ *   \u2022 the JSON tree \u2014 collapsible, coloured by type, shared by chapters 3 and 5
+ *   \u2022 the path explorer in chapter 5 \u2014 type a path, see which part of the tree
+ *     it selected and what type came back
+ *   \u2022 the five challenges in chapter 9, and the hand-off into the Code Builder
+ *   \u2022 one batched beacon of anonymous counters, on the same contract as the
+ *     builder's (see PRIVACY.md): names from a fixed list and numbers, nothing
+ *     else, ever.
+ *
+ * No framework, no build step, no CDN. This file is inlined into the page at
+ * build time by the @include directive in scripts/build-pages.mjs.
+ */
+(function () {
+	'use strict';
+
+	var CHAPTERS = 9;
+	var API_URL = 'https://wildwillows.app/GameData/';
+	var DONE_KEY = 'wwLessonDone'; // chapters seen, for the rail's ticks
+	var CHAL_KEY = 'wwLessonChallenges'; // which of chapter 9's five are ticked
+
+	/* ------------------------------------------------------------- counters
+	 *
+	 * READ THE NOTE ON flush() IN ww-builder.js BEFORE CHANGING THIS. It is the
+	 * same design and it is the same trap: counts are emptied on every send, and
+	 * anything that should be reported exactly once per session rides on the
+	 * final flush only. The builder's version of this once kept a batch after
+	 * sending it, behind a latch, and the five-minute timer sent it a second
+	 * time \u2014 every counter before a student's first tab switch was recorded
+	 * twice. Do not reintroduce a latch here. */
+	var counts = {};
+	var summarySent = false;
+
+	function bump(key) {
+		counts[key] = (counts[key] || 0) + 1;
+	}
+
+	/** Counters that describe the session as a whole rather than an event in it:
+	 *  how many chapters were reached, how many challenges ticked, and how long
+	 *  was spent in each chapter. Once per session, at the end. */
+	function addSummary() {
+		var reached = 0;
+		for (var i = 1; i <= CHAPTERS; i++) if (dwell[i] > 0) reached++;
+		if (reached) bump('chapters_' + Math.min(9, reached));
+
+		var ticked = challengesDone().length;
+		if (ticked) bump('challenges_' + Math.min(5, ticked));
+
+		for (var c = 1; c <= CHAPTERS; c++) {
+			var band = dwellBand(dwell[c] || 0);
+			if (band) bump('dwell_chapter-' + c + '_' + band);
+		}
+	}
+
+	/** Bucketed, never a raw duration. A precise per-chapter time is a behavioural
+	 *  trace of one reader; a band answers "is chapter 7 too long" just as well and
+	 *  describes nobody. Under ten seconds is scrolling past, not reading. */
+	function dwellBand(ms) {
+		if (ms < 10000) return null;
+		var m = ms / 60000;
+		if (m < 1) return 'lt1m';
+		if (m < 3) return '1to3m';
+		if (m < 10) return '3to10m';
+		return 'gt10m';
+	}
+
+	function flush(final) {
+		tickDwell();
+		if (final && !summarySent) {
+			summarySent = true;
+			addSummary();
+		}
+		if (!Object.keys(counts).length) return;
+		var batch = counts;
+		counts = {};
+		try {
+			var body = JSON.stringify({ page: 'lesson', counts: batch });
+			if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+		} catch (e) {
+			/* analytics never gets to break a lesson */
+		}
+	}
+
+	/* Everything ww-runner reports \u2014 runs, errors, fetch outcomes, view changes \u2014
+	 * arrives here as a bubbling event, so instrumentation is written once rather
+	 * than at each of the page's fifteen runners. */
+	document.addEventListener('ww:metric', function (e) {
+		if (!e || !e.detail || !e.detail.key) return;
+		bump(e.detail.key);
+		/* A runner tagged with the concept it teaches also reports that concept the
+		 * first time it is actually run. That is what makes "which iterator methods
+		 * did students really try" answerable \u2014 as opposed to "which ones were on
+		 * the page", which we already know. */
+		var host = e.target && e.target.closest && e.target.closest('ww-runner[data-concept]');
+		if (host && !host.dataset.conceptSent && /^runs_/.test(e.detail.key)) {
+			host.dataset.conceptSent = '1';
+			bump(host.getAttribute('data-concept'));
+		}
+	});
+
+	document.addEventListener('visibilitychange', function () {
+		tickDwell();
+		if (document.visibilityState === 'hidden') flush(false);
+	});
+	window.addEventListener('pagehide', function () {
+		flush(true);
+	});
+	setInterval(function () {
+		flush(false);
+	}, 300000);
+
+	/* ------------------------------------------------------ small utilities */
+
+	function $(sel, root) {
+		return (root || document).querySelector(sel);
+	}
+	function $$(sel, root) {
+		return Array.prototype.slice.call((root || document).querySelectorAll(sel));
+	}
+	function el(tag, cls, text) {
+		var n = document.createElement(tag);
+		if (cls) n.className = cls;
+		if (text != null) n.textContent = text;
+		return n;
+	}
+	function store(key, value) {
+		try {
+			if (value === undefined) return JSON.parse(localStorage.getItem(key) || 'null');
+			localStorage.setItem(key, JSON.stringify(value));
+		} catch (e) {
+			/* Guest mode and managed Chromebooks: storage can be unavailable or
+			 * full. The lesson works without it \u2014 you lose the ticks, not the page. */
+			if (value === undefined) return null;
+		}
+		return null;
+	}
+
+	/* ------------------------------------------- the rail, and chapter dwell */
+
+	var dwell = {}; // chapter number -> milliseconds visible
+	var currentCh = 0;
+	var since = 0;
+
+	function tickDwell() {
+		if (!currentCh || !since) return;
+		var now = Date.now();
+		dwell[currentCh] = (dwell[currentCh] || 0) + (now - since);
+		since = now;
+	}
+
+	function setCurrent(n) {
+		if (n === currentCh) return;
+		tickDwell();
+		currentCh = n;
+		since = Date.now();
+		$$('.lrail a').forEach(function (a) {
+			a.classList.toggle('is-current', Number(a.getAttribute('data-ch')) === n);
+			if (Number(a.getAttribute('data-ch')) === n) a.setAttribute('aria-current', 'true');
+			else a.removeAttribute('aria-current');
+		});
+		markDone(n);
+	}
+
+	function doneSet() {
+		var raw = store(DONE_KEY);
+		return Array.isArray(raw) ? raw : [];
+	}
+
+	function markDone(n) {
+		if (!n) return;
+		if (!dwell[n]) {
+			dwell[n] = 0;
+			bump('chapter_' + n + '_reached');
+			if (n === 1) bump('lesson_start');
+		}
+		var seen = doneSet();
+		if (seen.indexOf(n) < 0) {
+			seen.push(n);
+			store(DONE_KEY, seen);
+		}
+		paintDone();
+	}
+
+	function paintDone() {
+		var seen = doneSet();
+		$$('.lrail a').forEach(function (a) {
+			var n = Number(a.getAttribute('data-ch'));
+			a.classList.toggle('is-done', seen.indexOf(n) >= 0 && n !== currentCh);
+		});
+	}
+
+	function initRail() {
+		paintDone();
+		var sections = $$('.ch[id^="chapter-"]');
+		if (!sections.length) return;
+
+		/* WHICH CHAPTER IS "CURRENT" IS A GEOMETRY QUESTION, not a visibility one.
+		 *
+		 * The obvious version of this \u2014 rank the sections by intersection ratio and
+		 * take the highest \u2014 has a hole at both ends of the page, and the top one
+		 * is the one a student sees first: standing at the hero, NO chapter is
+		 * intersecting, every ratio is 0, and the rail highlights nothing at all.
+		 * A syllabus that shows no position until you have scrolled past the first
+		 * heading is worse than no syllabus.
+		 *
+		 * So: the current chapter is the LAST one whose top has passed the reading
+		 * line, and chapter 1 before any of them have. That is well defined
+		 * everywhere on the page, including both ends and including a final
+		 * chapter too short to ever win on ratio.
+		 *
+		 * The observer is still here, but only as a cheap way to be told that
+		 * something moved \u2014 it does not decide anything. That keeps this off the
+		 * scroll path, which matters on the Chromebooks this page is written for. */
+		var READING_LINE = 96; // px below the sticky nav
+
+		function pick() {
+			var best = 0;
+			sections.forEach(function (sec) {
+				if (sec.getBoundingClientRect().top - READING_LINE <= 0) best = Number(sec.id.replace('chapter-', ''));
+			});
+			setCurrent(best || 1);
+		}
+
+		pick();
+
+		if (!window.IntersectionObserver) {
+			/* No observer: fall back to the scroll event, throttled to one frame.
+			 * Older managed Chromebooks do exist and the rail is not optional. */
+			var queued = false;
+			window.addEventListener(
+				'scroll',
+				function () {
+					if (queued) return;
+					queued = true;
+					requestAnimationFrame(function () {
+						queued = false;
+						pick();
+					});
+				},
+				{ passive: true },
+			);
+			return;
+		}
+
+		var obs = new IntersectionObserver(pick, { rootMargin: '-96px 0px 0px 0px', threshold: [0, 0.02, 0.5, 1] });
+		sections.forEach(function (sec) {
+			obs.observe(sec);
+		});
+	}
+
+	/* --------------------------------------------------------- the JSON tree
+	 *
+	 * Written by hand rather than dumping JSON.stringify into a <pre> for one
+	 * reason: the colours ARE the lesson. Chapter 3 names six types in a table,
+	 * and a tree that paints strings, numbers, booleans and null differently
+	 * means a student sees the type before they read anything about it \u2014 and in
+	 * chapter 5 they can see that a path landed on an array rather than a string
+	 * without running it. */
+
+	function typeOf(v) {
+		if (v === null) return 'null';
+		if (Array.isArray(v)) return 'array';
+		return typeof v; // string | number | boolean | object
+	}
+
+	var TYPE_CLASS = { string: 'jstr', number: 'jnum', boolean: 'jbool', null: 'jnull' };
+
+	/** A human sentence naming what a value is \u2014 used under the tree and by the
+	 *  chapter 5 explorer, so chapter 3's table gets used rather than read once. */
+	function describe(v) {
+		var t = typeOf(v);
+		if (t === 'array') return 'an array of ' + v.length + ' thing' + (v.length === 1 ? '' : 's');
+		if (t === 'object') {
+			var n = Object.keys(v).length;
+			return 'an object with ' + n + ' part' + (n === 1 ? '' : 's');
+		}
+		if (t === 'null') return 'null \u2014 nothing, on purpose';
+		if (t === 'undefined') return 'undefined \u2014 there is nothing here';
+		return 'a ' + t;
+	}
+
+	/** One row of the tree. \`open\` controls whether containers start expanded;
+	 *  everything below the top level starts folded so 150 animals do not arrive
+	 *  as a wall. */
+	function jsonRow(key, value, depth, openTo) {
+		var t = typeOf(v_(value));
+		var row = el('div', 'jrow');
+		var wrap = el('div', 'jnode');
+		var container = t === 'object' || t === 'array';
+		wrap.appendChild(row);
+
+		var kids = null;
+		if (container) {
+			var toggle = el('button', 'jtoggle');
+			toggle.type = 'button';
+			var open = depth < openTo;
+			setChevron(toggle, open);
+			toggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+			row.appendChild(toggle);
+			if (key != null) row.appendChild(el('span', 'jkey', key + ':'));
+			row.appendChild(el('span', 'jmeta', summary(value)));
+
+			kids = el('div', 'jkids');
+			kids.hidden = !open;
+			wrap.appendChild(kids);
+			var built = open;
+			if (open) buildKids(kids, value, depth, openTo);
+
+			toggle.addEventListener('click', function () {
+				var nowOpen = kids.hidden;
+				if (nowOpen && !built) {
+					built = true;
+					buildKids(kids, value, depth, openTo);
+				}
+				kids.hidden = !nowOpen;
+				setChevron(toggle, nowOpen);
+				toggle.setAttribute('aria-expanded', nowOpen ? 'true' : 'false');
+				if (nowOpen) bump('types_tree-expanded');
+			});
+		} else {
+			row.appendChild(el('span', 'jspace'));
+			if (key != null) row.appendChild(el('span', 'jkey', key + ':'));
+			row.appendChild(el('span', TYPE_CLASS[t] || 'jmeta', literal(value)));
+		}
+		return wrap;
+	}
+
+	function v_(x) {
+		return x;
+	}
+
+	/* The fold marker is DRAWN, not typed.
+	 *
+	 * Every icon on these pages is an SVG path, and the reason is the one that
+	 * rules out emoji: a geometric-shape character is whatever glyph the
+	 * platform's font decides \u2014 a hairline arrow on one machine, a full-colour
+	 * pictograph at a size nothing else on the page uses on another, and an empty
+	 * box on a managed Chromebook missing the font. This is a control a student
+	 * hits a hundred times to read one record; it does not get to be a lottery.
+	 *
+	 * (This comment deliberately does not print the character it is arguing
+	 * about. tests/unit/built-pages.test.ts scans the delivered page for
+	 * pictographs, and this file is inlined into it \u2014 a comment naming the
+	 * forbidden glyph would be the thing that fails the check. The runner partial
+	 * learned the same lesson about closing script tags.)
+	 *
+	 * One path, rotated, so open and closed cannot drift apart. */
+	function setChevron(button, open) {
+		button.innerHTML =
+			'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ' +
+			'style="width:.62em;height:.62em;display:block;transition:transform .12s ease;' +
+			'transform:rotate(' +
+			(open ? 90 : 0) +
+			'deg)"><path d="M9 5l7 7-7 7"/></svg>';
+	}
+
+	function summary(value) {
+		if (Array.isArray(value)) return 'Array(' + value.length + ')';
+		return '{ ' + Object.keys(value).length + ' }';
+	}
+
+	function literal(value) {
+		var t = typeOf(value);
+		if (t === 'string') {
+			var s = value.length > 90 ? value.slice(0, 90) + '\u2026' : value;
+			return '"' + s + '"';
+		}
+		return String(value);
+	}
+
+	/** Children are built the first time a node is opened, not up front. The full
+	 *  catalogue is a few hundred kilobytes of JSON; rendering every node of it
+	 *  eagerly is tens of thousands of elements and a visibly janky page on the
+	 *  hardware this lesson is written for. */
+	function buildKids(into, value, depth, openTo) {
+		var isArr = Array.isArray(value);
+		var keys = isArr ? null : Object.keys(value);
+		var n = isArr ? value.length : keys.length;
+		var LIMIT = 40;
+		for (var i = 0; i < Math.min(n, LIMIT); i++) {
+			var k = isArr ? String(i) : keys[i];
+			into.appendChild(jsonRow(k, isArr ? value[i] : value[k], depth + 1, openTo));
+		}
+		if (n > LIMIT) {
+			var more = el('button', 'jtoggle jmore', 'show ' + (n - LIMIT) + ' more');
+			more.type = 'button';
+			more.addEventListener('click', function () {
+				more.remove();
+				for (var j = LIMIT; j < n; j++) {
+					var kk = isArr ? String(j) : keys[j];
+					into.appendChild(jsonRow(kk, isArr ? value[j] : value[kk], depth + 1, openTo));
+				}
+			});
+			into.appendChild(more);
+		}
+	}
+
+	function renderTree(mount, value, openTo) {
+		mount.innerHTML = '';
+		mount.appendChild(jsonRow(null, value, 0, openTo == null ? 1 : openTo));
+	}
+
+	/* ------------------------------------------------------ the API probe */
+
+	var gameData = null; // shared by chapters 3 and 5 \u2014 fetched at most once
+	var pending = null;
+
+	function loadGameData() {
+		if (gameData) return Promise.resolve({ data: gameData, cached: true });
+		if (pending) return pending;
+		var started = Date.now();
+		pending = fetch(API_URL)
+			.then(function (res) {
+				return res.text().then(function (text) {
+					var ms = Date.now() - started;
+					var data = JSON.parse(text);
+					gameData = data;
+					return { data: data, ms: ms, status: res.status, bytes: text.length };
+				});
+			})
+			.catch(function (err) {
+				pending = null;
+				throw err;
+			});
+		return pending;
+	}
+
+	function initProbe() {
+		var probe = $('#api-probe');
+		if (!probe) return;
+		var btn = $('#probe-go', probe);
+		var out = $('#probe-out', probe);
+		var tree = $('#probe-tree', probe);
+		if (!btn) return;
+
+		btn.addEventListener('click', function () {
+			btn.disabled = true;
+			var label = btn.textContent;
+			btn.textContent = 'Asking\u2026';
+			out.hidden = false;
+			out.innerHTML = '';
+			loadGameData()
+				.then(function (r) {
+					btn.disabled = false;
+					btn.textContent = label;
+					bump('fetch_ok');
+					/* REAL NUMBERS FROM THEIR OWN NETWORK. A screenshot of a response
+					 * teaches nothing; "412 ms, 318 KB, on this school's wifi" is a
+					 * fact about the machine in front of them. */
+					out.appendChild(stat(r.cached ? '\u2014' : r.status, 'status'));
+					out.appendChild(stat(r.cached ? 'cached' : r.ms + ' ms', 'took'));
+					out.appendChild(stat(r.cached ? '\u2014' : Math.round(r.bytes / 1024) + ' KB', 'size'));
+					out.appendChild(stat(Object.keys(r.data).length, 'top-level keys'));
+					if (tree) renderTree(tree, r.data, 1);
+				})
+				.catch(function () {
+					btn.disabled = false;
+					btn.textContent = label;
+					bump('fetch_failed');
+					out.textContent =
+						'The request did not get through. That is usually the school network blocking it rather than anything on this page \u2014 try again, and tell your teacher if it keeps happening.';
+				});
+		});
+	}
+
+	function stat(value, label) {
+		var box = el('div', 'pstat');
+		box.appendChild(el('b', null, String(value)));
+		box.appendChild(el('span', null, label));
+		return box;
+	}
+
+	/* ------------------------------------------ chapter 5 \u2014 the path explorer
+	 *
+	 * A student types data.animals[0].name and sees which row of the tree it
+	 * landed on and what type came back. The path is PARSED, not evaluated: this
+	 * takes text a student typed and walks it across our own object, and eval on
+	 * that input would be a needless liability on a page built for schools.
+	 * Parsing also gives a better error \u2014 it can say which step failed. */
+
+	function parsePath(text) {
+		var src = String(text).trim();
+		if (src.indexOf('data') !== 0) return { error: 'Start the path with \`data\`.' };
+		var rest = src.slice(4);
+		var steps = [];
+		var re = /^\\s*(?:\\.([A-Za-z_$][\\w$]*)|\\[\\s*(\\d+)\\s*\\]|\\[\\s*'([^']*)'\\s*\\]|\\[\\s*"([^"]*)"\\s*\\])/;
+		while (rest.length) {
+			var m = re.exec(rest);
+			if (!m) return { error: 'I could not read this part: \`' + rest.trim() + '\`' };
+			steps.push(m[1] != null ? m[1] : m[2] != null ? Number(m[2]) : m[3] != null ? m[3] : m[4]);
+			rest = rest.slice(m[0].length);
+			if (/^\\s*$/.test(rest)) break;
+		}
+		return { steps: steps };
+	}
+
+	function walk(root, steps) {
+		var cur = root;
+		for (var i = 0; i < steps.length; i++) {
+			if (cur === null || cur === undefined) return { missing: true, at: i };
+			cur = cur[steps[i]];
+		}
+		return { value: cur };
+	}
+
+	function initExplorer() {
+		var box = $('#ch5-explorer');
+		if (!box) return;
+		var input = $('#ch5-path', box);
+		var go = $('#ch5-go', box);
+		var out = $('#ch5-out', box);
+		var tree = $('#ch5-tree', box);
+		if (!input || !go) return;
+
+		function show(msg, cls) {
+			out.className = 'cap' + (cls ? ' ' + cls : '');
+			out.textContent = msg;
+		}
+
+		function run() {
+			var parsed = parsePath(input.value);
+			if (parsed.error) return show(parsed.error);
+			loadGameData()
+				.then(function (r) {
+					var got = walk(r.data, parsed.steps);
+					if (got.missing)
+						return show('That path stops early \u2014 \`' + parsed.steps.slice(0, got.at).join('.') + '\` is not there.');
+					var v = got.value;
+					if (v === undefined) {
+						/* The undefined callout from the plan, delivered by the student's
+						 * own typo rather than by a paragraph they skimmed. */
+						show(
+							'undefined \u2014 there is nothing at that path. Not an error, not zero, not empty: JavaScript saying "nothing here".',
+						);
+					} else {
+						show(describe(v) + (typeOf(v) === 'string' ? ' \u2014 ' + literal(v) : ''));
+					}
+					if (tree) {
+						renderTree(tree, v === undefined ? {} : v, 1);
+						var first = $('.jrow', tree);
+						if (first) first.classList.add('is-lit');
+					}
+					bump('types_tree-expanded');
+				})
+				.catch(function () {
+					show('Could not load the data to look in. Check the network and try the button in chapter 3.');
+				});
+		}
+
+		go.addEventListener('click', run);
+		input.addEventListener('keydown', function (e) {
+			if (e.key === 'Enter') {
+				e.preventDefault();
+				run();
+			}
+		});
+		$$('[data-path]', box).forEach(function (b) {
+			b.addEventListener('click', function () {
+				input.value = b.getAttribute('data-path');
+				run();
+			});
+		});
+	}
+
+	/* ------------------------------------------------ chapter 3 type legend */
+
+	function initLegend() {
+		var d = $('#types-legend');
+		if (!d) return;
+		d.addEventListener('toggle', function () {
+			if (d.open) bump('types_legend-opened');
+		});
+	}
+
+	/* ------------------------------------------------- chapter 9 challenges */
+
+	function challengesDone() {
+		var raw = store(CHAL_KEY);
+		return Array.isArray(raw) ? raw : [];
+	}
+
+	function initChallenges() {
+		var list = $('#challenges');
+		if (!list) return;
+		var done = challengesDone();
+
+		$$('.chal', list).forEach(function (row) {
+			var id = row.getAttribute('data-chal');
+			var box = $('.chal-box', row);
+			if (!box) return;
+			var on = done.indexOf(id) >= 0;
+			row.classList.toggle('is-done', on);
+			box.setAttribute('aria-pressed', on ? 'true' : 'false');
+
+			box.addEventListener('click', function () {
+				var now = challengesDone();
+				var at = now.indexOf(id);
+				var turningOn = at < 0;
+				if (turningOn) now.push(id);
+				else now.splice(at, 1);
+				store(CHAL_KEY, now);
+				row.classList.toggle('is-done', turningOn);
+				box.setAttribute('aria-pressed', turningOn ? 'true' : 'false');
+				if (turningOn) bump('challenge_' + id);
+			});
+		});
+	}
+
+	/* --------------------------------------------------- hand-off to builder
+	 *
+	 * Chapter 9's last runner carries across into the Code Builder, so a student
+	 * arrives there with their own work already open rather than with a starter
+	 * project that throws it away. The code travels in the URL FRAGMENT, which
+	 * browsers do not send to the server \u2014 their code stays theirs, and the
+	 * promise on this page and in PRIVACY.md stays true. */
+
+	function initHandoff() {
+		var link = $('#to-builder');
+		if (!link) return;
+		link.addEventListener('click', function () {
+			var host = $('#chapter-9 ww-runner[data-carry]');
+			var area = host && $('textarea.wwr-code', host);
+			if (!area || !area.value.trim()) return; // no work to carry \u2014 plain link
+			try {
+				var payload = { js: area.value };
+				link.href = '/learn/code-builder#start=' + encodeURIComponent(JSON.stringify(payload));
+			} catch (e) {
+				/* Fall through to the plain link. Losing the carry-over is a small
+				 * disappointment; a click that does nothing is a broken lesson. */
+			}
+		});
+	}
+
+	/* ------------------------------------------------------ the flow diagram */
+
+	function initFlow() {
+		var flow = $('#ch8-flow');
+		if (!flow) return;
+		var steps = $$('.flow-step', flow);
+		var reduced = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+		if (!steps.length) return;
+		if (reduced) {
+			/* Reduced motion means no sequence, not no information: light all four
+			 * at once so the diagram still reads as the completed path. */
+			steps.forEach(function (s) {
+				s.classList.add('is-lit');
+			});
+			return;
+		}
+		if (!window.IntersectionObserver) return;
+		var played = false;
+		var obs = new IntersectionObserver(
+			function (entries) {
+				if (played || !entries.some((en) => en.isIntersecting)) return;
+				played = true;
+				steps.forEach(function (s, i) {
+					setTimeout(function () {
+						s.classList.add('is-lit');
+					}, i * 420);
+				});
+				obs.disconnect();
+			},
+			{ threshold: 0.6 },
+		);
+		obs.observe(flow);
+	}
+
+	/* ----------------------------------------------------------------- boot */
+
+	function init() {
+		bump('view_lesson');
+		var w = window.innerWidth || 0;
+		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
+
+		try {
+			var r = document.referrer;
+			var host = r ? new URL(r).hostname.toLowerCase().replace(/^www\\./, '') : '';
+			bump(
+				!r
+					? 'ref_direct'
+					: host === location.hostname
+						? 'ref_internal'
+						: /google|bing|duckduckgo|ecosia|yahoo/.test(host)
+							? 'ref_search'
+							: /reddit|bsky|mastodon|facebook|instagram|linkedin/.test(host)
+								? 'ref_social'
+								: 'ref_other',
+			);
+		} catch (e) {
+			bump('ref_other');
+		}
+
+		initRail();
+		initProbe();
+		initExplorer();
+		initLegend();
+		initChallenges();
+		initHandoff();
+		initFlow();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwLesson = {
+		parsePath: parsePath,
+		walk: walk,
+		describe: describe,
+		typeOf: typeOf,
+		dwellBand: dwellBand,
+		literal: literal,
+	};
+})();
+
+</script>
+</body>
+</html>
+`;
 var ogImageB64 = "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";
-var buildStamp = "0.3.9+2026-08-17T07:46:56.948Z";
+var buildStamp = "0.3.10+2026-08-18T03:18:57.745Z";
 
 // server/page-lastmod.ts
 var pageLastmod = {
-  "/": "2026-08-16",
+  "/": "2026-08-17",
   "/privacy.html": "2026-08-17",
-  "/age-rating.html": "2026-08-15",
-  "/support.html": "2026-08-16",
-  "/teachers": "2026-08-16",
+  "/age-rating.html": "2026-08-17",
+  "/support.html": "2026-08-17",
+  "/teachers": "2026-08-17",
+  "/learn/web-development": "2026-08-17",
   "/educator-guide.pdf": "2026-08-10",
   "/student-worksheets.pdf": "2026-08-09"
 };
@@ -36510,6 +45944,9 @@ function snapshotResponse(reqHeaders, state) {
 }
 var GAME_DATA_CORS = {
   "access-control-allow-origin": "*",
+  // No `access-control-allow-headers`/`-methods`: the lesson teaches bare
+  // `fetch(url)` with no custom headers, which is a CORS-simple request and is
+  // never preflighted. Nothing here answers OPTIONS, and nothing needs to.
   "access-control-allow-methods": "GET, HEAD"
 };
 var GameData = class extends PublicEndpoint {
@@ -40759,6 +50196,18 @@ var LANDING_CLICK_TARGETS = /* @__PURE__ */ new Set([
   // many people the page actually sends to the community.
   "reddit"
 ]);
+var LANDING_SOURCES = /* @__PURE__ */ new Set([
+  "google",
+  "bing",
+  "duckduckgo",
+  "reddit",
+  "itch",
+  "apple",
+  "bluesky",
+  "direct",
+  // no referrer at all: typed, bookmarked, or a stripped referrer
+  "other"
+]);
 var landingDay = (t2) => new Date(t2).toISOString().slice(0, 10);
 var LANDING_STATS_CACHE_MS = 15e3;
 async function buildLandingStats() {
@@ -40775,7 +50224,8 @@ async function buildLandingStats() {
     visits: 0,
     uniques: 0,
     clicks: {},
-    downloads: {}
+    downloads: {},
+    sources: {}
   };
   for (const r of rows) {
     totals.visits += r.visits || 0;
@@ -40783,6 +50233,8 @@ async function buildLandingStats() {
     for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
     for (const [k, v] of Object.entries(r.downloads || {}))
       totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
+    for (const [k, v] of Object.entries(r.sources || {}))
+      totals.sources[k] = (totals.sources[k] || 0) + (Number(v) || 0);
   }
   const LANDING_DAYS_RETURNED = 180;
   const days = rows.slice(-LANDING_DAYS_RETURNED).map((r) => ({
@@ -40792,7 +50244,8 @@ async function buildLandingStats() {
     clicks: r.clicks || {},
     totalClicks: sumValues(r.clicks),
     downloads: r.downloads || {},
-    totalDownloads: sumValues(r.downloads)
+    totalDownloads: sumValues(r.downloads),
+    sources: r.sources || {}
   }));
   return {
     generatedAt: now,
@@ -40800,7 +50253,8 @@ async function buildLandingStats() {
     totals: {
       ...totals,
       totalClicks: sumValues(totals.clicks),
-      totalDownloads: sumValues(totals.downloads)
+      totalDownloads: sumValues(totals.downloads),
+      totalSources: sumValues(totals.sources)
     },
     days
   };
@@ -40829,7 +50283,8 @@ async function bumpLandingStat(mutate) {
       visits: Number(stored?.visits) || 0,
       uniques: Number(stored?.uniques) || 0,
       clicks: countMap(stored?.clicks),
-      downloads: countMap(stored?.downloads)
+      downloads: countMap(stored?.downloads),
+      sources: countMap(stored?.sources)
     };
     mutate(row);
     row.updatedAt = now;
@@ -40853,16 +50308,20 @@ var LandingEvent = class extends PublicEndpoint {
     const body = await bodyOf(data, this);
     const type = body.type === "click" ? "click" : body.type === "visit" ? "visit" : null;
     if (!type) return { ok: true };
+    const rawFrom = String(body.from || "").toLowerCase().replace(/[^a-z]/g, "").slice(0, 16);
+    const from = LANDING_SOURCES.has(rawFrom) ? rawFrom : null;
     if (type === "visit") {
       await bumpLandingStat((r) => {
         r.visits = (r.visits || 0) + 1;
         if (body.first === true) r.uniques = (r.uniques || 0) + 1;
+        if (from) r.sources[from] = (r.sources[from] || 0) + 1;
       });
     } else {
       const raw = String(body.target || "").toLowerCase().replace(/[^a-z0-9-]/g, "").slice(0, 24);
       const target = LANDING_CLICK_TARGETS.has(raw) ? raw : "other";
       await bumpLandingStat((r) => {
         r.clicks[target] = (r.clicks[target] || 0) + 1;
+        if (from) r.sources[from] = (r.sources[from] || 0) + 1;
       });
     }
     return { ok: true };
@@ -41131,6 +50590,251 @@ var LandingStats = class extends DashboardEndpoint {
     return landingStatsCache.get(Date.now());
   }
 };
+var LESSON_ERROR_KEYS = /* @__PURE__ */ new Set([
+  // The runner's plain-English error catalogue, plus its two silent-render hints.
+  "fetch-failed",
+  "json-parse",
+  "null-property",
+  "undefined-property",
+  "not-defined",
+  "not-a-function",
+  "await-async",
+  "const-assign",
+  "not-iterable",
+  "unexpected-eof",
+  "syntax",
+  "masked",
+  "object-object",
+  "undefined-text",
+  "other"
+]);
+var LESSON_EXACT = /* @__PURE__ */ new Set([
+  // reach
+  "view_hub",
+  "view_science",
+  "view_coding",
+  "view_lesson",
+  "view_builder",
+  "unique_hub",
+  "unique_science",
+  "unique_coding",
+  "unique_lesson",
+  "unique_builder",
+  "ref_internal",
+  "ref_search",
+  "ref_social",
+  "ref_direct",
+  "ref_other",
+  // Where a student went NEXT from a classroom page. Three destinations, so
+  // three keys — the marketing side's data-track names post to /LandingEvent/
+  // and would be counted in the wrong system entirely.
+  "nav_lesson",
+  "nav_hub",
+  "nav_game",
+  // funnel
+  "lesson_start",
+  "builder_open",
+  "first_run",
+  "first_fetch_ok",
+  "challenge_chosen",
+  "download",
+  // lesson interactions
+  "types_legend-opened",
+  "types_tree-expanded",
+  // builder health
+  "runs_manual",
+  "runs_debounced",
+  "fetch_ok",
+  "fetch_failed",
+  "fetch_blocked",
+  "open_tab",
+  "reset",
+  "reset_project",
+  "undo",
+  "import",
+  "import_failed",
+  "restored",
+  "save_unreadable",
+  "storage_unavailable",
+  "help_copy",
+  "brief_cleared",
+  "idea_started",
+  "ideas_opened",
+  "ideas_shuffled",
+  "ideas_surprise",
+  "ideas_auto_offered",
+  "ideas_dismissed",
+  // chrome
+  "tab_html",
+  "tab_css",
+  "tab_js",
+  "view_split",
+  "view_code",
+  "view_preview",
+  "console_collapsed",
+  "console_expanded",
+  "console_resized",
+  "theme_light",
+  "theme_dark",
+  "panel_checkpoints_open",
+  "panel_checkpoints_closed",
+  "panel_help_open",
+  "panel_help_closed",
+  // environment
+  "env_viewport-sm",
+  "env_viewport-md",
+  "env_viewport-lg",
+  // session shape
+  "session_total",
+  "duration_lt5m",
+  "duration_5to15m",
+  "duration_15to30m",
+  "duration_30to60m",
+  "duration_gt60m",
+  "returning_day2",
+  "returning_day3"
+]);
+var LESSON_PATTERNS = [
+  /^chapter_[1-9]_reached$/,
+  /^chapters_[1-9]$/,
+  /^challenges_[1-5]$/,
+  /^hints_chapter-[1-9]$/,
+  /^dwell_chapter-[1-9]_(lt1m|1to3m|3to10m|gt10m)$/,
+  /^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
+  /^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
+  /^edits_(html|css|js)_(1to5|6to20|21to50|50plus)$/,
+  // Checkpoint and hint ids, and idea slugs. Kebab-case and short by
+  // construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
+  /^checkpoint_[a-z][a-z0-9-]{0,23}$/,
+  /^hint_[a-z][a-z0-9-]{0,23}$/,
+  /^idea_[a-z][a-z0-9-]{0,31}$/,
+  /^challenge_[a-z][a-z0-9-]{0,31}$/
+];
+var LESSON_MAX_KEYS = 400;
+function lessonKeyAllowed(key) {
+  if (LESSON_EXACT.has(key)) return true;
+  if (key.indexOf("errors_") === 0) return LESSON_ERROR_KEYS.has(key.slice("errors_".length));
+  for (const re of LESSON_PATTERNS) if (re.test(key)) return true;
+  return false;
+}
+var lessonDay = (t2) => new Date(t2).toISOString().slice(0, 10);
+var LESSON_STATS_CACHE_MS = 15e3;
+async function bumpLessonStat(counts, sessions) {
+  try {
+    const table = db().LessonStat;
+    if (!table) return;
+    const now = Date.now();
+    const day = lessonDay(now);
+    const id = `day:${day}`;
+    const stored = await findCounterRow(table, id);
+    const row = {
+      id,
+      day,
+      sessions: Number(stored?.sessions) || 0,
+      counts: countMap(stored?.counts)
+    };
+    row.sessions += sessions;
+    for (const [key, value] of Object.entries(counts)) {
+      const n = Math.floor(Number(value));
+      if (!Number.isFinite(n) || n <= 0) continue;
+      const target = Object.prototype.hasOwnProperty.call(row.counts, key) || Object.keys(row.counts).length < LESSON_MAX_KEYS ? key : "other";
+      row.counts[target] = (row.counts[target] || 0) + Math.min(n, 5e3);
+    }
+    row.updatedAt = now;
+    await table.put(row);
+    lessonStatsCache.invalidate();
+  } catch (e) {
+    console.error("lesson stat bump failed \u2014", e?.message || e);
+  }
+}
+var LessonEvent = class extends PublicEndpoint {
+  static {
+    this.rateTier = "telemetry";
+  }
+  // anonymous client beacon
+  async post(data) {
+    const body = await bodyOf(data, this);
+    const raw = body && typeof body.counts === "object" && !Array.isArray(body.counts) ? body.counts : null;
+    if (!raw) return { ok: true };
+    const page = String(body.page || "").toLowerCase().replace(/[^a-z-]/g, "").slice(0, 16);
+    const clean = {};
+    let dropped = 0;
+    for (const [key, value] of Object.entries(raw)) {
+      const name = String(key).toLowerCase().replace(/[^a-z0-9_-]/g, "").slice(0, 48);
+      if (!lessonKeyAllowed(name)) {
+        dropped++;
+        continue;
+      }
+      clean[name] = (clean[name] || 0) + (Number(value) || 0);
+    }
+    if (dropped) clean.other = (clean.other || 0) + dropped;
+    if (!page) return { ok: true };
+    if (!Object.keys(clean).length) return { ok: true };
+    await bumpLessonStat(clean, 1);
+    return { ok: true };
+  }
+};
+async function buildLessonStats() {
+  const now = Date.now();
+  const t2 = db();
+  let rows = [];
+  try {
+    rows = t2.LessonStat ? await allOf(t2.LessonStat) : [];
+  } catch {
+    rows = [];
+  }
+  rows = rows.filter((r) => r && r.day).sort((a, b) => String(a.day).localeCompare(String(b.day)));
+  const totals = {};
+  let sessions = 0;
+  for (const r of rows) {
+    sessions += Number(r.sessions) || 0;
+    for (const [k, v] of Object.entries(r.counts || {})) totals[k] = (totals[k] || 0) + (Number(v) || 0);
+  }
+  const LESSON_DAYS_RETURNED = 180;
+  const days = rows.slice(-LESSON_DAYS_RETURNED).map((r) => ({
+    day: r.day,
+    sessions: Number(r.sessions) || 0,
+    counts: r.counts || {},
+    total: sumValues(r.counts)
+  }));
+  const step = (k) => totals[k] || 0;
+  const funnel = [
+    { id: "hub", label: "Teachers hub", n: step("view_hub") },
+    { id: "coding", label: "Coding kit", n: step("view_coding") },
+    { id: "lesson", label: "Lesson opened", n: step("view_lesson") },
+    { id: "builder", label: "Builder opened", n: step("builder_open") },
+    { id: "run", label: "Ran their code", n: step("first_run") },
+    { id: "fetch", label: "Fetched the data", n: step("first_fetch_ok") },
+    { id: "download", label: "Downloaded a page", n: step("download") }
+  ];
+  const errors = Object.entries(totals).filter(([k]) => k.indexOf("errors_") === 0).map(([k, n]) => ({ key: k.slice("errors_".length), n })).sort((a, b) => b.n - a.n);
+  const ideas = Object.entries(totals).filter(([k]) => k.indexOf("idea_") === 0 && k !== "idea_started").map(([k, n]) => ({ id: k.slice("idea_".length), n })).sort((a, b) => b.n - a.n);
+  return {
+    generatedAt: now,
+    today: lessonDay(now),
+    sessions,
+    totals,
+    funnel,
+    errors,
+    ideas,
+    /* The health strip. A school filter that blocks the API breaks the lesson
+     * completely and silently: the teacher assumes it is broken, we never hear
+     * about it, and they do not come back. This turns that into a number. */
+    health: {
+      fetchOk: step("fetch_ok"),
+      fetchFailed: step("fetch_failed"),
+      storageUnavailable: step("storage_unavailable"),
+      saveUnreadable: step("save_unreadable")
+    },
+    days
+  };
+}
+var lessonStatsCache = new RollupCache(LESSON_STATS_CACHE_MS, buildLessonStats, void 0, () => db());
+var LessonStats = class extends DashboardEndpoint {
+  async get() {
+    return lessonStatsCache.get(Date.now());
+  }
+};
 var pageCompressed = /* @__PURE__ */ new Map();
 function compressedPage(key, html, enc) {
   let entry = pageCompressed.get(key);
@@ -41160,6 +50864,17 @@ var PUBLIC_PAGES = {
   // and share. Harper serves /teachers.html too (it strips the suffix), which
   // costs nothing and cannot be linked to by accident.
   teachers: { path: "/teachers", redirect: true, sitemap: true },
+  // The classroom student pages live under /learn/<slug>, resolved by ONE
+  // resource reading getId() — the same shape /img/<name>.webp already uses.
+  // The builder is `noindex` in its own <head> (it is a tool, not a document,
+  // and an indexed code editor competes with the lesson that explains it), so
+  // it is deliberately absent from the sitemap while still canonicalising to
+  // the apex like every other page.
+  "learn-code-builder": { path: "/learn/code-builder", redirect: true, sitemap: false },
+  // The lesson, unlike the builder, IS a document — nine chapters of teachable
+  // prose that a teacher searching for "high school API lesson" should be able
+  // to find. Indexable and in the sitemap; the builder it hands off to is not.
+  "learn-web-development": { path: "/learn/web-development", redirect: true, sitemap: true },
   // The classroom PDFs. Indexable — Google indexes PDF content, and these are
   // the only thing on the site aimed squarely at teachers searching for a
   // classroom ecology resource. No redirect: they are not served through
@@ -41237,6 +50952,24 @@ var DashboardPage = class extends PublicEndpoint {
 var TeachersPage = class extends PublicEndpoint {
   async get() {
     return htmlPage(this, "teachers", teachersHtml);
+  }
+};
+var LEARN_PAGES = {
+  "code-builder": { key: "learn-code-builder", html: learnCodeBuilderHtml },
+  "web-development": { key: "learn-web-development", html: learnWebDevelopmentHtml }
+};
+var LearnPage = class extends PublicEndpoint {
+  async get() {
+    const slug = String(this.getId?.() || "").trim().replace(/^\/+|\/+$/g, "");
+    const page = Object.prototype.hasOwnProperty.call(LEARN_PAGES, slug) ? LEARN_PAGES[slug] : null;
+    if (!page) {
+      return {
+        status: 404,
+        headers: { "content-type": "text/plain; charset=utf-8" },
+        body: "Not found"
+      };
+    }
+    return htmlPage(this, page.key, page.html);
   }
 };
 var LandingPage = class extends PublicEndpoint {
@@ -41406,6 +51139,8 @@ export {
   Heartbeat,
   LandingEvent,
   LandingStats,
+  LessonEvent,
+  LessonStats,
   ListFeedback,
   LoginPlayer,
   Metrics,
@@ -41444,6 +51179,7 @@ export {
   healthCapForReturns,
   LandingPage as home,
   Screenshot as img,
+  LearnPage as learn,
   OgImage as "og-image",
   PrivacyPage as privacy,
   RobotsTxt as robots,

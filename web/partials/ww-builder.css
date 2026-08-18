@@ -1,0 +1,646 @@
+/* Wild Willows — Code Builder page styles.
+ *
+ * Layered ON TOP of public/partials/site-core.css, which is included ahead of
+ * this file: the tokens, .btn / .btn-go / .btn-paper, .chip and .nav all come
+ * from there, so the builder uses the site's real controls rather than
+ * look-alikes. Only what is genuinely new to this page lives here.
+ *
+ * The one deliberate departure from the other pages: site-core sets a cream
+ * document that scrolls. This page is a TOOL — the editor should fill the
+ * viewport so a student on a Chromebook never has to scroll to see their own
+ * code — so the body becomes a flex column and the stage takes the remaining
+ * height. Everything inside it is still the site's panels and buttons.
+ */
+
+/* Same trap as .wwr-editor (see ww-runner.css): site-core's .btn is
+ * display:inline-flex, which outranks the UA stylesheet's [hidden], so the Undo
+ * button sat there permanently even before there was anything to undo. */
+.btn[hidden],
+.lab-section[hidden] {
+	display: none;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body.lab {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* The sticky nav from site-core assumes a scrolling document; in a flex column
+ * it just needs to not shrink. */
+body.lab .nav {
+	position: static;
+	flex: 0 0 auto;
+}
+
+/* Full-bleed nav, to match the bar underneath it.
+ *
+ * site-core wraps the nav in .wrap — max-width 1080px, centred — because on the
+ * marketing pages it sits above centred prose and should line up with it. This
+ * page is a tool: the bar below it, the sidebar and the editor all run to the
+ * window edges, so a centred nav left the brand indented from "Code Builder" and
+ * the two rows' right-hand buttons visibly out of step. Same horizontal padding
+ * as .lab-bar, so every row on the page starts and ends on the same two lines. */
+body.lab .nav .wrap {
+	max-width: none;
+	padding: 0 1.2rem;
+}
+
+/* Inline SVG icons inside the site's buttons. Drawn, never typed: an emoji is a
+ * different font on every machine, renders at a size nothing else on the page
+ * uses, and on a school Windows box is as likely to be a blank box as a die. */
+.ico {
+	width: 16px;
+	height: 16px;
+	flex: none;
+}
+
+.btn .ico {
+	margin-right: -0.1rem;
+}
+
+/* ---------------------------------------------------------------- lab header */
+
+.lab-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	padding: 0.6rem 1.2rem;
+	background: var(--panel);
+	border-bottom: 1.5px solid var(--panel-edge);
+	flex: 0 0 auto;
+}
+
+.lab-bar h1 {
+	margin: 0;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+}
+
+.lab-bar .btn {
+	font-size: 0.88rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 11px;
+}
+
+.lab-spacer {
+	flex: 1 1 auto;
+}
+
+/* Announcements ("Picking up where you left off", "Downloaded") reuse the game's
+ * toast chip. It sits in the bar rather than floating: a message that fades away
+ * is exactly the wrong shape for something a student may look up at ten seconds
+ * later, having been heads-down in their code. */
+.lab-status {
+	margin: 0;
+	min-height: 1.6rem;
+	flex-basis: 100%;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+.lab-status:empty {
+	min-height: 0;
+}
+
+.lab-status.is-ok,
+.lab-status.is-warn {
+	display: inline-block;
+	background: var(--toast);
+	color: #f0eeda;
+	font-weight: 600;
+	border-radius: 10px;
+	padding: 0.3rem 0.8rem;
+	flex-basis: auto;
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.lab-status.is-warn {
+	background: #f7ead2;
+	color: #8a6a2a;
+	box-shadow: 0 2px 0 #e6d2a8;
+}
+
+/* ------------------------------------------------------------------- layout */
+
+.lab-main {
+	flex: 1 1 auto;
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	min-height: 0;
+}
+
+.lab-side {
+	background: var(--paper-deep);
+	border-right: 1.5px solid var(--panel-edge);
+	overflow: auto;
+	padding: 1rem 1.1rem 1.5rem;
+}
+
+.lab-stage {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem 1.2rem 1.2rem;
+	gap: 0.6rem;
+	overflow: hidden;
+}
+
+/* The runner fills the stage rather than sitting at its natural height — this is
+ * the one page where the editor IS the content. */
+.lab-stage .wwr {
+	margin: 0;
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 420px;
+}
+
+/* min-height:0 is load-bearing: a flex child defaults to min-height:auto, so
+ * without it the grid inside would grow to fit the file rather than scroll. See
+ * the height-chain note in ww-runner.css. */
+.lab-stage .wwr-body {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.lab-note {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- checkpoints */
+
+/* ------------------------------------------------ collapsible side sections
+ *
+ * A real <details>, not a JS accordion: keyboard and screen-reader behaviour
+ * comes free, and it still works if the controller fails to boot.
+ *
+ * The summary carries the progress count, so a student who has collapsed the
+ * list can still see where they are — which is the only reason collapsing it is
+ * safe to offer at all. */
+.lab-details > summary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	cursor: pointer;
+	list-style: none;
+	margin-bottom: 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+}
+
+.lab-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+/* The disclosure triangle, drawn rather than inherited, so it matches the type. */
+.lab-details > summary::before {
+	content: '';
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex: none;
+}
+
+.lab-details[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.lab-details > summary:hover {
+	color: var(--green-deep);
+}
+
+.lab-details > summary:focus-visible {
+	outline: 2px solid var(--green);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+.cp-count {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--ink-faint);
+}
+
+.cp-count.is-complete {
+	color: var(--green-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lab-details > summary::before {
+		transition: none;
+	}
+}
+
+.lab-side h2 {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+	margin: 0 0 0.6rem;
+}
+
+.lab-side h2 + * {
+	margin-top: 0;
+}
+
+.lab-section + .lab-section {
+	margin-top: 1.6rem;
+	padding-top: 1.2rem;
+	border-top: 1.5px solid var(--panel-edge);
+}
+
+#lab-checkpoints {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.cp-day {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--ink-faint);
+	margin: 0.9rem 0 0.35rem;
+}
+
+.cp-day:first-child {
+	margin-top: 0;
+}
+
+.cp {
+	display: flex;
+	gap: 0.6rem;
+	padding: 0.55rem 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+/* The tick doubles as the step number until it is done — one control, and the
+ * list still reads as an ordered set of steps before anything is ticked. */
+.cp-tick {
+	flex: 0 0 auto;
+	width: 1.7rem;
+	height: 1.7rem;
+	border-radius: 999px;
+	border: 1.5px solid #cfe0bd;
+	background: var(--sprout);
+	color: var(--green-deep);
+	font-family: var(--f);
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	line-height: 1;
+}
+
+.cp.is-done .cp-tick {
+	background: var(--green);
+	border-color: var(--green);
+	color: #fff;
+}
+
+.cp-main {
+	min-width: 0;
+}
+
+.cp-goal {
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.35;
+	color: var(--ink);
+}
+
+.cp.is-done .cp-goal {
+	color: var(--ink-faint);
+}
+
+.cp-hint {
+	font-size: 0.82rem;
+	color: var(--ink-soft);
+	line-height: 1.45;
+	margin-top: 0.15rem;
+}
+
+.cp-show {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.75rem;
+	margin-top: 0.4rem;
+	padding: 0.2rem 0.65rem;
+	border: none;
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--green-deep);
+	box-shadow: 0 2px 0 var(--panel-edge);
+	cursor: pointer;
+}
+
+.cp-show:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge);
+}
+
+/* ---------------------------------------------------------------- help panel */
+
+.help-title {
+	font-size: 1rem;
+	margin: 0 0 0.2rem;
+	color: var(--green-deep);
+}
+
+.help-body {
+	margin: 0 0 0.7rem;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+	line-height: 1.5;
+}
+
+.help-snip {
+	margin-bottom: 0.7rem;
+}
+
+.help-label {
+	font-size: 0.76rem;
+	font-weight: 600;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.help-code {
+	margin: 0;
+	padding: 0.45rem 0.55rem;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-word;
+	color: var(--ink);
+}
+
+.help-insert {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.72rem;
+	margin-top: 0.25rem;
+	padding: 0.15rem 0.6rem;
+	border: 1.5px solid #cfe0bd;
+	border-radius: 999px;
+	background: var(--sprout);
+	color: var(--green-deep);
+	cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- the brief
+ *
+ * The idea a student chose, kept in front of them while they build it. Without
+ * this the prompt lived only in a modal they dismissed, and two minutes later
+ * "what was I making?" is a real question — especially on day 3, when the modal
+ * was opened at the start of the period and never again. */
+.lab-brief {
+	border-left: 3px solid var(--green);
+	padding-left: 0.8rem;
+}
+
+.brief-title {
+	margin: 0 0 0.25rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+.brief-what {
+	margin: 0 0 0.4rem;
+	font-size: 0.88rem;
+	line-height: 1.5;
+	color: var(--ink);
+}
+
+.brief-data {
+	margin: 0 0 0.7rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+.brief-actions {
+	display: flex;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+}
+
+.brief-actions .btn {
+	font-size: 0.78rem;
+	padding: 0.28rem 0.7rem;
+	border-radius: 999px;
+}
+
+/* --------------------------------------------------------------- ideas modal */
+
+.lab-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(36, 43, 66, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	z-index: 60;
+}
+
+.lab-modal[hidden] {
+	display: none;
+}
+
+.lab-modal-inner {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	max-width: 940px;
+	width: 100%;
+	max-height: 90vh;
+	overflow: auto;
+	padding: 1.4rem;
+	box-shadow: var(--shadow);
+}
+
+.lab-modal h2 {
+	margin: 0 0 0.2rem;
+}
+
+.lab-modal-sub {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+}
+
+.lab-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin-bottom: 0.7rem;
+	align-items: center;
+}
+
+.lab-filters > span {
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-right: 0.2rem;
+}
+
+/* The filter pills ARE the site's .chip — see site-core.css. `.chip.on` is the
+ * selected state there, so nothing new is invented here. */
+.chip[data-idea-filter] {
+	cursor: pointer;
+	font-family: var(--f);
+}
+
+.idea-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 0.8rem;
+	margin: 1rem 0;
+}
+
+.idea {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 0.9rem;
+	background: var(--paper);
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.idea-title {
+	margin: 0;
+	font-size: 1.05rem;
+}
+
+.idea-what {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--ink);
+	line-height: 1.5;
+	flex: 1 1 auto;
+}
+
+.idea-data {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+/* The card's call to action. It had only size rules and no .btn class, so it
+ * rendered as the browser's default grey chrome in the middle of a page that has
+ * a perfectly good button of its own — see the screenshot that prompted this. */
+.idea-start {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.45rem 1rem;
+	border: none;
+	border-radius: 11px;
+	background: var(--green);
+	color: #fff;
+	box-shadow:
+		0 3px 0 var(--green-deep),
+		var(--shadow);
+	cursor: pointer;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.idea-start:hover {
+	filter: brightness(1.06);
+}
+
+.idea-start:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--green-deep);
+}
+
+.idea-start:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+/* The card lifts with it, so the whole tile reads as the target. */
+.idea:hover {
+	border-color: #cfe0bd;
+}
+
+.idea-empty {
+	color: var(--ink-soft);
+	grid-column: 1 / -1;
+}
+
+.lab-modal-actions {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------- small screens */
+
+@media (max-width: 940px) {
+	.lab-main {
+		grid-template-columns: 1fr;
+	}
+
+	body.lab {
+		overflow: auto;
+	}
+
+	.lab-side {
+		border-right: 0;
+		border-bottom: 1.5px solid var(--panel-edge);
+	}
+
+	.lab-stage .wwr {
+		min-height: 360px;
+	}
+}
+
+/* A phone can read this page but cannot comfortably write code on it, and
+ * pretending otherwise wastes a student's period. Say so plainly, in the site's
+ * own warm chip rather than a scary banner. */
+.lab-small-screen {
+	display: none;
+}
+
+@media (max-width: 560px) {
+	.lab-small-screen {
+		display: block;
+		margin: 0;
+		padding: 0.7rem 1.2rem;
+		background: #f7ead2;
+		border-bottom: 1.5px solid #e6d2a8;
+		color: #8a6a2a;
+		font-size: 0.88rem;
+	}
+}

@@ -44,7 +44,9 @@ const PAGES = {
 	'/support.html': 'public/support.html',
 	'/teachers': 'public/teachers.html',
 	'/dashboard': 'public/dashboard.html',
+	'/learn': 'public/learn-index.html',
 	'/learn/code-builder': 'public/learn-code-builder.html',
+	'/learn/web-development': 'public/learn-web-development.html',
 };
 
 /* Same directive and same rules as scripts/build-pages.mjs. Duplicated on

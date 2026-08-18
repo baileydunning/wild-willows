@@ -124,7 +124,7 @@
 			title: "Couldn't reach the Wild Willows data",
 			help:
 				'The request for the game data did not get through. Check the address is exactly ' +
-				'https://wildwillows.app/GameData/ — and if it looks right, ask your teacher: some school ' +
+				'https://wildwillows.app/GameData/ and if it looks right, ask your teacher: some school ' +
 				'networks block outside websites.',
 		},
 		{
@@ -141,7 +141,7 @@
 			title: 'That element is not on the page',
 			help:
 				'querySelector gives you null when it cannot find what you asked for, and null means ' +
-				'"deliberately nothing". Check the spelling in your HTML and your JavaScript — and remember ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript, and remember ' +
 				'#name looks for id="name", while .name looks for class="name".',
 		},
 		{
@@ -149,7 +149,7 @@
 			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
 			title: 'That piece of the data is not there',
 			help:
-				'undefined means "nothing found". You asked for something the data does not have — check the ' +
+				'undefined means "nothing found". You asked for something the data does not have. Check the ' +
 				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
 				'not data.animals.name).',
 		},
@@ -166,7 +166,7 @@
 			match: /is not a function/i,
 			title: 'That is not something you can call',
 			help:
-				'You put () after something that is not a function — often a typo in the method name, or a ' +
+				'You put () after something that is not a function, often a typo in the method name, or a ' +
 				'value that turned out to be undefined.',
 		},
 		{
@@ -186,7 +186,7 @@
 			match: /is not iterable/i,
 			title: 'That is not a list',
 			help:
-				'for...of and the array methods need an array. Check what you actually got — it may be a single ' +
+				'for...of and the array methods need an array. Check what you actually got: it may be a single ' +
 				'object, or undefined.',
 		},
 		{
@@ -209,7 +209,7 @@
 			title: 'Your code stopped, and the browser would not say why',
 			help:
 				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
-				'changed, and try commenting lines out until the page runs again — the last line you removed ' +
+				'changed, and try commenting lines out until the page runs again. The last line you removed ' +
 				'is the one to look at.',
 		},
 		{
@@ -217,7 +217,7 @@
 			match: /syntaxerror|unexpected token|unexpected identifier/i,
 			title: 'JavaScript could not read that',
 			help:
-				'A typo somewhere in the shape of the code — a missing comma, bracket or quote. The line number ' +
+				'A typo somewhere in the shape of the code: a missing comma, bracket or quote. The line number ' +
 				'is where JavaScript gave up, so the real mistake is often just above it.',
 		},
 	];
@@ -437,12 +437,38 @@
 			}
 		}
 
+		/* What the page actually SHOWS, with the code that produced it left out.
+		 *
+		 * This was document.body.innerText, and innerText has a trapdoor: when an
+		 * element is not being rendered it falls back to textContent. A preview
+		 * that is display:none — which is every JavaScript-only example in the
+		 * lesson, and any runner switched to the code view — therefore returned the
+		 * SOURCE of both script blocks, including this harness. And this harness
+		 * contains the literal "[object Object]", in the test immediately below.
+		 * So the check matched itself, and every console example in chapters 5
+		 * through 9 accused the student of rendering an object they never rendered.
+		 *
+		 * A clone with the scripts and styles taken out reads the same whether the
+		 * document is rendered or not, which is the property the old version was
+		 * quietly relying on and did not have. */
+		function pageText() {
+			if (!document.body) return '';
+			try {
+				var clone = document.body.cloneNode(true);
+				var junk = clone.querySelectorAll('script, style');
+				for (var i = 0; i < junk.length; i++) junk[i].parentNode.removeChild(junk[i]);
+				return clone.textContent || '';
+			} catch (e) {
+				return '';
+			}
+		}
+
 		/* The silent failure: nothing is thrown, the page just renders the word
 		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
 		 * student stares at it with no idea what to search for. */
 		window.addEventListener('load', function () {
 			setTimeout(function () {
-				var text = document.body ? document.body.innerText : '';
+				var text = pageText();
 				if (/\[object Object\]/.test(text)) send('hint', { key: 'object-object' });
 				else if (/\bundefined\b/.test(text)) send('hint', { key: 'undefined-text' });
 			}, 300);
@@ -456,7 +482,7 @@
 			title: 'Your page is showing [object Object]',
 			help:
 				'You are putting a whole object on the page where you meant one part of it. ' +
-				'Try adding the piece you want — for example .name instead of the whole animal.',
+				'Try adding the piece you want, for example .name instead of the whole animal.',
 		},
 		'undefined-text': {
 			title: 'Your page is showing the word "undefined"',
@@ -524,7 +550,7 @@
 		area.className = 'wwr-code';
 		area.value = value || '';
 		area.spellcheck = false;
-		area.setAttribute('aria-label', file + ' — code editor');
+		area.setAttribute('aria-label', file + ', code editor');
 		/* Real keyboards, real settings: without these a browser will happily
 		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
 		area.setAttribute('autocomplete', 'off');
@@ -596,7 +622,30 @@
 		var autorun = !host.hasAttribute('manual');
 		var label = host.getAttribute('label') || '';
 
+		/* A JAVASCRIPT-ONLY EXAMPLE HAS NO PAGE TO SHOW.
+		 *
+		 * Twenty-three of the lesson's runners are one main.js and a console: the
+		 * fetch steps, the property paths, every iterator method. Their output is
+		 * console.log and nothing else, so the preview column is a permanently
+		 * blank white rectangle taking half the width, and the view switcher above
+		 * it offers three ways to look at that blank rectangle.
+		 *
+		 * So these get code with the console under it, and no switcher. The
+		 * preview iframe is still built and still runs the code (it is where the
+		 * code executes and what reports back); it is only hidden, via the same
+		 * `code` view a student could have chosen by hand.
+		 *
+		 * Detected rather than declared, because the condition IS the definition:
+		 * one file, it is JavaScript, and no HTML or CSS behind it. An example
+		 * that renders something has one of those, and keeps its preview. */
+		var ctx = files[0].context || {};
+		var consoleOnly = mode === 'single' && files[0].kind === 'js' && !ctx.html && !ctx.css;
+		/* Without this such a runner would show nothing at all: no preview by
+		 * design, and no console either. */
+		if (consoleOnly) showConsole = true;
+
 		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		if (consoleOnly) host.classList.add('wwr--console-only');
 		host.innerHTML = '';
 
 		/* ---- toolbar ---- */
@@ -653,13 +702,14 @@
 			viewBtns[v.id] = b;
 			views.appendChild(b);
 		});
-		bar.appendChild(views);
+		if (!consoleOnly) bar.appendChild(views);
 
 		var runBtn = button('Run', 'wwr-run', ICON_RUN);
 		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
 		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
 		openBtn.title = 'Open your page in a new tab';
-		bar.appendChild(openBtn);
+		/* Opening a blank page in a new tab is not a thing worth offering. */
+		if (!consoleOnly) bar.appendChild(openBtn);
 		bar.appendChild(runBtn);
 		bar.appendChild(resetBtn);
 		host.appendChild(bar);
@@ -673,7 +723,9 @@
 			});
 			metric('view_' + id, host);
 		}
-		host.classList.add('wwr--view-split');
+		/* Set directly rather than through setView(), which reports a view change:
+		 * this is the starting state, not something the student chose. */
+		host.classList.add(consoleOnly ? 'wwr--view-code' : 'wwr--view-split');
 
 		/* ---- panes ---- */
 		var body = document.createElement('div');
@@ -694,7 +746,14 @@
 			var t = document.createElement('button');
 			t.type = 'button';
 			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
-			t.textContent = f.name;
+			/* BOTH, ALWAYS. The lesson shows the icon and the builder shows the
+			 * name (see ww-lesson.css), but the filename is in the DOM either way:
+			 * it is the accessible name of the tab, it is what a screen reader
+			 * announces, and it is what the builder's help sidebar reads to decide
+			 * which file it is describing. An icon-only tab with no text is a
+			 * button that says nothing to anyone who cannot see it. */
+			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
+			t.title = f.name;
 			t.setAttribute('role', 'tab');
 			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
 			t.addEventListener('click', function () {
@@ -730,7 +789,7 @@
 		function makeFrame() {
 			var f = document.createElement('iframe');
 			f.className = 'wwr-preview';
-			f.title = 'Live preview' + (label ? ' — ' + label : '');
+			f.title = 'Live preview' + (label ? ': ' + label : '');
 			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
 			 * origin and cannot reach this page, its storage, or its cookies. */
 			f.setAttribute('sandbox', 'allow-scripts');
@@ -1025,7 +1084,7 @@
 			if (message) {
 				var m = document.createElement('code');
 				m.className = 'wwr-error-msg';
-				m.textContent = message + (line ? '  — line ' + line : '');
+				m.textContent = message + (line ? '  (line ' + line + ')' : '');
 				errBox.appendChild(m);
 			}
 			var p = document.createElement('p');
@@ -1151,6 +1210,32 @@
 		run('auto');
 	}
 
+	/* One icon per file kind, keyed off the extension.
+	 *
+	 * They are the three questions the lesson opens with, in the same order: a
+	 * document for what is HERE, a drop of paint for what it LOOKS like, a bolt
+	 * for what it DOES. Which means a student meets these shapes in chapter 1 as
+	 * prose and again in every toolbar afterwards as a label.
+	 *
+	 * Drawn, like everything else on these pages, for the reason set out below:
+	 * a character would be whatever glyph the platform's font decides. */
+	var FILE_ICONS = {
+		html: '<path d="M6.5 3.5h7l4.5 4.5v12.5h-11.5z"/><path d="M13.5 3.5V8h4.5"/>',
+		css: '<path d="M12 3.5s5.5 5.6 5.5 9.3a5.5 5.5 0 0 1-11 0C6.5 9.1 12 3.5 12 3.5z"/>',
+		js: '<path d="M13.2 3.5 6.5 13.2h4.6l-.9 7.3 7-9.9h-4.6z"/>',
+	};
+
+	function fileIcon(name) {
+		var ext = String(name).split('.').pop().toLowerCase();
+		var path = FILE_ICONS[ext] || FILE_ICONS.html;
+		return (
+			'<svg class="wwr-tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			path +
+			'</svg>'
+		);
+	}
+
 	/* Icons are DRAWN, never typed.
 	 *
 	 * A play triangle and a reset arrow look like safe characters, and they are
@@ -1225,24 +1310,43 @@
 			.join('\n');
 	}
 
+	/**
+	 * Start one runner. Safe to call twice — the second call is a no-op.
+	 *
+	 * Split out of init() so a page can hold some of its runners back. Every
+	 * runner renders on start (see the run('auto') at the end of WwRunner), and
+	 * each one owns two iframes, so a page with thirty of them opens thirty
+	 * documents before the student has read a word. That is affordable for the
+	 * chapters, which are the point of the page; it is not affordable for
+	 * material inside a panel that begins closed and that most readers will never
+	 * open. Those carry `defer` and are mounted when the panel is.
+	 */
+	function mount(host) {
+		if (!host || host.dataset.wwReady) return;
+		host.dataset.wwReady = '1';
+		try {
+			WwRunner(host);
+		} catch (e) {
+			/* A broken runner must not take the rest of the lesson down with it —
+			 * the page is readable without any of them (see the static fallback
+			 * markup each one wraps). */
+			host.classList.add('wwr--failed');
+			if (window.console) console.error('ww-runner failed to start', e);
+		}
+	}
+
 	function init() {
-		Array.prototype.forEach.call(document.querySelectorAll('ww-runner'), function (host) {
-			if (host.dataset.wwReady) return;
-			host.dataset.wwReady = '1';
-			try {
-				WwRunner(host);
-			} catch (e) {
-				/* A broken runner must not take the rest of the lesson down with it —
-				 * the page is readable without any of them (see the static fallback
-				 * markup each one wraps). */
-				host.classList.add('wwr--failed');
-				if (window.console) console.error('ww-runner failed to start', e);
-			}
-		});
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner:not([defer])'), mount);
 	}
 
 	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
 	else init();
 
-	window.WwRunner = { assembleDocument: assembleDocument, explain: explain, escapeForScript: escapeForScript, dedent: dedent };
+	window.WwRunner = {
+		assembleDocument: assembleDocument,
+		explain: explain,
+		escapeForScript: escapeForScript,
+		dedent: dedent,
+		mount: mount,
+	};
 })();

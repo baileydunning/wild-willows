@@ -93,6 +93,15 @@ const pages = {
 	// @include directives pulling in public/partials/ww-*.{css,js}, so the editor
 	// component stays a single source shared with the lesson page.
 	learnCodeBuilderHtml: 'public/learn-code-builder.html',
+	// The nine-chapter student lesson, served at /learn/web-development. Assembled
+	// the same way as the builder and sharing ww-runner.{css,js} with it, so every
+	// one of its fifteen editable examples behaves exactly like the builder a
+	// student opens straight afterwards.
+	learnWebDevelopmentHtml: 'public/learn-web-development.html',
+	// The classroom hub at /learn: the two doors and enough copy to choose
+	// between them. Served by the same LearnPage resource under the empty slug,
+	// which is what the getId() dispatch was shaped for.
+	learnIndexHtml: 'public/learn-index.html',
 };
 
 // --- build-time includes ---------------------------------------------------
@@ -307,6 +316,11 @@ const sitemapSources = {
 	'/age-rating.html': 'public/age-rating.html',
 	'/support.html': 'public/support.html',
 	'/teachers': 'public/teachers.html',
+	// The lesson is in the sitemap (see PUBLIC_PAGES in server/resources.ts); the
+	// Code Builder is not, so it is deliberately absent here too. A lastmod for a
+	// URL the sitemap never emits would be dead weight in the generated file.
+	'/learn': 'public/learn-index.html',
+	'/learn/web-development': 'public/learn-web-development.html',
 	'/educator-guide.pdf': `public/pdfs/${pdfs.educatorGuidePdfB64}`,
 	'/student-worksheets.pdf': `public/pdfs/${pdfs.studentWorksheetsPdfB64}`,
 };

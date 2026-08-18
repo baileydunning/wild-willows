@@ -631,16 +631,16 @@ section[id]{scroll-margin-top:66px}
      lands in the same bucket as the same click from the landing page.
 
      There is a certain irony in a privacy policy carrying analytics, so for
-     the record this is what it sends: an event type, one of a fixed list of
-     target names, the referrer, and the browser's language. No identifier, no
-     cookie, no storage — it cannot tell one visitor from another, which is
-     why the page-level 'visit' ping is absent here as on the other policy
-     pages. That is the same reasoning as "What I never do" above. */
-  function track(type,target){
+     the record this is what it sends: an event type and one of a fixed list
+     of target names. Two fields. No identifier, no cookie, no storage, and —
+     as of this change — no referrer and no browser language either; both used
+     to be transmitted and neither was ever read. It cannot tell one visitor
+     from another, which is why the page-level 'visit' ping is absent here as
+     on the other policy pages. Same reasoning as "What I never do" above. */
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}

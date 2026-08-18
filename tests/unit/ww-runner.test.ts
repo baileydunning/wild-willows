@@ -250,8 +250,15 @@ describe('view modes', () => {
 	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
 	const CSS = readFileSync(join(process.cwd(), 'public/partials/ww-runner.css'), 'utf8');
 
+	/* This example has to RENDER something, or there is nothing to switch to: a
+	 * JavaScript-only runner is console-only by definition and ships without a
+	 * switcher at all (see the describe below). The context file is what makes
+	 * this one a page rather than a script. */
 	const mount = () => {
-		document.body.innerHTML = '<ww-runner console><script type="text/ww-file" name="main.js">x</script></ww-runner>';
+		document.body.innerHTML =
+			'<ww-runner console>' +
+			'<script type="text/ww-file" name="index.html" context><p id="x">hi</p></script>' +
+			'<script type="text/ww-file" name="main.js">x</script></ww-runner>';
 		const host = document.querySelector('ww-runner') as any;
 		new Function(SRC)();
 		return host;
@@ -514,5 +521,92 @@ describe('the host parses the code itself', () => {
 
 	it('reports one message per failure', () => {
 		expect(SRC).toContain('if (syntaxProblem) {');
+	});
+});
+
+describe('a JavaScript-only example has no page to show', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+	// Twenty-three of the lesson's runners are one main.js and a console: the
+	// fetch steps, the property paths, every iterator method. Their output is
+	// console.log and nothing else, so a preview column is a permanently blank
+	// rectangle taking half the width, with a switcher above it offering three
+	// ways to look at it.
+	const mount = (files: string) => {
+		document.body.innerHTML = `<ww-runner console>${files}</ww-runner>`;
+		new Function(SRC)();
+		return document.querySelector('ww-runner')!;
+	};
+	const JS_ONLY = '<script type="text/ww-file" name="main.js">console.log(1);</script>';
+	const WITH_PAGE =
+		'<script type="text/ww-file" name="index.html" context><p id="x">hi</p></script>' +
+		'<script type="text/ww-file" name="main.js">console.log(1);</script>';
+
+	it('is detected from its files, not from an attribute', () => {
+		// The condition IS the definition: one file, it is JavaScript, and there is
+		// no HTML or CSS behind it. Anything that renders has one of those.
+		expect(mount(JS_ONLY).classList.contains('wwr--console-only')).toBe(true);
+		expect(mount(WITH_PAGE).classList.contains('wwr--console-only')).toBe(false);
+	});
+
+	it('drops the view switcher and the open-in-a-tab button', () => {
+		const host = mount(JS_ONLY);
+		expect(host.querySelector('.wwr-views')).toBeNull();
+		expect(host.querySelector('.wwr-open')).toBeNull();
+		// Run and Reset stay: both still mean something without a preview.
+		expect(host.querySelector('.wwr-run')).toBeTruthy();
+		expect(host.querySelector('.wwr-reset')).toBeTruthy();
+	});
+
+	it('starts in the code view, without reporting a view change', () => {
+		// Set directly rather than through setView(): this is the starting state,
+		// not something the student chose, and a metric would say otherwise.
+		const host = mount(JS_ONLY);
+		expect(host.classList.contains('wwr--view-code')).toBe(true);
+		expect(host.classList.contains('wwr--view-split')).toBe(false);
+	});
+
+	it('still builds the preview, because that is where the code runs', () => {
+		// Hidden, not absent. The iframe executes the student's JavaScript and
+		// reports the console lines and any error back to the host.
+		expect(mount(JS_ONLY).querySelectorAll('iframe.wwr-preview')).toHaveLength(2);
+	});
+
+	it('shows the console even if the author forgot the attribute', () => {
+		document.body.innerHTML = `<ww-runner>${JS_ONLY}</ww-runner>`;
+		new Function(SRC)();
+		const box = document.querySelector('.wwr-console') as HTMLElement;
+		expect(box).toBeTruthy();
+		expect(box.hidden).toBe(false); // otherwise the runner would show nothing at all
+	});
+
+	it('keeps the switcher on everything else', () => {
+		expect(mount(WITH_PAGE).querySelector('.wwr-views')).toBeTruthy();
+	});
+});
+
+describe('the silent-failure hints do not accuse the innocent', () => {
+	const SRC = readFileSync(join(process.cwd(), 'public/partials/ww-runner.js'), 'utf8');
+	// document.body.innerText has a trapdoor: on an element that is not being
+	// rendered it falls back to textContent. A preview that is display:none —
+	// which is every JavaScript-only example, and any runner switched to the code
+	// view — therefore returned the SOURCE of both script blocks, harness
+	// included. And the harness contains the literal "[object Object]" in the very
+	// test that looks for it, so the check matched itself and every console
+	// example in chapters 5 through 9 accused the student of rendering an object
+	// they never rendered.
+	it('reads the page without reading the code that made it', () => {
+		expect(SRC).toContain('function pageText()');
+		expect(SRC).toContain("clone.querySelectorAll('script, style')");
+		expect(SRC).toMatch(/var text = pageText\(\);/);
+	});
+
+	it('no longer reads the page through innerText', () => {
+		// Matched on the CALL, not the mention: the comment above the fix names the
+		// property it replaced, and a bare search for the string finds that comment
+		// and fails on the explanation rather than on the code. Third time this
+		// file has taught that lesson, after the closing script tag and the fold
+		// arrow.
+		expect(SRC).not.toMatch(/=\s*document\.body\.innerText/);
+		expect(SRC).not.toMatch(/\(\s*document\.body\.innerText\s*\)/);
 	});
 });

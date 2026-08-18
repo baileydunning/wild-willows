@@ -50,6 +50,7 @@
  * below keep the sheet's warm olive cast and clear 4.5 on every surface.
  * tests/unit/classroom-contrast.test.ts holds them there. */
 body.lab,
+body.lesson,
 .wwr {
 	--ink-soft: #61624b; /* 4.92 worst surface */
 	--ink-faint: #66674f; /* 4.57 worst surface */
@@ -98,6 +99,9 @@ body.lab,
  * genuinely new control on the page still looks like something they have
  * already seen on /teachers. */
 .wwr-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
 	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 	font-size: 0.78rem;
 	font-weight: 700;
@@ -107,6 +111,17 @@ body.lab,
 	background: transparent;
 	color: var(--ink-soft, #75765f);
 	cursor: pointer;
+}
+
+/* The icon is there on every tab and shown only where the name is not: the
+   builder is a tool and names its files; the lesson is prose with editors in it
+   and cannot spend a third of every toolbar on three filenames. See
+   ww-lesson.css for the swap. */
+.wwr-tab-ico {
+	display: none;
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
 }
 
 .wwr-tab:hover {
@@ -235,6 +250,30 @@ body.lab,
 
 .wwr--view-code .wwr-panes {
 	border-right: 0;
+}
+
+/* One visible pane, so ONE row. The stacked breakpoint below names two rows for
+   the code-above-preview layout; with the preview hidden the second row is left
+   empty and the card carries dead space under the editor. */
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-rows: minmax(0, 1fr);
+}
+
+/* ------------------------------------------------- JavaScript-only examples
+ *
+ * Code with a console under it and no switcher: see the note in ww-runner.js
+ * for why these are detected rather than declared. The preview still exists and
+ * still runs; it is display:none by way of the `code` view.
+ *
+ * The console is the output here rather than a sidecar, so it gets the room a
+ * result deserves and the editor stops being three quarters of the card. */
+.wwr--console-only .wwr-body {
+	min-height: 150px;
+}
+
+.wwr--console-only .wwr-console {
+	min-height: 8rem;
 }
 
 /* -------------------------------------------------------------------- panes */
@@ -562,8 +601,21 @@ body.wwr-resizing iframe {
 /* ------------------------------------------------------------- small screens */
 
 @media (max-width: 820px) {
+	/* THE ROWS HAVE TO BE NAMED, NOT JUST THE COLUMNS.
+	 *
+	 * Dropping to one column left grid-template-rows at a single
+	 * minmax(0, 1fr) from the two-column layout, so the code pane took the whole
+	 * explicit row and the preview landed in an IMPLICIT row sized auto. Inside a
+	 * bounded container that resolves to zero: the preview was 0px tall on every
+	 * iPad in portrait and every phone, which is the half of the screen the whole
+	 * teaching device depends on. Measured, not guessed: body 180, code 180,
+	 * preview 0.
+	 *
+	 * Two explicit rows, and the code gets slightly less than the preview because
+	 * on a narrow screen the result is the part worth seeing. */
 	.wwr-body {
 		grid-template-columns: 1fr;
+		grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
 	}
 
 	.wwr-panes {
@@ -571,7 +623,13 @@ body.wwr-resizing iframe {
 		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
 	}
 
-	.wwr-code,
+	/* Stacked, each pane needs a floor of its own or the shorter examples
+	   collapse to a few lines each. Roughly ten lines of code above a preview
+	   that can show a heading and a list, which is what these examples are. */
+	.wwr-code {
+		min-height: 170px;
+	}
+
 	.wwr-preview {
 		min-height: 150px;
 	}

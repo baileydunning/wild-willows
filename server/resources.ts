@@ -66,6 +66,8 @@ import {
 	landingHtml,
 	teachersHtml,
 	learnCodeBuilderHtml,
+	learnWebDevelopmentHtml,
+	learnIndexHtml,
 	ogImageB64,
 	buildStamp,
 } from './pages';
@@ -12919,6 +12921,10 @@ const LESSON_ERROR_KEYS = new Set([
 const LESSON_EXACT = new Set([
 	// reach
 	'view_hub',
+	// /learn, the classroom hub. Its own key rather than view_hub, which is the
+	// TEACHERS hub: two different audiences arriving at two different pages, and
+	// folding them together would make both numbers unreadable.
+	'view_learn',
 	'view_science',
 	'view_coding',
 	'view_lesson',
@@ -12937,6 +12943,8 @@ const LESSON_EXACT = new Set([
 	// three keys — the marketing side's data-track names post to /LandingEvent/
 	// and would be counted in the wrong system entirely.
 	'nav_lesson',
+	'nav_builder',
+	'nav_learn',
 	'nav_hub',
 	'nav_game',
 	// funnel
@@ -12949,6 +12957,11 @@ const LESSON_EXACT = new Set([
 	// lesson interactions
 	'types_legend-opened',
 	'types_tree-expanded',
+	// The optional "Going Deeper" panel at the end of the lesson. Worth its own
+	// counter because it answers a question the funnel cannot: how many students
+	// who finished still wanted more. If almost nobody opens it, it is the wrong
+	// material or the wrong place for it; if most do, the lesson ends too early.
+	'deeper_opened',
 	// builder health
 	'runs_manual',
 	'runs_debounced',
@@ -12988,10 +13001,19 @@ const LESSON_EXACT = new Set([
 	'panel_checkpoints_closed',
 	'panel_help_open',
 	'panel_help_closed',
+	// The whole side panel, collapsed out of the way so the editor gets the
+	// window. Worth its own pair: if most students hide it and never bring it
+	// back, the checkpoints are in the wrong place rather than merely optional.
+	'panel_side_hidden',
+	'panel_side_shown',
 	// environment
 	'env_viewport-sm',
 	'env_viewport-md',
 	'env_viewport-lg',
+	// How often the Code Builder was opened on a screen too small to use it. If
+	// that number is large the answer is not to squeeze the editor onto a phone,
+	// it is that whatever is linking there should say so first.
+	'env_too-small',
 	// session shape
 	'session_total',
 	'duration_lt5m',
@@ -13005,13 +13027,24 @@ const LESSON_EXACT = new Set([
 
 /** Bounded families: a fixed prefix plus a constrained tail. */
 const LESSON_PATTERNS: RegExp[] = [
-	/^chapter_[1-9]_reached$/,
-	/^chapters_[1-9]$/,
+	// TEN chapters, not nine. A CSS chapter was added at position 2 and every
+	// chapter after it moved up one, which pushed the last one to 10 — outside
+	// [1-9], where it would have been silently rejected and counted as `other`.
+	// A bounded family has to be widened deliberately when the thing it bounds
+	// grows; that is the cost of the bound and it is worth paying.
+	/^chapter_([1-9]|10)_reached$/,
+	/^chapters_([1-9]|10)$/,
 	/^challenges_[1-5]$/,
-	/^hints_chapter-[1-9]$/,
-	/^dwell_chapter-[1-9]_(lt1m|1to3m|3to10m|gt10m)$/,
+	/^hints_chapter-([1-9]|10)$/,
+	/^dwell_chapter-([1-9]|10)_(lt1m|1to3m|3to10m|gt10m)$/,
 	/^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
 	/^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
+	// Topics inside "Going Deeper". Same shape and same reasoning as iter_ and
+	// cond_: which OPTIONAL material students actually run is the only way to
+	// tell a section that earns its place from one that is only ever scrolled
+	// past. Bounded by the pattern, not by a list, because this panel is where
+	// new topics get added.
+	/^deeper_[a-z][a-z0-9-]{0,23}$/,
 	/^edits_(html|css|js)_(1to5|6to20|21to50|50plus)$/,
 	// Checkpoint and hint ids, and idea slugs. Kebab-case and short by
 	// construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
@@ -13346,6 +13379,14 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	// it is deliberately absent from the sitemap while still canonicalising to
 	// the apex like every other page.
 	'learn-code-builder': { path: '/learn/code-builder', redirect: true, sitemap: false },
+	// The lesson, unlike the builder, IS a document — nine chapters of teachable
+	// prose that a teacher searching for "high school API lesson" should be able
+	// to find. Indexable and in the sitemap; the builder it hands off to is not.
+	'learn-web-development': { path: '/learn/web-development', redirect: true, sitemap: true },
+	// The hub the two student pages hang off. Indexable: "learn javascript with a
+	// real api" is a thing people search for, and this is the page that answers it
+	// for someone who has not heard of the game.
+	learn: { path: '/learn', redirect: true, sitemap: true },
 	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
 	// the only thing on the site aimed squarely at teachers searching for a
 	// classroom ecology resource. No redirect: they are not served through
@@ -13506,7 +13547,12 @@ class TeachersPage extends PublicEndpoint {
  * plainly, not silently serve them the wrong lesson.
  */
 const LEARN_PAGES: Record<string, { key: string; html: string }> = {
+	// The empty slug is /learn itself, which is the case the getId() dispatch was
+	// shaped for: one resource for the section, so the hub is not a fourth export
+	// and a third routing story.
+	'': { key: 'learn', html: learnIndexHtml },
 	'code-builder': { key: 'learn-code-builder', html: learnCodeBuilderHtml },
+	'web-development': { key: 'learn-web-development', html: learnWebDevelopmentHtml },
 };
 
 class LearnPage extends PublicEndpoint {

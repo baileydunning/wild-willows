@@ -35,11 +35,11 @@
 </head>
 <body class="lab">
 
-<p class="lab-small-screen">This works best on a laptop or a tablet with a keyboard &mdash; writing code on a phone is hard going.</p>
 
 <nav class="nav"><div class="wrap">
   <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
   <div class="links">
+    <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
     <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
@@ -50,7 +50,32 @@
   </div>
 </div></nav>
 
+<!-- Shown INSTEAD of the workspace on a phone. ww-builder.js decides which of
+     the two you get and unhides this one; it is hidden here so a laptop never
+     sees it flash. See the note in ww-builder.js for why the builder draws the
+     line where the lesson does not. -->
+<section class="lab-blocked" id="lab-blocked" hidden>
+  <div class="lab-blocked-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
+    <h1>This one needs a bigger screen</h1>
+    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
+    <p class="lab-blocked-go">
+      <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the lesson instead</a>
+      <a class="btn btn-paper" href="/learn" data-track="learn-nav">Both pages</a>
+    </p>
+    <p class="lab-blocked-note">The lesson works fine on a phone, editors and all. It is only this page that needs the room.</p>
+  </div>
+</section>
+
 <div class="lab-bar">
+  <!-- Collapses the whole side panel so the editor gets the window. The icon is
+       a panel outline with its left column filled; it rotates nothing and does
+       not change shape, so the label is what carries the state. -->
+  <button type="button" class="lab-side-toggle" id="lab-side-toggle" aria-expanded="true" aria-controls="lab-side" title="Hide the side panel">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M9.5 4.5v15"/></svg>
+    <span class="lab-side-toggle-text">Hide panel</span>
+  </button>
   <h1>Code Builder</h1>
   <span class="lab-spacer"></span>
   <button type="button" class="btn btn-go" id="lab-ideas-open"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.6v.1h6v-.1c0-.6.3-1.2.8-1.6A6.5 6.5 0 0 0 12 2.5z"/></svg> Ideas</button>
@@ -63,7 +88,7 @@
 </div>
 
 <main class="lab-main">
-  <aside class="lab-side">
+  <aside class="lab-side" id="lab-side">
     <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
          deliberately: once they have chosen something to build, the brief is
          what they are working to and the checkpoints become reference. -->
@@ -101,7 +126,7 @@
          locked-down Chromebook makes DevTools a bad answer.
          `manual` is deliberately NOT set: the preview follows their typing, and
          Run is there for students who want cause and effect to be discrete. -->
-    <ww-runner console label="Your project">
+    <ww-runner defer console label="Your project">
       <script type="text/ww-file" name="index.html">
         <h1>Wild Willows Explorer</h1>
         <p id="message">Loading game data...</p>

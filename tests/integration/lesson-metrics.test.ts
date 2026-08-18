@@ -68,6 +68,58 @@ describe('LessonEvent', () => {
 		expect(out.errors.map((e: any) => e.key)).not.toContain('invented-name');
 	});
 
+	it('allows the tenth chapter, which the pattern used to stop at nine', async () => {
+		// A CSS chapter went in at position 2 and pushed the last one to 10. The
+		// families are written [1-9] by default, so a bound that was correct on
+		// Monday silently started dropping the final chapter's counters on Tuesday
+		// and adding them to `other`. Nothing would have failed.
+		await send({ chapter_10_reached: 1, chapters_10: 1, 'dwell_chapter-10_3to10m': 1 });
+		const out = await w.get<any>('LessonStats');
+		expect(out.totals.chapter_10_reached).toBe(1);
+		expect(out.totals.chapters_10).toBe(1);
+		expect(out.totals['dwell_chapter-10_3to10m']).toBe(1);
+		expect(out.totals.other).toBeUndefined();
+	});
+
+	it('still stops at ten', async () => {
+		await send({ chapter_11_reached: 1, chapters_0: 1 });
+		const out = await w.get<any>('LessonStats');
+		expect(out.totals.chapter_11_reached).toBeUndefined();
+		expect(out.totals.other).toBe(2);
+	});
+
+	it('allows the hub and nav counters', async () => {
+		// /learn reports that it was opened and which door was taken. The nav keys
+		// are shared by four places (the hub, the lesson, the builder, and here),
+		// so this list IS the agreement between them.
+		await send({ view_learn: 1, nav_learn: 1, nav_lesson: 1, nav_builder: 1, nav_hub: 1, nav_game: 1 }, 'learn');
+		const out = await w.get<any>('LessonStats');
+		for (const key of ['view_learn', 'nav_learn', 'nav_lesson', 'nav_builder', 'nav_hub', 'nav_game'])
+			expect(out.totals[key], key).toBe(1);
+		expect(out.totals.other).toBeUndefined();
+	});
+
+	it('allows the Going Deeper counters', async () => {
+		// Every chapter has its own panel now, so there are two families here: the
+		// per-topic keys off each runner's data-concept, and one per panel saying
+		// WHICH chapter left a student wanting more. `deeper_chapter-10` is the
+		// longest key either produces and it has to fit the pattern.
+		await send({
+			deeper_opened: 1,
+			deeper_keyframes: 1,
+			'deeper_number-format': 1,
+			'deeper_chapter-2': 1,
+			'deeper_chapter-10': 1,
+		});
+		const out = await w.get<any>('LessonStats');
+		expect(out.totals.deeper_opened).toBe(1);
+		expect(out.totals.deeper_keyframes).toBe(1);
+		expect(out.totals['deeper_number-format']).toBe(1);
+		expect(out.totals['deeper_chapter-2']).toBe(1);
+		expect(out.totals['deeper_chapter-10']).toBe(1);
+		expect(out.totals.other).toBeUndefined();
+	});
+
 	it('allows the bounded families', async () => {
 		await send({
 			chapter_6_reached: 1,

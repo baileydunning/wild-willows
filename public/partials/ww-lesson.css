@@ -1,0 +1,1063 @@
+/* Wild Willows: the student lesson at /learn/web-development.
+ *
+ * Only what the lesson adds. Tokens, buttons, chips, nav and .wrap come from
+ * site-core.css; the editor and preview come from ww-runner.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css and needs almost nothing here.
+ *
+ * Two things drive the layout:
+ *
+ *   • A CHAPTER IS A LANDMARK, not a card. Nine of them stacked as cards reads
+ *     as a form to fill in. They are sections of one document with a rule
+ *     between them, and the runners are the only boxes on the page: so the eye
+ *     goes to the thing you can type in.
+ *   • THE RAIL IS THE SYLLABUS. A student who scrolls away from chapter 4 needs
+ *     to know there are five more and which one they are in. It is a real nav
+ *     landmark with real links, so it works with no JavaScript at all.
+ */
+
+body.lesson {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+/* ------------------------------------------------------------- the shell */
+
+.lwrap {
+	max-width: 1180px;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+	display: grid;
+	grid-template-columns: 15rem minmax(0, 1fr);
+	gap: 2.4rem;
+	align-items: start;
+}
+
+/* minmax(0,1fr) above and min-width:0 here for the same reason as the editor
+   panes: a <pre> or a wide table inside a grid child has an intrinsic width, and
+   a track sized `1fr` will grow to fit it and push the rail off screen. */
+.lmain {
+	min-width: 0;
+}
+
+@media (max-width: 900px) {
+	.lwrap {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 0;
+	}
+}
+
+/* --------------------------------------------------------------- the rail */
+
+.lrail {
+	position: sticky;
+	top: 4.6rem;
+	align-self: start;
+	padding: 1rem 0 0;
+	font-size: 0.85rem;
+}
+
+.lrail h2 {
+	font-size: 0.68rem;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	margin: 0 0 0.7rem 0.75rem;
+	font-weight: 700;
+}
+
+.lrail ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+	/* The nine chapters plus the hand-off make a tall column; on a short laptop
+	   window the rail must scroll rather than run off the bottom. */
+	max-height: calc(100vh - 8rem);
+	overflow: auto;
+}
+
+/* Three columns: the number, the title, and the tick.
+   The tick has its OWN column rather than standing in for the number. It used
+   to replace it, which meant a finished chapter lost the one thing saying where
+   it sits in the order, and a reader scanning for "chapter 6" found a column of
+   ticks and a gap. Number on the left, progress on the right, both readable at
+   once. */
+.lrail a {
+	display: grid;
+	grid-template-columns: 1.35rem minmax(0, 1fr) 0.75rem;
+	gap: 0.55rem;
+	align-items: baseline;
+	padding: 0.34rem 0.75rem;
+	border-radius: 8px;
+	color: var(--ink-soft);
+	text-decoration: none;
+	line-height: 1.3;
+	border-left: 2px solid transparent;
+}
+
+/* Drawn, not typed, for the reason every icon on these pages is. The column is
+   reserved whether or not the tick is showing, so a row does not shift sideways
+   the moment it is finished. Pinned to the FIRST line: a two-line title would
+   otherwise centre it between the lines, pointing at nothing. */
+.lrail a::after {
+	content: '';
+	grid-column: 3;
+	align-self: start;
+	width: 0.5rem;
+	height: 0.28rem;
+	margin-top: 0.34rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+	opacity: 0;
+}
+
+.lrail a.is-done::after {
+	opacity: 1;
+}
+
+.lrail a:hover {
+	background: var(--sprout);
+	color: var(--ink);
+}
+
+/* --ink-soft rather than --ink-faint, because this number sits on --sprout when
+   the row is current or hovered, and --ink-faint measures 4.09 against the dark
+   sprout: under AA for text this small. --ink-soft clears it on both (5.47
+   light, 5.44 dark). */
+.lrail .rnum {
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
+	font-weight: 700;
+	font-size: 0.78rem;
+}
+
+/* Where you are now. Both a colour and a weight change, and the marker on the
+   left edge, because "current" carried by colour alone is exactly the thing the
+   rest of this project measures its way out of. */
+.lrail a.is-current {
+	color: var(--green-deep);
+	font-weight: 700;
+	border-left-color: var(--green);
+	background: var(--sprout);
+}
+
+.lrail a.is-current .rnum {
+	color: var(--green-deep);
+}
+
+/* A finished chapter keeps its number and its title at full strength. The tick
+   is added; nothing is taken away. */
+
+@media (max-width: 900px) {
+	.lrail {
+		position: static;
+		max-height: none;
+		padding: 0.6rem 0 1.2rem;
+	}
+	.lrail ol {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 0.3rem;
+		max-height: none;
+		overflow: visible;
+	}
+	.lrail a {
+		padding: 0.28rem 0.6rem;
+		border-left: 0;
+		border: 1.5px solid var(--panel-edge);
+		background: var(--panel);
+	}
+	.lrail a.is-current {
+		border-color: var(--green);
+	}
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.lhero {
+	padding: 2.6rem 0 1.4rem;
+}
+
+.lhero h1 {
+	font-size: clamp(1.9rem, 4.2vw, 2.9rem);
+	line-height: 1.1;
+	margin: 0 0 0.6rem;
+	color: var(--ink);
+}
+
+.lhero .lead {
+	font-size: 1.06rem;
+	color: var(--ink-soft);
+	max-width: 46rem;
+	margin: 0 0 1.1rem;
+	line-height: 1.6;
+}
+
+.lmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+	margin-bottom: 1.3rem;
+}
+
+/* ------------------------------------------------------------- a chapter */
+
+.ch {
+	padding: 2.6rem 0 0.6rem;
+	border-top: 1px solid var(--panel-edge);
+	/* The rail is sticky under a sticky nav, so an anchor jump would otherwise
+	   land the heading underneath both. */
+	scroll-margin-top: 4.8rem;
+}
+
+.ch-head {
+	margin-bottom: 1rem;
+}
+
+.ch-num {
+	display: inline-block;
+	font-size: 0.68rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin-bottom: 0.35rem;
+}
+
+.ch h2 {
+	font-size: clamp(1.35rem, 2.6vw, 1.75rem);
+	line-height: 1.2;
+	margin: 0 0 0.45rem;
+}
+
+.ch h3 {
+	font-size: 1.02rem;
+	margin: 1.7rem 0 0.5rem;
+	color: var(--green-deep);
+}
+
+.ch p {
+	line-height: 1.65;
+	max-width: 46rem;
+	margin: 0 0 0.9rem;
+	color: var(--ink);
+}
+
+.ch p.sub {
+	color: var(--ink-soft);
+}
+
+.ch ul,
+.ch ol.steps {
+	line-height: 1.65;
+	max-width: 46rem;
+	color: var(--ink);
+}
+
+.ch li {
+	margin-bottom: 0.35rem;
+}
+
+.ch code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	background: var(--sprout);
+	border-radius: 5px;
+	padding: 0.08em 0.34em;
+}
+
+.ch ww-runner {
+	margin: 1rem 0 0.5rem;
+}
+
+/* ICONS, NOT FILENAMES, IN A LESSON TOOLBAR.
+ *
+ * A three-file runner in a chapter was spending about a third of its toolbar on
+ * "index.html  styles.css  main.js", which pushed the view switcher and the Run
+ * button onto a second row. That second row is not a cosmetic problem: it moves
+ * Run to somewhere a student is not looking on the one control they need most.
+ *
+ * The name is still in the DOM and still the tab's accessible name, so a screen
+ * reader hears "index.html" and hovering shows it. Only the sighted, on-screen
+ * label is traded for a shape, and the shapes are the three questions chapter 1
+ * opens with: a document for what is here, a drop for what it looks like, a
+ * bolt for what it does.
+ *
+ * The Code Builder keeps the filenames. It is a tool with three real files in
+ * it, and a student is about to download them by name. */
+.ch ww-runner .wwr-tab-ico {
+	display: block;
+}
+
+/* Not `display: none` on the name: that takes it out of the accessibility tree
+   with it, and the tab would announce as an unlabelled button. This is the
+   standard visually-hidden recipe, which leaves it readable to assistive
+   technology and invisible to everyone else. */
+.ch ww-runner .wwr-tab-name {
+	position: absolute;
+	width: 1px;
+	height: 1px;
+	margin: -1px;
+	padding: 0;
+	overflow: hidden;
+	clip-path: inset(50%);
+	white-space: nowrap;
+	border: 0;
+}
+
+.ch ww-runner .wwr-tab {
+	padding: 0.25rem 0.5rem;
+}
+
+/* THE EDITOR MUST SCROLL, NOT GROW.
+ *
+ * ww-runner.css pins the whole height chain so the line-number gutter cannot
+ * push its ancestors open, and the builder page then bounds the card with a
+ * full-height flex column. A lesson runner has no such column: it sits in
+ * ordinary document flow, so its grid row is free to size to its content and a
+ * student who pastes a hundred lines gets a two-thousand-pixel editor with the
+ * preview stranded somewhere off screen beside it. Measured before this rule:
+ * a 120-line file made the card 2483px tall inside a 761px window, and the
+ * textarea never scrolled vertically at all, because it never had to.
+ *
+ * min-height is in the runner sheet and is about not being uselessly small.
+ * This is the other end: a definite maximum on the grid container, which lets
+ * the minmax(0, 1fr) row cap out and hands the overflow to the textarea, where
+ * `overflow: auto` has been waiting for it the whole time. The gutter follows
+ * the textarea's scrollTop (see ww-runner.js), so the line numbers stay put.
+ *
+ * Roughly twenty-five lines of code. Long enough for every example on this
+ * page and for a student's own experiments; short enough that the prose above
+ * and below a runner stays on the same screen as it. */
+.ch ww-runner .wwr-body {
+	max-height: 26rem;
+}
+
+/* STACKED, THE CAP HAS TO GROW, NOT SHRINK.
+   Below 820px the two columns become two rows (see ww-runner.css), so one cap
+   is now feeding both the code and the preview. The first version of this went
+   the other way and made it SMALLER on a phone, which left about seven lines of
+   code above a preview the size of a postage stamp. Taller here, and the split
+   inside it favours the preview, because on a narrow screen the result is the
+   part worth seeing. */
+@media (max-width: 820px) {
+	.ch ww-runner .wwr-body {
+		max-height: 32rem;
+	}
+}
+
+/* A phone still gets a working editor, so the box has to stay big enough to
+   type in: about ten lines of code above a preview of the same size, which is
+   what the examples in these chapters actually are. */
+@media (max-width: 560px) {
+	.ch ww-runner .wwr-body {
+		max-height: 28rem;
+	}
+}
+
+/* The line under a runner that says what just changed. Tied to the box above it
+   by position and by being the only small grey line on the page.
+
+   --ink-soft here is the CLASSROOM value, not site-core's. This page carries
+   `body.lesson`, which ww-runner.css repoints along with `body.lab`: site-core's
+   #75765f measures 4.01 on --paper and these captions carry the instruction for
+   the exercise above them ("change forestgreen to your favourite colour"), which
+   is not a sentence to render in a shade that fails AA. */
+.cap {
+	font-size: 0.86rem;
+	color: var(--ink-soft);
+	margin: 0.15rem 0 1.4rem;
+	max-width: 46rem;
+	line-height: 1.55;
+}
+
+.cap strong {
+	color: var(--ink);
+}
+
+/* --------------------------------------------------------------- callouts */
+
+.note {
+	border-left: 3px solid var(--green);
+	background: var(--sprout);
+	border-radius: 0 10px 10px 0;
+	padding: 0.75rem 1rem;
+	margin: 1rem 0 1.3rem;
+	max-width: 46rem;
+	line-height: 1.6;
+	font-size: 0.94rem;
+}
+
+.note p {
+	margin: 0;
+	max-width: none;
+}
+
+.note p + p {
+	margin-top: 0.5rem;
+}
+
+.note-t {
+	display: block;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin-bottom: 0.2rem;
+	font-size: 0.82rem;
+	letter-spacing: 0.02em;
+}
+
+/* The trap notes: one `=` versus three, quotes around a number. Warm rather
+   than red: these are things that will happen to you, not things you did wrong.
+   Same palette as the runner's error panel, deliberately. */
+.note.warn {
+	border-left-color: var(--gold);
+	background: #f8efdc;
+}
+
+[data-theme='dark'] .note.warn {
+	background: #33291a;
+	border-left-color: #a8802f;
+}
+
+.note.warn .note-t {
+	color: #7a5312;
+}
+
+[data-theme='dark'] .note.warn .note-t {
+	color: #e0c08a;
+}
+
+/* Optional material. Marked in the page's own UI so a student who does not get
+   .reduce() can skip it and know they were meant to be able to. */
+.note.stretch {
+	border-left-color: var(--ink-faint);
+	background: var(--panel);
+	border: 1.5px dashed var(--panel-edge);
+	border-left-width: 3px;
+	border-left-style: solid;
+}
+
+.note.stretch .note-t {
+	color: var(--ink-soft);
+}
+
+/* A pill beside a heading, for material that is worth doing and not required.
+   Beside the heading rather than in a box above it, because a box above says
+   "this section is different" and a pill says "this one is a reach", which is
+   the actual message. Carries the words too: a colour alone would tell nobody
+   anything, and it is the same reason the chapter 2 callout gives. */
+.pill {
+	display: inline-block;
+	vertical-align: middle;
+	margin-left: 0.5rem;
+	font-size: 0.62rem;
+	font-weight: 700;
+	letter-spacing: 0.08em;
+	text-transform: uppercase;
+	color: #7a5312; /* 5.98 on the fill below */
+	background: #f8efdc;
+	border: 1px solid #e6d3ab;
+	border-radius: 999px;
+	padding: 0.16rem 0.5rem;
+	position: relative;
+	top: -0.08em;
+}
+
+[data-theme='dark'] .pill {
+	color: #e0c08a; /* 8.20 on the fill below */
+	background: #33291a;
+	border-color: #5b4a2c;
+}
+
+/* ----------------------------------------------------------------- tables */
+
+.ltable {
+	width: 100%;
+	max-width: 46rem;
+	border-collapse: collapse;
+	margin: 0.8rem 0 1.4rem;
+	font-size: 0.92rem;
+}
+
+.ltable th,
+.ltable td {
+	text-align: left;
+	padding: 0.5rem 0.7rem;
+	border-bottom: 1px solid var(--panel-edge);
+	vertical-align: top;
+	line-height: 1.5;
+}
+
+.ltable th {
+	font-size: 0.72rem;
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.ltable tbody tr:last-child td {
+	border-bottom: 0;
+}
+
+.ltable code {
+	white-space: nowrap;
+}
+
+/* Horizontal scroll rather than a squeezed table on a phone. */
+.ltable-scroll {
+	overflow-x: auto;
+	max-width: 100%;
+}
+
+/* -------------------------------------------------------- the API probe */
+
+.probe {
+	border: 1.5px solid var(--panel-edge);
+	background: var(--panel);
+	border-radius: var(--r);
+	padding: 1rem;
+	margin: 1rem 0 1.3rem;
+	max-width: 46rem;
+}
+
+.probe-url {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	color: var(--ink-soft);
+	word-break: break-all;
+	margin: 0 0 0.7rem;
+}
+
+.probe-stats {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
+	gap: 0.7rem;
+	margin-top: 0.9rem;
+}
+
+.pstat {
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.55rem 0.7rem;
+}
+
+.pstat b {
+	display: block;
+	font-size: 1.15rem;
+	font-variant-numeric: tabular-nums;
+	color: var(--green-deep);
+	line-height: 1.2;
+}
+
+.pstat span {
+	font-size: 0.7rem;
+	text-transform: uppercase;
+	letter-spacing: 0.06em;
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+.probe-note {
+	font-size: 0.84rem;
+	color: var(--ink-soft);
+	margin: 0.8rem 0 0;
+	line-height: 1.55;
+}
+
+/* ------------------------------------------------------- the JSON tree */
+
+.jtree {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.65;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.8rem;
+	margin-top: 0.9rem;
+	max-height: 26rem;
+	overflow: auto;
+}
+
+.jrow {
+	white-space: pre;
+	display: flex;
+	align-items: baseline;
+	gap: 0.3rem;
+	border-radius: 4px;
+	padding: 0 0.2rem;
+}
+
+/* Chapter 5 lights up the row a line of code just selected. */
+.jrow.is-lit {
+	background: var(--sprout);
+	box-shadow: inset 0 0 0 1.5px var(--green);
+}
+
+/* The fold control. Sized to match .jspace exactly so a leaf row's value lines
+   up with a container row's key: a tree whose columns do not agree is harder to
+   read than no tree. The chevron inside is an SVG (see setChevron). */
+.jtoggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	border: 0;
+	background: none;
+	padding: 0;
+	margin: 0;
+	width: 1rem;
+	height: 1.2em;
+	flex: none;
+	color: var(--ink-faint);
+	cursor: pointer;
+	font: inherit;
+}
+
+/* The "show N more" control is the same element with words in it, so it has to
+   opt out of the fixed icon width. */
+.jtoggle.jmore {
+	width: auto;
+	justify-content: flex-start;
+	font-size: 0.78rem;
+	text-decoration: underline;
+	padding-left: 1rem;
+}
+
+.jtoggle:hover {
+	color: var(--green-deep);
+}
+
+.jspace {
+	width: 1rem;
+	flex: none;
+}
+
+.jkids {
+	padding-left: 1.1rem;
+	border-left: 1px solid var(--panel-edge);
+	margin-left: 0.45rem;
+}
+
+.jkey {
+	color: var(--ink);
+	font-weight: 700;
+}
+
+/* TYPE COLOURS, AND WHY THESE.
+   The legend under the tree names each one, so colour is never the only carrier
+   of meaning: but they still have to be READABLE, and these are small
+   monospace text rather than large display type, so the bar is 4.5 and not 3.
+
+   MEASURED AGAINST THE SURFACE THEY ACTUALLY SIT ON, which is --paper-deep
+   (#ece4cb), the .jtree background: NOT the page behind it. A first pass here
+   used --paper and shipped three values that read as passing and were not:
+   #1f7a3f measured 4.62 on the page and 4.22 in the box it is actually drawn
+   in. Ratios below are on #ece4cb, the worst of the three surfaces these ever
+   appear on (tree #ece4cb / page #f4eeda / panel #fdfaf1). */
+.jstr {
+	color: #176634;
+} /* 5.53 */
+.jnum {
+	color: #1f5fa8;
+} /* 5.07 */
+.jbool {
+	color: #8e4a12;
+} /* 5.27 */
+.jnull {
+	color: #5d5e4c;
+} /* 5.21 */
+/* Array(150) and { 17 } are the TYPE of the row, not decoration: a student is
+   meant to read them: so this needs the classroom --ink-faint (#66674f, 4.57 on
+   the worst cream surface) rather than site-core's #9d9c85, which measures 2.20
+   against this box. See the override in ww-runner.css. */
+.jmeta {
+	color: var(--ink-faint);
+}
+
+/* Dark mode is SELECTED, not flipped: each of these is a step of the same hue
+   picked against the dark tree surface (--paper-deep, #17191b), which is what
+   the light values were picked against on their own side. Ratios measured. */
+[data-theme='dark'] .jstr {
+	color: #7ecb95;
+} /* 9.12 on #17191b */
+[data-theme='dark'] .jnum {
+	color: #82b6ea;
+} /* 8.25 */
+[data-theme='dark'] .jbool {
+	color: #e0a463;
+} /* 8.11 */
+[data-theme='dark'] .jnull {
+	color: #a2a4a3;
+} /* 7.03 */
+
+.jlegend {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.4rem 1rem;
+	margin-top: 0.8rem;
+	font-size: 0.8rem;
+	color: var(--ink-soft);
+}
+
+.jleg {
+	display: inline-flex;
+	align-items: baseline;
+	gap: 0.35rem;
+}
+
+.jleg code {
+	background: none;
+	padding: 0;
+	font-weight: 700;
+}
+
+/* ------------------------------------------------------- the flow diagram */
+
+.flow {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	gap: 0.5rem;
+	margin: 1.1rem 0 1.3rem;
+	font-size: 0.9rem;
+}
+
+.flow-step {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	padding: 0.4rem 0.85rem;
+	font-weight: 600;
+}
+
+.flow-step.is-lit {
+	border-color: var(--green);
+	background: var(--sprout);
+	color: var(--green-deep);
+}
+
+.flow-arrow {
+	color: var(--ink-faint);
+	font-weight: 700;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.flow-step {
+		transition:
+			background 0.25s ease,
+			border-color 0.25s ease,
+			color 0.25s ease;
+	}
+}
+
+/* --------------------------------------------------------- ch 9 challenges */
+
+.chals {
+	list-style: none;
+	margin: 1rem 0 1.4rem;
+	padding: 0;
+	max-width: 46rem;
+	display: grid;
+	gap: 0.5rem;
+}
+
+.chal {
+	display: grid;
+	grid-template-columns: 1.6rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: start;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	line-height: 1.55;
+}
+
+.chal.is-done {
+	border-color: var(--green);
+	background: var(--sprout);
+}
+
+.chal-box {
+	width: 1.2rem;
+	height: 1.2rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 6px;
+	background: var(--panel);
+	cursor: pointer;
+	padding: 0;
+	position: relative;
+	flex: none;
+	margin-top: 0.1rem;
+}
+
+.chal.is-done .chal-box {
+	background: var(--green);
+	border-color: var(--green);
+}
+
+.chal.is-done .chal-box::after {
+	content: '';
+	position: absolute;
+	left: 0.28rem;
+	top: 0.16rem;
+	width: 0.32rem;
+	height: 0.6rem;
+	border-right: 2px solid #fff;
+	border-bottom: 2px solid #fff;
+	transform: rotate(42deg);
+}
+
+[data-theme='dark'] .chal.is-done .chal-box::after {
+	border-color: #121314;
+}
+
+.chal-box:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+.chal-t {
+	font-weight: 700;
+}
+
+.chal-h {
+	color: var(--ink-soft);
+	font-size: 0.9rem;
+}
+
+/* ------------------------------------------------------------- hand-off */
+
+.handoff {
+	margin: 2.4rem 0 0;
+	padding: 1.5rem;
+	border-radius: var(--rlg);
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.handoff h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.3rem;
+}
+
+.handoff p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+	max-width: none;
+}
+
+/* --------------------------------------------------------- no-JS fallback */
+
+/* Every runner wraps a static copy of its own starter code so the lesson is
+   readable with scripting off: a real constraint on a locked-down school
+   machine, not a hypothetical. The runner replaces the element's contents on
+   boot, so this only ever shows when it did not. */
+.static-fallback {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 1rem 0;
+}
+
+/* A short line for anyone who reaches the page without JavaScript. Hidden by
+   the stylesheet and revealed by <noscript>, so it costs nothing otherwise. */
+.nojs {
+	display: none;
+}
+
+.small-screen {
+	display: none;
+}
+
+@media (max-width: 640px) {
+	.small-screen {
+		display: block;
+		margin: 0.8rem 0 0;
+		font-size: 0.88rem;
+		color: var(--ink-soft);
+		background: var(--panel);
+		border: 1.5px solid var(--panel-edge);
+		border-radius: 10px;
+		padding: 0.6rem 0.8rem;
+		line-height: 1.5;
+	}
+}
+
+/* ------------------------------------------------ dark-mode green direction
+
+   --green-deep is the DARKER green: correct under white text and on cream, and
+   backwards on a dark surface. Every place below is green text sitting on the
+   dark --sprout (#26302a) or the dark page, where the deep step measures 4.33,
+   under AA for body text. The bright step is the one the dark palette pairs with
+   a dark ground, exactly as ww-dark.css does for the primary buttons.
+
+   Ratios on #26302a: --green-deep 4.33 · --green 5.26 · --green-bright 7.22. */
+[data-theme='dark'] .lrail a.is-current,
+[data-theme='dark'] .lrail a.is-current .rnum,
+[data-theme='dark'] .note-t,
+[data-theme='dark'] .flow-step.is-lit {
+	color: var(--green-bright);
+}
+
+/* The rail's done-tick is a border, not text, so it takes the accent rather than
+   the ink, and it needs to read against the page, not against a fill. */
+[data-theme='dark'] .lrail a::after {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* ------------------------------------------------------------ going deeper
+
+   The optional panel that closes the lesson. It is a real <details>, so it
+   works with no JavaScript, it is keyboard operable for free, and a student who
+   uses find-in-page gets the browser's own "expand to reveal" behaviour rather
+   than a search that silently misses half the page.
+
+   It STARTS CLOSED, and that is the whole design. A student who has just
+   finished chapter 9 has done enough; putting fourteen more topics in front of
+   them as a wall reads as "you are not finished after all". Closed, it is one
+   line that says there is more if you want it. */
+
+.deeper {
+	/* Sits at the END of the chapter it belongs to, not at the end of the page.
+	   Attached to its own material a student has just read, it is an offer to go
+	   further on THAT idea; collected at the end of the lesson it was a second
+	   lesson nobody asked for. Wide enough to be clearly a section boundary and
+	   not another callout inside the prose. */
+	margin: 2rem 0 0.6rem;
+	max-width: 46rem;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	background: var(--panel);
+	overflow: hidden;
+}
+
+.deeper > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 1.1rem 1.3rem;
+	display: grid;
+	grid-template-columns: 1.5rem minmax(0, 1fr);
+	gap: 0.8rem;
+	align-items: start;
+}
+
+/* Safari draws its own triangle through ::-webkit-details-marker rather than
+   through list-style, so both have to be turned off to get one chevron. */
+.deeper > summary::-webkit-details-marker {
+	display: none;
+}
+
+.deeper > summary:hover {
+	background: var(--sprout);
+}
+
+.deeper > summary:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: -3px;
+}
+
+.deeper-chev {
+	width: 1.5rem;
+	height: 1.5rem;
+	color: var(--green-deep);
+	margin-top: 0.1rem;
+}
+
+[data-theme='dark'] .deeper-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.deeper-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.deeper[open] > summary .deeper-chev {
+	transform: rotate(90deg);
+}
+
+.deeper-t {
+	font-size: 1.15rem;
+	font-weight: 700;
+	line-height: 1.3;
+	display: block;
+}
+
+.deeper-sub {
+	color: var(--ink-soft);
+	font-size: 0.92rem;
+	line-height: 1.55;
+	display: block;
+	margin-top: 0.2rem;
+}
+
+.deeper-body {
+	padding: 0 1.3rem 1.6rem;
+	border-top: 1px solid var(--panel-edge);
+}
+
+.deeper-body > h3:first-of-type {
+	margin-top: 1.4rem;
+}
+
+/* A panel's headings are one step down from the chapter's own: the chapter is
+   the spine and this is a footnote on it. Same element, so the document outline
+   is unchanged; smaller, so the eye reads it as nested. */
+.deeper-body h3 {
+	font-size: 0.96rem;
+}
+
+.deeper-body p,
+.deeper-body ul,
+.deeper-body .ltable,
+.deeper-body .note,
+.deeper-body .snippet,
+.deeper-body .cap,
+.deeper-body .backref {
+	max-width: none;
+}
+
+/* A code block with no editor attached: the topics that are worth reading but
+   not worth another two iframes. */
+.snippet {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0.7rem 0 1.2rem;
+	max-width: 46rem;
+}
+
+/* Where a topic connects back to something they already did. The lesson is the
+   spine; this panel is footnotes on it, and a footnote should say which line. */
+.backref {
+	font-size: 0.84rem;
+	color: var(--ink-soft);
+	margin: -0.5rem 0 1.3rem;
+	max-width: 46rem;
+}
+
+.backref a {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .backref a {
+	color: var(--green-bright);
+}

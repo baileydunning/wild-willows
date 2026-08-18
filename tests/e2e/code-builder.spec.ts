@@ -277,3 +277,75 @@ test.describe('layout', () => {
 		expect(Math.abs(toggle.x + toggle.width - (lastBtn.x + lastBtn.width))).toBeLessThanOrEqual(1);
 	});
 });
+
+test.describe('a screen too small for this page', () => {
+	// The lesson works on a phone, editors and all. This page is the opposite
+	// shape: three files, a preview and a console on screen together, meant to be
+	// typed into for a whole period. Shipping a squeezed version of that is a
+	// period spent fighting a soft keyboard, so it says so and links to the thing
+	// that does work.
+	test.use({ viewport: { width: 390, height: 844 } });
+
+	test('shows the explanation instead of the workspace', async ({ page }) => {
+		await page.goto('/learn/code-builder');
+		await expect(page.locator('#lab-blocked')).toBeVisible();
+		await expect(page.locator('.lab-main')).toBeHidden();
+		await expect(page.locator('.lab-bar')).toBeHidden();
+	});
+
+	test('never boots the editor or its preview frames', async ({ page }) => {
+		await page.goto('/learn/code-builder');
+		await expect(page.locator('#lab-blocked')).toBeVisible();
+		await expect(page.locator('ww-runner.wwr')).toHaveCount(0);
+		await expect(page.locator('iframe')).toHaveCount(0);
+	});
+
+	test('offers the lesson, which does work here', async ({ page }) => {
+		await page.goto('/learn/code-builder');
+		await page.getByRole('link', { name: 'Read the lesson instead' }).click();
+		await expect(page).toHaveURL(/\/learn\/web-development$/);
+		// …and it really is usable at this size: an editor a student can type in.
+		await expect(page.locator('#chapter-1 ww-runner.wwr')).toBeVisible();
+		const area = page.locator('#chapter-1 ww-runner textarea.wwr-code').first();
+		expect(await area.evaluate((el: HTMLTextAreaElement) => el.readOnly)).toBe(false);
+	});
+});
+
+test.describe('the side panel collapses out of the way', () => {
+	// The checkpoints and the help are reference: worth having open while you are
+	// working out what to do next, and 280px of permanent tax once you know.
+	test('gives the editor the whole window and comes back', async ({ page }) => {
+		const toggle = page.locator('#lab-side-toggle');
+		const side = page.locator('.lab-side');
+		const stage = page.locator('.lab-stage');
+
+		await expect(side).toBeVisible();
+		await expect(toggle).toHaveAttribute('aria-expanded', 'true');
+		const narrow = (await stage.boundingBox())!.width;
+
+		await toggle.click();
+		// All the way out, not narrower: a squeezed sidebar still takes room and is
+		// no longer readable.
+		await expect(side).toBeHidden();
+		await expect(toggle).toHaveAttribute('aria-expanded', 'false');
+		await expect(toggle).toContainText('Show panel');
+		const wide = (await stage.boundingBox())!.width;
+		expect(wide).toBeGreaterThan(narrow + 200);
+
+		// The toggle is the one control that has to survive the panel vanishing.
+		await expect(toggle).toBeVisible();
+		await toggle.click();
+		await expect(side).toBeVisible();
+		await expect(toggle).toContainText('Hide panel');
+	});
+
+	test('remembers the choice', async ({ page }) => {
+		// Somebody who collapsed it did not mean "until I reload".
+		await page.locator('#lab-side-toggle').click();
+		await expect(page.locator('.lab-side')).toBeHidden();
+		await page.waitForTimeout(700); // the autosave is debounced
+		await page.reload();
+		await expect(page.locator('.lab-side')).toBeHidden();
+		await expect(page.locator('#lab-side-toggle')).toHaveAttribute('aria-expanded', 'false');
+	});
+});

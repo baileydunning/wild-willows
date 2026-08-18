@@ -1,0 +1,4324 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Wild Willows Code Builder &mdash; write HTML, CSS and JavaScript in your browser</title>
+<meta name="description" content="A free browser code editor for students. Three files, a live preview, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
+<link rel="canonical" href="https://wildwillows.app/learn/code-builder">
+<!-- The builder is a tool, not a document: there is nothing here for a search
+     engine to rank, and an indexed code editor competes with the lesson that
+     explains it. The lesson page and /teachers/coding are the indexable pair. -->
+<meta name="robots" content="noindex, follow">
+<meta name="theme-color" content="#2b3149">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- Quicksand at the three weights the site uses (body 500, semibold 600,
+     headings 700), loaded the same non-blocking way as every other page. -->
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+/* Wild Willows — light/dark toggle for the classroom pages.
+ *
+ * MUST be inlined in <head>, before any markup. The attribute has to be on
+ * <html> before the first paint, or a student who chose dark gets a full-page
+ * flash of cream on every navigation — which is worse than not offering the
+ * setting at all.
+ *
+ * Same convention as the game (src/prefs.ts): the stored preference may be
+ * absent (follow the system) or the literal 'light' / 'dark', and what lands on
+ * the element is ALWAYS one of the two literals. The stylesheet therefore never
+ * has to know that 'system' exists — see ww-dark.css.
+ *
+ * Kept separate from ww-builder.js because the lesson page needs the toggle too
+ * and does not need any of the builder's machinery.
+ */
+(function () {
+	'use strict';
+
+	var KEY = 'wildWillowsTheme';
+	var root = document.documentElement;
+
+	function stored() {
+		try {
+			var v = localStorage.getItem(KEY);
+			return v === 'light' || v === 'dark' ? v : null;
+		} catch (e) {
+			/* Private mode, or a locked-down managed profile. Not being able to
+			 * REMEMBER the choice must not stop them making it for this session. */
+			return null;
+		}
+	}
+
+	var systemDark = window.matchMedia ? window.matchMedia('(prefers-color-scheme: dark)') : null;
+
+	function resolve() {
+		return stored() || (systemDark && systemDark.matches ? 'dark' : 'light');
+	}
+
+	function apply(theme) {
+		root.setAttribute('data-theme', theme);
+	}
+
+	// Runs immediately, at parse time, ahead of <body>. This line is the reason
+	// this file is in the head and not with the others at the end of the page.
+	apply(resolve());
+
+	/* A student who has never touched the toggle should follow the OS as it
+	 * changes — sunset, or a school-managed policy flipping at a set hour. Once
+	 * they have chosen, their choice wins and this stops mattering. */
+	if (systemDark && systemDark.addEventListener) {
+		systemDark.addEventListener('change', function () {
+			if (!stored()) apply(resolve());
+		});
+	}
+
+	function wire() {
+		var btn = document.getElementById('theme-toggle');
+		if (!btn) return;
+
+		function label() {
+			var dark = root.getAttribute('data-theme') === 'dark';
+			// The control describes what pressing it will DO. "Dark mode: on" reads
+			// as a state and leaves people guessing what the click does.
+			btn.setAttribute('aria-label', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('title', dark ? 'Switch to light mode' : 'Switch to dark mode');
+			btn.setAttribute('aria-pressed', dark ? 'true' : 'false');
+		}
+
+		btn.addEventListener('click', function () {
+			var next = root.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+			apply(next);
+			try {
+				localStorage.setItem(KEY, next);
+			} catch (e) {
+				/* see stored() — the session still gets the theme they asked for */
+			}
+			label();
+			try {
+				document.dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: 'theme_' + next } }));
+			} catch (e) {
+				/* analytics never gets to break a lesson in progress */
+			}
+		});
+
+		label();
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+	else wire();
+})();
+
+</script>
+
+<style>
+/* Wild Willows — the shared site stylesheet.
+ *
+ * EXTRACTED VERBATIM from public/landing.html's <style>: the design tokens,
+ * buttons, chips, nav, wrap and section heads that every public page uses. The
+ * landing page, /teachers, /age-rating and /support each carry their own copy of
+ * exactly these bytes today, with a comment on each telling the next person to
+ * re-copy by hand rather than tweak. This file is that block, so the classroom
+ * pages can @include it instead of becoming a fifth copy.
+ *
+ * tests/unit/site-css.test.ts asserts this file is byte-identical to landing's
+ * block — if the landing page's design changes, that test fails and tells you to
+ * re-extract, rather than the classroom pages quietly drifting out of style.
+ *
+ * The four existing pages can migrate to this include whenever it is convenient;
+ * the generated HTML is unchanged either way.
+ */
+
+:root{
+  --paper:#f4eeda; --paper-deep:#ece4cb; --panel:#fdfaf1; --panel-edge:#e3d9bc;
+  --ink:#3b4232; --ink-soft:#75765f; --ink-faint:#9d9c85;
+  --green:#4a7c59; --green-deep:#39604a; --green-bright:#7cb564; --leaf:#d8eec2;
+  --sprout:#eaf3dd; --gold:#c9913f; --clay:#b5707a; --sky-day:#a8c9b6;
+  --night:#242b42; --night2:#3a3a58; --dusk:#8a5f63; --ember:#e8a25c;
+  --toast:#33342b;
+  --r:14px; --rlg:20px;
+  --shadow:0 2px 3px rgba(52,58,40,.08), 0 10px 28px rgba(52,58,40,.13);
+  --f:'Quicksand','Avenir Next','Trebuchet MS',sans-serif;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;font-family:var(--f);font-weight:500;color:var(--ink);background:var(--paper);line-height:1.65;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+h1,h2,h3{font-weight:700;line-height:1.15;margin:0 0 .55rem;color:var(--green-deep);letter-spacing:-.01em}
+h2{font-size:clamp(1.45rem,3.4vw,2.1rem)}
+h3{font-size:1.15rem}
+p{margin:0 0 1rem}
+a{color:var(--green-deep)}
+img{max-width:100%}
+.wrap{max-width:1080px;margin:0 auto;padding:0 1.2rem}
+svg{display:block}
+
+/* ---------- chips & buttons, borrowed from the game UI ---------- */
+.chip{display:inline-flex;align-items:center;gap:.35rem;font-size:.82rem;font-weight:700;color:var(--green-deep);
+  background:var(--sprout);border:1.5px solid #cfe0bd;border-radius:999px;padding:.18rem .7rem;white-space:nowrap}
+.chip.on{background:var(--green);border-color:var(--green);color:#fff}
+.chip.warm{background:#f7ead2;border-color:#e6d2a8;color:#8a6a2a}
+.toast{display:inline-block;background:var(--toast);color:#f0eeda;font-size:.85rem;font-weight:600;
+  border-radius:10px;padding:.35rem .85rem;box-shadow:0 2px 0 rgba(0,0,0,.18)}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font-family:var(--f);font-weight:700;font-size:1rem;
+  padding:.7rem 1.3rem;border-radius:13px;border:none;cursor:pointer;text-decoration:none;
+  transition:transform .1s ease, filter .1s ease}
+.btn:active{transform:translateY(1px)}
+.btn:hover{filter:brightness(1.06)}
+.btn-go{background:var(--green);color:#fff;box-shadow:0 3px 0 var(--green-deep), var(--shadow)}
+.btn-go:active{box-shadow:0 1px 0 var(--green-deep)}
+.btn-paper{background:var(--panel);color:var(--green-deep);box-shadow:0 3px 0 var(--panel-edge), var(--shadow)}
+.btn-night{background:rgba(255,255,255,.13);color:#f2f0dd;border:1.5px solid rgba(255,255,255,.35);box-shadow:none}
+.btn svg{width:16px;height:16px;flex:none}
+.cta-row{display:flex;flex-wrap:wrap;gap:.7rem;align-items:center}
+
+/* ---------- nav ---------- */
+.nav{position:sticky;top:0;z-index:30;background:rgba(253,250,241,.92);backdrop-filter:blur(10px);border-bottom:1.5px solid var(--panel-edge)}
+.nav .wrap{display:flex;align-items:center;gap:1rem;height:58px}
+.brand{display:flex;align-items:center;gap:.5rem;font-weight:700;font-size:1.12rem;color:var(--green-deep);text-decoration:none}
+.brand svg{width:27px;height:27px;flex:none}
+.nav .links{margin-left:auto;display:flex;gap:1.1rem;align-items:center}
+/* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
+   (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
+   pill instead of white — barely-legible, and on every page that copies this
+   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+.nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
+.nav .links a:not(.btn):hover{color:var(--green-deep)}
+.nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
+/* The nav is a fixed-height flex row, so when its contents stop fitting they
+   WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
+   growing the bar — it just looks broken. Two defences:
+
+   1. nowrap, so an item never splits across two lines whatever happens.
+   2. the secondary links go at 940px, not 740px. Measured: the landing nav
+      needs ~910px with every link shown, and every iPad in portrait is
+      768–834px CSS px. 740px left all of them in the wrapping zone, which is
+      what this band is really about — 940 also lines up with .access's
+      breakpoint, so there is one fewer number in this sheet. Below it the nav
+      is brand + primary CTA, and the links it drops are section anchors the
+      page scrolls to anyway. */
+.brand,.nav .links a{white-space:nowrap}
+@media(max-width:1100px){.nav .wrap{gap:.8rem}.nav .links{gap:.85rem}}
+@media(max-width:940px){.nav .links a.hide-sm{display:none}}
+
+/* ---------- hero: the title screen's dusk ---------- */
+/* NOTE: no overflow:hidden on .hero itself, because the screenshot window hangs below
+   the hero's edge (negative margin) and must not be clipped. The oversized
+   scene art is clipped by .hero-scene instead. */
+.hero{position:relative;background:linear-gradient(180deg,#20263c 0%,var(--night) 22%,var(--night2) 48%,var(--dusk) 78%,#c98a62 100%);color:#f2f0dd}
+.hero-scene{position:absolute;inset:0;pointer-events:none;overflow:hidden}
+.hero-scene svg{position:absolute;left:50%;bottom:0;transform:translateX(-50%);width:1600px;max-width:none;height:auto}
+.hero .wrap{position:relative;z-index:2;padding:4.4rem 1.2rem 0;text-align:center}
+.wordmark{font-size:clamp(2.7rem,8vw,4.8rem);font-weight:700;color:#f7f4e4;letter-spacing:.01em;margin:0 0 .3rem;
+  text-shadow:0 3px 0 rgba(24,28,46,.55)}
+.hero p.lead{font-size:clamp(1.05rem,2.3vw,1.3rem);color:#e8e2cc;max-width:38rem;margin:.5rem auto 1.6rem;font-weight:500}
+.hero .cta-row{justify-content:center}
+.hero .platline{margin:1.1rem 0 0;color:#cabfae;font-size:.88rem;font-weight:600}
+.hero .platline span{margin:0 .45rem}
+.star{position:absolute;border-radius:50%;background:#fdf6d8;opacity:.8;animation:twinkle 3.4s ease-in-out infinite}
+.fly{position:absolute;width:5px;height:5px;border-radius:50%;background:#ffe9a3;box-shadow:0 0 9px 3px rgba(255,220,120,.5);animation:drift 9s ease-in-out infinite;opacity:0}
+@keyframes twinkle{0%,100%{opacity:.25}50%{opacity:.95}}
+@keyframes drift{0%{transform:translate(0,0);opacity:0}12%{opacity:.95}55%{transform:translate(26px,-34px);opacity:.55}88%{opacity:.9}100%{transform:translate(-14px,-58px);opacity:0}}
+@media(prefers-reduced-motion:reduce){.star,.fly{animation:none;opacity:.55}}
+
+/* game-window frame: every screenshot lives in one of the game's own panels */
+.win{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);overflow:hidden}
+.win .winbar{display:flex;align-items:center;gap:.6rem;padding:.55rem .95rem;border-bottom:1.5px solid var(--panel-edge);background:#faf6e8}
+.win .winbar .wdot{width:10px;height:10px;border-radius:50%;background:var(--green-bright);flex:none}
+.win .winbar b{font-size:.88rem;color:var(--ink);font-weight:700}
+.win .winbar .chip{margin-left:auto;font-size:.7rem;padding:.08rem .55rem}
+.win img{display:block;width:100%;height:auto}
+.hero-shot{position:relative;z-index:3;display:block;max-width:900px;width:100%;height:auto;margin:2.6rem auto 0;
+  border-radius:var(--rlg);box-shadow:0 18px 50px rgba(10,14,26,.45)}
+.hero .wrap{padding-bottom:3.4rem}
+@media(max-width:640px){.hero .wrap{padding-bottom:2.2rem}}
+
+/* ---------- sections ---------- */
+section{padding:3.4rem 0}
+.head{max-width:46rem;margin:0 auto 2rem;text-align:center}
+.head p{color:var(--ink-soft);font-size:1.04rem}
+
+/* Wild Willows — <ww-runner> styles.
+ *
+ * Inlined into both classroom student pages by scripts/build-pages.mjs alongside
+ * ww-runner.js. Everything is scoped under .wwr so it cannot leak into the page
+ * around it.
+ *
+ * Built on the site's own design tokens from public/partials/site-core.css —
+ * the same --paper / --panel / --ink / --green cream-and-leaf palette, the same
+ * Quicksand stack, the same radii — so the editor reads as part of Wild Willows
+ * rather than a developer tool someone bolted on.
+ *
+ * Every var() carries a literal fallback. The tokens come from a sheet included
+ * ahead of this one, and if that include is ever dropped the runner should look
+ * slightly plain rather than unreadable (unset custom properties collapse to
+ * transparent text on transparent backgrounds).
+ *
+ * Monospace is the ONE place this departs from the site's type: code has to be
+ * monospaced, and Quicksand's lovely round glyphs actively hide the difference
+ * between l, 1 and I — which is a real source of "why doesn't my code work" for
+ * a beginner.
+ */
+
+/* [hidden] is only display:none in the UA stylesheet, so ANY author rule that
+ * sets display wins and the element stays visible. Both of the things this
+ * component hides — the inactive file panes and the tab strip in one-file mode —
+ * are flex containers, so `el.hidden = true` did nothing at all: clicking a file
+ * tab appeared to do nothing because every pane was still stacked on screen.
+ * These two rules are the fix; the attribute selector adds the specificity the
+ * base rules already had. */
+.wwr-editor[hidden],
+.wwr-tabs[hidden],
+.wwr [hidden] {
+	display: none;
+}
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the classroom pages only rather than edited
+ * upstream. Measured against the four cream surfaces these actually sit on
+ * (--paper, --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On a marketing page those carry decorative captions and it is a judgement
+ * call. Here they carry the hint under every checkpoint, the sidebar headings
+ * and the editor's line numbers — content a student has to read, often on a
+ * classroom projector or a cheap Chromebook panel in a bright room. The values
+ * below keep the sheet's warm olive cast and clear 4.5 on every surface.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.lab,
+body.lesson,
+.wwr {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+}
+
+.wwr {
+	display: block;
+	margin: 1.5rem 0;
+	border: 1.5px solid var(--panel-edge, #e3d9bc);
+	border-radius: var(--r, 14px);
+	overflow: hidden;
+	background: var(--panel, #fdfaf1);
+	box-shadow: var(--shadow, 0 2px 3px rgba(52, 58, 40, 0.08));
+	font-family: var(--f, 'Quicksand', 'Avenir Next', sans-serif);
+	font-size: 15px;
+}
+
+/* ------------------------------------------------------------------ toolbar */
+
+.wwr-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	padding: 0.45rem 0.7rem;
+	background: var(--sprout, #eaf3dd);
+	border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	flex-wrap: wrap;
+}
+
+.wwr-label {
+	font-weight: 700;
+	color: var(--green-deep, #39604a);
+	font-size: 0.85rem;
+}
+
+.wwr-spacer {
+	flex: 1 1 auto;
+}
+
+.wwr-tabs {
+	display: flex;
+	gap: 0.25rem;
+}
+
+/* File tabs read as the site's chips — same pill, same weights — so the one
+ * genuinely new control on the page still looks like something they have
+ * already seen on /teachers. */
+.wwr-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.78rem;
+	font-weight: 700;
+	padding: 0.2rem 0.75rem;
+	border: 1.5px solid transparent;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #75765f);
+	cursor: pointer;
+}
+
+/* The icon is there on every tab and shown only where the name is not: the
+   builder is a tool and names its files; the lesson is prose with editors in it
+   and cannot spend a third of every toolbar on three filenames. See
+   ww-lesson.css for the swap. */
+.wwr-tab-ico {
+	display: none;
+	width: 1.05rem;
+	height: 1.05rem;
+	flex: none;
+}
+
+.wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+.wwr-tab.is-active {
+	background: var(--green, #4a7c59);
+	border-color: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr-btn {
+	display: inline-flex;
+	align-items: center;
+	gap: 0.35rem;
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.35rem 0.9rem;
+	border: none;
+	border-radius: 10px;
+	background: var(--panel, #fdfaf1);
+	color: var(--green-deep, #39604a);
+	box-shadow: 0 2px 0 var(--panel-edge, #e3d9bc);
+	cursor: pointer;
+	white-space: nowrap;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.wwr-ico {
+	width: 14px;
+	height: 14px;
+	flex: none;
+}
+
+.wwr-btn:hover {
+	filter: brightness(1.06);
+}
+
+.wwr-btn:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge, #e3d9bc);
+}
+
+/* The site's primary button, at toolbar scale. */
+.wwr-run {
+	background: var(--green, #4a7c59);
+	color: #fff;
+	box-shadow: 0 2px 0 var(--green-deep, #39604a);
+}
+
+.wwr-run:active {
+	box-shadow: 0 1px 0 var(--green-deep, #39604a);
+}
+
+/* Unrun edits: a pulse rather than a color change alone, so it reads as "there
+ * is something to do" at a glance. */
+.wwr-run.is-dirty {
+	animation: wwr-pulse 1.4s ease-in-out infinite;
+}
+
+@keyframes wwr-pulse {
+	50% {
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 4px rgba(124, 181, 100, 0.35);
+	}
+}
+
+/* --------------------------------------------------------------- view modes
+ *
+ * Split is the teaching default — cause and effect in one eyeful, which is the
+ * whole device the lesson is built on. But at 1366px on a Chromebook two half
+ * columns is cramped for both, and a student writing a long function or showing
+ * a classmate what they made wants one thing full width. */
+.wwr-views {
+	display: inline-flex;
+	gap: 2px;
+	padding: 2px;
+	border-radius: 999px;
+	background: rgba(255, 255, 255, 0.55);
+}
+
+.wwr-view {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.85rem;
+	height: 1.6rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft, #61624b);
+	cursor: pointer;
+}
+
+.wwr-view svg {
+	width: 15px;
+	height: 15px;
+	display: block;
+}
+
+.wwr-view:hover {
+	background: rgba(255, 255, 255, 0.8);
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-view.is-on {
+	background: var(--green, #4a7c59);
+	color: #fff;
+}
+
+.wwr--view-code .wwr-out,
+.wwr--view-preview .wwr-panes {
+	display: none;
+}
+
+.wwr--view-code .wwr-body,
+.wwr--view-preview .wwr-body {
+	grid-template-columns: minmax(0, 1fr);
+}
+
+.wwr--view-code .wwr-panes {
+	border-right: 0;
+}
+
+/* -------------------------------------------------------------------- panes */
+
+/* THE HEIGHT CHAIN, and every link matters.
+ *
+ * The editor used to grow with the file. Add thirty lines and the whole panel
+ * got taller, pushing the console down and out of the card — which is what the
+ * screenshot of a console stranded in the middle of the editor was.
+ *
+ * The culprit was the line-number gutter: it is `white-space: pre` with one line
+ * per row, so its INTRINSIC height is the length of the file. `overflow: hidden`
+ * does not stop that — it stops scrolling, not growing. And because grid and
+ * flex children both default to `min-height: auto`, that intrinsic height was
+ * free to push every ancestor open.
+ *
+ * So each level is pinned: minmax(0, 1fr) tracks here, min-height: 0 on the
+ * children, and the textarea is the ONLY thing that scrolls. Remove any one of
+ * these and the growth comes back. */
+.wwr-body {
+	display: grid;
+	grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+	grid-template-rows: minmax(0, 1fr);
+	min-height: 240px;
+}
+
+/* One-file examples in the lesson are short; side-by-side keeps the cause and
+ * its effect in one eyeful, which is the entire teaching device. */
+.wwr--single .wwr-body {
+	min-height: 180px;
+}
+
+.wwr-panes {
+	border-right: 1.5px solid var(--panel-edge, #e3d9bc);
+	min-width: 0;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-editor {
+	display: flex;
+	height: 100%;
+	min-height: 0;
+	background: var(--panel, #fdfaf1);
+}
+
+.wwr-gutter {
+	flex: 0 0 auto;
+	padding: 0.6rem 0.4rem 0.6rem 0.6rem;
+	margin: 0;
+	text-align: right;
+	color: var(--ink-faint, #9d9c85);
+	background: var(--paper-deep, #ece4cb);
+	border-right: 1px solid var(--panel-edge, #e3d9bc);
+	white-space: pre;
+	overflow: hidden;
+	min-height: 0;
+	user-select: none;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+}
+
+.wwr-code {
+	flex: 1 1 auto;
+	border: 0;
+	outline: 0;
+	resize: none;
+	padding: 0.6rem;
+	background: transparent;
+	color: var(--ink, #3b4232);
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 13px;
+	line-height: 1.55;
+	tab-size: 2;
+	height: 100%;
+	min-height: 0;
+	/* `pre`, not `pre-wrap`: a long line scrolls sideways rather than silently
+	 * rewrapping. Wrapping looks tidier and teaches the wrong thing — a student
+	 * cannot see that their line is 200 characters long if the editor hides it. */
+	white-space: pre;
+	overflow: auto;
+}
+
+.wwr-code:focus {
+	background: #fff;
+	box-shadow: inset 0 0 0 2px rgba(74, 124, 89, 0.35);
+}
+
+/* ------------------------------------------------------------ output column */
+
+.wwr-out {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	min-width: 0;
+	min-height: 0;
+	/* White, not --panel: this is the student's OWN page, and it should look like
+	 * a browser window rather than another panel of ours. */
+	background: #fff;
+}
+
+/* Both buffers occupy the same box; only the live one is visible. Crossfading by
+ * opacity rather than swapping display keeps the layout perfectly still — a
+ * reflow on every render would be its own kind of flicker. */
+.wwr-preview {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
+	background: #fff;
+	opacity: 0;
+	pointer-events: none;
+}
+
+.wwr-preview.is-live {
+	opacity: 1;
+	pointer-events: auto;
+}
+
+/* Full-width row under both columns. Height is generous but bounded: a beginner's
+ * first instruction is console.log(data) on the whole 300 KB catalog, and a
+ * three-line box makes that look like the code failed. */
+/* Full-width row under both columns, and RESIZABLE — height is set inline by the
+ * drag handle. How much console a student wants is entirely situational: none at
+ * all while laying out HTML, as much as possible on the chapter that is only
+ * about reading logged data. Anything fixed is wrong for somebody. */
+.wwr-console {
+	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
+	background: var(--paper, #f4eeda);
+	display: flex;
+	flex-direction: column;
+	flex: 0 0 auto;
+	min-height: 0;
+	overflow: hidden;
+}
+
+.wwr-console.is-collapsed {
+	height: auto;
+}
+
+.wwr-console.is-collapsed .wwr-console-lines {
+	display: none;
+}
+
+/* The header IS the drag handle. A separate 4px grab strip is the conventional
+ * answer and a bad one here: it is a fiddly target on a trackpad, invisible
+ * until you find it, and this bar was otherwise doing nothing but holding a
+ * word. */
+.wwr-console-head {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	flex: none;
+	padding: 0.3rem 0.5rem 0.3rem 0.7rem;
+	font-size: 0.72rem;
+	font-weight: 700;
+	letter-spacing: 0.05em;
+	text-transform: uppercase;
+	color: var(--ink-faint, #66674f);
+	border-bottom: 1px solid var(--panel-edge, #e3d9bc);
+	cursor: ns-resize;
+	user-select: none;
+	touch-action: none;
+}
+
+.wwr-console-head:hover {
+	color: var(--green-deep, #39604a);
+}
+
+.wwr-console-head:focus-visible {
+	outline: 2px solid var(--green, #4a7c59);
+	outline-offset: -2px;
+}
+
+/* Two grip lines, so the bar reads as draggable before anyone tries. */
+.wwr-console-head::after {
+	content: '';
+	width: 26px;
+	height: 6px;
+	margin-left: 0.2rem;
+	border-top: 2px solid currentColor;
+	border-bottom: 2px solid currentColor;
+	opacity: 0.35;
+	order: 1;
+}
+
+.wwr-console-head .wwr-spacer {
+	order: 2;
+}
+
+.wwr-fold {
+	order: 3;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 1.4rem;
+	height: 1.4rem;
+	padding: 0;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: inherit;
+	cursor: pointer;
+}
+
+.wwr-fold svg {
+	width: 13px;
+	height: 13px;
+	display: block;
+	transition: transform 0.15s ease;
+}
+
+.is-collapsed .wwr-fold svg {
+	transform: rotate(-90deg);
+}
+
+.wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.6);
+}
+
+/* While dragging, nothing else on the page should select or steal the cursor —
+ * and the iframes must stop swallowing pointer events, or the drag dies the
+ * moment it crosses the preview. */
+body.wwr-resizing {
+	cursor: ns-resize;
+	user-select: none;
+}
+
+body.wwr-resizing iframe {
+	pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-fold svg {
+		transition: none;
+	}
+}
+
+.wwr-console-lines {
+	margin: 0;
+	padding: 0.4rem 0.7rem;
+	overflow: auto;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	line-height: 1.5;
+	color: var(--ink, #3b4232);
+	white-space: pre-wrap;
+	word-break: break-word;
+	min-height: 3.2em;
+}
+
+/* An empty console is ambiguous: it looks identical whether nothing was logged,
+ * the code never ran, or the pane is broken. Say which. */
+.wwr-console-lines:empty::before {
+	content: 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+	color: var(--ink-faint, #66674f);
+	font-family: var(--f, 'Quicksand', sans-serif);
+	font-size: 0.82rem;
+}
+
+.wwr-console-line + .wwr-console-line {
+	border-top: 1px dotted var(--panel-edge, #e3d9bc);
+	padding-top: 0.2rem;
+	margin-top: 0.2rem;
+}
+
+.wwr-console-line.is-warn {
+	color: #77591f; /* 5.30 on --paper */
+}
+
+.wwr-console-line.is-error {
+	/* --clay measures 3.25 on --paper. This is the line that tells a student
+	   something went wrong; it does not get to be the hardest one to read. */
+	color: #93392c; /* 6.32 */
+}
+
+/* -------------------------------------------------------------- error panel */
+
+/* The site's warm chip palette (.chip.warm), not a red siren. Errors are the
+ * normal state of writing code, and the panel should read like help rather than
+ * punishment — especially for someone whose first ever error this may be. */
+.wwr-error {
+	border-top: 1.5px solid #e6d2a8;
+	background: #f7ead2;
+	padding: 0.7rem 0.9rem;
+}
+
+.wwr-error-title {
+	font-weight: 700;
+	color: #6f521c; /* 6.09 on the panel's #f7ead2 */
+	margin-bottom: 0.3rem;
+}
+
+.wwr-error-msg {
+	display: block;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 12.5px;
+	color: #6f521c; /* 6.62 over the lightened panel */
+	background: rgba(255, 255, 255, 0.55);
+	border-radius: 8px;
+	padding: 0.25rem 0.5rem;
+	margin-bottom: 0.4rem;
+	white-space: pre-wrap;
+	word-break: break-word;
+}
+
+.wwr-error-help {
+	margin: 0;
+	color: var(--ink, #3b4232);
+	font-size: 0.92rem;
+	line-height: 1.5;
+}
+
+/* ------------------------------------------------------------------ failure */
+
+/* If the component itself throws, the static fallback markup inside the element
+ * stays visible and readable. The lesson degrades to a normal article rather
+ * than to a row of empty boxes. */
+.wwr--failed .wwr-body {
+	display: none;
+}
+
+/* ------------------------------------------------------------- small screens */
+
+@media (max-width: 820px) {
+	/* THE ROWS HAVE TO BE NAMED, NOT JUST THE COLUMNS.
+	 *
+	 * Dropping to one column left grid-template-rows at a single
+	 * minmax(0, 1fr) from the two-column layout, so the code pane took the whole
+	 * explicit row and the preview landed in an IMPLICIT row sized auto. Inside a
+	 * bounded container that resolves to zero: the preview was 0px tall on every
+	 * iPad in portrait and every phone, which is the half of the screen the whole
+	 * teaching device depends on. Measured, not guessed: body 180, code 180,
+	 * preview 0.
+	 *
+	 * Two explicit rows, and the code gets slightly less than the preview because
+	 * on a narrow screen the result is the part worth seeing. */
+	.wwr-body {
+		grid-template-columns: 1fr;
+		grid-template-rows: minmax(0, 0.9fr) minmax(0, 1.1fr);
+	}
+
+	.wwr-panes {
+		border-right: 0;
+		border-bottom: 1.5px solid var(--panel-edge, #e3d9bc);
+	}
+
+	/* Stacked, each pane needs a floor of its own or the shorter examples
+	   collapse to a few lines each. Roughly ten lines of code above a preview
+	   that can show a heading and a list, which is what these examples are. */
+	.wwr-code {
+		min-height: 170px;
+	}
+
+	.wwr-preview {
+		min-height: 150px;
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.wwr-run.is-dirty {
+		animation: none;
+		box-shadow:
+			0 2px 0 var(--green-deep, #39604a),
+			0 0 0 3px rgba(124, 181, 100, 0.4);
+	}
+}
+
+/* Wild Willows — Code Builder page styles.
+ *
+ * Layered ON TOP of public/partials/site-core.css, which is included ahead of
+ * this file: the tokens, .btn / .btn-go / .btn-paper, .chip and .nav all come
+ * from there, so the builder uses the site's real controls rather than
+ * look-alikes. Only what is genuinely new to this page lives here.
+ *
+ * The one deliberate departure from the other pages: site-core sets a cream
+ * document that scrolls. This page is a TOOL — the editor should fill the
+ * viewport so a student on a Chromebook never has to scroll to see their own
+ * code — so the body becomes a flex column and the stage takes the remaining
+ * height. Everything inside it is still the site's panels and buttons.
+ */
+
+/* Same trap as .wwr-editor (see ww-runner.css): site-core's .btn is
+ * display:inline-flex, which outranks the UA stylesheet's [hidden], so the Undo
+ * button sat there permanently even before there was anything to undo. */
+.btn[hidden],
+.lab-section[hidden] {
+	display: none;
+}
+
+html,
+body {
+	height: 100%;
+}
+
+body.lab {
+	display: flex;
+	flex-direction: column;
+	overflow: hidden;
+}
+
+/* The sticky nav from site-core assumes a scrolling document; in a flex column
+ * it just needs to not shrink. */
+body.lab .nav {
+	position: static;
+	flex: 0 0 auto;
+}
+
+/* Full-bleed nav, to match the bar underneath it.
+ *
+ * site-core wraps the nav in .wrap — max-width 1080px, centred — because on the
+ * marketing pages it sits above centred prose and should line up with it. This
+ * page is a tool: the bar below it, the sidebar and the editor all run to the
+ * window edges, so a centred nav left the brand indented from "Code Builder" and
+ * the two rows' right-hand buttons visibly out of step. Same horizontal padding
+ * as .lab-bar, so every row on the page starts and ends on the same two lines. */
+body.lab .nav .wrap {
+	max-width: none;
+	padding: 0 1.2rem;
+}
+
+/* Inline SVG icons inside the site's buttons. Drawn, never typed: an emoji is a
+ * different font on every machine, renders at a size nothing else on the page
+ * uses, and on a school Windows box is as likely to be a blank box as a die. */
+.ico {
+	width: 16px;
+	height: 16px;
+	flex: none;
+}
+
+.btn .ico {
+	margin-right: -0.1rem;
+}
+
+/* ---------------------------------------------------------------- lab header */
+
+.lab-bar {
+	display: flex;
+	align-items: center;
+	gap: 0.5rem;
+	flex-wrap: wrap;
+	padding: 0.6rem 1.2rem;
+	background: var(--panel);
+	border-bottom: 1.5px solid var(--panel-edge);
+	flex: 0 0 auto;
+}
+
+.lab-bar h1 {
+	margin: 0;
+	font-size: 1.05rem;
+	color: var(--green-deep);
+}
+
+.lab-bar .btn {
+	font-size: 0.88rem;
+	padding: 0.4rem 0.9rem;
+	border-radius: 11px;
+}
+
+.lab-spacer {
+	flex: 1 1 auto;
+}
+
+/* Announcements ("Picking up where you left off", "Downloaded") reuse the game's
+ * toast chip. It sits in the bar rather than floating: a message that fades away
+ * is exactly the wrong shape for something a student may look up at ten seconds
+ * later, having been heads-down in their code. */
+.lab-status {
+	margin: 0;
+	min-height: 1.6rem;
+	flex-basis: 100%;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+.lab-status:empty {
+	min-height: 0;
+}
+
+.lab-status.is-ok,
+.lab-status.is-warn {
+	display: inline-block;
+	background: var(--toast);
+	color: #f0eeda;
+	font-weight: 600;
+	border-radius: 10px;
+	padding: 0.3rem 0.8rem;
+	flex-basis: auto;
+	box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+}
+
+.lab-status.is-warn {
+	background: #f7ead2;
+	color: #8a6a2a;
+	box-shadow: 0 2px 0 #e6d2a8;
+}
+
+/* ------------------------------------------------------------------- layout */
+
+.lab-main {
+	flex: 1 1 auto;
+	display: grid;
+	grid-template-columns: 280px 1fr;
+	min-height: 0;
+}
+
+.lab-side {
+	background: var(--paper-deep);
+	border-right: 1.5px solid var(--panel-edge);
+	overflow: auto;
+	padding: 1rem 1.1rem 1.5rem;
+}
+
+.lab-stage {
+	min-width: 0;
+	display: flex;
+	flex-direction: column;
+	padding: 1rem 1.2rem 1.2rem;
+	gap: 0.6rem;
+	overflow: hidden;
+}
+
+/* The runner fills the stage rather than sitting at its natural height — this is
+ * the one page where the editor IS the content. */
+.lab-stage .wwr {
+	margin: 0;
+	flex: 1 1 auto;
+	display: flex;
+	flex-direction: column;
+	min-height: 420px;
+}
+
+/* min-height:0 is load-bearing: a flex child defaults to min-height:auto, so
+ * without it the grid inside would grow to fit the file rather than scroll. See
+ * the height-chain note in ww-runner.css. */
+.lab-stage .wwr-body {
+	flex: 1 1 auto;
+	min-height: 0;
+}
+
+.lab-note {
+	margin: 0;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+}
+
+/* --------------------------------------------------------------- checkpoints */
+
+/* ------------------------------------------------ collapsible side sections
+ *
+ * A real <details>, not a JS accordion: keyboard and screen-reader behaviour
+ * comes free, and it still works if the controller fails to boot.
+ *
+ * The summary carries the progress count, so a student who has collapsed the
+ * list can still see where they are — which is the only reason collapsing it is
+ * safe to offer at all. */
+.lab-details > summary {
+	display: flex;
+	align-items: center;
+	gap: 0.4rem;
+	cursor: pointer;
+	list-style: none;
+	margin-bottom: 0.6rem;
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+}
+
+.lab-details > summary::-webkit-details-marker {
+	display: none;
+}
+
+/* The disclosure triangle, drawn rather than inherited, so it matches the type. */
+.lab-details > summary::before {
+	content: '';
+	width: 0;
+	height: 0;
+	border-left: 5px solid currentColor;
+	border-top: 4px solid transparent;
+	border-bottom: 4px solid transparent;
+	transition: transform 0.15s ease;
+	flex: none;
+}
+
+.lab-details[open] > summary::before {
+	transform: rotate(90deg);
+}
+
+.lab-details > summary:hover {
+	color: var(--green-deep);
+}
+
+.lab-details > summary:focus-visible {
+	outline: 2px solid var(--green);
+	outline-offset: 3px;
+	border-radius: 4px;
+}
+
+.cp-count {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0;
+	text-transform: none;
+	color: var(--ink-faint);
+}
+
+.cp-count.is-complete {
+	color: var(--green-deep);
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.lab-details > summary::before {
+		transition: none;
+	}
+}
+
+.lab-side h2 {
+	font-size: 0.75rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.07em;
+	color: var(--ink-faint);
+	margin: 0 0 0.6rem;
+}
+
+.lab-side h2 + * {
+	margin-top: 0;
+}
+
+.lab-section + .lab-section {
+	margin-top: 1.6rem;
+	padding-top: 1.2rem;
+	border-top: 1.5px solid var(--panel-edge);
+}
+
+#lab-checkpoints {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+
+.cp-day {
+	font-size: 0.72rem;
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.05em;
+	color: var(--ink-faint);
+	margin: 0.9rem 0 0.35rem;
+}
+
+.cp-day:first-child {
+	margin-top: 0;
+}
+
+.cp {
+	display: flex;
+	gap: 0.6rem;
+	padding: 0.55rem 0;
+	border-top: 1px solid var(--panel-edge);
+}
+
+/* The tick doubles as the step number until it is done — one control, and the
+ * list still reads as an ordered set of steps before anything is ticked. */
+.cp-tick {
+	flex: 0 0 auto;
+	width: 1.7rem;
+	height: 1.7rem;
+	border-radius: 999px;
+	border: 1.5px solid #cfe0bd;
+	background: var(--sprout);
+	color: var(--green-deep);
+	font-family: var(--f);
+	font-size: 0.8rem;
+	font-weight: 700;
+	cursor: pointer;
+	line-height: 1;
+}
+
+.cp.is-done .cp-tick {
+	background: var(--green);
+	border-color: var(--green);
+	color: #fff;
+}
+
+.cp-main {
+	min-width: 0;
+}
+
+.cp-goal {
+	font-size: 0.9rem;
+	font-weight: 700;
+	line-height: 1.35;
+	color: var(--ink);
+}
+
+.cp.is-done .cp-goal {
+	color: var(--ink-faint);
+}
+
+.cp-hint {
+	font-size: 0.82rem;
+	color: var(--ink-soft);
+	line-height: 1.45;
+	margin-top: 0.15rem;
+}
+
+.cp-show {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.75rem;
+	margin-top: 0.4rem;
+	padding: 0.2rem 0.65rem;
+	border: none;
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--green-deep);
+	box-shadow: 0 2px 0 var(--panel-edge);
+	cursor: pointer;
+}
+
+.cp-show:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--panel-edge);
+}
+
+/* ---------------------------------------------------------------- help panel */
+
+.help-title {
+	font-size: 1rem;
+	margin: 0 0 0.2rem;
+	color: var(--green-deep);
+}
+
+.help-body {
+	margin: 0 0 0.7rem;
+	font-size: 0.85rem;
+	color: var(--ink-soft);
+	line-height: 1.5;
+}
+
+.help-snip {
+	margin-bottom: 0.7rem;
+}
+
+.help-label {
+	font-size: 0.76rem;
+	font-weight: 600;
+	color: var(--ink-faint);
+	margin-bottom: 0.2rem;
+}
+
+.help-code {
+	margin: 0;
+	padding: 0.45rem 0.55rem;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 10px;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11.5px;
+	line-height: 1.5;
+	white-space: pre-wrap;
+	word-break: break-word;
+	color: var(--ink);
+}
+
+.help-insert {
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.72rem;
+	margin-top: 0.25rem;
+	padding: 0.15rem 0.6rem;
+	border: 1.5px solid #cfe0bd;
+	border-radius: 999px;
+	background: var(--sprout);
+	color: var(--green-deep);
+	cursor: pointer;
+}
+
+/* ---------------------------------------------------------------- the brief
+ *
+ * The idea a student chose, kept in front of them while they build it. Without
+ * this the prompt lived only in a modal they dismissed, and two minutes later
+ * "what was I making?" is a real question — especially on day 3, when the modal
+ * was opened at the start of the period and never again. */
+.lab-brief {
+	border-left: 3px solid var(--green);
+	padding-left: 0.8rem;
+}
+
+.brief-title {
+	margin: 0 0 0.25rem;
+	font-size: 1.02rem;
+	color: var(--green-deep);
+}
+
+.brief-what {
+	margin: 0 0 0.4rem;
+	font-size: 0.88rem;
+	line-height: 1.5;
+	color: var(--ink);
+}
+
+.brief-data {
+	margin: 0 0 0.7rem;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+.brief-actions {
+	display: flex;
+	gap: 0.4rem;
+	flex-wrap: wrap;
+}
+
+.brief-actions .btn {
+	font-size: 0.78rem;
+	padding: 0.28rem 0.7rem;
+	border-radius: 999px;
+}
+
+/* --------------------------------------------------------------- ideas modal */
+
+.lab-modal {
+	position: fixed;
+	inset: 0;
+	background: rgba(36, 43, 66, 0.55);
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	padding: 1rem;
+	z-index: 60;
+}
+
+.lab-modal[hidden] {
+	display: none;
+}
+
+.lab-modal-inner {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	max-width: 940px;
+	width: 100%;
+	max-height: 90vh;
+	overflow: auto;
+	padding: 1.4rem;
+	box-shadow: var(--shadow);
+}
+
+.lab-modal h2 {
+	margin: 0 0 0.2rem;
+}
+
+.lab-modal-sub {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+}
+
+.lab-filters {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin-bottom: 0.7rem;
+	align-items: center;
+}
+
+.lab-filters > span {
+	font-size: 0.78rem;
+	font-weight: 700;
+	color: var(--ink-faint);
+	margin-right: 0.2rem;
+}
+
+/* The filter pills ARE the site's .chip — see site-core.css. `.chip.on` is the
+ * selected state there, so nothing new is invented here. */
+.chip[data-idea-filter] {
+	cursor: pointer;
+	font-family: var(--f);
+}
+
+.idea-cards {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+	gap: 0.8rem;
+	margin: 1rem 0;
+}
+
+.idea {
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--r);
+	padding: 0.9rem;
+	background: var(--paper);
+	display: flex;
+	flex-direction: column;
+	gap: 0.4rem;
+}
+
+.idea-title {
+	margin: 0;
+	font-size: 1.05rem;
+}
+
+.idea-what {
+	margin: 0;
+	font-size: 0.9rem;
+	color: var(--ink);
+	line-height: 1.5;
+	flex: 1 1 auto;
+}
+
+.idea-data {
+	margin: 0;
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 11px;
+	color: var(--ink-faint);
+}
+
+/* The card's call to action. It had only size rules and no .btn class, so it
+ * rendered as the browser's default grey chrome in the middle of a page that has
+ * a perfectly good button of its own — see the screenshot that prompted this. */
+.idea-start {
+	align-self: flex-start;
+	display: inline-flex;
+	align-items: center;
+	gap: 0.4rem;
+	font-family: var(--f);
+	font-weight: 700;
+	font-size: 0.85rem;
+	padding: 0.45rem 1rem;
+	border: none;
+	border-radius: 11px;
+	background: var(--green);
+	color: #fff;
+	box-shadow:
+		0 3px 0 var(--green-deep),
+		var(--shadow);
+	cursor: pointer;
+	transition:
+		transform 0.1s ease,
+		filter 0.1s ease;
+}
+
+.idea-start:hover {
+	filter: brightness(1.06);
+}
+
+.idea-start:active {
+	transform: translateY(1px);
+	box-shadow: 0 1px 0 var(--green-deep);
+}
+
+.idea-start:focus-visible {
+	outline: 2px solid var(--green-deep);
+	outline-offset: 2px;
+}
+
+/* The card lifts with it, so the whole tile reads as the target. */
+.idea:hover {
+	border-color: #cfe0bd;
+}
+
+.idea-empty {
+	color: var(--ink-soft);
+	grid-column: 1 / -1;
+}
+
+.lab-modal-actions {
+	display: flex;
+	gap: 0.6rem;
+	flex-wrap: wrap;
+}
+
+/* -------------------------------------------------------------- small screens */
+
+/* TABLETS AND NARROW LAPTOPS: STOP FITTING THE VIEWPORT, START SCROLLING.
+ *
+ * Side by side, this page is a fixed-height app: the window is the frame and
+ * the editor fills what is left. Stacked, that model turns against it. The
+ * sidebar, the toolbar and the console all take their cut off the top and
+ * bottom of the same 100vh, and what reaches the editor is the remainder.
+ *
+ * Measured on an iPad in portrait before this rule: 77px of code above 94px of
+ * preview. An iPad mini got 42 and 52. That is not a small editor, it is four
+ * visible lines of code, and it is the whole page.
+ *
+ * So below 940px the document scrolls and the runner is given a real height
+ * instead of a leftover one. The editor also comes FIRST: it is what a student
+ * opened the page for, and the checkpoints are reference they scroll to. */
+@media (max-width: 940px) {
+	body.lab {
+		overflow: auto;
+	}
+
+	.lab-main {
+		display: flex;
+		flex-direction: column;
+	}
+
+	.lab-stage {
+		order: 1;
+		overflow: visible;
+	}
+
+	.lab-side {
+		order: 2;
+		border-right: 0;
+		border-top: 1.5px solid var(--panel-edge);
+		/* Not a nested scroller once the page itself scrolls: two scrollbars in
+		   one column is a way to lose half the checkpoints without knowing. */
+		overflow: visible;
+	}
+
+	.lab-stage .wwr {
+		/* A real height rather than what is left over. 70vh is about 800px on an
+		   iPad in portrait, which leaves the code and the preview roughly 250 each
+		   once the toolbar and the console have taken theirs. */
+		min-height: 70vh;
+	}
+}
+
+
+/* --------------------------------------------------- too small for this page
+ *
+ * Shown instead of the workspace on a phone. The lesson works at this size and
+ * this page does not, so the honest move is to say which is which and link to
+ * the one that will work, rather than shipping a squeezed editor and letting a
+ * student find out during their period. See the note in ww-builder.js.
+ *
+ * The runner is never mounted in this state (it carries `defer`), so a phone
+ * also does not pay for two preview iframes it cannot use. */
+
+body.is-too-small .lab-bar,
+body.is-too-small .lab-main,
+body.is-too-small .lab-modal {
+	display: none;
+}
+
+/* body.lab is a fixed-height flex column with overflow hidden, which is the
+   right shape for an app that fills the window and the wrong one for a page
+   that is now just a paragraph and two links. */
+body.lab.is-too-small {
+	display: block;
+	overflow: auto;
+}
+
+.lab-blocked[hidden] {
+	display: none;
+}
+
+.lab-blocked {
+	display: flex;
+	justify-content: center;
+	padding: 2rem 1.1rem 3rem;
+}
+
+.lab-blocked-inner {
+	max-width: 34rem;
+}
+
+.lab-blocked svg {
+	width: 2.4rem;
+	height: 2.4rem;
+	color: var(--green-deep);
+	margin-bottom: 0.5rem;
+}
+
+[data-theme='dark'] .lab-blocked svg {
+	color: var(--green-bright);
+}
+
+.lab-blocked h1 {
+	font-size: 1.5rem;
+	line-height: 1.2;
+	margin: 0 0 0.7rem;
+	color: var(--ink);
+}
+
+.lab-blocked p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.lab-blocked-go {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+	margin: 1.3rem 0 1rem;
+}
+
+.lab-blocked-note {
+	font-size: 0.88rem;
+}
+
+/* Wild Willows — dark mode for the classroom pages.
+ *
+ * A repoint of the tokens in site-core.css, plus the handful of fixes a variable
+ * cannot reach. No rule is duplicated: everything else on the page already draws
+ * from the custom properties, so re-aiming them is the whole theme.
+ *
+ * Same convention as the game (see [data-theme='dark'] in src/styles.css): the
+ * attribute lives on <html> and is always the literal 'light' or 'dark', never
+ * 'system' — ww-theme.js resolves that before writing it, so this selector never
+ * has to know the setting exists.
+ *
+ * CONTRAST IS MEASURED, NOT EYEBALLED — the same promise src/styles.css makes,
+ * and tests/unit/classroom-dark-mode.test.ts holds this file to it. Ratios below
+ * are against --paper #1e2022 unless noted. Body text needs 4.5, large text and
+ * icons 3.0. Where a name matches the game's palette the game's measured value is
+ * reused verbatim rather than a new near-miss being invented.
+ */
+
+[data-theme='dark'] {
+	color-scheme: dark;
+
+	/* Surfaces: near-neutral greys, colour left to the accents. "Make it dark" is
+	   otherwise trivially satisfied by #fff on #000, which is stark rather than
+	   restful and is the treatment the game's colorblind modes deliberately own. */
+	--paper: #1e2022; /* page background */
+	--paper-deep: #17191b; /* the recessed band — sidebar, editor gutter */
+	--panel: #232527; /* raised: cards, panels, buttons */
+	--panel-edge: #474b4e; /* hairlines and control borders */
+
+	--ink: #e9e9e7; /* 13.44 */
+	--ink-soft: #a2a4a3; /*  6.52 — muted body text */
+	--ink-faint: #8b8d8c; /*  4.89 — small uppercase labels and line numbers;
+	                             still clears AA for small text, which the game's
+	                             --stamp-ink (3.18) would not have done here */
+
+	--green: #7dac83; /*  6.30 as text · 7.18 for --on-accent on it */
+	--green-deep: #6d9c74; /*  5.18 — the pressed edge under primary buttons */
+	--green-bright: #99c89e; /*  8.65 */
+	--leaf: #99c89e; /*  8.65 */
+	--sprout: #26302a; /* the pale-green chip fill, inverted to a dark tint */
+	--gold: #d8ae66; /*  7.91 */
+	--clay: #d894a1; /*  6.75 */
+
+	/* The toast is a raised pill on a dark page, so it inverts: in daylight it is
+	   near-black on cream, here it is a lifted grey. */
+	--toast: #2d3033;
+
+	/* Nothing casts a soft warm shadow at night — depth comes from an almost black
+	   drop plus the lighter --panel-edge catching the top of the card. */
+	--shadow: 0 14px 40px rgba(0, 0, 0, 0.55);
+}
+
+/* The classroom pages repoint --ink-soft and --ink-faint on `body.lab, .wwr` for
+   daylight legibility (see the note in ww-runner.css). That selector is (0,1,1),
+   which OUTRANKS the (0,1,0) block above — so without this the light greys would
+   win in dark mode and the sidebar would turn to mud. Re-declared here at (0,2,1)
+   so the dark values hold. Specificity, not source order, decides this one. */
+[data-theme='dark'] body.lab,
+[data-theme='dark'] body.lesson,
+[data-theme='dark'] .wwr {
+	--ink-soft: #a2a4a3; /*  6.52 */
+	--ink-faint: #8b8d8c; /*  4.89 */
+}
+
+/* ------------------------------------------- fixes a variable cannot reach */
+
+/* THE ONE THAT MATTERS. site-core's .btn-go hard-codes color:#fff, which is fine
+   on the daylight green (#4a7c59) and fails outright on the dark one: white on
+   #7dac83 measures 2.59 — below AA for any text at any size. The dark palette
+   pairs a light accent with near-black text, exactly as the game does with its
+   --on-accent token. Every primary button on the page is this rule. */
+[data-theme='dark'] .btn-go,
+[data-theme='dark'] .chip.on,
+[data-theme='dark'] .idea-start,
+[data-theme='dark'] .wwr-run,
+[data-theme='dark'] .wwr-tab.is-active,
+[data-theme='dark'] .cp.is-done .cp-tick {
+	color: #121314; /* 7.18 on --green */
+}
+
+/* The idea card's shadow is a solid colour ledge, not a blur, so it has to be
+   re-aimed with the accent rather than left as a daylight green in the dark. */
+[data-theme='dark'] .idea-start {
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+
+[data-theme='dark'] .idea:hover {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .lab-brief {
+	border-left-color: var(--green);
+}
+
+/* site-core's chip border and warm variant are literals, not tokens. */
+[data-theme='dark'] .chip {
+	border-color: #3d4a40;
+}
+
+[data-theme='dark'] .chip.warm {
+	background: #33291a;
+	border-color: #5b4a2c;
+	color: #e0c08a; /* 8.20 on its own background */
+}
+
+/* The error panel borrows .chip.warm's palette (see ww-runner.css), so it moves
+   with it. Warm, not alarming: errors are the normal state of writing code. */
+[data-theme='dark'] .wwr-error {
+	background: #33291a;
+	border-top-color: #5b4a2c;
+}
+
+[data-theme='dark'] .wwr-error-title {
+	color: #e0c08a; /* 8.20 */
+}
+
+[data-theme='dark'] .wwr-error-msg {
+	background: rgba(0, 0, 0, 0.28);
+	color: #d8bd93; /* 7.05 on the panel above */
+}
+
+[data-theme='dark'] .wwr-error-help {
+	color: var(--ink);
+}
+
+/* The editor's focus ring and the code surface. The gutter sits on --paper-deep
+   via its token, so only the focused field needs saying. */
+[data-theme='dark'] .wwr-code:focus {
+	background: #101113;
+	box-shadow: inset 0 0 0 2px rgba(125, 172, 131, 0.45);
+}
+
+/* THE PREVIEW STAYS WHITE, AND THAT IS DELIBERATE.
+   It is the student's own page, not part of our interface. Tinting it would make
+   their CSS look like it does something it does not, and the first time they
+   opened their downloaded file on a white browser page it would look broken to
+   them. A browser shows a page on white; so does this. */
+[data-theme='dark'] .wwr-out,
+[data-theme='dark'] .wwr-preview {
+	background: #fff;
+}
+
+/* The nav's translucent cream is a literal rgba in site-core. */
+[data-theme='dark'] .wwr-views {
+	background: rgba(0, 0, 0, 0.25);
+}
+
+[data-theme='dark'] .wwr-view:hover {
+	background: rgba(255, 255, 255, 0.09);
+	color: var(--green-bright);
+}
+
+[data-theme='dark'] .wwr-view.is-on {
+	color: #121314; /* 7.18 on --green */
+}
+
+[data-theme='dark'] .wwr-tab:hover {
+	background: rgba(255, 255, 255, 0.08);
+}
+
+[data-theme='dark'] .wwr-fold:hover {
+	background: rgba(255, 255, 255, 0.09);
+}
+
+[data-theme='dark'] .nav {
+	background: rgba(30, 32, 34, 0.92);
+}
+
+/* ------------------------------------------------------- the toggle itself */
+
+.theme-toggle {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: 2.1rem;
+	height: 2.1rem;
+	padding: 0;
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 999px;
+	background: var(--panel);
+	color: var(--ink-soft);
+	cursor: pointer;
+	flex: none;
+	transition:
+		transform 0.12s ease,
+		color 0.12s ease;
+}
+
+.theme-toggle:hover {
+	color: var(--green-deep);
+	transform: rotate(-12deg);
+}
+
+[data-theme='dark'] .theme-toggle:hover {
+	color: var(--green-bright);
+}
+
+.theme-toggle:active {
+	transform: scale(0.94);
+}
+
+.theme-toggle svg {
+	width: 17px;
+	height: 17px;
+	display: block;
+}
+
+/* One button, two icons, swapped by the attribute — so the label always shows
+   what pressing it will DO, not what is currently on. */
+.theme-toggle .icon-moon {
+	display: block;
+}
+
+.theme-toggle .icon-sun {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-moon {
+	display: none;
+}
+
+[data-theme='dark'] .theme-toggle .icon-sun {
+	display: block;
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.theme-toggle,
+	.theme-toggle:hover,
+	.theme-toggle:active {
+		transition: none;
+		transform: none;
+	}
+}
+
+</style>
+</head>
+<body class="lab">
+
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
+    <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
+    <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<!-- Shown INSTEAD of the workspace on a phone. ww-builder.js decides which of
+     the two you get and unhides this one; it is hidden here so a laptop never
+     sees it flash. See the note in ww-builder.js for why the builder draws the
+     line where the lesson does not. -->
+<section class="lab-blocked" id="lab-blocked" hidden>
+  <div class="lab-blocked-inner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
+    <h1>This one needs a bigger screen</h1>
+    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
+    <p class="lab-blocked-go">
+      <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the lesson instead</a>
+      <a class="btn btn-paper" href="/learn" data-track="learn-nav">Both pages</a>
+    </p>
+    <p class="lab-blocked-note">The lesson works fine on a phone, editors and all. It is only this page that needs the room.</p>
+  </div>
+</section>
+
+<div class="lab-bar">
+  <h1>Code Builder</h1>
+  <span class="lab-spacer"></span>
+  <button type="button" class="btn btn-go" id="lab-ideas-open"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21.5h4"/><path d="M12 2.5a6.5 6.5 0 0 0-3.8 11.8c.5.4.8 1 .8 1.6v.1h6v-.1c0-.6.3-1.2.8-1.6A6.5 6.5 0 0 0 12 2.5z"/></svg> Ideas</button>
+  <button type="button" class="btn btn-paper" id="lab-undo" hidden>Undo</button>
+  <button type="button" class="btn btn-paper" id="lab-import">Open&hellip;</button>
+  <input type="file" id="lab-import-input" accept=".html,text/html" hidden>
+  <button type="button" class="btn btn-paper" id="lab-download">Download</button>
+  <button type="button" class="btn btn-paper" id="lab-reset">Start over</button>
+  <p class="lab-status" id="lab-status" role="status" aria-live="polite"></p>
+</div>
+
+<main class="lab-main">
+  <aside class="lab-side">
+    <!-- Populated when a student picks an idea. Sits ABOVE the checkpoints
+         deliberately: once they have chosen something to build, the brief is
+         what they are working to and the checkpoints become reference. -->
+    <section class="lab-section lab-brief" id="lab-current-idea" hidden>
+      <h2>What you&rsquo;re building</h2>
+      <h3 class="brief-title" id="lab-brief-title"></h3>
+      <p class="brief-what" id="lab-brief-what"></p>
+      <p class="brief-data" id="lab-brief-data"></p>
+      <div class="brief-actions">
+        <button type="button" class="btn btn-paper" id="lab-brief-change">Pick another</button>
+        <button type="button" class="btn btn-paper" id="lab-brief-clear">Clear</button>
+      </div>
+    </section>
+
+    <details class="lab-section lab-details" id="lab-checkpoints-details" open>
+      <summary>Checkpoints <span class="cp-count" id="lab-cp-count"></span></summary>
+      <ol id="lab-checkpoints"></ol>
+    </details>
+
+    <details class="lab-section lab-details" id="lab-help-details" open>
+      <summary>Need help?</summary>
+      <div id="lab-help"></div>
+    </details>
+
+    <div class="lab-section">
+      <p class="lab-note">
+        Your code stays in this browser. It is never sent to us, and there is no
+        account to make. Use <b>Download</b> to keep a copy you can open on any computer.
+      </p>
+    </div>
+  </aside>
+
+  <section class="lab-stage">
+    <!-- console: the lesson sends students here straight after chapter 4, and a
+         locked-down Chromebook makes DevTools a bad answer.
+         `manual` is deliberately NOT set: the preview follows their typing, and
+         Run is there for students who want cause and effect to be discrete. -->
+    <ww-runner defer console label="Your project">
+      <script type="text/ww-file" name="index.html">
+        <h1>Wild Willows Explorer</h1>
+        <p id="message">Loading game data...</p>
+      </script>
+      <script type="text/ww-file" name="styles.css">
+        body {
+          font-family: sans-serif;
+          padding: 2rem;
+        }
+
+        h1 {
+          color: seagreen;
+        }
+      </script>
+      <script type="text/ww-file" name="main.js">
+        async function loadGameData() {
+          const response = await fetch("/GameData/");
+          const data = await response.json();
+
+          // TODO: put something from `data` on the page
+          console.log(data);
+        }
+
+        loadGameData();
+      </script>
+    </ww-runner>
+
+    <p class="lab-note">
+      The preview updates a moment after you stop typing. Press <b>Run</b> to update it straight away.
+    </p>
+  </section>
+</main>
+
+<div class="lab-modal" id="lab-ideas" hidden role="dialog" aria-modal="true" aria-labelledby="lab-ideas-title">
+  <div class="lab-modal-inner">
+    <h2 id="lab-ideas-title">Something to build</h2>
+    <p class="lab-modal-sub">Every one of these uses the real Wild Willows data. Pick one, or shuffle for three more.</p>
+
+    <div class="lab-filters">
+      <span>How hard:</span>
+      <button type="button" class="chip on" data-idea-filter="level" data-value="all">Any</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="easy">Easy</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="medium">Medium</button>
+      <button type="button" class="chip" data-idea-filter="level" data-value="ambitious">Ambitious</button>
+    </div>
+    <div class="lab-filters">
+      <span>Practice:</span>
+      <button type="button" class="chip on" data-idea-filter="uses" data-value="all">Anything</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="if">if / else</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="filter">.filter()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="map">.map()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="sort">.sort()</button>
+      <button type="button" class="chip" data-idea-filter="uses" data-value="reduce">.reduce()</button>
+    </div>
+
+    <div class="idea-cards" id="lab-idea-cards"></div>
+
+    <div class="lab-modal-actions">
+      <button type="button" class="btn btn-paper" id="lab-ideas-shuffle"><svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.2" y="3.2" width="17.6" height="17.6" rx="4"/><circle cx="8.4" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="8.4" r="1.35" fill="currentColor" stroke="none"/><circle cx="12" cy="12" r="1.35" fill="currentColor" stroke="none"/><circle cx="8.4" cy="15.6" r="1.35" fill="currentColor" stroke="none"/><circle cx="15.6" cy="15.6" r="1.35" fill="currentColor" stroke="none"/></svg> Shuffle</button>
+      <button type="button" class="btn btn-go" id="lab-ideas-surprise">Surprise me</button>
+      <button type="button" class="btn btn-paper" id="lab-ideas-close">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* Wild Willows — <ww-runner>
+ *
+ * The shared code-editor-and-live-preview element behind BOTH classroom student
+ * pages. /learn/web-development uses it ~15 times in one-file mode for its inline
+ * examples; /learn/code-builder uses it once in three-file mode with tabs. One
+ * implementation, so a student who has used the lesson's examples already knows
+ * how the builder behaves.
+ *
+ * Inlined into both pages at build time by scripts/build-pages.mjs (see the
+ * @include directive there) — NOT served as its own file. The hosted Harper
+ * serves no static files, and duplicating this in two hand-maintained pages is
+ * exactly the drift the include exists to prevent.
+ *
+ * DESIGN CONSTRAINTS, all deliberate:
+ *  • No dependencies. No CodeMirror, no Monaco, no CDN. School networks block
+ *    CDNs, the page has to inline into resources.js as one string, and a styled
+ *    <textarea> genuinely is enough for a 40-line file.
+ *  • The preview iframe is sandbox="allow-scripts" WITHOUT allow-same-origin, so
+ *    student code runs on an opaque origin and cannot touch this page. That is
+ *    why GET /GameData/ sends Access-Control-Allow-Origin (see GAME_DATA_CORS in
+ *    server/resources.ts) — without it, the fetch the whole lesson is about fails
+ *    from inside here.
+ *  • Errors surface in the UI, never only in a console the student will not open.
+ *    A blank preview with a silent error is the #1 way a beginner concludes they
+ *    are bad at this and stops.
+ */
+(function () {
+	'use strict';
+
+	/* ---------------------------------------------------------------- assembly */
+
+	/**
+	 * Three sources -> one HTML document for the preview iframe.
+	 *
+	 * Exposed on window for the unit tests (tests/unit/ww-runner.test.ts) and for
+	 * the builder's Download, which must produce the SAME bytes the preview ran —
+	 * a downloaded file that behaves differently from the preview is the worst
+	 * possible ending to the lesson.
+	 */
+	function assembleDocument(html, css, js, harness) {
+		return (
+			'<!DOCTYPE html>\n<html lang="en">\n<head>\n<meta charset="utf-8">\n' +
+			'<meta name="viewport" content="width=device-width, initial-scale=1">\n' +
+			'<style>\n' +
+			escapeForStyle(css || '') +
+			'\n</style>\n</head>\n<body>\n' +
+			(html || '') +
+			/* THE HARNESS GETS ITS OWN SCRIPT BLOCK, and this is not tidiness.
+			 *
+			 * It used to be concatenated in front of the student's code in ONE block,
+			 * and that quietly broke the most important case this component handles.
+			 * A syntax error is a PARSE-time failure: the browser throws out the
+			 * whole block before executing any of it. So a student who left a `var`
+			 * dangling took the harness down with them — window.onerror was never
+			 * installed, nothing was posted to the host, and the result was a blank
+			 * preview, an empty console, and an error visible only in devtools.
+			 * Which is precisely the "I have no idea what is wrong" moment the error
+			 * panel exists to prevent.
+			 *
+			 * Two blocks: the harness parses and installs on its own, then a parse
+			 * error in the student's block fires window.onerror and gets reported
+			 * like any other mistake.
+			 *
+			 * Omitted entirely when there is no harness — that path is Download, and
+			 * the file a student takes home carries none of our plumbing. */
+			(harness ? '\n<script>\n' + escapeForScript(harness) + '\n<\/script>' : '') +
+			'\n<script>\n' +
+			escapeForScript(js || '') +
+			'\n<\/script>\n</body>\n</html>\n'
+		);
+	}
+
+	/**
+	 * The bug this prevents: a student writes a closing script tag inside a string
+	 * — in a template literal building HTML, say — and the HTML parser ends the
+	 * script block THERE. The rest of their JavaScript renders as visible text and
+	 * the page silently does nothing. No error, no clue, and it looks like the
+	 * editor ate their code.
+	 *
+	 * Only that one sequence matters, and only case-insensitively; escaping the
+	 * slash keeps the JavaScript semantically identical, because inside a string
+	 * "<\/script>" and the unescaped form are the same three-word value.
+	 *
+	 * NOTE, and this is not a joke: this comment used to spell the sequence out
+	 * literally. This whole file is inlined INTO a <script> block by
+	 * scripts/build-pages.mjs, so the comment explaining the trap sprang the trap
+	 * — the browser ended the block mid-file and rendered the rest of the runner
+	 * as text on the page. Do not write it out here. build-pages now escapes it
+	 * on the way in as a backstop, and tests/unit/built-pages.test.ts asserts the
+	 * generated page has balanced tags.
+	 */
+	function escapeForScript(code) {
+		return String(code).replace(/<\/(script)/gi, '<\\/$1');
+	}
+
+	/** Same class of problem for </style> inside a CSS string or comment. */
+	function escapeForStyle(code) {
+		return String(code).replace(/<\/(style)/gi, '<\\/$1');
+	}
+
+	/* ------------------------------------------------- friendly error messages */
+
+	/**
+	 * Plain-English explanations for the errors beginners actually hit, ordered
+	 * most-specific-first because several of these substrings overlap.
+	 *
+	 * Every entry says WHAT IT MEANS and WHAT TO CHECK. A raw `TypeError: Cannot
+	 * read properties of null` teaches nothing to someone in week one; "the page
+	 * couldn't find the element you asked for — check the spelling of your id"
+	 * fixes the bug and teaches what null is in the same breath.
+	 *
+	 * Three of these are data-type errors wearing different hats (null, undefined,
+	 * text-vs-number), and they deliberately name the type — that is where the
+	 * lesson's types material gets used, rather than in a chapter nobody rereads.
+	 *
+	 * Add to this list from real usage: the builder counts which errors fire
+	 * (ww:metric -> errors_*), so the ranking tells you which explanation to write
+	 * next instead of guessing.
+	 */
+	var ERROR_HELP = [
+		{
+			key: 'fetch-failed',
+			match: /failed to fetch|networkerror|load failed/i,
+			title: "Couldn't reach the Wild Willows data",
+			help:
+				'The request for the game data did not get through. Check the address is exactly ' +
+				'/GameData/ and if it looks right, ask your teacher: some school ' +
+				'networks block outside websites.',
+		},
+		{
+			key: 'json-parse',
+			match: /unexpected token '?<'?|is not valid json/i,
+			title: 'That answer was not the data',
+			help:
+				'The server sent back a webpage (usually an error page) where your code expected JSON. ' +
+				'Check the address you passed to fetch().',
+		},
+		{
+			key: 'null-property',
+			match: /(reading|properties) (of )?'?null'?|of null/i,
+			title: 'That element is not on the page',
+			help:
+				'querySelector gives you null when it cannot find what you asked for, and null means ' +
+				'"deliberately nothing". Check the spelling in your HTML and your JavaScript, and remember ' +
+				'#name looks for id="name", while .name looks for class="name".',
+		},
+		{
+			key: 'undefined-property',
+			match: /(reading|properties) (of )?'?undefined'?|of undefined/i,
+			title: 'That piece of the data is not there',
+			help:
+				'undefined means "nothing found". You asked for something the data does not have. Check the ' +
+				'spelling of the property, and check you are not one level too deep (data.animals[0].name, ' +
+				'not data.animals.name).',
+		},
+		{
+			key: 'not-defined',
+			match: /is not defined/i,
+			title: 'JavaScript does not recognize that name',
+			help:
+				'Either it is spelled differently from where you created it, or it does not exist yet. ' +
+				'Capital letters count: animal and Animal are two different names.',
+		},
+		{
+			key: 'not-a-function',
+			match: /is not a function/i,
+			title: 'That is not something you can call',
+			help:
+				'You put () after something that is not a function, often a typo in the method name, or a ' +
+				'value that turned out to be undefined.',
+		},
+		{
+			key: 'await-async',
+			match: /await is only valid|await outside/i,
+			title: 'await needs an async function',
+			help: 'await only works inside a function marked async. Check that the word async is on the function it sits in.',
+		},
+		{
+			key: 'const-assign',
+			match: /assignment to constant|invalid assignment/i,
+			title: 'That value cannot be changed',
+			help: 'A const can be set once. Use let instead if you need to change it later.',
+		},
+		{
+			key: 'not-iterable',
+			match: /is not iterable/i,
+			title: 'That is not a list',
+			help:
+				'for...of and the array methods need an array. Check what you actually got: it may be a single ' +
+				'object, or undefined.',
+		},
+		{
+			key: 'unexpected-eof',
+			/* Chrome: "Unexpected end of input". Safari: "Unexpected end of script",
+			 * and sometimes "Unexpected EOF". Same mistake, three wordings — and the
+			 * students most likely to hit it are the least able to tell that those
+			 * are the same thing. */
+			match: /unexpected end of (input|script)|unexpected eof/i,
+			title: 'Something was left open',
+			help: 'Usually a missing } or ) or a missing closing quote. Check the end of the last few lines you wrote.',
+		},
+		{
+			key: 'masked',
+			/* Safari's placeholder for an error it will not describe across an origin
+			 * boundary. syntaxErrorIn() should have caught the common cause first, so
+			 * reaching this means something rarer — but it still must not leave a
+			 * student staring at two words. */
+			match: /^\s*script error\.?\s*$/i,
+			title: 'Your code stopped, and the browser would not say why',
+			help:
+				'Safari hides the details of some errors for security reasons. Check the last thing you ' +
+				'changed, and try commenting lines out until the page runs again. The last line you removed ' +
+				'is the one to look at.',
+		},
+		{
+			key: 'syntax',
+			match: /syntaxerror|unexpected token|unexpected identifier/i,
+			title: 'JavaScript could not read that',
+			help:
+				'A typo somewhere in the shape of the code: a missing comma, bracket or quote. The line number ' +
+				'is where JavaScript gave up, so the real mistake is often just above it.',
+		},
+	];
+
+	/* Calibrate how `new Function` reports line numbers.
+	 *
+	 * It wraps the code in a synthetic function, so a reported line is offset from
+	 * the student's by however many lines that wrapper adds — which differs by
+	 * engine and by version. Measuring it once with a known-broken probe is exact,
+	 * and cheap: the error is on line 3 of the probe, so whatever it claims minus
+	 * three is the wrapper's contribution. */
+	var SYNTAX_LINE_OFFSET = (function () {
+		try {
+			new Function('\n\n(');
+		} catch (e) {
+			if (typeof e.line === 'number') return e.line - 3; // Safari reports .line
+			var m = /<anonymous>:(\d+)/.exec(String(e.stack || ''));
+			if (m) return Number(m[1]) - 3;
+		}
+		return 0;
+	})();
+
+	/**
+	 * Compile the student's JavaScript HERE, in the host page, purely to find out
+	 * whether it parses — and if not, what is actually wrong with it.
+	 *
+	 * WHY THIS EXISTS. The preview runs in a sandboxed, opaque-origin iframe, and
+	 * Safari refuses to tell a cross-origin listener anything about a script error
+	 * in one: `window.onerror` receives the string "Script error." with no message,
+	 * no file and no line. Chrome hands over the real message, which is exactly why
+	 * this survived a browser test — one browser was being helpful.
+	 *
+	 * "Script error." is worse than useless to a beginner. It names nothing, points
+	 * nowhere, and is indistinguishable from every other failure.
+	 *
+	 * The host has the source and no origin barrier, so compiling it here gets the
+	 * real SyntaxError. new Function only PARSES — it never runs the code, so this
+	 * cannot have side effects.
+	 *
+	 * Not a substitute for the in-frame harness: that still reports everything that
+	 * happens at RUN time, which no amount of parsing can predict.
+	 */
+	function syntaxErrorIn(js) {
+		if (!js || !js.trim()) return null;
+		try {
+			new Function(js);
+			return null;
+		} catch (e) {
+			if (!(e instanceof SyntaxError)) return null;
+			var line = null;
+			if (typeof e.line === 'number') line = e.line - SYNTAX_LINE_OFFSET;
+			else {
+				var m = /<anonymous>:(\d+)/.exec(String(e.stack || ''));
+				if (m) line = Number(m[1]) - SYNTAX_LINE_OFFSET;
+			}
+			var total = js.split('\n').length;
+			if (!(line > 0)) line = null;
+			else if (line > total) line = total;
+
+			var message = String(e.message || 'SyntaxError');
+			/* Undo the wrapper's fingerprint. new Function appends a closing brace of
+			 * its own, so when the student leaves something open the parser trips on
+			 * THAT brace and reports "Unexpected token '}'" — blaming a character the
+			 * student never typed and cannot find. A complaint about the wrapper's
+			 * own brace is, by construction, the unterminated case; say so. */
+			if (/unexpected token '?\}'?/i.test(message)) message = 'Unexpected end of input';
+			return { message: message, line: line };
+		}
+	}
+
+	function explain(message) {
+		for (var i = 0; i < ERROR_HELP.length; i++) {
+			if (ERROR_HELP[i].match.test(message)) return ERROR_HELP[i];
+		}
+		return { key: 'other', title: 'Something went wrong', help: 'Read the message above and check the line it names.' };
+	}
+
+	/* --------------------------------------------------------------- telemetry */
+
+	/**
+	 * Fire-and-forget counter. The page listens for these and batches them into
+	 * one beacon (see the LessonEvent notes in server/resources.ts); the component
+	 * deliberately knows nothing about transport, so the lesson page and the
+	 * builder can count different things without touching this file.
+	 *
+	 * Counters only, ever. No code, no text the student typed, no identifiers.
+	 */
+	function metric(key, host) {
+		try {
+			(host || document).dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: String(key) } }));
+		} catch (e) {
+			/* analytics must never break a lesson in progress */
+		}
+	}
+
+	/* ----------------------------------------------------- the runtime injected
+	 * into every preview, ahead of the student's own code.
+	 *
+	 * Reports errors and console output OUT to the host via postMessage, because
+	 * the iframe is opaque-origin and the host cannot reach in. Kept small and
+	 * defensive: it runs before student code and must survive whatever follows.
+	 */
+	/* The reporting harness that runs inside every preview, ahead of the student's
+	 * own code. It reports errors and console output OUT to the host by
+	 * postMessage, because the iframe is opaque-origin and the host cannot reach in.
+	 *
+	 * WRITTEN AS A REAL FUNCTION and stringified, NOT as an array of string
+	 * literals. It was the latter, and that is a trap: the harness is a JavaScript
+	 * program expressed inside JavaScript string literals, so every backslash needs
+	 * doubling and nothing checks that you did it. A single `\n` meant to be two
+	 * characters became an actual newline, which split a string across two lines
+	 * and made the whole harness fail to parse — so the preview threw
+	 * `SyntaxError: Unexpected EOF` before running a line, and the console stayed
+	 * empty with no clue why. Stringifying a real function means this file's own
+	 * parser checks the harness, and there is no escaping to get wrong.
+	 */
+	function harnessProgram() {
+		var send = function (kind, payload) {
+			try {
+				parent.postMessage({ __ww: true, kind: kind, payload: payload }, '*');
+			} catch (e) {
+				/* nothing useful to do from in here */
+			}
+		};
+
+		window.addEventListener('error', function (e) {
+			send('error', { message: String(e.message || e.error || 'Error'), line: e.lineno || null });
+		});
+
+		/* Did the student's own fetch get through?
+		 *
+		 * This is the single most important thing to know about a classroom we
+		 * cannot see. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes the site is broken, we never
+		 * hear about it, and they do not come back. A failed fetch also looks
+		 * exactly like a mistake in the student's code from where they are sitting.
+		 *
+		 * Reports ONLY whether it succeeded — never the URL, never the response. */
+		var nativeFetch = window.fetch;
+		if (typeof nativeFetch === 'function') {
+			window.fetch = function () {
+				var p = nativeFetch.apply(window, arguments);
+				try {
+					p.then(
+						function (r) {
+							send('fetch', { ok: !!(r && r.ok) });
+						},
+						function () {
+							send('fetch', { ok: false });
+						},
+					);
+				} catch (e) {
+					/* a thenable that is not a promise — not ours to fix */
+				}
+				return p;
+			};
+		}
+
+		window.addEventListener('unhandledrejection', function (e) {
+			var r = e.reason;
+			send('error', { message: String((r && r.message) || r || 'Something failed'), line: null });
+		});
+
+		/* HARD CAPS, and they are the difference between a working console and a
+		 * hung tab. Chapter 4's instruction is literally console.log(data) on the
+		 * whole game catalog: ~300 KB of JSON, which pretty-printed is ~600 KB of
+		 * string, posted across a message channel and then written into the DOM.
+		 * The browser sat there doing that instead of painting, which reads to a
+		 * student as "the console is broken". A beginner learns exactly as much
+		 * from the first two thousand characters. */
+		var MAX_CHARS = 2000;
+		var MAX_LINES = 200;
+		var sent = 0;
+
+		['log', 'warn', 'error', 'info'].forEach(function (level) {
+			var original = console[level];
+			console[level] = function () {
+				try {
+					original.apply(console, arguments);
+				} catch (e) {
+					/* the real console is not our problem */
+				}
+				if (sent > MAX_LINES) return;
+				if (sent === MAX_LINES) {
+					sent++;
+					send('console', { level: 'warn', text: '... more output was hidden.' });
+					return;
+				}
+				sent++;
+				var parts = [];
+				for (var i = 0; i < arguments.length; i++) parts.push(format(arguments[i]));
+				var text = parts.join(' ');
+				if (text.length > MAX_CHARS)
+					text = text.slice(0, MAX_CHARS) + '\n... (' + (text.length - MAX_CHARS) + ' more characters)';
+				send('console', { level: level, text: text });
+			};
+		});
+
+		/* Beginners log whole objects constantly; [object Object] would make the
+		 * console useless for exactly the chapter it exists to support. And 150
+		 * animal records is the normal case here, so the count plus the first few
+		 * IS the useful answer to console.log(data.animals) — and one a student can
+		 * actually read. */
+		function format(v) {
+			if (typeof v === 'string') return v;
+			if (v instanceof Error) return v.message;
+			if (Array.isArray(v) && v.length > 8) {
+				var head = v.slice(0, 3).map(function (x) {
+					return format(x);
+				});
+				return 'Array(' + v.length + ') [\n  ' + head.join(',\n  ') + ',\n  ... ' + (v.length - 3) + ' more\n]';
+			}
+			try {
+				return JSON.stringify(v, null, 2);
+			} catch (e) {
+				return String(v);
+			}
+		}
+
+		/* The silent failure: nothing is thrown, the page just renders the word
+		 * "undefined" or "[object Object]". Nothing in the browser flags it, and a
+		 * student stares at it with no idea what to search for. */
+		window.addEventListener('load', function () {
+			setTimeout(function () {
+				var text = document.body ? document.body.innerText : '';
+				if (/\[object Object\]/.test(text)) send('hint', { key: 'object-object' });
+				else if (/\bundefined\b/.test(text)) send('hint', { key: 'undefined-text' });
+			}, 300);
+		});
+	}
+
+	var HARNESS = '(' + harnessProgram.toString() + ')();';
+
+	var SILENT_HINTS = {
+		'object-object': {
+			title: 'Your page is showing [object Object]',
+			help:
+				'You are putting a whole object on the page where you meant one part of it. ' +
+				'Try adding the piece you want, for example .name instead of the whole animal.',
+		},
+		'undefined-text': {
+			title: 'Your page is showing the word "undefined"',
+			help:
+				'Something you asked for was not there. Check the spelling of the property, and check the data ' +
+				'actually arrived before you used it.',
+		},
+	};
+
+	/* ------------------------------------------------------------- the element */
+
+	var DEBOUNCE_MS = 400;
+	var uid = 0;
+
+	/** Insert text at the caret while keeping the browser's undo stack.
+	 *  Returns false if the browser refused, so callers can fall back. */
+	function insertText(area, text) {
+		try {
+			area.focus();
+			return document.execCommand && document.execCommand('insertText', false, text);
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/**
+	 * Replace a whole file's contents, still undoably where possible.
+	 *
+	 * This is what "Show me", the idea scaffolds, Reset and Open all go through.
+	 * Selecting everything and inserting means one Cmd+Z puts the student's own
+	 * version back — which matters most for exactly those actions, because they
+	 * are the ones that throw work away.
+	 *
+	 * A hidden textarea cannot take focus, so those fall back to assignment; the
+	 * builder's own Undo button covers that case.
+	 */
+	function replaceValue(area, text) {
+		if (area.value === text) return;
+		var wasFocused = document.activeElement;
+		var scroll = area.scrollTop;
+		var ok = false;
+		if (!area.closest || !area.closest('[hidden]')) {
+			try {
+				area.focus();
+				area.select();
+				ok = document.execCommand && document.execCommand('insertText', false, text);
+			} catch (e) {
+				ok = false;
+			}
+		}
+		if (!ok) area.value = text;
+		area.scrollTop = scroll;
+		if (wasFocused && wasFocused !== area && wasFocused.focus) wasFocused.focus();
+	}
+
+	function makeEditor(file, value, onInput) {
+		var wrap = document.createElement('div');
+		wrap.className = 'wwr-editor';
+
+		var gutter = document.createElement('div');
+		gutter.className = 'wwr-gutter';
+		gutter.setAttribute('aria-hidden', 'true');
+
+		var area = document.createElement('textarea');
+		area.className = 'wwr-code';
+		area.value = value || '';
+		area.spellcheck = false;
+		area.setAttribute('aria-label', file + ', code editor');
+		/* Real keyboards, real settings: without these a browser will happily
+		 * autocapitalise a student's first line of JavaScript into a SyntaxError. */
+		area.setAttribute('autocomplete', 'off');
+		area.setAttribute('autocorrect', 'off');
+		area.setAttribute('autocapitalize', 'off');
+
+		function renderGutter() {
+			var lines = area.value.split('\n').length;
+			var out = '';
+			for (var i = 1; i <= lines; i++) out += i + '\n';
+			gutter.textContent = out;
+		}
+
+		/* Tab indents rather than moving focus — but Esc first releases the trap,
+		 * so the field is still escapable by keyboard alone. Without this a
+		 * keyboard-only student is stuck in the textarea with no way out, which
+		 * fails the page outright. */
+		var escaping = false;
+		area.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape') {
+				escaping = true;
+				return;
+			}
+			if (e.key === 'Tab' && !escaping) {
+				e.preventDefault();
+				/* insertText, NOT `area.value = ...`.
+				 *
+				 * Assigning .value replaces the field's contents wholesale, and the
+				 * browser throws away its undo history when you do — so Cmd/Ctrl+Z
+				 * silently stopped working from the first time a student pressed Tab.
+				 * They would try to undo a mistake, get nothing, and have no idea why.
+				 *
+				 * execCommand('insertText') is formally deprecated and remains the
+				 * only way to edit a textarea while keeping native undo intact. Every
+				 * browser supports it; the direct assignment below is the fallback for
+				 * one that ever stops. */
+				if (!insertText(area, '  ')) {
+					var start = area.selectionStart;
+					var end = area.selectionEnd;
+					area.value = area.value.slice(0, start) + '  ' + area.value.slice(end);
+					area.selectionStart = area.selectionEnd = start + 2;
+				}
+				renderGutter();
+				onInput();
+				return;
+			}
+			escaping = false;
+		});
+
+		area.addEventListener('input', function () {
+			renderGutter();
+			onInput();
+		});
+		area.addEventListener('scroll', function () {
+			gutter.scrollTop = area.scrollTop;
+		});
+
+		renderGutter();
+		wrap.appendChild(gutter);
+		wrap.appendChild(area);
+		return { wrap: wrap, area: area, refresh: renderGutter };
+	}
+
+	function WwRunner(host) {
+		var id = ++uid;
+		var files = readFiles(host);
+		var mode = files.length > 1 ? 'multi' : 'single';
+		var showConsole = host.hasAttribute('console');
+		var autorun = !host.hasAttribute('manual');
+		var label = host.getAttribute('label') || '';
+
+		host.classList.add('wwr', mode === 'multi' ? 'wwr--multi' : 'wwr--single');
+		host.innerHTML = '';
+
+		/* ---- toolbar ---- */
+		var bar = document.createElement('div');
+		bar.className = 'wwr-bar';
+		if (label) {
+			var tag = document.createElement('span');
+			tag.className = 'wwr-label';
+			tag.textContent = label;
+			bar.appendChild(tag);
+		}
+
+		var tabs = document.createElement('div');
+		tabs.className = 'wwr-tabs';
+		tabs.setAttribute('role', 'tablist');
+		bar.appendChild(tabs);
+
+		var spacer = document.createElement('span');
+		spacer.className = 'wwr-spacer';
+		bar.appendChild(spacer);
+
+		/* View modes.
+		 *
+		 * Split is the teaching default — cause and effect in one eyeful. But a
+		 * student writing a long function wants the width, and one showing a
+		 * classmate what they made wants the page. On a Chromebook at 1366px, two
+		 * half-columns is genuinely cramped for both. */
+		var views = document.createElement('div');
+		views.className = 'wwr-views';
+		views.setAttribute('role', 'group');
+		views.setAttribute('aria-label', 'What to show');
+
+		var VIEWS = [
+			{ id: 'split', label: 'Split', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M12 4.5v15"/>' },
+			{ id: 'code', label: 'Code', icon: '<path d="M9 7.5 4.5 12 9 16.5M15 7.5 19.5 12 15 16.5"/>' },
+			{ id: 'preview', label: 'Page', icon: '<rect x="3" y="4.5" width="18" height="15" rx="2.5"/><path d="M3 9h18"/>' },
+		];
+		var viewBtns = {};
+		VIEWS.forEach(function (v) {
+			var b = document.createElement('button');
+			b.type = 'button';
+			b.className = 'wwr-view' + (v.id === 'split' ? ' is-on' : '');
+			b.title = v.label;
+			b.setAttribute('aria-label', 'Show ' + v.label.toLowerCase());
+			b.setAttribute('aria-pressed', v.id === 'split' ? 'true' : 'false');
+			b.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+				v.icon +
+				'</svg>';
+			b.addEventListener('click', function () {
+				setView(v.id);
+			});
+			viewBtns[v.id] = b;
+			views.appendChild(b);
+		});
+		bar.appendChild(views);
+
+		var runBtn = button('Run', 'wwr-run', ICON_RUN);
+		var resetBtn = button('Reset', 'wwr-reset', ICON_RESET);
+		var openBtn = button('Open', 'wwr-open', ICON_OPEN);
+		openBtn.title = 'Open your page in a new tab';
+		bar.appendChild(openBtn);
+		bar.appendChild(runBtn);
+		bar.appendChild(resetBtn);
+		host.appendChild(bar);
+
+		function setView(id) {
+			host.classList.remove('wwr--view-split', 'wwr--view-code', 'wwr--view-preview');
+			host.classList.add('wwr--view-' + id);
+			VIEWS.forEach(function (v) {
+				viewBtns[v.id].classList.toggle('is-on', v.id === id);
+				viewBtns[v.id].setAttribute('aria-pressed', v.id === id ? 'true' : 'false');
+			});
+			metric('view_' + id, host);
+		}
+		host.classList.add('wwr--view-split');
+
+		/* ---- panes ---- */
+		var body = document.createElement('div');
+		body.className = 'wwr-body';
+		host.appendChild(body);
+
+		var editors = {};
+		var pane = document.createElement('div');
+		pane.className = 'wwr-panes';
+		body.appendChild(pane);
+
+		files.forEach(function (f, i) {
+			var ed = makeEditor(f.name, f.code, schedule);
+			ed.wrap.hidden = i !== 0;
+			editors[f.name] = ed;
+			pane.appendChild(ed.wrap);
+
+			var t = document.createElement('button');
+			t.type = 'button';
+			t.className = 'wwr-tab' + (i === 0 ? ' is-active' : '');
+			/* BOTH, ALWAYS. The lesson shows the icon and the builder shows the
+			 * name (see ww-lesson.css), but the filename is in the DOM either way:
+			 * it is the accessible name of the tab, it is what a screen reader
+			 * announces, and it is what the builder's help sidebar reads to decide
+			 * which file it is describing. An icon-only tab with no text is a
+			 * button that says nothing to anyone who cannot see it. */
+			t.innerHTML = fileIcon(f.name) + '<span class="wwr-tab-name">' + f.name + '</span>';
+			t.title = f.name;
+			t.setAttribute('role', 'tab');
+			t.setAttribute('aria-selected', i === 0 ? 'true' : 'false');
+			t.addEventListener('click', function () {
+				files.forEach(function (other) {
+					editors[other.name].wrap.hidden = other.name !== f.name;
+				});
+				Array.prototype.forEach.call(tabs.children, function (c) {
+					c.classList.toggle('is-active', c === t);
+					c.setAttribute('aria-selected', c === t ? 'true' : 'false');
+				});
+				metric('tab_' + f.name.split('.').pop(), host);
+			});
+			tabs.appendChild(t);
+		});
+		/* One file needs no tab strip — the lesson's inline examples would just be
+		 * wearing chrome that explains nothing. */
+		if (mode === 'single') tabs.hidden = true;
+
+		var out = document.createElement('div');
+		out.className = 'wwr-out';
+		body.appendChild(out);
+
+		/* TWO preview frames, not one.
+		 *
+		 * Assigning srcdoc tears the document down and rebuilds it, and the frame
+		 * paints white in between. At a 400 ms debounce that is a white flash every
+		 * time a student pauses typing — the page visibly flickering while they
+		 * work, which is what it was doing.
+		 *
+		 * So: render into the hidden frame, and swap only once it has loaded. The
+		 * student keeps looking at the last working render until the new one is
+		 * ready, and never sees the gap. */
+		function makeFrame() {
+			var f = document.createElement('iframe');
+			f.className = 'wwr-preview';
+			f.title = 'Live preview' + (label ? ': ' + label : '');
+			/* allow-scripts WITHOUT allow-same-origin: student code runs on an opaque
+			 * origin and cannot reach this page, its storage, or its cookies. */
+			f.setAttribute('sandbox', 'allow-scripts');
+			out.appendChild(f);
+			return f;
+		}
+
+		var frames = [makeFrame(), makeFrame()];
+		var live = 0;
+		frames[0].classList.add('is-live');
+
+		/* The console spans the FULL width beneath both columns, rather than sitting
+		 * in the right-hand column under the preview.
+		 *
+		 * It was nested in .wwr-out, which gave it half the width and stacked it
+		 * against the student's own page — so a logged object wrapped after about
+		 * forty characters and the preview lost a third of its height to a panel
+		 * that is empty most of the time. console.log(data) on the game catalog is
+		 * a chapter-4 instruction; it needs room to be readable. */
+		var consoleBox = document.createElement('div');
+		consoleBox.className = 'wwr-console';
+		consoleBox.hidden = !showConsole;
+		if (showConsole) {
+			var chead = document.createElement('div');
+			chead.className = 'wwr-console-head';
+			chead.title = 'Drag to resize, or double-click to collapse';
+
+			var ctitle = document.createElement('span');
+			ctitle.textContent = 'Console';
+			chead.appendChild(ctitle);
+
+			var cspace = document.createElement('span');
+			cspace.className = 'wwr-spacer';
+			chead.appendChild(cspace);
+
+			var cfold = document.createElement('button');
+			cfold.type = 'button';
+			cfold.className = 'wwr-fold';
+			cfold.innerHTML =
+				'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" ' +
+				'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9.5 12 15l6-5.5"/></svg>';
+			chead.appendChild(cfold);
+			consoleBox.appendChild(chead);
+
+			/* Resizable, because how much console a student wants is entirely
+			 * situational: none at all while laying out HTML, and as much as
+			 * possible on the chapter that is only about reading logged data.
+			 * Anything fixed is wrong for somebody. */
+			var MIN_H = 64;
+			var collapsed = false;
+			var lastHeight = 150;
+
+			function setCollapsed(next) {
+				collapsed = next;
+				consoleBox.classList.toggle('is-collapsed', collapsed);
+				consoleBox.style.height = collapsed ? '' : lastHeight + 'px';
+				cfold.setAttribute('aria-expanded', collapsed ? 'false' : 'true');
+				cfold.setAttribute('aria-label', collapsed ? 'Show the console' : 'Hide the console');
+				metric(collapsed ? 'console_collapsed' : 'console_expanded', host);
+			}
+
+			cfold.addEventListener('click', function (e) {
+				e.stopPropagation();
+				setCollapsed(!collapsed);
+			});
+			chead.addEventListener('dblclick', function () {
+				setCollapsed(!collapsed);
+			});
+
+			var dragFrom = 0;
+			var dragH = 0;
+
+			function onMove(e) {
+				/* Upwards is taller: the panel is anchored at the bottom of the card,
+				 * so the handle moving up has to grow it, not shrink it. */
+				var next = Math.max(MIN_H, dragH + (dragFrom - e.clientY));
+				var ceiling = Math.max(MIN_H, host.getBoundingClientRect().height - 140);
+				lastHeight = Math.min(next, ceiling);
+				consoleBox.style.height = lastHeight + 'px';
+			}
+
+			function endDrag() {
+				document.removeEventListener('pointermove', onMove);
+				document.removeEventListener('pointerup', endDrag);
+				document.body.classList.remove('wwr-resizing');
+				metric('console_resized', host);
+			}
+
+			chead.addEventListener('pointerdown', function (e) {
+				if (e.target.closest && e.target.closest('.wwr-fold')) return;
+				if (collapsed) setCollapsed(false);
+				e.preventDefault();
+				dragFrom = e.clientY;
+				dragH = consoleBox.getBoundingClientRect().height;
+				/* On <body>, not the handle: it stops the drag selecting text across
+				 * the whole page, and keeps the resize cursor while the pointer
+				 * inevitably wanders off the 20px strip being dragged. */
+				document.body.classList.add('wwr-resizing');
+				document.addEventListener('pointermove', onMove);
+				document.addEventListener('pointerup', endDrag);
+			});
+
+			/* Keyboard: the handle is a real control, so it has to be operable
+			 * without a pointer. Arrows resize, Enter folds. */
+			chead.tabIndex = 0;
+			chead.setAttribute('role', 'separator');
+			chead.setAttribute('aria-orientation', 'horizontal');
+			chead.setAttribute('aria-label', 'Console size');
+			chead.addEventListener('keydown', function (e) {
+				if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+					e.preventDefault();
+					if (collapsed) setCollapsed(false);
+					lastHeight = Math.max(MIN_H, lastHeight + (e.key === 'ArrowUp' ? 24 : -24));
+					consoleBox.style.height = lastHeight + 'px';
+				} else if (e.key === 'Enter' || e.key === ' ') {
+					e.preventDefault();
+					setCollapsed(!collapsed);
+				}
+			});
+
+			setCollapsed(false);
+		}
+		var consoleLines = document.createElement('pre');
+		consoleLines.className = 'wwr-console-lines';
+		consoleLines.setAttribute('aria-live', 'polite');
+		consoleBox.appendChild(consoleLines);
+		host.appendChild(consoleBox);
+
+		var errBox = document.createElement('div');
+		errBox.className = 'wwr-error';
+		errBox.hidden = true;
+		errBox.setAttribute('role', 'status');
+		errBox.setAttribute('aria-live', 'polite');
+		host.appendChild(errBox);
+
+		/* ---- running ---- */
+		var timer = null;
+		var firstRunDone = false;
+		var firstFetchDone = false;
+
+		function currentSources() {
+			return {
+				html: editors['index.html'] ? editors['index.html'].area.value : mode === 'single' ? singleValue('html') : '',
+				css: editors['styles.css'] ? editors['styles.css'].area.value : mode === 'single' ? singleValue('css') : '',
+				js: editors['main.js'] ? editors['main.js'].area.value : mode === 'single' ? singleValue('js') : '',
+			};
+		}
+
+		/* In single-file mode the one editor holds whichever language the example
+		 * teaches; the other two come from the element's static attributes, so a
+		 * CSS example can still render against fixed HTML. */
+		function singleValue(kind) {
+			var f = files[0];
+			if (f.kind === kind) return editors[f.name].area.value;
+			return f.context && f.context[kind] ? f.context[kind] : '';
+		}
+
+		function schedule() {
+			if (!autorun) {
+				markDirty();
+				return;
+			}
+			clearTimeout(timer);
+			timer = setTimeout(function () {
+				run('auto');
+			}, DEBOUNCE_MS);
+		}
+
+		function markDirty() {
+			runBtn.classList.add('is-dirty');
+		}
+
+		var lastDoc = null;
+		var consoleCount = 0;
+		/* How many lines of OUR document sit above the student's code.
+		 *
+		 * `e.lineno` on a script error is relative to the whole document, and the
+		 * document begins with a <head>, their HTML, and a hundred-odd lines of
+		 * reporting harness. So a mistake on line 3 of a twelve-line file was
+		 * reported as "line 103" — a number that does not exist in anything the
+		 * student can see, and which sends them scrolling for code that is not
+		 * theirs. Subtracting this is the difference between a line number that
+		 * helps and one that actively misleads. */
+		var jsLineOffset = 0;
+		/* The parse error we already reported for this render, if any. */
+		var syntaxProblem = null;
+
+		function run(how) {
+			clearTimeout(timer);
+			runBtn.classList.remove('is-dirty');
+			var src = currentSources();
+			var doc = assembleDocument(src.html, src.css, src.js, HARNESS);
+
+			/* Nothing changed — do not tear the page down to rebuild the same thing.
+			 * Input events fire for plenty of reasons that leave the code identical
+			 * (arrow keys, selection, a tab switch), and every one of those was
+			 * costing a full reload and a flash. Run always honours an explicit
+			 * press, because "I pressed Run and nothing happened" is worse. */
+			if (doc === lastDoc && how !== 'manual') return;
+			lastDoc = doc;
+
+			clearError();
+			consoleLines.textContent = '';
+			consoleCount = 0;
+
+			/* Parse the student's JavaScript here, where the real message is
+			 * available, and report it before the frame gets a chance to hand us
+			 * Safari's "Script error." instead. The page still renders — their HTML
+			 * and CSS are probably fine, and seeing the rest of their work survive is
+			 * a better experience than a blank rectangle. */
+			syntaxProblem = syntaxErrorIn(src.js);
+			if (syntaxProblem) {
+				var si = explain(syntaxProblem.message);
+				showError(si.title, syntaxProblem.message, si.help, syntaxProblem.line);
+				logToConsole('error', syntaxProblem.message + (syntaxProblem.line ? '  (line ' + syntaxProblem.line + ')' : ''));
+				metric('errors_' + si.key, host);
+			}
+
+			var next = frames[1 - live];
+			next.onload = function () {
+				next.onload = null;
+				var old = frames[live];
+				next.classList.add('is-live');
+				old.classList.remove('is-live');
+				live = 1 - live;
+				/* Blank the retired frame so its timers, listeners and any runaway
+				 * loop stop. Without this a student's setInterval would keep running
+				 * — invisibly — once per render, forever. */
+				old.onload = null;
+				old.srcdoc = '';
+			};
+			/* The student's block is always the last one in the document. */
+			var marker = '\n<script>\n';
+			var at = doc.lastIndexOf(marker);
+			jsLineOffset = at < 0 ? 0 : doc.slice(0, at + marker.length).split('\n').length - 1;
+
+			next.srcdoc = doc;
+
+			metric(how === 'manual' ? 'runs_manual' : 'runs_debounced', host);
+			if (!firstRunDone) {
+				firstRunDone = true;
+				metric('first_run', host);
+			}
+		}
+
+		/** The student's page on its own, with none of our reporting harness —
+		 *  byte-identical to what Download produces. */
+		function standaloneDoc() {
+			var src = currentSources();
+			return assembleDocument(src.html, src.css, src.js);
+		}
+
+		var openedUrl = null;
+		function openInTab() {
+			try {
+				if (openedUrl) URL.revokeObjectURL(openedUrl);
+				openedUrl = URL.createObjectURL(new Blob([standaloneDoc()], { type: 'text/html' }));
+				/* A blob: URL rather than the srcdoc: the new tab gets a real origin,
+				 * so fetch works there exactly as it does in a downloaded file — which
+				 * is the point of offering this at all. */
+				window.open(openedUrl, '_blank', 'noopener');
+				metric('open_tab', host);
+			} catch (e) {
+				showError('Could not open a new tab', '', 'Your browser blocked the pop-up. Allow pop-ups for this page and try again.', null);
+			}
+		}
+
+		function logToConsole(level, text) {
+			if (!showConsole) return;
+			var lineEl = document.createElement('div');
+			lineEl.className = 'wwr-console-line is-' + level;
+			lineEl.textContent = text;
+			consoleLines.appendChild(lineEl);
+			/* Second cap, on this side of the channel. The harness bounds what it
+			 * sends per run; this bounds what the DOM has to hold across a long
+			 * period of a student pressing Run over and over. */
+			consoleCount++;
+			while (consoleCount > 250 && consoleLines.firstChild) {
+				consoleLines.removeChild(consoleLines.firstChild);
+				consoleCount--;
+			}
+			consoleLines.scrollTop = consoleLines.scrollHeight;
+		}
+
+		function showError(title, message, help, line) {
+			errBox.hidden = false;
+			errBox.innerHTML = '';
+			var h = document.createElement('div');
+			h.className = 'wwr-error-title';
+			h.textContent = title;
+			errBox.appendChild(h);
+			if (message) {
+				var m = document.createElement('code');
+				m.className = 'wwr-error-msg';
+				m.textContent = message + (line ? '  (line ' + line + ')' : '');
+				errBox.appendChild(m);
+			}
+			var p = document.createElement('p');
+			p.className = 'wwr-error-help';
+			p.textContent = help;
+			errBox.appendChild(p);
+		}
+
+		function clearError() {
+			errBox.hidden = true;
+			errBox.textContent = '';
+		}
+
+		window.addEventListener('message', function (e) {
+			var d = e && e.data;
+			if (!d || d.__ww !== true) return;
+			/* Every runner on the page hears every runner's messages, so match on the
+			 * frames this instance owns rather than trusting anything in the payload.
+			 * BOTH buffers count: the incoming render starts talking before it has
+			 * been swapped in, and dropping those would lose the first console line
+			 * and any error thrown during load — which is most of them. */
+			if (e.source !== frames[0].contentWindow && e.source !== frames[1].contentWindow) return;
+
+			if (d.kind === 'error') {
+				/* We already described this failure from the host, where the message is
+				 * real. The frame is about to report the same thing — as "Script error."
+				 * in Safari, and as a duplicate in Chrome. One failure, one message.
+				 *
+				 * But take its LINE NUMBER if we lack one. The two sources are good at
+				 * different halves of the problem: the host has the true message and no
+				 * origin barrier, while Chrome attaches no line to a SyntaxError raised
+				 * by new Function — and the frame, which parsed the code as a real
+				 * script, knows exactly where it gave up. Message from one, position
+				 * from the other. */
+				if (syntaxProblem) {
+					if (!syntaxProblem.line && d.payload.line) {
+						var fromFrame = d.payload.line - jsLineOffset;
+						var lines = currentSources().js.split('\n').length;
+						if (fromFrame > 0) {
+							syntaxProblem.line = Math.min(fromFrame, lines);
+							var si2 = explain(syntaxProblem.message);
+							showError(si2.title, syntaxProblem.message, si2.help, syntaxProblem.line);
+							if (consoleLines.lastChild) consoleLines.lastChild.textContent += '  (line ' + syntaxProblem.line + ')';
+						}
+					}
+					return;
+				}
+				var info = explain(d.payload.message);
+				/* Report the line in THEIR file, or no line at all. A wrong line number
+				 * is worse than none: it looks authoritative.
+				 *
+				 * Clamped to the length of the file because an end-of-input error is
+				 * reported at the line AFTER the last one — Chrome is pointing at
+				 * where input ran out, which is correct and useless. "Line 4" in a
+				 * three-line file just reads as broken; the last line is where they
+				 * actually need to look. */
+				var line = d.payload.line ? d.payload.line - jsLineOffset : null;
+				if (line > 0) {
+					var total = currentSources().js.split('\n').length;
+					line = Math.min(line, total);
+				} else {
+					line = null;
+				}
+				showError(info.title, d.payload.message, info.help, line);
+				/* ALSO echo it into the console pane.
+				 *
+				 * Every console a student will ever meet shows errors alongside logs,
+				 * so an error that appears only in a separate panel reads as the
+				 * console being broken — especially in the case that matters most: a
+				 * syntax error means NONE of their code ran, so nothing they logged
+				 * shows up and the pane sits there empty with no explanation. The
+				 * panel is the friendly version; this is the record of what happened. */
+				logToConsole('error', d.payload.message + (line ? '  (line ' + line + ')' : ''));
+				metric('errors_' + info.key, host);
+			} else if (d.kind === 'hint') {
+				var hint = SILENT_HINTS[d.payload.key];
+				if (hint) {
+					showError(hint.title, '', hint.help, null);
+					logToConsole('warn', hint.title);
+					metric('errors_' + d.payload.key, host);
+				}
+			} else if (d.kind === 'fetch') {
+				metric(d.payload.ok ? 'fetch_ok' : 'fetch_failed', host);
+				if (d.payload.ok && !firstFetchDone) {
+					firstFetchDone = true;
+					/* The funnel step that says a student got all the way to real data.
+					 * Everything before it is setup; everything after is their own work. */
+					metric('first_fetch_ok', host);
+				}
+			} else if (d.kind === 'console') {
+				logToConsole(d.payload.level, d.payload.text);
+			}
+		});
+
+		runBtn.addEventListener('click', function () {
+			run('manual');
+		});
+		openBtn.addEventListener('click', openInTab);
+		resetBtn.addEventListener('click', function () {
+			files.forEach(function (f) {
+				replaceValue(editors[f.name].area, f.code);
+				editors[f.name].refresh();
+			});
+			metric('reset', host);
+			run('manual');
+		});
+
+		/* Public surface, used by the builder page for save/download/seeding. */
+		host.wwGet = currentSources;
+		host.wwSet = function (next) {
+			files.forEach(function (f) {
+				if (next[f.name] != null) {
+					replaceValue(editors[f.name].area, next[f.name]);
+					editors[f.name].refresh();
+				}
+			});
+			run('manual');
+		};
+		host.wwRun = function () {
+			run('manual');
+		};
+
+		run('auto');
+	}
+
+	/* One icon per file kind, keyed off the extension.
+	 *
+	 * They are the three questions the lesson opens with, in the same order: a
+	 * document for what is HERE, a drop of paint for what it LOOKS like, a bolt
+	 * for what it DOES. Which means a student meets these shapes in chapter 1 as
+	 * prose and again in every toolbar afterwards as a label.
+	 *
+	 * Drawn, like everything else on these pages, for the reason set out below:
+	 * a character would be whatever glyph the platform's font decides. */
+	var FILE_ICONS = {
+		html: '<path d="M6.5 3.5h7l4.5 4.5v12.5h-11.5z"/><path d="M13.5 3.5V8h4.5"/>',
+		css: '<path d="M12 3.5s5.5 5.6 5.5 9.3a5.5 5.5 0 0 1-11 0C6.5 9.1 12 3.5 12 3.5z"/>',
+		js: '<path d="M13.2 3.5 6.5 13.2h4.6l-.9 7.3 7-9.9h-4.6z"/>',
+	};
+
+	function fileIcon(name) {
+		var ext = String(name).split('.').pop().toLowerCase();
+		var path = FILE_ICONS[ext] || FILE_ICONS.html;
+		return (
+			'<svg class="wwr-tab-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			path +
+			'</svg>'
+		);
+	}
+
+	/* Icons are DRAWN, never typed.
+	 *
+	 * A play triangle and a reset arrow look like safe characters, and they are
+	 * not: the glyph comes from whatever font the platform decides, so it lands
+	 * anywhere between a hairline arrow and a full-colour emoji, at a size nothing
+	 * else in the toolbar uses. On a school Windows machine missing the font it is
+	 * a blank box on the one button a student needs most. Two SVG paths cost
+	 * nothing and look the same everywhere. */
+	var ICON_RUN = '<path d="M7 4.5v15l13-7.5-13-7.5z" fill="currentColor" stroke="none"/>';
+	var ICON_OPEN =
+		'<path d="M14 4.5h5.5V10"/><path d="M19.5 4.5 11 13"/>' +
+		'<path d="M18 14v4.5a1.5 1.5 0 0 1-1.5 1.5h-11A1.5 1.5 0 0 1 4 18.5v-11A1.5 1.5 0 0 1 5.5 6H10"/>';
+	var ICON_RESET =
+		'<path d="M3.5 12a8.5 8.5 0 1 0 2.6-6.1"/><path d="M3.2 4v5h5"/>';
+
+	function button(text, cls, icon) {
+		var b = document.createElement('button');
+		b.type = 'button';
+		b.className = 'wwr-btn ' + cls;
+		b.innerHTML =
+			'<svg class="wwr-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" ' +
+			'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' +
+			icon +
+			'</svg>' +
+			text;
+		return b;
+	}
+
+	/**
+	 * Read the starter files out of the element's <script type="text/ww-file">
+	 * children.
+	 *
+	 * A script tag rather than a textarea or an attribute: the browser will not
+	 * execute or render an unknown script type, so student-facing starter code can
+	 * contain < and & and quotes without being HTML-escaped by hand in the page
+	 * source. That matters — the starter code IS HTML in one of the three files.
+	 */
+	function readFiles(host) {
+		var nodes = host.querySelectorAll('script[type="text/ww-file"]');
+		var files = [];
+		var context = {};
+		Array.prototype.forEach.call(nodes, function (n) {
+			var name = n.getAttribute('name') || 'main.js';
+			var code = dedent(n.textContent || '');
+			var kind = name.split('.').pop();
+			if (n.hasAttribute('context')) {
+				context[kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html'] = code;
+				return;
+			}
+			files.push({ name: name, code: code, kind: kind === 'js' ? 'js' : kind === 'css' ? 'css' : 'html' });
+		});
+		if (!files.length) files.push({ name: 'main.js', code: '', kind: 'js' });
+		files[0].context = context;
+		return files;
+	}
+
+	/** Starter code is indented to match the page's HTML; students should not see
+	 *  that indentation. Strip the common leading whitespace, tabs or spaces. */
+	function dedent(text) {
+		var lines = String(text).replace(/^\n+|\s+$/g, '').split('\n');
+		var indent = null;
+		lines.forEach(function (l) {
+			if (!l.trim()) return;
+			var m = l.match(/^[\t ]*/)[0];
+			if (indent === null || m.length < indent.length) indent = m;
+		});
+		if (!indent) return lines.join('\n');
+		return lines
+			.map(function (l) {
+				return l.indexOf(indent) === 0 ? l.slice(indent.length) : l;
+			})
+			.join('\n');
+	}
+
+	/**
+	 * Start one runner. Safe to call twice — the second call is a no-op.
+	 *
+	 * Split out of init() so a page can hold some of its runners back. Every
+	 * runner renders on start (see the run('auto') at the end of WwRunner), and
+	 * each one owns two iframes, so a page with thirty of them opens thirty
+	 * documents before the student has read a word. That is affordable for the
+	 * chapters, which are the point of the page; it is not affordable for
+	 * material inside a panel that begins closed and that most readers will never
+	 * open. Those carry `defer` and are mounted when the panel is.
+	 */
+	function mount(host) {
+		if (!host || host.dataset.wwReady) return;
+		host.dataset.wwReady = '1';
+		try {
+			WwRunner(host);
+		} catch (e) {
+			/* A broken runner must not take the rest of the lesson down with it —
+			 * the page is readable without any of them (see the static fallback
+			 * markup each one wraps). */
+			host.classList.add('wwr--failed');
+			if (window.console) console.error('ww-runner failed to start', e);
+		}
+	}
+
+	function init() {
+		Array.prototype.forEach.call(document.querySelectorAll('ww-runner:not([defer])'), mount);
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwRunner = {
+		assembleDocument: assembleDocument,
+		explain: explain,
+		escapeForScript: escapeForScript,
+		dedent: dedent,
+		mount: mount,
+	};
+})();
+
+</script>
+<script>
+/* Wild Willows — Code Builder controller.
+ *
+ * Everything on /learn/code-builder that is NOT the editor itself: saving,
+ * downloading, importing, the checkpoint list, the ideas modal, the help
+ * sidebar, and the metrics beacon. The editing and preview come from
+ * <ww-runner> (public/partials/ww-runner.js), which this file drives through the
+ * small wwGet/wwSet/wwRun surface that element publishes.
+ *
+ * Inlined at build time by scripts/build-pages.mjs. No dependencies, no network
+ * beyond the one anonymous counter beacon at the end of the session.
+ *
+ * NOTHING a student types leaves the browser. Not on save, not on error, not in
+ * the beacon. That claim is printed on the page and in PRIVACY.md, and it is a
+ * load-bearing part of why a district lets thirty minors use this — so treat any
+ * change that sends more than a bounded counter as a change to the privacy
+ * policy first and a feature second.
+ */
+(function () {
+	'use strict';
+
+	var SAVE_KEY = 'wildWillowsCodeLab';
+	var SAVE_VERSION = 1;
+	var SEEN_KEY = 'wildWillowsCodeLabSeen';
+	var API = '/GameData/';
+
+	var FILES = ['index.html', 'styles.css', 'main.js'];
+
+	/* The starter project is defined ONCE, in the page's own <ww-runner> markup,
+	 * and captured here at boot before any saved work is restored.
+	 *
+	 * It was a constant in this file to begin with, duplicating the markup. That
+	 * is a bug waiting to happen in the quietest possible way: edit the page,
+	 * forget this copy, and now "Start over" hands the student a project that is
+	 * not the one the lesson describes — while the idle-detection below, which
+	 * compares against the starter to decide whether anyone has typed anything,
+	 * silently stops firing. One source, no drift. */
+	var starter = null;
+
+	/* ------------------------------------------------------------- checkpoints
+	 *
+	 * Grouped by day so a student always knows where the class is and where they
+	 * are. Ticks persist in the save, which on day 2 gives them a small "look what
+	 * I already did" for free.
+	 *
+	 * `show` is working code. `hint` is the nudge that comes first — the button is
+	 * a fallback, not the path, and a student who reads the hint and writes it
+	 * themselves has learned more.
+	 */
+	var CHECKPOINTS = [
+		{
+			id: 'title',
+			day: 'Day 1 — the parts',
+			file: 'index.html',
+			goal: 'Put your name in the page title',
+			hint: 'Change the text between <h1> and </h1>.',
+			show: { 'index.html': '<h1>Ada’s Wild Willows Explorer</h1>\n<p id="message">Loading game data...</p>' },
+		},
+		{
+			id: 'meadow',
+			day: 'Day 1 — the parts',
+			file: 'styles.css',
+			goal: 'Make the background look like a meadow',
+			hint: 'Add a background color to the body rule. Try #eef5e2.',
+			show: {
+				'styles.css':
+					'body {\n  font-family: sans-serif;\n  padding: 2rem;\n  background: #eef5e2;\n}\n\nh1 {\n  color: seagreen;\n}',
+			},
+		},
+		{
+			id: 'fetch',
+			day: 'Day 2 — the data',
+			file: 'main.js',
+			goal: 'Fetch the game data and look at it',
+			hint: 'The starter code already does this. Open the Console panel and press Run.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\n  const response = await fetch("' +
+					API +
+					'");\n  const data = await response.json();\n\n  console.log(data);\n}\n\nloadGameData();',
+			},
+		},
+		{
+			id: 'one',
+			day: 'Day 2 — the data',
+			file: 'main.js',
+			goal: "Show one animal's name on the page",
+			hint: 'data.animals[0].name is the first one. Put it into #message with textContent.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\n  const response = await fetch("' +
+					API +
+					'");\n  const data = await response.json();\n\n  document.querySelector("#message").textContent = data.animals[0].name;\n}\n\nloadGameData();',
+			},
+		},
+		{
+			id: 'many',
+			day: 'Day 2 — the data',
+			file: 'main.js',
+			goal: 'Show six animals, using a loop',
+			hint: 'Use .slice(0, 6) then .map() to build <li> items, and .join("") to glue them together.',
+			show: {
+				'index.html': '<h1>Wild Willows Explorer</h1>\n<ul id="animal-list"></ul>',
+				'main.js':
+					'async function loadGameData() {\n  const response = await fetch("' +
+					API +
+					'");\n  const data = await response.json();\n\n  const items = data.animals\n    .slice(0, 6)\n    .map(animal => `<li>${animal.name}</li>`)\n    .join("");\n\n  document.querySelector("#animal-list").innerHTML = items;\n}\n\nloadGameData();',
+			},
+		},
+		{
+			id: 'fails',
+			day: 'Day 3 — make it yours',
+			file: 'main.js',
+			goal: 'Say something useful when the data will not load',
+			hint: 'Wrap the fetch in try / catch, and put a friendly message on the page in the catch.',
+			show: {
+				'main.js':
+					'async function loadGameData() {\n  try {\n    const response = await fetch("' +
+					API +
+					'");\n    if (!response.ok) {\n      throw new Error("The server said no");\n    }\n    const data = await response.json();\n\n    const items = data.animals\n      .slice(0, 6)\n      .map(animal => `<li>${animal.name}</li>`)\n      .join("");\n\n    document.querySelector("#animal-list").innerHTML = items;\n  } catch (error) {\n    document.querySelector("#animal-list").textContent =\n      "Could not load the animals right now. Try again in a moment.";\n  }\n}\n\nloadGameData();',
+			},
+		},
+	];
+
+	/* ------------------------------------------------------------------- ideas
+	 *
+	 * The escape hatch for the student who finishes early, and for the one who
+	 * cannot think of anything and is thirty seconds from disengaging. "Build
+	 * something with the data" is paralyzing; "show every animal that eats
+	 * berries" is a task you can start immediately.
+	 *
+	 * Every idea is real and checkable against /GameData/ — the contract test in
+	 * tests/integration/classroom-contract.test.ts pins the fields and values
+	 * these depend on, because an idea that silently returns an empty list is
+	 * worse than no idea at all.
+	 *
+	 * Keep each `what` to ONE sentence. The moment an idea needs a paragraph it is
+	 * an assignment, not an idea, and students stop reading.
+	 */
+	var IDEAS = [
+		// --- easy: one filter or one map -------------------------------------
+		{ id: 'meadow-roll-call', level: 'easy', uses: ['filter'], title: 'Meadow Roll Call', what: 'List every animal that lives in Willow Meadow.', data: 'animals[].biome' },
+		{ id: 'berry-eaters', level: 'easy', uses: ['filter'], title: 'Berry Eaters', what: 'Show only the animals whose diet mentions berries.', data: 'animals[].diet' },
+		{ id: 'name-that-species', level: 'easy', uses: ['map'], title: 'Name That Species', what: "Show each animal's name with its scientific name in italics underneath.", data: 'animals[].scientificName' },
+		{ id: 'rare-finds', level: 'easy', uses: ['filter'], title: 'Rare Finds', what: 'Show only the animals marked rare.', data: 'animals[].rarity' },
+		{ id: 'top-of-chain', level: 'easy', uses: ['filter'], title: 'Top of the Chain', what: 'Show every apex predator in the preserve.', data: 'animals[].trophic' },
+		{ id: 'fact-of-the-day', level: 'easy', uses: ['if'], title: 'Fact of the Day', what: 'Show one random animal fact, with a button for another.', data: 'animals[].fact' },
+		{ id: 'biome-colors', level: 'easy', uses: ['map'], title: 'Biome Colors', what: "Show each biome's name styled with its own color from the data.", data: 'biomes[].palette.healthy' },
+		{ id: 'tiny-things', level: 'easy', uses: ['filter'], title: 'Tiny Things', what: 'Show every animal whose kind is invertebrate.', data: 'animals[].kind' },
+		{ id: 'six-biomes', level: 'easy', uses: ['map'], title: 'Six Biomes', what: 'Show all six biomes with their descriptions.', data: 'biomes[].description' },
+
+		// --- medium: filter plus sort, or two fields together -----------------
+		{ id: 'a-z-guide', level: 'medium', uses: ['sort', 'map'], title: 'A–Z Field Guide', what: 'List all 150 animals in alphabetical order.', data: 'animals[].name' },
+		{ id: 'biome-picker', level: 'medium', uses: ['filter', 'if'], title: 'Biome Picker', what: 'Six buttons, one per biome — click one and the list swaps.', data: 'biomes[].id' },
+		{ id: 'search-box', level: 'medium', uses: ['filter', 'if'], title: 'Search Box', what: 'Type a name and filter the list as you go.', data: 'animals[].name' },
+		{ id: 'habitat-checklist', level: 'medium', uses: ['map'], title: 'Habitat Checklist', what: 'Show what one animal needs before it will come home.', data: 'animals[].requirements.objects' },
+		{ id: 'hardest-to-please', level: 'medium', uses: ['sort'], title: 'Hardest to Please', what: 'Sort animals by how healthy their biome must be, toughest first.', data: 'animals[].requirements.minHealth' },
+		{ id: 'diet-cards', level: 'medium', uses: ['map'], title: 'Diet Cards', what: 'A card per animal with its diet, shelter and preferred habitat.', data: 'animals[].diet, .shelter' },
+		{ id: 'what-eats-what', level: 'medium', uses: ['map', 'if'], title: 'What Eats What', what: 'Pick an animal and show what it eats and what eats it.', data: 'animals[].eats, .eatenBy' },
+		{ id: 'resource-map', level: 'medium', uses: ['map'], title: 'Resource Map', what: 'Show each biome with the resources you can gather there.', data: 'biomes[].resources' },
+		{ id: 'sources-page', level: 'medium', uses: ['map'], title: 'Sources Page', what: "Show one animal's real-world sources as clickable links.", data: 'animals[].sources' },
+		{ id: 'rarity-badges', level: 'medium', uses: ['if', 'map'], title: 'Rarity Badges', what: 'Give every animal a badge — common, uncommon or rare.', data: 'animals[].rarity' },
+
+		// --- ambitious: reduce, grouping, or real interaction ------------------
+		{ id: 'species-census', level: 'ambitious', uses: ['reduce'], title: 'Species Census', what: 'Count the animals in each biome and draw bars to compare them.', data: 'animals[].biome' },
+		{ id: 'food-web', level: 'ambitious', uses: ['filter', 'if'], title: 'Food Web', what: 'Pick an animal and walk outwards through what eats it.', data: 'animals[].eats, .eatenBy' },
+		{ id: 'trophic-pyramid', level: 'ambitious', uses: ['reduce'], title: 'Trophic Pyramid', what: 'Stack the animals by their role in the food chain.', data: 'animals[].trophic' },
+		{ id: 'restoration-planner', level: 'ambitious', uses: ['filter', 'if'], title: 'Restoration Planner', what: 'Pick a health level and show which animals would return.', data: 'animals[].requirements.minHealth' },
+		{ id: 'rarity-breakdown', level: 'ambitious', uses: ['reduce'], title: 'Rarity Breakdown', what: 'Count common, uncommon and rare, and draw it as a chart.', data: 'animals[].rarity' },
+		{ id: 'two-biomes', level: 'ambitious', uses: ['filter'], title: 'Two-Biome Comparison', what: 'Show two biomes side by side and compare their species.', data: 'animals[].biome' },
+		{ id: 'quiz-mode', level: 'ambitious', uses: ['if'], title: 'Quiz Mode', what: 'Show a fact and ask which animal it belongs to.', data: 'animals[].fact, .name' },
+		{ id: 'water-dependents', level: 'ambitious', uses: ['filter'], title: 'Water Dependents', what: 'Find every animal that needs water to come home.', data: 'animals[].requirements' },
+		{ id: 'guess-the-biome', level: 'ambitious', uses: ['if'], title: 'Guess the Biome', what: 'Show a habitat description and let the player guess where it is.', data: 'animals[].preferredHabitat' },
+		{ id: 'field-journal', level: 'ambitious', uses: ['filter', 'if'], title: 'Field Journal', what: 'Let the reader keep a list of favorites that survives a refresh.', data: 'animals[].name' },
+	];
+
+	/* --------------------------------------------------------------- help text */
+
+	var HELP = {
+		'index.html': {
+			title: 'HTML',
+			body: 'HTML creates the things you see on the page.',
+			snippets: [
+				{ label: 'A heading', code: '<h1>My page</h1>' },
+				{ label: 'A paragraph with an id', code: '<p id="message">Loading...</p>' },
+				{ label: 'An empty list to fill in', code: '<ul id="animal-list"></ul>' },
+			],
+		},
+		'styles.css': {
+			title: 'CSS',
+			body: 'CSS changes how those things look.',
+			snippets: [
+				{ label: 'Color a heading', code: 'h1 {\n  color: seagreen;\n}' },
+				{ label: 'A card', code: '.card {\n  border: 1px solid #ccc;\n  border-radius: 8px;\n  padding: 1rem;\n}' },
+				{ label: 'Side by side', code: '.list {\n  display: flex;\n  flex-wrap: wrap;\n  gap: 1rem;\n}' },
+			],
+		},
+		'main.js': {
+			title: 'JavaScript',
+			body: 'JavaScript can change the page and fetch data.',
+			snippets: [
+				{ label: 'Fetch the game data', code: 'const response = await fetch("' + API + '");\nconst data = await response.json();' },
+				{ label: 'Show one value', code: 'document.querySelector("#message").textContent = value;' },
+				{ label: 'Keep only some animals', code: 'const meadow = data.animals.filter(animal => animal.biome === "meadow");' },
+				{ label: 'Build a list', code: 'const items = list.map(animal => `<li>${animal.name}</li>`).join("");' },
+				{ label: 'Handle nothing found', code: 'if (matches.length === 0) {\n  list.textContent = "Nothing matched.";\n}' },
+			],
+		},
+	};
+
+	/* ------------------------------------------------------------------ helpers */
+
+	var $ = function (sel, root) {
+		return (root || document).querySelector(sel);
+	};
+	var el = function (tag, cls, text) {
+		var n = document.createElement(tag);
+		if (cls) n.className = cls;
+		if (text != null) n.textContent = text;
+		return n;
+	};
+
+	/* ----------------------------------------------------------------- metrics
+	 *
+	 * Counters accumulate in memory and go out as ONE beacon per session.
+	 *
+	 * Not one request per event: the preview fires on every debounce and a whole
+	 * classroom shares one NAT'd school IP, so per-event posting would exhaust the
+	 * telemetry rate tier for everyone in the room. sendBeacon because it survives
+	 * the tab closing — a plain fetch on pagehide loses exactly the sessions that
+	 * ran to completion, which are the ones worth counting.
+	 */
+	var counts = {};
+	var durationSent = false;
+
+	function bump(key) {
+		counts[key] = (counts[key] || 0) + 1;
+	}
+
+	/* ------------------------------------------------------- time in the builder
+	 *
+	 * How long a student actually spends here is the number that says whether this
+	 * is a five-minute curiosity or the thing they did for a whole period — and it
+	 * is the one figure a teacher will ask about that nothing else answers.
+	 *
+	 * ACTIVE time, not wall-clock: the tab left open over lunch is not an hour of
+	 * building. The clock stops whenever the page is hidden.
+	 *
+	 * BUCKETED, never a raw duration. A precise per-session length is a behavioural
+	 * trace of one person; "somewhere between fifteen and thirty minutes" answers
+	 * the question just as well and describes nobody. Same reasoning as everything
+	 * else in this file: if it cannot be a counter, it does not leave the browser.
+	 */
+	var activeMs = 0;
+	var since = Date.now();
+
+	function tickActive() {
+		var now = Date.now();
+		if (document.visibilityState !== 'hidden') activeMs += now - since;
+		since = now;
+	}
+
+	function durationBucket(ms) {
+		var m = ms / 60000;
+		if (m < 5) return 'duration_lt5m';
+		if (m < 15) return 'duration_5to15m';
+		if (m < 30) return 'duration_15to30m';
+		if (m < 60) return 'duration_30to60m';
+		return 'duration_gt60m';
+	}
+
+	/* Send whatever has accumulated and START A NEW BATCH.
+	 *
+	 * `final` marks the flush that happens because the session is ending — a tab
+	 * closing or a navigation away — as opposed to an interim one from a tab
+	 * switch or the periodic timer.
+	 *
+	 * TWO THINGS HERE ARE NOT OPTIONAL, both learned the hard way:
+	 *
+	 *   • `counts` is emptied on every send. It used to survive the send behind a
+	 *     `sent` latch, so a student who switched tabs once had that first batch
+	 *     sent, kept, and sent AGAIN by the five-minute timer — every counter
+	 *     before the first tab switch was recorded twice. Clearing after the send
+	 *     also makes the latch unnecessary: pagehide and visibilitychange both
+	 *     firing on the way out is harmless, because the second one finds nothing
+	 *     to send.
+	 *   • The duration bucket rides on the FINAL flush only. A session that runs
+	 *     past a boundary would otherwise land in two bands at once (lt5m and
+	 *     then 5to15m), and a distribution where one student appears in three
+	 *     bands is not a distribution.
+	 */
+	function flush(final) {
+		tickActive();
+		if (final && !durationSent) {
+			durationSent = true;
+			bump(durationBucket(activeMs));
+		}
+		if (!Object.keys(counts).length) return;
+		var batch = counts;
+		counts = {};
+		try {
+			var body = JSON.stringify({ page: 'builder', counts: batch });
+			if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+		} catch (e) {
+			/* analytics never gets to break the page */
+		}
+	}
+
+	document.addEventListener('ww:metric', function (e) {
+		if (e && e.detail && e.detail.key) bump(e.detail.key);
+	});
+	/* A tab switch is not the end of a session — the student is looking something
+	 * up and will be back. Send what we have, keep the clock running. */
+	document.addEventListener('visibilitychange', function () {
+		tickActive();
+		if (document.visibilityState === 'hidden') flush(false);
+	});
+	window.addEventListener('pagehide', function () {
+		flush(true);
+	});
+	/* Long lessons: a student can sit in here for a whole period without ever
+	 * hiding the tab, and a session that never reports is a session we cannot see. */
+	setInterval(function () {
+		flush(false);
+	}, 300000);
+
+	/* --------------------------------------------------------------- persistence */
+
+	function load() {
+		try {
+			var raw = localStorage.getItem(SAVE_KEY);
+			if (!raw) return null;
+			var save = JSON.parse(raw);
+			/* A save from a future/older format is not something to guess at. Say so
+			 * and keep the starter files, rather than showing an empty editor with no
+			 * explanation — which reads as "it deleted my work". */
+			if (!save || save.version !== SAVE_VERSION) return null;
+			return save;
+		} catch (e) {
+			return null;
+		}
+	}
+
+	function save(files, done, ui) {
+		try {
+			localStorage.setItem(
+				SAVE_KEY,
+				JSON.stringify({
+					version: SAVE_VERSION,
+					html: files.html,
+					css: files.css,
+					js: files.js,
+					done: done,
+					ui: ui || {},
+					updatedAt: Date.now(),
+				}),
+			);
+			return true;
+		} catch (e) {
+			return false;
+		}
+	}
+
+	/* ------------------------------------------------- download / import format
+	 *
+	 * Download produces EXACTLY what assembleDocument() gives the preview (minus
+	 * the reporting harness). A file that behaves differently from the preview
+	 * would be the worst possible ending to the lesson, so there is one function
+	 * and one format.
+	 *
+	 * Import parses that same format back into three files. This pair is the real
+	 * save system: managed Chromebook carts often do not hand a student the same
+	 * machine twice, so localStorage cannot be the only way work survives to the
+	 * next period. Round-trip fidelity is asserted in tests/unit/ww-builder.test.ts.
+	 */
+	function buildDownload(files) {
+		return window.WwRunner.assembleDocument(files.html, files.css, files.js);
+	}
+
+	function parseProject(text) {
+		var css = /<style>\n([\s\S]*?)\n<\/style>\n<\/head>/.exec(text);
+		/* The JS group is GREEDY and the tail is anchored to the document's exact
+		 * ending. A lazy match would stop at the first closing script tag it saw,
+		 * and a student whose code contains one (escaped, as the regex above spells
+		 * it) would get their file silently truncated on import — losing work, with
+		 * no error. Anchoring to the document's own final closing tags means only
+		 * the real one can end the match.
+		 *
+		 * Do NOT write that sequence out literally anywhere in this file: it is
+		 * inlined into a <script> block, so the comment would end the block. See the
+		 * note in ww-runner.js, which learned this the hard way. */
+		var rest = /<body>\n([\s\S]*?)\n<script>\n([\s\S]*)\n<\/script>\n<\/body>/.exec(text);
+		if (!rest) return null;
+		/* Undo the escapes assembleDocument applied on the way out, so a student who
+		 * wrote a closing script or style tag gets their source back byte-for-byte.
+		 * BOTH directions or neither: escaping on write without unescaping on read
+		 * silently corrupts the file a little more on every save/open cycle. */
+		return {
+			html: rest[1],
+			css: css ? css[1].replace(/<\\\/(style)/gi, '</$1') : '',
+			js: rest[2].replace(/<\\\/(script)/gi, '</$1'),
+		};
+	}
+
+	/* ------------------------------------------------------------------- boot */
+
+	/* THE BUILDER DRAWS A LINE THE LESSON DOES NOT.
+	 *
+	 * The lesson works on a phone, editors and all, and should: its examples are
+	 * a dozen lines each, most chapters are read rather than typed, and a student
+	 * on a bus getting through chapter 4 is a win.
+	 *
+	 * This page is the opposite shape. It is three files, a live preview and a
+	 * console, all on screen together, and it exists to be typed into for a whole
+	 * period. On a phone the soft keyboard covers the line being written, there
+	 * is no Tab key, and autocorrect fights punctuation the entire way. Shipping
+	 * a version of that is not generosity, it is a period spent on the keyboard
+	 * instead of on the code.
+	 *
+	 * So a phone gets a straight answer and a link to the thing that does work,
+	 * and the runner is never mounted: it carries `defer`, so no editor is built
+	 * and no preview iframes are opened on a device that cannot use them.
+	 *
+	 * The second clause is the landscape phone, wide enough to look like a tablet
+	 * with 400px of height and a keyboard over half of it. An iPad in portrait is
+	 * 744px or more and is not caught by either. */
+	function tooSmall() {
+		if (!window.matchMedia) return false;
+		return window.matchMedia('(max-width: 700px), (pointer: coarse) and (max-height: 460px)').matches;
+	}
+
+	function init() {
+		if (tooSmall()) {
+			var blocked = document.getElementById('lab-blocked');
+			if (blocked) blocked.hidden = false;
+			document.body.classList.add('is-too-small');
+			bump('env_too-small');
+			flush(true);
+			return;
+		}
+		var host = document.querySelector('ww-runner[defer]');
+		if (host && window.WwRunner && window.WwRunner.mount) {
+			host.removeAttribute('defer');
+			window.WwRunner.mount(host);
+		}
+		start();
+	}
+
+	function start() {
+		var runner = $('ww-runner');
+		if (!runner || !window.WwRunner) return;
+
+		var statusEl = $('#lab-status');
+		var doneSet = {};
+
+		function files() {
+			return runner.wwGet();
+		}
+
+		/* Before anything is restored or seeded — this IS the starter project. */
+		starter = files();
+
+		/* Which side panels are open. Remembered because a student who collapsed
+		 * the checkpoints on day 2 did not mean "only until I reload". */
+		var ui = {};
+
+		function status(text, kind) {
+			if (!statusEl) return;
+			statusEl.textContent = text;
+			statusEl.className = 'lab-status' + (kind ? ' is-' + kind : '');
+			clearTimeout(status._t);
+			status._t = setTimeout(function () {
+				statusEl.textContent = '';
+				statusEl.className = 'lab-status';
+			}, 4000);
+		}
+
+		/* ---- arriving from the lesson ----
+		 *
+		 * The last chapter of /learn/web-development hands the student's own work
+		 * across rather than dropping them into a starter project that throws it
+		 * away. It travels in the URL FRAGMENT, which browsers do not send to the
+		 * server: their code stays theirs, and the promise this page and
+		 * PRIVACY.md both make stays true.
+		 *
+		 * It wins over the autosave, and that is the right way round. Someone who
+		 * clicked "Open the Code Builder" at the end of the lesson thirty seconds
+		 * ago means the thing they were just looking at, not whatever they left
+		 * here last week. The old work is not lost either: this does not save
+		 * over it until they type something. */
+		var carried = null;
+		try {
+			var m = /[#&]start=([^&]+)/.exec(location.hash || '');
+			if (m) {
+				var payload = JSON.parse(decodeURIComponent(m[1]));
+				if (payload && typeof payload === 'object') {
+					carried = {
+						'index.html': typeof payload.html === 'string' ? payload.html : undefined,
+						'styles.css': typeof payload.css === 'string' ? payload.css : undefined,
+						'main.js': typeof payload.js === 'string' ? payload.js : undefined,
+					};
+					// The fragment is long and means nothing to a reader. Take it out of
+					// the bar so a reload or a bookmark is a plain /learn/code-builder.
+					if (history.replaceState) history.replaceState(null, '', location.pathname);
+				}
+			}
+		} catch (e) {
+			/* Anything unparseable in a hash a student may well have edited by hand
+			 * is not worth a broken page: fall through to the normal opening. */
+		}
+		if (carried) {
+			var only = {};
+			for (var name in carried) if (carried[name] !== undefined) only[name] = carried[name];
+			if (Object.keys(only).length) {
+				runner.wwSet(only);
+				status('Brought your code over from the lesson.', 'ok');
+				bump('carried_in');
+			} else {
+				carried = null;
+			}
+		}
+
+		/* ---- restore ---- */
+		var restored = carried ? null : load();
+		if (restored) {
+			runner.wwSet({ 'index.html': restored.html, 'styles.css': restored.css, 'main.js': restored.js });
+			doneSet = restored.done || {};
+			ui = restored.ui || {};
+			status('Picking up where you left off.', 'ok');
+			bump('restored');
+		} else if (localStorage.getItem(SAVE_KEY)) {
+			status('Your saved work could not be opened, so this is a fresh start.', 'warn');
+			bump('save_unreadable');
+		}
+
+		/* ---- autosave ---- */
+		var saveTimer = null;
+		var warnedNoStorage = false;
+		document.addEventListener('input', function () {
+			clearTimeout(saveTimer);
+			saveTimer = setTimeout(function () {
+				if (!save(files(), doneSet, ui) && !warnedNoStorage) {
+					warnedNoStorage = true;
+					bump('storage_unavailable');
+					status('This browser will not let the page save. Use Download to keep your work.', 'warn');
+				}
+			}, 800);
+		});
+
+		/* ---- download ---- */
+		var dl = $('#lab-download');
+		if (dl)
+			dl.addEventListener('click', function () {
+				var blob = new Blob([buildDownload(files())], { type: 'text/html' });
+				var url = URL.createObjectURL(blob);
+				var a = el('a');
+				a.href = url;
+				a.download = 'my-wild-willows-page.html';
+				document.body.appendChild(a);
+				a.click();
+				document.body.removeChild(a);
+				setTimeout(function () {
+					URL.revokeObjectURL(url);
+				}, 1000);
+				bump('download');
+				status('Downloaded. Open it any time, or bring it back here with Open.', 'ok');
+			});
+
+		/* ---- import ---- */
+		var picker = $('#lab-import-input');
+		var open = $('#lab-import');
+		if (open && picker) {
+			open.addEventListener('click', function () {
+				picker.click();
+			});
+			picker.addEventListener('change', function () {
+				var file = picker.files && picker.files[0];
+				if (!file) return;
+				var reader = new FileReader();
+				reader.onload = function () {
+					var parsed = parseProject(String(reader.result));
+					if (!parsed) {
+						bump('import_failed');
+						status('That file was not a page saved from here.', 'warn');
+						return;
+					}
+					runner.wwSet({ 'index.html': parsed.html, 'styles.css': parsed.css, 'main.js': parsed.js });
+					bump('import');
+					status('Opened. Carry on where you left off.', 'ok');
+				};
+				reader.readAsText(file);
+				picker.value = '';
+			});
+		}
+
+		/* ---- reset ---- */
+		var reset = $('#lab-reset');
+		if (reset)
+			reset.addEventListener('click', function () {
+				if (!window.confirm('Start over with the original files? Your current work will be replaced.')) return;
+				runner.wwSet({ 'index.html': starter.html, 'styles.css': starter.css, 'main.js': starter.js });
+				doneSet = {};
+				save(files(), doneSet, ui);
+				renderCheckpoints();
+				bump('reset_project');
+				status('Back to the starting files.', 'ok');
+			});
+
+		/* ---- checkpoints ---- */
+		var cpList = $('#lab-checkpoints');
+		var undo = null;
+
+		var cpCount = $('#lab-cp-count');
+
+		/* The count in the summary is what makes collapsing safe to offer: a
+		 * student who has folded the list away can still see where they are, so
+		 * "out of sight" does not become "forgot there were steps". */
+		function renderCount() {
+			if (!cpCount) return;
+			var done = CHECKPOINTS.filter(function (cp) {
+				return doneSet[cp.id];
+			}).length;
+			cpCount.textContent = done + '/' + CHECKPOINTS.length;
+			cpCount.classList.toggle('is-complete', done === CHECKPOINTS.length);
+		}
+
+		function renderCheckpoints() {
+			renderCount();
+			if (!cpList) return;
+			cpList.innerHTML = '';
+			var lastDay = null;
+			CHECKPOINTS.forEach(function (cp, i) {
+				if (cp.day !== lastDay) {
+					lastDay = cp.day;
+					cpList.appendChild(el('li', 'cp-day', cp.day));
+				}
+				var li = el('li', 'cp' + (doneSet[cp.id] ? ' is-done' : ''));
+
+				var tick = el('button', 'cp-tick');
+				tick.type = 'button';
+				tick.setAttribute('aria-pressed', doneSet[cp.id] ? 'true' : 'false');
+				tick.setAttribute('aria-label', 'Mark "' + cp.goal + '" as done');
+				/* Drawn, not typed. A check character is a different font on every
+				 * platform and lands anywhere from a hairline to a green emoji tick. */
+				if (doneSet[cp.id]) {
+					tick.innerHTML =
+						'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" ' +
+						'stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" ' +
+						'style="width:11px;height:11px;display:block;margin:0 auto"><path d="M4.5 12.5 9.5 17.5 19.5 6.5"/></svg>';
+				} else {
+					tick.textContent = String(i + 1);
+				}
+				tick.addEventListener('click', function () {
+					doneSet[cp.id] = !doneSet[cp.id];
+					if (doneSet[cp.id]) bump('checkpoint_' + cp.id);
+					save(files(), doneSet, ui);
+					renderCheckpoints();
+				});
+
+				var main = el('div', 'cp-main');
+				main.appendChild(el('div', 'cp-goal', cp.goal));
+				main.appendChild(el('div', 'cp-hint', cp.hint));
+
+				var show = el('button', 'cp-show', 'Show me');
+				show.type = 'button';
+				show.addEventListener('click', function () {
+					var target = Object.keys(cp.show).join(' and ');
+					if (!window.confirm('This will replace what is in ' + target + '. Continue? (You can undo once.)')) return;
+					undo = files();
+					runner.wwSet(cp.show);
+					doneSet[cp.id] = true;
+					save(files(), doneSet, ui);
+					renderCheckpoints();
+					bump('hint_' + cp.id);
+					status('Filled in. Undo is in the toolbar if you want your version back.', 'ok');
+					if (undoBtn) undoBtn.hidden = false;
+				});
+				main.appendChild(show);
+
+				li.appendChild(tick);
+				li.appendChild(main);
+				cpList.appendChild(li);
+			});
+		}
+
+		var undoBtn = $('#lab-undo');
+		if (undoBtn) {
+			undoBtn.hidden = true;
+			undoBtn.addEventListener('click', function () {
+				if (!undo) return;
+				runner.wwSet({ 'index.html': undo.html, 'styles.css': undo.css, 'main.js': undo.js });
+				undo = null;
+				undoBtn.hidden = true;
+				bump('undo');
+				status('Put back the way it was.', 'ok');
+			});
+		}
+		renderCheckpoints();
+
+		/* ---- collapsible side panels ---- */
+		[
+			['checkpoints', $('#lab-checkpoints-details')],
+			['help', $('#lab-help-details')],
+		].forEach(function (pair) {
+			var name = pair[0];
+			var panel = pair[1];
+			if (!panel) return;
+			if (ui[name] === false) panel.open = false;
+			panel.addEventListener('toggle', function () {
+				ui[name] = panel.open;
+				save(files(), doneSet, ui);
+				bump('panel_' + name + '_' + (panel.open ? 'open' : 'closed'));
+			});
+		});
+
+		/* ---- the brief: whatever idea they picked, kept on screen ---- */
+		var briefBox = $('#lab-current-idea');
+
+		function showBrief(idea) {
+			if (!briefBox) return;
+			if (!idea) {
+				briefBox.hidden = true;
+				return;
+			}
+			briefBox.hidden = false;
+			var set = function (sel, text) {
+				var n = $(sel);
+				if (n) n.textContent = text;
+			};
+			set('#lab-brief-title', idea.title);
+			set('#lab-brief-what', idea.what);
+			set('#lab-brief-data', 'Uses ' + idea.data);
+		}
+
+		function ideaById(id) {
+			for (var i = 0; i < IDEAS.length; i++) if (IDEAS[i].id === id) return IDEAS[i];
+			return null;
+		}
+
+		var briefChange = $('#lab-brief-change');
+		if (briefChange)
+			briefChange.addEventListener('click', function () {
+				openModal('click');
+			});
+
+		var briefClear = $('#lab-brief-clear');
+		if (briefClear)
+			briefClear.addEventListener('click', function () {
+				ui.idea = null;
+				showBrief(null);
+				save(files(), doneSet, ui);
+				bump('brief_cleared');
+			});
+
+		/* ---- ideas modal ---- */
+		var modal = $('#lab-ideas');
+		var cards = $('#lab-idea-cards');
+		var level = 'all';
+		var uses = 'all';
+		var offered = false;
+
+		function pick(n) {
+			var pool = IDEAS.filter(function (idea) {
+				return (level === 'all' || idea.level === level) && (uses === 'all' || idea.uses.indexOf(uses) !== -1);
+			});
+			/* Shuffle a copy — Math.random in sort() is not a shuffle, it is a
+			 * biased mess that keeps showing the same three cards. */
+			for (var i = pool.length - 1; i > 0; i--) {
+				var j = Math.floor(Math.random() * (i + 1));
+				var t = pool[i];
+				pool[i] = pool[j];
+				pool[j] = t;
+			}
+			return pool.slice(0, n);
+		}
+
+		function renderIdeas() {
+			if (!cards) return;
+			cards.innerHTML = '';
+			var chosen = pick(3);
+			if (!chosen.length) {
+				cards.appendChild(el('p', 'idea-empty', 'No ideas match those filters — try widening them.'));
+				return;
+			}
+			chosen.forEach(function (idea) {
+				var card = el('article', 'idea');
+				card.appendChild(el('h3', 'idea-title', idea.title));
+				card.appendChild(el('p', 'idea-what', idea.what));
+				card.appendChild(el('p', 'idea-data', 'Uses ' + idea.data));
+				var go = el('button', 'idea-start', 'Start this');
+				go.type = 'button';
+				go.addEventListener('click', function () {
+					startIdea(idea);
+				});
+				card.appendChild(go);
+				cards.appendChild(card);
+			});
+		}
+
+		/* Seeds a scaffold of TODO comments, NEVER working code. The idea should
+		 * hand over a starting point; doing the assignment defeats the point of
+		 * having one. */
+		function startIdea(idea) {
+			var current = files();
+			undo = current;
+			if (undoBtn) undoBtn.hidden = false;
+			var scaffold =
+				'// Idea: ' +
+				idea.title +
+				' — ' +
+				idea.what +
+				'\n' +
+				'// Data you need: ' +
+				idea.data +
+				'\n' +
+				'//\n' +
+				'// 1. fetch the game data\n' +
+				'// 2. pick out the part you want\n' +
+				'// 3. put it on the page\n\n' +
+				'async function loadGameData() {\n' +
+				'  const response = await fetch("' +
+				API +
+				'");\n' +
+				'  const data = await response.json();\n\n' +
+				'  // your code goes here\n' +
+				'  console.log(data);\n' +
+				'}\n\n' +
+				'loadGameData();\n';
+			runner.wwSet({ 'main.js': scaffold });
+			/* The brief outlives the modal. Before this, the prompt vanished the
+			 * moment the dialog closed, and a student two minutes in had nothing to
+			 * check what they had agreed to build. */
+			ui.idea = idea.id;
+			showBrief(idea);
+			save(files(), doneSet, ui);
+			closeModal();
+			bump('idea_started');
+			bump('idea_' + idea.id);
+			status('Added to main.js — the brief is in the sidebar. Undo is in the toolbar.', 'ok');
+		}
+
+		function openModal(why) {
+			if (!modal) return;
+			modal.hidden = false;
+			renderIdeas();
+			bump(why === 'auto' ? 'ideas_auto_offered' : 'ideas_opened');
+			var first = modal.querySelector('button');
+			if (first) first.focus();
+		}
+
+		function closeModal() {
+			if (modal) modal.hidden = true;
+		}
+
+		var ideasBtn = $('#lab-ideas-open');
+		if (ideasBtn)
+			ideasBtn.addEventListener('click', function () {
+				openModal('click');
+			});
+		var shuffle = $('#lab-ideas-shuffle');
+		if (shuffle)
+			shuffle.addEventListener('click', function () {
+				renderIdeas();
+				bump('ideas_shuffled');
+			});
+		var surprise = $('#lab-ideas-surprise');
+		if (surprise)
+			surprise.addEventListener('click', function () {
+				var one = pick(1)[0];
+				if (one) startIdea(one);
+				bump('ideas_surprise');
+			});
+		var closeBtn = $('#lab-ideas-close');
+		if (closeBtn)
+			closeBtn.addEventListener('click', function () {
+				closeModal();
+				bump('ideas_dismissed');
+			});
+		if (modal)
+			modal.addEventListener('click', function (e) {
+				if (e.target === modal) {
+					closeModal();
+					bump('ideas_dismissed');
+				}
+			});
+		document.addEventListener('keydown', function (e) {
+			if (e.key === 'Escape' && modal && !modal.hidden) {
+				closeModal();
+				bump('ideas_dismissed');
+			}
+		});
+
+		Array.prototype.forEach.call(document.querySelectorAll('[data-idea-filter]'), function (b) {
+			b.addEventListener('click', function () {
+				var group = b.getAttribute('data-idea-filter');
+				var value = b.getAttribute('data-value');
+				if (group === 'level') level = value;
+				else uses = value;
+				/* `on` is the site's own selected-chip state (see .chip.on in
+				 * site-core.css) — the filters are real site chips, not look-alikes. */
+				Array.prototype.forEach.call(document.querySelectorAll('[data-idea-filter="' + group + '"]'), function (o) {
+					o.classList.toggle('on', o === b);
+				});
+				renderIdeas();
+			});
+		});
+
+		/* The idle offer. The student this feature exists for is the one who has
+		 * stopped typing and is about to give up — so offer once, unprompted, then
+		 * never again this session. */
+		var idle = null;
+		function resetIdle() {
+			clearTimeout(idle);
+			if (offered) return;
+			idle = setTimeout(function () {
+				if (offered) return;
+				var f = files();
+				var untouched = f.html === starter.html && f.css === starter.css && f.js === starter.js;
+				if (untouched && modal && modal.hidden) {
+					offered = true;
+					openModal('auto');
+				}
+			}, 90000);
+		}
+		document.addEventListener('input', resetIdle);
+		resetIdle();
+
+		/* Restore whatever they were building, after IDEAS and showBrief exist. */
+		if (ui.idea) showBrief(ideaById(ui.idea));
+
+		/* ---- help sidebar follows the open file ---- */
+		var helpBox = $('#lab-help');
+		function renderHelp(fileName) {
+			if (!helpBox) return;
+			var h = HELP[fileName];
+			if (!h) return;
+			helpBox.innerHTML = '';
+			helpBox.appendChild(el('h2', 'help-title', h.title));
+			helpBox.appendChild(el('p', 'help-body', h.body));
+			h.snippets.forEach(function (s) {
+				var row = el('div', 'help-snip');
+				row.appendChild(el('div', 'help-label', s.label));
+				row.appendChild(el('pre', 'help-code', s.code));
+				var insert = el('button', 'help-insert', 'Copy');
+				insert.type = 'button';
+				insert.addEventListener('click', function () {
+					try {
+						navigator.clipboard.writeText(s.code);
+						insert.textContent = 'Copied';
+						setTimeout(function () {
+							insert.textContent = 'Copy';
+						}, 1500);
+						bump('help_copy');
+					} catch (e) {
+						/* clipboard blocked — the code is on screen and selectable anyway */
+					}
+				});
+				row.appendChild(insert);
+				helpBox.appendChild(row);
+			});
+		}
+		renderHelp('index.html');
+		runner.addEventListener('click', function (e) {
+			var tab = e.target.closest && e.target.closest('.wwr-tab');
+			if (tab) renderHelp(tab.textContent.trim());
+		});
+
+		bump('builder_open');
+		bump('view_builder');
+		bump('session_total');
+
+		/* Which screens this is actually used on. The page claims to work on a
+		 * Chromebook; this is how that claim gets checked. */
+		var w = window.innerWidth || 0;
+		bump('env_viewport-' + (w < 700 ? 'sm' : w < 1100 ? 'md' : 'lg'));
+
+		/* How they got here, as one word from a fixed list. The referrer URL is
+		 * read in this browser and thrown away in this browser; only the bucket is
+		 * ever sent. A referrer from our own host is 'internal', which is the
+		 * difference between "arrived from the lesson" and "arrived from Google". */
+		try {
+			var r = document.referrer;
+			var host = r ? new URL(r).hostname.toLowerCase().replace(/^www\./, '') : '';
+			bump(
+				!r
+					? 'ref_direct'
+					: host === location.hostname
+						? 'ref_internal'
+						: /google|bing|duckduckgo|ecosia|yahoo/.test(host)
+							? 'ref_search'
+							: /reddit|bluesky|bsky|mastodon|facebook|instagram|linkedin/.test(host)
+								? 'ref_social'
+								: 'ref_other',
+			);
+		} catch (e) {
+			bump('ref_other');
+		}
+
+		/* Where they went next. The nav links leave the page, so this has to be a
+		 * plain click listener rather than anything that waits for a response —
+		 * bump() batches into the pagehide flush, which fires on the way out. */
+		var NAV = { 'lesson-nav': 'nav_lesson', 'learn-nav': 'nav_learn', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		document.addEventListener('click', function (e) {
+			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);
+		});
+
+		/* Did they come back? Stored as a DATE, not an identifier — it says "this
+		 * browser has been here before", which is all the question needs. */
+		try {
+			var today = new Date().toISOString().slice(0, 10);
+			var firstDay = localStorage.getItem(SEEN_KEY);
+			if (!firstDay) localStorage.setItem(SEEN_KEY, today);
+			else if (firstDay !== today) {
+				var days = Math.round((Date.parse(today) - Date.parse(firstDay)) / 86400000);
+				if (days === 1) bump('returning_day2');
+				else if (days >= 2) bump('returning_day3');
+			}
+		} catch (e) {
+			/* storage unavailable — see load(); the lesson does not depend on this */
+		}
+	}
+
+	if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init);
+	else init();
+
+	window.WwBuilder = {
+		FILES: FILES,
+		CHECKPOINTS: CHECKPOINTS,
+		IDEAS: IDEAS,
+		buildDownload: buildDownload,
+		parseProject: parseProject,
+	};
+})();
+
+</script>
+</body>
+</html>
