@@ -5093,29 +5093,40 @@ const RATE_TIERS = {
 	/** Reads that touch the database. */
 	read: { perMinute: 300, burst: 100 },
 	/**
-	 * GET /GameData/ — the public catalog. Its own tier, and the numbers come from
-	 * a measurement rather than a guess.
+	 * GET /GameData — the public catalog. Its own tier, and the numbers come from
+	 * what the ORIGIN sees, which is not what a classroom sends.
 	 *
-	 * THE PREVIEW HAS NO CACHE. The classroom editor runs student code in an
-	 * iframe with sandbox="allow-scripts" and no allow-same-origin, which puts it
-	 * on an opaque origin — so it shares no HTTP cache with anything, and none of
-	 * its requests ever carry If-None-Match. Measured in a real browser: thirty
-	 * debounced edits produced thirty full-body responses and zero 304s. The ETag
-	 * makes repeats free for the game and for anyone building against the API; it
-	 * does nothing at all for a student typing.
+	 * THE CACHE MOVED THE GOALPOSTS, so this number moved with it. The old value
+	 * (600/min) was the classroom arithmetic: the editor runs student code in a
+	 * sandbox="allow-scripts" frame on an opaque origin, so it shares no HTTP
+	 * cache and never sends If-None-Match — measured, thirty edits produced thirty
+	 * full responses and zero 304s — and thirty students at twenty runs a minute
+	 * is 600 from one NAT. That was the right number while every one of those
+	 * requests reached this process.
 	 *
-	 * So the cost really is one full response per run, and a classroom shares one
-	 * address. Thirty students averaging twenty runs a minute is 600 from a single
-	 * NAT doing exactly what the lesson asks — which is where the sustained rate
-	 * comes from. The burst is a class pressing Run together, twice over.
+	 * They no longer do. With the Cloudflare rule on /GameData* the edge answers
+	 * the repeats and the origin sees roughly one request per edge location per
+	 * day, plus a burst when the cache is cold or has just been purged. So the
+	 * question this tier answers changed from "how much does a classroom send" to
+	 * "how much can miss the cache", and those are two very different numbers:
 	 *
-	 * This was 1200/300 on the same reasoning with a worse estimate. At 100 KB a
-	 * response that was two megabytes a second from one address, which is a lot of
-	 * egress to leave open on the strength of an assumption. Halving the rate and
-	 * cutting the burst by five makes a scripted flood five times less profitable
-	 * while still clearing the class it was sized for.
+	 *   legitimate, worst case   ~30 in a second or two (cold edge, class presses
+	 *                            Run together), then nothing for the rest of the day
+	 *   abusive, worst case      /GameData?x=<random> busts the cache on every
+	 *                            request, so the whole budget lands here
+	 *
+	 * At 600/min the second one was ~72 MB a minute — 4.3 GB an hour — from a
+	 * single address, entirely inside the published limit. At 60/min it is a
+	 * tenth of that, and a cold classroom still clears in one burst with room for
+	 * a second wave thirty seconds later.
+	 *
+	 * BURST EQUALS THE MINUTE ON PURPOSE. Everything honest here is a spike: a
+	 * cold cache, a purge, a class starting together. Nothing honest is a grind.
+	 * A bucket that holds a full minute and refills at one a second allows the
+	 * spike and refuses the sustained pull, which is the shape of the traffic
+	 * rather than a compromise between two shapes.
 	 */
-	catalog: { perMinute: 600, burst: 60 },
+	catalog: { perMinute: 60, burst: 60 },
 } as const;
 
 type RateTier = keyof typeof RATE_TIERS;

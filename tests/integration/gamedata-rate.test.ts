@@ -69,15 +69,29 @@ describe('the catalog is rate limited', () => {
 		expect(ok).toBe(60);
 	});
 
-	it('is sized on a measurement, not on a guess', async () => {
-		// The preview runs on an opaque origin (sandbox without allow-same-origin),
-		// so it shares no HTTP cache and never sends If-None-Match — every re-run is
-		// a full response. Thirty students × twenty runs a minute is the 600.
+	it('is sized on what reaches the origin, not on what gets sent', async () => {
+		/* The classroom figure is real: the preview runs on an opaque origin
+		 * (sandbox without allow-same-origin), shares no HTTP cache and never sends
+		 * If-None-Match, so thirty students at twenty runs a minute really is 600
+		 * requests. They land on the shared cache. What arrives HERE is the misses:
+		 * a cold-cache class starting together, about thirty in one spike.
+		 *
+		 * So the budget is a spike-shaped one — a bucket holding a full minute that
+		 * refills at one a second. It clears that class twice over and refuses a
+		 * sustained pull, which at half a megabyte a response is the thing worth
+		 * refusing: 600/min was 4.3 GB an hour from a single address. */
 		const src = readFileSync(resolve(__dirname, '../../server/resources.ts'), 'utf8');
 		const m = /catalog: \{ perMinute: (\d+), burst: (\d+) \}/.exec(src);
 		expect(m).toBeTruthy();
-		expect(Number(m![1])).toBe(600);
-		expect(Number(m![2])).toBe(60);
+		const perMinute = Number(m![1]);
+		const burst = Number(m![2]);
+		expect(perMinute).toBe(60);
+		expect(burst).toBe(60);
+		// Two properties rather than two magic numbers: a cold classroom (~30 at
+		// once) has to fit in the burst, and the sustained rate must not exceed it,
+		// or the shape stops being a spike allowance and becomes a stream.
+		expect(burst).toBeGreaterThanOrEqual(30 * 2);
+		expect(perMinute).toBeLessThanOrEqual(burst);
 		// The sandbox attribute this whole number depends on. If it ever gains
 		// allow-same-origin the preview starts caching and this can come down.
 		const runner = readFileSync(resolve(__dirname, '../../public/partials/ww-runner.js'), 'utf8');

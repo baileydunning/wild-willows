@@ -3,8 +3,8 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wild Willows Open Game Data: a free public API of 150 real species</title>
-<meta name="description" content="One public endpoint, no key and no sign-up: 150 real animals with diet, shelter, food-web links and habitat requirements, six biomes, and everything the game itself is built from. JavaScript, Python and curl examples, and a free lesson that teaches you to use it.">
+<title>Free public API: 150 species and their food webs</title>
+<meta name="description" content="One public endpoint, no key and no sign-up: 150 real animals with diet, food-web links and habitat requirements, plus six biomes. JavaScript, Python and curl examples.">
 <link rel="canonical" href="https://wildwillows.app/developers/api">
 <meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#f4eeda">
@@ -57,9 +57,18 @@
       "description": "150 real animal species across six North American habitat types, each with a scientific name, diet, shelter, preferred habitat, trophic role, rarity, cited sources, what it eats, what eats it, and the habitat conditions required for it to return to a restored landscape.",
       "keywords": ["ecology", "species", "food web", "habitat", "biodiversity", "restoration", "open data"],
       "isAccessibleForFree": true,
+      "license": "https://wildwillows.app/developers/api#terms",
       "creator": { "@type": "Person", "name": "Bailey Dunning" },
+      "publisher": { "@type": "Organization", "name": "Wild Willows", "url": "https://wildwillows.app/" },
+      "identifier": "https://wildwillows.app/GameData",
+      "inLanguage": "en",
+      "measurementTechnique": "Compiled from cited field guides and species accounts; every record carries its own sources.",
+      "variableMeasured": ["species", "scientificName", "diet", "shelter", "biome", "role", "rarity", "eats", "eatenBy", "requirements"],
+      "temporalCoverage": "2026/..",
+      "spatialCoverage": { "@type": "Place", "name": "North America" },
       "distribution": {
         "@type": "DataDownload",
+        "name": "Wild Willows game catalog (JSON)",
         "encodingFormat": "application/json",
         "contentUrl": "https://wildwillows.app/GameData"
       }
@@ -130,7 +139,7 @@
   <div>
     <h2>There is nothing to sign up for</h2>
     <p>No API key, no account and no dashboard to register in. One GET, from a browser or anywhere else, and you have the whole dataset. It sends <code>Access-Control-Allow-Origin: *</code>, so a page you are building can read it directly with no server of your own.</p>
-    <p>There is a rate limit: <b>600 requests a minute per address</b>, which no honest use of a dataset that changes once per release will ever approach. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
+    <p>There is a rate limit: <b>60 requests a minute per address</b>, counted at the origin &mdash; which cached requests never reach, so no honest use of a dataset that changes once per release will approach it. <a href="#limits">The numbers, and the arithmetic behind them, are below.</a></p>
     <p>It exists because a classroom lesson needed a real API to teach against rather than a mock one. That turned out to be useful to more people than students, so it is documented rather than merely public.</p>
   </div>
 </div>
@@ -415,23 +424,23 @@ console.log(`and is eaten by ${names(fox.eatenBy) || "nothing in this dataset"}`
 
 <section class="tsec" id="limits">
   <h2>Rate limits</h2>
-  <p>One limit, on one endpoint, and it is sized so that you have to be doing something strange to meet it.</p>
+  <p>One limit, on one endpoint, and it is sized against what actually reaches this server rather than what gets sent to the address. You have to be working at it to meet it.</p>
   <div class="ltable-scroll">
     <table class="trouble">
       <thead><tr><th>Limit</th><th>Value</th><th>Why that number</th></tr></thead>
       <tbody>
-        <tr><td>Per address, sustained</td><td class="num">600 / min</td><td>Ten a second, from one IP, for a file that changes when the game ships a build.</td></tr>
-        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once before the sustained rate starts refilling the budget.</td></tr>
-        <tr><td>Refill</td><td class="num">10 / s</td><td>Continuous, not a reset on the minute. Ten seconds of quiet buys you a hundred requests back.</td></tr>
+        <tr><td>Per address, burst</td><td class="num">60</td><td>What you can spend at once, from nothing. A whole classroom starting together fits inside it with room to spare.</td></tr>
+        <tr><td>Per address, sustained</td><td class="num">60 / min</td><td>What the burst refills to. Nothing that reaches this server honestly is a steady stream: it is spikes with quiet in between.</td></tr>
+        <tr><td>Refill</td><td class="num">1 / s</td><td>Continuous, not a reset on the minute. Thirty seconds of quiet buys back thirty requests.</td></tr>
       </tbody>
     </table>
   </div>
 
   <h3>Where those numbers come from</h3>
-  <p>Not from a guess, and not from what the origin sees. <b>A classroom shares one address</b>, and the classroom editor cannot cache: it runs student code in a sandboxed frame on an opaque origin, so every press of Run is a real request and none of them carry <code>If-None-Match</code>. Measured in a browser, thirty edits produced thirty full responses and no <code>304</code>s at all.</p>
-  <p>So the arithmetic is thirty students behind one school NAT, each pressing Run twenty times in a period: 600 requests a minute from a single address, all of it people doing exactly what the lesson asked. That is where the sustained number comes from. The burst is a class pressing Run at the same moment, twice over.</p>
-  <p><b>Most of those never arrive here.</b> They are answered by the <a href="#caching-explained">shared cache</a> a few miles from the school, which is the arrangement that makes a limit like this affordable: what the origin actually meets is the requests that miss that cache. The number is deliberately left at the full classroom figure anyway, so that a class stays under it even on the day the cache is cold, or purged, or switched off.</p>
-  <p class="note-line">Which is the short version of the whole page: the limit is not there to make you cache. The cache is already doing that. The limit is there so one address cannot spoil the endpoint for everyone else.</p>
+  <p>Not from a guess, and not from the size of a classroom. <b>The limit counts what reaches the origin</b>, and almost nothing does. Requests are answered by the <a href="#caching-explained">shared cache</a>, usually a few miles from whoever asked; what this server actually meets is the requests that <em>miss</em> that cache.</p>
+  <p>So the number to size against is not &ldquo;how much does a class send&rdquo; but &ldquo;how much can miss&rdquo;. Cold cache, thirty students in one room pressing Run at the same moment: about thirty requests arrive here in a second or two, and then nothing for the rest of the day. That is the honest worst case, and the burst is twice it.</p>
+  <p>For the record, the classroom figure is real and it is bigger: the editor runs student code in a sandboxed frame on an opaque origin, so it shares no cache and never sends <code>If-None-Match</code> &mdash; measured in a browser, thirty edits produced thirty full responses and zero <code>304</code>s &mdash; which puts a working class at around 600 requests a minute. Those are real requests. They land on the edge.</p>
+  <p class="note-line">The short version of the whole page: the limit is not there to make you cache, because the cache is already doing that. It is there so that one address cannot pull half a megabyte in a loop and spoil the endpoint for everyone else.</p>
   <p class="sub">If you are hitting this by accident the fix is almost always to fetch once and keep the result &mdash; unlike the editor, your code can. Sending the <code>etag</code> back makes a repeat cheap rather than free: half a megabyte becomes a few hundred bytes, but it is still a request, and the limit counts requests.</p>
 
   <h3>What a refusal looks like</h3>

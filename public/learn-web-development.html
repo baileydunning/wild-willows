@@ -3,9 +3,165 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Build with Wild Willows: learn HTML, CSS, JavaScript and APIs with real game data</title>
-<meta name="description" content="A free ten-chapter web development lesson for high school students. Learn HTML, CSS, JavaScript, and how to fetch a real API. Every code sample on the page is editable and runs in your browser. No accounts, no installs.">
+<title>Learn HTML, CSS, JavaScript and APIs: a free 10-chapter lesson</title>
+<meta name="description" content="A free ten-chapter web development lesson for high school. Write HTML, CSS and JavaScript in the page, then fetch a real public API and build a webpage from it.">
 <link rel="canonical" href="https://wildwillows.app/learn/web-development">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Build with Wild Willows: a free 10-chapter web development lesson">
+<meta property="og:description" content="HTML, CSS, JavaScript and a real API, all editable in the page. Written for a 90-minute classroom block. No accounts, no installs.">
+<meta property="og:url" content="https://wildwillows.app/learn/web-development">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="A free 10-chapter lesson: HTML, CSS, JavaScript and APIs">
+<meta name="twitter:description" content="Editable code on every page and a real public API to fetch. No accounts, no installs.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": [
+        "Course",
+        "LearningResource"
+      ],
+      "@id": "https://wildwillows.app/learn/web-development#course",
+      "name": "Build with Wild Willows: web development and APIs",
+      "description": "A free ten-chapter lesson taking a beginner from “what is HTML” to a webpage built from live data returned by a real public API. Every code sample is editable and runs in the page.",
+      "url": "https://wildwillows.app/learn/web-development",
+      "inLanguage": "en",
+      "isAccessibleForFree": true,
+      "learningResourceType": [
+        "Lesson",
+        "Interactive Resource"
+      ],
+      "educationalLevel": "High school, grades 9-12",
+      "teaches": [
+        "HTML",
+        "CSS",
+        "JavaScript",
+        "HTTP GET requests",
+        "Using a JSON web API",
+        "Array methods: map, filter, find, reduce",
+        "Conditionals and loops",
+        "Rendering data to the DOM"
+      ],
+      "timeRequired": "PT90M",
+      "educationalUse": [
+        "instruction",
+        "assignment"
+      ],
+      "audience": {
+        "@type": "EducationalAudience",
+        "educationalRole": [
+          "student",
+          "teacher"
+        ]
+      },
+      "provider": {
+        "@type": "Organization",
+        "name": "Wild Willows",
+        "url": "https://wildwillows.app/"
+      },
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "USD",
+        "category": "free"
+      },
+      "hasCourseInstance": {
+        "@type": "CourseInstance",
+        "courseMode": "online",
+        "courseWorkload": "PT90M",
+        "instructor": {
+          "@type": "Organization",
+          "name": "Wild Willows"
+        }
+      },
+      "syllabusSections": [
+        {
+          "@type": "Syllabus",
+          "position": 1,
+          "name": "Three languages, one webpage"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 2,
+          "name": "Make it look like yours"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 3,
+          "name": "JavaScript can change HTML"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 4,
+          "name": "Programs can talk to other programs"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 5,
+          "name": "Fetch your first API"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 6,
+          "name": "Look inside the data"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 7,
+          "name": "Make decisions"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 8,
+          "name": "Loop through the data"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 9,
+          "name": "Put API data on your page"
+        },
+        {
+          "@type": "Syllabus",
+          "position": 10,
+          "name": "Your turn"
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Wild Willows",
+          "item": "https://wildwillows.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Learn",
+          "item": "https://wildwillows.app/learn"
+        },
+        {
+          "@type": "ListItem",
+          "position": 3,
+          "name": "The Lesson",
+          "item": "https://wildwillows.app/learn/web-development"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<meta name="robots" content="index, follow, max-image-preview:large">
 <meta name="theme-color" content="#f4eeda">
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
