@@ -173,11 +173,25 @@ test.describe('the landing page', () => {
 			await link.click();
 			const y = await settledTop(page, `#${id}`);
 			const nav = await navBarHeight(page);
+
 			/* The section's top is at or just below the nav, and on screen. The bug
-			 * this exists for put it several thousand pixels down — the end of the
-			 * document, on every link. */
+			 * this exists for put it thousands of pixels away — the end of the
+			 * document on one engine, and 2,482px short of the section on another.
+			 *
+			 * WITH ONE EXCEPTION THAT IS NOT A BUG. The last section cannot be
+			 * scrolled to the top, because the document ends: the browser stops at
+			 * the bottom and leaves it partway down the screen. Asserting otherwise
+			 * would be asserting that the page is at least a viewport taller than it
+			 * is, which is a fact about the copy rather than about the nav. So when
+			 * the scroll has bottomed out, the requirement is that the section is on
+			 * screen and starts below the nav. */
+			const atBottom = await page.evaluate(
+				() => Math.ceil(window.scrollY + window.innerHeight) >= document.documentElement.scrollHeight - 2,
+			);
+			const viewport = page.viewportSize()!.height;
 			expect(y, `#${id} landed at ${y}`).toBeGreaterThan(-40);
-			expect(y, `#${id} landed at ${y}, which is not under the nav`).toBeLessThan(nav + 220);
+			if (atBottom) expect(y, `#${id} landed at ${y} with the page scrolled to its end`).toBeLessThan(viewport);
+			else expect(y, `#${id} landed at ${y}, which is not under the nav`).toBeLessThan(nav + 220);
 		}
 	});
 

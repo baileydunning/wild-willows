@@ -159,31 +159,32 @@ describe('the lesson says what an API is before asking anyone to use one', () =>
 describe('the landing page nav actually goes where it says', () => {
 	const html = builtPage('landingHtml');
 
-	// EVERY NAV LINK LANDED AT THE FOOTER. `content-visibility: auto` gave each
-	// off-screen section a `contain-intrinsic-size` placeholder — measured at
-	// 412px, a phone, where cards stack. Applied at every width those estimates
-	// were hundreds of pixels too tall each, so the document claimed ~12,900px on
-	// a desktop; clicking a nav link started a smooth scroll toward an offset
-	// computed from that, the sections resolved to their real heights on the way
-	// past, the page collapsed ~2,000px underneath the animation, and the scroll
-	// clamped to the bottom. Anything below Accessibility went to the footer.
-	it('only applies the phone placeholders at phone widths', () => {
-		const block = /@media\(max-width:820px\)\{\n#look[^]*?\n\}/.exec(html);
-		expect(block, 'the containment block should be inside a max-width media query').toBeTruthy();
-		expect(block![0]).toContain('content-visibility:auto');
-		// and nowhere else: an unscoped copy is the bug coming back.
-		const unscoped = html.replace(block![0], '');
-		expect(unscoped).not.toContain('content-visibility:auto');
-		expect(unscoped).not.toContain('contain-intrinsic-size');
-	});
-
-	it('gives every named section a placeholder, including the newest', () => {
-		const block = /@media\(max-width:820px\)\{\n#look[^]*?\n\}/.exec(html)![0];
-		// #developers was added after this block was written and had none, so it
-		// was the one section whose estimate was zero while its neighbours were
-		// over-estimated.
-		for (const id of ['look', 'reviews', 'everyone', 'educators', 'developers', 'soundtrack', 'updates', 'faq', 'get'])
-			expect(block, `#${id}`).toContain(`#${id}{contain-intrinsic-size:`);
+	/* THE PLACEHOLDERS ARE GONE, AND STAYING GONE IS THE ASSERTION.
+	 *
+	 * `content-visibility: auto` with a hand-measured `contain-intrinsic-size`
+	 * broke this nav twice, the same way both times: a placeholder is a promise
+	 * about a section's height made before it is laid out, the promise was
+	 * measured at one width, and at any other width the document's height is wrong
+	 * and a nav link scrolls to an offset computed from a wrong number.
+	 *
+	 *   • Measured at 412px, applied at every width. On a desktop the sections are
+	 *     half as tall, the document claimed ~12,900px, and every link below
+	 *     Accessibility landed at the footer.
+	 *   • Scoped to phone widths, still measured at 412px, run at 390px. #look
+	 *     over-reported by 1,173px and six others under-reported by 109px each.
+	 *     Chrome re-anchors after the estimates resolve and hides it; Safari does
+	 *     not. On an iPhone, "Get the game" landed 2,482px short.
+	 *
+	 * If it ever comes back it needs a size per breakpoint or a script that
+	 * re-runs scrollIntoView once the sections resolve. Not another measurement at
+	 * one width. */
+	it('does not size sections with numbers measured at one width', () => {
+		// Declarations, not the words: the note explaining why this is gone says
+		// both of them, and a test that its own explanation trips is a test that
+		// gets deleted rather than read.
+		const css = html.replace(/\/\*[\s\S]*?\*\//g, '');
+		expect(css).not.toMatch(/content-visibility\s*:/);
+		expect(css).not.toMatch(/contain-intrinsic-size\s*:/);
 	});
 
 	it('and every anchor clears the sticky nav when you land on it', () => {
