@@ -38,7 +38,18 @@ export default defineConfig({
 			provider: 'v8',
 			reportsDirectory: './coverage',
 			include: ['src/**/*.{ts,tsx}', 'server/**/*.ts'],
-			exclude: ['src/**/*.d.ts', 'src/main.tsx', 'src/game/**', 'src/ui/**'],
+			// The Phaser-bound game modules can't be instantiated without a WebGL
+			// context, so they stay out. The two that hold the game's RULES are pure
+			// and testable, and are deliberately counted.
+			exclude: [
+				'src/**/*.d.ts',
+				'src/main.tsx',
+				'src/game/WorldScene.ts',
+				'src/game/sprites/**',
+				'src/game/PhaserGame.tsx',
+				'src/game/bridge.ts',
+				'src/ui/**',
+			],
 		},
 	},
 });
