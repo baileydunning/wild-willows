@@ -6,11 +6,13 @@
 // Split out of the single server/resources.ts; see that file for the whole map.
 
 import { pageLastmod } from './page-lastmod';
+import { DEFAULT_LOCALE, PAGE_ALTERNATES, PUBLIC_PAGES, SITE_ORIGIN } from './site-pages';
 import {
 	ageRatingHtml,
 	buildStamp,
 	dashboardHtml,
 	developersApiHtml,
+	landingEsHtml,
 	landingHtml,
 	learnCodeBuilderHtml,
 	learnIndexHtml,
@@ -78,10 +80,14 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
 }
 
 /**
- * Every public URL this Harper serves, in ONE table — because two lists that
- * have to agree with each other eventually won't, and the failure is silent: a
- * page added to the site but forgotten in the sitemap just quietly never gets
- * indexed.
+ * Every public URL this Harper serves — its path, whether it redirects, whether
+ * it is in the sitemap, and which pages are translations of one another — comes
+ * from ONE table: scripts/site-pages.mjs, generated into server/site-pages.ts by
+ * `npm run build:server` and imported above.
+ *
+ * It is one table because two that have to agree with each other eventually
+ * won't, and the failure is silent: a page added to the site but forgotten in
+ * the sitemap just quietly never gets indexed.
  *
  * `redirect` — requests for this path arriving on the ORIGIN hostname are 301'd
  * to the apex. Background: wildwillows.app is a proxied CNAME to this Harper, so
@@ -93,61 +99,13 @@ function compressedPage(key: string, html: string, enc: 'br' | 'gzip'): Uint8Arr
  * The flag is on individual paths, and NOT a blanket "redirect all HTML", for
  * one reason: the desktop app, the itch build and the browser demo all call this
  * Harper cross-origin BY ITS REAL HOSTNAME. A 301 on those endpoints would break
- * every one of them. Only what is listed here can ever redirect.
+ * every one of them. Only what the table lists can ever redirect.
  *
- * `sitemap` — the path is listed in /sitemap.xml.
- *
- * Two flags rather than one because they genuinely diverge: the dashboard wants
- * neither, and a future noindex page would want the redirect without the
- * listing. Keeping them distinct means neither decision has to be re-derived.
+ * `sitemap` — the path is listed in /sitemap.xml. Two flags rather than one
+ * because they genuinely diverge: the dashboard wants neither, and a noindex
+ * page wants the redirect without the listing.
  */
-const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: boolean }> = {
-	landing: { path: '/', redirect: true, sitemap: true },
-	privacy: { path: '/privacy.html', redirect: true, sitemap: true },
-	'age-rating': { path: '/age-rating.html', redirect: true, sitemap: true },
-	support: { path: '/support.html', redirect: true, sitemap: true },
-	// Extensionless on purpose: this one is not a store-listing URL that anything
-	// external already points at, so it gets the cleaner path teachers will type
-	// and share. Harper serves /teachers.html too (it strips the suffix), which
-	// costs nothing and cannot be linked to by accident.
-	teachers: { path: '/teachers', redirect: true, sitemap: true },
-	// The two kits the hub leads to. /teachers stays a 200 and keeps its equity:
-	// it is an established URL printed in both PDFs and linked externally, so it
-	// changes job rather than changing address.
-	'teachers-science': { path: '/teachers/science', redirect: true, sitemap: true },
-	'teachers-coding': { path: '/teachers/coding', redirect: true, sitemap: true },
-	// The API docs. /developers serves the same document and is deliberately NOT
-	// listed: two URLs in a sitemap for one page is the split-signal problem the
-	// comment at the top of this table is about. The page's canonical says which
-	// of the two is the real one.
-	'developers-api': { path: '/developers/api', redirect: true, sitemap: true },
-	// The classroom student pages live under /learn/<slug>, resolved by ONE
-	// resource reading getId() — the same shape /img/<name>.webp already uses.
-	// The builder is `noindex` in its own <head> (it is a tool, not a document,
-	// and an indexed code editor competes with the lesson that explains it), so
-	// it is deliberately absent from the sitemap while still canonicalising to
-	// the apex like every other page.
-	'learn-code-builder': { path: '/learn/code-builder', redirect: true, sitemap: false },
-	// The lesson, unlike the builder, IS a document — nine chapters of teachable
-	// prose that a teacher searching for "high school API lesson" should be able
-	// to find. Indexable and in the sitemap; the builder it hands off to is not.
-	'learn-web-development': { path: '/learn/web-development', redirect: true, sitemap: true },
-	// The hub the two student pages hang off. Indexable: "learn javascript with a
-	// real api" is a thing people search for, and this is the page that answers it
-	// for someone who has not heard of the game.
-	learn: { path: '/learn', redirect: true, sitemap: true },
-	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
-	// the only thing on the site aimed squarely at teachers searching for a
-	// classroom ecology resource. No redirect: they are not served through
-	// htmlPage(), so nothing would read the flag.
-	'educator-guide': { path: '/educator-guide.pdf', redirect: false, sitemap: true },
-	'student-worksheets': { path: '/student-worksheets.pdf', redirect: false, sitemap: true },
-	// Neither. The metrics dashboard is noindex, is reached by URL on the origin,
-	// and redirecting it would strip the Authorization header on the way.
-	dashboard: { path: '/dashboard', redirect: false, sitemap: false },
-};
 const ORIGIN_HOSTNAME = 'wild.willows.harperfabric.com';
-const SITE_ORIGIN = 'https://wildwillows.app';
 
 /**
  * One of the inlined HTML pages, content-negotiated and revalidatable.
@@ -177,7 +135,7 @@ function htmlPage(res: any, key: string, html: string, opts: { private?: boolean
 	const reqHeaders: any = res?.getContext?.()?.headers;
 	if (!reqHeaders || typeof reqHeaders.get !== 'function') return { status: 200, headers, body: html };
 
-	// Origin hostname -> apex. See PUBLIC_PAGES above for why this is a table
+	// Origin hostname -> apex. See the note above PUBLIC_PAGES for why this is a table
 	// lookup and not a blanket rule.
 	const page = PUBLIC_PAGES[key];
 	const canonicalPath = page?.redirect ? page.path : undefined;
@@ -212,6 +170,32 @@ function htmlPage(res: any, key: string, html: string, opts: { private?: boolean
 			body: compressedPage(key, html, 'gzip'),
 		};
 	return { status: 200, headers, body: html };
+}
+
+/**
+ * The body every section resource shares.
+ *
+ * Harper resolves the FIRST path segment to a resource and hands the rest to
+ * getId(), so one resource covers a whole section and the section's own URL is
+ * the empty slug rather than a second export.
+ *
+ * Unknown slugs 404 from an explicit map rather than falling through to a
+ * default page: a typo'd link a teacher hands thirty students should say so
+ * plainly, not silently serve them the wrong lesson.
+ */
+function sectionPage(res: any, pages: Record<string, { key: string; html: string }>) {
+	const slug = String(res.getId?.() || '')
+		.trim()
+		.replace(/^\/+|\/+$/g, '');
+	const page = Object.prototype.hasOwnProperty.call(pages, slug) ? pages[slug] : null;
+	if (!page) {
+		return {
+			status: 404,
+			headers: { 'content-type': 'text/plain; charset=utf-8' },
+			body: 'Not found',
+		};
+	}
+	return htmlPage(res, page.key, page.html);
 }
 
 /** GET /privacy.html — the privacy policy (linked from App Store Connect, itch, etc.). */
@@ -299,18 +283,7 @@ const TEACHER_PAGES: Record<string, { key: string; html: string }> = {
 
 export class TeachersPage extends PublicEndpoint {
 	async get() {
-		const slug = String((this as any).getId?.() || '')
-			.trim()
-			.replace(/^\/+|\/+$/g, '');
-		const page = Object.prototype.hasOwnProperty.call(TEACHER_PAGES, slug) ? TEACHER_PAGES[slug] : null;
-		if (!page) {
-			return {
-				status: 404,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-				body: 'Not found',
-			};
-		}
-		return htmlPage(this, page.key, page.html);
+		return sectionPage(this, TEACHER_PAGES);
 	}
 }
 
@@ -354,35 +327,13 @@ const DEVELOPER_PAGES: Record<string, { key: string; html: string }> = {
 
 export class DevelopersPage extends PublicEndpoint {
 	async get() {
-		const slug = String((this as any).getId?.() || '')
-			.trim()
-			.replace(/^\/+|\/+$/g, '');
-		const page = Object.prototype.hasOwnProperty.call(DEVELOPER_PAGES, slug) ? DEVELOPER_PAGES[slug] : null;
-		if (!page) {
-			return {
-				status: 404,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-				body: 'Not found',
-			};
-		}
-		return htmlPage(this, page.key, page.html);
+		return sectionPage(this, DEVELOPER_PAGES);
 	}
 }
 
 export class LearnPage extends PublicEndpoint {
 	async get() {
-		const slug = String((this as any).getId?.() || '')
-			.trim()
-			.replace(/^\/+|\/+$/g, '');
-		const page = Object.prototype.hasOwnProperty.call(LEARN_PAGES, slug) ? LEARN_PAGES[slug] : null;
-		if (!page) {
-			return {
-				status: 404,
-				headers: { 'content-type': 'text/plain; charset=utf-8' },
-				body: 'Not found',
-			};
-		}
-		return htmlPage(this, page.key, page.html);
+		return sectionPage(this, LEARN_PAGES);
 	}
 }
 
@@ -395,6 +346,34 @@ export class LearnPage extends PublicEndpoint {
 export class LandingPage extends PublicEndpoint {
 	async get() {
 		return htmlPage(this, 'landing', landingHtml);
+	}
+}
+
+/**
+ * GET /es/ — the Spanish site.
+ *
+ * The GAME has shipped full Spanish for a while: app, panels, narrative, server
+ * strings and the whole data-content overlay in src/i18n/es. Until this resource
+ * existed none of that was findable by anyone searching in Spanish, because
+ * every public URL was in English and told crawlers so.
+ *
+ * Same getId() dispatch as /teachers and /learn, so the whole language is one
+ * resource and /es/ itself is the empty slug. Adding a translated page is a row
+ * in scripts/site-pages.mjs and a line in this map; hreflang, the sitemap entry
+ * and the language-link check all follow from the table without being touched.
+ *
+ * Nothing here sniffs Accept-Language, and nothing redirects a visitor into it.
+ * Google asks explicitly that sites not auto-switch language on a guess, and a
+ * visitor bounced into a language they did not choose often cannot get back.
+ * The footer link is the way in, in both directions.
+ */
+const SPANISH_PAGES: Record<string, { key: string; html: string }> = {
+	'': { key: 'landing-es', html: landingEsHtml },
+};
+
+export class SpanishPage extends PublicEndpoint {
+	async get() {
+		return sectionPage(this, SPANISH_PAGES);
 	}
 }
 
@@ -602,7 +581,8 @@ export class RobotsTxt extends PublicEndpoint {
 }
 
 /**
- * GET /sitemap.xml — the four public pages plus the two classroom PDFs.
+ * GET /sitemap.xml — every page the table marks `sitemap`, plus the two
+ * classroom PDFs, each carrying its translations as xhtml:link alternates.
  *
  * What is deliberately NOT here:
  *
@@ -627,6 +607,22 @@ export class SitemapXml extends PublicEndpoint {
 		const xml = (s: string) =>
 			s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
+		// Alternates, for the URLs that have a translation. This says the same thing
+		// the pages' own <link rel="alternate"> tags say — Google treats the two as
+		// equivalent and gains nothing from both — but they are generated from the
+		// same table, so they cannot contradict each other, and the sitemap is the
+		// copy that keeps working when a page is fetched by something that never
+		// parses the <head>. Every entry lists ITSELF as well as its siblings:
+		// hreflang that is not reciprocal is ignored outright.
+		const alternatesFor = (group: string) => {
+			const alts = PAGE_ALTERNATES[group];
+			if (!alts) return '';
+			const fallback = alts.find((a) => a.locale === DEFAULT_LOCALE);
+			const link = (hreflang: string, path: string) =>
+				`\t\t<xhtml:link rel="alternate" hreflang="${xml(hreflang)}" href="${xml(SITE_ORIGIN + path)}"/>\n`;
+			return alts.map((a) => link(a.locale, a.path)).join('') + (fallback ? link('x-default', fallback.path) : '');
+		};
+
 		const entries = Object.values(PUBLIC_PAGES)
 			.filter((p) => p.sitemap)
 			.map((p) => {
@@ -635,6 +631,7 @@ export class SitemapXml extends PublicEndpoint {
 					'\t<url>\n' +
 					`\t\t<loc>${xml(SITE_ORIGIN + p.path)}</loc>\n` +
 					(lastmod ? `\t\t<lastmod>${lastmod}</lastmod>\n` : '') +
+					alternatesFor(p.group) +
 					'\t</url>\n'
 				);
 			})
@@ -642,7 +639,8 @@ export class SitemapXml extends PublicEndpoint {
 
 		const body =
 			'<?xml version="1.0" encoding="UTF-8"?>\n' +
-			'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' +
+			'<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"' +
+			' xmlns:xhtml="http://www.w3.org/1999/xhtml">\n' +
 			entries +
 			'</urlset>\n';
 

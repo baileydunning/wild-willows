@@ -390,6 +390,17 @@
 	margin-bottom: 0.35rem;
 }
 
+/* ------------------------------------------------------ standards mapping
+ *
+ * The chip rows in the standards section are labeled groups (practices, then
+ * crosscutting concepts), so the label of the SECOND group needs air above it
+ * or it reads as belonging to the first. .tmeta itself has no bottom margin
+ * because the hero uses it flush against the buttons. */
+
+.tsec .tmeta + p.sub {
+	margin-top: 1rem;
+}
+
 /* --------------------------------------------------------- troubleshooting */
 
 .ltable-scroll {

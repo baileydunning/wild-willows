@@ -102,6 +102,7 @@ export {
 // /educator-guide.pdf resolves whether or not Harper trims the suffix first.
 export {
 	LandingPage as home,
+	SpanishPage as es,
 	PrivacyPage as privacy,
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,

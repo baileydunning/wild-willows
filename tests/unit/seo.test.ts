@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
-import { serverSource } from '../serverSource';
+import { SITE_PAGES } from '../../scripts/site-pages.mjs';
 
 /**
  * WHAT A SEARCH RESULT IS MADE OF, checked on every public page.
@@ -140,9 +140,13 @@ describe('the pages that exist to be found say what they are', () => {
 		// It is a tool, not a document. An indexed editor competes with the lesson
 		// that explains it — and the sitemap has to agree with the page.
 		expect(read('learn-code-builder.html')).toContain('content="noindex, follow"');
-		const resources = serverSource();
-		expect(resources).toMatch(
-			/'learn-code-builder': \{ path: '\/learn\/code-builder', redirect: true, sitemap: false \}/,
-		);
+		// Asked of the URL table itself (scripts/site-pages.mjs), which is what the
+		// sitemap is generated from — rather than pattern-matched out of the
+		// generated source, where a reformat could break the test without breaking
+		// anything real, or fix the test without fixing anything real.
+		const builder = SITE_PAGES.find((p: any) => p.path === '/learn/code-builder');
+		expect(builder, 'no /learn/code-builder row in scripts/site-pages.mjs').toBeTruthy();
+		expect(builder.sitemap, 'a noindex page must stay out of the sitemap').toBe(false);
+		expect(builder.redirect, 'it still canonicalises to the apex').toBe(true);
 	});
 });
