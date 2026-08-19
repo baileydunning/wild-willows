@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { serverSource } from '../serverSource';
 
 /**
  * WHAT A SEARCH RESULT IS MADE OF, checked on every public page.
@@ -139,7 +140,7 @@ describe('the pages that exist to be found say what they are', () => {
 		// It is a tool, not a document. An indexed editor competes with the lesson
 		// that explains it — and the sitemap has to agree with the page.
 		expect(read('learn-code-builder.html')).toContain('content="noindex, follow"');
-		const resources = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+		const resources = serverSource();
 		expect(resources).toMatch(
 			/'learn-code-builder': \{ path: '\/learn\/code-builder', redirect: true, sitemap: false \}/,
 		);

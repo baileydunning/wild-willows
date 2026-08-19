@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
+import { serverSource } from '../serverSource';
 import { resolve } from 'node:path';
 import { freshWorld, type World } from './harness';
 
@@ -80,7 +81,7 @@ describe('the catalog is rate limited', () => {
 		 * refills at one a second. It clears that class twice over and refuses a
 		 * sustained pull, which at half a megabyte a response is the thing worth
 		 * refusing: 600/min was 4.3 GB an hour from a single address. */
-		const src = readFileSync(resolve(__dirname, '../../server/resources.ts'), 'utf8');
+		const src = serverSource();
 		const m = /catalog: \{ perMinute: (\d+), burst: (\d+) \}/.exec(src);
 		expect(m).toBeTruthy();
 		const perMinute = Number(m![1]);

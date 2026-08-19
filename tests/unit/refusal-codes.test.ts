@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { readFileSync } from 'node:fs';
-import { resolve } from 'node:path';
+import { serverFiles } from '../serverSource';
 
 // Every refusal carries its message KEY, not just its translated text, because
 // the text is already localized by the time it's raised — counting that would
@@ -12,7 +11,10 @@ import { resolve } from 'node:path';
 // at runtime can catch that, since an untagged refusal still works perfectly for
 // the player. So check the source.
 
-const SRC = readFileSync(resolve(__dirname, '../../server/resources.ts'), 'utf8');
+// Every authored server module, not just the entry file: the refusals are
+// raised all over the layer, and a scan pinned to one file would pass by
+// seeing almost none of them.
+const FILES = serverFiles();
 
 /** Index of the ')' matching the '(' at `open`, skipping string contents. */
 function matchParen(src: string, open: number): number {
@@ -63,17 +65,20 @@ function splitArgs(args: string): string[] {
 interface Site {
 	key: string | null;
 	code: string | null;
-	line: number;
+	/** `server/<module>.ts:<line>`, so a failure points at the throw site. */
+	at: string;
 }
 
 function refusalSites(): Site[] {
 	const sites: Site[] = [];
-	for (const m of SRC.matchAll(/new GameError\(/g)) {
-		const open = m.index! + m[0].length - 1;
-		const args = splitArgs(SRC.slice(open + 1, matchParen(SRC, open)));
-		const key = args[0]?.match(/^\s*tr\(\s*'([^']+)'/)?.[1] ?? null;
-		const code = args[2]?.trim().match(/^'([^']+)'$/)?.[1] ?? null;
-		sites.push({ key, code, line: SRC.slice(0, m.index!).split('\n').length });
+	for (const { path, src } of FILES) {
+		for (const m of src.matchAll(/new GameError\(/g)) {
+			const open = m.index! + m[0].length - 1;
+			const args = splitArgs(src.slice(open + 1, matchParen(src, open)));
+			const key = args[0]?.match(/^\s*tr\(\s*'([^']+)'/)?.[1] ?? null;
+			const code = args[2]?.trim().match(/^'([^']+)'$/)?.[1] ?? null;
+			sites.push({ key, code, at: `${path}:${src.slice(0, m.index!).split('\n').length}` });
+		}
 	}
 	return sites;
 }
@@ -86,7 +91,7 @@ describe('refusal codes', () => {
 	});
 
 	it('tags every refusal with the key of the message it shows', () => {
-		const untagged = sites.filter((s) => s.key && !s.code).map((s) => `resources.ts:${s.line}`);
+		const untagged = sites.filter((s) => s.key && !s.code).map((s) => s.at);
 		expect(
 			untagged,
 			`these refusals would be counted as "unknown" on the dashboard:\n  ${untagged.join('\n  ')}`,
@@ -98,7 +103,7 @@ describe('refusal codes', () => {
 		// it silently inflates another reason's count and hides its own.
 		const mismatched = sites
 			.filter((s) => s.key && s.code && s.key !== s.code)
-			.map((s) => `resources.ts:${s.line} shows ${s.key} but counts as ${s.code}`);
+			.map((s) => `${s.at} shows ${s.key} but counts as ${s.code}`);
 		expect(mismatched, mismatched.join('\n  ')).toEqual([]);
 	});
 
@@ -106,7 +111,9 @@ describe('refusal codes', () => {
 		// The counter lives in the constructor precisely so a refusal cannot be
 		// raised without being recorded. If that moves to a dispatch layer, the next
 		// endpoint that forgets to call it goes silent.
-		const ctor = SRC.slice(SRC.indexOf('class GameError extends Error'));
+		const src = FILES.find((f) => f.src.includes('class GameError extends Error'))?.src;
+		expect(src, 'GameError should be declared in server/').toBeTruthy();
+		const ctor = src!.slice(src!.indexOf('class GameError extends Error'));
 		expect(ctor.slice(0, ctor.indexOf('\n}'))).toMatch(/noteRefusal\(/);
 	});
 });

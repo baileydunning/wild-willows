@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { serverSource } from '../serverSource';
 
 // /developers/api — the public-API documentation.
 //
@@ -137,8 +138,8 @@ describe('the page is honest about what it is', () => {
 describe('the documented rate limit is the one the server enforces', () => {
 	// A docs page that states a limit the code does not have is worse than one
 	// that says nothing: somebody sizes their client against it. This reads the
-	// tier out of server/resources.ts and checks the page against it.
-	const RESOURCES = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+	// tier out of the server source and checks the page against it.
+	const RESOURCES = serverSource();
 	const tier = /catalog: \{ perMinute: (\d+), burst: (\d+) \}/.exec(RESOURCES);
 
 	it('the catalog has a tier of its own', () => {
@@ -189,7 +190,7 @@ describe('the site points at it', () => {
 	});
 
 	it('with a target the beacon endpoint accepts', () => {
-		const RESOURCES = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+		const RESOURCES = serverSource();
 		const list = /const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\]\)/.exec(RESOURCES);
 		expect(list![1]).toContain("'api-docs'");
 	});
@@ -257,7 +258,7 @@ describe('the docs do not oversell what a repeat costs', () => {
 	it('publishes the shared-cache window the server actually sends', () => {
 		// The origin's own header is the authority for the EDGE window, so that
 		// number is read from source rather than trusted.
-		const resources = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+		const resources = serverSource();
 		const m = /const cacheControl = '([^']+)';/.exec(resources);
 		expect(m, 'GameData should set a cache-control it can be checked against').toBeTruthy();
 		expect(m![1]).toContain('s-maxage=86400');

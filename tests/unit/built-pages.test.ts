@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { join } from 'node:path';
+import { serverSource } from '../serverSource';
 
 // Does the page a browser receives actually parse?
 //
@@ -268,7 +269,7 @@ describe('the landing page routes to the rest of the site', () => {
 		// counter still moves and says nothing. See LANDING_CLICK_TARGETS.
 		const targets = new Set([...html.matchAll(/data-track="([a-z-]+)"/g)].map((m) => m[1]));
 		expect(targets.has('learn-nav')).toBe(true);
-		const RESOURCES = readFileSync(join(root, 'server/resources.ts'), 'utf8');
+		const RESOURCES = serverSource();
 		const list = /const LANDING_CLICK_TARGETS = new Set\(\[([\s\S]*?)\]\)/.exec(RESOURCES);
 		expect(list, 'LANDING_CLICK_TARGETS should be findable').toBeTruthy();
 		for (const t of targets) expect(list![1], `data-track="${t}" is not allowlisted`).toContain(`'${t}'`);

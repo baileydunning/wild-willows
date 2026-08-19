@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { serverSource } from '../serverSource';
 
 // "Does the dashboard show it?" is a question about four files that have to agree:
 // a preference is declared in prefs.ts, uplinked by metricsUplink.ts, rolled up in
@@ -12,7 +13,7 @@ import { resolve } from 'node:path';
 const read = (p: string) => readFileSync(resolve(__dirname, '../../', p), 'utf8');
 const PREFS = read('src/prefs.ts');
 const UPLINK = read('src/solo/metricsUplink.ts');
-const SERVER = read('server/resources.ts');
+const SERVER = serverSource();
 const DASHBOARD = read('public/dashboard.html');
 
 /** The body of a `name: { … }` / `function name() { … }` block, brace-matched. */

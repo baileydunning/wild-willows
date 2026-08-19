@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { LAYERS } from '../serverSource';
 
 // The website is written in American English. It had drifted: 120-odd British
 // spellings across the pages, the stylesheets, the dashboard and the server's
@@ -79,7 +80,7 @@ const FILES = [
 		.filter((f) => f.endsWith('.html'))
 		.map((f) => join('public', f)),
 	...readdirSync(resolve(root, 'public/partials')).map((f) => join('public/partials', f)),
-	'server/resources.ts',
+	...LAYERS.map((m) => `server/${m}.ts`),
 ];
 
 describe('the website is written in American English', () => {

@@ -1,6 +1,7 @@
 import { describe, it, expect, afterEach, beforeEach } from 'vitest';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
+import { serverSource } from '../serverSource';
 
 /**
  * A FUNNEL STEP CANNOT EXCEED THE STEP ABOVE IT.
@@ -27,7 +28,7 @@ import { resolve } from 'node:path';
 const root = process.cwd();
 const RUNNER = readFileSync(resolve(root, 'public/partials/ww-runner.js'), 'utf8');
 const BUILDER = readFileSync(resolve(root, 'public/partials/ww-builder.js'), 'utf8');
-const SERVER = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+const SERVER = serverSource();
 
 /** A fresh copy of the component, so its page-scoped flags start clean. */
 function freshRunner(): any {
@@ -116,7 +117,7 @@ describe('the two strands each nest inside their own entry point', () => {
 	/** The step ids the server sends, in order, for one named funnel array. */
 	const stepsOf = (name: string): string[] => {
 		const at = SERVER.indexOf(`const ${name} = [`);
-		expect(at, `${name} not found in server/resources.ts`).toBeGreaterThan(-1);
+		expect(at, `${name} not found anywhere in server/`).toBeGreaterThan(-1);
 		const body = SERVER.slice(at, SERVER.indexOf('\n\t];', at));
 		return [...body.matchAll(/\{ id: '([^']+)', label: '[^']*', n: step\('([^']+)'\) \}/g)].map(
 			(m) => `${m[1]}:${m[2]}`,
