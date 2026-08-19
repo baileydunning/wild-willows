@@ -118,6 +118,7 @@
   <div class="links">
     <a class="hide-sm" href="/teachers" data-track="edu-nav">All kits</a>
     <a class="hide-sm" href="#flow">Lesson flow</a>
+    <a class="hide-sm" href="#standards">Standards</a>
     <a class="hide-sm" href="#trouble">Troubleshooting</a>
     <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Open the Lesson</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
@@ -180,6 +181,90 @@
     <li>Modify all three files to build a webpage of their own</li>
   </ul>
   <p class="sub">The looping objective is the one that separates this from a typical intro lesson. Most stop at displaying a single value; chapter 8 is where students stop copying and start asking their own questions of the data.</p>
+</section>
+
+<section class="tsec" id="standards">
+  <h2>Standards this supports</h2>
+  <p>Every code below was checked against the published standard rather than written from memory, and each row says <b>which chapter actually does it</b>. Where the fit is partial, the row says so.</p>
+  <p class="sub"><b>Read this first if you are matching a district curriculum map.</b> CSTA published a full revision in July 2026, and it renumbered everything: the <code>3A</code> and <code>3B</code> levels are gone, replaced by a single <code>HS</code> band for grades 9&ndash;12. Most curriculum maps in use today still cite the 2017 codes, so both are below &mdash; 2026 first, with its 2017 predecessor beside it. CSTA publishes an <a href="https://csteachers.org/pk12standards/resources/">official crosswalk</a> between the two.</p>
+
+  <h3>CSTA 2026 &mdash; the codes this lesson meets</h3>
+  <p class="sub">High school band, grades 9&ndash;12. &ldquo;Was&rdquo; gives the closest 2017 code, per CSTA&rsquo;s crosswalk.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Code</th><th>Was</th><th>What it asks for</th><th>Where the lesson does it</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="tight">HS&#8209;PRO&#8209;PD&#8209;13</td>
+          <td class="tight">3B&#8209;AP&#8209;16</td>
+          <td>Use documentation, libraries and APIs as part of building a program.</td>
+          <td><b>Chapters 4 and 5</b>, and the closest thing here to a bullseye &mdash; the standard names APIs outright. Chapter 4 makes a real request over your school&rsquo;s own network and reports its status, timing and size; chapter 5 is <code>fetch()</code>. The <a href="/developers/api">field reference</a> is the documentation half.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;PRO&#8209;VD&#8209;16</td>
+          <td class="tight">3A&#8209;AP&#8209;14</td>
+          <td>Write a program that uses appropriate data structures to store, reach and manipulate data.</td>
+          <td><b>Chapters 6 and 8.</b> Chapter 6 is reading values out of nested objects and arrays by path; chapter 8 is <code>.filter()</code>, <code>.map()</code> and <code>.sort()</code> over about 150 animal records, with <code>.reduce()</code> marked as a stretch.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;PRO&#8209;RD&#8209;17</td>
+          <td class="tight">&mdash; new in 2026</td>
+          <td>Analyze how a piece of code works, including what its parameters, return values and data structures are doing.</td>
+          <td><b>The debugging material, which had no home in the 2017 standards at all.</b> The <a href="#answers">broken version with three planted bugs</a> is a reading-and-diagnosis exercise, not a writing one; the editor&rsquo;s error panel names the line and explains the problem in English; and chapter 1 opens on how to read code you did not write.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;ALG&#8209;PS&#8209;02</td>
+          <td class="tight">3A&#8209;AP&#8209;15,&nbsp;&#8209;17,&nbsp;&#8209;18</td>
+          <td>Refine an algorithm&rsquo;s design using control structures and procedural abstraction.</td>
+          <td><b>Chapters 7 and 8.</b> <code>if</code> / <code>else</code>, comparisons, truthiness and the empty-state guard; then chaining methods together in chapter 8 and asking which order is readable. Three separate 2017 codes collapse into this one.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;PRO&#8209;PD&#8209;12</td>
+          <td class="tight">3B&#8209;AP&#8209;14</td>
+          <td>Build a modular program, using procedures, external libraries or objects so it can be reused and read.</td>
+          <td><b>Chapter 10, in the Code Builder.</b> Three files &mdash; <code>index.html</code>, <code>styles.css</code>, <code>main.js</code> &mdash; is the separation of concerns argument made concrete, and students have to keep all three consistent for anything to render.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;PRO&#8209;TR&#8209;20</td>
+          <td class="tight">3A&#8209;AP&#8209;21,&nbsp;&#8209;19</td>
+          <td>Refine what you built based on testing, user feedback and responsible design values.</td>
+          <td><b>The Run loop, all lesson.</b> Nothing runs until a student says so, and the error panel turns a failure into the next edit inside the same minute. The <b>Creative</b> band of the assessment below asks for a page that communicates something rather than only displaying it, which is where the design values land.</td>
+        </tr>
+        <tr>
+          <td class="tight">HS&#8209;SYS&#8209;NT&#8209;35</td>
+          <td class="tight">3A&#8209;NI&#8209;04</td>
+          <td>Analyze how the internet works as a network of networks, and how it differs from other networks.</td>
+          <td><b>Partial, and honestly so.</b> Chapter 4 shows a request crossing a real network and coming back, and the <a href="#trouble">&ldquo;Failed to fetch&rdquo; row</a> is a genuine lesson in what sits between the browser and the server. What the lesson does not teach is routing, addressing or topology. Claim it only if you teach that part yourself.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>The 2017 code with no 2026 successor</h3>
+  <p>If your curriculum map is still on the 2017 standards, this one is worth claiming, because it is the best single match in that version for the part of the lesson that most reliably works &mdash; and CSTA dropped it.</p>
+  <div class="ltable-scroll">
+    <table class="trouble">
+      <thead><tr><th>Code</th><th>What it asks for</th><th>Where the lesson does it</th></tr></thead>
+      <tbody>
+        <tr>
+          <td class="tight">3A&#8209;CS&#8209;03</td>
+          <td>Write down systematic troubleshooting strategies that other people can use to find and fix errors.</td>
+          <td><b>The whole debugging spine:</b> the error panel, the three planted bugs, and the <a href="#trouble">troubleshooting table</a> on this page. CSTA retired the standalone Troubleshooting sub-concept in 2026 and mapped this code to nothing; under the new standards the nearest home is HS&#8209;PRO&#8209;RD&#8209;17 above.</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>What this lesson does not cover</h3>
+  <p>Codes that look like they should fit and do not. Listed because a mapping is only useful if it can be trusted where it does claim something.</p>
+  <ul class="tlist">
+    <li><b>Collaboration and documentation.</b> 2017&rsquo;s 3A&#8209;AP&#8209;22 wants team roles and collaborative tools; 3A&#8209;AP&#8209;23 wants documented design decisions for complex programs. This is individual work in a browser editor, so neither is met unless you add it.</li>
+    <li><b>Data and analysis.</b> Rendering fetched records into a list is not a data visualization, and reading JSON is not building a computational model. CSTA&rsquo;s crosswalk actually maps the visualization standard <i>down</i> to middle school. If your students build charts, revisit this &mdash; otherwise skip the strand.</li>
+    <li><b>Hardware and system software.</b> The three-languages abstraction is real, but it never reaches the operating system, which is what the 2026 successor to 3A&#8209;CS&#8209;02 is explicitly about.</li>
+    <li><b>Cybersecurity.</b> A school filter blocking a domain is a network reality, not malware. Different topic.</li>
+  </ul>
+
+  <p class="sub"><b>Standards text.</b> The descriptions above are written for this page in plain language &mdash; they are not CSTA&rsquo;s official wording. CSTA does not publish per-code links, so read the full text in the <a href="https://csteachers.org/pk12standards/view/">2026 standards viewer</a> or the <a href="https://csteachers.org/2017standards/interactive/">2017 interactive browser</a>. Citations: Computer Science Teachers Association. (2026). <i>2026 CSTA PK&ndash;12 Computer Science Standards</i>. And: Computer Science Teachers Association (2017). <i>CSTA K&ndash;12 Computer Science Standards, Revised 2017</i>. Both are published under a Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International license.</p>
 </section>
 
 <section class="tsec" id="vocab">
