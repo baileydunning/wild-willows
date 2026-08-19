@@ -248,6 +248,33 @@
   <noscript><p class="nojs" style="display:block;margin-top:1rem">JavaScript is switched off, so the editors below will not run. You can still read every chapter: each example is printed in full.</p></noscript>
 </header>
 
+<section class="ch" id="objectives">
+  <div class="ch-head">
+    <span class="ch-num">The destination</span>
+    <h2>By the end, you will be able to</h2>
+    <p class="sub">Ten chapters, and this is what you have at the end of them. A teacher can read this as the objectives; a student can read it as where this is going.</p>
+  </div>
+
+  <ul class="objectives">
+    <li><b>Build a webpage</b> out of HTML elements, and say what each one is for.</li>
+    <li><b>Style it with CSS</b>: select the thing you mean, and change how it looks.</li>
+    <li><b>Change a page with JavaScript</b>: find an element, and rewrite what it says.</li>
+    <li><b>Fetch JSON from a public API</b> with <code>fetch</code>, and explain what a <code>GET</code> request is.</li>
+    <li><b>Read your way through objects and arrays</b> to the value you actually wanted.</li>
+    <li><b>Ask questions of data</b> with <code>if</code>, comparisons, and <code>&amp;&amp;</code> / <code>||</code>.</li>
+    <li><b>Filter, sort and transform a list</b> with <code>.filter()</code>, <code>.sort()</code>, <code>.map()</code>, <code>.find()</code> and <code>.reduce()</code>.</li>
+    <li><b>Handle the times it fails</b>: <code>try</code> / <code>catch</code>, a status code, and an empty result that is not an error.</li>
+    <li><b>Render the response into HTML</b>, and know when that is safe to do.</li>
+    <li><b>Look things up</b> when you need something this page never showed you.</li>
+  </ul>
+
+  <div class="note">
+    <span class="note-t">About the data</span>
+    <p><code>/GameData</code> exposes the data the Wild Willows game runs on. It is here as a <strong>programming dataset</strong> for this lesson: real species, cited sources, and a shape worth practicing on.</p>
+    <p>It is not an academic or scientific ecology API. Diets are simplified to what a game can act on, food webs are a handful of links rather than hundreds, and the <code>requirements</code> that decide when an animal returns are a game designer&rsquo;s model of succession rather than a published one. Use it to learn to write code. Cite something else in a biology report.</p>
+  </div>
+</section>
+
 <!-- ==================================================== looking things up -->
 <section class="ch" id="look-things-up">
   <div class="ch-head">
@@ -275,8 +302,6 @@
       </tbody>
     </table>
   </div>
-
-  <p class="cap">One warning about search results. <b>W3Schools</b> ranks first for almost every question a beginner types, and it is frequently out of date and sometimes quietly wrong. If it is the only page you can reach, use it and check anything surprising against MDN.</p>
 
   <h3>Code you did not write</h3>
 
@@ -992,7 +1017,7 @@ el.innerHTML   = "&lt;b&gt;hello&lt;/b&gt;";   /* shows hello, in bold */</pre>
 
   <div class="note warn">
     <span class="note-t">Quotes mean text</span>
-    <p><code>35</code> is a number you can do arithmetic with. <code>"35"</code> is text that happens to look like a number, and text does not do arithmetic. That distinction comes back in chapter 7, the moment you compare <code>minHealth &gt; 50</code>.</p>
+    <p><code>35</code> is a number you can do arithmetic with. <code>"35"</code> is text that happens to look like a number. JavaScript will sometimes convert between the two for you, and that is exactly why it is worth being deliberate: do not rely on it. If you mean a number, use a number. That distinction comes back in chapter 7, the moment you compare <code>minHealth &gt; 50</code>.</p>
   </div>
 
   <details class="deeper" data-deeper="chapter-4">
@@ -1045,7 +1070,7 @@ JSON.stringify(animal);             /* object -&gt; text, to send or store */</p
   </div>
 
 
-  <p>A <strong>web API</strong> is one of those interfaces reachable at a web address. Wild Willows publishes its at <code>https://wildwillows.app/GameData</code>: ask that address, and it answers with every animal, biome and recipe in the game, written out as text. Your page never touches the game's own database. It only ever sees what the interface hands back, which is why the game can change underneath and your code keeps working.</p>
+  <p>A <strong>web API</strong> is one of those interfaces reachable at a web address. Wild Willows publishes its at <code>https://wildwillows.app/GameData</code>: ask that address, and it answers with every animal, biome and recipe in the game, written out as text. Your page never touches the game's own database. It only ever sees what the interface hands back, which is why the game can be rebuilt underneath and your code keeps working. That holds as long as the interface itself keeps its promises: an API can change what it sends, and when it does, code that depended on the old shape breaks. Good ones say in advance what will not change. Ours does, on the <a href="/developers/api" target="_blank" rel="noopener">API page<span class="sr-only"> (opens in a new tab)</span></a>.</p>
 
   <p><code>fetch</code> is the browser's way of sending that request. On its own it does exactly that and nothing else: ask, and hold on to the answer.</p>
 
@@ -1447,7 +1472,7 @@ else                                    label = "Common";</pre>
     <tbody>
       <tr><td><code>===</code></td><td>is exactly the same as</td><td>text or numbers</td></tr>
       <tr><td><code>!==</code></td><td>is not the same as</td><td>text or numbers</td></tr>
-      <tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td><td>bigger / smaller than</td><td>numbers only</td></tr>
+      <tr><td><code>&gt;</code> <code>&lt;</code> <code>&gt;=</code> <code>&lt;=</code></td><td>bigger / smaller than</td><td>numbers, in this lesson</td></tr>
     </tbody>
   </table>
   </div>
@@ -1604,7 +1629,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
   </div>
 
   <h3><code>for...of</code>: do this for each one</h3>
-  <p>The honest starting point, and the one that reads like English. <strong>This always works and is never wrong.</strong> Everything after it is a shorter way of saying one particular kind of loop, which is worth knowing up front, so the methods below feel like conveniences rather than magic words.</p>
+  <p>The honest starting point, and the one that reads like English. <strong>For a list, this is the default worth reaching for.</strong> It walks anything that comes in order, which covers every piece of game data on this page. A plain object is not one of those, and chapter 6 shows what to use instead. Everything after it is a shorter way of saying one particular kind of loop, which is worth knowing up front, so the methods below feel like conveniences rather than magic words.</p>
 
   <ww-runner label="for...of" console data-concept="iter_for-of">
     <script type="text/ww-file" name="main.js">
@@ -1696,7 +1721,7 @@ const tiles = animal.requirements.water?.tiles ?? 0;</pre>
        <strong>rarity</strong>: <code>common</code> <code>uncommon</code> <code>rare</code><br>
        <strong>kind</strong>: <code>mammal</code> <code>bird</code> <code>fish</code> <code>insect</code> <code>reptile</code> <code>amphibian</code> <code>invertebrate</code><br>
        <strong>trophic</strong>: <code>herbivore</code> <code>insectivore</code> <code>omnivore</code> <code>mesopredator</code> <code>apex-predator</code> <code>detritivore</code> <code>decomposer</code> <code>scavenger</code> <code>filter-feeder</code></p>
-    <p>And the type rule from chapter 4, at the moment it matters: <code>.filter(a =&gt; a.biome === "meadow")</code> compares <strong>text</strong>, so it needs quotes. <code>.filter(a =&gt; a.requirements.minHealth &gt; 50)</code> compares a <strong>number</strong>, so it does not. And <code>"50"</code> in quotes is text, and text does not do arithmetic.</p>
+    <p>And the type rule from chapter 4, at the moment it matters: <code>.filter(a =&gt; a.biome === "meadow")</code> compares <strong>text</strong>, so it needs quotes. <code>.filter(a =&gt; a.requirements.minHealth &gt; 50)</code> compares a <strong>number</strong>, so it does not. And <code>"50"</code> in quotes is text. JavaScript may convert it for you here and refuse to somewhere else, so write the number when you mean the number.</p>
   </div>
 
   <h3><code>.find()</code>: get exactly one</h3>
@@ -2029,7 +2054,7 @@ document.querySelector("#animal-list").innerHTML = items;</pre>
 
   <div class="note warn">
     <span class="note-t">One honest note about <code>innerHTML</code></span>
-    <p><code>innerHTML</code> will run anything it is given. That is fine here, because we are building HTML from data we trust, out of our own API. If the text came from strangers on the internet you would use <code>textContent</code> instead, which puts text on the page and never runs it.</p>
+    <p><code>innerHTML</code> takes whatever you hand it and <strong>parses it as HTML</strong>, which is what makes it useful: your string of <code>&lt;li&gt;</code> tags becomes real elements. It also means the string decides what ends up on the page, tags and all. Building it out of data you trust, from your own API, is fine. Building it out of something a stranger typed is how a page ends up running somebody else's script, an attack with a name: <strong>cross-site scripting</strong>, or XSS. When the text came from a person rather than from you, use <code>textContent</code>, which puts it on the page as text and never as markup.</p>
   </div>
 
   <details class="deeper" data-deeper="chapter-9">

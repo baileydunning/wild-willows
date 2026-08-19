@@ -1105,3 +1105,25 @@ body.lesson {
 	color: var(--ink, #3b4232);
 	white-space: nowrap;
 }
+
+/* THE LEARNING OBJECTIVES, which are a checklist rather than prose.
+ *
+ * Two audiences read this list and neither reads it top to bottom: a teacher
+ * scanning for what the period covers, and a student checking whether the thing
+ * they came for is in here. So it is set close, with the verb in bold doing the
+ * scanning, rather than as ten sentences. */
+.objectives {
+	margin: 0 0 1.2rem;
+	padding-left: 1.15rem;
+	max-width: 46rem;
+	line-height: 1.6;
+	color: var(--ink);
+}
+
+.objectives li {
+	margin-bottom: 0.4rem;
+}
+
+.objectives b {
+	color: var(--green-deep);
+}

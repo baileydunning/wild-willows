@@ -2510,15 +2510,25 @@ function sessionBucket(seconds: number): string {
  * rolls over automatically the first time it's bumped on a new UTC day — no
  * background job needed, and reads just ignore a stale bucket.
  */
+/* HOW MANY ARRIVALS ARE KEPT, and why it is a cap rather than everything.
+ *
+ * One entry per species that has ever come home, so a completionist tops out at
+ * the number of animals in the game. The cap is above that with room for the
+ * game to grow, and it exists so that a bug which re-reports the same arrival
+ * cannot grow a save's record without bound. Oldest go first. */
+const MAX_ARRIVALS = 300;
+
 async function bumpMetrics(
 	player: any,
 	deltas: Record<string, number> = {},
 	dailyDeltas: Record<string, number> = {},
+	/** Species that came home on this call, in the order they arrived. */
+	arrivals: Array<{ id: string; name?: string }> = [],
 ): Promise<any> {
 	if (!player?.id) return null;
 	const entries = Object.entries(deltas).filter(([, v]) => v);
 	const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
-	if (!entries.length && !dailyEntries.length) return readMetrics(player);
+	if (!entries.length && !dailyEntries.length && !arrivals.length) return readMetrics(player);
 	const now = Date.now();
 	// merge onto the freshest row — a single request can bump twice (e.g. a
 	// placement bump plus recalcBiome's health/animal bump) from stale copies.
@@ -2528,7 +2538,33 @@ async function bumpMetrics(
 	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
-	const metrics = { ...prev, counts, lastSeenAt: now };
+	const metrics: any = { ...prev, counts, lastSeenAt: now };
+
+	/* WHEN EACH ANIMAL CAME HOME, measured in play time rather than in dates.
+	 *
+	 * "Three days after they started" says more about their week than about the
+	 * game. "Forty minutes in" is the thing a designer can act on: it is where the
+	 * first arrival lands in a session, whether the second one comes soon enough
+	 * to feel like progress, and how long the last species in a biome takes.
+	 *
+	 * `at` is the play seconds ALREADY accrued, so the first arrival of a brand
+	 * new save reads 0 rather than a heartbeat's worth of noise. One row per
+	 * species: recalcBiome only reports an animal the first time it returns, and
+	 * the guard below keeps a repeat from making it look like it came twice. */
+	if (arrivals.length) {
+		const seen = new Set((prev.arrivals || []).map((a: any) => a && a.id));
+		const at = Math.round(prev.playSeconds || 0);
+		/* The NAME is written beside the id, not derived from it later. An id is a
+		 * slug — "red-tailed-hawk" un-slugs to "Red Tailed Hawk", which is not the
+		 * bird's name — and the dashboard has no copy of the species list to look
+		 * the real one up in. Recording it here also makes the log a history: a
+		 * species renamed next year still reads the way it read the day it came
+		 * home. Older rows carry no name and the dashboard un-slugs those. */
+		const fresh = arrivals
+			.filter((a) => a && a.id && !seen.has(a.id))
+			.map((a) => (a.name ? { id: a.id, name: a.name, at } : { id: a.id, at }));
+		if (fresh.length) metrics.arrivals = [...(prev.arrivals || []), ...fresh].slice(-MAX_ARRIVALS);
+	}
 	// Stamp the first real gameplay action (cosmetic fiddling doesn't count), so
 	// the dashboard can measure onboarding friction (create → first action).
 	if (!prev.firstActionAt && entries.some(([k, v]) => v && !isMetaCounter(k))) {
@@ -2637,6 +2673,11 @@ function metricsView(player: any) {
 		areaSeconds,
 		areaMinutes,
 		mostTimeArea,
+		/* Which species came home, and how far into the playthrough each one did.
+		 * Exposed here rather than only on the hosted row because the solo uplink
+		 * sends THIS object as its snapshot (minus `biomes`), so a desktop save
+		 * reports its arrivals without the client having to know they exist. */
+		arrivals: Array.isArray(m.arrivals) ? m.arrivals : [],
 		// time-per-menu (overlaps the above — see the note where these are read)
 		menuSeconds,
 		menuMinutes,
@@ -3456,9 +3497,15 @@ async function recalcBiome(
 	// against a counts.animalsReturned that under-reported. Bumping at the source
 	// means a new path can't reintroduce the drift.
 	const deltas: Record<string, number> = newAnimals.length ? { animalsReturned: newAnimals.length } : {};
-	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length) {
+	/* The ids, not just the count. Same reasoning as the counter above: this is
+	 * the one place an animal can come home, so it is the only place that can
+	 * record WHICH one and how far into the playthrough it happened. */
+	const arrived = newAnimals
+		.map((a: any) => ({ id: a?.animalId || a?.animal?.id, name: a?.animal?.name }))
+		.filter((a: any) => a.id);
+	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length || arrived.length) {
 		const actor = opts.player || (await safeGet(t.Player, playerId));
-		if (actor) await bumpMetrics(actor, deltas, dailyDeltas);
+		if (actor) await bumpMetrics(actor, deltas, dailyDeltas, arrived);
 	}
 
 	const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
@@ -8669,6 +8716,9 @@ async function buildDashboardRows(): Promise<any[]> {
 				},
 				// new metric fields (defaulted so aggregation is safe on legacy rows)
 				areaSeconds: s.areaSeconds || {},
+				// Empty for every save that predates the log, which the dashboard says
+				// out loud rather than drawing as "no animals have come home".
+				arrivals: Array.isArray(s.arrivals) ? s.arrivals : [],
 				// Menu dwell. Solo and demo saves reach the roll-up through THIS
 				// projection, not through metricsView, so anything the summary reads
 				// has to be lifted out of the snapshot here or it aggregates as empty
@@ -9821,12 +9871,22 @@ async function metricsRollup(target?: any): Promise<{
 			exportPct: demoFinished ? Math.round((endExported / demoFinished) * 100) : 0,
 			storePct: demoFinished ? Math.round((endStore / demoFinished) * 100) : 0,
 		};
+		/* STARTED PLAYING, not "made a character".
+		 *
+		 * Creation alone counts a returning demo player as a bounce, so the step got
+		 * worse as retention improved — the same bug the acquisition funnel already
+		 * had and fixed. `resumed` is a device that opened a save it already had;
+		 * either route means somebody played. Creation is still reported beside it
+		 * for anyone who wants the narrower number. */
+		const demoPlayed = demoDevices.filter((o) => o.converted || o.resumed).length;
 		const demoCompletion = {
 			demoInstalls: demoDevices.length,
+			startedPlaying: demoPlayed,
 			createdCharacter: demoConverted,
 			reachedGoal: demoFinished,
-			// completion rate among demo players who actually made a character
-			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
+			// Completion among demo players who actually started, which is the
+			// population the finish line is available to.
+			completionPct: demoPlayed ? Math.round((demoFinished / demoPlayed) * 100) : 0,
 			nudge: demoNudge,
 			endScreen: demoEnd,
 		};
@@ -9837,7 +9897,7 @@ async function metricsRollup(target?: any): Promise<{
 			editionSplit[k] = (editionSplit[k] || 0) + 1;
 		}
 		/* Per-CHANNEL funnel: how many devices each channel brought, and how
-		 * many of them went on to make a character.
+		 * many of them went on to start playing.
 		 *
 		 * Deliberately not a bare count. Raw device counts across channels are not
 		 * comparable — inside itch's game iframe the device id lives in THIRD-PARTY
@@ -9849,18 +9909,34 @@ async function metricsRollup(target?: any): Promise<{
 		 * 'unknown' is its own bucket: every device that opened the game before
 		 * this shipped has no channel, and folding those into a real one
 		 * would silently inflate whichever one you happened to look at.
+		 *
+		 * `played` is the headline step, not `converted`: a device that came back to
+		 * a save it already had is a player, and counting creation alone made a
+		 * channel look worse the better it retained people. Creation is still
+		 * returned as `converted` for anyone who wants the narrower number.
 		 */
 		const channelSplit: Record<string, any> = {};
 		for (const o of openRows) {
 			const k = String(o.channel || 'unknown');
-			const c = (channelSplit[k] ||= { devices: 0, opens: 0, converted: 0, charactersCreated: 0, conversionPct: 0 });
+			const c = (channelSplit[k] ||= {
+				devices: 0,
+				opens: 0,
+				played: 0,
+				converted: 0,
+				charactersCreated: 0,
+				playedPct: 0,
+				conversionPct: 0,
+			});
 			c.devices++;
 			c.opens += o.opens || 0;
 			c.charactersCreated += o.savesCreated || 0;
 			if (o.converted) c.converted++;
+			if (o.converted || o.resumed) c.played++;
 		}
-		for (const c of Object.values<any>(channelSplit))
+		for (const c of Object.values<any>(channelSplit)) {
 			c.conversionPct = c.devices ? Math.round((c.converted / c.devices) * 100) : 0;
+			c.playedPct = c.devices ? Math.round((c.played / c.devices) * 100) : 0;
+		}
 
 		/* The keyboard gate: devices shown "Wild Willows needs a keyboard".
 		 *

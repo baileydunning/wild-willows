@@ -1,4 +1,4 @@
-import { test, expect, type Page } from '@playwright/test';
+import { test, expect, type Locator, type Page } from '@playwright/test';
 
 /**
  * THE PUBLIC WEBSITE, IN EVERY ENGINE.
@@ -143,6 +143,25 @@ async function settledTop(page: Page, selector: string): Promise<number> {
 	return last;
 }
 
+/**
+ * The "press Run" line, wherever the runner decided to put it.
+ *
+ * An example with a preview draws it over the preview. A console-only one has no
+ * preview panel to draw on, so it says it as the console's own empty-state line
+ * instead of stacking a strip that says "press Run" on top of a console saying
+ * "nothing logged yet". Two placements, one meaning, and a test that asserts on
+ * the placement rather than the meaning breaks every time the placement is
+ * improved — which is exactly what happened.
+ */
+async function waitingMessage(scope: Locator): Promise<string> {
+	const overlay = scope.locator('.wwr-prompt');
+	if ((await overlay.count()) && (await overlay.first().isVisible()))
+		return (await overlay.first().textContent()) || '';
+	const lines = scope.locator('.wwr-console-lines');
+	if (await lines.count()) return (await lines.first().getAttribute('data-empty')) || '';
+	return '';
+}
+
 /** The sticky nav's height, which is what an anchor has to clear. */
 const navBarHeight = (page: Page) =>
 	page
@@ -241,7 +260,7 @@ test.describe('the lesson', () => {
 		// would have been.
 		const fetcher = page.locator('#chapter-5 ww-runner').first();
 		await fetcher.scrollIntoViewIfNeeded();
-		await expect(fetcher.locator('.wwr-prompt')).toContainText(/Press Run/i);
+		expect(await waitingMessage(fetcher), 'chapter 5 should be waiting to be asked').toMatch(/press run/i);
 		expect(errors).toEqual([]);
 	});
 
@@ -320,7 +339,7 @@ test.describe('the code builder', () => {
 		const runner = page.locator('ww-runner');
 		await expect(runner).toBeVisible();
 		await expect(page.getByRole('tab', { name: 'index.html' })).toBeVisible();
-		await expect(runner.locator('.wwr-prompt')).toContainText(/Press Run/i);
+		expect(await waitingMessage(runner), 'the builder should be waiting to be asked').toMatch(/press run/i);
 		expect(errors).toEqual([]);
 	});
 

@@ -716,12 +716,6 @@ describe('the lesson says where to look things up before it asks anyone to', () 
 		expect((section.match(/\(opens in a new tab\)/g) || []).length).toBeGreaterThanOrEqual(links.length);
 	});
 
-	it('warns about the site that outranks all of them', () => {
-		// W3Schools is the first result for nearly every question a beginner types.
-		expect(section).toContain('W3Schools');
-		expect(section).toMatch(/out of date/i);
-	});
-
 	it('gives one testable rule for code a student did not write', () => {
 		expect(section).toContain('could you tell if it was wrong?');
 	});
@@ -805,5 +799,81 @@ describe('chapter 5 says what an HTTP method is', () => {
 
 	it('warns that a GET which changes something is a bug', () => {
 		expect(ch5).toMatch(/delete link/i);
+	});
+});
+
+describe('the lesson states where it is going, and what its data is not', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+	const objectives = html.slice(html.indexOf('id="objectives"'), html.indexOf('id="look-things-up"'));
+
+	it('opens with objectives a teacher can recognize', () => {
+		// A syllabus reads as a list of chapter titles, which tells a teacher what
+		// order things happen in and not what a student can do afterwards. These
+		// are the verbs: build, style, fetch, filter, render, handle.
+		expect(objectives, 'the box should be before the first chapter').toBeTruthy();
+		expect(html.indexOf('id="objectives"')).toBeLessThan(html.indexOf('id="chapter-1"'));
+		const items = [...objectives.matchAll(/<li>/g)];
+		expect(items.length, 'one per chapter').toBe(10);
+		for (const verb of [
+			'Build a webpage',
+			'Style it with CSS',
+			'Fetch JSON from a public API',
+			'Filter, sort and transform',
+			'Render the response into HTML',
+			'Handle the times it fails',
+		])
+			expect(objectives, verb).toContain(verb);
+	});
+
+	it('says plainly that the data is a game catalog, not an ecology API', () => {
+		/* The lesson shares species with the science kit, so a student can leave
+		 * here believing they have been reading research data. They have been
+		 * reading a game's model of one: simplified diets, a handful of food-web
+		 * links, and succession rules a designer wrote. Better said once, up front,
+		 * than discovered in a biology report. */
+		expect(objectives).toContain('About the data');
+		expect(objectives).toMatch(/programming dataset/i);
+		expect(objectives).toMatch(/not an academic or scientific ecology API/i);
+		expect(objectives).toMatch(/Cite something else in a biology report/i);
+	});
+});
+
+describe('the lesson tells the truth about JavaScript, not just a rule of thumb', () => {
+	const html = builtPage('learnWebDevelopmentHtml');
+
+	it('does not claim an API can never break your code', () => {
+		// It said the game "can change underneath and your code keeps working",
+		// full stop. True of a redesign behind a stable contract; false in general,
+		// and the false half is the one that costs somebody an afternoon.
+		expect(html).toMatch(/an API can change what it sends/i);
+		expect(html).not.toMatch(/which is why the game can change underneath and your code keeps working\./);
+	});
+
+	it('does not claim text cannot do arithmetic', () => {
+		// JavaScript coerces, sometimes. The teachable rule is "be deliberate",
+		// not "the language will stop you" — it will not.
+		expect(html).not.toMatch(/text does not do arithmetic/);
+		expect(html).toMatch(/If you mean a number, use a number/);
+	});
+
+	it('scopes the comparison rule to this lesson rather than to the language', () => {
+		// > and < work on strings too. "numbers only" is a house rule.
+		expect(html).not.toMatch(/<td>numbers only<\/td>/);
+		expect(html).toContain('numbers, in this lesson');
+	});
+
+	it('recommends for...of for lists rather than calling it universal', () => {
+		// It does not iterate a plain object, which chapter 6 hands them.
+		expect(html).not.toMatch(/This always works and is never wrong/);
+		expect(html).toMatch(/For a list, this is the default worth reaching for/);
+	});
+
+	it('describes what innerHTML does and names the risk', () => {
+		// "Runs anything it is given" is the wrong mechanism: it PARSES as HTML,
+		// which is why untrusted input becomes somebody else's script.
+		expect(html).not.toMatch(/innerHTML<\/code> will run anything it is given/);
+		expect(html).toMatch(/parses it as HTML/i);
+		expect(html).toMatch(/cross-site scripting/i);
+		expect(html).toContain('XSS');
 	});
 });

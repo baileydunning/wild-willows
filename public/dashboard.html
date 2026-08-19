@@ -1916,6 +1916,21 @@
 				);
 			const n = (x) => (x == null || isNaN(x) ? 0 : x);
 			const fmt = (x) => n(x).toLocaleString('en-US');
+			/* THOUSANDS, SHORTENED — for the six-across stat strip on a highlight card
+			 * and nowhere else.
+			 *
+			 * "12,480" in a box that is four characters wide either wraps or shoves
+			 * the label sideways, and the card is a glance rather than a report: the
+			 * question it answers is "is this a big number", which 12.5K answers. One
+			 * decimal below ten thousand, none above, because 12.5K is worth the
+			 * character and 128.4K is not. The modal keeps the exact figure. */
+			const fmtShort = (x) => {
+				const v = n(x);
+				if (v < 1000) return fmt(v);
+				if (v < 10000) return `${(Math.round(v / 100) / 10).toFixed(1).replace(/\.0$/, '')}K`;
+				if (v < 999500) return `${Math.round(v / 1000)}K`;
+				return `${(Math.round(v / 100000) / 10).toFixed(1).replace(/\.0$/, '')}M`;
+			};
 			const pct = (x) => `${Math.round(n(x))}%`;
 			/* A rate that is small but not zero must not render as "0%" — for a 5xx
 			 * rate that is the difference between "nothing is broken" and "ten
@@ -3000,9 +3015,69 @@
 				);
 
 				const prefsCard = prefsCardHTML(p);
+				/* WHICH ANIMALS CAME HOME, AND WHEN — in play time, not in dates.
+				 *
+				 * The rest of this modal can say thirty-one animals returned and not
+				 * which ones, or when. This is the shape of a playthrough: how long
+				 * before the first arrival, whether the second followed soon enough to
+				 * read as progress, and which species is the one everybody stalls on.
+				 *
+				 * `at` is the play seconds already accrued when it arrived, so the
+				 * numbers compare across saves regardless of how many evenings they
+				 * were spread over. The gap column is the wait since the previous
+				 * arrival, which is the number that shows a wall.
+				 *
+				 * Saves written before the log existed have none, and say so — an
+				 * empty list here would otherwise read as "no animals ever came back"
+				 * for every player who predates it. */
+				const arrivals = Array.isArray(p.arrivals) ? p.arrivals.filter((a) => a && a.id) : [];
+				/* The name the save recorded, or the id un-slugged for rows written
+				 * before names were stored. Un-slugging is a fallback, not the plan:
+				 * "red-tailed-hawk" comes out "Red Tailed Hawk", which is close enough
+				 * to read on an old save and wrong enough not to rely on. */
+				const speciesName = (a) =>
+					a.name || String(a.id).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+				const arrivalsCard = (() => {
+					const returned = n(bs.totalAnimalsReturned);
+					if (!arrivals.length) {
+						return returned
+							? cardTitled(
+									'Animals that came home',
+									`${fmt(returned)} returned`,
+									`<p class="emptynote">This save reported its arrivals before the game started recording when each one happened. The count is right; the timeline starts from the next animal.</p>`,
+								)
+							: '';
+					}
+					const rows = arrivals
+						.slice()
+						.sort((a, b) => n(a.at) - n(b.at))
+						.map((a, i, all) => {
+							const gap = i ? n(a.at) - n(all[i - 1].at) : n(a.at);
+							return (
+								`<div class="recrow"><b>${esc(speciesName(a))}</b>` +
+								`<span>${fmtDur(n(a.at))}${i ? ` <span class="hint" style="display:inline">+${fmtDur(gap)}</span>` : ''}</span></div>`
+							);
+						})
+						.join('');
+					const last = arrivals.reduce((m, a) => Math.max(m, n(a.at)), 0);
+					return cardTitled(
+						'Animals that came home',
+						`${fmt(arrivals.length)} recorded${returned > arrivals.length ? ` of ${fmt(returned)}` : ''} · first at ${fmtDur(n(arrivals[0].at))}, latest at ${fmtDur(last)}`,
+						`<div class="reclist">${rows}</div>`,
+					);
+				})();
 
+
+				/* WHERE THIS COPY CAME FROM sits with the rest of the identity line.
+				 *
+				 * The site-wide rollup has tallied channels since they shipped, but a
+				 * single caretaker never showed one — so "who are the itch players"
+				 * was answerable and "did this person come from itch" was not. Saves
+				 * written before channels shipped say so rather than being folded into
+				 * whichever bucket looks emptiest. */
+				const channel = p.channel ? CHANNEL_LABELS[p.channel] || p.channel : null;
 				const meta = esc(
-					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
+					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language, channel].filter(Boolean).join(' · '),
 				);
 				const when = [joined, last].filter(Boolean).join(' · ');
 				/* Carried over from the demo. Spelled out here rather than left as a
@@ -3028,6 +3103,9 @@
 						? `<div class="grid two" style="margin-top:.8rem">${areaCard}${menuCard}</div>`
 						: '') +
 					(recCard ? `<div style="margin-top:.8rem">${recCard}</div>` : '') +
+					// The arrivals timeline is the long one, so it sits full width under
+					// the two-up cards rather than squeezed beside one of them.
+					(arrivalsCard ? `<div style="margin-top:.8rem">${arrivalsCard}</div>` : '') +
 					(prefsCard
 						? `<div class="grid two" style="margin-top:.8rem">${onboard}${prefsCard}</div>`
 						: `<div style="margin-top:.8rem">${onboard}</div>`) +
@@ -4360,10 +4438,10 @@
 								: '';
 							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
-								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
-								stat(fmt(n(p.totalActions)), 'actions'),
+								stat(fmtShort(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
+								stat(`<span title="${fmt(n(p.totalActions))} actions">${fmtShort(n(p.totalActions))}</span>`, 'actions'),
 								stat(`${n(p.achievements && p.achievements.earned)}★`, 'achievements'),
-								stat(fmt(n(bs.totalAnimalsReturned)), 'animals'),
+								stat(fmtShort(n(bs.totalAnimalsReturned)), 'animals'),
 								stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'biomes'),
 							].join('')}</div>${chainRow}</div></div>`;
 						})
@@ -4445,14 +4523,20 @@
 				const dn = dc.nudge || {};
 				const de = dc.endScreen || {};
 				/* ---- Where they came from ----
-				 * Devices and conversion per channel. Sorted by conversion, not by
-				 * size, because size is the number you can't trust across channels:
+				 * Devices and conversion per channel. The middle column is devices that
+				 * STARTED PLAYING — made a character or came back to a save — because
+				 * creation alone counts a returning player as a bounce, so a channel
+				 * looked worse the better it retained people. Sorted by that column,
+				 * with conversion beside it, because size is the number you can't
+				 * trust across channels:
 				 * inside itch's game iframe the device id lives in THIRD-PARTY storage
 				 * that browsers partition or clear on their own, so one itch player can
 				 * count as several devices while a wildwillows.app player (first-party)
 				 * counts as one. The rate survives that; the totals don't. Both are
 				 * shown — the caption says which to believe. */
-				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(b[1].converted) - n(a[1].converted));
+				const chanPlayed = (c) => (c.played != null ? c.played : c.converted);
+				const chanPct = (c) => (c.playedPct != null ? c.playedPct : c.conversionPct);
+				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(chanPlayed(b[1])) - n(chanPlayed(a[1])));
 				/* Rendered INSIDE the acquisition card rather than as its own: it answers
 				 * the same question the funnel above it does — where these devices came
 				 * from — and the acquisition card is half-height next to the activation
@@ -4461,14 +4545,14 @@
 					? `<h4 class="sub-h">Where they came from</h4>` +
 						`<p class="emptynote" style="margin:-.2rem 0 .5rem">compare on conversion — device counts are not comparable across stores</p>` +
 							`<table class="tbl"><thead><tr><th>Channel</th><th class="num">Devices</th>` +
-								`<th class="num">Made a character</th><th class="num">Conversion</th></tr></thead><tbody>` +
+								`<th class="num">Started playing</th><th class="num">Conversion</th></tr></thead><tbody>` +
 								chanRows
 									.map(
 										([key, c]) =>
 											`<tr><td>${esc(CHANNEL_LABELS[key] || key)}</td>` +
 											`<td class="num">${fmt(c.devices)}</td>` +
-											`<td class="num">${fmt(c.converted)}</td>` +
-											`<td class="num"><span class="accent">${pct(c.conversionPct)}</span></td></tr>`,
+											`<td class="num">${fmt(chanPlayed(c))}</td>` +
+											`<td class="num"><span class="accent">${pct(chanPct(c))}</span></td></tr>`,
 									)
 									.join('') +
 								`</tbody></table>`
@@ -4538,7 +4622,9 @@
 							'Demo completion',
 							'reached the end of the demo',
 							funnel([
-								{ label: 'Made a character', value: dc.createdCharacter },
+								/* Started playing, not created: a returning demo player is not a
+								   bounce. Falls back to creation on an instance that predates it. */
+								{ label: 'Started playing', value: dc.startedPlaying != null ? dc.startedPlaying : dc.createdCharacter },
 								{ label: 'Finished the demo', value: dc.reachedGoal },
 							]) +
 								`<div class="grid three" style="margin-top:1rem">${[
