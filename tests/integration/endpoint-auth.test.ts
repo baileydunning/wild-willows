@@ -39,6 +39,10 @@ const ADMIN = [
 	'DeleteSoloMetrics',
 	'GameplayHealth',
 	'LandingStats',
+	// Counts only, and it stayed harmless when it was public — but how the
+	// classroom kit is doing is a business metric, not something to hand to
+	// anyone who asks. Same call as LandingStats.
+	'LessonStats',
 	'ListFeedback', // no hook at all — Harper's super-user default IS its protection
 	'MetricsPlayers',
 	'MetricsSummary',
@@ -108,6 +112,10 @@ const PUBLIC = [
 	'SyncMetrics',
 	'SubmitFeedback',
 	'LandingEvent',
+	// The classroom pages' anonymous counter beacon. Public for the same reason
+	// LandingEvent is: the pages have to be able to write to it, and it accepts
+	// nothing but allowlisted counter names. See LESSON_EXACT in resources.ts.
+	'LessonEvent',
 	'ReportClientError',
 	'ReportSaveIncident',
 
@@ -119,6 +127,8 @@ const PUBLIC = [
 	'age-rating',
 	'support',
 	'teachers',
+	'learn', // /learn/<slug> — the classroom student pages
+	'developers', // /developers and /developers/api — the public-API documentation
 	'dashboard', // the SHELL only: a login form cannot live behind the login
 	'og-image',
 	'favicon',

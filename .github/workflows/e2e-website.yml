@@ -1,0 +1,78 @@
+name: E2E (website)
+
+# The public pages, in every engine that renders them.
+#
+# Its own workflow rather than another job in ci.yml, for the same reason the
+# config is separate: this suite needs no build. It serves public/*.html with
+# scripts/serve-pages.mjs, which starts in about a second, so the whole matrix
+# finishes in the time the web build alone would take.
+#
+# One job per browser. A failure then names the engine in the job title, which
+# is the first thing you want to know — "WebKit only" and "everywhere" are
+# different bugs with different fixes.
+
+on:
+  pull_request:
+    branches: [main]
+    # Nothing here can be broken by a change to the game client or the desktop
+    # shell, and a five-browser matrix on every PR that touches src/ is a slow
+    # way to learn nothing.
+    paths:
+      - 'public/**'
+      - 'scripts/serve-pages.mjs'
+      - 'tests/e2e/website.spec.ts'
+      - 'playwright.website.config.ts'
+      - 'data/**'
+      - '.github/workflows/e2e-website.yml'
+  push:
+    branches: [main]
+    paths:
+      - 'public/**'
+      - 'scripts/serve-pages.mjs'
+      - 'tests/e2e/website.spec.ts'
+      - 'playwright.website.config.ts'
+      - 'data/**'
+      - '.github/workflows/e2e-website.yml'
+  # The pages are static and the engines are not: a Firefox or Safari release
+  # can break a page nobody has touched. This is how that gets noticed.
+  schedule:
+    - cron: '0 6 * * 1'
+  workflow_dispatch:
+
+concurrency:
+  group: e2e-website-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  website:
+    name: ${{ matrix.project }}
+    runs-on: ubuntu-latest
+    strategy:
+      # Every browser reports, rather than the first failure hiding the rest.
+      fail-fast: false
+      matrix:
+        project: [chromium, firefox, webkit, mobile-chrome, mobile-safari]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+
+      # Only the engine this job needs. Installing all three everywhere is about
+      # a gigabyte of download per job for two browsers it will not open.
+      - name: Install the browser for this job
+        run: npx playwright install --with-deps ${{ matrix.project == 'mobile-safari' && 'webkit' || matrix.project == 'mobile-chrome' && 'chromium' || matrix.project }}
+
+      - name: Run the website suite
+        run: npx playwright test --config playwright.website.config.ts --project=${{ matrix.project }}
+
+      - uses: actions/upload-artifact@v4
+        if: ${{ failure() }}
+        with:
+          # Screenshots of the failure, which is most of the debugging when the
+          # engine is one you do not have installed.
+          name: playwright-report-${{ matrix.project }}
+          path: playwright-report
+          retention-days: 7

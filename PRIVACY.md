@@ -1,10 +1,11 @@
 # Wild Willows — Privacy Policy
 
 **Effective date:** July 3, 2026
+**Last updated:** August 19, 2026
 **Developer:** Bailey Dunning
 **Contact:** wildwillowsgame@gmail.com
 
-Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This policy explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it. The hosted copy of this policy lives at https://wild.willows.harperfabric.com/privacy.html (its source of truth is `PRIVACY.md` in the game's repository).
+Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This policy explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it. The canonical, always-current copy of this policy is the published page at https://wildwillows.app/privacy.html. This file is the same policy in the repository; if the two ever disagree, the published page is the one that is right.
 
 ## The short version
 
@@ -21,14 +22,31 @@ The Mac App Store build is solo-only: there is no multiplayer, no account, and n
 
 ## Gameplay statistics I collect (automatic, anonymous)
 
-While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wild.willows.harperfabric.com`) roughly every three minutes, plus once when the window is hidden or closed. Each snapshot contains:
+While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wildwillows.app`) roughly every three minutes, plus once when the window is hidden or closed. Each snapshot contains:
 
 - a **random identifier** for the save slot (a UUID generated on your device — it is not derived from you, your device, or your Apple ID, and I cannot use it to identify you);
-- the **name you gave the save** (I suggest a caretaker name rather than your real name);
+- the **name you gave the save** — the game never asks for your real name and offers a random caretaker name (the dice button beside the field), but the field is free text and starts empty, so what goes in it is your choice;
 - basic **app and platform information**: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);
-- **gameplay counters**: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.
+- **gameplay counters**: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers;
+- **your settings**: audio and accessibility choices — music and sound toggles and volumes, reduce motion, colorblind mode, interface font, high contrast, text size, simpler wording, interaction highlight, and light/dark theme. These live only in local storage, so they ride along here; they are what tell me whether the accessibility work is actually being used.
 
-That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played (for example, where players stall in the early game) and to improve it. Sending is best-effort: if you're offline, reports are simply skipped — they are not queued, and the game does not nag you to connect.
+That's the whole list. Snapshots contain no location data, no contact information, no advertising identifiers, and nothing read from your hardware — no serial number, no MAC address, no Apple ID, no device fingerprint.
+
+If you would rather send nothing, play with the device offline: the game is built to work that way and loses no feature by it. I use them solely to understand how Wild Willows is played (for example, where players stall in the early game) and to improve it. Sending is best-effort: if you're offline, reports are simply skipped — they are not queued, and the game does not nag you to connect.
+
+## Two smaller things the game sends
+
+Neither is part of the snapshot above, so they are listed separately rather than folded into it.
+
+**A ping when the app opens.** Once per launch, before any save exists, the game reports that it was opened: a random identifier generated on this installation, the platform and operating system family, the app version and edition, which store or site the copy came from, and the interface language. It measures how many people who open the game go on to start a preserve. The identifier is a random UUID the installation made for itself — not read from your hardware, not tied to any save, and gone when you delete the app. It is the only persistent identifier the game keeps.
+
+**A report when something crashes.** If the interface throws an error, the game sends the error message and its technical stack trace, both truncated, with the app version and platform, capped at a handful per session. These are the game's own internals rather than your data, but a stack trace is text, so it is named here rather than left implied.
+
+## The browser version
+
+The browser version is the free demo, and it works the opposite way round from the installed game: the save lives on my server rather than your device — the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state.
+
+The demo mints a random passcode for you and never shows it, so the only way back into a demo save is a pointer your browser keeps. Clearing site data, or moving to another browser or machine, disconnects you from that save permanently; nobody else can reach it either. The demo also deletes its own save when you reach the end of it. If my server can't be reached when the page loads, the demo falls back to running entirely in your browser, and the save is genuinely local — in which case clearing site data erases it outright.
 
 ## Feedback you choose to send
 
@@ -38,7 +56,25 @@ You may optionally include an **email address** if you'd like a reply. It is use
 
 ## What I don't do
 
-I do not sell, rent, or share your data with anyone. The game contains no advertising, no tracking SDKs, no third-party analytics, and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)
+I do not sell, rent, or share your data with anyone. The game and the website contain no advertising, no tracking SDKs, no third-party analytics, no cookies and no social integrations. I do not profile you, and I do not combine game data with data from other sources. The app makes outgoing HTTPS connections only, and only to my own server. (Builds distributed through the Mac App Store contain no Steam integration; builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by Valve's privacy policy.)
+
+## The website and the classroom pages
+
+The pages on wildwillows.app — the landing page, the teachers pages, and the classroom coding kit at `/learn` — count how they are used. **Only counts.** There is no account, no cookie, no third-party analytics, and no identifier of any kind, so nothing here can be tied to a person or a device.
+
+What is counted is a fixed list of named events: which page was opened, which buttons and links were used, how far through the lesson a reader got, which errors the code editor explained, and roughly how long a session in the code editor lasted. That last one is recorded as a band — under 5 minutes, 5–15, 15–30, 30–60, over an hour — never as an exact duration, because a precise session length describes one person while a band describes none.
+
+The server accepts only names from that list. Anything else is discarded and counted as "other", so the list is the whole of what can ever be stored.
+
+**In the code editor, your code never leaves your browser.** It is saved in that browser's own storage so it is still there when you come back, and it is sent nowhere — not when you run it, not when it produces an error, and not in the usage counts. The only way your work leaves your machine is if you press Download and save the file yourself.
+
+Counters are sent once at the end of a visit, as a single anonymous total. No IP addresses are stored and nothing anyone typed is transmitted.
+
+**Referring URLs are never sent.** If you arrive from a link, your browser knows where you came from; that address is read in your browser, reduced there to a single word from a fixed list of nine — Google, Bing, DuckDuckGo, Reddit, itch.io, Apple, Bluesky, direct or bookmarked, somewhere else — and only that word is sent. The address itself, including anything you searched for to get here, never leaves your machine. A visit from one page of this site to another is not counted as an arrival at all.
+
+### For teachers and schools
+
+The classroom pages need no student accounts, no logins and no class codes, and none exist. Because nothing identifies a student, a class, or a school, there is no student record here to request, correct or delete — there is nothing but a daily tally of anonymous counts. If your district needs a written answer, this section is it, and you are welcome to email me for anything more specific.
 
 ## Where data is stored
 
@@ -51,6 +87,8 @@ Gameplay snapshots are kept so long-term trends stay visible; each save slot has
 ## Children
 
 Wild Willows is suitable for all ages. I do not knowingly collect personal information from children; the game never asks for a real name, and the only free-text personal data anywhere is the optional feedback email. If you believe a child has submitted personal information through the feedback form, contact me and I will delete it.
+
+This applies with particular force to the classroom pages, which are built for use by minors in schools: they ask for nothing, store nothing about the individual, and transmit nothing a student writes. See **The website and the classroom pages** above.
 
 ## The browser version
 

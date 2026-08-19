@@ -1,0 +1,335 @@
+/* Wild Willows — the teachers hub at /teachers.
+ *
+ * Short on purpose. This page had been the science lesson; it is now the door
+ * to two of them, and the job of a door is to be got through. Two kit cards
+ * above the fold, then the material that belongs to BOTH kits and would
+ * otherwise be written twice: free classroom copies, photocopying, privacy,
+ * and the questions a teacher asks before either lesson.
+ *
+ * Tokens, buttons, chips and nav come from site-core.css; dark mode is a
+ * repoint of the same tokens in ww-dark.css.
+ */
+
+/* CONTRAST OVERRIDES, and they are not cosmetic.
+ *
+ * site-core.css is byte-locked to the landing page (see site-css.test.ts), so
+ * these are repointed here for the teacher pages only rather than edited
+ * upstream. Measured against the four cream surfaces they sit on (--paper,
+ * --paper-deep, --panel, --sprout):
+ *
+ *   --ink-soft  #75765f -> 4.01 on --paper, 3.66 on --paper-deep   FAILS AA
+ *   --ink-faint #9d9c85 -> 2.40 on --paper, 2.20 on --paper-deep   FAILS BADLY
+ *
+ * On the landing page those carry decorative captions. Here they carry the
+ * vocabulary definitions, every timing in the lesson flow, the troubleshooting
+ * table's own column headings and the whole arrival ladder — content a teacher
+ * reads on a prep period and prints. Same two values the lab and the lesson
+ * already use (ww-runner.css), so the classroom pages stay one palette.
+ * tests/unit/classroom-contrast.test.ts holds them there. */
+body.edu-hub {
+	--ink-soft: #61624b; /* 4.92 worst surface */
+	--ink-faint: #66674f; /* 4.57 worst surface */
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.twrap {
+	max-width: 64rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.thero {
+	padding: 3rem 0 1.4rem;
+	max-width: 46rem;
+}
+
+.thero .kicker {
+	font-size: 0.7rem;
+	letter-spacing: 0.12em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+	margin: 0 0 0.4rem;
+}
+
+[data-theme='dark'] .thero .kicker {
+	color: var(--green-bright);
+}
+
+.thero h1 {
+	font-size: clamp(2rem, 5vw, 3rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.thero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.tmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* ----------------------------------------------------------------- the kits
+ *
+ * Two cards, equal weight. They are for different grades and different
+ * subjects, so there is no "better" one: which is right depends entirely on who
+ * is reading, and the page has no way of knowing. */
+
+.kits {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(20rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.8rem 0 0;
+	align-items: stretch;
+}
+
+.kit {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.5rem;
+}
+
+.kit-ico {
+	width: 2.2rem;
+	height: 2.2rem;
+	color: var(--green-deep);
+	margin-bottom: 0.6rem;
+}
+
+[data-theme='dark'] .kit-ico {
+	color: var(--green-bright);
+}
+
+.kit h2 {
+	font-size: 1.35rem;
+	line-height: 1.2;
+	margin: 0 0 0.5rem;
+}
+
+.kit-facts {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.35rem;
+	margin: 0 0 0.8rem;
+}
+
+.kit-facts .chip {
+	font-size: 0.72rem;
+	padding: 0.15rem 0.6rem;
+}
+
+.kit p {
+	line-height: 1.65;
+	color: var(--ink-soft);
+	margin: 0 0 0.9rem;
+}
+
+.kit ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+}
+
+.kit li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+	line-height: 1.5;
+}
+
+/* Drawn, not typed, like every other mark on these pages. */
+.kit li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .kit li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other.
+   `.kit .kit-go` rather than `.kit-go`: this is a <p>, and `.kit p` above sets
+   the margin shorthand, which resets margin-top to 0 and outranks a single
+   class. The card then sized to its content and the two buttons sat 40px
+   apart. */
+.kit .kit-go {
+	margin: auto 0 0;
+}
+
+.kit .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+/* MEASURED: the sticky nav is 59px tall, and every one of these pages has
+   in-page links to its own sections — "Lesson flow", "Troubleshooting", "Quick
+   start", the FAQ cross-references. Without this the heading you jumped to
+   lands UNDER the header and the first thing you see is the paragraph after it,
+   which reads as the link having missed. */
+.tsec,
+.twrap[id],
+.tcontact {
+	scroll-margin-top: 4.6rem;
+}
+
+.tsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.tsec h2 {
+	font-size: 1.3rem;
+	margin: 0 0 0.6rem;
+}
+
+.tsec h3 {
+	font-size: 1rem;
+	margin: 1.5rem 0 0.4rem;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tsec h3 {
+	color: var(--green-bright);
+}
+
+.tsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+}
+
+.tsec p.sub {
+	color: var(--ink-soft);
+}
+
+.tsec a {
+	color: var(--green-deep);
+	font-weight: 600;
+}
+
+[data-theme='dark'] .tsec a {
+	color: var(--green-bright);
+}
+
+/* The shared questions. <details> so the page stays short and a teacher can
+   open only the one they came for; open by default would rebuild the wall of
+   text this page exists to replace. */
+.tfaq {
+	border-bottom: 1px solid var(--panel-edge);
+}
+
+.tfaq:first-of-type {
+	border-top: 1px solid var(--panel-edge);
+}
+
+.tfaq > summary {
+	list-style: none;
+	cursor: pointer;
+	padding: 0.85rem 0.2rem;
+	font-weight: 700;
+	display: grid;
+	grid-template-columns: 1.1rem minmax(0, 1fr);
+	gap: 0.6rem;
+	align-items: baseline;
+}
+
+.tfaq > summary::-webkit-details-marker {
+	display: none;
+}
+
+.tfaq > summary:hover {
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .tfaq > summary:hover {
+	color: var(--green-bright);
+}
+
+.tfaq-chev {
+	width: 1rem;
+	height: 1rem;
+	color: var(--green-deep);
+	align-self: center;
+}
+
+[data-theme='dark'] .tfaq-chev {
+	color: var(--green-bright);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+	.tfaq-chev {
+		transition: transform 0.16s ease;
+	}
+}
+
+.tfaq[open] > summary .tfaq-chev {
+	transform: rotate(90deg);
+}
+
+.tfaq-body {
+	padding: 0 0.2rem 1rem 1.9rem;
+}
+
+.tfaq-body p {
+	margin: 0 0 0.7rem;
+	line-height: 1.65;
+	color: var(--ink-soft);
+}
+
+.tfaq-body p:last-child {
+	margin-bottom: 0;
+}
+
+/* The contact card at the foot. */
+.tcontact {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem;
+	max-width: 46rem;
+}
+
+.tcontact h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.2rem;
+}
+
+.tcontact p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}
+
+.tcontact .cta-row {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.5rem;
+}

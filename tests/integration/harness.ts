@@ -214,6 +214,7 @@ const TABLES = [
 	'SoloMetrics',
 	'AppOpen',
 	'LandingStat',
+	'LessonStat',
 	'PlayerNameIndex',
 	'SaveIncident',
 	'Refusal',

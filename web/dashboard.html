@@ -3,32 +3,115 @@
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width, initial-scale=1" />
-		<title>Wild Willows — Metrics Dashboard</title>
-		<meta
-			name="description"
-			content="Anonymous gameplay metrics for Wild Willows, a cozy nature-restoration life sim."
+		<!-- Deliberately neutral until signed in. Anyone who reaches this URL
+		     without credentials should learn nothing from it — not what the page is
+		     for, not what it reports, not that it reports anything. The real title
+		     is set from script once a session is established. -->
+		<title>Wild Willows</title>
+		<meta name="description" content="Wild Willows." />
+		<meta name="robots" content="noindex, nofollow" />
+
+		<link rel="preconnect" href="https://fonts.googleapis.com" />
+		<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+		<link
+			rel="stylesheet"
+			href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+			media="print"
+			onload="this.media='all'"
+			fetchpriority="low"
 		/>
-		<meta name="robots" content="noindex" />
+		<noscript
+			><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"
+		/></noscript>
+
 		<style>
+<!-- @include public/partials/site-core.css -->
+
+			/* The dashboard's palette, repointed at the SITE's tokens rather than its
+			   own near-misses, so this page reads as part of Wild Willows instead of
+			   as an admin tool someone bolted on. site-core.css is included above and
+			   is byte-locked to the landing page (tests/unit/site-css.test.ts), so
+			   these follow the site automatically rather than being a copy that
+			   drifts.
+			
+			   The dashboard's own rules come AFTER the include and win every tie —
+			   which matters for the five selectors both sheets define (.wrap, .brand,
+			   body, html, section). The three this page wanted most — .btn, .chip and
+			   .nav — the dashboard never defined at all, so they arrive for free and
+			   the view tabs are real site chips.
+			
+			   THREE OF THE OLD VALUES FAILED AA on the site's creams, measured:
+			     --muted  #6b7263 -> 4.29 on --paper, 3.92 on --paper-deep
+			     --faint  #9aa189 -> 2.31 / 2.11
+			     --accent #4a7c46 -> 4.24 / 3.88   (used as text, not just fills)
+			   They carried every sub-label, hint and axis on the page. Repointing to
+			   the site's inks fixes the contrast and the consistency in one move. */
 			:root {
-				--bg: #eef2e3;
-				--bg2: #e5ecd6;
-				--card: #fffdf7;
-				--ink: #2f3a27;
-				--muted: #6b7263;
-				--faint: #9aa189;
-				--accent: #4a7c46;
-				--accent-dark: #35602f;
-				--accent-soft: #dceccf;
-				/* The third series colour. Was a gold (#d9a441) and read as a warning
-				   next to the greens; it is a light sage now, one step brighter than
-				   --accent so the two stay distinguishable side by side in a donut. */
-				--gold: #7fb069;
-				--sky: #6ea8c8;
-				--rose: #d77b8f;
-				--rule: #dfe0cf;
+				--bg: var(--paper);
+				--bg2: var(--paper-deep);
+				--card: var(--panel);
+				--ink: #3b4232;
+				--muted: #61624b; /* 4.92 worst surface */
+				--faint: #66674f; /* 4.57 worst surface */
+				/* Fills keep the site green; TEXT uses --accent-dark, which clears AA. */
+				--accent: #4a7c59;
+				--accent-dark: #39604a; /* 5.61 worst surface */
+				--accent-soft: #eaf3dd;
+				/* ---- the four series colors ----
+				   MEASURED, not chosen. The previous set (#4a7c59 #7fb069 #6ea8c8
+				   #d77b8f) failed three of the five computable checks against this
+				   page's cream surface (#fdfaf1):
+
+				     chroma floor        #4a7c59 C=0.077, #6ea8c8 C=0.077 — under
+				                         0.10, which is the point where a hue stops
+				                         reading as a color and starts reading gray
+				     normal-vision floor #6ea8c8 vs #7fb069  ΔE 14.3 — under 15, so
+				                         full-color readers could not reliably tell
+				                         the sage and the sky apart
+				     contrast vs surface 2.42 / 2.48 / 2.83 — three of four under 3:1
+
+				   These four pass all five, in this slot order:
+				     lightness band ok · chroma ok · adjacent-pair ΔE 15.4 under
+				     deuteranopia · 18.1 normal vision · all >= 3:1 on cream.
+
+				   ASSIGN BY ENTITY, IN THIS ORDER, NEVER BY RANK — a filter that
+				   drops a series must not repaint the ones that survive.
+
+				   The order is validated on ADJACENT pairs, which is the right check
+				   for bars, funnels and donuts where the sequence is ours to choose.
+				   s1 and s4 (green and rose) are only ΔE 5.3 apart under deuteranopia,
+				   so they must never be the only thing telling two marks apart: every
+				   legend on this page carries a text label beside its swatch and every
+				   bar row carries its name and number, which is what makes that legal.
+				   Putting them adjacent in a new chart is not. */
+				--s1: #1f7a3f;
+				--s2: #2166ad;
+				--s3: #c47a1a;
+				--s4: #b0446a;
+				/* Lighter steps of the same four hues, for the left end of a bar
+				   gradient. Same hue angle, +0.17 OKLCH lightness, chroma at 0.8 —
+				   a step of the same ramp rather than a different color. */
+				--s1-lift: #69ab79;
+				--s2-lift: #669ad6;
+				--s3-lift: #f2b474;
+				--s4-lift: #de829e;
+				/* Slot 3 as TEXT, or as a chip behind white text. The mark color
+				   (#c47a1a) is 3.27 on cream and carries white at 3.42 — fine for a
+				   fill, short of AA for anything with letters in it. Same hue, two
+				   steps darker: 4.96 on cream, 5.18 under white. Same split as
+				   --accent / --accent-dark, for the same reason. */
+				--s3-ink: #9c5f0e;
+				/* Kept as aliases so the existing .fill.gold / .fill.sky / .fill.rose
+				   class names and their call sites keep working. New charts should
+				   name the slot (--s2) rather than the hue (--sky): the slot is the
+				   contract, the hue is an implementation detail that has now changed
+				   once and may change again. */
+				--gold: var(--s3);
+				--sky: var(--s2);
+				--rose: var(--s4);
+				--rule: #e3d9bc;
 				--shadow: 0 1px 2px rgba(47, 58, 39, 0.06), 0 6px 20px rgba(47, 58, 39, 0.07);
-				--radius: 18px;
+				--radius: 14px; /* --r */
 			}
 			* {
 				box-sizing: border-box;
@@ -39,18 +122,13 @@
 			body {
 				margin: 0;
 				background:
-					radial-gradient(1200px 480px at 80% -10%, #f4f8ec 0%, transparent 60%),
+					radial-gradient(1200px 480px at 80% -10%, #fbf7ea 0%, transparent 60%),
 					linear-gradient(180deg, var(--bg) 0%, var(--bg2) 100%);
 				background-attachment: fixed;
 				color: var(--ink);
-				font:
-					15px/1.55 -apple-system,
-					BlinkMacSystemFont,
-					'Segoe UI',
-					Roboto,
-					Helvetica,
-					Arial,
-					sans-serif;
+				/* Quicksand, like every other page. Loaded the same non-blocking way. */
+				font: 15px/1.55 var(--f);
+				font-weight: 500;
 				min-height: 100vh;
 			}
 			.wrap {
@@ -59,13 +137,81 @@
 				padding: clamp(1rem, 3vw, 2.5rem) clamp(0.9rem, 3vw, 2rem) 5rem;
 			}
 
+			/* ---- signed out ----
+			   A sign-in screen should give nothing away. Before this, the page
+			   announced itself as "Wild Willows Metrics" above the form, with a nav,
+			   a version filter and a Problems toggle — so anyone who found the URL
+			   learned that it exists, what it reports and roughly how it is
+			   organized, without a password.
+			   Signed out, the page is a wordmark-free form on a cream background and
+			   nothing else. The title is neutral in the markup too; the real one is
+			   set from script once there is a session. */
+			body.signed-out .nav,
+			body.signed-out header.top,
+			body.signed-out .views,
+			body.signed-out .meta,
+			body.signed-out footer {
+				display: none;
+			}
+			body.signed-out .wrap {
+				padding-top: clamp(4rem, 18vh, 10rem);
+			}
+
+			/* ---- view tabs ----
+			   Filtering, not re-rendering: every section is built once and the ones
+			   that do not match are hidden, so switching is instant and nothing is
+			   refetched. The chips are the site's own (.chip / .chip.on from
+			   site-core.css), so this control looks like the ones on /learn. */
+			.views {
+				display: flex;
+				gap: 0.35rem;
+				flex-wrap: wrap;
+				align-self: center;
+			}
+			.views .chip {
+				font-family: var(--f);
+				font-size: 0.85rem;
+				padding: 0.3rem 0.9rem;
+				cursor: pointer;
+			}
+			body[data-view='game'] section[data-view]:not([data-view='game']),
+			body[data-view='website'] section[data-view]:not([data-view='website']),
+			body[data-view='harper'] section[data-view]:not([data-view='harper']),
+			body[data-view='problems'] section[data-view]:not([data-view='problems']) {
+				display: none;
+			}
+			/* A view whose sections all failed to load should say so rather than
+			   showing an empty page that looks broken. */
+			.viewempty {
+				margin: 2rem 0;
+				padding: 2rem;
+				text-align: center;
+				color: var(--muted);
+				background: var(--card);
+				border: 1.5px solid var(--rule);
+				border-radius: var(--radius);
+			}
+
+			/* The site nav, which this page did not have. Full-bleed like the rest of
+			   the dashboard rather than site-core's centered 1080px wrap. */
+			.nav .wrap {
+				max-width: 1180px;
+				padding: 0 clamp(0.9rem, 3vw, 2rem);
+			}
+
 			/* ---- header ---- */
+			/* Two rows, not one. The wordmark and the view chips are the page's
+			   identity and sit together on the first; who you are and what you are
+			   filtering share the second, pushed to opposite ends. Before this the
+			   right-hand column stacked four things — name, timestamp, filters,
+			   buttons — into a tall block that dictated the header's height and left
+			   a band of empty cream beside the wordmark. */
 			header.top {
 				display: flex;
 				flex-wrap: wrap;
-				align-items: flex-end;
-				gap: 1rem 1.4rem;
-				margin-bottom: 1.6rem;
+				align-items: center;
+				gap: 0.6rem 1.4rem;
+				margin-bottom: 1.1rem;
 			}
 			.brand {
 				display: flex;
@@ -88,13 +234,32 @@
 				letter-spacing: -0.02em;
 			}
 			.meta {
-				margin-left: auto;
-				text-align: right;
+				flex: 1 0 100%;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.5rem 1.5rem;
 				color: var(--muted);
 				font-size: 0.82rem;
 			}
+			.metaid {
+				display: flex;
+				flex-direction: column;
+				gap: 0.1rem;
+			}
+			/* Right-aligned and allowed to wrap onto its own lines: on a narrow window
+			   the filters take the width they need and the identity stays put, rather
+			   than the two fighting over one line. */
+			.metafilters {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 0.4rem 0.8rem;
+				margin-left: auto;
+			}
 			button.refresh {
-				margin-top: 0.4rem;
 				font: inherit;
 				font-size: 0.82rem;
 				cursor: pointer;
@@ -113,7 +278,7 @@
 			[hidden] {
 				display: none !important;
 			}
-			/* Sign-in screen. Small, centred, and the only thing on the page — there is
+			/* Sign-in screen. Small, centered, and the only thing on the page — there is
 			   nothing else to look at until it is answered. */
 			.loginwrap {
 				display: flex;
@@ -187,14 +352,17 @@
 				cursor: pointer;
 			}
 			/* The Problems toggle. Neutral until something is actually wrong, then it
-			   goes amber — so the button's colour carries the state without needing to
+			   goes amber — so the button's color carries the state without needing to
 			   be read. */
 			button.refresh.probs.on {
 				background: var(--accent-soft);
 				color: var(--accent-dark);
 				border-color: var(--accent);
 			}
-			button.refresh.probs .pbadge {
+			/* The badge, on whichever control carries it. Amber rather than the page's
+			   green: it is a count of things that are wrong, and it should not read as
+			   another green statistic. */
+			.pbadge {
 				display: inline-block;
 				margin-left: 0.35rem;
 				padding: 0 0.4rem;
@@ -205,14 +373,17 @@
 				font-size: 0.74rem;
 				font-variant-numeric: tabular-nums;
 			}
-			button.refresh.probs.bad {
+			.views .chip.bad {
 				border-color: #e2c481;
+				background: #fdf6e6;
+			}
+			.views .chip.on.bad {
+				border-color: #d9b25f;
 			}
 			.vfilter {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.4rem;
-				margin-top: 0.5rem;
 				font-size: 0.78rem;
 				color: var(--muted);
 			}
@@ -368,7 +539,14 @@
 				overflow: hidden;
 				text-overflow: ellipsis;
 				white-space: nowrap;
-				text-transform: capitalize;
+			}
+			/* Was text-transform: capitalize, which uppercases EVERY word and had
+			   been quietly rendering the itch.io label as "Itch.Io" — invisible on
+			   the other labels only because they were already title case. The label
+			   maps carry the intended casing; this just lifts the first letter of a
+			   raw key that has no map entry. */
+			.bar .lab::first-letter {
+				text-transform: uppercase;
 			}
 			.bar .track {
 				display: block;
@@ -382,7 +560,7 @@
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 				min-width: 3px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -394,13 +572,13 @@
 				text-align: right;
 			}
 			.fill.sky {
-				background: linear-gradient(90deg, #8cc0da, var(--sky));
+				background: linear-gradient(90deg, var(--s2-lift), var(--s2));
 			}
 			.fill.gold {
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 			}
 			.fill.rose {
-				background: linear-gradient(90deg, #e5a0af, var(--rose));
+				background: linear-gradient(90deg, var(--s4-lift), var(--s4));
 			}
 
 			/* ---- funnel ----
@@ -542,7 +720,7 @@
 				display: inline-block;
 				margin-top: 0.25rem;
 				font-size: 0.66rem;
-				color: var(--gold);
+				color: var(--s3-ink);
 				font-weight: 700;
 				letter-spacing: 0.02em;
 			}
@@ -625,10 +803,10 @@
 			/* Demo is a FILLED sage chip, full a tinted one. They used to differ by hue
 			   (gold-on-cream vs green-on-green); now that the demo series is sage
 			   everywhere else — donut, legend, vs-table bars — the chips have to agree
-			   with it, so the two are told apart by fill weight rather than colour. */
+			   with it, so the two are told apart by fill weight rather than color. */
 			.hledi.demo {
 				color: #ffffff;
-				background: var(--gold);
+				background: var(--s3-ink);
 			}
 			.hledi.full {
 				color: var(--accent-dark);
@@ -693,7 +871,7 @@
 				display: block;
 				height: 100%;
 				border-radius: 999px;
-				background: linear-gradient(90deg, var(--accent) 0%, var(--accent-dark) 100%);
+				background: linear-gradient(90deg, var(--s1-lift) 0%, var(--s1) 100%);
 			}
 			.hlchain .num {
 				font-size: 0.64rem;
@@ -702,7 +880,7 @@
 				font-variant-numeric: tabular-nums;
 				white-space: nowrap;
 			}
-			/* Finished the chain: the number goes the accent colour so a completed
+			/* Finished the chain: the number goes the accent color so a completed
 			   board reads at a glance without the bar having to be measured. */
 			.hlchain.done .num {
 				color: var(--accent-dark);
@@ -816,7 +994,7 @@
 				margin: 0.15rem 0;
 			}
 			/* The channel is the reason this list exists, so it reads first and loudest
-			   — everything beside it is a plain grey chip. */
+			   — everything beside it is a plain gray chip. */
 			.acchan {
 				background: var(--accent);
 				color: #fff;
@@ -887,8 +1065,8 @@
 				color: var(--ink);
 			}
 			/* Super-user-only remove control at the foot of the player modal. Same
-			   red pair as button.delbtn so there is one "destructive" colour on the
-			   page, but boxed and labelled rather than a bare × — this one has no
+			   red pair as button.delbtn so there is one "destructive" color on the
+			   page, but boxed and labeled rather than a bare × — this one has no
 			   undo, and it should not look like the counter deletes that do. */
 			.dangerzone {
 				display: flex;
@@ -1262,7 +1440,7 @@
 			.vsrow .vbar i {
 				display: block;
 				height: 100%;
-				background: linear-gradient(90deg, #a8d18d, var(--gold));
+				background: linear-gradient(90deg, var(--s3-lift), var(--s3));
 				border-radius: 999px;
 				transition: width 0.8s cubic-bezier(0.2, 0.7, 0.2, 1);
 			}
@@ -1351,7 +1529,7 @@
 			}
 			/* A date is wider than its column and overhangs both sides. In the middle
 			   of the strip that is fine; at the ends it hangs past the chart and gets
-			   clipped, so the outermost dates align to their edge instead of centring
+			   clipped, so the outermost dates align to their edge instead of centering
 			   on it — the last day is exactly the one you most want to read. */
 			.dcol:first-child .dl {
 				align-self: flex-start;
@@ -1530,36 +1708,16 @@
 					--dcolw: 8px;
 				}
 			}
-			/* Zero-height, full-width flex item: forces the two action buttons onto a
-			   line of their own below the filters. Inert in the desktop block layout. */
-			.metabreak {
-				display: block;
-				height: 0;
-			}
 			@media (max-width: 560px) {
-				.meta {
+				/* Nothing to push apart on a phone: the identity and the filters each
+				   take the full width and stack, left-aligned, in reading order. */
+				.metaid,
+				.metafilters {
+					flex: 1 0 100%;
+				}
+				.metafilters {
+					justify-content: flex-start;
 					margin-left: 0;
-					text-align: left;
-					width: 100%;
-					/* Wrapping inline controls landed the Problems toggle mid-row between
-					   two dropdowns, reading as a third filter. Laid out as a flex row
-					   the filters group together and the buttons get their own line. */
-					display: flex;
-					flex-wrap: wrap;
-					align-items: center;
-					gap: 0.45rem 0.6rem;
-				}
-				.meta .live,
-				.meta > #whoami,
-				.meta > #generated {
-					flex: 1 0 100%;
-				}
-				.metabreak {
-					flex: 1 0 100%;
-				}
-				.meta .vfilter,
-				.meta button.refresh {
-					margin-top: 0;
 				}
 			}
 		</style>
@@ -1574,6 +1732,25 @@
 		/>
 	</head>
 	<body>
+		<nav class="nav">
+				<div class="wrap">
+					<a class="brand" href="/"
+						><svg viewBox="0 0 24 24" aria-hidden="true">
+							<circle cx="12" cy="12" r="11" fill="#4a7c59" />
+							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
+						> Wild Willows</a
+					>
+					<!-- Deliberately short. This is an internal page reached by URL, not
+					     something anyone navigates TO from the site, so the nav here is a
+					     way back out rather than a menu. The teacher pages are not a way
+					     out of the dashboard for the one person who can open it. -->
+					<div class="links">
+						<a class="hide-sm" href="/">The game</a>
+						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
+					</div>
+				</div>
+		</nav>
+
 		<div class="wrap">
 			<header class="top">
 				<div class="brand">
@@ -1587,9 +1764,22 @@
 						<h1>Wild Willows Metrics</h1>
 					</div>
 				</div>
+				<div class="views" id="view-tabs" role="tablist" aria-label="What to show" hidden>
+					<button type="button" class="chip on" role="tab" data-view-tab="game" aria-selected="true">Game</button>
+					<button type="button" class="chip" role="tab" data-view-tab="website" aria-selected="false">Website</button>
+					<button type="button" class="chip" role="tab" data-view-tab="harper" aria-selected="false">
+						<span id="tab-harper-label">Harper</span>
+					</button>
+					<button type="button" class="chip" role="tab" data-view-tab="problems" aria-selected="false">
+						<span id="tab-problems-label">Problems</span>
+					</button>
+				</div>
 				<div class="meta">
-					<div id="whoami" hidden></div>
-					<div id="generated">Loading…</div>
+					<div class="metaid">
+						<div id="whoami" hidden></div>
+						<div id="generated">Loading…</div>
+					</div>
+					<div class="metafilters">
 					<label class="vfilter"
 						><span>Version</span>
 						<select id="version-filter">
@@ -1622,24 +1812,14 @@
 							<option value="include">Counted</option>
 						</select>
 					</label>
-					<!-- Problems are hidden by default: on a normal day there is nothing to
-					     act on, and a wall of "not enough materials" refusals above the
-					     numbers you came for is noise. The BADGE is what makes hiding them
-					     safe — it counts the things that are actually wrong (crashes and
-					     unreadable saves, never routine refusals), so a bad day still
-					     announces itself from the top of the page. -->
-					<span class="metabreak"></span>
-					<button class="refresh probs" id="problems" type="button" aria-pressed="false" hidden>
-						<span id="problems-label">Problems</span>
-					</button>
-					<!-- How HARPER is doing, as opposed to how the players are. Its own
-					     view because it answers a different question from every other
-					     panel on this page and shares no filters with them. -->
-					<button class="refresh probs" id="serverbtn" type="button" aria-pressed="false" hidden>
-						<span id="serverbtn-label">Server</span>
-					</button>
-					<button class="refresh" id="backbtn" type="button" hidden>← Dashboard</button>
+					<!-- Problems and Harper used to have their own buttons down here, which
+					     made two navigations for four destinations: these swapped the whole
+					     page out, the chips above filtered it, and both landed you on the
+					     same panels. The chips won — they name all four views in one place
+					     — and the badges moved onto them, so a bad day still announces
+					     itself without a second row of controls to read past. -->
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
+					</div>
 				</div>
 			</header>
 
@@ -1747,6 +1927,21 @@
 				);
 			const n = (x) => (x == null || isNaN(x) ? 0 : x);
 			const fmt = (x) => n(x).toLocaleString('en-US');
+			/* THOUSANDS, SHORTENED — for the six-across stat strip on a highlight card
+			 * and nowhere else.
+			 *
+			 * "12,480" in a box that is four characters wide either wraps or shoves
+			 * the label sideways, and the card is a glance rather than a report: the
+			 * question it answers is "is this a big number", which 12.5K answers. One
+			 * decimal below ten thousand, none above, because 12.5K is worth the
+			 * character and 128.4K is not. The modal keeps the exact figure. */
+			const fmtShort = (x) => {
+				const v = n(x);
+				if (v < 1000) return fmt(v);
+				if (v < 10000) return `${(Math.round(v / 100) / 10).toFixed(1).replace(/\.0$/, '')}K`;
+				if (v < 999500) return `${Math.round(v / 1000)}K`;
+				return `${(Math.round(v / 100000) / 10).toFixed(1).replace(/\.0$/, '')}M`;
+			};
 			const pct = (x) => `${Math.round(n(x))}%`;
 			/* A rate that is small but not zero must not render as "0%" — for a 5xx
 			 * rate that is the difference between "nothing is broken" and "ten
@@ -2054,7 +2249,7 @@
 				};
 			}
 			function vsTable(rows, demo, full) {
-				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:#7fb069"></span>Demo</span><span class="li"><span class="sw" style="background:var(--accent)"></span>Full</span></div>`;
+				const legend = `<div class="vslegend"><span class="li"><span class="sw" style="background:var(--s3)"></span>Demo</span><span class="li"><span class="sw" style="background:var(--s1)"></span>Full</span></div>`;
 				const body = rows
 					.map((row) => {
 						const dv = demo[row.key],
@@ -2071,8 +2266,73 @@
 				return `${legend}<div class="vs">${body}</div>`;
 			}
 
-			function sec(title, sub, body) {
-				return `<section><div class="sec-head"><h2>${title}</h2>${sub ? `<span class="sub">${sub}</span>` : ''}</div>${body}</section>`;
+			/* Every section declares which VIEW it belongs to, and the tab bar shows one
+			   view at a time.
+			
+			   This page had grown to eighteen sections covering four unrelated
+			   questions — how the game is doing, how the website is doing, whether
+			   Harper is healthy, and what is currently broken — stacked in one column.
+			   Answering any one of them meant scrolling past the other three, and the
+			   two that matter when something is on fire (Problems, Harper) sat at the
+			   bottom.
+			
+			   Filtering rather than re-rendering: every section is built once and CSS
+			   hides the ones that do not match, so switching views is instant and no
+			   data is refetched. */
+			/* Which view is showing. Remembered, because whoever opens this page at
+			   3am to find out why it is on fire wants Problems, and should not have to
+			   choose it every time. */
+			const VIEW_KEY = 'wwDashboardView';
+			const VIEWS = ['game', 'website', 'harper', 'problems'];
+
+			function applyView(view) {
+				if (VIEWS.indexOf(view) === -1) view = 'game';
+				document.body.setAttribute('data-view', view);
+				document.querySelectorAll('[data-view-tab]').forEach((b) => {
+					const on = b.getAttribute('data-view-tab') === view;
+					b.classList.toggle('on', on);
+					b.setAttribute('aria-selected', on ? 'true' : 'false');
+				});
+				try {
+					localStorage.setItem(VIEW_KEY, view);
+				} catch (e) {
+					/* private window — the choice just does not persist */
+				}
+				noteEmptyView(view);
+			}
+
+			/* An empty view is ambiguous: it looks the same whether there is nothing
+			   to report or the feed behind it failed to load. */
+			function noteEmptyView(view) {
+				const host = document.getElementById('root');
+				if (!host) return;
+				const old = host.querySelector('.viewempty');
+				if (old) old.remove();
+				if (!host.querySelector('section[data-view="' + view + '"]')) {
+					const LABEL = {
+						game: 'No gameplay metrics yet.',
+						website: 'No website or classroom numbers yet — /LandingStats/ and /LessonStats/ may not be deployed on this instance.',
+						harper: 'No Harper telemetry — /ServerHealth/ could not be read.',
+						problems: 'Nothing is going wrong. Refusals, crashes and save failures all report here.',
+					};
+					const p = document.createElement('div');
+					p.className = 'viewempty';
+					p.textContent = LABEL[view] || 'Nothing to show.';
+					host.appendChild(p);
+				}
+			}
+
+			document.addEventListener('click', (e) => {
+				const tab = e.target.closest && e.target.closest('[data-view-tab]');
+				if (!tab) return;
+				applyView(tab.getAttribute('data-view-tab'));
+				// A view swaps out everything below the header, so start it at the top
+				// rather than dropping you mid-way down a document you have not seen.
+				window.scrollTo({ top: 0, behavior: 'smooth' });
+			});
+
+			function sec(title, sub, body, view) {
+				return `<section data-view="${view || 'game'}"><div class="sec-head"><h2>${title}</h2>${sub ? `<span class="sub">${sub}</span>` : ''}</div>${body}</section>`;
 			}
 			function card(inner) {
 				return `<div class="card">${inner}</div>`;
@@ -2087,7 +2347,7 @@
 			 * shown as its own row rather than folded into a real store, so the
 			 * backfill gap stays visible instead of padding whichever one you read first. */
 			/* detectOS() in src/platform.ts returns exactly these. Shared, because the
-			   keyboard gate reads them too and a phone has to be recognisable as a
+			   keyboard gate reads them too and a phone has to be recognizable as a
 			   phone in both places. */
 			/* The ten-goal starter chain (starterTasks() in server/resources.ts), keyed
 			 * by task id. Labels live here rather than coming down with the payload
@@ -2297,14 +2557,14 @@
 			/* A dense day-by-day bar chart. Its own renderer rather than histCols,
 			 * which puts a number and a label under every column — fine for four
 			 * tutorial steps, unreadable at ninety days. Here the count lives in the
-			 * tooltip and the axis is labelled at intervals. */
+			 * tooltip and the axis is labeled at intervals. */
 			function dayCols(days, key) {
 				if (!days.length) return `<div class="emptynote">No days in this range.</div>`;
 				const max = Math.max(...days.map((d) => n(d[key])), 1);
 				/* Every column ships its count and its date; which of them survive is
 				 * decided by fitDayCharts() from the width the columns actually got.
 				 * Deriving that from the day count alone was wrong at every width but
-				 * the one it was tuned on — on a phone it produced a grey smear.
+				 * the one it was tuned on — on a phone it produced a gray smear.
 				 * Zeros stay blank: the flat tick already says nothing happened, and a
 				 * row of 0s over empty days is noise competing with the real numbers. */
 				const fmtDay = (iso) => {
@@ -2335,7 +2595,7 @@
 			 * Column width is not knowable when the markup is built — it depends on the
 			 * card, the viewport, and whether the strip ended up scrolling — so labels
 			 * and counts are dropped here, after layout, and again on resize. A date
-			 * needs roughly 34px to sit under its bar without touching its neighbour;
+			 * needs roughly 34px to sit under its bar without touching its neighbor;
 			 * a two-digit count needs about 17px. Labels are spaced backwards from the
 			 * last column so the most recent day is always the one that keeps its date. */
 			function fitDayCharts() {
@@ -2562,6 +2822,7 @@
 			let PLAYERS_BY_ID = {};
 			let modalEl = null;
 			let LANDING = null; // latest GET /LandingStats/ payload (null until loaded / if unavailable)
+			let CLASSROOM = null; // latest GET /LessonStats/ payload (same contract)
 			let SAVEHEALTH = null; // latest GET /SaveHealth/ payload — records that would not decode
 			let GAMEPLAYHEALTH = null; // latest GET /GameplayHealth/ payload — refusals + interface crashes
 			let SERVERHEALTH = null; // latest GET /ServerHealth/ payload — Harper's own telemetry
@@ -2573,7 +2834,7 @@
 			 * first shipped showing em-dashes on a healthy server. Not adjustable in
 			 * the UI either: a 24h window makes ServerHealth read to its 4,000-row
 			 * cap and it became the slowest endpoint on the instance. The endpoint
-			 * still honours ?minutes= for anyone reading it directly. */
+			 * still honors ?minutes= for anyone reading it directly. */
 			const SERVER_WINDOW = 60;
 
 			/** How this caretaker has their settings — every option in Settings →
@@ -2589,7 +2850,7 @@
 			 *  not just spot the ones that are on. `interactHint` is inverted here
 			 *  because it ships ON: what is worth seeing is that this player turned it
 			 *  off. Everything with more than two values (colorblind mode, text size,
-			 *  font, theme) gets a labelled row instead, using the same label maps as
+			 *  font, theme) gets a labeled row instead, using the same label maps as
 			 *  the site-wide rollup. */
 			function prefsCardHTML(p) {
 				const pr = p.prefs;
@@ -2769,9 +3030,69 @@
 				);
 
 				const prefsCard = prefsCardHTML(p);
+				/* WHICH ANIMALS CAME HOME, AND WHEN — in play time, not in dates.
+				 *
+				 * The rest of this modal can say thirty-one animals returned and not
+				 * which ones, or when. This is the shape of a playthrough: how long
+				 * before the first arrival, whether the second followed soon enough to
+				 * read as progress, and which species is the one everybody stalls on.
+				 *
+				 * `at` is the play seconds already accrued when it arrived, so the
+				 * numbers compare across saves regardless of how many evenings they
+				 * were spread over. The gap column is the wait since the previous
+				 * arrival, which is the number that shows a wall.
+				 *
+				 * Saves written before the log existed have none, and say so — an
+				 * empty list here would otherwise read as "no animals ever came back"
+				 * for every player who predates it. */
+				const arrivals = Array.isArray(p.arrivals) ? p.arrivals.filter((a) => a && a.id) : [];
+				/* The name the save recorded, or the id un-slugged for rows written
+				 * before names were stored. Un-slugging is a fallback, not the plan:
+				 * "red-tailed-hawk" comes out "Red Tailed Hawk", which is close enough
+				 * to read on an old save and wrong enough not to rely on. */
+				const speciesName = (a) =>
+					a.name || String(a.id).replace(/-/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
+				const arrivalsCard = (() => {
+					const returned = n(bs.totalAnimalsReturned);
+					if (!arrivals.length) {
+						return returned
+							? cardTitled(
+									'Animals that came home',
+									`${fmt(returned)} returned`,
+									`<p class="emptynote">This save reported its arrivals before the game started recording when each one happened. The count is right; the timeline starts from the next animal.</p>`,
+								)
+							: '';
+					}
+					const rows = arrivals
+						.slice()
+						.sort((a, b) => n(a.at) - n(b.at))
+						.map((a, i, all) => {
+							const gap = i ? n(a.at) - n(all[i - 1].at) : n(a.at);
+							return (
+								`<div class="recrow"><b>${esc(speciesName(a))}</b>` +
+								`<span>${fmtDur(n(a.at))}${i ? ` <span class="hint" style="display:inline">+${fmtDur(gap)}</span>` : ''}</span></div>`
+							);
+						})
+						.join('');
+					const last = arrivals.reduce((m, a) => Math.max(m, n(a.at)), 0);
+					return cardTitled(
+						'Animals that came home',
+						`${fmt(arrivals.length)} recorded${returned > arrivals.length ? ` of ${fmt(returned)}` : ''} · first at ${fmtDur(n(arrivals[0].at))}, latest at ${fmtDur(last)}`,
+						`<div class="reclist">${rows}</div>`,
+					);
+				})();
 
+
+				/* WHERE THIS COPY CAME FROM sits with the rest of the identity line.
+				 *
+				 * The site-wide rollup has tallied channels since they shipped, but a
+				 * single caretaker never showed one — so "who are the itch players"
+				 * was answerable and "did this person come from itch" was not. Saves
+				 * written before channels shipped say so rather than being folded into
+				 * whichever bucket looks emptiest. */
+				const channel = p.channel ? CHANNEL_LABELS[p.channel] || p.channel : null;
 				const meta = esc(
-					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language].filter(Boolean).join(' · '),
+					[p.platform, p.os, p.version, LANG_LABELS[p.language] || p.language, channel].filter(Boolean).join(' · '),
 				);
 				const when = [joined, last].filter(Boolean).join(' · ');
 				/* Carried over from the demo. Spelled out here rather than left as a
@@ -2797,6 +3118,9 @@
 						? `<div class="grid two" style="margin-top:.8rem">${areaCard}${menuCard}</div>`
 						: '') +
 					(recCard ? `<div style="margin-top:.8rem">${recCard}</div>` : '') +
+					// The arrivals timeline is the long one, so it sits full width under
+					// the two-up cards rather than squeezed beside one of them.
+					(arrivalsCard ? `<div style="margin-top:.8rem">${arrivalsCard}</div>` : '') +
 					(prefsCard
 						? `<div class="grid two" style="margin-top:.8rem">${onboard}${prefsCard}</div>`
 						: `<div style="margin-top:.8rem">${onboard}</div>`) +
@@ -3044,32 +3368,25 @@
 				return p.length ? '?' + p.join('&') : '';
 			}
 
-			/* Which of the three views is on screen: the metrics, what is going
-			 * wrong, or how Harper itself is doing. Remembered across reloads — if you
-			 * opened one because you were chasing something, a refresh mid-chase
-			 * shouldn't drop you back to the front page.
+			/* There used to be a MODE here as well as a VIEW: three buttons that swapped
+			 * the whole page out for the problem panels or Harper's telemetry, running
+			 * alongside the four chips that filtered the same page down to the same
+			 * panels. Two controls, one destination, and a remembered MODE could put
+			 * you on a page the chips claimed you were not on. The chips are the only
+			 * switcher now; whichever of them was last chosen is what VIEW_KEY
+			 * remembers, and the panels are ordinary sections like everything else.
 			 *
-			 * One variable, not a boolean per panel: the views are mutually exclusive,
-			 * and two independent flags can represent states that are not supposed to
-			 * exist (both on, both off after a partial write). */
-			const MODE_KEY = 'ww-dashboard-mode';
-			const MODES = ['dashboard', 'problems', 'server'];
-			let MODE = 'dashboard';
+			 * The old key is migrated once on load rather than dropped, so anyone who
+			 * left the page on Problems comes back to Problems. */
 			try {
-				const saved = localStorage.getItem(MODE_KEY);
-				if (MODES.includes(saved)) MODE = saved;
-				// Migrate the old boolean so an open Problems view survives the upgrade.
-				else if (localStorage.getItem('ww-dashboard-show-problems') === '1') MODE = 'problems';
-			} catch {
-				/* private mode — default to the dashboard */
-			}
-			function setMode(next) {
-				MODE = MODES.includes(next) ? next : 'dashboard';
-				try {
-					localStorage.setItem(MODE_KEY, MODE);
-				} catch {
-					/* private mode — the switch still works for this session */
+				const legacy = localStorage.getItem('ww-dashboard-mode');
+				if (legacy === 'problems' || legacy === 'server') {
+					localStorage.setItem(VIEW_KEY, legacy === 'server' ? 'harper' : 'problems');
 				}
+				localStorage.removeItem('ww-dashboard-mode');
+				localStorage.removeItem('ww-dashboard-show-problems');
+			} catch {
+				/* private mode — nothing to migrate and nowhere to write it */
 			}
 
 			/* What the badge counts.
@@ -3106,47 +3423,56 @@
 				return bits.length ? bits.join(' · ') : null;
 			}
 
-			function syncProblemsButton() {
-				const btn = document.getElementById('problems');
-				const label = document.getElementById('problems-label');
-				if (btn && label) {
-					// Nothing to show at all (endpoints unavailable) — hide the control
-					// rather than offer a button that opens an empty page.
+			/* The two chips that can carry bad news, kept honest against the payloads.
+			 *
+			 * A chip is HIDDEN when its view has no data behind it at all — an
+			 * instance that predates /ServerHealth/ should not offer a Harper tab that
+			 * opens an explanation of why it is empty. A chip goes AMBER when there is
+			 * something to act on, so the color carries the state without being read.
+			 *
+			 * What the Problems badge counts is deliberately not refusals. A refusal is
+			 * the server saying "not enough materials" — that is the game working, and
+			 * every player generates them, so a lifetime count would sit in the
+			 * thousands and mean nothing. Badging it would train you to ignore the
+			 * badge, which is the one failure mode a quiet tab cannot survive. */
+			function syncViewBadges() {
+				const ptab = document.querySelector('[data-view-tab="problems"]');
+				const plabel = document.getElementById('tab-problems-label');
+				if (ptab && plabel) {
 					const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
-					btn.hidden = !havePanels;
+					ptab.hidden = !havePanels;
 					if (havePanels) {
 						const p = problemCount();
 						const bits = [];
 						if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
 						if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
-						label.innerHTML = 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
-						btn.title = p.total
+						plabel.innerHTML = 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
+						ptab.title = p.total
 							? bits.join(' · ') + ' — plus every refusal the server has given'
-							: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
-						btn.classList.toggle('on', MODE === 'problems');
-						btn.classList.toggle('bad', p.total > 0);
-						btn.setAttribute('aria-pressed', MODE === 'problems' ? 'true' : 'false');
+							: 'No crashes or unreadable saves. Refusals and the full breakdown are in here.';
+						ptab.classList.toggle('bad', p.total > 0);
 					}
 				}
 
-				const sbtn = document.getElementById('serverbtn');
-				const slabel = document.getElementById('serverbtn-label');
-				if (sbtn && slabel) {
-					sbtn.hidden = !SERVERHEALTH;
+				const htab = document.querySelector('[data-view-tab="harper"]');
+				const hlabel = document.getElementById('tab-harper-label');
+				if (htab && hlabel) {
+					htab.hidden = !SERVERHEALTH;
 					if (SERVERHEALTH) {
 						const trouble = serverTrouble();
-						slabel.innerHTML = 'Server' + (trouble ? `<span class="pbadge">!</span>` : '');
-						sbtn.title = trouble ? `Harper: ${trouble}` : "Harper's own telemetry — threads, storage, responses, replication.";
-						sbtn.classList.toggle('on', MODE === 'server');
-						sbtn.classList.toggle('bad', !!trouble);
-						sbtn.setAttribute('aria-pressed', MODE === 'server' ? 'true' : 'false');
+						hlabel.innerHTML = 'Harper' + (trouble ? `<span class="pbadge">!</span>` : '');
+						htab.title = trouble
+							? `Harper: ${trouble}`
+							: "Harper's own telemetry — threads, storage, responses, replication.";
+						htab.classList.toggle('bad', !!trouble);
 					}
 				}
 
-				// One way back, shown only when you are not already home. Labelling a
-				// mode switch by what it conceals leaves you hunting for the way out.
-				const back = document.getElementById('backbtn');
-				if (back) back.hidden = MODE === 'dashboard';
+				/* A view whose chip just disappeared must not stay on screen with no way
+				 * back to it, so fall back to Game. */
+				const current = document.body.getAttribute('data-view');
+				const chip = document.querySelector(`[data-view-tab="${current}"]`);
+				if (chip && chip.hidden) applyView('game');
 			}
 
 			/* The last payload, kept so the date picker can redraw without refetching.
@@ -3228,7 +3554,7 @@
 					const day = (ms) =>
 						ms ? new Date(ms).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
 					/* In a window, the count column shows what happened IN it, with the
-					 * all-time figure kept beside it in grey. A row whose buckets predate
+					 * all-time figure kept beside it in gray. A row whose buckets predate
 					 * the per-day counters reads "—" rather than 0: there is no evidence
 					 * either way, and printing a zero would be inventing some. */
 					const hits = (r) => {
@@ -3319,6 +3645,7 @@
 									`Refusals are ordinary — a player short on materials makes one — so if this stays empty during real play, ` +
 									`check that the <code>Refusal</code> and <code>ClientError</code> tables exist.</p></div>`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -3362,6 +3689,7 @@
 								? `<div class="card" style="margin-top:.8rem"><h3>Most recent<span class="tag">last 25</span></h3>` +
 									`<table class="tbl"><thead><tr><th>Table</th><th>Record</th><th>Failure</th><th class="num">Hits</th><th class="num">Last seen</th></tr></thead><tbody>${rows}</tbody></table></div>`
 								: ''),
+										'problems',
 					);
 				}
 
@@ -3376,6 +3704,280 @@
 				 *
 				 * Built here (it needs `LANDING`) and pushed under Engagement — see the
 				 * push a little further down. */
+
+				/* ---- Classroom (the coding kit) ----
+				 * Fed by GET /LessonStats/. Anonymous counters only — see the contract
+				 * note on LessonEvent in server/resources.ts. Same best-effort loading
+				 * as the landing section: if the endpoint isn't deployed, the section
+				 * simply doesn't render.
+				 *
+				 * The FUNNEL leads, because it is the only number here that tells you
+				 * what to do next. Everything else is context for it: the errors are a
+				 * work queue for explanation copy, the ideas say which prompts students
+				 * actually pick, and the health strip is the only way to find out that
+				 * a school network is silently blocking the API. */
+				/* EDUCATION IS TWO KITS, NOT ONE SECTION.
+				 *
+				 * These used to be a single "Classroom" block, which put a grades-5-8
+				 * ecology activity and a grades-9-12 web-development course under one
+				 * heading and one funnel. They share a hub and nothing else: different
+				 * ages, different subjects, different teachers, and completely
+				 * different shapes of evidence. The science kit is measured by pages
+				 * read and PDFs taken away, because the activity happens in the game
+				 * and on paper; the coding kit is measured by what students did in the
+				 * editor, because all of it happens on this site.
+				 *
+				 * Averaging those together produced numbers that described neither. */
+				let codingSection = '';
+				/* Set inside the two payload blocks below and read by the science
+				   section, which is assembled last because it needs both. */
+				let reachById = {};
+				let kitSplit = null;
+				let pdfDownloads = null;
+				let pdfToday = 0;
+				let schoolCopies = 0;
+				if (CLASSROOM && CLASSROOM.totals) {
+					const C = CLASSROOM.totals;
+					const cN = (k) => n(C[k]) || 0;
+
+					/* Drop-off, expressed against the step before it rather than the top.
+					 * "Half the people who opened the builder ran their code" is a
+					 * sentence you can act on; "6% of hub visitors downloaded" is not. */
+					const funnelSteps = (steps) =>
+						(steps || []).map((f, i, all) => {
+							const prev = i ? n(all[i - 1].n) : 0;
+							const drop = i && prev ? Math.round((n(f.n) / prev) * 100) : null;
+							return [f.label + (drop != null ? ` (${drop}% of previous)` : ''), n(f.n)];
+						});
+					/* TWO strands, drawn separately, because the lesson and the builder are
+					 * two entry points rather than two steps of one path: the nav offers the
+					 * builder from every page, so a visit can start in either. Merged, the
+					 * run and fetch counters were the sum of both pages under a denominator
+					 * that counted one of them, and a step could read 400% of the one above
+					 * it. An older instance sends only the merged list; the builder card is
+					 * simply absent there rather than drawn as zeros. */
+					const funnelRows = funnelSteps(CLASSROOM.funnel);
+					const builderRows = funnelSteps(CLASSROOM.builderFunnel);
+
+					const ERROR_LABELS = {
+						'fetch-failed': 'Could not reach the data',
+						'null-property': 'Element not on the page',
+						'undefined-property': 'Field not in the data',
+						'not-defined': 'Name not recognized',
+						'not-a-function': 'Not something you can call',
+						'unexpected-eof': 'Something left open',
+						'json-parse': 'Answer was not JSON',
+						'await-async': 'await outside async',
+						'const-assign': 'Reassigned a const',
+						'not-iterable': 'Not a list',
+						'object-object': 'Rendered [object Object]',
+						'undefined-text': 'Rendered "undefined"',
+						masked: 'Browser hid the reason',
+						syntax: 'Other syntax mistake',
+						other: 'Unclassified',
+					};
+
+					const DURATIONS = [
+						['Under 5 min', 'duration_lt5m'],
+						['5–15 min', 'duration_5to15m'],
+						['15–30 min', 'duration_15to30m'],
+						['30–60 min', 'duration_30to60m'],
+						['Over an hour', 'duration_gt60m'],
+					];
+					const durationRows = DURATIONS.map(([label, key]) => [label, cN(key)]).filter((r) => r[1]);
+					const sessions = n(CLASSROOM.sessions) || 0;
+					/* A midpoint estimate, labeled as one. The buckets are deliberate —
+					 * a precise per-session duration is a behavioral trace of one person
+					 * — so this is the honest way to answer "roughly how long?" from them. */
+					const MIDPOINT = { duration_lt5m: 2.5, duration_5to15m: 10, duration_15to30m: 22, duration_30to60m: 45, duration_gt60m: 75 };
+					const bucketed = DURATIONS.reduce((a, [, k]) => a + cN(k), 0);
+					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
+					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
+
+					/* TIME IN THE LESSON, which is a different question from time in the
+					 * builder and was not being asked at all.
+					 *
+					 * The builder is a workshop you sit down at; the lesson is ten chapters
+					 * somebody has to get through inside a period, and "does it fit in
+					 * forty-five minutes" is the thing a teacher decides on. The server
+					 * bands it and hands over the midpoints it used, so the estimate here
+					 * is not a second, quietly different piece of arithmetic. */
+					const LT = (CLASSROOM.time && CLASSROOM.time.session) || { buckets: [], n: 0, meanMinutes: null };
+					const lessonTimeRows = (LT.buckets || []).filter((b) => n(b.n)).map((b) => [b.label, n(b.n)]);
+					const lessonTypical = LT.meanMinutes == null ? null : Math.round(LT.meanMinutes);
+					const lessonFullPeriod = (LT.buckets || []).filter((b) => b.id === '30to60m' || b.id === 'gt60m').reduce((a, b) => a + n(b.n), 0);
+
+					/* WHERE THAT TIME WENT, per chapter, ranked by how long people stay.
+					 *
+					 * Collected since the lesson was written and never once displayed. It
+					 * is the only counter that can say a chapter is too long — a chapter
+					 * that everybody reaches and nobody lingers in was skimmed, and one
+					 * that eats ten minutes is either the best thing on the page or the
+					 * place the period runs out. */
+					const chapterTime = ((CLASSROOM.time && CLASSROOM.time.chapters) || []).filter((c) => n(c.n) > 0);
+					const chapterTimeRows = chapterTime
+						.map((c) => [`Ch ${c.chapter}`, c.meanMinutes == null ? 0 : Math.round(c.meanMinutes * 10) / 10])
+						.filter((r) => r[1] > 0);
+					const stickiest = chapterTime.slice().sort((a, b) => (b.meanMinutes || 0) - (a.meanMinutes || 0))[0];
+
+					/* `unique` is null for a page that does not report first-visits yet,
+					   and that is not the same as zero: one means "nobody new", the other
+					   means "not measured". The row shows nothing rather than a 0. */
+					for (const r of CLASSROOM.reach || []) reachById[r.id] = r;
+					kitSplit = { science: cN('nav_science'), coding: cN('nav_coding') };
+
+					/* The coding kit's own pages. The science page and the teachers hub
+					   are deliberately not here: one belongs to the other kit, and the
+					   hub belongs to both, so it is reported with the site rather than
+					   claimed by either. */
+					const CODING_PAGES = ['coding', 'learn', 'lesson', 'builder', 'developers'];
+					const reachRows = (CLASSROOM.reach || [])
+						.filter((r) => CODING_PAGES.includes(r.id) && n(r.views) > 0)
+						.sort((a, b) => n(b.views) - n(a.views))
+						.map((r) => [r.label, n(r.views), r.unique == null ? null : n(r.unique), r.path]);
+					const reachMax = Math.max(...reachRows.map((r) => r[1]), 1);
+
+					const ARRIVAL_LABELS = {
+						direct: 'Typed it or had it bookmarked',
+						search: 'A search engine',
+						social: 'Reddit, Bluesky or another social site',
+						internal: 'Another page on this site',
+						other: 'Somewhere else',
+					};
+					const arrivalRows = (CLASSROOM.arrivals || []).map((a) => [ARRIVAL_LABELS[a.key] || a.key, a.n]);
+
+					const h = CLASSROOM.health || {};
+					const fetchTotal = n(h.fetchOk) + n(h.fetchFailed);
+					const blockedPct = fetchTotal ? Math.round((n(h.fetchFailed) / fetchTotal) * 100) : 0;
+
+					codingSection = sec(
+						'Coding kit',
+						'/learn and /developers — intro to APIs & web development, grades 9-12',
+						`<div class="grid kpis">${[
+							kpi(fmt(sessions), 'Builder sessions', `${fmt(cN('returning_day2') + cN('returning_day3'))} came back another day`),
+							kpi(
+								`<span class="accent">${typicalMin ? typicalMin + 'm' : '—'}</span>`,
+								'Typical time in the builder',
+								`${fmt(longSessions)} ${longSessions === 1 ? 'session' : 'sessions'} over half an hour`,
+							),
+							kpi(
+								`<span class="accent">${lessonTypical ? lessonTypical + 'm' : '—'}</span>`,
+								'Typical time in the lesson',
+								LT.n ? `${fmt(lessonFullPeriod)} of ${fmt(LT.n)} ${LT.n === 1 ? 'visit' : 'visits'} ran half an hour or more` : 'no visits measured yet',
+							),
+							// Both strands: the question is how many students got to real data,
+							// not which of the two pages they were on when they did.
+							kpi(
+								fmt(cN('first_fetch_ok') + cN('builder_first_fetch_ok')),
+								'Reached real data',
+								'students whose own fetch worked',
+							),
+							kpi(
+								blockedPct > 10 ? `<span class="accent">${blockedPct}%</span>` : `${blockedPct}%`,
+								'Fetches that failed',
+								fetchTotal ? `${fmt(h.fetchFailed)} of ${fmt(fetchTotal)} — a blocked school network looks like this` : 'no fetches yet',
+							),
+						].join('')}</div>` +
+							`<div style="margin-top:.8rem">` +
+							cardTitled('In the lesson', 'where /learn/web-development loses people', barRows(funnelRows)) +
+							`</div>` +
+							(builderRows.length
+								? `<div style="margin-top:.8rem">` +
+									cardTitled(
+										'In the builder',
+										'/learn/code-builder, counted from its own arrivals',
+										barRows(builderRows),
+									) +
+									`</div>`
+								: '') +
+							/* REACH, next to the funnel and deliberately not inside it.
+							 *
+							 * The funnel is ONE path: hub, coding kit, lesson, builder, run,
+							 * fetch, download. Most of the site is not on it — the science kit
+							 * is a different classroom, the API docs are for somebody who is
+							 * not in a classroom at all — and forcing them in as "steps" made
+							 * every drop-off percentage below them meaningless.
+							 *
+							 * Two numbers per page. Views is traffic; first-time browsers is
+							 * reach. A page whose two numbers are close is finding new people;
+							 * one where views run far ahead is being reloaded by the same few,
+							 * and those are opposite problems. */
+							`<div style="margin-top:.8rem">` +
+							cardTitled(
+								'Its pages, side by side',
+								'visits this period, and how many of them were somebody new',
+								reachRows.length
+									? `<div class="bars">${reachRows
+											.map(
+												([lab, views, uniq, path]) =>
+													`<div class="bar"><span class="lab" title="${esc(path)}">${esc(lab)}</span>` +
+													`<span class="track" style="position:relative"><span class="fill" style="width:${Math.max(2, (views / reachMax) * 100)}%"></span>` +
+													/* The first-visit share, drawn INSIDE the same track rather than as
+													   a second bar: the question is what fraction of this page's traffic
+													   was somebody new, and two bars side by side make that a subtraction
+													   the reader has to do. */
+													(uniq == null
+														? ''
+														: `<span class="fill" style="width:${Math.max(2, (uniq / reachMax) * 100)}%;opacity:.45;position:absolute;left:0;top:0"></span>`) +
+													`</span>` +
+													`<span class="num">${fmt(views)}${uniq == null ? '' : ` · ${fmt(uniq)} new`}</span></div>`,
+											)
+											.join('')}</div>`
+									: `<div class="emptynote">No page views recorded yet.</div>`,
+							) +
+							`</div>` +
+							(arrivalRows.length
+								? `<div style="margin-top:.8rem">` +
+									cardTitled('How they arrived', 'resolved in the browser, never sent as a URL', barRows(arrivalRows)) +
+									`</div>`
+								: '') +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Errors students hit',
+								'ranked — this is the queue for explanation copy',
+								barRows((CLASSROOM.errors || []).map((e) => [ERROR_LABELS[e.key] || e.key, e.n])),
+							) +
+							cardTitled('Time in the builder', 'active time, bucketed', barRows(durationRows)) +
+							`</div>` +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Time in the lesson',
+								'whole visits — on screen and not idle, bucketed',
+								lessonTimeRows.length ? barRows(lessonTimeRows) : `<div class="emptynote">No lesson visits measured yet.</div>`,
+							) +
+							cardTitled(
+								'Where that time goes',
+								stickiest ? `estimated minutes per chapter — longest is chapter ${stickiest.chapter}` : 'estimated minutes per chapter',
+								chapterTimeRows.length ? barRows(chapterTimeRows) : `<div class="emptynote">No chapter timings yet.</div>`,
+							) +
+							`</div>` +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Ideas students picked',
+								'which prompts earn their place',
+								barRows((CLASSROOM.ideas || []).slice(0, 12).map((i) => [i.id.replace(/-/g, ' '), i.n])),
+							) +
+							cardTitled(
+								'How it is used',
+								'view, theme and console choices',
+								barRows(
+									[
+										['Split view', cN('view_split')],
+										['Code only', cN('view_code')],
+										['Page only', cN('view_preview')],
+										['Opened in a new tab', cN('open_tab')],
+										['Downloaded', cN('download')],
+										['Dark mode', cN('theme_dark')],
+										['Console collapsed', cN('console_collapsed')],
+										['Ideas opened', cN('ideas_opened')],
+									].filter((r) => r[1]),
+								),
+							) +
+							`</div>`,
+										'website',
+					);
+				}
+
 				let landingSection = '';
 				if (LANDING && LANDING.totals) {
 					const lt = LANDING.totals;
@@ -3390,7 +3992,14 @@
 						support: 'Support page',
 						'get-nav': 'Get the game (nav)',
 						'edu-nav': 'For teachers (nav)',
-						'edu-page': 'Teachers page (viewed)',
+						// `edu-page` is the science kit's OLD self-report. Its page view moved
+						// to /LessonEvent/ as `view_science` so it could be compared with the
+						// other kits; the historical series stays labeled and readable
+						// rather than being quietly renamed under its own numbers.
+						'edu-page': 'Science kit (viewed, before Aug 2026)',
+						'privacy-page': 'Privacy policy (viewed)',
+						'support-page': 'Support page (viewed)',
+						'rating-page': 'Age suitability (viewed)',
 						'pdf-guide': 'Educator guide (click)',
 						'pdf-worksheets': 'Worksheets (click)',
 						'school-copy': 'Classroom copy request',
@@ -3423,6 +4032,37 @@
 					const dl = lt.downloads || {};
 					const dlToday = todayRow.downloads || {};
 					const DL_LABELS = { guide: 'Educator Guide', worksheets: 'Student Worksheets' };
+					/* Handed to the science section below. The PDFs ARE the science kit —
+					   the guide and the six worksheets — so the breakdown belongs with it
+					   rather than under the landing page that happens to link to them. */
+					pdfDownloads = dl;
+					pdfToday = Object.values(dlToday).reduce((a, v) => a + n(v), 0);
+					schoolCopies = n((lt.clicks || {})['school-copy']);
+					/* Where people arrived from, in the only vocabulary this site has:
+					 * nine buckets, resolved in the visitor's own browser. The referrer
+					 * URL is never sent — see LANDING_SOURCES in server/resources.ts.
+					 *
+					 * Counted on a page's once-per-session ping, so this is arrivals,
+					 * not events: a visitor who clicks six links still arrived once. */
+					const SOURCE_LABELS = {
+						google: 'Google',
+						bing: 'Bing',
+						duckduckgo: 'DuckDuckGo',
+						reddit: 'Reddit',
+						itch: 'itch.io',
+						apple: 'Apple',
+						bluesky: 'Bluesky',
+						direct: 'Direct or bookmarked',
+						other: 'Somewhere else',
+					};
+					const srcTotal = Object.values(lt.sources || {}).reduce((a, v) => a + n(v), 0);
+					const sourcesCard = cardTitled(
+						'Where visitors come from',
+						srcTotal
+							? `${fmt(srcTotal)} ${srcTotal === 1 ? 'arrival' : 'arrivals'} all-time`
+							: 'nothing recorded yet — this starts filling once the change is deployed',
+						barRows(objToEntries(lt.sources), { labelMap: SOURCE_LABELS, cls: 'sky' }),
+					);
 					/* Daily visits used to be a fixed last-14-days histogram wedged into
 					 * the two-up grid beside "Clicks by link". It now gets the same
 					 * control — and the same dense day-column chart — as New caretakers
@@ -3442,7 +4082,7 @@
 						: '';
 					landingSection = sec(
 						'Landing page',
-						'wildwillows.app — visits, link clicks & classroom PDFs',
+						'wildwillows.app — visits, arrivals, link clicks and where the hub sends people',
 						`<div class="grid kpis">${[
 							kpi(fmt(lt.visits), 'Visits', `${fmt(lt.uniques)} first-time visitors`),
 							kpi(
@@ -3472,12 +4112,26 @@
 								'all-time',
 								barRows(objToEntries(mergeCtaClicks(lt.clicks)), { labelMap: CLICK_LABELS, cls: 'gold' }),
 							) +
+							/* Where the Classroom PDFs card used to sit. It moved into the
+							   science kit's own section; what belongs here instead is the
+							   thing the hub is FOR, which is deciding which kit to take. */
 							cardTitled(
-								'Classroom PDFs',
-								`downloaded all-time · ${fmt(Object.values(dlToday).reduce((a, v) => a + n(v), 0))} today`,
-								barRows(objToEntries(dl), { labelMap: DL_LABELS, cls: 'sky' }),
+								'The teachers hub',
+								'/teachers — which kit a visitor took from it',
+								kitSplit && (kitSplit.science || kitSplit.coding)
+									? barRows([
+											['Took the science kit', kitSplit.science],
+											['Took the coding kit', kitSplit.coding],
+											reachById.hub ? ['Reached the hub at all', n(reachById.hub.views)] : null,
+										])
+									: '<div class="emptynote">No hub navigation recorded yet.</div>',
 							) +
-							`</div>`,
+							`</div>` +
+							// Acquisition is its own question — not a breakdown of the
+							// clicks above it — so it gets its own full-width row rather
+							// than a third column squeezed into the two-up grid.
+							`<div style="margin-top:.8rem">${sourcesCard}</div>`,
+										'website',
 					);
 				}
 
@@ -3574,7 +4228,80 @@
 				 * number on this page: how many people arrived at all. High but not
 				 * first is the compromise — the game numbers lead, the traffic follows
 				 * immediately. */
+				/* ---- Science kit ----
+				 *
+				 * Assembled here rather than with the other two because it needs BOTH
+				 * payloads: its reach comes from /LessonStats/ and its downloads from
+				 * /LandingStats/, since the PDF links are shared with the landing page
+				 * and always have been.
+				 *
+				 * IT IS MEASURED DIFFERENTLY ON PURPOSE. There is no funnel here and no
+				 * error ranking, because there is almost nothing to instrument: the
+				 * activity happens inside the game and on paper. What a teacher does on
+				 * this site is read the guide and take the PDFs away, so reach and
+				 * downloads are not a thin version of the coding numbers — they are the
+				 * whole of what this kit can honestly report. */
+				let scienceSection = '';
+				{
+					const sci = reachById.science;
+					const guide = n((pdfDownloads || {}).guide);
+					const sheets = n((pdfDownloads || {}).worksheets);
+					const anything = (sci && n(sci.views)) || guide || sheets || schoolCopies;
+					if (anything) {
+						scienceSection = sec(
+							'Science kit',
+							'/teachers/science — ecosystems & habitat, grades 5-8',
+							`<div class="grid kpis">${[
+								kpi(
+									fmt(sci ? sci.views : 0),
+									'Kit page views',
+									sci && sci.unique != null ? `${fmt(sci.unique)} first-time visitors` : 'first-time visitors not measured yet',
+								),
+								kpi(fmt(guide + sheets), 'PDFs taken', `${fmt(pdfToday)} today`),
+								kpi(fmt(guide), 'Educator guides', 'the eight-page lesson plan'),
+								kpi(
+									schoolCopies ? `<span class="accent">${fmt(schoolCopies)}</span>` : '0',
+									'Classroom copy requests',
+									'teachers asking for free copies of the game',
+								),
+							].join('')}</div>` +
+								`<div class="grid two" style="margin-top:.8rem">` +
+								cardTitled(
+									'What they took away',
+									'downloaded all-time — the kit itself',
+									pdfDownloads && Object.keys(pdfDownloads).length
+										? barRows(objToEntries(pdfDownloads), {
+												labelMap: { guide: 'Educator Guide', worksheets: 'Student Worksheets' },
+												cls: 'gold',
+											})
+										: '<div class="emptynote">No downloads recorded yet.</div>',
+								) +
+								cardTitled(
+									'Read, then taken',
+									'how much of the reading turns into a download',
+									sci && n(sci.views)
+										? barRows([
+												['Opened the kit page', n(sci.views)],
+												[`Took a PDF (${Math.round(((guide + sheets) / n(sci.views)) * 100)}% of readers)`, guide + sheets],
+												schoolCopies ? [`Asked for classroom copies`, schoolCopies] : null,
+											])
+										: '<div class="emptynote">No page views recorded yet.</div>',
+								) +
+								`</div>` +
+								`<p class="emptynote" style="margin-top:.8rem">Nothing else is counted here, and that is not a gap. The science activity happens in the game and on the worksheets, so once a teacher has the PDFs this site stops being able to see anything — by design.</p>`,
+							'website',
+						);
+					}
+				}
+
 				if (landingSection) out.push(landingSection);
+
+				/* Directly under Landing page: all three are site numbers rather than
+				 * game numbers, and the education funnels start where the landing one
+				 * ends. Science first because it is the older and larger of the two
+				 * kits, and because its numbers are the shorter read. */
+				if (scienceSection) out.push(scienceSection);
+				if (codingSection) out.push(codingSection);
 
 				/* ---- Editions: demo vs full ---- */
 				const edOf = (p) => (p.edition === 'demo' ? 'demo' : 'full');
@@ -3586,7 +4313,7 @@
 				const playersDonut = donut(
 					[
 						{ label: 'Full', value: edSum.full != null ? edSum.full : fStat.count, color: '#4a7c46' },
-						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: '#7fb069' },
+						{ label: 'Demo', value: edSum.demo != null ? edSum.demo : dStat.count, color: 'var(--s3)' },
 					].filter((x) => x.value),
 				);
 				const vsRows = [
@@ -3702,7 +4429,7 @@
 								.slice(0, 2)
 								.map((t) => `<span class="hltag">${t}</span>`)
 								.join('');
-							// The green border is the ask, but colour alone isn't a reliable cue, so the
+							// The green border is the ask, but color alone isn't a reliable cue, so the
 							// card also carries it in its tooltip and an aria-label for screen readers.
 							const liveTag = live ? `<span class="hltag hllive">Active now</span>` : '';
 							// The best thing a card can say about a player: they played the
@@ -3753,10 +4480,10 @@
 								: '';
 							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
-								stat(fmt(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
-								stat(fmt(n(p.totalActions)), 'actions'),
+								stat(fmtShort(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
+								stat(`<span title="${fmt(n(p.totalActions))} actions">${fmtShort(n(p.totalActions))}</span>`, 'actions'),
 								stat(`${n(p.achievements && p.achievements.earned)}★`, 'achievements'),
-								stat(fmt(n(bs.totalAnimalsReturned)), 'animals'),
+								stat(fmtShort(n(bs.totalAnimalsReturned)), 'animals'),
 								stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'biomes'),
 							].join('')}</div>${chainRow}</div></div>`;
 						})
@@ -3838,14 +4565,20 @@
 				const dn = dc.nudge || {};
 				const de = dc.endScreen || {};
 				/* ---- Where they came from ----
-				 * Devices and conversion per channel. Sorted by conversion, not by
-				 * size, because size is the number you can't trust across channels:
+				 * Devices and conversion per channel. The middle column is devices that
+				 * STARTED PLAYING — made a character or came back to a save — because
+				 * creation alone counts a returning player as a bounce, so a channel
+				 * looked worse the better it retained people. Sorted by that column,
+				 * with conversion beside it, because size is the number you can't
+				 * trust across channels:
 				 * inside itch's game iframe the device id lives in THIRD-PARTY storage
 				 * that browsers partition or clear on their own, so one itch player can
 				 * count as several devices while a wildwillows.app player (first-party)
 				 * counts as one. The rate survives that; the totals don't. Both are
 				 * shown — the caption says which to believe. */
-				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(b[1].converted) - n(a[1].converted));
+				const chanPlayed = (c) => (c.played != null ? c.played : c.converted);
+				const chanPct = (c) => (c.playedPct != null ? c.playedPct : c.conversionPct);
+				const chanRows = Object.entries(acq.channels || {}).sort((a, b) => n(chanPlayed(b[1])) - n(chanPlayed(a[1])));
 				/* Rendered INSIDE the acquisition card rather than as its own: it answers
 				 * the same question the funnel above it does — where these devices came
 				 * from — and the acquisition card is half-height next to the activation
@@ -3854,14 +4587,14 @@
 					? `<h4 class="sub-h">Where they came from</h4>` +
 						`<p class="emptynote" style="margin:-.2rem 0 .5rem">compare on conversion — device counts are not comparable across stores</p>` +
 							`<table class="tbl"><thead><tr><th>Channel</th><th class="num">Devices</th>` +
-								`<th class="num">Made a character</th><th class="num">Conversion</th></tr></thead><tbody>` +
+								`<th class="num">Started playing</th><th class="num">Conversion</th></tr></thead><tbody>` +
 								chanRows
 									.map(
 										([key, c]) =>
 											`<tr><td>${esc(CHANNEL_LABELS[key] || key)}</td>` +
 											`<td class="num">${fmt(c.devices)}</td>` +
-											`<td class="num">${fmt(c.converted)}</td>` +
-											`<td class="num"><span class="accent">${pct(c.conversionPct)}</span></td></tr>`,
+											`<td class="num">${fmt(chanPlayed(c))}</td>` +
+											`<td class="num"><span class="accent">${pct(chanPct(c))}</span></td></tr>`,
 									)
 									.join('') +
 								`</tbody></table>`
@@ -3931,7 +4664,9 @@
 							'Demo completion',
 							'reached the end of the demo',
 							funnel([
-								{ label: 'Made a character', value: dc.createdCharacter },
+								/* Started playing, not created: a returning demo player is not a
+								   bounce. Falls back to creation on an instance that predates it. */
+								{ label: 'Started playing', value: dc.startedPlaying != null ? dc.startedPlaying : dc.createdCharacter },
 								{ label: 'Finished the demo', value: dc.reachedGoal },
 							]) +
 								`<div class="grid three" style="margin-top:1rem">${[
@@ -4218,7 +4953,7 @@
 					langs = s.languages || {};
 				const platSeg = [
 					{ label: 'Desktop', value: plat.desktop, color: '#4a7c46' },
-					{ label: 'Web', value: plat.web, color: '#6ea8c8' },
+					{ label: 'Web', value: plat.web, color: 'var(--s2)' },
 				].filter((x) => x.value);
 				out.push(
 					sec(
@@ -4416,52 +5151,34 @@
 					);
 				}
 
-				/* Save health and "What is going wrong" are NOT pushed into `out`.
-				 * Problems is a mode, not a section: when it is on the page shows those
-				 * two and nothing else (see the assembly at the end of render). */
-
 				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
-				/* ---- Problems mode ----
-				 * When it is on, the page IS the failure panels — everything above is
-				 * built but not shown. Two views of one dataset rather than a long page
-				 * with a tail: you are either reading how the game is going or chasing
-				 * something that broke, and the numbers are a distraction from the second.
-				 *
-				 * Everything above is still computed rather than skipped. It costs
-				 * nothing measurable (the data is already in the browser) and it keeps
-				 * one code path, so the two views can never disagree about the same
-				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
-				 * switching still resolves. */
-				if (MODE === 'server') {
-					document.getElementById('root').innerHTML =
-						serverHealthHTML() ||
-						`<section><div class="sec-head"><h2>Server health</h2><span class="sub">no telemetry available</span></div>` +
-							card(
-								`<p class="emptynote"><code>/ServerHealth/</code> did not answer. On an instance that predates it, that is expected; ` +
-									`otherwise it is itself worth chasing, because an unreachable health endpoint and a healthy server look the same from here.</p>`,
-							) +
-							`</section>`;
-					fitDayCharts();
-					return;
-				}
-
-				if (MODE === 'problems') {
-					const panels = [healthSection, saveSection].filter(Boolean);
-					document.getElementById('root').innerHTML = panels.length
-						? panels.join('')
-						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
-							card(
-								`<p class="emptynote">Neither <code>/GameplayHealth/</code> nor <code>/SaveHealth/</code> answered, so there is nothing to show here — ` +
-									`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>`,
-							) +
-							`</section>`;
-					fitDayCharts();
-					return;
-				}
+				/* ---- The problem panels, and Harper's own ----
+				 * Ordinary sections, tagged with the view they belong to, appended after
+				 * everything else. They used to be a MODE: two buttons that replaced the
+				 * page instead of filtering it, which meant this function had two exits
+				 * and the chips above could disagree with what was on screen about which
+				 * view you were in. One list, one exit, and the same CSS hides whatever
+				 * does not match. */
+				if (healthSection) out.push(healthSection);
+				if (saveSection) out.push(saveSection);
+				out.push(serverHealthHTML());
 
 				document.getElementById('root').innerHTML = out.join('');
+
+				/* The tabs are hidden until there is something to switch between —
+				 * a switcher above a sign-in form is furniture. */
+				const tabs = document.getElementById('view-tabs');
+				if (tabs) tabs.hidden = false;
+				let saved = 'game';
+				try {
+					saved = localStorage.getItem(VIEW_KEY) || 'game';
+				} catch (e) {
+					/* private window — start on Game */
+				}
+				applyView(saved);
+
 				// Charts can only be fitted once they are in the document and measurable.
 				fitDayCharts();
 			}
@@ -4474,7 +5191,7 @@
 			// on this page should not count it unless you deliberately ask them to.
 			const FILTERS = { version: 'all', edition: 'all', platform: 'all', versionMode: 'exact', idle: 'exclude' };
 
-			/** Grey out the "Range" selector unless a specific version is chosen. */
+			/** Gray out the "Range" selector unless a specific version is chosen. */
 			function syncVersionMode() {
 				const wrap = document.getElementById('version-mode-wrap');
 				const sel = document.getElementById('version-mode');
@@ -4624,14 +5341,21 @@
 			/* ------------------------------------------------------------------ *
 			 * Sign in
 			 * ------------------------------------------------------------------ */
+			/** Reveal or conceal everything that is not the sign-in form. */
+			function setSignedOut(out) {
+				document.body.classList.toggle('signed-out', !!out);
+				/* The title is part of the disclosure: "Metrics Dashboard" in a tab
+				 * or a browser-history entry says as much as the page would. */
+				document.title = out ? 'Wild Willows' : 'Wild Willows — Metrics Dashboard';
+			}
+
 			function showLogin(message) {
+				setSignedOut(true);
 				const gen = document.getElementById('generated');
 				if (gen) gen.textContent = '';
 				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
-				['refresh', 'problems'].forEach((id) => {
-					const el = document.getElementById(id);
-					if (el) el.hidden = true;
-				});
+				const rbtn = document.getElementById('refresh');
+				if (rbtn) rbtn.hidden = true;
 				syncWhoami();
 				document.getElementById('root').innerHTML =
 					`<section class="loginwrap"><form class="card login" id="login-form">` +
@@ -4783,6 +5507,7 @@
 								`can do the same is still unestablished — Harper's super-user role carries explicit read permission on the system tables and a ` +
 								`read-only role may not. If this panel fills in as super-user and not otherwise, that is the answer.</p>`,
 						),
+										'harper',
 					);
 				}
 				const t = h.threads || {},
@@ -4801,7 +5526,7 @@
 				};
 				const round1v = (x) => Math.round(n(x) * 10) / 10;
 				const gt = ht.gameplayTiming;
-				// Colour only past the point where it is worth looking at. Under a
+				// Color only past the point where it is worth looking at. Under a
 				// second a slow call is a curiosity; past that a player feels it.
 				const slowTone = (ms) => (n(ms) >= 1000 ? '<span class="accent">' : '<span>');
 				// Not rounded to a whole percent: 4MB in a 286GB volume is 0.0014%, and
@@ -4897,6 +5622,7 @@
 							: '') +
 						trafficHTML(ht) +
 						allMetricsHTML(h),
+					'harper',
 				);
 			}
 
@@ -4914,6 +5640,7 @@
 			async function load() {
 				// The page is public and the data is not, so every path in starts here.
 				if (!AUTH) return showLogin();
+				setSignedOut(false);
 				const root = document.getElementById('root');
 				const gen = document.getElementById('generated');
 				root.innerHTML = `<div class="skeleton">Gathering the meadow’s numbers…</div>`;
@@ -4936,6 +5663,12 @@
 					// Landing-page stats load in parallel, best-effort: a missing/failed
 					// /LandingStats/ just hides that section instead of breaking the page.
 					const landingReq = fetch('../LandingStats/', req())
+						.then((r) => (r.ok ? r.json() : null))
+						.catch(() => null);
+					// The classroom kit's counters. Same best-effort contract: an instance
+					// that predates /LessonStats/ hides the section rather than breaking
+					// the page.
+					const classroomReq = fetch('../LessonStats/', req())
 						.then((r) => (r.ok ? r.json() : null))
 						.catch(() => null);
 					// Same best-effort contract: a missing /SaveHealth/ hides the panel rather
@@ -4966,6 +5699,7 @@
 					// Rebuild the shape render() has always received.
 					const data = { ...head, players: rows.players };
 					LANDING = await landingReq;
+					CLASSROOM = await classroomReq;
 					SAVEHEALTH = await saveReq;
 					GAMEPLAYHEALTH = await healthReq;
 					SERVERHEALTH = await serverReq;
@@ -4973,7 +5707,7 @@
 					render(data);
 					// After render: the badge reads the two health payloads, which only
 					// just resolved above.
-					syncProblemsButton();
+					syncViewBadges();
 					if (rows.truncated) {
 						const warn = document.createElement('div');
 						warn.className = 'err';
@@ -5006,24 +5740,6 @@
 			}
 
 			document.getElementById('refresh').addEventListener('click', load);
-
-			// The three views. Clicking the view you are already in returns you to the
-			// dashboard, so every button is its own way out.
-			function wireMode(id, mode) {
-				const el = document.getElementById(id);
-				if (!el) return;
-				el.addEventListener('click', () => {
-					setMode(MODE === mode ? 'dashboard' : mode);
-					rerender();
-					syncProblemsButton();
-					// Each switch replaces the whole page, so start it at the top rather
-					// than dropping you mid-way down a document you have not seen.
-					window.scrollTo({ top: 0, behavior: 'smooth' });
-				});
-			}
-			wireMode('problems', 'problems');
-			wireMode('serverbtn', 'server');
-			wireMode('backbtn', 'dashboard');
 
 			/* Drop a deleted record from the cached payload, both from the visible
 			 * `top` list and from the totals it contributed to — otherwise the badge
@@ -5105,7 +5821,7 @@
 					// read as the delete having silently failed.
 					forgetProblem(kind, id);
 					if (row) row.remove();
-					syncProblemsButton();
+					syncViewBadges();
 				} catch (err) {
 					btn.disabled = false;
 					if (row) {
@@ -5121,7 +5837,7 @@
 
 			/* Which range object a picker drives. Keyed by the `data-range-scope`
 			 * dayRangePicker() stamps on every control it builds, so a second chart is
-			 * a new entry here and nothing else. An unrecognised scope is ignored
+			 * a new entry here and nothing else. An unrecognized scope is ignored
 			 * rather than defaulting to the first one — silently moving the wrong
 			 * chart is worse than doing nothing. */
 			const DAY_RANGE_SCOPES = { daily: DAY_RANGE, landing: LANDING_DAY_RANGE };
@@ -5270,6 +5986,10 @@
 			window.__openActiveNowModal = openActiveNowModal;
 			// Pick up an existing session before deciding what to show — a refresh
 			// mid-investigation should land back on the numbers, not on a login form.
+			/* Start concealed. loadAuth() may restore a session a moment later, but
+			 * until it does the page must not show what it is — a flash of the real
+			 * header is the same disclosure, just briefer. */
+			document.body.classList.add('signed-out');
 			loadAuth();
 			syncWhoami();
 			if (!window.__NO_AUTOLOAD) load();

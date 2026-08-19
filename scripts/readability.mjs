@@ -196,7 +196,7 @@ function band(ease) {
 // ---------------------------------------------------------------------------
 // English `content.*` originals.
 //
-// The overlay rewrites animal diets, habitat blurbs, achievement flavour and so
+// The overlay rewrites animal diets, habitat blurbs, achievement flavor and so
 // on under content.<type>.<id>.<field>. In Spanish the originals sit in
 // es/content.json, so pairing is easy. In English there IS no en/content.json —
 // content() falls back to the definition text in data/*.json by design — so

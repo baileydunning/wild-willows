@@ -18,6 +18,9 @@
 <meta property="og:description" content="Rated 9+ on the App Store. Gentle, non-violent, no ads or purchases, no chat. The 9+ is about reading load, not content &mdash; and there is a setting for that.">
 <meta property="og:url" content="https://wildwillows.app/age-rating.html">
 <meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Age suitability &mdash; Wild Willows">
 <meta name="twitter:description" content="Rated 9+ on the App Store. Gentle, non-violent, no ads or purchases, no chat. The 9+ is about reading load, not content.">
@@ -25,9 +28,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap"></noscript>
+<!-- ONE request, at three weights.
+     This was a preload AND a media=print stylesheet pointing at the same URL,
+     which fetched the whole thing twice. That is the exact pair the landing page
+     had removed for costing LCP, still here on the pages nobody re-measured. It
+     asked for weight 400, which nothing on the site sets: body is 500, headings
+     700, chips 600. That was a whole woff2 downloaded to be ignored.
+     The preload alone is enough: high priority, and onload promotes it. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <script type="application/ld+json">
 {
@@ -124,13 +133,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white — barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar — it just looks broken. Two defences:
+   growing the bar — it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -599,7 +608,7 @@ section[id]{scroll-margin-top:66px}
     <h2>Online features</h2>
   </div>
   <div class="prose">
-    <p>The game is fully playable <b>offline</b>. When online, it sends only anonymous gameplay statistics &mdash; play time, items crafted, animals returned &mdash; so the game can be improved. Nothing personal, and nothing is shown to or shared with other players.</p>
+    <p>The game is fully playable <b>offline</b>, and a device kept off the network sends nothing at all. When it is online, it sends the developer gameplay counters &mdash; play time, items crafted, animals returned &mdash; along with the platform, the settings in use, a random save ID, and the caretaker name typed on the save. That name is the one thing in it a person wrote, so the game offers a random one; nothing else personal is sent, and nothing is shown to or shared with other players.</p>
     <p>An optional feedback form in Settings sends a message privately to the developer. It is the only free-text input that leaves the device, and including an email address is optional. Full details are in the <a href="/privacy.html" data-track="privacy">privacy policy</a>.</p>
     <p><b>Being online never puts you in touch with other players.</b> The connection runs only between the game and my own server &mdash; there is nobody else on the other end of it, and no chat, friend requests or profiles anywhere in the game.</p>
   </div>
@@ -625,7 +634,7 @@ section[id]{scroll-margin-top:66px}
     </div>
   </div>
   <div class="pattern">
-    <p>Questions about anything on this page? Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> &mdash; it goes straight to the developer. If you're a teacher, there's a free classroom kit on the <a href="/teachers" data-track="edu-nav">teachers page</a>.</p>
+    <p>Questions about anything on this page? Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> &mdash; it goes straight to the developer. If you're a teacher, there are two free classroom kits &mdash; <a href="/teachers/science" data-track="edu-nav">ecosystems for grades 5&ndash;8</a> and <a href="/teachers/coding" data-track="edu-nav">intro to APIs for grades 9&ndash;12</a> &mdash; on the <a href="/teachers" data-track="edu-nav">teachers page</a>.</p>
   </div>
 </div></section>
 
@@ -636,7 +645,7 @@ section[id]{scroll-margin-top:66px}
     <details><summary>Can a younger child play it?</summary><p>Yes, with a hand nearby or with Simpler wording turned on. Nothing in the game is unsuitable for a younger player &mdash; the only barrier is the amount of text, and <a href="#reading">Simpler wording</a>, the four text sizes and the five interface fonts all exist to lower it.</p></details>
     <details><summary>Does the browser demo differ?</summary><p>No, not in content. The free demo at <a href="https://play.wildwillows.app/" data-track="play">play.wildwillows.app</a> is the same game with less of it &mdash; same art, same tone, same absence of ads, purchases and chat.</p></details>
     <details><summary>Does it need an internet connection?</summary><p>No. The game is fully playable offline, with no account and no sign-in required.</p></details>
-    <details><summary>What data does it collect?</summary><p>Anonymous, aggregate gameplay statistics only, and an optional feedback message if you choose to send one. No accounts, no personal information, no advertising identifiers. The <a href="/privacy.html" data-track="privacy">privacy policy</a> lists exactly what and why.</p></details>
+    <details><summary>What data does it collect?</summary><p>Gameplay counters, the platform, the settings in use, a random save ID and the caretaker name you typed &mdash; plus an optional feedback message if you choose to send one. No accounts, no email unless you ask for a reply, no advertising identifiers, no location. The <a href="/privacy.html" data-track="privacy">privacy policy</a> lists exactly what and why.</p></details>
     <details><summary>Where do I report something?</summary><p>Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a>, or use the <a href="/support.html" data-track="support">support page</a>. Feedback from Settings inside the game reaches the same inbox.</p></details>
   </div>
 </div></section>
@@ -686,15 +695,32 @@ section[id]{scroll-margin-top:66px}
      need adding to LANDING_CLICK_TARGETS in server/resources.ts or it just
      collapses into 'other'. Neither is worth a server change for a policy
      page, so this page counts outbound clicks and nothing else. */
-  function track(type,target){
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
+  /* THIS PAGE REPORTS ITSELF, once per browser session.
+     It used to report nothing at all, which meant three public pages had no
+     usage data of any kind — including this one, which is the page a school
+     district reads before approving anything. A visit is not sendable here:
+     'visit' is ONE undifferentiated series shared by every page that sends it,
+     so a policy-page visit would silently inflate the landing page's number
+     with no way to unmix them later. Its own click target keeps both honest,
+     which is the same trade /teachers made. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_rating_seen'))return;
+      sessionStorage.setItem('ww_rating_seen','1');track('click','rating-page');
+    }catch(e){track('click','rating-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));

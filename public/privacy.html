@@ -18,6 +18,9 @@
 <meta property="og:description" content="No account, no ads, no tracking, no third-party analytics. Here is the complete list of what leaves your device.">
 <meta property="og:url" content="https://wildwillows.app/privacy.html">
 <meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Privacy policy &mdash; Wild Willows">
 <meta name="twitter:description" content="No account, no ads, no tracking. Here is the complete list of what leaves your device.">
@@ -25,9 +28,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap"></noscript>
+<!-- ONE request, at three weights.
+     This was a preload AND a media=print stylesheet pointing at the same URL,
+     which fetched the whole thing twice. That is the exact pair the landing page
+     had removed for costing LCP, still here on the pages nobody re-measured. It
+     asked for weight 400, which nothing on the site sets: body is 500, headings
+     700, chips 600. That was a whole woff2 downloaded to be ignored.
+     The preload alone is enough: high priority, and onload promotes it. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <script type="application/ld+json">
 {
@@ -115,13 +124,13 @@ svg{display:block}
 /* :not(.btn) matters. Without it this rule outranks .btn-go's own color:#fff
    (0,2,1 beats 0,1,0), so the nav's primary CTA rendered dark ink on the green
    pill instead of white — barely-legible, and on every page that copies this
-   sheet. Nav buttons must keep whatever colour their .btn-* class gives them. */
+   sheet. Nav buttons must keep whatever color their .btn-* class gives them. */
 .nav .links a:not(.btn){color:var(--ink);font-weight:600;font-size:.93rem;text-decoration:none}
 .nav .links a:not(.btn):hover{color:var(--green-deep)}
 .nav .links .btn{font-size:.9rem;padding:.45rem .95rem}
 /* The nav is a fixed-height flex row, so when its contents stop fitting they
    WRAP INSIDE each item ("Wild / Willows", "Get the / game") rather than
-   growing the bar — it just looks broken. Two defences:
+   growing the bar — it just looks broken. Two defenses:
 
    1. nowrap, so an item never splits across two lines whatever happens.
    2. the secondary links go at 940px, not 740px. Measured: the landing nav
@@ -464,7 +473,7 @@ section[id]{scroll-margin-top:66px}
       <span class="chip">Nothing sold or shared</span>
       <span class="chip">Works offline</span>
     </div>
-    <p class="updated">Effective 3 July 2026 &middot; last updated 16 August 2026 &middot; Bailey Dunning &middot; <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
+    <p class="updated">Effective 3 July 2026 &middot; last updated 19 August 2026 &middot; Bailey Dunning &middot; <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
   </div>
 </header>
 
@@ -476,15 +485,15 @@ section[id]{scroll-margin-top:66px}
   <div class="g2">
     <div class="card">
       <h3>Your world stays yours</h3>
-      <p>Saves are files on your own device. No account, no sign-in, no ads, no tracking, no third-party analytics.</p>
+      <p>Saves are files on your own device, and the world itself is never uploaded. No account, no sign-in, no ads, no tracking, no third-party analytics. <span class="sub">The browser demo is the exception &mdash; see <a href="#web">the browser version</a>.</span></p>
     </div>
     <div class="card">
-      <h3>Anonymous play statistics</h3>
+      <h3>Play statistics, while you're online</h3>
       <p>When you're online, the game periodically sends a snapshot of counters &mdash; play time, things crafted, animals returned &mdash; tagged with a random per-save ID.</p>
     </div>
     <div class="card">
       <h3>Your save's name rides along</h3>
-      <p>It's the one field in that snapshot <b>you</b> chose, and it's there so a row is recognisable rather than a bare UUID. Nothing else in the snapshot identifies you.</p>
+      <p>It's the one field in that snapshot <b>you</b> chose, and it's there so a row is recognizable rather than a bare UUID. Nothing else in the snapshot identifies you.</p>
     </div>
     <div class="card">
       <h3>Only what you type</h3>
@@ -514,15 +523,27 @@ section[id]{scroll-margin-top:66px}
     <div class="row"><dt>App &amp; platform</dt><dd>App version, build timestamp, edition and release channel, platform (&ldquo;desktop&rdquo; or &ldquo;web&rdquo;), operating system family (mac / windows / linux), and the interface language you play in.</dd></div>
     <div class="row"><dt>Gameplay counters</dt><dd>Play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</dd></div>
     <div class="row"><dt>Your settings</dt><dd>Audio and accessibility choices &mdash; music and sound toggles and volumes, reduce motion, colorblind mode, interface font, high contrast, text size, simpler wording, interaction highlight, and light/dark theme. These live only in local storage, so they ride along here; they are what tell me whether the accessibility work is actually being used.</dd></div>
-    <div class="row"><dt>Not included, ever</dt><dd>No location data. No contact information. No device identifiers. No advertising identifiers. No real name, unless you typed one into the save name yourself.</dd></div>
+    <div class="row"><dt>Not included, ever</dt><dd>No location data. No contact information. No advertising identifiers, and nothing read from your hardware &mdash; no serial number, no MAC address, no Apple&nbsp;ID, no device fingerprint. No real name, unless you typed one into the save name yourself.</dd></div>
   </dl>
   <div class="callout">
     <p><b>About that save name.</b> It's the one human-written string in an otherwise numeric payload, so it deserves saying plainly: it is sent, and it is the <em>only</em> part of an automatic snapshot that came from you. Everything beside it is a random ID, a version string, or a count.</p>
-    <p>The game suggests a caretaker name rather than asking for your real one, and nothing in the snapshot ties that name back to you, your device, or your Apple&nbsp;ID. It is set once, when you create the preserve, and there is no way to change it afterwards &mdash; so pick something you're happy for me to see. If a name you already used bothers you, <a href="#delete">email me and I'll delete that row</a>.</p>
+    <p>The game never asks for your real name, and there's a dice button beside the field that fills in a random caretaker name for you &mdash; but the field itself is free text and starts empty, so what goes in it is your choice. Nothing in the snapshot ties that name back to you, your device, or your Apple&nbsp;ID. It is set once, when you create the preserve, and there is no way to change it afterwards &mdash; so pick something you're happy for me to see. If a name you already used bothers you, <a href="#delete">email me and I'll delete that row</a>.</p>
   </div>
   <div class="callout" style="background:var(--panel);border-color:var(--panel-edge)">
     <p>Sending is best-effort. If you're offline the report is simply skipped &mdash; nothing is queued, and the game never nags you to connect. I use these snapshots solely to understand how Wild Willows is played and to improve it.</p>
+    <p>If you would rather send nothing, play with the device offline: the game is built to work that way and loses no feature by it.</p>
   </div>
+</div></section>
+
+<section class="band" id="other-pings"><div class="wrap">
+  <div class="head">
+    <h2>Two smaller things the game sends</h2>
+    <p>Neither is part of the snapshot above, so they get their own heading rather than a footnote.</p>
+  </div>
+  <dl class="spec">
+    <div class="row"><dt>A ping when the app opens</dt><dd>Once per launch, before any save exists, the game reports that it was opened: a random identifier generated on this installation, the platform and operating system family, the app version and edition, where the copy came from (the store or site you downloaded it from), and the interface language. It tells me how many people who open the game go on to start a preserve, which is the one number that says whether the opening works. <b>The identifier is a random UUID this installation made for itself</b> &mdash; not read from your hardware, not tied to any save, and gone when you delete the app. It is the only persistent identifier the game keeps, and it is why the list above says &ldquo;nothing read from your hardware&rdquo; rather than &ldquo;no identifiers&rdquo;.</dd></div>
+    <div class="row"><dt>A report when something crashes</dt><dd>If the interface throws an error, the game sends the error message and the technical stack trace that goes with it, both truncated, along with the app version and platform. It is capped at a handful per session. These are the game's own internals, not your data &mdash; but a stack trace is text, so it is named here rather than left implied.</dd></div>
+  </dl>
 </div></section>
 
 <section class="band" id="feedback"><div class="wrap">
@@ -553,9 +574,6 @@ section[id]{scroll-margin-top:66px}
       <div class="vsrow no"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6.5 6.5l11 11M17.5 6.5l-11 11"/></svg> <span>Ask for a real name, an account, or a sign-in</span></div>
     </div>
   </div>
-  <div class="callout" style="background:var(--panel);border-color:var(--panel-edge)">
-    <p>Builds distributed through the Mac App Store contain no Steam integration. Builds launched through Steam sync gameplay stats and achievements to your Steam profile, which is governed by <a href="https://store.steampowered.com/privacy_agreement/" rel="noopener">Valve's privacy policy</a>.</p>
-  </div>
 </div></section>
 
 <section class="band" id="delete"><div class="wrap">
@@ -582,7 +600,13 @@ section[id]{scroll-margin-top:66px}
 <section class="band" id="web"><div class="wrap">
   <div class="head"><h2>The browser version</h2></div>
   <div class="prose">
-    <p>If you play the browser version, your save lives on my server instead of your device: the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state.</p>
+    <p>The browser version is the free demo at <a href="https://play.wildwillows.app/">play.wildwillows.app</a>, and it works the opposite way round from the installed game: your save lives on my server instead of your device &mdash; the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state. Play in the browser and your world is on my server; install the game and it never leaves your machine.</p>
+    <p>Two consequences of that, worth stating plainly:</p>
+    <ul>
+      <li><b>The demo has no passcode you ever see.</b> It mints a random one for you so the save can exist at all, and never shows it. The only way back into a demo save is a pointer your browser keeps, which means <b>clearing site data, or moving to another browser or machine, disconnects you from it permanently.</b> It also means nobody else can reach it.</li>
+      <li><b>The demo deletes its own save</b> when you reach the end of it.</li>
+    </ul>
+    <p>If the server can't be reached when the page loads, the demo falls back to running entirely inside your browser, and the save is genuinely local to it &mdash; in which case clearing site data erases it outright.</p>
     <p>Everything else in this policy applies identically &mdash; no ads, no tracking, nothing sold or shared, and the same deletion route.</p>
   </div>
 </div></section>
@@ -631,20 +655,38 @@ section[id]{scroll-margin-top:66px}
      lands in the same bucket as the same click from the landing page.
 
      There is a certain irony in a privacy policy carrying analytics, so for
-     the record this is what it sends: an event type, one of a fixed list of
-     target names, the referrer, and the browser's language. No identifier, no
-     cookie, no storage — it cannot tell one visitor from another, which is
-     why the page-level 'visit' ping is absent here as on the other policy
-     pages. That is the same reasoning as "What I never do" above. */
-  function track(type,target){
+     the record this is what it sends: an event type and one of a fixed list
+     of target names. Two fields. No identifier, no cookie, no storage, and —
+     as of this change — no referrer and no browser language either; both used
+     to be transmitted and neither was ever read. It cannot tell one visitor
+     from another, which is why the page-level 'visit' ping is absent here as
+     on the other policy pages. Same reasoning as "What I never do" above. */
+  function track(type,target,from){
     try{
       var payload=JSON.stringify({type:type,target:target||null,
-        ref:document.referrer?String(document.referrer).slice(0,200):null,
-        lang:(navigator.language||'').slice(0,12)});
+        from:from||undefined});
       if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
       else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
     }catch(e){}
   }
+  /* THIS PAGE REPORTS ITSELF, once per browser session.
+     It used to report nothing at all, which meant three public pages had no
+     usage data of any kind — including this one, which is the page a school
+     district reads before approving anything. A visit is not sendable here:
+     'visit' is ONE undifferentiated series shared by every page that sends it,
+     so a policy-page visit would silently inflate the landing page's number
+     with no way to unmix them later. Its own click target keeps both honest,
+     which is the same trade /teachers made. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_privacy_seen'))return;
+      sessionStorage.setItem('ww_privacy_seen','1');track('click','privacy-page');
+    }catch(e){track('click','privacy-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
   document.addEventListener('click',function(e){
     var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
     if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));

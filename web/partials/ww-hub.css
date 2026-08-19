@@ -1,0 +1,245 @@
+/* Wild Willows — the classroom hub at /learn.
+ *
+ * Two doors and enough copy to choose between them. Tokens, buttons, chips and
+ * nav come from site-core.css; dark mode is a repoint of the same tokens in
+ * ww-dark.css and needs nothing here.
+ *
+ * The page has no editors on it, which is deliberate: a student who lands on
+ * /learn should be one click from writing code, not looking at a demo of it.
+ */
+
+body.hub {
+	background: var(--paper);
+	color: var(--ink);
+	font-family: var(--f);
+	margin: 0;
+}
+
+.hwrap {
+	max-width: 62rem;
+	margin: 0 auto;
+	padding: 0 1.1rem 5rem;
+}
+
+/* ---------------------------------------------------------------- the hero */
+
+.hhero {
+	padding: 3rem 0 1.6rem;
+	max-width: 44rem;
+}
+
+.hhero h1 {
+	font-size: clamp(2rem, 5vw, 3.1rem);
+	line-height: 1.08;
+	margin: 0 0 0.7rem;
+}
+
+.hhero .lead {
+	font-size: 1.08rem;
+	line-height: 1.6;
+	color: var(--ink-soft);
+	margin: 0 0 1.2rem;
+}
+
+.hmeta {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 0.45rem;
+}
+
+/* --------------------------------------------------------------- the doors
+ *
+ * Two cards, side by side on a laptop and stacked on a phone. Equal weight on
+ * purpose, down to the button: neither is the "real" one. A student who has
+ * never written code starts at the lesson, and one who arrived from a
+ * classmate's project starts at the builder, and both of those are the right
+ * answer for that person.
+ *
+ * The recommendation is carried by the ORDER and by the two kickers above the
+ * headings ("Start here" / "Or build something"), which is as much weight as it
+ * should have. A quieter button on the second card said something stronger than
+ * that: it read as the lesser option rather than the other one. */
+
+.doors {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(19rem, 1fr));
+	gap: 1.1rem;
+	margin: 1.6rem 0 0;
+	align-items: stretch;
+}
+
+.door {
+	display: flex;
+	flex-direction: column;
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.4rem 1.4rem 1.3rem;
+}
+
+.door h2 {
+	font-size: 1.3rem;
+	margin: 0.6rem 0 0.1rem;
+	line-height: 1.25;
+}
+
+.door-kicker {
+	font-size: 0.68rem;
+	letter-spacing: 0.1em;
+	text-transform: uppercase;
+	font-weight: 700;
+	color: var(--green-deep);
+}
+
+[data-theme='dark'] .door-kicker {
+	color: var(--green-bright);
+}
+
+.door-sub {
+	color: var(--ink-soft);
+	line-height: 1.6;
+	margin: 0.5rem 0 0.9rem;
+}
+
+.door ul {
+	list-style: none;
+	margin: 0 0 1.2rem;
+	padding: 0;
+	line-height: 1.5;
+}
+
+/* The marker is POSITIONED, not a grid column.
+   A grid here looked right and broke the moment a line contained an inline
+   element: every child of a grid container is its own grid item, so an <li>
+   reading "if and else" with two <code> tags in it laid out as four separate
+   cells and wrapped down the card. Padding plus an absolute marker takes the
+   line as one flow, whatever is inside it. */
+.door li {
+	position: relative;
+	padding-left: 1.6rem;
+	margin-bottom: 0.4rem;
+	font-size: 0.93rem;
+}
+
+/* Drawn, not typed, for the reason every icon on these pages is: a bullet
+   character is whatever glyph the platform's font decides. */
+.door li::before {
+	content: '';
+	position: absolute;
+	left: 0.15rem;
+	top: 0.42rem;
+	width: 0.45rem;
+	height: 0.26rem;
+	border-left: 2px solid var(--green);
+	border-bottom: 2px solid var(--green);
+	transform: rotate(-45deg);
+}
+
+[data-theme='dark'] .door li::before {
+	border-left-color: var(--green-bright);
+	border-bottom-color: var(--green-bright);
+}
+
+/* Pushes the button to the bottom so two cards of different length still line
+   their calls to action up with each other. */
+.door-go {
+	margin-top: auto;
+}
+
+.door .btn {
+	width: 100%;
+	justify-content: center;
+}
+
+/* ------------------------------------------------------------- the sections */
+
+.hsec {
+	margin-top: 3rem;
+	padding-top: 2rem;
+	border-top: 1px solid var(--panel-edge);
+	max-width: 46rem;
+}
+
+.hsec h2 {
+	font-size: 1.25rem;
+	margin: 0 0 0.5rem;
+}
+
+.hsec p {
+	line-height: 1.65;
+	margin: 0 0 0.9rem;
+	color: var(--ink);
+}
+
+.hsec p.sub {
+	color: var(--ink-soft);
+}
+
+.hsec code {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.9em;
+	background: var(--sprout);
+	border-radius: 5px;
+	padding: 0.08em 0.34em;
+}
+
+.hcode {
+	font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+	font-size: 0.82rem;
+	line-height: 1.6;
+	background: var(--paper-deep);
+	border-radius: 10px;
+	padding: 0.7rem 0.9rem;
+	overflow-x: auto;
+	white-space: pre;
+	margin: 0.7rem 0 1.1rem;
+}
+
+/* The three-up strip under "What you need". Facts, not features. */
+.hfacts {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+	gap: 0.9rem;
+	margin: 1.1rem 0 0;
+}
+
+.hfact {
+	background: var(--panel);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 12px;
+	padding: 0.85rem 1rem;
+}
+
+.hfact b {
+	display: block;
+	margin-bottom: 0.15rem;
+}
+
+.hfact span {
+	color: var(--ink-soft);
+	font-size: 0.9rem;
+	line-height: 1.5;
+	display: block;
+}
+
+/* The teachers note at the foot: a different audience, so it reads as an aside
+   rather than as another door. */
+.hteach {
+	margin-top: 2.6rem;
+	background: var(--sprout);
+	border: 1.5px solid var(--panel-edge);
+	border-radius: var(--rlg);
+	padding: 1.3rem 1.4rem;
+	max-width: 46rem;
+}
+
+.hteach h2 {
+	margin: 0 0 0.4rem;
+	font-size: 1.15rem;
+}
+
+.hteach p {
+	margin: 0 0 1rem;
+	color: var(--ink-soft);
+	line-height: 1.6;
+}

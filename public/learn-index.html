@@ -1,0 +1,287 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Learn to code with real game data: free lesson and code editor</title>
+<meta name="description" content="Two free ways in: a ten-chapter lesson on HTML, CSS, JavaScript and APIs, and a browser code editor stocked with real Wild Willows game data. No accounts, no installs.">
+<link rel="canonical" href="https://wildwillows.app/learn">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Learn to code with real game data">
+<meta property="og:description" content="A free ten-chapter lesson and a browser code editor, both built on a live public API. No accounts, no installs.">
+<meta property="og:url" content="https://wildwillows.app/learn">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Learn to code with real game data">
+<meta name="twitter:description" content="A free lesson and a browser code editor, both built on a live public API.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://wildwillows.app/learn#page",
+      "name": "Learn to code with real game data",
+      "description": "Two free ways in: a ten-chapter web development lesson, and a browser code editor stocked with live data from the Wild Willows public API.",
+      "url": "https://wildwillows.app/learn",
+      "inLanguage": "en",
+      "isPartOf": {
+        "@type": "WebSite",
+        "name": "Wild Willows",
+        "url": "https://wildwillows.app/"
+      },
+      "hasPart": [
+        {
+          "@type": "Course",
+          "@id": "https://wildwillows.app/learn/web-development#course",
+          "name": "The Lesson",
+          "url": "https://wildwillows.app/learn/web-development"
+        },
+        {
+          "@type": "SoftwareApplication",
+          "name": "Wild Willows Code Builder",
+          "url": "https://wildwillows.app/learn/code-builder",
+          "applicationCategory": "DeveloperApplication",
+          "operatingSystem": "Any browser",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        {
+          "@type": "ListItem",
+          "position": 1,
+          "name": "Wild Willows",
+          "item": "https://wildwillows.app/"
+        },
+        {
+          "@type": "ListItem",
+          "position": 2,
+          "name": "Learn",
+          "item": "https://wildwillows.app/learn"
+        }
+      ]
+    }
+  ]
+}
+</script>
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- PRELOAD, NOT media=print, AND ONE LINK RATHER THAN TWO.
+     The swap trick below fetches this at LOW priority, which is right when the
+     font is decoration and wrong when the page is a long document somebody
+     deep-links into: the stylesheet arrives after first paint, the face swaps,
+     everything reflows, and a browser that already jumped to a #hash does not
+     jump again. Measured on /developers/api, that put the linked section 832px
+     above the viewport.
+     `rel=preload as=style` fetches it at high priority and `onload` promotes it
+     to a real stylesheet. Note this REPLACES the media=print link rather than
+     joining it: the pair is what fetched the same file twice and cost LCP the
+     last time a preload was here. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
+<script>
+<!-- @include public/partials/ww-theme.js -->
+</script>
+
+<style>
+<!-- @include public/partials/site-core.css -->
+<!-- @include public/partials/ww-hub.css -->
+<!-- @include public/partials/ww-a11y.css -->
+<!-- @include public/partials/ww-dark.css -->
+</style>
+</head>
+<body class="hub">
+
+<a class="skip-link" href="#main">Skip to the pages</a>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
+    <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Start the Lesson</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="hwrap" id="main" tabindex="-1">
+
+<header class="hhero">
+  <h1>Learn to code with real game data</h1>
+  <p class="lead">Wild Willows is a game about bringing a nature preserve back to life. Everything in it, all 150 animals and the six biomes they live in, is published as a public API that anyone can use. These two pages teach you to build a webpage out of it.</p>
+  <div class="hmeta">
+    <span class="chip">Free</span>
+    <span class="chip">No account</span>
+    <span class="chip">Nothing to install</span>
+    <span class="chip">Runs in your browser</span>
+  </div>
+</header>
+
+<div class="doors">
+
+  <section class="door">
+    <span class="door-kicker">Start here</span>
+    <h2>The Lesson</h2>
+    <p class="door-sub">Ten chapters, from &ldquo;what is HTML&rdquo; to a working page full of live data. Every code sample is editable, and you press Run when you want to see what it does. You cannot get to the end without having written something.</p>
+    <ul>
+      <li>HTML, CSS and JavaScript, and what each one is for</li>
+      <li>What an API is, and a real request you can watch happen</li>
+      <li><code>if</code> and <code>else</code>, and looping through 150 records</li>
+      <li>Building a page from data you fetched yourself</li>
+      <li>Optional Going Deeper panels on every chapter</li>
+    </ul>
+    <p class="door-go"><a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Start the Lesson</a></p>
+  </section>
+
+  <section class="door">
+    <span class="door-kicker">Or build something</span>
+    <h2>The Code Builder</h2>
+    <p class="door-sub">Three files, a preview and the same game data. Open it when you have an idea of your own, or when you finish the Lesson and want room to work.</p>
+    <ul>
+      <li><code>index.html</code>, <code>styles.css</code> and <code>main.js</code>, side by side with the page they make</li>
+      <li>Thirty project ideas if you need one</li>
+      <li>Plain-language explanations when something breaks</li>
+      <li>Your work saves in your browser, and downloads as a real file</li>
+    </ul>
+    <p class="door-go"><a class="btn btn-go" href="/learn/code-builder" data-track="builder-nav">Open the Code Builder</a></p>
+  </section>
+
+</div>
+
+<section class="hsec">
+  <h2>What you need</h2>
+  <div class="hfacts">
+    <div class="hfact"><b>A browser</b><span>Anything current, including a school Chromebook. A keyboard helps a lot.</span></div>
+    <div class="hfact"><b>No account</b><span>Nothing to sign up for and nothing to log into. Your work stays in your own browser.</span></div>
+    <div class="hfact"><b>No experience</b><span>The Lesson starts from the first line of HTML. Nothing before it is assumed.</span></div>
+  </div>
+</section>
+
+<section class="hsec">
+  <h2>The data</h2>
+  <p>One address, open to anyone, no key required. It answers with every animal, biome, resource, recipe and craftable object in the game.</p>
+  <div class="hcode">https://wildwillows.app/GameData</div>
+  <p>Which means this is a whole program that shows you something real:</p>
+  <div class="hcode">const response = await fetch("https://wildwillows.app/GameData");
+const data = await response.json();
+
+console.log(data.animals[0].name);   // "Banana Slug"</div>
+  <p class="sub">You are welcome to use it in your own projects, in or out of school. It is the same data the game runs on, so when the game changes, so does this.</p>
+  <p><a href="/developers/api" data-track="api-docs">The full field reference</a> lists every key in the response, with JavaScript, Python and curl examples.</p>
+</section>
+
+<div class="hteach">
+  <h2>Teaching this?</h2>
+  <p>There is a page for you: what each chapter covers, how long it takes, what to expect students to get stuck on, and printable material for the ecology side of the game.</p>
+  <a class="btn btn-paper" href="/teachers" data-track="edu-nav">For teachers</a>
+</div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+
+  /* The hub's own counters. Two of them, and both answer a question the rest of
+     the funnel cannot.
+     
+     THE TOGGLE IS NOT WIRED HERE. ww-theme.js is included once, in <head>,
+     because the attribute has to be on <html> before the first paint or a
+     student who chose dark gets a flash of cream. It wires the button itself on
+     DOMContentLoaded. Including it a second time down here would attach a
+     SECOND click handler, so every press would toggle twice and land back where
+     it started, which looks exactly like a broken button.
+
+     Same contract as every other classroom counter (see PRIVACY.md): a name
+     from a fixed list and a number, nothing else. */
+
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'learn', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* 1. That the page was opened at all, once per browser session. /learn is
+        where a student who was handed a bare link arrives, and without this
+        their visit begins at whichever of the two pages they picked. */
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back. Neither is an identifier: both are one bit that says "not the
+     first time", readable only by this origin. */
+  var fresh = true;
+  var everFresh = false;
+  try {
+    fresh = !sessionStorage.getItem('ww_learn_seen');
+    sessionStorage.setItem('ww_learn_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile. Counting it is the better failure:
+       a double count on a machine that cannot remember beats a blind spot. */
+  }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_learn');
+    if (everFresh) localStorage.setItem('ww_ever_learn', '1');
+  } catch (e) {
+    everFresh = true;
+  }
+
+  if (fresh) {
+    // Nothing about a page view is time-sensitive, so it waits for idle rather
+    // than taking uplink while the page is still painting.
+    var opening = { view_learn: 1 };
+    if (everFresh) opening.unique_learn = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
+  }
+
+  /* 2. WHICH DOOR THEY TOOK. This is the whole reason the page exists, so it is
+        the one number worth having about it: a hub where everybody leaves
+        through the same side is not a hub, it is a redirect with extra steps.
+        sendBeacon rather than a fetch, because the page is unloading. */
+  var NAV = {
+    'lesson-nav': 'nav_lesson',
+    'builder-nav': 'nav_builder',
+    'learn-nav': 'nav_learn',
+    'hub-nav': 'nav_hub',
+    'game-nav': 'nav_game',
+    'edu-nav': 'nav_hub',
+  };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>

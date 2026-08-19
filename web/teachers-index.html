@@ -1,0 +1,298 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Free classroom kits: ecosystems and coding &mdash; Wild Willows</title>
+<meta name="description" content="Two free classroom kits: ecosystems and habitat for grades 5-8, and an intro to APIs and web development for grades 9-12. Worksheets and answer keys included.">
+<link rel="canonical" href="https://wildwillows.app/teachers">
+<meta name="robots" content="index, follow, max-image-preview:large">
+<meta name="theme-color" content="#f4eeda">
+<meta name="keywords" content="free classroom kit, educator guide, ecosystem lesson plan, intro to APIs lesson, web development for high school, computer science lesson plan, printable science worksheets, educational game, Wild Willows">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows for teachers: two free classroom kits">
+<meta property="og:description" content="Ecosystems and habitat for grades 5-8, and intro to APIs and web development for grades 9-12. Free guides, worksheets and a browser code editor.">
+<meta property="og:url" content="https://wildwillows.app/teachers">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows for teachers: two free classroom kits">
+<meta name="twitter:description" content="Ecosystems for grades 5-8, APIs and web development for grades 9-12. Free, and nothing to install.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- PRELOAD, NOT media=print, AND ONE LINK RATHER THAN TWO.
+     The swap trick below fetches this at LOW priority, which is right when the
+     font is decoration and wrong when the page is a long document somebody
+     deep-links into: the stylesheet arrives after first paint, the face swaps,
+     everything reflows, and a browser that already jumped to a #hash does not
+     jump again. Measured on /developers/api, that put the linked section 832px
+     above the viewport.
+     `rel=preload as=style` fetches it at high priority and `onload` promotes it
+     to a real stylesheet. Note this REPLACES the media=print link rather than
+     joining it: the pair is what fetched the same file twice and cost LCP the
+     last time a preload was here. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<!-- The hub describes ITSELF as a collection of two kits, and nothing more.
+     The LearningResource markup for the science lesson moved to
+     /teachers/science with the lesson; leaving a copy here would have two URLs
+     claiming to be the same grades 5-8 activity, which is the one thing a split
+     like this must not do. The FAQ below is only the questions that belong to
+     BOTH kits; each kit page answers its own. -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "CollectionPage",
+      "@id": "https://wildwillows.app/teachers",
+      "url": "https://wildwillows.app/teachers",
+      "name": "Wild Willows for teachers",
+      "description": "Two free, ready-to-run classroom kits built on Wild Willows: ecosystems and habitat for grades 5-8, and intro to APIs and web development for grades 9-12.",
+      "isPartOf": { "@type": "WebSite", "name": "Wild Willows", "url": "https://wildwillows.app/" },
+      "hasPart": [
+        { "@type": "LearningResource", "name": "Ecosystems & Habitat", "url": "https://wildwillows.app/teachers/science", "educationalLevel": "Grades 5-8", "learningResourceType": "Lesson plan" },
+        { "@type": "LearningResource", "name": "Intro to APIs & Web Development", "url": "https://wildwillows.app/teachers/coding", "educationalLevel": "Grades 9-12", "learningResourceType": "Lesson plan" }
+      ]
+    },
+    {
+      "@type": "FAQPage",
+      "mainEntity": [
+        { "@type": "Question", "name": "Do I have to buy anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. Both kits are free, and everything they need runs in a browser. The science kit uses the free demo at play.wildwillows.app, and the coding kit uses two pages on this site. The guides and worksheets are free as well." } },
+        { "@type": "Question", "name": "Do students need accounts?", "acceptedAnswer": { "@type": "Answer", "text": "No accounts, no email, and no sign-in, in either kit. Nothing a student writes is sent anywhere." } },
+        { "@type": "Question", "name": "Can I photocopy the worksheets?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Print, photocopy, translate and adapt them for your own classes as much as you like. Please do not resell them." } },
+        { "@type": "Question", "name": "What data is collected about students?", "acceptedAnswer": { "@type": "Answer", "text": "It differs by kit. The coding kit records counts only, never linked to a person, and student code never leaves the browser. The science kit uses the game, which while online sends a snapshot of the save every few minutes: gameplay counters, platform and language, the settings in use, a random save ID, and the caretaker name the student typed. No world file, journal or worksheet answer is ever transmitted. Neither kit uses accounts, tracking cookies, third-party analytics or advertising identifiers. The full policy is at wildwillows.app/privacy.html." } },
+        { "@type": "Question", "name": "Which kit should I use?", "acceptedAnswer": { "@type": "Answer", "text": "The science kit is grades 5-8 and takes one period: students restore a meadow and work out why each animal returned when it did. The coding kit is grades 9-12 and takes one to three periods: students build a webpage from real Wild Willows data. They share a world but neither depends on the other." } },
+        { "@type": "Question", "name": "Can I get free copies of the game for my classroom?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A limited number of free promo codes are set aside for teachers, with no cost and no expiry. Email wildwillowsgame@gmail.com from your school address with your school, grade level, roughly how many machines you need, and a sentence or two about how you would like to use the game with your class." } }
+      ]
+    },
+    {
+      "@type": "BreadcrumbList",
+      "itemListElement": [
+        { "@type": "ListItem", "position": 1, "name": "Wild Willows", "item": "https://wildwillows.app/" },
+        { "@type": "ListItem", "position": 2, "name": "For teachers", "item": "https://wildwillows.app/teachers" }
+      ]
+    }
+  ]
+}
+</script>
+
+<!-- Runs before <body> so a teacher who chose dark never sees a flash of cream. -->
+<script>
+<!-- @include public/partials/ww-theme.js -->
+</script>
+
+<style>
+<!-- @include public/partials/site-core.css -->
+<!-- @include public/partials/ww-teachers.css -->
+<!-- @include public/partials/ww-a11y.css -->
+<!-- @include public/partials/ww-dark.css -->
+</style>
+</head>
+<body class="edu-hub">
+
+<a class="skip-link" href="#main">Skip to the kits</a>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="/teachers/science" data-track="science-kit">Science kit</a>
+    <a class="hide-sm" href="/teachers/coding" data-track="coding-kit">Coding kit</a>
+    <a class="hide-sm" href="/">The game</a>
+    <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
+      <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+      <svg class="icon-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="4.2"/><path d="M12 2.4v2.2M12 19.4v2.2M4.2 4.2l1.6 1.6M18.2 18.2l1.6 1.6M2.4 12h2.2M19.4 12h2.2M4.2 19.8l1.6-1.6M18.2 5.8l1.6-1.6"/></svg>
+    </button>
+  </div>
+</div></nav>
+
+<main class="twrap" id="main" tabindex="-1">
+
+<header class="thero">
+  <p class="kicker">For teachers</p>
+  <h1>Wild Willows in the classroom</h1>
+  <p class="lead">Two free, ready-to-run kits built on the same game. One is science, one is computer science, and they work equally well on their own. No accounts, no cost, nothing to install.</p>
+  <div class="tmeta">
+    <span class="chip">Free</span>
+    <span class="chip">No accounts</span>
+    <span class="chip">Nothing to install</span>
+    <span class="chip">Printable</span>
+  </div>
+</header>
+
+<div class="kits">
+
+  <section class="kit">
+    <svg class="kit-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21.5c0-6 3-10.5 8.5-11.5C20.5 16 17 21 12 21.5z"/><path d="M12 21.5C12 15 8.5 11 3.5 10.5 3.5 16 7 21 12 21.5z"/><path d="M12 21.5V13"/></svg>
+    <h2>Ecosystems &amp; Habitat</h2>
+    <div class="kit-facts">
+      <span class="chip">Grades 5&ndash;8</span>
+      <span class="chip">45&ndash;60 minutes</span>
+      <span class="chip">Science</span>
+    </div>
+    <p>Students restore a damaged meadow, log which animals return and when, and work out that habitat means food, water, shelter and space together. Nothing is hunted or lost, and there is no way to fail.</p>
+    <ul>
+      <li>Educator guide and six printable worksheets</li>
+      <li>Runs on the free browser demo, or offline once installed</li>
+      <li>English and Espa&ntilde;ol</li>
+      <li>Discussion prompts and a &ldquo;game vs. nature&rdquo; critique sheet</li>
+    </ul>
+    <p class="kit-go"><a class="btn btn-go" href="/teachers/science" data-track="science-kit">Open the science kit</a></p>
+  </section>
+
+  <section class="kit">
+    <svg class="kit-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 8.5 4 13l4.5 4.5M15.5 8.5 20 13l-4.5 4.5M13.5 5l-3 16"/></svg>
+    <h2>Intro to APIs &amp; Web Development</h2>
+    <div class="kit-facts">
+      <span class="chip">Grades 9&ndash;12</span>
+      <span class="chip">1&ndash;3 periods</span>
+      <span class="chip">Computer Science</span>
+    </div>
+    <p>Students learn how HTML, CSS, JavaScript and APIs work together by pulling real Wild Willows data into a webpage they build themselves. Every code sample in the lesson is editable and runs when they press Run.</p>
+    <ul>
+      <li>Ten-chapter interactive lesson and a browser code editor</li>
+      <li>No prior coding experience, for students or for you</li>
+      <li>Real public API, not a mock dataset</li>
+      <li>Lesson flows for one, two or three periods, and an answer key</li>
+    </ul>
+    <p class="kit-go"><a class="btn btn-go" href="/teachers/coding" data-track="coding-kit">Open the coding kit</a></p>
+  </section>
+
+</div>
+
+<section class="tsec">
+  <h2>Free copies for your classroom</h2>
+  <p>A limited number of promo codes are set aside for teachers: full copies of the game, no cost and no expiry. Email <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a> from your school address with your school, your grade level, and roughly how many machines you need, along with a sentence or two about how you would like to use the game with your class.</p>
+  <p class="sub">Neither kit requires this. The science kit runs on the free browser demo and the coding kit runs on this site, so you can teach both today and ask later.</p>
+</section>
+
+<section class="tsec">
+  <h2>Questions teachers ask first</h2>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Do I have to buy anything?</span></summary>
+    <div class="tfaq-body"><p>No. Both kits are free and everything they need runs in a browser. The science kit uses the free demo, and the coding kit uses two pages on this site. The guides and worksheets are free as well.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Do students need accounts?</span></summary>
+    <div class="tfaq-body"><p>No accounts, no email, and no sign-in, in either kit. Nothing a student writes in the code editor is sent anywhere: it stays in that browser until they download it themselves.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Can I photocopy the worksheets?</span></summary>
+    <div class="tfaq-body"><p>Yes. Print them, photocopy them, translate them, cut them up and adapt them for your own classes as much as you like. The only thing asked is that you do not resell them.</p></div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>What data is collected about students?</span></summary>
+    <div class="tfaq-body">
+      <p>It differs by kit, so here is both.</p>
+      <p><b>The coding kit</b> is counts only, never linked to a person: which chapters were reached, which errors the editor explained, roughly how long a session ran. Student code never leaves the browser.</p>
+      <p><b>The science kit</b> uses the game, and the game reports more than that. While a machine is online it sends a snapshot of the save every few minutes: gameplay counters, the platform and language, the settings in use, a random save ID, and <b>the caretaker name the student typed</b>. That last field is free text, so have the class use the dice button beside it rather than their own names. No world file, no journal and no worksheet answer is ever transmitted.</p>
+      <p>Neither kit uses accounts, cookies for tracking, third-party analytics or advertising identifiers. A snapshot can be deleted on request. If your district needs this in writing, the <a href="/privacy.html" data-track="privacy">privacy policy</a> lists every field and has a section addressed to schools.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Which kit should I use?</span></summary>
+    <div class="tfaq-body">
+      <p>Whichever matches your subject. They share a world and neither depends on the other, so there is no order to follow and no reason to run both.</p>
+      <p>If you teach both, the science kit makes a good week-one introduction to the world the coding kit then queries. That is a nice connection rather than a requirement.</p>
+    </div>
+  </details>
+
+  <details class="tfaq">
+    <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Will this work on our network?</span></summary>
+    <div class="tfaq-body">
+      <p>Both kits need <code>wildwillows.app</code> and <code>play.wildwillows.app</code> reachable. Check that a week before you teach rather than the morning of: a filtered domain is the single most common way one of these lessons goes wrong, and it takes an IT ticket to fix.</p>
+      <p>Once installed, the game plays entirely offline &mdash; a machine that never reaches the network runs the whole science lesson, and sends nothing. It does report gameplay counters when it <em>is</em> online; the <a href="/privacy.html#stats" data-track="privacy">privacy policy</a> lists what. The coding kit needs the connection throughout, because fetching real data over a real network is the thing it teaches.</p>
+    </div>
+  </details>
+</section>
+
+<div class="tcontact">
+  <h2>Using this with a class?</h2>
+  <p>Tell me how it went. What confused students, what ran long, what you had to change: all of it is useful, and it is what these pages get rewritten from.</p>
+  <div class="cta-row">
+    <a class="btn btn-go" href="mailto:wildwillowsgame@gmail.com">Email me</a>
+    <a class="btn btn-paper" href="/" data-track="play">See the game</a>
+  </div>
+</div>
+
+</main>
+
+<script>
+(function () {
+  'use strict';
+  /* One counter, once per browser session, on the same contract as the rest of
+     the classroom pages (see PRIVACY.md): a name from a fixed list and a
+     number, and nothing else.
+
+     This page used to report itself as a click on 'edu-page' to the landing
+     beacon, because visits there are one undifferentiated series shared by
+     every page that sends them. It has its own key in the classroom counters
+     now, which is where the rest of the teaching funnel already lives. */
+  function report(counts) {
+    try {
+      var body = JSON.stringify({ page: 'teachers', counts: counts });
+      if (navigator.sendBeacon) navigator.sendBeacon('/LessonEvent/', new Blob([body], { type: 'application/json' }));
+    } catch (e) {
+      /* analytics never gets to break a page */
+    }
+  }
+
+  /* Two flags, two questions. The session one is traffic: how many visits. The
+     localStorage one is REACH: how many different browsers have ever seen this
+     page. The gap between them is how much of the traffic is the same people
+     coming back, which is the difference between a page that is working and a
+     page that a few enthusiasts keep reloading. Neither is an identifier: both
+     are one bit that says "not the first time", readable only by this origin. */
+  var fresh = true;
+  var everFresh = false;
+  try {
+    fresh = !sessionStorage.getItem('ww_edu_hub_seen');
+    sessionStorage.setItem('ww_edu_hub_seen', '1');
+  } catch (e) {
+    /* Guest mode or a locked-down profile: counting it is the better failure. */
+  }
+  try {
+    everFresh = !localStorage.getItem('ww_ever_hub');
+    if (everFresh) localStorage.setItem('ww_ever_hub', '1');
+  } catch (e) {
+    /* storage refused — counting the visit as a first one overstates reach by a
+       little, which is a better failure than losing the visit entirely. */
+    everFresh = true;
+  }
+
+  if (fresh) {
+    var opening = { view_hub: 1 };
+    if (everFresh) opening.unique_hub = 1;
+    if (window.requestIdleCallback) requestIdleCallback(function () { report(opening); }, { timeout: 3000 });
+    else setTimeout(function () { report(opening); }, 500);
+  }
+
+  /* WHICH KIT THEY TOOK. The one number worth having about a hub. */
+  var NAV = { 'science-kit': 'nav_science', 'coding-kit': 'nav_coding' };
+  document.addEventListener('click', function (e) {
+    var a = e.target && e.target.closest && e.target.closest('a[data-track]');
+    if (!a) return;
+    var key = NAV[a.getAttribute('data-track')];
+    if (!key) return;
+    var counts = {};
+    counts[key] = 1;
+    report(counts);
+  });
+})();
+</script>
+</body>
+</html>

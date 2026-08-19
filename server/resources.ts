@@ -64,7 +64,13 @@ import {
 	supportHtml,
 	dashboardHtml,
 	landingHtml,
-	teachersHtml,
+	teachersIndexHtml,
+	developersApiHtml,
+	teachersScienceHtml,
+	teachersCodingHtml,
+	learnCodeBuilderHtml,
+	learnWebDevelopmentHtml,
+	learnIndexHtml,
 	ogImageB64,
 	buildStamp,
 } from './pages';
@@ -534,7 +540,7 @@ async function toArray(iterable: any, label = '?'): Promise<any[]> {
 	// but not free: it wraps every element in a resolved promise and awaits it, so
 	// a snapshot's six table reads cost one microtask turn PER ROW — thousands of
 	// them on a built-out save, on the same thread that draws the frame. A sync
-	// loop over an array we already hold is identical in behaviour (same null
+	// loop over an array we already hold is identical in behavior (same null
 	// handling, same drop accounting) and skips all of it.
 	if (Array.isArray(iterable)) {
 		for (const item of iterable) {
@@ -1531,7 +1537,7 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
  * an inflated animal total and a soft-locked gate indefinitely.
  *
  * Login passes `force`, because login is once per session and already pays for
- * these reads: the marker is an optimisation for the heartbeat path, not a
+ * these reads: the marker is an optimization for the heartbeat path, not a
  * promise that a save is only ever looked at once.
  */
 // REV 2: every save that logged in against the broken definition set (223
@@ -1869,7 +1875,7 @@ const HOME_STYLES: Record<
 		materials: { wildflowers: 6, fiber: 10, clay: 4 },
 		requires: HOME_BUILD_GATE,
 		perk: { id: 'growth', base: 0.1, perLevel: 0.04, cap: 0.5 },
-	}, // pale wood + airy blue-grey + green
+	}, // pale wood + airy blue-gray + green
 	stone: {
 		name: 'Stone Hearth',
 		floor: '#a9a499',
@@ -1878,7 +1884,7 @@ const HOME_STYLES: Record<
 		materials: { stones: 14, clay: 6 },
 		requires: HOME_BUILD_GATE,
 		perk: { id: 'thrift', base: 0.1, perLevel: 0.05, cap: 0.6 },
-	}, // slate floor + grey stone + hearth orange
+	}, // slate floor + gray stone + hearth orange
 };
 const DEFAULT_HOME = { style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1, styleLocked: false };
 
@@ -1961,7 +1967,7 @@ function homePerk(player: any): { id: HomePerkDef['id']; strength: number } | nu
 	return { id: perk.id, strength };
 }
 
-/** Interior floor rectangle (tile coords) for a player's home, centred in the grid. */
+/** Interior floor rectangle (tile coords) for a player's home, centered in the grid. */
 function homeRoom(player: any) {
 	const inner = HOME_TRACKS.space.levels[(homeOf(player).space || 1) - 1]?.inner || { w: 8, h: 6 };
 	const x0 = Math.floor((GRID_W - inner.w) / 2);
@@ -1980,7 +1986,7 @@ function tentBiomeOf(area: any): string | null {
 	const m = /^tent-([a-z][a-z-]*)$/.exec(String(area || ''));
 	return m ? m[1] : null;
 }
-/** Interior floor rectangle for a trail tent (fixed size, centred like the home). */
+/** Interior floor rectangle for a trail tent (fixed size, centered like the home). */
 function tentRoom() {
 	const x0 = Math.floor((GRID_W - TENT_INNER.w) / 2);
 	const y0 = Math.floor((GRID_H - TENT_INNER.h) / 2);
@@ -1995,7 +2001,7 @@ function tentRoom() {
 // copy that counts — the frontend is never trusted.
 const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag']);
 
-/** The door tile of an interior: bottom wall, horizontally centred. Must match
+/** The door tile of an interior: bottom wall, horizontally centered. Must match
  *  `roomSpec()` in the client, which derives it from the same rectangle. */
 function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): { x: number; y: number } {
 	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
@@ -2003,7 +2009,7 @@ function doorTileOf(room: { x0: number; y0: number; x1: number; y1: number }): {
 
 /**
  * True if a bed at (tx, ty) would sit on, or in the ring immediately around, the
- * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbours are
+ * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbors are
  * all refused — enough to always leave a clear step in and out.
  */
 function blocksDoorway(
@@ -2292,7 +2298,7 @@ const STARTER_CHEST = { x: 23, y: 5, size: 'small-chest', capacity: 120 };
 
 /** Load an existing player or fail — creation only happens via /CreatePlayer/. */
 /**
- * Serialise everything that touches one player's row.
+ * Serialize everything that touches one player's row.
  *
  * Every mutating endpoint here is read-modify-write: read the player, compute the
  * new inventory / craftedItems / tools, patch it back. Two requests for the same
@@ -2504,15 +2510,25 @@ function sessionBucket(seconds: number): string {
  * rolls over automatically the first time it's bumped on a new UTC day — no
  * background job needed, and reads just ignore a stale bucket.
  */
+/* HOW MANY ARRIVALS ARE KEPT, and why it is a cap rather than everything.
+ *
+ * One entry per species that has ever come home, so a completionist tops out at
+ * the number of animals in the game. The cap is above that with room for the
+ * game to grow, and it exists so that a bug which re-reports the same arrival
+ * cannot grow a save's record without bound. Oldest go first. */
+const MAX_ARRIVALS = 300;
+
 async function bumpMetrics(
 	player: any,
 	deltas: Record<string, number> = {},
 	dailyDeltas: Record<string, number> = {},
+	/** Species that came home on this call, in the order they arrived. */
+	arrivals: Array<{ id: string; name?: string }> = [],
 ): Promise<any> {
 	if (!player?.id) return null;
 	const entries = Object.entries(deltas).filter(([, v]) => v);
 	const dailyEntries = Object.entries(dailyDeltas).filter(([, v]) => v);
-	if (!entries.length && !dailyEntries.length) return readMetrics(player);
+	if (!entries.length && !dailyEntries.length && !arrivals.length) return readMetrics(player);
 	const now = Date.now();
 	// merge onto the freshest row — a single request can bump twice (e.g. a
 	// placement bump plus recalcBiome's health/animal bump) from stale copies.
@@ -2522,7 +2538,33 @@ async function bumpMetrics(
 	const prev = readMetrics(live) || freshMetrics(live.createdAt || now);
 	const counts = { ...(prev.counts || {}) };
 	for (const [k, v] of entries) counts[k] = (counts[k] || 0) + v;
-	const metrics = { ...prev, counts, lastSeenAt: now };
+	const metrics: any = { ...prev, counts, lastSeenAt: now };
+
+	/* WHEN EACH ANIMAL CAME HOME, measured in play time rather than in dates.
+	 *
+	 * "Three days after they started" says more about their week than about the
+	 * game. "Forty minutes in" is the thing a designer can act on: it is where the
+	 * first arrival lands in a session, whether the second one comes soon enough
+	 * to feel like progress, and how long the last species in a biome takes.
+	 *
+	 * `at` is the play seconds ALREADY accrued, so the first arrival of a brand
+	 * new save reads 0 rather than a heartbeat's worth of noise. One row per
+	 * species: recalcBiome only reports an animal the first time it returns, and
+	 * the guard below keeps a repeat from making it look like it came twice. */
+	if (arrivals.length) {
+		const seen = new Set((prev.arrivals || []).map((a: any) => a && a.id));
+		const at = Math.round(prev.playSeconds || 0);
+		/* The NAME is written beside the id, not derived from it later. An id is a
+		 * slug — "red-tailed-hawk" un-slugs to "Red Tailed Hawk", which is not the
+		 * bird's name — and the dashboard has no copy of the species list to look
+		 * the real one up in. Recording it here also makes the log a history: a
+		 * species renamed next year still reads the way it read the day it came
+		 * home. Older rows carry no name and the dashboard un-slugs those. */
+		const fresh = arrivals
+			.filter((a) => a && a.id && !seen.has(a.id))
+			.map((a) => (a.name ? { id: a.id, name: a.name, at } : { id: a.id, at }));
+		if (fresh.length) metrics.arrivals = [...(prev.arrivals || []), ...fresh].slice(-MAX_ARRIVALS);
+	}
 	// Stamp the first real gameplay action (cosmetic fiddling doesn't count), so
 	// the dashboard can measure onboarding friction (create → first action).
 	if (!prev.firstActionAt && entries.some(([k, v]) => v && !isMetaCounter(k))) {
@@ -2631,6 +2673,11 @@ function metricsView(player: any) {
 		areaSeconds,
 		areaMinutes,
 		mostTimeArea,
+		/* Which species came home, and how far into the playthrough each one did.
+		 * Exposed here rather than only on the hosted row because the solo uplink
+		 * sends THIS object as its snapshot (minus `biomes`), so a desktop save
+		 * reports its arrivals without the client having to know they exist. */
+		arrivals: Array.isArray(m.arrivals) ? m.arrivals : [],
 		// time-per-menu (overlaps the above — see the note where these are read)
 		menuSeconds,
 		menuMinutes,
@@ -2749,7 +2796,7 @@ function gateGeomOf(d: any, area: string): { gateY: number; landRight: number; w
  * next biome — you cannot stand next to the gate to use it. The gate tile, one
  * row either side of it and the two columns in from that edge are all refused.
  * Tilled and watered beds are walkable, so only the flood step is blocked.
- * Mirrored by blocksGateTrail() in src/game/interactions.ts, which greys the
+ * Mirrored by blocksGateTrail() in src/game/interactions.ts, which grays the
  * click out before it ever reaches here.
  */
 function blocksGateTrail(tx: number, ty: number, g: ReturnType<typeof gateGeomOf>): boolean {
@@ -3113,7 +3160,7 @@ function computeBalance(d: any, biomeId: string, returnedIds: Set<string>): numb
  * Analyze the player's open-water tiles (terraformed type 'water') in a biome.
  * Returns total tile count, the largest connected body ("lake"), and the
  * longest connected span ("river") — long, thin channels score high on river,
- * big blobs score high on lake. 4-neighbour connectivity.
+ * big blobs score high on lake. 4-neighbor connectivity.
  */
 function analyzeWater(terrain: any[], playerOnly = false) {
 	// `playerOnly` drops the pre-seeded starting channels (the wetland ships with a
@@ -3450,9 +3497,15 @@ async function recalcBiome(
 	// against a counts.animalsReturned that under-reported. Bumping at the source
 	// means a new path can't reintroduce the drift.
 	const deltas: Record<string, number> = newAnimals.length ? { animalsReturned: newAnimals.length } : {};
-	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length) {
+	/* The ids, not just the count. Same reasoning as the counter above: this is
+	 * the one place an animal can come home, so it is the only place that can
+	 * record WHICH one and how far into the playthrough it happened. */
+	const arrived = newAnimals
+		.map((a: any) => ({ id: a?.animalId || a?.animal?.id, name: a?.animal?.name }))
+		.filter((a: any) => a.id);
+	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length || arrived.length) {
 		const actor = opts.player || (await safeGet(t.Player, playerId));
-		if (actor) await bumpMetrics(actor, deltas, dailyDeltas);
+		if (actor) await bumpMetrics(actor, deltas, dailyDeltas, arrived);
 	}
 
 	const unlockedBiomes = await checkUnlocks(wid, playerId, { player: opts.player, freshState: biomeState });
@@ -4562,7 +4615,7 @@ function goalText(goal: CustomGoal, ctx: TaskCtx): string {
  * animals come home when the habitat is right — and it needs exactly what the
  * two goals before it produce: a crafted grass patch, placed. Harvest follows
  * planting because it needs something grown. The bugs goal sits where a planted,
- * flowering meadow has started drawing small neighbours in on its own.
+ * flowering meadow has started drawing small neighbors in on its own.
  *
  * The finale is deliberate: shaping open water is the most advanced thing the
  * land lets you do, and building a house is the biggest thing you can make.
@@ -4585,7 +4638,7 @@ function starterTasks(ctx: TaskCtx): any[] {
 	const planted = (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
 	const harvested = (ctx.placements || []).some((p: any) => typeof p.lastHarvestAt === 'number');
 	// "Bugs" in the way a caretaker means it: the small crawling, flying, creeping
-	// neighbours. The definitions split `kind` into 'insect' (grasshopper, ladybug,
+	// neighbors. The definitions split `kind` into 'insect' (grasshopper, ladybug,
 	// bumblebee) and 'invertebrate' (snail, pillbug, garden spider) for display;
 	// both are bugs to a player, and splitting them here would make the goal a
 	// puzzle about the data model rather than about the meadow.
@@ -4769,7 +4822,7 @@ function starterTaskIds(): string[] {
  * The whole point of the chain is to hand the board over: ten goals that teach
  * the game and then get out of the way. So the number that matters is not how
  * many players finished it — it's how many went on to write a goal of their own
- * afterwards, which is the behaviour the chain is trying to produce. `step` is
+ * afterwards, which is the behavior the chain is trying to produce. `step` is
  * where the rest stalled, and it's the only way to tell "quit the game" from
  * "stuck on Build a home".
  *
@@ -5086,6 +5139,41 @@ const RATE_TIERS = {
 	action: { perMinute: 600, burst: 120 },
 	/** Reads that touch the database. */
 	read: { perMinute: 300, burst: 100 },
+	/**
+	 * GET /GameData — the public catalog. Its own tier, and the numbers come from
+	 * what the ORIGIN sees, which is not what a classroom sends.
+	 *
+	 * THE CACHE MOVED THE GOALPOSTS, so this number moved with it. The old value
+	 * (600/min) was the classroom arithmetic: the editor runs student code in a
+	 * sandbox="allow-scripts" frame on an opaque origin, so it shares no HTTP
+	 * cache and never sends If-None-Match — measured, thirty edits produced thirty
+	 * full responses and zero 304s — and thirty students at twenty runs a minute
+	 * is 600 from one NAT. That was the right number while every one of those
+	 * requests reached this process.
+	 *
+	 * They no longer do. With the Cloudflare rule on /GameData* the edge answers
+	 * the repeats and the origin sees roughly one request per edge location per
+	 * day, plus a burst when the cache is cold or has just been purged. So the
+	 * question this tier answers changed from "how much does a classroom send" to
+	 * "how much can miss the cache", and those are two very different numbers:
+	 *
+	 *   legitimate, worst case   ~30 in a second or two (cold edge, class presses
+	 *                            Run together), then nothing for the rest of the day
+	 *   abusive, worst case      /GameData?x=<random> busts the cache on every
+	 *                            request, so the whole budget lands here
+	 *
+	 * At 600/min the second one was ~72 MB a minute — 4.3 GB an hour — from a
+	 * single address, entirely inside the published limit. At 60/min it is a
+	 * tenth of that, and a cold classroom still clears in one burst with room for
+	 * a second wave thirty seconds later.
+	 *
+	 * BURST EQUALS THE MINUTE ON PURPOSE. Everything honest here is a spike: a
+	 * cold cache, a purge, a class starting together. Nothing honest is a grind.
+	 * A bucket that holds a full minute and refills at one a second allows the
+	 * spike and refuses the sustained pull, which is the shape of the traffic
+	 * rather than a compromise between two shapes.
+	 */
+	catalog: { perMinute: 60, burst: 60 },
 } as const;
 
 type RateTier = keyof typeof RATE_TIERS;
@@ -5520,7 +5608,7 @@ async function awardAchievements(
 		 * terrain, for those biomes alone, and re-run just those triggers.
 		 *
 		 * Generic on purpose: no achievement id is hard-coded, so a new water-based
-		 * achievement costs nothing to add and keeps this optimisation.
+		 * achievement costs nothing to add and keeps this optimization.
 		 */
 		const NO_WATER = { tiles: 0, lake: 0, river: 0 };
 		const waterCache = new Map<string, { tiles: number; lake: number; river: number }>();
@@ -5679,7 +5767,7 @@ function isSuperUser(user: any): boolean {
  * Authentication is still entirely Harper's — this only decides WHICH
  * authenticated users get through, and it fails closed: no user object, no
  * access. It deliberately does not fall back to "allow if we can't tell", which
- * is the shape that turns an unrecognised user object into an open endpoint.
+ * is the shape that turns an unrecognized user object into an open endpoint.
  *
  * Endpoints carrying more than gameplay numbers do NOT use this. ListFeedback
  * holds players' reply emails and SystemProbe reports server internals; both stay
@@ -5744,7 +5832,7 @@ export class Version extends PublicEndpoint {
  * we make it cheap two ways:
  *
  *  1. Revalidation. The payload is fully determined by the build (buildStamp),
- *     so we tag it with a build-stamped ETag and honour If-None-Match: repeat
+ *     so we tag it with a build-stamped ETag and honor If-None-Match: repeat
  *     opens get an empty 304 instead of re-downloading the whole catalog.
  *  2. Compression. Harper's REST path does NOT compress resource responses, and
  *     this JSON is highly repetitive, so we brotli/gzip it per the client's
@@ -5918,7 +6006,43 @@ function snapshotResponse(reqHeaders: any, state: any) {
 	return { status: 200, headers: { ...headers, 'content-encoding': enc }, body: compressJson(json, enc) };
 }
 
+/**
+ * CORS for GET /GameData/ — deliberately wide open, and safe to be.
+ *
+ * This catalog is public, unauthenticated, byte-identical for every caller and
+ * already fetched by anonymous browsers before login. `*` therefore exposes
+ * nothing that a plain URL does not, and — critically — it is credential-less:
+ * `*` and `Access-Control-Allow-Credentials` are mutually exclusive by spec, so
+ * no cookie or auth header can ever ride along on a cross-origin read.
+ *
+ * It is here for the classroom pages (/learn/code-builder), which need it in
+ * three places the same-origin case never exercised:
+ *   1. The preview iframe is `sandbox="allow-scripts"` WITHOUT `allow-same-origin`,
+ *      so student code runs on an OPAQUE origin. Without this header the only fix
+ *      is granting `allow-same-origin`, which would hand student JS the parent page.
+ *   2. Downloaded projects run from `file://` (`Origin: null`).
+ *   3. Anywhere a student continues afterwards — CodePen, a school Google Site.
+ * CONTRIBUTING.md already notes the packaged app's `file://` origin needs this too.
+ *
+ * MUST be on the 304 path as well: a cross-origin client that already holds the
+ * ETag revalidates, and a 304 without these headers is a CORS failure — i.e. the
+ * lesson would work on first load and mysteriously break on every reload after.
+ *
+ * Scoped to THIS endpoint by construction (a const, not middleware). It must
+ * never spread to GameState or anything under DashboardEndpoint: those are
+ * per-player or admin, and same-origin policy is what is currently protecting them.
+ */
+const GAME_DATA_CORS: Record<string, string> = {
+	'access-control-allow-origin': '*',
+	// No `access-control-allow-headers`/`-methods`: the lesson teaches bare
+	// `fetch(url)` with no custom headers, which is a CORS-simple request and is
+	// never preflighted. Nothing here answers OPTIONS, and nothing needs to.
+	'access-control-allow-methods': 'GET, HEAD',
+};
+
 export class GameData extends PublicEndpoint {
+	static rateTier = 'catalog';
+
 	async get() {
 		const { obj, json, etag } = await gameDataCached();
 		// No HTTP request context → the in-app solo backend (or any internal JS
@@ -5927,15 +6051,45 @@ export class GameData extends PublicEndpoint {
 		const reqHeaders: any = (this.getContext?.() as any)?.headers;
 		if (!reqHeaders || typeof reqHeaders.get !== 'function') return obj;
 
-		// `no-cache` means "cache it, but revalidate every time" — NOT "don't cache".
-		// The catalog changes on deploy (new hats, hairstyles, skin tones), and the
-		// old value here — `public, max-age=300, stale-while-revalidate=604800` —
-		// meant a browser served the OLD catalog from cache for 5 minutes without
-		// asking, then served it stale for up to 7 more days while revalidating in
-		// the background. A deploy could take a week to show up in a browser, which
-		// looked exactly like "the new options didn't ship". Revalidation is cheap:
-		// the etag below is the build stamp, so an unchanged catalog costs a 304.
-		const cacheControl = 'no-cache';
+		/* TWO AUDIENCES, TWO ANSWERS, IN ONE HEADER.
+		 *
+		 * `max-age=0, must-revalidate` is for the BROWSER: the copy it holds is
+		 * stale the instant it lands, so it asks every time and the etag below turns
+		 * that into a 304. That is deliberate. The catalog changes on deploy (new
+		 * hats, hairstyles, skin tones), and an earlier value here —
+		 * `public, max-age=300, stale-while-revalidate=604800` — let a browser serve
+		 * the OLD catalog for five minutes without asking and then serve it stale
+		 * for up to seven more days while revalidating behind the player's back. A
+		 * deploy could take a week to show up, which looks exactly like "the new
+		 * options didn't ship".
+		 *
+		 * `s-maxage=86400` is for the SHARED cache, and it is the one that protects
+		 * the origin. A 304 is cheap in bytes and not free in requests: something
+		 * still has to compare the etag, and if that something is Harper then a
+		 * classroom sending 600 revalidations a minute is still 600 requests a
+		 * minute at the database. wildwillows.app is behind Cloudflare, so with a
+		 * cache rule on this path the edge answers the repeats from its own copy and
+		 * Harper sees roughly one request per edge location per day.
+		 *
+		 * The day is long on purpose, because a deploy PURGES it — see
+		 * scripts/purge-cache.mjs, which npm run deploy:purge calls. Without the
+		 * purge this would be a day-long lie; with it, new data is live the moment
+		 * it ships and the quiet time in between costs nothing.
+		 *
+		 * WHAT A BROWSER ACTUALLY RECEIVES IS NOT THIS STRING. The Cloudflare cache
+		 * rule on /GameData* is set to take its edge TTL from this header and to
+		 * rewrite the browser TTL to ten minutes, so what arrives at a browser is
+		 * `max-age=600`, not `max-age=0`. That is deliberate and it is the reason
+		 * `must-revalidate` is still worth sending: ten minutes is short enough that
+		 * a deploy is visible almost immediately, and long enough that a student
+		 * pressing Run twenty times in a period pays for one request rather than
+		 * twenty. If that rule is ever removed, this header alone is still correct;
+		 * the browser simply goes back to revalidating every time.
+		 *
+		 * Order matters to nobody but a reader: a shared cache reads s-maxage and
+		 * ignores max-age, a browser does the opposite. must-revalidate binds only
+		 * once a response IS stale, which for the edge is after the day is up. */
+		const cacheControl = 'public, max-age=0, must-revalidate, s-maxage=86400';
 		// Revalidation hit: same build the client already has → send nothing.
 		// Compare loosely so a weak/strong prefix or quoting mismatch still matches.
 		const norm = (s: string) => s.replace(/^W\//, '').trim();
@@ -5943,7 +6097,55 @@ export class GameData extends PublicEndpoint {
 		if (ifNoneMatch && norm(ifNoneMatch) === norm(etag)) {
 			// Explicitly empty — see the note in snapshotResponse: without this Harper
 			// serializes the envelope itself into the body of a 304.
-			return { status: 304, headers: { etag, 'cache-control': cacheControl }, body: nodeBuffer.alloc(0) };
+			return {
+				status: 304,
+				headers: { etag, 'cache-control': cacheControl, ...GAME_DATA_CORS },
+				body: nodeBuffer.alloc(0),
+			};
+		}
+
+		/* CHARGED HERE, AND DELIBERATELY NOT ONE LINE EARLIER.
+		 *
+		 * Everything above this point is free: no context is the in-app backend, and
+		 * a matching If-None-Match is a 304 with an empty body. Both return before
+		 * the limiter is ever consulted, so NO CLIENT THAT CACHES CAN BE REFUSED —
+		 * which is the property that matters, because the one caller that must never
+		 * break is the game.
+		 *
+		 * For the record, the game is safe twice over. Desktop, Steam and Mac App
+		 * Store builds never make this call at all: src/api.ts serves /GameData/ from
+		 * the bundle on desktop, which is what makes the title screen work offline.
+		 * The browser demo calls it exactly once per session, on mount, with no
+		 * retry, through a Worker that forwards cf-connecting-ip so one player is one
+		 * caller rather than all of them sharing a bucket. A player would have to
+		 * reload the demo twenty times a second to see this.
+		 *
+		 * THE REFUSAL IS ANSWERED, NOT THROWN. Every other endpoint lets rateLimit
+		 * throw and Harper renders the 429. This one cannot: its browser callers are
+		 * cross-origin — student code in an opaque-origin sandbox, a downloaded page
+		 * on file://, anyone building against the documented API — and a 429 without
+		 * Access-Control-Allow-Origin does not reach their catch block as a 429. It
+		 * arrives as an opaque network failure with no status and no message, which
+		 * is indistinguishable from the student's own code being broken.
+		 */
+		try {
+			rateLimit(this, 'catalog');
+		} catch (err: any) {
+			// GameError carries `statusCode`, not `status`. Reading the wrong one
+			// rethrows every refusal and makes the answer below dead code.
+			if (err?.statusCode !== 429) throw err;
+			return {
+				status: 429,
+				headers: {
+					'content-type': 'text/plain; charset=utf-8',
+					// The bucket's own refill window, so a client that honors this comes
+					// back to a budget rather than to another refusal.
+					'retry-after': '60',
+					'cache-control': 'no-store',
+					...GAME_DATA_CORS,
+				},
+				body: 'Too many requests for the game catalog. It changes only when the game ships a build, so fetch it once and keep it. Wait a minute and try again — see https://wildwillows.app/developers/api for the limits and how to use the ETag.',
+			};
 		}
 
 		const headers: Record<string, string> = {
@@ -5951,6 +6153,7 @@ export class GameData extends PublicEndpoint {
 			'cache-control': cacheControl,
 			etag,
 			vary: 'Accept-Encoding',
+			...GAME_DATA_CORS,
 		};
 		const enc = negotiateEncoding(String(reqHeaders.get('accept-encoding') || ''));
 		let body: string | Uint8Array = json;
@@ -6597,7 +6800,7 @@ export class CollectResource extends PublicEndpoint {
 				// (see weatherSnapshot), which is what the client draws its sky and its gather
 				// nodes from. Recomputing the live sky here instead meant "set weather: rain"
 				// produced falling rain and rainwater nodes that then refused to be picked up —
-				// the override was honoured everywhere except the one check that mattered.
+				// the override was honored everywhere except the one check that mattered.
 				const forced = player?.devWeather?.type || null;
 				const base = weatherTimeFromPlay(player);
 				const matches = forced
@@ -8267,7 +8470,7 @@ export class Heartbeat extends PublicEndpoint {
 		// Which menu was open at the moment of the beat, if any and if we know it.
 		const openMenu = typeof panel === 'string' && MENU_PANELS.has(panel) ? panel : null;
 		// Menu opens counted by the client since its last successful beat. Merged
-		// here rather than sent as their own request; anything unrecognised, not a
+		// here rather than sent as their own request; anything unrecognized, not a
 		// positive number, or implausibly large for one beat is dropped.
 		if (panelOpens && typeof panelOpens === 'object' && !Array.isArray(panelOpens)) {
 			for (const [menu, raw] of Object.entries(panelOpens as Record<string, unknown>)) {
@@ -8513,6 +8716,9 @@ async function buildDashboardRows(): Promise<any[]> {
 				},
 				// new metric fields (defaulted so aggregation is safe on legacy rows)
 				areaSeconds: s.areaSeconds || {},
+				// Empty for every save that predates the log, which the dashboard says
+				// out loud rather than drawing as "no animals have come home".
+				arrivals: Array.isArray(s.arrivals) ? s.arrivals : [],
 				// Menu dwell. Solo and demo saves reach the roll-up through THIS
 				// projection, not through metricsView, so anything the summary reads
 				// has to be lifted out of the snapshot here or it aggregates as empty
@@ -8618,7 +8824,7 @@ function markDemoConversions(rows: any[]): any[] {
 			supersededByFull: false,
 			conversion: {
 				// The stamp is exact. Without it, the demo row's last sighting is the
-				// closest honest answer, so it is labelled as an estimate rather than
+				// closest honest answer, so it is labeled as an estimate rather than
 				// dressed up as a timestamp.
 				at: r.convertedFromDemoAt || twin?.lastSeenAt || null,
 				exact: !!r.convertedFromDemoAt,
@@ -8693,7 +8899,7 @@ function compareVersions(a: string, b: string): number {
  *
  * GET /Metrics/ (no id) used to return the whole analytics roll-up — the global
  * aggregates AND a row per player carrying names, first/last activity timestamps,
- * OS, accessibility preferences and behaviour — to anyone who asked for it. That
+ * OS, accessibility preferences and behavior — to anyone who asked for it. That
  * was the leak. The roll-up now lives behind Harper admin auth, split in two:
  *
  *   GET /MetricsSummary/            — the aggregates (~6 KB): what a dashboard or cron wants
@@ -9665,12 +9871,22 @@ async function metricsRollup(target?: any): Promise<{
 			exportPct: demoFinished ? Math.round((endExported / demoFinished) * 100) : 0,
 			storePct: demoFinished ? Math.round((endStore / demoFinished) * 100) : 0,
 		};
+		/* STARTED PLAYING, not "made a character".
+		 *
+		 * Creation alone counts a returning demo player as a bounce, so the step got
+		 * worse as retention improved — the same bug the acquisition funnel already
+		 * had and fixed. `resumed` is a device that opened a save it already had;
+		 * either route means somebody played. Creation is still reported beside it
+		 * for anyone who wants the narrower number. */
+		const demoPlayed = demoDevices.filter((o) => o.converted || o.resumed).length;
 		const demoCompletion = {
 			demoInstalls: demoDevices.length,
+			startedPlaying: demoPlayed,
 			createdCharacter: demoConverted,
 			reachedGoal: demoFinished,
-			// completion rate among demo players who actually made a character
-			completionPct: demoConverted ? Math.round((demoFinished / demoConverted) * 100) : 0,
+			// Completion among demo players who actually started, which is the
+			// population the finish line is available to.
+			completionPct: demoPlayed ? Math.round((demoFinished / demoPlayed) * 100) : 0,
 			nudge: demoNudge,
 			endScreen: demoEnd,
 		};
@@ -9681,7 +9897,7 @@ async function metricsRollup(target?: any): Promise<{
 			editionSplit[k] = (editionSplit[k] || 0) + 1;
 		}
 		/* Per-CHANNEL funnel: how many devices each channel brought, and how
-		 * many of them went on to make a character.
+		 * many of them went on to start playing.
 		 *
 		 * Deliberately not a bare count. Raw device counts across channels are not
 		 * comparable — inside itch's game iframe the device id lives in THIRD-PARTY
@@ -9693,18 +9909,34 @@ async function metricsRollup(target?: any): Promise<{
 		 * 'unknown' is its own bucket: every device that opened the game before
 		 * this shipped has no channel, and folding those into a real one
 		 * would silently inflate whichever one you happened to look at.
+		 *
+		 * `played` is the headline step, not `converted`: a device that came back to
+		 * a save it already had is a player, and counting creation alone made a
+		 * channel look worse the better it retained people. Creation is still
+		 * returned as `converted` for anyone who wants the narrower number.
 		 */
 		const channelSplit: Record<string, any> = {};
 		for (const o of openRows) {
 			const k = String(o.channel || 'unknown');
-			const c = (channelSplit[k] ||= { devices: 0, opens: 0, converted: 0, charactersCreated: 0, conversionPct: 0 });
+			const c = (channelSplit[k] ||= {
+				devices: 0,
+				opens: 0,
+				played: 0,
+				converted: 0,
+				charactersCreated: 0,
+				playedPct: 0,
+				conversionPct: 0,
+			});
 			c.devices++;
 			c.opens += o.opens || 0;
 			c.charactersCreated += o.savesCreated || 0;
 			if (o.converted) c.converted++;
+			if (o.converted || o.resumed) c.played++;
 		}
-		for (const c of Object.values<any>(channelSplit))
+		for (const c of Object.values<any>(channelSplit)) {
 			c.conversionPct = c.devices ? Math.round((c.converted / c.devices) * 100) : 0;
+			c.playedPct = c.devices ? Math.round((c.played / c.devices) * 100) : 0;
+		}
 
 		/* The keyboard gate: devices shown "Wild Willows needs a keyboard".
 		 *
@@ -9936,7 +10168,7 @@ export class MetricsSummary extends DashboardEndpoint {
  *
  * Admin-only for the same reason as MetricsSummary — these rows are the sensitive
  * half: display names, exact first/last activity, OS, accessibility preferences,
- * appearance and behaviour.
+ * appearance and behavior.
  *
  * Paging: `?limit=` (default 100, max 500) and `?cursor=`, where the cursor is the
  * opaque token handed back as `nextCursor`. Rows are sorted deterministically
@@ -10094,7 +10326,7 @@ export class ServerHealth extends DashboardEndpoint {
 		 * sides to bare lowercase letters and match on that: mainThreadUtilization,
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
-		 * unrecognised name is visible on the page instead of silently absent. */
+		 * unrecognized name is visible on the page instead of silently absent. */
 		const norm = (s: any) =>
 			String(s || '')
 				.toLowerCase()
@@ -10369,7 +10601,7 @@ export class ServerHealth extends DashboardEndpoint {
 			 * percent", which held for cpu-usage and then met main-thread-utilization
 			 * reporting 89,876 — rendered, with total confidence, as "89876%". Some
 			 * unit is being used here that this code does not know (microseconds of
-			 * busy time, most likely), and the correct response to an unrecognised
+			 * busy time, most likely), and the correct response to an unrecognized
 			 * unit is to decline rather than to print it with a % sign on the end.
 			 * The raw value is published on the metric so it stays diagnosable. */
 			if (n > 100) return null;
@@ -11268,7 +11500,7 @@ export class DevTools extends PublicEndpoint {
 				// lake + winding river (where the biome holds water), every animal home
 				// and comfortable, and health/balance pinned at 100 — with at least one of
 				// EVERY object the biome can build standing somewhere, so the shot doubles
-				// as a look at the whole catalogue. Every run lays out a DIFFERENT scene,
+				// as a look at the whole catalog. Every run lays out a DIFFERENT scene,
 				// so you can keep hitting the button until one frames well; pass back the
 				// `seed` from the log to rebuild an exact one. Chests are kept (and not
 				// added); all other placements + terrain here are replaced for a clean look.
@@ -11614,7 +11846,7 @@ export class DevTools extends PublicEndpoint {
 
 				// ---- coverage: one of EVERY buildable thing this biome has ----
 				// The passes above pick at random, so a showcase shot would routinely
-				// miss half the catalogue — no good when the point is to see all of it
+				// miss half the catalog — no good when the point is to see all of it
 				// at once. Anything not already standing gets planted here: random tries
 				// first (so it lands scattered, like the accent pass), then a systematic
 				// sweep so a crowded map can't silently drop an object.
@@ -12125,12 +12357,29 @@ const LANDING_CLICK_TARGETS = new Set([
 	'get-nav',
 	'gallery',
 	'edu-nav',
+	// The landing page's Developers section, which is the door to /learn. One
+	// target rather than three: from here the question is only whether the page
+	// sends anyone into the lesson material at all. Which of the two they took is
+	// already counted on /learn itself, by the classroom beacon.
+	'learn-nav',
+	// The API docs at /developers/api. Its own target rather than folded into
+	// learn-nav: "went to read the reference" and "went to take the lesson" are
+	// two different visitors, and the whole reason the Developers section exists
+	// is to find out whether the first kind shows up at all.
+	'api-docs',
 	// /teachers reports itself here, once per browser session, as a click rather
 	// than a visit. Visits are ONE undifferentiated series shared by every page
 	// that sends them, so a teachers-page visit would silently inflate the landing
 	// page's number with no way to unmix them later. Its own target keeps both
 	// numbers honest. See the comment in public/teachers.html's script.
 	'edu-page',
+	// The three policy pages, each reporting itself once per browser session on
+	// the same trade /teachers made. They reported NOTHING before, which left the
+	// privacy policy — the page a district reads before approving anything — with
+	// no usage data at all.
+	'privacy-page',
+	'support-page',
+	'rating-page',
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',
@@ -12138,6 +12387,32 @@ const LANDING_CLICK_TARGETS = new Set([
 	// footer link. Its own target rather than "other" so the dashboard can say how
 	// many people the page actually sends to the community.
 	'reddit',
+]);
+
+/**
+ * Where a visitor arrived from, as ONE WORD from a fixed list.
+ *
+ * The beacon used to send `ref` — 200 characters of raw document.referrer, which
+ * can carry a search query — on every single event, and this endpoint read none
+ * of it. Both halves of that were wrong: it was more data than the question
+ * needs, and it answered nothing. The referrer is now bucketed in the browser
+ * (see sourceBucket() in public/landing.html) and only the bucket is sent, so
+ * the URL never leaves the visitor's machine.
+ *
+ * Nine buckets is the whole vocabulary. It is enough to answer "are teachers
+ * finding this through search or through Reddit"; it is not enough to describe
+ * one person. Anything unrecognized becomes 'other' rather than being stored.
+ */
+const LANDING_SOURCES = new Set([
+	'google',
+	'bing',
+	'duckduckgo',
+	'reddit',
+	'itch',
+	'apple',
+	'bluesky',
+	'direct', // no referrer at all: typed, bookmarked, or a stripped referrer
+	'other',
 ]);
 const landingDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
 
@@ -12164,6 +12439,7 @@ async function buildLandingStats(): Promise<any> {
 		uniques: 0,
 		clicks: {} as Record<string, number>,
 		downloads: {} as Record<string, number>,
+		sources: {} as Record<string, number>,
 	};
 	for (const r of rows) {
 		totals.visits += r.visits || 0;
@@ -12171,6 +12447,8 @@ async function buildLandingStats(): Promise<any> {
 		for (const [k, v] of Object.entries(r.clicks || {})) totals.clicks[k] = (totals.clicks[k] || 0) + (Number(v) || 0);
 		for (const [k, v] of Object.entries(r.downloads || {}))
 			totals.downloads[k] = (totals.downloads[k] || 0) + (Number(v) || 0);
+		for (const [k, v] of Object.entries(r.sources || {}))
+			totals.sources[k] = (totals.sources[k] || 0) + (Number(v) || 0);
 	}
 	/* How many day-rows ride along with the totals.
 	 *
@@ -12190,6 +12468,7 @@ async function buildLandingStats(): Promise<any> {
 		totalClicks: sumValues(r.clicks),
 		downloads: r.downloads || {},
 		totalDownloads: sumValues(r.downloads),
+		sources: r.sources || {},
 	}));
 	return {
 		generatedAt: now,
@@ -12198,6 +12477,7 @@ async function buildLandingStats(): Promise<any> {
 			...totals,
 			totalClicks: sumValues(totals.clicks),
 			totalDownloads: sumValues(totals.downloads),
+			totalSources: sumValues(totals.sources),
 		},
 		days,
 	};
@@ -12251,6 +12531,7 @@ async function bumpLandingStat(mutate: (row: any) => void): Promise<void> {
 			uniques: Number(stored?.uniques) || 0,
 			clicks: countMap(stored?.clicks),
 			downloads: countMap(stored?.downloads),
+			sources: countMap(stored?.sources),
 		};
 		mutate(row);
 		row.updatedAt = now;
@@ -12271,12 +12552,21 @@ async function bumpPdfDownload(which: 'guide' | 'worksheets'): Promise<void> {
 }
 
 /**
- * POST /LandingEvent/ {type: "visit"|"click", target?, first?} — anonymous
+ * POST /LandingEvent/ {type: "visit"|"click", target?, first?, from?} — anonymous
  * landing-page beacon, aggregated straight into today's LandingStat row.
  *   visit — one per browser session (sessionStorage-guarded client-side);
  *           first:true additionally counts a first-ever visitor (localStorage).
  *   click — an outbound link tap; `target` must be a known data-track name or
  *           it lands in "other".
+ *   from  — an arrival bucket, present ONLY on a page's once-per-session ping
+ *           (a 'visit' on the landing page, the 'edu-page' click on /teachers).
+ *           Counted independently of type so both pages feed the same series.
+ *
+ * Every field is a name from a fixed list or a number. The endpoint reads
+ * nothing else off the body — if a future page starts sending a field, it is
+ * dropped here rather than stored, which is the property that made removing
+ * `ref` and `lang` a client-side change with no migration.
+ *
  * Always answers ok:true — analytics never gets to break the page.
  */
 export class LandingEvent extends PublicEndpoint {
@@ -12285,10 +12575,20 @@ export class LandingEvent extends PublicEndpoint {
 		const body = await bodyOf(data, this);
 		const type = body.type === 'click' ? 'click' : body.type === 'visit' ? 'visit' : null;
 		if (!type) return { ok: true }; // unknown ping — accept and drop
+		// A bucket the client did not send, or sent something unrecognized for, is
+		// not stored at all. 'other' is a real bucket a client can send on purpose;
+		// it is not the fallback for a malformed one, because a rising 'other' should
+		// mean "arrived from somewhere off the list" and nothing else.
+		const rawFrom = String(body.from || '')
+			.toLowerCase()
+			.replace(/[^a-z]/g, '')
+			.slice(0, 16);
+		const from = LANDING_SOURCES.has(rawFrom) ? rawFrom : null;
 		if (type === 'visit') {
 			await bumpLandingStat((r) => {
 				r.visits = (r.visits || 0) + 1;
 				if (body.first === true) r.uniques = (r.uniques || 0) + 1;
+				if (from) r.sources[from] = (r.sources[from] || 0) + 1;
 			});
 		} else {
 			const raw = String(body.target || '')
@@ -12298,6 +12598,7 @@ export class LandingEvent extends PublicEndpoint {
 			const target = LANDING_CLICK_TARGETS.has(raw) ? raw : 'other';
 			await bumpLandingStat((r) => {
 				r.clicks[target] = (r.clicks[target] || 0) + 1;
+				if (from) r.sources[from] = (r.sources[from] || 0) + 1;
 			});
 		}
 		return { ok: true };
@@ -12775,6 +13076,611 @@ export class LandingStats extends DashboardEndpoint {
 	}
 }
 
+// ---------------------------------------------------------------- classroom
+//
+// Usage counters for /teachers, /learn/web-development and /learn/code-builder.
+//
+// Built on the LandingStat pattern deliberately — same one-row-per-UTC-day
+// shape, same read-modify-write, same "analytics losing the odd count to a rare
+// race is acceptable" trade. What is NOT shared is the table: landing's `visits`
+// is a single undifferentiated series that every page reporting one inflates,
+// which is why /teachers already has to disguise itself as a click. Three more
+// pages with real funnels, per-chapter progress and per-error counts would make
+// that unworkable.
+//
+// THE CONTRACT, which is written into PRIVACY.md and printed on the pages:
+// aggregate counters only. No identifiers, no class codes, no free text, no
+// timings, and nothing a student typed. The moment one of those appears here
+// this stops being an anonymous counter and becomes an education record, with
+// FERPA, district review and data-subject requests attached — for a free lesson
+// page. LESSON_KEYS below is what enforces it: a key that is not allowlisted is
+// not stored, so the way to add a metric is to name it here, in the open.
+
+/** Buckets a key may carry, for the families where the suffix is open-ended. */
+const LESSON_ERROR_KEYS = new Set([
+	// The runner's plain-English error catalog, plus its two silent-render hints.
+	'fetch-failed',
+	'json-parse',
+	'null-property',
+	'undefined-property',
+	'not-defined',
+	'not-a-function',
+	'await-async',
+	'const-assign',
+	'not-iterable',
+	'unexpected-eof',
+	'syntax',
+	'masked',
+	'object-object',
+	'undefined-text',
+	'other',
+]);
+
+/**
+ * Every counter the classroom pages may report.
+ *
+ * Exact names where the set is small and fixed; a bounded pattern where the tail
+ * is genuinely open (a checkpoint id, an idea slug, a chapter number). NEVER a
+ * blanket pattern: this endpoint is public and unauthenticated, so an unbounded
+ * key space is an unbounded write amplification with someone else's hand on the
+ * dial. Same reasoning as LANDING_CLICK_TARGETS, one size up.
+ */
+const LESSON_EXACT = new Set([
+	// reach
+	'view_hub',
+	// /learn, the classroom hub. Its own key rather than view_hub, which is the
+	// TEACHERS hub: two different audiences arriving at two different pages, and
+	// folding them together would make both numbers unreadable.
+	'view_learn',
+	'view_science',
+	'view_coding',
+	// /developers/api. Not in the teaching funnel — a developer arriving at the
+	// docs is a different journey from a teacher picking a kit — so it is counted
+	// and shown as a total rather than as a funnel step.
+	'view_developers',
+	'view_lesson',
+	'view_builder',
+	'unique_hub',
+	'unique_science',
+	'unique_coding',
+	'unique_lesson',
+	'unique_builder',
+	'unique_learn',
+	'unique_developers',
+	'ref_internal',
+	'ref_search',
+	'ref_social',
+	'ref_direct',
+	'ref_other',
+	// Where a student went NEXT from a classroom page. Three destinations, so
+	// three keys — the marketing side's data-track names post to /LandingEvent/
+	// and would be counted in the wrong system entirely.
+	'nav_lesson',
+	'nav_builder',
+	'nav_learn',
+	'nav_hub',
+	'nav_game',
+	/* The API docs, opened from the lesson and the builder headers: a student or
+	   a teacher going looking for the endpoint itself. */
+	'nav_api',
+	// The subreddit, from the API docs' sign-off. The landing page counts its own
+	// reddit clicks through LANDING_CLICK_TARGETS; this is the classroom-side one.
+	'nav_reddit',
+	// Which kit a teacher took from the hub. The one number worth having about a
+	// hub: if everybody leaves through the same side it is a redirect with extra
+	// steps rather than a choice.
+	'nav_science',
+	'nav_coding',
+	// funnel
+	'lesson_start',
+	'builder_open',
+	/* Two strands, because both pages count into one set of totals. The bare
+	   names are the LESSON's; the builder files the same two runner events under
+	   its own, so each strand nests inside its own entry point instead of a
+	   merged `first_run` outrunning a `view_lesson` that only counts one page. */
+	'first_run',
+	'first_fetch_ok',
+	'builder_first_run',
+	'builder_first_fetch_ok',
+	'challenge_chosen',
+	'download',
+	// lesson interactions
+	'types_legend-opened',
+	'types_tree-expanded',
+	// The optional "Going Deeper" panel at the end of the lesson. Worth its own
+	// counter because it answers a question the funnel cannot: how many students
+	// who finished still wanted more. If almost nobody opens it, it is the wrong
+	// material or the wrong place for it; if most do, the lesson ends too early.
+	'deeper_opened',
+	// builder health
+	'runs_manual',
+	'runs_debounced',
+	'fetch_ok',
+	'fetch_failed',
+	'fetch_blocked',
+	'open_tab',
+	'reset',
+	'reset_project',
+	'undo',
+	'import',
+	'import_failed',
+	'restored',
+	// Arrived at the builder from the lesson's "open this in the Code Builder"
+	// link, carrying their code across in the URL fragment. It was being sent and
+	// silently folded into `other`, which is exactly the failure the coverage test
+	// now exists to catch: the counter moved and the number said nothing. It is
+	// the one measure of whether the lesson-to-builder handoff is used at all.
+	'carried_in',
+	'save_unreadable',
+	'storage_unavailable',
+	'help_copy',
+	'brief_cleared',
+	'idea_started',
+	'ideas_opened',
+	'ideas_shuffled',
+	'ideas_surprise',
+	'ideas_auto_offered',
+	'ideas_dismissed',
+	// chrome
+	'tab_html',
+	'tab_css',
+	'tab_js',
+	'view_split',
+	'view_code',
+	'view_preview',
+	'console_collapsed',
+	'console_expanded',
+	'console_resized',
+	'theme_light',
+	'theme_dark',
+	'panel_checkpoints_open',
+	'panel_checkpoints_closed',
+	'panel_help_open',
+	'panel_help_closed',
+	// The whole side panel, collapsed out of the way so the editor gets the
+	// window. Worth its own pair: if most students hide it and never bring it
+	// back, the checkpoints are in the wrong place rather than merely optional.
+	'panel_side_hidden',
+	'panel_side_shown',
+	// environment
+	'env_viewport-sm',
+	'env_viewport-md',
+	'env_viewport-lg',
+	// How often the Code Builder was opened on a screen too small to use it. If
+	// that number is large the answer is not to squeeze the editor onto a phone,
+	// it is that whatever is linking there should say so first.
+	'env_too-small',
+	// session shape
+	'session_total',
+	'duration_lt5m',
+	'duration_5to15m',
+	'duration_15to30m',
+	'duration_30to60m',
+	'duration_gt60m',
+	'returning_day2',
+	'returning_day3',
+]);
+
+/** Bounded families: a fixed prefix plus a constrained tail. */
+const LESSON_PATTERNS: RegExp[] = [
+	// TEN chapters, not nine. A CSS chapter was added at position 2 and every
+	// chapter after it moved up one, which pushed the last one to 10 — outside
+	// [1-9], where it would have been silently rejected and counted as `other`.
+	// A bounded family has to be widened deliberately when the thing it bounds
+	// grows; that is the cost of the bound and it is worth paying.
+	/^chapter_([1-9]|10)_reached$/,
+	/^chapters_([1-9]|10)$/,
+	/^challenges_[1-5]$/,
+	/^hints_chapter-([1-9]|10)$/,
+	/^dwell_chapter-([1-9]|10)_(lt1m|1to3m|3to10m|gt10m)$/,
+	// The whole visit rather than one chapter of it, on its own set of bands: the
+	// question is whether the lesson fits in a period, and the per-chapter bands
+	// cannot be summed into an answer (they only run while a chapter is current).
+	/^dwell_lesson_(lt2m|2to10m|10to30m|30to60m|gt60m)$/,
+	/^cond_(if|else|else-if|comparison|and-or|empty-guard|ternary)$/,
+	/^iter_(for-of|forEach|map|filter|find|reduce|sort|chained)$/,
+	// Topics inside "Going Deeper". Same shape and same reasoning as iter_ and
+	// cond_: which OPTIONAL material students actually run is the only way to
+	// tell a section that earns its place from one that is only ever scrolled
+	// past. Bounded by the pattern, not by a list, because this panel is where
+	// new topics get added.
+	/^deeper_[a-z][a-z0-9-]{0,23}$/,
+	/^edits_(html|css|js)_(1to5|6to20|21to50|50plus)$/,
+	// Checkpoint and hint ids, and idea slugs. Kebab-case and short by
+	// construction — see CHECKPOINTS and IDEAS in public/partials/ww-builder.js.
+	/^checkpoint_[a-z][a-z0-9-]{0,23}$/,
+	/^hint_[a-z][a-z0-9-]{0,23}$/,
+	// hint_ is "revealed the worked version"; copy_ is "took it". The gap between
+	// the two is the number worth having: a checkpoint everybody reveals and
+	// nobody copies is one where the hint above it was almost enough.
+	/^copy_[a-z][a-z0-9-]{0,23}$/,
+	/^idea_[a-z][a-z0-9-]{0,31}$/,
+	/^challenge_[a-z][a-z0-9-]{0,31}$/,
+];
+
+/**
+ * How many distinct counters one day-row may hold before the rest collapse into
+ * `other`.
+ *
+ * The patterns above are already bounded, so this should never be reached in
+ * normal use — roughly 150 keys is the realistic ceiling. It is the backstop for
+ * the case the patterns cannot cover: someone posting thousands of valid-looking
+ * idea slugs to grow a single record without limit. A row that stops taking new
+ * keys still counts everything it already knows, which is the right failure.
+ */
+const LESSON_MAX_KEYS = 400;
+
+function lessonKeyAllowed(key: string): boolean {
+	if (LESSON_EXACT.has(key)) return true;
+	// `errors_<name>` is checked against the runner's own catalog rather than a
+	// pattern: the whole point of ranking these is to decide which explanation to
+	// write next, and a ranking that can be seeded with invented names is not a
+	// work queue, it is a suggestion box for strangers.
+	if (key.indexOf('errors_') === 0) return LESSON_ERROR_KEYS.has(key.slice('errors_'.length));
+	for (const re of LESSON_PATTERNS) if (re.test(key)) return true;
+	return false;
+}
+
+const lessonDay = (t: number) => new Date(t).toISOString().slice(0, 10); // UTC day
+const LESSON_STATS_CACHE_MS = 15_000;
+
+/**
+ * Apply one batch of counters to today's LessonStat row.
+ *
+ * READ THE NOTE ON bumpLandingStat BEFORE CHANGING THIS. The mutation is applied
+ * to a plain object rebuilt from the stored row, never to the record the
+ * database handed back: those come back FROZEN, this bundle is ESM (so strict
+ * mode), and `row.counts[k] = n` on a fetched record throws — into a catch, and
+ * silently. That is exactly how the landing counters flatlined at 1/day for
+ * weeks while every test passed. The harness freezes reads now so it cannot
+ * happen unnoticed a second time; this function is written the safe way from the
+ * start rather than discovering it again.
+ */
+async function bumpLessonStat(counts: Record<string, number>, sessions: number): Promise<void> {
+	try {
+		const table = (db() as any).LessonStat;
+		if (!table) return; // schema table not created yet — drop the count, not the request
+		const now = Date.now();
+		const day = lessonDay(now);
+		const id = `day:${day}`;
+		// findCounterRow, NOT safeGet: a cold-start null from a primary-key .get()
+		// would look like "first event of the day" and reset the row to zero.
+		const stored = await findCounterRow(table, id);
+		const row: any = {
+			id,
+			day,
+			sessions: Number(stored?.sessions) || 0,
+			counts: countMap(stored?.counts),
+		};
+
+		row.sessions += sessions;
+		for (const [key, value] of Object.entries(counts)) {
+			const n = Math.floor(Number(value));
+			if (!Number.isFinite(n) || n <= 0) continue;
+			const target =
+				Object.prototype.hasOwnProperty.call(row.counts, key) || Object.keys(row.counts).length < LESSON_MAX_KEYS
+					? key
+					: 'other';
+			// Clamp per event batch. One page-session cannot legitimately produce
+			// thousands of anything, and a clamp keeps a broken (or hostile) client
+			// from skewing a day's numbers past the point of being readable.
+			row.counts[target] = (row.counts[target] || 0) + Math.min(n, 5000);
+		}
+
+		row.updatedAt = now;
+		await table.put(row);
+		lessonStatsCache.invalidate(); // new numbers — the next LessonStats read refreshes
+	} catch (e: any) {
+		console.error('lesson stat bump failed —', e?.message || e);
+	}
+}
+
+/**
+ * POST /LessonEvent/ {page, counts: {key: n}} — the classroom pages' beacon.
+ *
+ * ONE request per page-session, not one per event. The preview re-renders on
+ * every debounce and a whole classroom shares one NAT'd school IP, so per-event
+ * posting would exhaust the telemetry tier for everyone in the room by mid-
+ * lesson. The client accumulates in memory and flushes on pagehide with
+ * sendBeacon — which survives the tab closing, unlike fetch, and therefore keeps
+ * exactly the sessions that ran to completion.
+ *
+ * Always answers ok:true. A telemetry hiccup must never surface in a lesson.
+ */
+export class LessonEvent extends PublicEndpoint {
+	static rateTier = 'telemetry'; // anonymous client beacon
+
+	async post(data: any) {
+		const body = await bodyOf(data, this);
+		const raw = body && typeof body.counts === 'object' && !Array.isArray(body.counts) ? body.counts : null;
+		if (!raw) return { ok: true }; // unknown shape — accept and drop
+
+		const page = String(body.page || '')
+			.toLowerCase()
+			.replace(/[^a-z-]/g, '')
+			.slice(0, 16);
+
+		const clean: Record<string, number> = {};
+		let dropped = 0;
+		for (const [key, value] of Object.entries(raw)) {
+			const name = String(key)
+				.toLowerCase()
+				.replace(/[^a-z0-9_-]/g, '')
+				.slice(0, 48);
+			if (!lessonKeyAllowed(name)) {
+				// Counted, not stored. A rising `other` is the signal that a page is
+				// reporting something this list has not been taught about yet — which
+				// is a prompt to add it here, deliberately, rather than a reason to
+				// accept anything.
+				dropped++;
+				continue;
+			}
+			clean[name] = (clean[name] || 0) + (Number(value) || 0);
+		}
+		if (dropped) clean.other = (clean.other || 0) + dropped;
+
+		/* `page` is read, validated and then deliberately NOT stored. Every counter
+		 * a page reports already names itself (view_builder, runs_manual), so a
+		 * second per-page dimension would only add a way for the two to disagree.
+		 * It is parsed at all so that a malformed one is rejected here rather than
+		 * discovered later. */
+		if (!page) return { ok: true };
+		if (!Object.keys(clean).length) return { ok: true };
+		await bumpLessonStat(clean, 1);
+		return { ok: true };
+	}
+}
+
+/**
+ * The classroom rollup: scan every LessonStat day-row, sum the totals, and hand
+ * the /dashboard classroom section per-day rows plus lifetime figures.
+ *
+ * Behind a stale-while-revalidate cache for the same reason the landing rollup
+ * is: bumpLessonStat fires on every session and would otherwise drop this on the
+ * floor each time.
+ */
+async function buildLessonStats(): Promise<any> {
+	const now = Date.now();
+	const t = db() as any;
+	let rows: any[] = [];
+	try {
+		rows = t.LessonStat ? await allOf(t.LessonStat) : [];
+	} catch {
+		rows = [];
+	}
+	rows = rows.filter((r: any) => r && r.day).sort((a: any, b: any) => String(a.day).localeCompare(String(b.day)));
+
+	const totals: Record<string, number> = {};
+	let sessions = 0;
+	for (const r of rows) {
+		sessions += Number(r.sessions) || 0;
+		for (const [k, v] of Object.entries(r.counts || {})) totals[k] = (totals[k] || 0) + (Number(v) || 0);
+	}
+
+	/* Sized to cover the widest dashboard preset with room to spare — the landing
+	 * rollup shipped 60 rows behind a 90-day pill for a while, and a chart that
+	 * quietly renders less than its label claims is the kind of wrong that never
+	 * announces itself. These are small integers; the extra months cost nothing. */
+	const LESSON_DAYS_RETURNED = 180;
+	const days = rows.slice(-LESSON_DAYS_RETURNED).map((r: any) => ({
+		day: r.day,
+		sessions: Number(r.sessions) || 0,
+		counts: r.counts || {},
+		total: sumValues(r.counts),
+	}));
+
+	/* The funnel, in order, precomputed here so the dashboard renders a shape
+	 * rather than deriving one. It is the number worth acting on: read as a
+	 * drop-off curve it says where the lesson loses people, and every other
+	 * counter here is context for it. */
+	const step = (k: string) => totals[k] || 0;
+	/* THE STUDENT'S PATH, as two strands rather than one list.
+	 *
+	 * It used to start at the teachers hub and the coding kit page. Those are a
+	 * TEACHER deciding which kit to run, days earlier and on a different device,
+	 * and putting them at the top made every percentage below them a comparison
+	 * between two unrelated populations — a lesson opened by thirty students read
+	 * as "217% of the previous step" because six teachers had looked at the kit
+	 * page. Both are still reported: the hub split under the landing page, the kit
+	 * pages in reach. They are just not steps anybody drops out of.
+	 *
+	 * The same mistake survived one level down. The lesson and the builder are two
+	 * ENTRY POINTS, not two steps: the nav offers the builder from every page, so
+	 * a visit can start there, and the run and fetch counters were the sum of both
+	 * pages sitting underneath a `view_lesson` that counted only one of them. That
+	 * is how a step reached 400% of the one above it. Each strand now starts at its
+	 * own page and every step below is a strict subset of the one above.
+	 *
+	 * `download` belongs to the builder strand because Download only exists there. */
+	const funnel = [
+		{ id: 'lesson', label: 'Opened the lesson', n: step('view_lesson') },
+		{ id: 'run', label: 'Ran their code', n: step('first_run') },
+		{ id: 'fetch', label: 'Fetched the data', n: step('first_fetch_ok') },
+	];
+	const builderFunnel = [
+		{ id: 'builder', label: 'Opened the builder', n: step('builder_open') },
+		{ id: 'builder_run', label: 'Ran their code', n: step('builder_first_run') },
+		{ id: 'builder_fetch', label: 'Fetched the data', n: step('builder_first_fetch_ok') },
+		{ id: 'download', label: 'Downloaded a page', n: step('download') },
+	];
+
+	/* REACH, which the funnel above deliberately is not.
+	 *
+	 * The funnel is one path — a teacher finds the hub, takes the coding kit, and
+	 * a student ends up downloading a page. Most of the site is not on that path:
+	 * the science kit is a different classroom entirely, the API docs are for
+	 * somebody who is not in a classroom at all, and neither belongs as a "step"
+	 * anybody drops out of. Forcing them in was making the drop-off percentages
+	 * mean nothing.
+	 *
+	 * So: every page that reports itself, side by side, with views and the number
+	 * of distinct browsers that have ever opened it. `unique` is null rather than
+	 * 0 for a page that does not report it yet, because "none" and "not measured"
+	 * are different answers and a zero would read as the first one. */
+	const reach = [
+		{
+			id: 'hub',
+			label: 'Teachers hub',
+			path: '/teachers',
+			views: step('view_hub'),
+			unique: step('unique_hub') || null,
+		},
+		{
+			id: 'science',
+			label: 'Science kit',
+			path: '/teachers/science',
+			views: step('view_science'),
+			unique: step('unique_science') || null,
+		},
+		{
+			id: 'coding',
+			label: 'Coding kit',
+			path: '/teachers/coding',
+			views: step('view_coding'),
+			unique: step('unique_coding') || null,
+		},
+		{
+			id: 'learn',
+			label: 'Learn hub',
+			path: '/learn',
+			views: step('view_learn'),
+			unique: step('unique_learn') || null,
+		},
+		{
+			id: 'lesson',
+			label: 'The Lesson',
+			path: '/learn/web-development',
+			views: step('view_lesson'),
+			unique: step('unique_lesson') || null,
+		},
+		{
+			id: 'builder',
+			label: 'Code Builder',
+			path: '/learn/code-builder',
+			views: step('view_builder'),
+			unique: step('unique_builder') || null,
+		},
+		{
+			id: 'developers',
+			label: 'API docs',
+			path: '/developers/api',
+			views: step('view_developers'),
+			unique: step('unique_developers') || null,
+		},
+	];
+
+	/* How people arrived, across every classroom page that reports it. Five
+	 * buckets, resolved in the browser and never sent as a URL. */
+	const arrivals = ['direct', 'search', 'social', 'internal', 'other']
+		.map((k) => ({ key: k, n: step('ref_' + k) }))
+		.filter((a) => a.n > 0);
+
+	/* HOW LONG A VISIT LASTS, and where that time goes.
+	 *
+	 * Two different questions, and they need two different shapes. `session` is
+	 * the distribution of whole visits, which is what you plan a period against.
+	 * `chapters` is where the time inside a visit went, which is what tells you a
+	 * chapter is too long — the thing per-chapter dwell was collected for since it
+	 * was written, and never once displayed.
+	 *
+	 * Both are bands, never durations: the pages only ever send a bucket name (see
+	 * PRIVACY.md), so this can report a distribution and could not reconstruct one
+	 * reader's session if it tried.
+	 *
+	 * `midpoint` exists so the dashboard can rank and compare without inventing a
+	 * number of its own: it is the middle of each band in minutes, and the open
+	 * top band is quoted at its floor rather than at a guess. Anything derived
+	 * from it is an estimate and the labels say so.
+	 */
+	const SESSION_BANDS: Array<[string, string, number]> = [
+		['lt2m', 'Under 2 min', 1],
+		['2to10m', '2 to 10 min', 6],
+		['10to30m', '10 to 30 min', 20],
+		['30to60m', '30 to 60 min', 45],
+		['gt60m', 'Over an hour', 60],
+	];
+	const CHAPTER_BANDS: Array<[string, string, number]> = [
+		['lt1m', 'Under a minute', 0.5],
+		['1to3m', '1 to 3 min', 2],
+		['3to10m', '3 to 10 min', 6.5],
+		['gt10m', 'Over 10 min', 10],
+	];
+
+	const banded = (bands: typeof SESSION_BANDS, key: (b: string) => string) => {
+		const buckets = bands.map(([id, label, midpoint]) => ({ id, label, midpoint, n: step(key(id)) }));
+		const n = buckets.reduce((a, b) => a + b.n, 0);
+		return {
+			buckets,
+			n,
+			// Minutes, weighted by the midpoints above. An estimate from bands, and
+			// the only honest one available — which is the point of shipping it here
+			// rather than letting each caller invent its own arithmetic.
+			meanMinutes: n ? Math.round((buckets.reduce((a, b) => a + b.n * b.midpoint, 0) / n) * 10) / 10 : null,
+		};
+	};
+
+	const time = {
+		session: banded(SESSION_BANDS, (b) => 'dwell_lesson_' + b),
+		chapters: Array.from({ length: 10 }, (_, i) => {
+			const ch = i + 1;
+			const row = banded(CHAPTER_BANDS, (b) => 'dwell_chapter-' + ch + '_' + b);
+			return { chapter: ch, reached: step('chapter_' + ch + '_reached'), ...row };
+		}).filter((c) => c.n > 0 || c.reached > 0),
+	};
+
+	/** Errors, ranked. This is the work queue for explanation copy. */
+	const errors = Object.entries(totals)
+		.filter(([k]) => k.indexOf('errors_') === 0)
+		.map(([k, n]) => ({ key: k.slice('errors_'.length), n }))
+		.sort((a, b) => b.n - a.n);
+
+	/** Which ideas students pick, and which they pick and abandon. */
+	const ideas = Object.entries(totals)
+		.filter(([k]) => k.indexOf('idea_') === 0 && k !== 'idea_started')
+		.map(([k, n]) => ({ id: k.slice('idea_'.length), n }))
+		.sort((a, b) => b.n - a.n);
+
+	return {
+		generatedAt: now,
+		today: lessonDay(now),
+		sessions,
+		totals,
+		funnel,
+		builderFunnel,
+		reach,
+		arrivals,
+		time,
+		errors,
+		ideas,
+		/* The health strip. A school filter that blocks the API breaks the lesson
+		 * completely and silently: the teacher assumes it is broken, we never hear
+		 * about it, and they do not come back. This turns that into a number. */
+		health: {
+			fetchOk: step('fetch_ok'),
+			fetchFailed: step('fetch_failed'),
+			storageUnavailable: step('storage_unavailable'),
+			saveUnreadable: step('save_unreadable'),
+		},
+		days,
+	};
+}
+
+const lessonStatsCache = new RollupCache<any>(LESSON_STATS_CACHE_MS, buildLessonStats, undefined, () => db());
+
+/**
+ * GET /LessonStats/ — the classroom rollup, for the /dashboard section.
+ *
+ * ADMIN ONLY, on the same argument as LandingStats: nothing here is sensitive —
+ * it is counts, and it would stay harmless if it were public — but how a product
+ * is doing is not something to hand to anyone who asks. POST /LessonEvent/ stays
+ * public, because the pages have to be able to write to it.
+ */
+export class LessonStats extends DashboardEndpoint {
+	async get() {
+		return lessonStatsCache.get(Date.now());
+	}
+}
+
 // ---------------------------------------------------------------- policy pages
 // The hosted Harper serves NO static files — it is endpoints only (the game UI
 // ships inside the desktop app). But store listings still need public URLs for
@@ -12858,6 +13764,31 @@ const PUBLIC_PAGES: Record<string, { path: string; redirect: boolean; sitemap: b
 	// and share. Harper serves /teachers.html too (it strips the suffix), which
 	// costs nothing and cannot be linked to by accident.
 	teachers: { path: '/teachers', redirect: true, sitemap: true },
+	// The two kits the hub leads to. /teachers stays a 200 and keeps its equity:
+	// it is an established URL printed in both PDFs and linked externally, so it
+	// changes job rather than changing address.
+	'teachers-science': { path: '/teachers/science', redirect: true, sitemap: true },
+	'teachers-coding': { path: '/teachers/coding', redirect: true, sitemap: true },
+	// The API docs. /developers serves the same document and is deliberately NOT
+	// listed: two URLs in a sitemap for one page is the split-signal problem the
+	// comment at the top of this table is about. The page's canonical says which
+	// of the two is the real one.
+	'developers-api': { path: '/developers/api', redirect: true, sitemap: true },
+	// The classroom student pages live under /learn/<slug>, resolved by ONE
+	// resource reading getId() — the same shape /img/<name>.webp already uses.
+	// The builder is `noindex` in its own <head> (it is a tool, not a document,
+	// and an indexed code editor competes with the lesson that explains it), so
+	// it is deliberately absent from the sitemap while still canonicalising to
+	// the apex like every other page.
+	'learn-code-builder': { path: '/learn/code-builder', redirect: true, sitemap: false },
+	// The lesson, unlike the builder, IS a document — nine chapters of teachable
+	// prose that a teacher searching for "high school API lesson" should be able
+	// to find. Indexable and in the sitemap; the builder it hands off to is not.
+	'learn-web-development': { path: '/learn/web-development', redirect: true, sitemap: true },
+	// The hub the two student pages hang off. Indexable: "learn javascript with a
+	// real api" is a thing people search for, and this is the page that answers it
+	// for someone who has not heard of the game.
+	learn: { path: '/learn', redirect: true, sitemap: true },
 	// The classroom PDFs. Indexable — Google indexes PDF content, and these are
 	// the only thing on the site aimed squarely at teachers searching for a
 	// classroom ecology resource. No redirect: they are not served through
@@ -12998,9 +13929,113 @@ class DashboardPage extends PublicEndpoint {
  * on its own terms. Splitting it also means the landing page stops paying for
  * copy that only teachers read.
  */
+/**
+ * GET /teachers and /teachers/<slug> — the classroom hub and its two kits.
+ *
+ * Same shape as LearnPage, and for the same reason: Harper resolves the FIRST
+ * path segment to a resource and hands the rest to getId(), so one resource
+ * covers the section and the hub is the empty slug rather than a separate
+ * export.
+ *
+ * /teachers used to BE the science lesson. It stays a 200 rather than
+ * redirecting to /teachers/science: it is an established URL, printed inside
+ * both classroom PDFs and linked from outside, and an established URL should
+ * change job rather than change address. The lesson's title, description,
+ * keywords and LearningResource markup went with it to the new path, so the two
+ * pages target two different intents instead of competing for one.
+ */
+const TEACHER_PAGES: Record<string, { key: string; html: string }> = {
+	'': { key: 'teachers', html: teachersIndexHtml },
+	science: { key: 'teachers-science', html: teachersScienceHtml },
+	coding: { key: 'teachers-coding', html: teachersCodingHtml },
+};
+
 class TeachersPage extends PublicEndpoint {
 	async get() {
-		return htmlPage(this, 'teachers', teachersHtml);
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(TEACHER_PAGES, slug) ? TEACHER_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
+	}
+}
+
+/**
+ * GET /learn/<slug> — the classroom student pages.
+ *
+ * One resource for the whole section, dispatching on getId(), because Harper
+ * resolves the FIRST path segment to a resource and hands the rest to getId() —
+ * the same mechanism the screenshot endpoint uses for /img/<name>.webp. A
+ * resource per page would need one export per page and give /learn itself
+ * nothing to serve.
+ *
+ * Unknown slugs 404 from an explicit map rather than falling through to a
+ * default page: a typo'd link a teacher hands thirty students should say so
+ * plainly, not silently serve them the wrong lesson.
+ */
+const LEARN_PAGES: Record<string, { key: string; html: string }> = {
+	// The empty slug is /learn itself, which is the case the getId() dispatch was
+	// shaped for: one resource for the section, so the hub is not a fourth export
+	// and a third routing story.
+	'': { key: 'learn', html: learnIndexHtml },
+	'code-builder': { key: 'learn-code-builder', html: learnCodeBuilderHtml },
+	'web-development': { key: 'learn-web-development', html: learnWebDevelopmentHtml },
+};
+
+/**
+ * /developers and /developers/api — the public-API documentation.
+ *
+ * Both paths serve the same document, and the page canonicalises to
+ * /developers/api. `/developers` is what somebody types; `/developers/api` is
+ * what the plan named and what leaves room for a second doc later, so it is the
+ * one in the sitemap and the one the canonical points at.
+ *
+ * Same getId() dispatch as the two sections above, and an unknown slug 404s
+ * rather than quietly serving the docs from any URL under /developers.
+ */
+const DEVELOPER_PAGES: Record<string, { key: string; html: string }> = {
+	'': { key: 'developers-api', html: developersApiHtml },
+	api: { key: 'developers-api', html: developersApiHtml },
+};
+
+class DevelopersPage extends PublicEndpoint {
+	async get() {
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(DEVELOPER_PAGES, slug) ? DEVELOPER_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
+	}
+}
+
+class LearnPage extends PublicEndpoint {
+	async get() {
+		const slug = String((this as any).getId?.() || '')
+			.trim()
+			.replace(/^\/+|\/+$/g, '');
+		const page = Object.prototype.hasOwnProperty.call(LEARN_PAGES, slug) ? LEARN_PAGES[slug] : null;
+		if (!page) {
+			return {
+				status: 404,
+				headers: { 'content-type': 'text/plain; charset=utf-8' },
+				body: 'Not found',
+			};
+		}
+		return htmlPage(this, page.key, page.html);
 	}
 }
 
@@ -13070,7 +14105,7 @@ function decodedBinary(key: string, b64: string): any {
  * Names are content-hashed by the build, so the answer is `immutable` with a
  * one-year max-age: a changed screenshot gets a new filename, and a name that
  * never changes never needs revalidating. That also makes the lookup its own
- * path-traversal defence — the key either exists in the generated record or the
+ * path-traversal defense — the key either exists in the generated record or the
  * request is a 404, and nothing here ever touches a filesystem path.
  *
  * Not in PUBLIC_PAGES: these are not pages, so there is no canonical to redirect
@@ -13289,6 +14324,8 @@ export {
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,
 	TeachersPage as teachers,
+	LearnPage as learn,
+	DevelopersPage as developers,
 	DashboardPage as dashboard,
 	Favicon as favicon,
 	OgImage as 'og-image',

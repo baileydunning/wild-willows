@@ -8,11 +8,11 @@
 // inset is part of the artwork, and Apple's icon grid specifies it:
 //
 //   • 1024×1024 canvas
-//   • artwork occupies a 824×824 rounded square, centred (≈100px clear on each side)
+//   • artwork occupies a 824×824 rounded square, centered (≈100px clear on each side)
 //   • corner radius ≈ 185.4 at that size (≈0.225 of the square)
 //
 // That 824/1024 ratio is what makes an icon sit at the same visual size as its
-// neighbours. Windows and Linux do NOT inset or mask, so they get the full-bleed
+// neighbors. Windows and Linux do NOT inset or mask, so they get the full-bleed
 // square instead — same artwork, different framing per platform.
 //
 // Requires sharp (devDependency). Everything else is hand-rolled so there's no
@@ -33,7 +33,7 @@ const SRC = process.argv[2] ? resolve(process.argv[2]) : join(ROOT, 'build', 'ic
 // ---------------------------------------------------------------- framing
 // The source artwork is a wide camp scene; the icon wants the tent, campfire and
 // frog filling the frame rather than a lot of empty sky. Square crop, in source
-// pixels, centred on the tent. Tuned by eye at 64px — the size that actually has
+// pixels, centered on the tent. Tuned by eye at 64px — the size that actually has
 // to read in the Dock.
 const CROP = { side: 1450, cx: 1024, cy: 1170 };
 
@@ -167,7 +167,7 @@ async function buildIco() {
 		e.writeUInt8(img.size >= 256 ? 0 : img.size, 1);
 		e.writeUInt8(0, 2); // palette
 		e.writeUInt8(0, 3); // reserved
-		e.writeUInt16LE(1, 4); // colour planes
+		e.writeUInt16LE(1, 4); // color planes
 		e.writeUInt16LE(32, 6); // bits per pixel
 		e.writeUInt32LE(img.data.length, 8);
 		e.writeUInt32LE(offset, 12);
