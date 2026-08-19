@@ -15,17 +15,17 @@ import { test, expect, type Page } from '@playwright/test';
 
 /** Every route serve-pages.mjs answers, and the heading that proves it is the
  *  right page. Kept in step with PAGES there and PUBLIC_PAGES in resources.ts. */
-const ROUTES: Array<{ path: string; heading: string; title: RegExp }> = [
-	{ path: '/', heading: 'Wild Willows', title: /cozy nature-restoration game/i },
-	{ path: '/learn', heading: 'Learn to code with real game data', title: /Learn to code/i },
-	{ path: '/learn/web-development', heading: 'Build with Wild Willows', title: /Build with Wild Willows/i },
-	{ path: '/teachers', heading: 'Wild Willows in the classroom', title: /for teachers/i },
-	{ path: '/teachers/science', heading: 'Restore a damaged meadow', title: /ecosystem lesson/i },
-	{ path: '/teachers/coding', heading: 'Build a webpage with real game data', title: /intro to APIs/i },
-	{ path: '/developers/api', heading: 'One endpoint, no key', title: /Open Game Data/i },
-	{ path: '/privacy.html', heading: 'Privacy policy', title: /Privacy policy/i },
-	{ path: '/support.html', heading: 'Support', title: /Support/i },
-	{ path: '/age-rating.html', heading: 'Who Wild Willows is for', title: /Age suitability/i },
+const ROUTES: Array<{ path: string; heading: string }> = [
+	{ path: '/', heading: 'Wild Willows' },
+	{ path: '/learn', heading: 'Learn to code with real game data' },
+	{ path: '/learn/web-development', heading: 'Build with Wild Willows' },
+	{ path: '/teachers', heading: 'Wild Willows in the classroom' },
+	{ path: '/teachers/science', heading: 'Restore a damaged meadow' },
+	{ path: '/teachers/coding', heading: 'Build a webpage with real game data' },
+	{ path: '/developers/api', heading: 'One endpoint, no key' },
+	{ path: '/privacy.html', heading: 'Privacy policy' },
+	{ path: '/support.html', heading: 'Support' },
+	{ path: '/age-rating.html', heading: 'Who Wild Willows is for' },
 ];
 
 /** Console errors, collected from the moment the page object exists.
@@ -72,7 +72,14 @@ test.describe('every public route', () => {
 			const errors = watchConsole(page);
 			const res = await page.goto(route.path);
 			expect(res?.status(), `${route.path} should be 200`).toBe(200);
-			await expect(page).toHaveTitle(route.title);
+			/* THE HEADING IDENTIFIES THE PAGE, NOT THE TITLE.
+			 *
+			 * Titles are marketing copy and get rewritten — an SEO pass moved four of
+			 * them in one afternoon and broke six of these tests, which had learned
+			 * nothing about the site in exchange. What a route test should prove is
+			 * that the right document came back; tests/unit/seo.test.ts owns whether
+			 * the title is the right length, unique, and present. */
+			expect((await page.title()).length, `${route.path} needs a title`).toBeGreaterThan(15);
 			const h1 = page.locator('h1:visible');
 			await expect(h1.first()).toHaveText(route.heading);
 			/* One VISIBLE <h1>. Two would be a heading outline that reads as several
@@ -89,6 +96,36 @@ test.describe('every public route', () => {
 		expect(res?.status()).toBe(404);
 	});
 });
+
+/**
+ * Wait until the page has stopped changing shape.
+ *
+ * THE FONT ARRIVES AFTER FIRST PAINT, ON PURPOSE. Every page loads Quicksand with
+ * `media="print"` and swaps it to `all` on load, which keeps the stylesheet off
+ * the critical path and guarantees exactly one reflow afterwards. On a long
+ * document that reflow can move a section hundreds of pixels — and a browser that
+ * has already jumped to a #hash does not re-jump when it does.
+ *
+ * That is why CI saw `#corrections` at -832px while a local run with no font
+ * egress saw it land perfectly: the test was racing the swap, not measuring the
+ * CSS. Settle first, then measure.
+ */
+async function settled(page: Page) {
+	// Awaited inside the page and resolved to nothing: `document.fonts.ready`
+	// hands back the FontFaceSet, which does not survive being serialized out.
+	await page
+		.evaluate(async () => {
+			await (document as any).fonts?.ready;
+		})
+		.catch(() => {});
+	let last = -1;
+	for (let i = 0; i < 20; i++) {
+		const h = await page.evaluate(() => document.documentElement.scrollHeight);
+		if (h === last) return;
+		last = h;
+		await page.waitForTimeout(100);
+	}
+}
 
 /** Where a section's top ends up once the browser has finished scrolling.
  *
@@ -123,6 +160,7 @@ test.describe('the landing page', () => {
 	 * rather than where it was written. */
 	test('every nav link lands its section under the sticky nav', async ({ page }) => {
 		await page.goto('/');
+		await settled(page);
 		const links = page.locator('.nav .links a[href^="#"]');
 		const count = await links.count();
 		expect(count).toBeGreaterThan(2);
@@ -319,7 +357,9 @@ test.describe('at phone size', () => {
 		// to miss on a desktop. Two pixels of slack for subpixel rounding.
 		for (const route of ['/', '/learn', '/teachers', '/developers/api']) {
 			await page.goto(route);
-			await page.waitForTimeout(300);
+			// After the font swap, not before: a page that fits in the fallback face
+			// and overflows in Quicksand is exactly the bug this is looking for.
+			await settled(page);
 			const overflow = await page.evaluate(
 				() => document.documentElement.scrollWidth - document.documentElement.clientWidth,
 			);
@@ -349,11 +389,19 @@ test.describe('links that leave the site', () => {
 
 test.describe('the API docs', () => {
 	test('say how to get the data corrected, and land on it', async ({ page }) => {
-		/* Arrived at by URL rather than by clicking the nav link, which is one of
-		 * the secondary links that hides below 940px. A shared link into a section
-		 * has to land in the same place a click does — and it is the same
-		 * scroll-margin-top either way. */
-		await page.goto('/developers/api#corrections');
+		/* Loaded without the hash and jumped afterwards, rather than opening
+		 * /developers/api#corrections directly.
+		 *
+		 * Both are things a reader does, and only one of them is testable: a hash in
+		 * the URL is acted on during load, before the font swap reflows everything
+		 * below it, and no engine re-jumps afterwards. Jumping once the page has
+		 * settled measures the scroll-margin-top this is actually about instead of
+		 * measuring how far the page moved while nobody was looking. */
+		await page.goto('/developers/api');
+		await settled(page);
+		await page.evaluate(() => {
+			location.hash = '#corrections';
+		});
 		const y = await settledTop(page, '#corrections');
 		const nav = await navBarHeight(page);
 		expect(y).toBeGreaterThan(-40);

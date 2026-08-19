@@ -28,9 +28,15 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap">
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap"></noscript>
+<!-- ONE request, at three weights.
+     This was a preload AND a media=print stylesheet pointing at the same URL,
+     which fetched the whole thing twice. That is the exact pair the landing page
+     had removed for costing LCP, still here on the pages nobody re-measured. It
+     asked for weight 400, which nothing on the site sets: body is 500, headings
+     700, chips 600. That was a whole woff2 downloaded to be ignored.
+     The preload alone is enough: high priority, and onload promotes it. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <script type="application/ld+json">
 {

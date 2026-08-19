@@ -84,7 +84,18 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<!-- PRELOAD, NOT media=print, AND ONE LINK RATHER THAN TWO.
+     The swap trick below fetches this at LOW priority, which is right when the
+     font is decoration and wrong when the page is a long document somebody
+     deep-links into: the stylesheet arrives after first paint, the face swaps,
+     everything reflows, and a browser that already jumped to a #hash does not
+     jump again. Measured on /developers/api, that put the linked section 832px
+     above the viewport.
+     `rel=preload as=style` fetches it at high priority and `onload` promotes it
+     to a real stylesheet. Note this REPLACES the media=print link rather than
+     joining it: the pair is what fetched the same file twice and cost LCP the
+     last time a preload was here. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
