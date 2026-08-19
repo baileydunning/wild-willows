@@ -1033,3 +1033,21 @@ body.lab.side-hidden .lab-side-toggle svg {
 		padding-left: 1.2rem;
 	}
 }
+
+/* THE ONE LINK ON THIS PAGE THAT LEAVES IT.
+ *
+ * An inline <svg> with no width is 300x150 by default, which would put a
+ * billboard in the nav bar; and an arrow drawn as a character would be whatever
+ * glyph the platform's font decides. So: drawn, and sized in ems so it tracks
+ * the label it belongs to. The words "(opens in a new tab)" ride along for a
+ * screen reader, because an icon is not an announcement. */
+.nav .links a .ext {
+	/* site-core sets svg { display: block } sitewide, which put this on a line of
+	   its own under the label — nowrap does not help, a block is a block. */
+	display: inline-block;
+	width: 0.78em;
+	height: 0.78em;
+	margin-left: 0.3em;
+	vertical-align: -0.04em;
+	opacity: 0.8;
+}

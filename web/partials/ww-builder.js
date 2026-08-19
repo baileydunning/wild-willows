@@ -21,7 +21,7 @@
 	var SAVE_KEY = 'wildWillowsCodeLab';
 	var SAVE_VERSION = 1;
 	var SEEN_KEY = 'wildWillowsCodeLabSeen';
-	var API = 'https://wildwillows.app/GameData/';
+	var API = 'https://wildwillows.app/GameData';
 
 	var FILES = ['index.html', 'styles.css', 'main.js'];
 
@@ -128,7 +128,7 @@
 	 * something with the data" is paralyzing; "show every animal that eats
 	 * berries" is a task you can start immediately.
 	 *
-	 * Every idea is real and checkable against /GameData/ — the contract test in
+	 * Every idea is real and checkable against /GameData — the contract test in
 	 * tests/integration/classroom-contract.test.ts pins the fields and values
 	 * these depend on, because an idea that silently returns an empty list is
 	 * worse than no idea at all.
@@ -1622,7 +1622,13 @@
 		/* Where they went next. The nav links leave the page, so this has to be a
 		 * plain click listener rather than anything that waits for a response —
 		 * bump() batches into the pagehide flush, which fires on the way out. */
-		var NAV = { 'lesson-nav': 'nav_lesson', 'learn-nav': 'nav_learn', 'hub-nav': 'nav_hub', 'game-nav': 'nav_game' };
+		var NAV = {
+			'lesson-nav': 'nav_lesson',
+			'learn-nav': 'nav_learn',
+			'hub-nav': 'nav_hub',
+			'game-nav': 'nav_game',
+			'api-nav': 'nav_api',
+		};
 		document.addEventListener('click', function (e) {
 			var a = e.target && e.target.closest && e.target.closest('a[data-track]');
 			if (a && NAV[a.getAttribute('data-track')]) bump(NAV[a.getAttribute('data-track')]);

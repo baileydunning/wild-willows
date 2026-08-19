@@ -3,9 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Wild Willows Code Builder &mdash; write HTML, CSS and JavaScript in your browser</title>
-<meta name="description" content="A free browser code editor for students. Three files, a live preview, and real Wild Willows game data from a public API. No accounts, no installs, nothing to set up. Built for high school computer science.">
+<title>Wild Willows Code Builder: a browser code editor for students</title>
+<meta name="description" content="Three files, a preview you run when you are ready, and real game data from a public API. Thirty project ideas and a download button. Nothing to install.">
 <link rel="canonical" href="https://wildwillows.app/learn/code-builder">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="Wild Willows Code Builder">
+<meta property="og:description" content="Three files, a preview and real game data from a public API. Thirty project ideas, and your code never leaves the browser.">
+<meta property="og:url" content="https://wildwillows.app/learn/code-builder">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Wild Willows Code Builder">
+<meta name="twitter:description" content="Three files, a preview and real game data from a public API. Nothing to install.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
 <!-- The builder is a tool, not a document: there is nothing here for a search
      engine to rank, and an indexed code editor competes with the lesson that
      explains it. The lesson page and /teachers/coding are the indexable pair. -->
@@ -18,7 +31,18 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <!-- Quicksand at the three weights the site uses (body 500, semibold 600,
      headings 700), loaded the same non-blocking way as every other page. -->
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" media="print" onload="this.media='all'" fetchpriority="low">
+<!-- PRELOAD, NOT media=print, AND ONE LINK RATHER THAN TWO.
+     The swap trick below fetches this at LOW priority, which is right when the
+     font is decoration and wrong when the page is a long document somebody
+     deep-links into: the stylesheet arrives after first paint, the face swaps,
+     everything reflows, and a browser that already jumped to a #hash does not
+     jump again. Measured on /developers/api, that put the linked section 832px
+     above the viewport.
+     `rel=preload as=style` fetches it at high priority and `onload` promotes it
+     to a real stylesheet. Note this REPLACES the media=print link rather than
+     joining it: the pair is what fetched the same file twice and cost LCP the
+     last time a preload was here. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
 
 <!-- Runs before <body> so a student who chose dark never sees a flash of cream. -->
@@ -46,6 +70,7 @@
     <a class="hide-sm" href="/learn" data-track="learn-nav">Learn</a>
     <a class="hide-sm" href="/teachers" data-track="hub-nav">For teachers</a>
     <a class="hide-sm" href="/" data-track="game-nav">The game</a>
+    <a class="hide-sm" href="/developers/api" target="_blank" rel="noopener" data-track="api-nav">API docs<svg class="ext" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6M20 4l-8.5 8.5"/><path d="M18 14.5V19a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h4.5"/></svg><span class="sr-only"> (opens in a new tab)</span></a>
     <a class="btn btn-paper" href="/learn/web-development" data-track="lesson-nav">Back to the Lesson</a>
     <button type="button" class="theme-toggle" id="theme-toggle" aria-label="Switch to dark mode" aria-pressed="false">
       <svg class="icon-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
@@ -61,8 +86,8 @@
 <section class="lab-blocked" id="lab-blocked" hidden>
   <div class="lab-blocked-inner">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="13" rx="2.5"/><path d="M8 20.5h8M12 17v3.5"/></svg>
-    <h1>This one needs a bigger screen</h1>
-    <p>The Code Builder puts three files and a live preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
+    <h2>This one needs a bigger screen</h2>
+    <p>The Code Builder puts three files and a preview side by side, and asks you to type punctuation-heavy code into them. On a phone the on-screen keyboard covers the line you are writing, there is no Tab key, and autocorrect fights you the whole way. You would spend the period on the keyboard rather than on the code.</p>
     <p>Open this on a laptop, a Chromebook, or a tablet with a keyboard.</p>
     <p class="lab-blocked-go">
       <a class="btn btn-go" href="/learn/web-development" data-track="lesson-nav">Read the Lesson instead</a>
@@ -153,7 +178,7 @@
       </script>
       <script type="text/ww-file" name="main.js">
         async function loadGameData() {
-          const response = await fetch("https://wildwillows.app/GameData/");
+          const response = await fetch("https://wildwillows.app/GameData");
           const data = await response.json();
 
           // TODO: put something from `data` on the page
@@ -165,7 +190,7 @@
     </ww-runner>
 
     <p class="lab-note">
-      The preview updates a moment after you stop typing. Press <b>Run</b> to update it straight away.
+      Nothing runs until you say so. Edit as much as you like, then press <b>Run</b> to see it.
     </p>
   </section>
 </main>

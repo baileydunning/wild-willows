@@ -3689,6 +3689,32 @@
 					const typicalMin = bucketed ? Math.round(DURATIONS.reduce((a, [, k]) => a + cN(k) * MIDPOINT[k], 0) / bucketed) : 0;
 					const longSessions = cN('duration_30to60m') + cN('duration_gt60m');
 
+					/* TIME IN THE LESSON, which is a different question from time in the
+					 * builder and was not being asked at all.
+					 *
+					 * The builder is a workshop you sit down at; the lesson is ten chapters
+					 * somebody has to get through inside a period, and "does it fit in
+					 * forty-five minutes" is the thing a teacher decides on. The server
+					 * bands it and hands over the midpoints it used, so the estimate here
+					 * is not a second, quietly different piece of arithmetic. */
+					const LT = (CLASSROOM.time && CLASSROOM.time.session) || { buckets: [], n: 0, meanMinutes: null };
+					const lessonTimeRows = (LT.buckets || []).filter((b) => n(b.n)).map((b) => [b.label, n(b.n)]);
+					const lessonTypical = LT.meanMinutes == null ? null : Math.round(LT.meanMinutes);
+					const lessonFullPeriod = (LT.buckets || []).filter((b) => b.id === '30to60m' || b.id === 'gt60m').reduce((a, b) => a + n(b.n), 0);
+
+					/* WHERE THAT TIME WENT, per chapter, ranked by how long people stay.
+					 *
+					 * Collected since the lesson was written and never once displayed. It
+					 * is the only counter that can say a chapter is too long — a chapter
+					 * that everybody reaches and nobody lingers in was skimmed, and one
+					 * that eats ten minutes is either the best thing on the page or the
+					 * place the period runs out. */
+					const chapterTime = ((CLASSROOM.time && CLASSROOM.time.chapters) || []).filter((c) => n(c.n) > 0);
+					const chapterTimeRows = chapterTime
+						.map((c) => [`Ch ${c.chapter}`, c.meanMinutes == null ? 0 : Math.round(c.meanMinutes * 10) / 10])
+						.filter((r) => r[1] > 0);
+					const stickiest = chapterTime.slice().sort((a, b) => (b.meanMinutes || 0) - (a.meanMinutes || 0))[0];
+
 					/* `unique` is null for a page that does not report first-visits yet,
 					   and that is not the same as zero: one means "nobody new", the other
 					   means "not measured". The row shows nothing rather than a 0. */
@@ -3728,6 +3754,11 @@
 								`<span class="accent">${typicalMin ? typicalMin + 'm' : '—'}</span>`,
 								'Typical time in the builder',
 								`${fmt(longSessions)} ${longSessions === 1 ? 'session' : 'sessions'} over half an hour`,
+							),
+							kpi(
+								`<span class="accent">${lessonTypical ? lessonTypical + 'm' : '—'}</span>`,
+								'Typical time in the lesson',
+								LT.n ? `${fmt(lessonFullPeriod)} of ${fmt(LT.n)} ${LT.n === 1 ? 'visit' : 'visits'} ran half an hour or more` : 'no visits measured yet',
 							),
 							kpi(fmt(cN('first_fetch_ok')), 'Reached real data', 'students whose own fetch worked'),
 							kpi(
@@ -3787,6 +3818,18 @@
 								barRows((CLASSROOM.errors || []).map((e) => [ERROR_LABELS[e.key] || e.key, e.n])),
 							) +
 							cardTitled('Time in the builder', 'active time, bucketed', barRows(durationRows)) +
+							`</div>` +
+							`<div class="grid two" style="margin-top:.8rem">` +
+							cardTitled(
+								'Time in the lesson',
+								'whole visits — on screen and not idle, bucketed',
+								lessonTimeRows.length ? barRows(lessonTimeRows) : `<div class="emptynote">No lesson visits measured yet.</div>`,
+							) +
+							cardTitled(
+								'Where that time goes',
+								stickiest ? `estimated minutes per chapter — longest is chapter ${stickiest.chapter}` : 'estimated minutes per chapter',
+								chapterTimeRows.length ? barRows(chapterTimeRows) : `<div class="emptynote">No chapter timings yet.</div>`,
+							) +
 							`</div>` +
 							`<div class="grid two" style="margin-top:.8rem">` +
 							cardTitled(
