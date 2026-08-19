@@ -868,28 +868,48 @@
 		var prompt = document.createElement('p');
 		prompt.className = 'wwr-prompt';
 		prompt.hidden = true;
-		/* A console-only example has its preview column hidden, so a message placed
-		 * over the preview is a message placed inside display: none — which is
-		 * exactly what happened the first time, on the twenty-seven examples that
-		 * need it most. Those get it under the toolbar instead, above the code. */
-		if (consoleOnly) host.appendChild(prompt);
-		else out.appendChild(prompt);
+		/* WHERE THE "PRESS RUN" LINE GOES, AND WHY IT IS TWO DIFFERENT THINGS.
+		 *
+		 * An example with a preview gets it over the preview: that is the panel the
+		 * reader is looking at when they wonder why nothing changed.
+		 *
+		 * A console-only example has no preview panel — it is hidden — so the first
+		 * version of this put a strip of its own between the code and the console.
+		 * It worked and it was clutter: a bar that says "press Run" directly above
+		 * a console that says "nothing logged yet", which is the same sentence
+		 * twice. So these say it in the console instead, in the place that was
+		 * already explaining the emptiness. */
+		if (!consoleOnly) out.appendChild(prompt);
 
 		/* Rendered at all, which is not the same question as whether the student has
 		 * pressed anything: an HTML example renders itself on arrival, and the line
 		 * for an edit to something already on screen is "update", not "see". */
 		var rendered = false;
 
+		/* The console's own empty-state line, rendered by CSS from this attribute so
+		 * that there is one of them rather than one per state. */
+		var CONSOLE_EMPTY = 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+
+		function promptText() {
+			if (rendered) return 'Press Run to update this.';
+			if (callsNetwork) return consoleOnly ? 'Press Run to send the request and log the answer.' : 'Press Run to send the request.';
+			return consoleOnly ? 'Press Run to see the output.' : 'Press Run to see your page.';
+		}
+
 		function showPrompt() {
-			prompt.textContent = rendered
-				? 'Press Run to update this.'
-				: callsNetwork
-					? 'Press Run to send the request.'
-					: 'Press Run to see your page.';
+			if (consoleOnly) {
+				consoleLines.setAttribute('data-empty', promptText());
+				return;
+			}
+			prompt.textContent = promptText();
 			prompt.hidden = false;
 		}
 
 		function hidePrompt() {
+			if (consoleOnly) {
+				consoleLines.setAttribute('data-empty', CONSOLE_EMPTY);
+				return;
+			}
 			prompt.hidden = true;
 		}
 
@@ -1006,6 +1026,10 @@
 		}
 		var consoleLines = document.createElement('pre');
 		consoleLines.className = 'wwr-console-lines';
+		/* Read by CSS (`content: attr(data-empty)`) when there is nothing in here.
+		 * An attribute rather than a text node so that logging does not have to
+		 * remember to remove it first, and so `:empty` keeps working. */
+		consoleLines.setAttribute('data-empty', CONSOLE_EMPTY);
 		consoleBox.appendChild(consoleLines);
 		host.appendChild(consoleBox);
 

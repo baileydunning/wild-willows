@@ -852,21 +852,7 @@ body.lesson,
 	display: none;
 }
 
-/* No preview column to sit over, so it becomes a strip of its own between the
-   code and the console — which is where the output of these examples appears,
-   and so where a reader is looking for the thing that has not updated. */
-.wwr--console-only .wwr-prompt {
-	position: static;
-	padding: 0.45rem 0.6rem;
-	background: var(--paper, #f4eeda);
-	border-top: 1.5px solid var(--panel-edge, #e3d9bc);
-	backdrop-filter: none;
-	/* Back to the token here, unlike the overlay above. This variant sits on
-	   --paper, which IS themed: in dark mode the surface goes to #1e2022 and the
-	   pinned ink would be dark text on a dark strip. --ink-soft measures 4.92 on
-	   the lightest cream and 6.52 on the dark surface. */
-	color: var(--ink-soft, #61624b);
-}
+
 
 /* Full-width row under both columns. Height is generous but bounded: a beginner's
  * first instruction is console.log(data) on the whole 300 KB catalog, and a
@@ -1001,9 +987,12 @@ body.wwr-resizing iframe {
 }
 
 /* An empty console is ambiguous: it looks identical whether nothing was logged,
- * the code never ran, or the pane is broken. Say which. */
+ * the code never ran, or the pane is broken. Say which — and let the element say
+ * WHICH which, because on an example that has not been run yet the useful
+ * sentence is "press Run", not "nothing logged yet". The runner writes the line
+ * into data-empty; this draws it. */
 .wwr-console-lines:empty::before {
-	content: 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+	content: attr(data-empty);
 	color: var(--ink-faint, #66674f);
 	font-family: var(--f, 'Quicksand', sans-serif);
 	font-size: 0.82rem;
@@ -5420,28 +5409,48 @@ for (const animal of data.animals) {
 		var prompt = document.createElement('p');
 		prompt.className = 'wwr-prompt';
 		prompt.hidden = true;
-		/* A console-only example has its preview column hidden, so a message placed
-		 * over the preview is a message placed inside display: none — which is
-		 * exactly what happened the first time, on the twenty-seven examples that
-		 * need it most. Those get it under the toolbar instead, above the code. */
-		if (consoleOnly) host.appendChild(prompt);
-		else out.appendChild(prompt);
+		/* WHERE THE "PRESS RUN" LINE GOES, AND WHY IT IS TWO DIFFERENT THINGS.
+		 *
+		 * An example with a preview gets it over the preview: that is the panel the
+		 * reader is looking at when they wonder why nothing changed.
+		 *
+		 * A console-only example has no preview panel — it is hidden — so the first
+		 * version of this put a strip of its own between the code and the console.
+		 * It worked and it was clutter: a bar that says "press Run" directly above
+		 * a console that says "nothing logged yet", which is the same sentence
+		 * twice. So these say it in the console instead, in the place that was
+		 * already explaining the emptiness. */
+		if (!consoleOnly) out.appendChild(prompt);
 
 		/* Rendered at all, which is not the same question as whether the student has
 		 * pressed anything: an HTML example renders itself on arrival, and the line
 		 * for an edit to something already on screen is "update", not "see". */
 		var rendered = false;
 
+		/* The console's own empty-state line, rendered by CSS from this attribute so
+		 * that there is one of them rather than one per state. */
+		var CONSOLE_EMPTY = 'Nothing logged yet. Use console.log(...) in your JavaScript to print something here.';
+
+		function promptText() {
+			if (rendered) return 'Press Run to update this.';
+			if (callsNetwork) return consoleOnly ? 'Press Run to send the request and log the answer.' : 'Press Run to send the request.';
+			return consoleOnly ? 'Press Run to see the output.' : 'Press Run to see your page.';
+		}
+
 		function showPrompt() {
-			prompt.textContent = rendered
-				? 'Press Run to update this.'
-				: callsNetwork
-					? 'Press Run to send the request.'
-					: 'Press Run to see your page.';
+			if (consoleOnly) {
+				consoleLines.setAttribute('data-empty', promptText());
+				return;
+			}
+			prompt.textContent = promptText();
 			prompt.hidden = false;
 		}
 
 		function hidePrompt() {
+			if (consoleOnly) {
+				consoleLines.setAttribute('data-empty', CONSOLE_EMPTY);
+				return;
+			}
 			prompt.hidden = true;
 		}
 
@@ -5558,6 +5567,10 @@ for (const animal of data.animals) {
 		}
 		var consoleLines = document.createElement('pre');
 		consoleLines.className = 'wwr-console-lines';
+		/* Read by CSS (`content: attr(data-empty)`) when there is nothing in here.
+		 * An attribute rather than a text node so that logging does not have to
+		 * remember to remove it first, and so `:empty` keeps working. */
+		consoleLines.setAttribute('data-empty', CONSOLE_EMPTY);
 		consoleBox.appendChild(consoleLines);
 		host.appendChild(consoleBox);
 

@@ -4,6 +4,13 @@ Cloudflare dashboard configuration, recorded here because the origin's numbers
 assume it. `catalog: { perMinute: 60, burst: 60 }` in `server/resources.ts` is the
 braces; this is the belt, and it works on traffic that never reaches Harper.
 
+**None of this needs a paid plan.** Checked against Cloudflare's own availability
+tables: Cache Rules (10 on Free), the **Ignore query string** cache-key option
+(Free — it is the custom query-string *list* that is Enterprise), Edge TTL,
+Browser TTL, Tiered Cache with Smart Topology, purge by URL at 800/second, 5
+Custom Rules, and 1 rate limiting rule. The single Business-plan feature that
+would help is named in the gotcha below, and there is a Free-plan way around it.
+
 **Read the gotcha first, because it inverts the obvious design.**
 
 ## The gotcha: rate limiting counts cache hits, unless the plan says otherwise
@@ -137,7 +144,10 @@ resource "cloudflare_ruleset" "gamedata_cache" {
     description = "Query string is not part of the identity"
     action_parameters {
       cache = true
-      cache_key { custom_key { query_string { exclude = ["*"] } } }
+      # exclude = "*" (a string) is "ignore the query string", which is a FREE
+      # plan cache-key option. exclude = ["param", ...] (a list) is the
+      # Enterprise one. Same field, and only one of them costs money.
+      cache_key { custom_key { query_string { exclude = "*" } } }
       edge_ttl    { mode = "respect_origin" }
       browser_ttl { mode = "override_origin", default = 600 }
     }

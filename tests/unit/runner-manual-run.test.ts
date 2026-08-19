@@ -49,6 +49,20 @@ const rendered = (host: HTMLElement): string[] =>
 const runBtn = (host: HTMLElement) => host.querySelector('.wwr-run') as HTMLButtonElement;
 const prompt = (host: HTMLElement) => host.querySelector('.wwr-prompt') as HTMLElement;
 
+/* WHERE THE WAITING MESSAGE LIVES DEPENDS ON WHAT THE EXAMPLE HAS.
+ *
+ * With a preview it is drawn over the preview. A console-only example has no
+ * preview panel, and a strip of its own between the code and the console said
+ * "press Run" directly above a console saying "nothing logged yet" — the same
+ * sentence twice. So on those it IS the console's empty line, rendered by CSS
+ * from data-empty. */
+const waitingMessage = (host: HTMLElement): string | null => {
+	const overlay = host.querySelector('.wwr-prompt') as HTMLElement | null;
+	if (overlay && !overlay.hidden) return overlay.textContent;
+	const empty = host.querySelector('.wwr-console-lines')?.getAttribute('data-empty') || '';
+	return /press run/i.test(empty) ? empty : null;
+};
+
 describe('typing never runs anything', () => {
 	it('has no timer between an edit and a render', () => {
 		// The mechanism, not just its effect: a debounce constant left behind is a
@@ -89,8 +103,7 @@ describe('an example that goes to the network waits to be asked', () => {
 	it('does not render itself when the page opens', () => {
 		const host = mount(file('main.js', FETCHER), 'console');
 		expect(rendered(host)).toHaveLength(0);
-		expect(prompt(host).hidden).toBe(false);
-		expect(prompt(host).textContent).toBe('Press Run to send the request.');
+		expect(waitingMessage(host)).toMatch(/^Press Run to send the request/);
 	});
 
 	it('while an example that only draws still does', () => {
@@ -98,14 +111,16 @@ describe('an example that goes to the network waits to be asked', () => {
 		// frame and no traffic, so those keep the behavior they had.
 		const host = mount(file('index.html', '<h1>hi</h1>'));
 		expect(rendered(host).length).toBeGreaterThan(0);
-		expect(prompt(host).hidden).toBe(true);
+		expect(waitingMessage(host)).toBeNull();
 	});
 
 	it('and goes out on the press', () => {
 		const host = mount(file('main.js', FETCHER), 'console');
 		runBtn(host).click();
-		expect(rendered(host).join('')).toContain('wildwillows.app/GameData/');
-		expect(prompt(host).hidden).toBe(true);
+		expect(rendered(host).join('')).toContain('wildwillows.app/GameData');
+		// And the console goes back to explaining an empty console.
+		expect(waitingMessage(host)).toBeNull();
+		expect(host.querySelector('.wwr-console-lines')!.getAttribute('data-empty')).toMatch(/Nothing logged yet/);
 	});
 
 	it('puts the message somewhere visible on a console-only example', () => {
@@ -113,10 +128,11 @@ describe('an example that goes to the network waits to be asked', () => {
 		// message inside display:none — which is what the first attempt shipped,
 		// on the twenty-seven examples that need it most.
 		const host = mount(file('main.js', FETCHER), 'console');
-		const out = host.querySelector('.wwr-out') as HTMLElement;
 		expect(host.classList.contains('wwr--console-only')).toBe(true);
-		expect(out.contains(prompt(host))).toBe(false);
-		expect(host.contains(prompt(host))).toBe(true);
+		// The second attempt gave these a strip of their own, which stacked "press
+		// Run" on top of a console already saying "nothing logged yet".
+		expect(host.querySelector('.wwr-prompt'), 'no floating strip on these').toBeNull();
+		expect(waitingMessage(host)).toMatch(/press run/i);
 	});
 });
 
