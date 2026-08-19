@@ -305,6 +305,19 @@
 	 *
 	 * Counters only, ever. No code, no text the student typed, no identifiers.
 	 */
+	/* ONCE PER PAGE, not once per runner.
+	 *
+	 * These two are funnel steps: "this visitor ran something", "this visitor
+	 * reached real data". The flags used to live inside each runner's setup, and
+	 * the lesson embeds about fifteen runners — so one student working through the
+	 * chapters sent `first_run` fifteen times against a single `view_lesson`, and
+	 * the dashboard drew a funnel step at 400% of the one above it. A counter that
+	 * can exceed its own denominator is not a funnel step; it is a volume counter
+	 * wearing the wrong name. Volume is still counted, by `runs_manual` and
+	 * `fetch_ok`, which are per press and per fetch on purpose. */
+	var pageFirstRunSent = false;
+	var pageFirstFetchSent = false;
+
 	function metric(key, host) {
 		try {
 			(host || document).dispatchEvent(new CustomEvent('ww:metric', { bubbles: true, detail: { key: String(key) } }));
@@ -1068,8 +1081,6 @@
 		});
 
 		/* ---- running ---- */
-		var firstRunDone = false;
-		var firstFetchDone = false;
 
 		function currentSources() {
 			return {
@@ -1184,8 +1195,8 @@
 			 * "Ran their code" was measuring arrivals. */
 			if (how === 'manual') {
 				metric('runs_manual', host);
-				if (!firstRunDone) {
-					firstRunDone = true;
+				if (!pageFirstRunSent) {
+					pageFirstRunSent = true;
 					metric('first_run', host);
 				}
 			}
@@ -1324,8 +1335,8 @@
 				}
 			} else if (d.kind === 'fetch') {
 				metric(d.payload.ok ? 'fetch_ok' : 'fetch_failed', host);
-				if (d.payload.ok && !firstFetchDone) {
-					firstFetchDone = true;
+				if (d.payload.ok && !pageFirstFetchSent) {
+					pageFirstFetchSent = true;
 					/* The funnel step that says a student got all the way to real data.
 					 * Everything before it is setup; everything after is their own work. */
 					metric('first_fetch_ok', host);

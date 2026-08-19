@@ -200,12 +200,18 @@
 			}
 
 			/* ---- header ---- */
+			/* Two rows, not one. The wordmark and the view chips are the page's
+			   identity and sit together on the first; who you are and what you are
+			   filtering share the second, pushed to opposite ends. Before this the
+			   right-hand column stacked four things — name, timestamp, filters,
+			   buttons — into a tall block that dictated the header's height and left
+			   a band of empty cream beside the wordmark. */
 			header.top {
 				display: flex;
 				flex-wrap: wrap;
-				align-items: flex-end;
-				gap: 1rem 1.4rem;
-				margin-bottom: 1.6rem;
+				align-items: center;
+				gap: 0.6rem 1.4rem;
+				margin-bottom: 1.1rem;
 			}
 			.brand {
 				display: flex;
@@ -228,13 +234,32 @@
 				letter-spacing: -0.02em;
 			}
 			.meta {
-				margin-left: auto;
-				text-align: right;
+				flex: 1 0 100%;
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: space-between;
+				gap: 0.5rem 1.5rem;
 				color: var(--muted);
 				font-size: 0.82rem;
 			}
+			.metaid {
+				display: flex;
+				flex-direction: column;
+				gap: 0.1rem;
+			}
+			/* Right-aligned and allowed to wrap onto its own lines: on a narrow window
+			   the filters take the width they need and the identity stays put, rather
+			   than the two fighting over one line. */
+			.metafilters {
+				display: flex;
+				flex-wrap: wrap;
+				align-items: center;
+				justify-content: flex-end;
+				gap: 0.4rem 0.8rem;
+				margin-left: auto;
+			}
 			button.refresh {
-				margin-top: 0.4rem;
 				font: inherit;
 				font-size: 0.82rem;
 				cursor: pointer;
@@ -334,7 +359,10 @@
 				color: var(--accent-dark);
 				border-color: var(--accent);
 			}
-			button.refresh.probs .pbadge {
+			/* The badge, on whichever control carries it. Amber rather than the page's
+			   green: it is a count of things that are wrong, and it should not read as
+			   another green statistic. */
+			.pbadge {
 				display: inline-block;
 				margin-left: 0.35rem;
 				padding: 0 0.4rem;
@@ -345,14 +373,17 @@
 				font-size: 0.74rem;
 				font-variant-numeric: tabular-nums;
 			}
-			button.refresh.probs.bad {
+			.views .chip.bad {
 				border-color: #e2c481;
+				background: #fdf6e6;
+			}
+			.views .chip.on.bad {
+				border-color: #d9b25f;
 			}
 			.vfilter {
 				display: inline-flex;
 				align-items: center;
 				gap: 0.4rem;
-				margin-top: 0.5rem;
 				font-size: 0.78rem;
 				color: var(--muted);
 			}
@@ -1677,36 +1708,16 @@
 					--dcolw: 8px;
 				}
 			}
-			/* Zero-height, full-width flex item: forces the two action buttons onto a
-			   line of their own below the filters. Inert in the desktop block layout. */
-			.metabreak {
-				display: block;
-				height: 0;
-			}
 			@media (max-width: 560px) {
-				.meta {
+				/* Nothing to push apart on a phone: the identity and the filters each
+				   take the full width and stack, left-aligned, in reading order. */
+				.metaid,
+				.metafilters {
+					flex: 1 0 100%;
+				}
+				.metafilters {
+					justify-content: flex-start;
 					margin-left: 0;
-					text-align: left;
-					width: 100%;
-					/* Wrapping inline controls landed the Problems toggle mid-row between
-					   two dropdowns, reading as a third filter. Laid out as a flex row
-					   the filters group together and the buttons get their own line. */
-					display: flex;
-					flex-wrap: wrap;
-					align-items: center;
-					gap: 0.45rem 0.6rem;
-				}
-				.meta .live,
-				.meta > #whoami,
-				.meta > #generated {
-					flex: 1 0 100%;
-				}
-				.metabreak {
-					flex: 1 0 100%;
-				}
-				.meta .vfilter,
-				.meta button.refresh {
-					margin-top: 0;
 				}
 			}
 		</style>
@@ -1729,9 +1740,12 @@
 							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
 						> Wild Willows</a
 					>
+					<!-- Deliberately short. This is an internal page reached by URL, not
+					     something anyone navigates TO from the site, so the nav here is a
+					     way back out rather than a menu. The teacher pages are not a way
+					     out of the dashboard for the one person who can open it. -->
 					<div class="links">
 						<a class="hide-sm" href="/">The game</a>
-						<a class="hide-sm" href="/teachers">For teachers</a>
 						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
 					</div>
 				</div>
@@ -1753,12 +1767,19 @@
 				<div class="views" id="view-tabs" role="tablist" aria-label="What to show" hidden>
 					<button type="button" class="chip on" role="tab" data-view-tab="game" aria-selected="true">Game</button>
 					<button type="button" class="chip" role="tab" data-view-tab="website" aria-selected="false">Website</button>
-					<button type="button" class="chip" role="tab" data-view-tab="harper" aria-selected="false">Harper</button>
-					<button type="button" class="chip" role="tab" data-view-tab="problems" aria-selected="false">Problems</button>
+					<button type="button" class="chip" role="tab" data-view-tab="harper" aria-selected="false">
+						<span id="tab-harper-label">Harper</span>
+					</button>
+					<button type="button" class="chip" role="tab" data-view-tab="problems" aria-selected="false">
+						<span id="tab-problems-label">Problems</span>
+					</button>
 				</div>
 				<div class="meta">
-					<div id="whoami" hidden></div>
-					<div id="generated">Loading…</div>
+					<div class="metaid">
+						<div id="whoami" hidden></div>
+						<div id="generated">Loading…</div>
+					</div>
+					<div class="metafilters">
 					<label class="vfilter"
 						><span>Version</span>
 						<select id="version-filter">
@@ -1791,24 +1812,14 @@
 							<option value="include">Counted</option>
 						</select>
 					</label>
-					<!-- Problems are hidden by default: on a normal day there is nothing to
-					     act on, and a wall of "not enough materials" refusals above the
-					     numbers you came for is noise. The BADGE is what makes hiding them
-					     safe — it counts the things that are actually wrong (crashes and
-					     unreadable saves, never routine refusals), so a bad day still
-					     announces itself from the top of the page. -->
-					<span class="metabreak"></span>
-					<button class="refresh probs" id="problems" type="button" aria-pressed="false" hidden>
-						<span id="problems-label">Problems</span>
-					</button>
-					<!-- How HARPER is doing, as opposed to how the players are. Its own
-					     view because it answers a different question from every other
-					     panel on this page and shares no filters with them. -->
-					<button class="refresh probs" id="serverbtn" type="button" aria-pressed="false" hidden>
-						<span id="serverbtn-label">Server</span>
-					</button>
-					<button class="refresh" id="backbtn" type="button" hidden>← Dashboard</button>
+					<!-- Problems and Harper used to have their own buttons down here, which
+					     made two navigations for four destinations: these swapped the whole
+					     page out, the chips above filtered it, and both landed you on the
+					     same panels. The chips won — they name all four views in one place
+					     — and the badges moved onto them, so a bad day still announces
+					     itself without a second row of controls to read past. -->
 					<button class="refresh" id="refresh" type="button">↻ Refresh</button>
+					</div>
 				</div>
 			</header>
 
@@ -2313,7 +2324,11 @@
 
 			document.addEventListener('click', (e) => {
 				const tab = e.target.closest && e.target.closest('[data-view-tab]');
-				if (tab) applyView(tab.getAttribute('data-view-tab'));
+				if (!tab) return;
+				applyView(tab.getAttribute('data-view-tab'));
+				// A view swaps out everything below the header, so start it at the top
+				// rather than dropping you mid-way down a document you have not seen.
+				window.scrollTo({ top: 0, behavior: 'smooth' });
 			});
 
 			function sec(title, sub, body, view) {
@@ -3353,32 +3368,25 @@
 				return p.length ? '?' + p.join('&') : '';
 			}
 
-			/* Which of the three views is on screen: the metrics, what is going
-			 * wrong, or how Harper itself is doing. Remembered across reloads — if you
-			 * opened one because you were chasing something, a refresh mid-chase
-			 * shouldn't drop you back to the front page.
+			/* There used to be a MODE here as well as a VIEW: three buttons that swapped
+			 * the whole page out for the problem panels or Harper's telemetry, running
+			 * alongside the four chips that filtered the same page down to the same
+			 * panels. Two controls, one destination, and a remembered MODE could put
+			 * you on a page the chips claimed you were not on. The chips are the only
+			 * switcher now; whichever of them was last chosen is what VIEW_KEY
+			 * remembers, and the panels are ordinary sections like everything else.
 			 *
-			 * One variable, not a boolean per panel: the views are mutually exclusive,
-			 * and two independent flags can represent states that are not supposed to
-			 * exist (both on, both off after a partial write). */
-			const MODE_KEY = 'ww-dashboard-mode';
-			const MODES = ['dashboard', 'problems', 'server'];
-			let MODE = 'dashboard';
+			 * The old key is migrated once on load rather than dropped, so anyone who
+			 * left the page on Problems comes back to Problems. */
 			try {
-				const saved = localStorage.getItem(MODE_KEY);
-				if (MODES.includes(saved)) MODE = saved;
-				// Migrate the old boolean so an open Problems view survives the upgrade.
-				else if (localStorage.getItem('ww-dashboard-show-problems') === '1') MODE = 'problems';
-			} catch {
-				/* private mode — default to the dashboard */
-			}
-			function setMode(next) {
-				MODE = MODES.includes(next) ? next : 'dashboard';
-				try {
-					localStorage.setItem(MODE_KEY, MODE);
-				} catch {
-					/* private mode — the switch still works for this session */
+				const legacy = localStorage.getItem('ww-dashboard-mode');
+				if (legacy === 'problems' || legacy === 'server') {
+					localStorage.setItem(VIEW_KEY, legacy === 'server' ? 'harper' : 'problems');
 				}
+				localStorage.removeItem('ww-dashboard-mode');
+				localStorage.removeItem('ww-dashboard-show-problems');
+			} catch {
+				/* private mode — nothing to migrate and nowhere to write it */
 			}
 
 			/* What the badge counts.
@@ -3415,47 +3423,56 @@
 				return bits.length ? bits.join(' · ') : null;
 			}
 
-			function syncProblemsButton() {
-				const btn = document.getElementById('problems');
-				const label = document.getElementById('problems-label');
-				if (btn && label) {
-					// Nothing to show at all (endpoints unavailable) — hide the control
-					// rather than offer a button that opens an empty page.
+			/* The two chips that can carry bad news, kept honest against the payloads.
+			 *
+			 * A chip is HIDDEN when its view has no data behind it at all — an
+			 * instance that predates /ServerHealth/ should not offer a Harper tab that
+			 * opens an explanation of why it is empty. A chip goes AMBER when there is
+			 * something to act on, so the color carries the state without being read.
+			 *
+			 * What the Problems badge counts is deliberately not refusals. A refusal is
+			 * the server saying "not enough materials" — that is the game working, and
+			 * every player generates them, so a lifetime count would sit in the
+			 * thousands and mean nothing. Badging it would train you to ignore the
+			 * badge, which is the one failure mode a quiet tab cannot survive. */
+			function syncViewBadges() {
+				const ptab = document.querySelector('[data-view-tab="problems"]');
+				const plabel = document.getElementById('tab-problems-label');
+				if (ptab && plabel) {
 					const havePanels = !!(GAMEPLAYHEALTH || SAVEHEALTH);
-					btn.hidden = !havePanels;
+					ptab.hidden = !havePanels;
 					if (havePanels) {
 						const p = problemCount();
 						const bits = [];
 						if (p.crashes) bits.push(`${fmt(p.crashes)} ${p.crashes === 1 ? 'crash' : 'crashes'}`);
 						if (p.badSaves) bits.push(`${fmt(p.badSaves)} unreadable ${p.badSaves === 1 ? 'save' : 'saves'}`);
-						label.innerHTML = 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
-						btn.title = p.total
+						plabel.innerHTML = 'Problems' + (p.total ? `<span class="pbadge">${fmt(p.total)}</span>` : '');
+						ptab.title = p.total
 							? bits.join(' · ') + ' — plus every refusal the server has given'
-							: 'No crashes or unreadable saves. Click for refusals and the full breakdown.';
-						btn.classList.toggle('on', MODE === 'problems');
-						btn.classList.toggle('bad', p.total > 0);
-						btn.setAttribute('aria-pressed', MODE === 'problems' ? 'true' : 'false');
+							: 'No crashes or unreadable saves. Refusals and the full breakdown are in here.';
+						ptab.classList.toggle('bad', p.total > 0);
 					}
 				}
 
-				const sbtn = document.getElementById('serverbtn');
-				const slabel = document.getElementById('serverbtn-label');
-				if (sbtn && slabel) {
-					sbtn.hidden = !SERVERHEALTH;
+				const htab = document.querySelector('[data-view-tab="harper"]');
+				const hlabel = document.getElementById('tab-harper-label');
+				if (htab && hlabel) {
+					htab.hidden = !SERVERHEALTH;
 					if (SERVERHEALTH) {
 						const trouble = serverTrouble();
-						slabel.innerHTML = 'Server' + (trouble ? `<span class="pbadge">!</span>` : '');
-						sbtn.title = trouble ? `Harper: ${trouble}` : "Harper's own telemetry — threads, storage, responses, replication.";
-						sbtn.classList.toggle('on', MODE === 'server');
-						sbtn.classList.toggle('bad', !!trouble);
-						sbtn.setAttribute('aria-pressed', MODE === 'server' ? 'true' : 'false');
+						hlabel.innerHTML = 'Harper' + (trouble ? `<span class="pbadge">!</span>` : '');
+						htab.title = trouble
+							? `Harper: ${trouble}`
+							: "Harper's own telemetry — threads, storage, responses, replication.";
+						htab.classList.toggle('bad', !!trouble);
 					}
 				}
 
-				// One way back, shown only when you are not already home. Labeling a
-				// mode switch by what it conceals leaves you hunting for the way out.
-				const back = document.getElementById('backbtn');
-				if (back) back.hidden = MODE === 'dashboard';
+				/* A view whose chip just disappeared must not stay on screen with no way
+				 * back to it, so fall back to Game. */
+				const current = document.body.getAttribute('data-view');
+				const chip = document.querySelector(`[data-view-tab="${current}"]`);
+				if (chip && chip.hidden) applyView('game');
 			}
 
 			/* The last payload, kept so the date picker can redraw without refetching.
@@ -3726,11 +3743,21 @@
 					/* Drop-off, expressed against the step before it rather than the top.
 					 * "Half the people who opened the builder ran their code" is a
 					 * sentence you can act on; "6% of hub visitors downloaded" is not. */
-					const funnelRows = (CLASSROOM.funnel || []).map((f, i, all) => {
-						const prev = i ? n(all[i - 1].n) : 0;
-						const drop = i && prev ? Math.round((n(f.n) / prev) * 100) : null;
-						return [f.label + (drop != null ? ` (${drop}% of previous)` : ''), n(f.n)];
-					});
+					const funnelSteps = (steps) =>
+						(steps || []).map((f, i, all) => {
+							const prev = i ? n(all[i - 1].n) : 0;
+							const drop = i && prev ? Math.round((n(f.n) / prev) * 100) : null;
+							return [f.label + (drop != null ? ` (${drop}% of previous)` : ''), n(f.n)];
+						});
+					/* TWO strands, drawn separately, because the lesson and the builder are
+					 * two entry points rather than two steps of one path: the nav offers the
+					 * builder from every page, so a visit can start in either. Merged, the
+					 * run and fetch counters were the sum of both pages under a denominator
+					 * that counted one of them, and a step could read 400% of the one above
+					 * it. An older instance sends only the merged list; the builder card is
+					 * simply absent there rather than drawn as zeros. */
+					const funnelRows = funnelSteps(CLASSROOM.funnel);
+					const builderRows = funnelSteps(CLASSROOM.builderFunnel);
 
 					const ERROR_LABELS = {
 						'fetch-failed': 'Could not reach the data',
@@ -3838,7 +3865,13 @@
 								'Typical time in the lesson',
 								LT.n ? `${fmt(lessonFullPeriod)} of ${fmt(LT.n)} ${LT.n === 1 ? 'visit' : 'visits'} ran half an hour or more` : 'no visits measured yet',
 							),
-							kpi(fmt(cN('first_fetch_ok')), 'Reached real data', 'students whose own fetch worked'),
+							// Both strands: the question is how many students got to real data,
+							// not which of the two pages they were on when they did.
+							kpi(
+								fmt(cN('first_fetch_ok') + cN('builder_first_fetch_ok')),
+								'Reached real data',
+								'students whose own fetch worked',
+							),
 							kpi(
 								blockedPct > 10 ? `<span class="accent">${blockedPct}%</span>` : `${blockedPct}%`,
 								'Fetches that failed',
@@ -3846,8 +3879,17 @@
 							),
 						].join('')}</div>` +
 							`<div style="margin-top:.8rem">` +
-							cardTitled('Funnel', 'the student path, and where it loses people', barRows(funnelRows)) +
+							cardTitled('In the lesson', 'where /learn/web-development loses people', barRows(funnelRows)) +
 							`</div>` +
+							(builderRows.length
+								? `<div style="margin-top:.8rem">` +
+									cardTitled(
+										'In the builder',
+										'/learn/code-builder, counted from its own arrivals',
+										barRows(builderRows),
+									) +
+									`</div>`
+								: '') +
 							/* REACH, next to the funnel and deliberately not inside it.
 							 *
 							 * The funnel is ONE path: hub, coding kit, lesson, builder, run,
@@ -5109,50 +5151,19 @@
 					);
 				}
 
-				/* Save health and "What is going wrong" are NOT pushed into `out`.
-				 * Problems is a mode, not a section: when it is on the page shows those
-				 * two and nothing else (see the assembly at the end of render). */
-
 				/* ---- Player highlights ---- */
 				if (charSection) out.push(charSection);
 
-				/* ---- Problems mode ----
-				 * When it is on, the page IS the failure panels — everything above is
-				 * built but not shown. Two views of one dataset rather than a long page
-				 * with a tail: you are either reading how the game is going or chasing
-				 * something that broke, and the numbers are a distraction from the second.
-				 *
-				 * Everything above is still computed rather than skipped. It costs
-				 * nothing measurable (the data is already in the browser) and it keeps
-				 * one code path, so the two views can never disagree about the same
-				 * filters. PLAYERS_BY_ID stays populated too, so a modal opened before
-				 * switching still resolves. */
-				if (MODE === 'server') {
-					document.getElementById('root').innerHTML =
-						serverHealthHTML() ||
-						`<section><div class="sec-head"><h2>Server health</h2><span class="sub">no telemetry available</span></div>` +
-							card(
-								`<p class="emptynote"><code>/ServerHealth/</code> did not answer. On an instance that predates it, that is expected; ` +
-									`otherwise it is itself worth chasing, because an unreachable health endpoint and a healthy server look the same from here.</p>`,
-							) +
-							`</section>`;
-					fitDayCharts();
-					return;
-				}
-
-				if (MODE === 'problems') {
-					const panels = [healthSection, saveSection].filter(Boolean);
-					document.getElementById('root').innerHTML = panels.length
-						? panels.join('')
-						: `<section><div class="sec-head"><h2>Nothing to report</h2><span class="sub">no problem data available</span></div>` +
-							card(
-								`<p class="emptynote">Neither <code>/GameplayHealth/</code> nor <code>/SaveHealth/</code> answered, so there is nothing to show here — ` +
-									`which is not the same as nothing being wrong. An instance that predates those endpoints looks exactly like a healthy one from this page.</p>`,
-							) +
-							`</section>`;
-					fitDayCharts();
-					return;
-				}
+				/* ---- The problem panels, and Harper's own ----
+				 * Ordinary sections, tagged with the view they belong to, appended after
+				 * everything else. They used to be a MODE: two buttons that replaced the
+				 * page instead of filtering it, which meant this function had two exits
+				 * and the chips above could disagree with what was on screen about which
+				 * view you were in. One list, one exit, and the same CSS hides whatever
+				 * does not match. */
+				if (healthSection) out.push(healthSection);
+				if (saveSection) out.push(saveSection);
+				out.push(serverHealthHTML());
 
 				document.getElementById('root').innerHTML = out.join('');
 
@@ -5343,10 +5354,8 @@
 				const gen = document.getElementById('generated');
 				if (gen) gen.textContent = '';
 				document.querySelectorAll('header .vfilter').forEach((el) => (el.hidden = true));
-				['refresh', 'problems'].forEach((id) => {
-					const el = document.getElementById(id);
-					if (el) el.hidden = true;
-				});
+				const rbtn = document.getElementById('refresh');
+				if (rbtn) rbtn.hidden = true;
 				syncWhoami();
 				document.getElementById('root').innerHTML =
 					`<section class="loginwrap"><form class="card login" id="login-form">` +
@@ -5698,7 +5707,7 @@
 					render(data);
 					// After render: the badge reads the two health payloads, which only
 					// just resolved above.
-					syncProblemsButton();
+					syncViewBadges();
 					if (rows.truncated) {
 						const warn = document.createElement('div');
 						warn.className = 'err';
@@ -5731,24 +5740,6 @@
 			}
 
 			document.getElementById('refresh').addEventListener('click', load);
-
-			// The three views. Clicking the view you are already in returns you to the
-			// dashboard, so every button is its own way out.
-			function wireMode(id, mode) {
-				const el = document.getElementById(id);
-				if (!el) return;
-				el.addEventListener('click', () => {
-					setMode(MODE === mode ? 'dashboard' : mode);
-					rerender();
-					syncProblemsButton();
-					// Each switch replaces the whole page, so start it at the top rather
-					// than dropping you mid-way down a document you have not seen.
-					window.scrollTo({ top: 0, behavior: 'smooth' });
-				});
-			}
-			wireMode('problems', 'problems');
-			wireMode('serverbtn', 'server');
-			wireMode('backbtn', 'dashboard');
 
 			/* Drop a deleted record from the cached payload, both from the visible
 			 * `top` list and from the totals it contributed to — otherwise the badge
@@ -5830,7 +5821,7 @@
 					// read as the delete having silently failed.
 					forgetProblem(kind, id);
 					if (row) row.remove();
-					syncProblemsButton();
+					syncViewBadges();
 				} catch (err) {
 					btn.disabled = false;
 					if (row) {

@@ -1,10 +1,11 @@
 # Wild Willows — Privacy Policy
 
 **Effective date:** July 3, 2026
+**Last updated:** August 19, 2026
 **Developer:** Bailey Dunning
 **Contact:** wildwillowsgame@gmail.com
 
-Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This policy explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it. The hosted copy of this policy lives at https://wild.willows.harperfabric.com/privacy.html (its source of truth is `PRIVACY.md` in the game's repository).
+Wild Willows is a cozy nature-restoration game. It is designed to work fully offline, requires no account, and collects as little as possible. This policy explains exactly what data the game handles, what (if anything) leaves your device, and how to reach me about it. The canonical, always-current copy of this policy is the published page at https://wildwillows.app/privacy.html. This file is the same policy in the repository; if the two ever disagree, the published page is the one that is right.
 
 ## The short version
 
@@ -21,14 +22,31 @@ The Mac App Store build is solo-only: there is no multiplayer, no account, and n
 
 ## Gameplay statistics I collect (automatic, anonymous)
 
-While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wild.willows.harperfabric.com`) roughly every three minutes, plus once when the window is hidden or closed. Each snapshot contains:
+While the game is open and a network connection exists, it sends a snapshot of your save's gameplay statistics to my server (`wildwillows.app`) roughly every three minutes, plus once when the window is hidden or closed. Each snapshot contains:
 
 - a **random identifier** for the save slot (a UUID generated on your device — it is not derived from you, your device, or your Apple ID, and I cannot use it to identify you);
-- the **name you gave the save** (I suggest a caretaker name rather than your real name);
+- the **name you gave the save** — the game never asks for your real name and offers a random caretaker name (the dice button beside the field), but the field is free text and starts empty, so what goes in it is your choice;
 - basic **app and platform information**: app version, build timestamp, platform ("desktop" or "web"), operating system family (mac / windows / linux), and the interface language you play in (e.g. English or Spanish);
-- **gameplay counters**: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.
+- **gameplay counters**: play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers;
+- **your settings**: audio and accessibility choices — music and sound toggles and volumes, reduce motion, colorblind mode, interface font, high contrast, text size, simpler wording, interaction highlight, and light/dark theme. These live only in local storage, so they ride along here; they are what tell me whether the accessibility work is actually being used.
 
-That's the whole list. Snapshots contain no location data, no contact information, no device identifiers, and no advertising identifiers. I use them solely to understand how Wild Willows is played (for example, where players stall in the early game) and to improve it. Sending is best-effort: if you're offline, reports are simply skipped — they are not queued, and the game does not nag you to connect.
+That's the whole list. Snapshots contain no location data, no contact information, no advertising identifiers, and nothing read from your hardware — no serial number, no MAC address, no Apple ID, no device fingerprint.
+
+If you would rather send nothing, play with the device offline: the game is built to work that way and loses no feature by it. I use them solely to understand how Wild Willows is played (for example, where players stall in the early game) and to improve it. Sending is best-effort: if you're offline, reports are simply skipped — they are not queued, and the game does not nag you to connect.
+
+## Two smaller things the game sends
+
+Neither is part of the snapshot above, so they are listed separately rather than folded into it.
+
+**A ping when the app opens.** Once per launch, before any save exists, the game reports that it was opened: a random identifier generated on this installation, the platform and operating system family, the app version and edition, which store or site the copy came from, and the interface language. It measures how many people who open the game go on to start a preserve. The identifier is a random UUID the installation made for itself — not read from your hardware, not tied to any save, and gone when you delete the app. It is the only persistent identifier the game keeps.
+
+**A report when something crashes.** If the interface throws an error, the game sends the error message and its technical stack trace, both truncated, with the app version and platform, capped at a handful per session. These are the game's own internals rather than your data, but a stack trace is text, so it is named here rather than left implied.
+
+## The browser version
+
+The browser version is the free demo, and it works the opposite way round from the installed game: the save lives on my server rather than your device — the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state.
+
+The demo mints a random passcode for you and never shows it, so the only way back into a demo save is a pointer your browser keeps. Clearing site data, or moving to another browser or machine, disconnects you from that save permanently; nobody else can reach it either. The demo also deletes its own save when you reach the end of it. If my server can't be reached when the page loads, the demo falls back to running entirely in your browser, and the save is genuinely local — in which case clearing site data erases it outright.
 
 ## Feedback you choose to send
 

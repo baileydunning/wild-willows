@@ -70,7 +70,7 @@
         { "@type": "Question", "name": "Do I have to buy anything?", "acceptedAnswer": { "@type": "Answer", "text": "No. Both kits are free, and everything they need runs in a browser. The science kit uses the free demo at play.wildwillows.app, and the coding kit uses two pages on this site. The guides and worksheets are free as well." } },
         { "@type": "Question", "name": "Do students need accounts?", "acceptedAnswer": { "@type": "Answer", "text": "No accounts, no email, and no sign-in, in either kit. Nothing a student writes is sent anywhere." } },
         { "@type": "Question", "name": "Can I photocopy the worksheets?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. Print, photocopy, translate and adapt them for your own classes as much as you like. Please do not resell them." } },
-        { "@type": "Question", "name": "What data is collected about students?", "acceptedAnswer": { "@type": "Answer", "text": "Anonymous counts only, never linked to a person. No accounts, no cookies used for tracking, no third-party analytics, and no student work is transmitted. The full policy is at wildwillows.app/privacy.html." } },
+        { "@type": "Question", "name": "What data is collected about students?", "acceptedAnswer": { "@type": "Answer", "text": "It differs by kit. The coding kit records counts only, never linked to a person, and student code never leaves the browser. The science kit uses the game, which while online sends a snapshot of the save every few minutes: gameplay counters, platform and language, the settings in use, a random save ID, and the caretaker name the student typed. No world file, journal or worksheet answer is ever transmitted. Neither kit uses accounts, tracking cookies, third-party analytics or advertising identifiers. The full policy is at wildwillows.app/privacy.html." } },
         { "@type": "Question", "name": "Which kit should I use?", "acceptedAnswer": { "@type": "Answer", "text": "The science kit is grades 5-8 and takes one period: students restore a meadow and work out why each animal returned when it did. The coding kit is grades 9-12 and takes one to three periods: students build a webpage from real Wild Willows data. They share a world but neither depends on the other." } },
         { "@type": "Question", "name": "Can I get free copies of the game for my classroom?", "acceptedAnswer": { "@type": "Answer", "text": "Yes. A limited number of free promo codes are set aside for teachers, with no cost and no expiry. Email wildwillowsgame@gmail.com from your school address with your school, grade level, roughly how many machines you need, and a sentence or two about how you would like to use the game with your class." } }
       ]
@@ -196,8 +196,10 @@
   <details class="tfaq">
     <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>What data is collected about students?</span></summary>
     <div class="tfaq-body">
-      <p>Anonymous counts only, never linked to a person. No accounts, no cookies used for tracking, no third-party analytics, and no student work is transmitted at any point.</p>
-      <p>Because nothing identifies a student, a class or a school, there is no student record to request, correct or delete. If your district needs that in writing, the <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools.</p>
+      <p>It differs by kit, so here is both.</p>
+      <p><b>The coding kit</b> is counts only, never linked to a person: which chapters were reached, which errors the editor explained, roughly how long a session ran. Student code never leaves the browser.</p>
+      <p><b>The science kit</b> uses the game, and the game reports more than that. While a machine is online it sends a snapshot of the save every few minutes: gameplay counters, the platform and language, the settings in use, a random save ID, and <b>the caretaker name the student typed</b>. That last field is free text, so have the class use the dice button beside it rather than their own names. No world file, no journal and no worksheet answer is ever transmitted.</p>
+      <p>Neither kit uses accounts, cookies for tracking, third-party analytics or advertising identifiers. A snapshot can be deleted on request. If your district needs this in writing, the <a href="/privacy.html" data-track="privacy">privacy policy</a> lists every field and has a section addressed to schools.</p>
     </div>
   </details>
 
@@ -213,7 +215,7 @@
     <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Will this work on our network?</span></summary>
     <div class="tfaq-body">
       <p>Both kits need <code>wildwillows.app</code> and <code>play.wildwillows.app</code> reachable. Check that a week before you teach rather than the morning of: a filtered domain is the single most common way one of these lessons goes wrong, and it takes an IT ticket to fix.</p>
-      <p>Once installed, the game itself runs entirely offline. The coding kit needs the connection throughout, because fetching real data over a real network is the thing it teaches.</p>
+      <p>Once installed, the game plays entirely offline &mdash; a machine that never reaches the network runs the whole science lesson, and sends nothing. It does report gameplay counters when it <em>is</em> online; the <a href="/privacy.html#stats" data-track="privacy">privacy policy</a> lists what. The coding kit needs the connection throughout, because fetching real data over a real network is the thing it teaches.</p>
     </div>
   </details>
 </section>

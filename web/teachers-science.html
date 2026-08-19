@@ -653,21 +653,36 @@
   <p class="sub">The section to forward to whoever approves software on your machines.</p>
   <dl class="spec">
     <div><dt>Platforms</dt><dd>macOS, Windows and Linux for the full game, with modest hardware requirements and no graphics card needed. The free demo runs in any reasonably current browser, which usually includes school Chromebooks and managed laptops.</dd></div>
-    <div><dt>Internet</dt><dd>None required for the installed game: it runs entirely offline and saves locally to the machine. Only the browser demo needs a connection, to load the page.</dd></div>
+    <div><dt>Internet</dt><dd>Not required to play the installed game: it runs entirely offline and saves locally to the machine. When the machine <em>is</em> online, the game sends the developer a gameplay snapshot &mdash; see <a href="#privacy">what this collects</a>. The browser demo needs a connection throughout.</dd></div>
     <div><dt>Accounts</dt><dd>No account, no email, no sign-in and no roster upload. A save is just a name the student picks.</dd></div>
     <div><dt>Languages</dt><dd>Full English and Espa&ntilde;ol &mdash; interface, animal notes and field journal alike. Switchable any time from the title screen or Settings &rsaquo; Language.</dd></div>
     <div><dt>Accessibility</dt><dd>Reduce motion; three colorblind modes including monochrome; four text sizes; five font choices; fully rebindable keys; separate music and effects volume; light and dark mode; and a Simpler wording setting that plainly rewords the whole game, animal notes included. All in one Settings screen, all changeable mid-game.</dd></div>
     <div><dt>Content rating</dt><dd>Apple 9+. No combat, no failure state, nothing dies. Nothing is hunted, harmed, captured or kept.</dd></div>
     <div><dt>Ads &amp; purchases</dt><dd>None. No advertising, no in-app purchases, no loot boxes, no chat, and no user-generated content from other players.</dd></div>
-    <div><dt>Student data</dt><dd>Anonymous gameplay statistics only, never linked to identity. No tracking, no third-party analytics, nothing collected about who a student is.</dd></div>
+    <div><dt>Student data</dt><dd>Gameplay counters, the settings in use, and the caretaker name typed on the save. No accounts, no email, no cookies used for tracking, no third-party analytics, no advertising identifiers, no location. Nothing a student writes on a worksheet, and no part of their world file, ever leaves the machine. <a href="#privacy">The full list is below.</a></dd></div>
     <div><dt>Cost</dt><dd>The demo, the guide and the worksheets are free. Free classroom copies of the full game are available for the asking, below.</dd></div>
   </dl>
 </section>
 
 <section class="tsec" id="privacy">
   <h2>What this collects</h2>
-  <p>Anonymous counts and nothing else. No accounts, no email addresses, no cookies used for tracking, no third-party analytics, and nothing that identifies a student, a class or a school.</p>
-  <p>The installed game keeps a save file on the machine it runs on and sends nothing anywhere. Because nothing identifies anybody, there is no student record to request, correct or delete. The <a href="/privacy.html" data-track="privacy">privacy policy</a> has a section addressed to schools and districts.</p>
+  <p>Stated plainly, because a page that says &ldquo;nothing&rdquo; and a privacy policy that says otherwise is worse than either one on its own.</p>
+
+  <h3>The game plays offline. It reports while online.</h3>
+  <p>The installed game needs no connection to run: its data is bundled with the app, the save is a file on the machine, and a machine that never goes online plays the whole lesson and sends nothing. That is the offline claim, and it is the only one.</p>
+  <p>When the machine <em>is</em> online, the game sends the developer one snapshot of that save roughly every three minutes, and once more when the window is closed. It contains:</p>
+  <ul>
+    <li><b>Gameplay counters</b> &mdash; play time, sessions, resources collected, items crafted, plants planted, animals returned, biomes unlocked, achievements earned.</li>
+    <li><b>The machine</b> &mdash; app version, platform, operating system family, and the interface language.</li>
+    <li><b>The settings in use</b> &mdash; audio and accessibility choices, which is how we know whether the accessibility work is worth continuing.</li>
+    <li><b>A random save ID</b>, generated on the machine and tied to nothing else.</li>
+    <li><b>The caretaker name the student typed when they made the save.</b></li>
+  </ul>
+  <p>That last one is the field worth your attention, and the reason this section is not a one-liner: it is free text, so a student who types their own name has sent their own name. <b>Tell the class to use the dice button beside the name field, or a nature name.</b> The name cannot be changed afterward, but any snapshot can be deleted on request: email <a href="mailto:wildwillowsgame@gmail.com?subject=Delete%20a%20snapshot">wildwillowsgame@gmail.com</a> with the caretaker name on it.</p>
+
+  <h3>What is never sent</h3>
+  <p>No accounts, no email addresses, no sign-in, no roster. No cookies used for tracking, no third-party analytics, no advertising identifiers, no location data. <b>No world file, no journal, and nothing a student writes on a worksheet.</b> Nothing goes anywhere except the developer's own server, over HTTPS, and none of it is sold, shared or combined with anything else.</p>
+  <p>The <a href="/privacy.html" data-track="privacy">privacy policy</a> lists every field verbatim and has a section addressed to schools and districts.</p>
 </section>
 
 <section class="tsec">
@@ -680,7 +695,7 @@
 
   <details class="tfaq">
     <summary><svg class="tfaq-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 5l7 7-7 7"/></svg><span>Will students&rsquo; work survive to the next class period?</span></summary>
-    <div class="tfaq-body"><p>In the demo, not reliably. Plan it as a single session and have students carry the evidence out on the worksheets rather than in the save file. The installed full game saves locally to the machine, so a class set of copies is what you want if you would rather run it over several periods.</p></div>
+    <div class="tfaq-body"><p>In the demo, not reliably, and it is worth knowing why. A demo save lives on our server, but the demo has no password &mdash; the only way back into it is a pointer kept in that browser on that machine. Clear the site data, switch to a different Chromebook, or hit the demo's time limit, and the save is gone for good. Plan it as a single session and have students carry the evidence out on the worksheets rather than in the save file. The installed full game saves to the machine itself, so a class set of copies is what you want if you would rather run it over several periods.</p></div>
   </details>
 
   <details class="tfaq">

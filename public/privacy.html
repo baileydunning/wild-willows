@@ -473,7 +473,7 @@ section[id]{scroll-margin-top:66px}
       <span class="chip">Nothing sold or shared</span>
       <span class="chip">Works offline</span>
     </div>
-    <p class="updated">Effective 3 July 2026 &middot; last updated 16 August 2026 &middot; Bailey Dunning &middot; <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
+    <p class="updated">Effective 3 July 2026 &middot; last updated 19 August 2026 &middot; Bailey Dunning &middot; <a href="mailto:wildwillowsgame@gmail.com">wildwillowsgame@gmail.com</a></p>
   </div>
 </header>
 
@@ -485,10 +485,10 @@ section[id]{scroll-margin-top:66px}
   <div class="g2">
     <div class="card">
       <h3>Your world stays yours</h3>
-      <p>Saves are files on your own device. No account, no sign-in, no ads, no tracking, no third-party analytics.</p>
+      <p>Saves are files on your own device, and the world itself is never uploaded. No account, no sign-in, no ads, no tracking, no third-party analytics. <span class="sub">The browser demo is the exception &mdash; see <a href="#web">the browser version</a>.</span></p>
     </div>
     <div class="card">
-      <h3>Anonymous play statistics</h3>
+      <h3>Play statistics, while you're online</h3>
       <p>When you're online, the game periodically sends a snapshot of counters &mdash; play time, things crafted, animals returned &mdash; tagged with a random per-save ID.</p>
     </div>
     <div class="card">
@@ -523,15 +523,27 @@ section[id]{scroll-margin-top:66px}
     <div class="row"><dt>App &amp; platform</dt><dd>App version, build timestamp, edition and release channel, platform (&ldquo;desktop&rdquo; or &ldquo;web&rdquo;), operating system family (mac / windows / linux), and the interface language you play in.</dd></div>
     <div class="row"><dt>Gameplay counters</dt><dd>Play time, number of sessions, resources collected, items crafted, objects placed, plants planted, animals observed and returned, biomes unlocked, achievements earned, and similar progression numbers.</dd></div>
     <div class="row"><dt>Your settings</dt><dd>Audio and accessibility choices &mdash; music and sound toggles and volumes, reduce motion, colorblind mode, interface font, high contrast, text size, simpler wording, interaction highlight, and light/dark theme. These live only in local storage, so they ride along here; they are what tell me whether the accessibility work is actually being used.</dd></div>
-    <div class="row"><dt>Not included, ever</dt><dd>No location data. No contact information. No device identifiers. No advertising identifiers. No real name, unless you typed one into the save name yourself.</dd></div>
+    <div class="row"><dt>Not included, ever</dt><dd>No location data. No contact information. No advertising identifiers, and nothing read from your hardware &mdash; no serial number, no MAC address, no Apple&nbsp;ID, no device fingerprint. No real name, unless you typed one into the save name yourself.</dd></div>
   </dl>
   <div class="callout">
     <p><b>About that save name.</b> It's the one human-written string in an otherwise numeric payload, so it deserves saying plainly: it is sent, and it is the <em>only</em> part of an automatic snapshot that came from you. Everything beside it is a random ID, a version string, or a count.</p>
-    <p>The game suggests a caretaker name rather than asking for your real one, and nothing in the snapshot ties that name back to you, your device, or your Apple&nbsp;ID. It is set once, when you create the preserve, and there is no way to change it afterwards &mdash; so pick something you're happy for me to see. If a name you already used bothers you, <a href="#delete">email me and I'll delete that row</a>.</p>
+    <p>The game never asks for your real name, and there's a dice button beside the field that fills in a random caretaker name for you &mdash; but the field itself is free text and starts empty, so what goes in it is your choice. Nothing in the snapshot ties that name back to you, your device, or your Apple&nbsp;ID. It is set once, when you create the preserve, and there is no way to change it afterwards &mdash; so pick something you're happy for me to see. If a name you already used bothers you, <a href="#delete">email me and I'll delete that row</a>.</p>
   </div>
   <div class="callout" style="background:var(--panel);border-color:var(--panel-edge)">
     <p>Sending is best-effort. If you're offline the report is simply skipped &mdash; nothing is queued, and the game never nags you to connect. I use these snapshots solely to understand how Wild Willows is played and to improve it.</p>
+    <p>If you would rather send nothing, play with the device offline: the game is built to work that way and loses no feature by it.</p>
   </div>
+</div></section>
+
+<section class="band" id="other-pings"><div class="wrap">
+  <div class="head">
+    <h2>Two smaller things the game sends</h2>
+    <p>Neither is part of the snapshot above, so they get their own heading rather than a footnote.</p>
+  </div>
+  <dl class="spec">
+    <div class="row"><dt>A ping when the app opens</dt><dd>Once per launch, before any save exists, the game reports that it was opened: a random identifier generated on this installation, the platform and operating system family, the app version and edition, where the copy came from (the store or site you downloaded it from), and the interface language. It tells me how many people who open the game go on to start a preserve, which is the one number that says whether the opening works. <b>The identifier is a random UUID this installation made for itself</b> &mdash; not read from your hardware, not tied to any save, and gone when you delete the app. It is the only persistent identifier the game keeps, and it is why the list above says &ldquo;nothing read from your hardware&rdquo; rather than &ldquo;no identifiers&rdquo;.</dd></div>
+    <div class="row"><dt>A report when something crashes</dt><dd>If the interface throws an error, the game sends the error message and the technical stack trace that goes with it, both truncated, along with the app version and platform. It is capped at a handful per session. These are the game's own internals, not your data &mdash; but a stack trace is text, so it is named here rather than left implied.</dd></div>
+  </dl>
 </div></section>
 
 <section class="band" id="feedback"><div class="wrap">
@@ -588,7 +600,13 @@ section[id]{scroll-margin-top:66px}
 <section class="band" id="web"><div class="wrap">
   <div class="head"><h2>The browser version</h2></div>
   <div class="prose">
-    <p>If you play the browser version, your save lives on my server instead of your device: the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state.</p>
+    <p>The browser version is the free demo at <a href="https://play.wildwillows.app/">play.wildwillows.app</a>, and it works the opposite way round from the installed game: your save lives on my server instead of your device &mdash; the save name, a passcode (stored only as a salted hash, never in plaintext), your caretaker's appearance, and your world state. Play in the browser and your world is on my server; install the game and it never leaves your machine.</p>
+    <p>Two consequences of that, worth stating plainly:</p>
+    <ul>
+      <li><b>The demo has no passcode you ever see.</b> It mints a random one for you so the save can exist at all, and never shows it. The only way back into a demo save is a pointer your browser keeps, which means <b>clearing site data, or moving to another browser or machine, disconnects you from it permanently.</b> It also means nobody else can reach it.</li>
+      <li><b>The demo deletes its own save</b> when you reach the end of it.</li>
+    </ul>
+    <p>If the server can't be reached when the page loads, the demo falls back to running entirely inside your browser, and the save is genuinely local to it &mdash; in which case clearing site data erases it outright.</p>
     <p>Everything else in this policy applies identically &mdash; no ads, no tracking, nothing sold or shared, and the same deletion route.</p>
   </div>
 </div></section>

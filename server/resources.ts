@@ -13174,8 +13174,14 @@ const LESSON_EXACT = new Set([
 	// funnel
 	'lesson_start',
 	'builder_open',
+	/* Two strands, because both pages count into one set of totals. The bare
+	   names are the LESSON's; the builder files the same two runner events under
+	   its own, so each strand nests inside its own entry point instead of a
+	   merged `first_run` outrunning a `view_lesson` that only counts one page. */
 	'first_run',
 	'first_fetch_ok',
+	'builder_first_run',
+	'builder_first_fetch_ok',
 	'challenge_chosen',
 	'download',
 	// lesson interactions
@@ -13468,23 +13474,33 @@ async function buildLessonStats(): Promise<any> {
 	 * drop-off curve it says where the lesson loses people, and every other
 	 * counter here is context for it. */
 	const step = (k: string) => totals[k] || 0;
+	/* THE STUDENT'S PATH, as two strands rather than one list.
+	 *
+	 * It used to start at the teachers hub and the coding kit page. Those are a
+	 * TEACHER deciding which kit to run, days earlier and on a different device,
+	 * and putting them at the top made every percentage below them a comparison
+	 * between two unrelated populations — a lesson opened by thirty students read
+	 * as "217% of the previous step" because six teachers had looked at the kit
+	 * page. Both are still reported: the hub split under the landing page, the kit
+	 * pages in reach. They are just not steps anybody drops out of.
+	 *
+	 * The same mistake survived one level down. The lesson and the builder are two
+	 * ENTRY POINTS, not two steps: the nav offers the builder from every page, so
+	 * a visit can start there, and the run and fetch counters were the sum of both
+	 * pages sitting underneath a `view_lesson` that counted only one of them. That
+	 * is how a step reached 400% of the one above it. Each strand now starts at its
+	 * own page and every step below is a strict subset of the one above.
+	 *
+	 * `download` belongs to the builder strand because Download only exists there. */
 	const funnel = [
-		/* THE STUDENT'S PATH, and only that.
-		 *
-		 * It used to start at the teachers hub and the coding kit page. Those are a
-		 * TEACHER deciding which kit to run, days earlier and on a different device,
-		 * and putting them at the top made every percentage below them a comparison
-		 * between two unrelated populations — a lesson opened by thirty students
-		 * read as "217% of the previous step" because six teachers had looked at the
-		 * kit page. Both are still reported: the hub split under the landing page,
-		 * the kit pages in reach. They are just not steps anybody drops out of.
-		 *
-		 * What is left is close to a real funnel. Everything from the builder down is
-		 * a strict subset of the step above it. */
-		{ id: 'lesson', label: 'Lesson opened', n: step('view_lesson') },
-		{ id: 'builder', label: 'Builder opened', n: step('builder_open') },
+		{ id: 'lesson', label: 'Opened the lesson', n: step('view_lesson') },
 		{ id: 'run', label: 'Ran their code', n: step('first_run') },
 		{ id: 'fetch', label: 'Fetched the data', n: step('first_fetch_ok') },
+	];
+	const builderFunnel = [
+		{ id: 'builder', label: 'Opened the builder', n: step('builder_open') },
+		{ id: 'builder_run', label: 'Ran their code', n: step('builder_first_run') },
+		{ id: 'builder_fetch', label: 'Fetched the data', n: step('builder_first_fetch_ok') },
 		{ id: 'download', label: 'Downloaded a page', n: step('download') },
 	];
 
@@ -13630,6 +13646,7 @@ async function buildLessonStats(): Promise<any> {
 		sessions,
 		totals,
 		funnel,
+		builderFunnel,
 		reach,
 		arrivals,
 		time,

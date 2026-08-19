@@ -721,8 +721,20 @@
 		}
 	}
 
+	/* The runner's two funnel steps arrive under their generic names, because the
+	 * component is shared and knows nothing about which page it is on. The builder
+	 * files them under its OWN names.
+	 *
+	 * Both pages count into one set of totals, so leaving them merged made the
+	 * classroom funnel unreadable: `first_run` would be the sum of the lesson's
+	 * runs and the builder's, sitting under a `view_lesson` that counts only one
+	 * of the two pages, and anybody arriving straight at /learn/code-builder
+	 * pushed the step above 100% of the one before it. Split, each strand is
+	 * strictly nested inside its own entry point. */
+	var RUNNER_STEPS = { first_run: 'builder_first_run', first_fetch_ok: 'builder_first_fetch_ok' };
 	document.addEventListener('ww:metric', function (e) {
-		if (e && e.detail && e.detail.key) bump(e.detail.key);
+		if (!e || !e.detail || !e.detail.key) return;
+		bump(RUNNER_STEPS[e.detail.key] || e.detail.key);
 	});
 	/* A tab switch is not the end of a session — the student is looking something
 	 * up and will be back. Send what we have, keep the clock running. */

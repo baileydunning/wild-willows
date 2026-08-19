@@ -555,6 +555,7 @@
 					out.appendChild(stat(r.cached ? 'cached' : r.ms + ' ms', 'took'));
 					out.appendChild(stat(r.cached ? 'n/a' : Math.round(r.bytes / 1024) + ' KB', 'size'));
 					out.appendChild(stat(Object.keys(r.data).length, 'top-level keys'));
+					showCacheNote(probe, r.cached);
 					if (tree) renderTree(tree, r.data, 1);
 				})
 				.catch(function () {
@@ -565,6 +566,39 @@
 						'The request did not get through. That is usually the school network blocking it rather than anything on this page. Try again, and tell your teacher if it keeps happening.';
 				});
 		});
+	}
+
+	/* WHY THREE OF THE FOUR BOXES SAY "n/a" ON THE SECOND PRESS.
+	 *
+	 * The first press really does go to the network; every press after it reads
+	 * the copy already in the page, so there is no status code, no time and no
+	 * size to report. Left unexplained that reads as the demo breaking, and a
+	 * student who presses a button twice and gets a worse answer the second time
+	 * learns the wrong lesson. It is also the one moment in the chapter where
+	 * caching is not an abstraction: they just caused one.
+	 *
+	 * The standing note is swapped out rather than added to, because it talks
+	 * about numbers that are not on screen on a cached run. */
+	function showCacheNote(probe, cached) {
+		/* :not(.probe-cache) is load-bearing. The cache note wears .probe-note too,
+		 * for the styling, and it is inserted ABOVE the standing one — so a bare
+		 * '.probe-note' matches the cache note from the second call onward, and the
+		 * two lines below would then show and hide the same element. */
+		var standing = $('.probe-note:not(.probe-cache)', probe);
+		var note = $('.probe-cache', probe);
+		if (!note) {
+			note = el('p', 'probe-note probe-cache');
+			note.innerHTML =
+				'<b>That one did not leave your computer.</b> The page already had the answer from the first press, so it used its copy instead of asking again. ' +
+				'Keeping a copy of an answer so you do not have to ask for it again is called <b>caching</b>, and it is why there is no status, time or size this round: nothing crossed the network. ' +
+				'It is worth doing because asking again is slow, costs whoever runs the server, and can fail. This answer is about half a megabyte, is the same for everybody, and only changes when the game ships an update, ' +
+				'so a class of thirty asking for it should not mean thirty trips. Your browser caches, and so does Wild Willows, in ' +
+				'<a href="/developers/api#caching-explained" target="_blank" rel="noopener">a few different places at once</a>. Reload the page if you want to watch a real request again.';
+			if (standing && standing.parentNode) standing.parentNode.insertBefore(note, standing);
+			else probe.appendChild(note);
+		}
+		note.hidden = !cached;
+		if (standing) standing.hidden = !!cached;
 	}
 
 	function stat(value, label) {

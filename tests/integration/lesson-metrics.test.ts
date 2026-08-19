@@ -164,17 +164,54 @@ describe('LessonStats', () => {
 			view_hub: 10,
 			view_coding: 6,
 			view_lesson: 5,
-			builder_open: 4,
 			first_run: 3,
 			first_fetch_ok: 2,
-			download: 1,
 		});
 		const out = await w.get<any>('LessonStats');
 		// The hub and the kit pages are NOT steps: they are a teacher choosing a
 		// kit, not a student dropping out of one. They are reported in `reach` and
 		// under the landing page instead. What is left is the student's own path.
-		expect(out.funnel.map((f: any) => f.id)).toEqual(['lesson', 'builder', 'run', 'fetch', 'download']);
-		expect(out.funnel.map((f: any) => f.n)).toEqual([5, 4, 3, 2, 1]);
+		expect(out.funnel.map((f: any) => f.id)).toEqual(['lesson', 'run', 'fetch']);
+		expect(out.funnel.map((f: any) => f.n)).toEqual([5, 3, 2]);
+	});
+
+	it('keeps the builder on a strand of its own, counted from its own arrivals', async () => {
+		// The builder is a second ENTRY POINT, not a step below the lesson: it is in
+		// the nav on every page, so a visit can start there. While the two shared one
+		// list and one set of run counters, a step could report more people than the
+		// step above it — 400% of the previous, off a single real visit.
+		await send({
+			view_lesson: 5,
+			first_run: 3,
+			first_fetch_ok: 2,
+			builder_open: 4,
+			builder_first_run: 3,
+			builder_first_fetch_ok: 1,
+			download: 1,
+		});
+		const out = await w.get<any>('LessonStats');
+		expect(out.builderFunnel.map((f: any) => f.id)).toEqual(['builder', 'builder_run', 'builder_fetch', 'download']);
+		expect(out.builderFunnel.map((f: any) => f.n)).toEqual([4, 3, 1, 1]);
+		// Neither strand borrows a counter the other page writes.
+		expect(out.funnel.map((f: any) => f.n)).toEqual([5, 3, 2]);
+	});
+
+	it('never lets a step outrun the step above it', async () => {
+		// The regression, stated as the property it broke. Both strands are read as
+		// drop-off curves, and a curve that goes up is not one.
+		await send({
+			view_lesson: 5,
+			first_run: 3,
+			first_fetch_ok: 2,
+			builder_open: 4,
+			builder_first_run: 2,
+			builder_first_fetch_ok: 2,
+			download: 1,
+		});
+		const out = await w.get<any>('LessonStats');
+		for (const strand of [out.funnel, out.builderFunnel])
+			for (let i = 1; i < strand.length; i++)
+				expect([strand[i].id, strand[i].n <= strand[i - 1].n]).toEqual([strand[i].id, true]);
 	});
 
 	it('ranks errors so the worst one is the next thing to explain', async () => {
