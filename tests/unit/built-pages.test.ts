@@ -596,8 +596,13 @@ describe('the dashboard', () => {
 		expect(html).toContain('<title>Wild Willows</title>');
 		expect(html).not.toContain('<title>Wild Willows — Metrics Dashboard</title>');
 		expect(html).toContain('content="noindex, nofollow"');
-		for (const sel of ['body.signed-out .nav', 'body.signed-out header.top', 'body.signed-out .views'])
-			expect(html, sel).toContain(sel);
+		for (const sel of ['body.signed-out header.top', 'body.signed-out .views']) expect(html, sel).toContain(sel);
+		// The site nav used to be here and hidden when signed out. It is gone
+		// outright now — an internal view reached by URL had a menu bar to places
+		// its one reader was not going — which is a stronger guarantee than hiding
+		// it, so assert absence rather than a `display: none` rule that no longer
+		// has anything to hide.
+		expect(html).not.toContain('<nav');
 		// Concealed at boot, not after the first auth check: a flash of the real
 		// header is the same disclosure, just briefer.
 		expect(html).toContain("document.body.classList.add('signed-out')");

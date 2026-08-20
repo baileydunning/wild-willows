@@ -36,9 +36,11 @@
 			
 			   The dashboard's own rules come AFTER the include and win every tie —
 			   which matters for the five selectors both sheets define (.wrap, .brand,
-			   body, html, section). The three this page wanted most — .btn, .chip and
-			   .nav — the dashboard never defined at all, so they arrive for free and
-			   the view tabs are real site chips.
+			   body, html, section). The two this page wanted most — .btn and .chip —
+			   the dashboard never defined at all, so they arrive for free and the view
+			   tabs are real site chips. (There is deliberately no site nav here: this
+			   is an internal view reached by URL, and a menu bar across the top of it
+			   was navigation to places its one reader was not going.)
 			
 			   THREE OF THE OLD VALUES FAILED AA on the site's creams, measured:
 			     --muted  #6b7263 -> 4.29 on --paper, 3.92 on --paper-deep
@@ -146,7 +148,6 @@
 			   Signed out, the page is a wordmark-free form on a cream background and
 			   nothing else. The title is neutral in the markup too; the real one is
 			   set from script once there is a session. */
-			body.signed-out .nav,
 			body.signed-out header.top,
 			body.signed-out .views,
 			body.signed-out .meta,
@@ -190,13 +191,6 @@
 				background: var(--card);
 				border: 1.5px solid var(--rule);
 				border-radius: var(--radius);
-			}
-
-			/* The site nav, which this page did not have. Full-bleed like the rest of
-			   the dashboard rather than site-core's centered 1080px wrap. */
-			.nav .wrap {
-				max-width: 1180px;
-				padding: 0 clamp(0.9rem, 3vw, 2rem);
 			}
 
 			/* ---- header ---- */
@@ -243,10 +237,16 @@
 				color: var(--muted);
 				font-size: 0.82rem;
 			}
+			/* Right-aligned, same edge as the filters below it: who you are and when
+			   the numbers were fetched are status, not content, and status belongs
+			   out of the way of the left-hand reading edge the panels start on. */
 			.metaid {
 				display: flex;
 				flex-direction: column;
+				align-items: flex-end;
+				text-align: right;
 				gap: 0.1rem;
+				margin-left: auto;
 			}
 			/* Right-aligned and allowed to wrap onto its own lines: on a narrow window
 			   the filters take the width they need and the identity stays put, rather
@@ -1732,25 +1732,6 @@
 		/>
 	</head>
 	<body>
-		<nav class="nav">
-				<div class="wrap">
-					<a class="brand" href="/"
-						><svg viewBox="0 0 24 24" aria-hidden="true">
-							<circle cx="12" cy="12" r="11" fill="#4a7c59" />
-							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
-						> Wild Willows</a
-					>
-					<!-- Deliberately short. This is an internal page reached by URL, not
-					     something anyone navigates TO from the site, so the nav here is a
-					     way back out rather than a menu. The teacher pages are not a way
-					     out of the dashboard for the one person who can open it. -->
-					<div class="links">
-						<a class="hide-sm" href="/">The game</a>
-						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
-					</div>
-				</div>
-		</nav>
-
 		<div class="wrap">
 			<header class="top">
 				<div class="brand">
