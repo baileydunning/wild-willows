@@ -122,8 +122,13 @@ figure.win{max-width:42rem;margin:1.8rem auto 0}
 /* prose and a photo, side by side. The photo column is deliberately narrow:
    these are portrait phone pictures, and at full measure one of them is a
    screen of its own and shoves the next paragraph out of sight. Alternating
-   which side it sits on keeps the page from listing to one edge. */
-.withphoto{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:2rem;align-items:start;max-width:54rem;margin:0 auto}
+   which side it sits on keeps the page from listing to one edge.
+
+   Centered rather than top-aligned: the text beside each photo is two short
+   paragraphs against a tall portrait, so aligning to the top left the photo
+   hanging well below the last line. Moot below 800px, where this collapses to
+   one column. */
+.withphoto{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:2rem;align-items:center;max-width:54rem;margin:0 auto}
 .withphoto .prose{margin:0;max-width:none}
 .withphoto.flip{grid-template-columns:15rem minmax(0,1fr)}
 .withphoto.flip .prose{order:2}
@@ -251,7 +256,7 @@ section[id]{scroll-margin-top:66px}
   </div>
   <div class="withphoto flip">
   <div class="prose">
-    <p>Willow is my Great Pyrenees and Border Collie mix, and yes, Wild Willows is named after her. She's also a certified therapy dog, and for the past four years we've volunteered together at Tennyson Center for Children.</p>
+    <p>Willow is my Great Pyrenees and Border Collie mix, and yes, Wild Willows is partly named after her. She's also a certified therapy dog, and for the past four years we've volunteered together at Tennyson Center for Children.</p>
     <p>She has been with me through a lot of different chapters of my life and has spent an unreasonable number of hours sleeping next to me and barking at squirrels while I work on this game.</p>
   </div>
   <figure class="photo">
