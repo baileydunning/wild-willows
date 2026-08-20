@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.3.10",
+	"version": "0.3.11",
 	"private": true,
 	"license": "UNLICENSED",
 	"description": "Wild Willows — a cozy nature-restoration life sim",
@@ -22,7 +22,9 @@
 		"check": "tsc --noEmit && npm run i18n:check",
 		"format": "prettier --write \"src/**/*.{ts,tsx}\" \"server/**/*.ts\" \"scripts/**/*.mjs\" \"electron/**/*.js\" \"tests/**/*.ts\"",
 		"format:check": "prettier --check \"src/**/*.{ts,tsx}\" \"server/**/*.ts\" \"scripts/**/*.mjs\" \"electron/**/*.js\" \"tests/**/*.ts\"",
-		"lint": "npm run format:check",
+		"lint": "npm run lint:code && npm run format:check",
+		"lint:code": "oxlint --type-aware",
+		"lint:code:fix": "oxlint --type-aware --fix",
 		"i18n:check": "node scripts/check-i18n.mjs",
 		"i18n:check:strict": "node scripts/check-i18n.mjs --strict",
 		"i18n:test": "vitest run --project unit tests/unit/i18n.test.ts tests/unit/i18n-es.test.ts tests/unit/simple-text.test.ts",
@@ -48,6 +50,7 @@
 		"test:e2e:website": "playwright test --config playwright.website.config.ts"
 	},
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only). NOTE (electron-builder 26+): mac.notarize is now a boolean — the notary team ID JB4CT3MZ6L moved to the APPLE_TEAM_ID env var, which CI must set alongside APPLE_ID and APPLE_APP_SPECIFIC_PASSWORD.",
+	"lintComment": "Two linters, on purpose. Prettier owns formatting; oxlint owns semantics (.oxlintrc.json). It is NOT ESLint because this repo runs typescript@7 — the native Go compiler, which publishes no JS compiler API — and @typescript-eslint/typescript-estree throws on import against it (ts.Extension is undefined) with a peer range of <6.1.0. oxlint has its own parser and takes type information from oxlint-tsgolint, which wraps the same typescript-go engine as tsc 7, so `--type-aware` rules see the types tsc actually sees. oxlint-tsgolint is version-coupled to the TypeScript it wraps (7.0.2001 -> 7.0.2): bump it WITH typescript, not independently. Revisit ESLint when typescript-eslint supports the TS 7 API.",
 	"harperComment": "`harper` is pinned EXACTLY (no caret) to the version the hosted cluster runs — 5.1.26. It is a devDependency, but it is not a normal one: tests/integration/harness.ts drives the real built resources.js through harper's own msgpackr copy, so the record encoding these tests exercise has to be the encoding production uses, and `harper dev .` is only a useful local server if it behaves like the deployed one. A caret broke exactly that. `^5.1.15` silently resolved to 5.2.2, which meant local dev and CI were testing against a Harper the cluster does not run — and 5.2 deprecates allowRead/allowUpdate/allowCreate/allowDelete, which is the whole authorization model in server/resources.ts (PublicEndpoint and DashboardEndpoint). Raise this pin when the cluster is upgraded, not before, and read the 5.2 notes first: the deprecated hooks fail OPEN, and tests/integration/metrics-split.test.ts asserts on allowRead() directly rather than through dispatch, so it would stay green while the dashboard endpoints stopped being protected.",
 	"comment": "v1 ships SOLO-ONLY on itch.io: solo runs the game logic in-app against local save files (fully offline), so the desktop app needs no server and no network. `steamworks.js` is the only runtime dependency electron-builder must package (native, desktop-only, asarUnpacked). `harper` is a DEV-ONLY tool now (local web dev via `harper dev .`, and the integration harness) — it is intentionally NOT a production dependency so electron-builder doesn't bundle its heavy/native tree into every platform's app (which also de-risks the cross-platform CI builds). The hosted Harper still backs the browser demo (DEMO_WEB_BACKEND = 'harper' in src/demo.ts), but the desktop app never talks to it to play.",
 	"dependencies": {
@@ -65,6 +68,8 @@
 		"esbuild": "^0.28.1",
 		"harper": "5.1.26",
 		"jsdom": "^30.0.1",
+		"oxlint": "^1.79.0",
+		"oxlint-tsgolint": "^7.0.2001",
 		"phaser": "^3.90.0",
 		"prettier": "^3.9.5",
 		"react": "^18.3.1",

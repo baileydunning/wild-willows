@@ -13,6 +13,7 @@ const { app, BrowserWindow, shell, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const steam = require('./steam');
+const { createSaveStore } = require('./saves');
 const metricsSync = require('./metrics-sync');
 
 // Desktop app can allow autoplay so opening music starts without a click.
@@ -41,42 +42,120 @@ function webIndexPath() {
 }
 
 // --- solo save files: userData/saves/<slotId>.json ---
-function savesDir() {
-	const dir = path.join(app.getPath('userData'), 'saves');
-	fs.mkdirSync(dir, { recursive: true });
-	return dir;
+//
+// Progress is the highest-value state this app holds and, for solo, the ONLY
+// copy — so writes go through electron/saves.js, which writes to a temp file,
+// fsyncs it, rotates the previous save to `.bak`, and renames into place. See
+// that file's header for the crash-window analysis. Reads fall back to `.tmp`
+// then `.bak` when the primary file will not parse.
+
+let saveStore = null;
+function saves() {
+	if (!saveStore) {
+		saveStore = createSaveStore(path.join(app.getPath('userData'), 'saves'), {
+			log: (...args) => console.warn(...args),
+			// Tell the renderer a save came back from a backup. It forwards this to
+			// the hosted instance (src/solo/saveIncident.ts) so desktop corruption is
+			// visible on /dashboard instead of being invisible by construction.
+			onRecover: (info) => {
+				if (mainWindow && !mainWindow.isDestroyed()) mainWindow.webContents.send('saves:recovered', info);
+			},
+		});
+	}
+	return saveStore;
 }
-const slotFile = (slotId) => path.join(savesDir(), `${String(slotId).replace(/[^a-zA-Z0-9_-]/g, '')}.json`);
 
 function registerSaveIpc() {
-	ipcMain.handle('saves:list', async () => {
-		try {
-			return fs
-				.readdirSync(savesDir())
-				.filter((f) => f.endsWith('.json'))
-				.map((f) => f.slice(0, -5));
-		} catch {
-			return [];
-		}
-	});
-	ipcMain.handle('saves:read', async (_e, slotId) => {
-		try {
-			return fs.readFileSync(slotFile(slotId), 'utf8');
-		} catch {
-			return null;
-		}
-	});
+	ipcMain.handle('saves:list', async () => saves().listSlots());
+	ipcMain.handle('saves:read', async (_e, slotId) => saves().readSlot(slotId));
 	ipcMain.handle('saves:write', async (_e, slotId, contents) => {
-		fs.writeFileSync(slotFile(slotId), String(contents), 'utf8');
+		saves().writeSlot(slotId, contents);
 	});
-	ipcMain.handle('saves:remove', async (_e, slotId) => {
-		try {
-			fs.unlinkSync(slotFile(slotId));
-		} catch {
-			/* already gone */
+	ipcMain.handle('saves:remove', async (_e, slotId) => saves().removeSlot(slotId));
+}
+
+// --- navigation lockdown (defense in depth) ---
+//
+// This window only ever shows the BUNDLED web build loaded over file://. It has
+// no in-app browsing, no OAuth popup, no embedded storefront — so every
+// navigation to anywhere else is, by definition, something going wrong: an
+// injected <a target>, a compromised third-party asset, a crafted save that
+// smuggles markup into the DOM. contextIsolation and nodeIntegration:false
+// already stand between a hostile page and Node, but they are one layer. If a
+// remote origin can never be reached in the first place, that layer never has to
+// hold.
+//
+// Applied via app.on('web-contents-created') rather than to mainWindow alone so
+// it also covers anything created later — a child window, a devtools extension
+// page, a <webview> someone adds in a year's time.
+const ALLOWED_PROTOCOLS = new Set(['file:', 'devtools:']);
+
+function isInternalUrl(rawUrl) {
+	try {
+		return ALLOWED_PROTOCOLS.has(new URL(rawUrl).protocol);
+	} catch {
+		return false; // unparseable is not internal
+	}
+}
+
+function hardenContents(contents) {
+	// Top-level navigation: allow file:// (our own app), send http/https to the
+	// system browser, and drop everything else (javascript:, data:, blob:, …).
+	contents.on('will-navigate', (event, url) => {
+		if (isInternalUrl(url)) return;
+		event.preventDefault();
+		if (/^https?:$/i.test(safeProtocol(url))) void shell.openExternal(url);
+		else console.warn('[main] blocked navigation to', url);
+	});
+
+	// Same rule for in-page redirects that skip will-navigate.
+	contents.on('will-redirect', (event, url) => {
+		if (!isInternalUrl(url)) {
+			event.preventDefault();
+			console.warn('[main] blocked redirect to', url);
 		}
 	});
+
+	// window.open / target=_blank. Deny by DEFAULT: the previous handler allowed
+	// anything non-http, which included javascript: and data: URLs.
+	contents.setWindowOpenHandler(({ url }) => {
+		if (/^https?:$/i.test(safeProtocol(url))) {
+			void shell.openExternal(url);
+			return { action: 'deny' };
+		}
+		console.warn('[main] blocked window.open to', url);
+		return { action: 'deny' };
+	});
+
+	// The app embeds nothing. A <webview> would be a second renderer with its own
+	// preload — refuse outright, and strip the preload in case a future Electron
+	// changes when preventDefault takes effect.
+	contents.on('will-attach-webview', (event, webPreferences) => {
+		delete webPreferences.preload;
+		webPreferences.nodeIntegration = false;
+		event.preventDefault();
+	});
+
+	// Nothing here needs camera, mic, location, notifications, clipboard reads or
+	// any other gated capability — the game is a canvas and some DOM. Refusing all
+	// of them means a hostile page cannot even raise the prompt.
+	const session = contents.session;
+	if (session) {
+		session.setPermissionRequestHandler((_wc, _permission, callback) => callback(false));
+		session.setPermissionCheckHandler(() => false);
+	}
 }
+
+/** Protocol of a URL, or '' when it will not parse. */
+function safeProtocol(rawUrl) {
+	try {
+		return new URL(rawUrl).protocol;
+	} catch {
+		return '';
+	}
+}
+
+app.on('web-contents-created', (_event, contents) => hardenContents(contents));
 
 function createWindow() {
 	mainWindow = new BrowserWindow({
@@ -96,14 +175,8 @@ function createWindow() {
 
 	mainWindow.once('ready-to-show', () => mainWindow.show());
 
-	// Open external (http/https) links in the system browser; keep file:// in-app.
-	mainWindow.webContents.setWindowOpenHandler(({ url }) => {
-		if (/^https?:/i.test(url)) {
-			shell.openExternal(url);
-			return { action: 'deny' };
-		}
-		return { action: 'allow' };
-	});
+	// External links, navigation and permissions are handled by hardenContents(),
+	// wired to every web contents via app.on('web-contents-created') above.
 
 	mainWindow.on('closed', () => {
 		mainWindow = null;
@@ -136,7 +209,10 @@ async function boot() {
 	}
 }
 
-app.whenReady().then(boot);
+void app.whenReady().then(boot, (err) => {
+	console.error('[main] app failed to become ready:', err);
+	app.quit();
+});
 
 app.on('second-instance', () => {
 	if (mainWindow) {
@@ -150,7 +226,7 @@ app.on('window-all-closed', () => {
 });
 
 app.on('activate', () => {
-	if (BrowserWindow.getAllWindows().length === 0) boot();
+	if (BrowserWindow.getAllWindows().length === 0) void boot();
 });
 
 app.on('before-quit', () => {

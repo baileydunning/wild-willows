@@ -147,7 +147,7 @@ describe('GameData — values the lesson filters on', () => {
 		const d = await catalog();
 		const seen = new Set(d.animals.map((a: any) => a.rarity));
 		// ch.6's else-if chain renders one badge per value, and covers all three.
-		expect([...seen].sort()).toEqual(['common', 'rare', 'uncommon']);
+		expect([...seen].sort((a: string, b: string) => a.localeCompare(b))).toEqual(['common', 'rare', 'uncommon']);
 	});
 
 	it('kind uses the exact values the examples filter on', async () => {

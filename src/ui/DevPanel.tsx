@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { api } from '../api';
 import { useGame } from '../state';
-import { animalSpriteDataUri } from '../game/textures';
+import { animalSpriteDataUri } from '../game/sprites';
 import { bridge } from '../game/bridge';
 import { Icon } from './icons';
 import { clearBrowserSaves } from '../solo/saves';

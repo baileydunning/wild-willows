@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { serverSource } from '../serverSource';
 
 // EVERY COUNTER A PAGE CAN SEND MUST BE ONE THE SERVER ACCEPTS.
 //
@@ -15,13 +16,13 @@ import { resolve, join } from 'node:path';
 // next one is caught at commit time rather than by another audit.
 
 const root = process.cwd();
-const RESOURCES = readFileSync(resolve(root, 'server/resources.ts'), 'utf8');
+const RESOURCES = serverSource();
 
 /** Strip comments before pulling string literals, or prose leaks in as keys. */
 const clean = (s: string) => s.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/[^\n]*/g, '');
 const listIn = (re: RegExp, what: string): string[] => {
 	const m = re.exec(RESOURCES);
-	expect(m, `${what} should be findable in server/resources.ts`).toBeTruthy();
+	expect(m, `${what} should be findable in server/`).toBeTruthy();
 	return [...clean(m![1]).matchAll(/'([^']+)'/g)].map((x) => x[1]);
 };
 

@@ -1,6 +1,6 @@
 # Contributing / Developer guide
 
-Everything you need to run, test, build, ship and extend Wild Willows. For what the game *is*, see [README.md](README.md).
+Everything you need to run, test, build, ship and extend Wild Willows. For what the game *is*, see [README.md](README.md); for *why* it is built this way — how the app uses Harper, the solo-runs-the-server split, how saves are made durable, why `harper` is pinned exactly — see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source available, not open source.** © 2026 Bailey Dunning, all rights reserved. The code is here to be read, studied and learned from — no licence to use it is granted. See [NOTICE.md](NOTICE.md) for what that does and doesn't allow. Running, building, distributing or deriving from it needs written permission; ask and it may well be yes.
 
@@ -22,7 +22,7 @@ Open **http://localhost:5173/**. Harper is **endpoints only** (no static hosting
 
 > **Keyboard required.** Wild Willows is a keyboard game, so it gates to devices with a keyboard. A computer (any mouse/trackpad) is allowed; a touch-only phone/tablet sees a "connect a keyboard" screen until a key is pressed.
 
-After changing `server/resources.ts`, run `npm run build:server` (or restart `npm run dev`, which rebuilds then starts `harper dev .`). To check the **production build** instead of the dev server, `npm run build:web && npx vite preview` serves it on :4173 with the same API proxy. To play the **browser demo** — the `DEMO=true` build that ships to itch's html5 channel and to play.wildwillows.app — run `npm run browser`, which rebuilds with the demo behaviour baked in (Harper-first backend, the 15-minute post-forest-unlock hard-stop, `edition:'demo'` metrics) and opens :4173. It proxies to the same local Harper, so keep `npm run dev` running in another terminal. A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
+After changing anything under `server/`, run `npm run build:server` (or restart `npm run dev`, which rebuilds then starts `harper dev .`). To check the **production build** instead of the dev server, `npm run build:web && npx vite preview` serves it on :4173 with the same API proxy. To play the **browser demo** — the `DEMO=true` build that ships to itch's html5 channel and to play.wildwillows.app — run `npm run browser`, which rebuilds with the demo behaviour baked in (Harper-first backend, the 15-minute post-forest-unlock hard-stop, `edition:'demo'` metrics) and opens :4173. It proxies to the same local Harper, so keep `npm run dev` running in another terminal. A scripted end-to-end API check lives at `scripts/smoke-test.sh`.
 
 > **Editing `data/*.json` live:** the server inlines the definition JSON for boot-time reconciliation, so after renaming/removing definition records, rebuild `resources.js` and restart Harper. Write data files atomically (temp + rename) so the live data loader never reads a half-written file.
 
@@ -75,7 +75,7 @@ The desktop app (Steam, itch, etc.) wraps the web build in [Electron](https://ww
 
 Two backends, one of which the desktop app never uses:
 
-- **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`). Because that server module also imports Node built-ins (`node:crypto`, `node:zlib`), Vite aliases both to tiny browser stand-ins for the renderer build (`src/solo/cryptoShim.ts`, `src/solo/zlibShim.ts`) while the server's own esbuild build keeps the real modules — so the deployed Harper is unaffected. Solo routing is authoritative on the active save: whenever a solo slot is loaded, `isLocalCall` (`src/api.ts`) serves **every** request in-app, so solo gameplay never reaches the network even if the transport flag is stale.
+- **Solo** (the v1 build) runs **entirely in-app and offline.** The same server logic (`server/`, entered through `server/resources.ts`) executes in the renderer against an in-memory `LocalDb` (`src/solo/`) seeded from `data/*.json`; after each action the world is serialized to a save slot. No passcode — solo saves are local JSON files in `userData/saves/<slotId>.json`, read/written over IPC (`electron/main.js`). Because that server module also imports Node built-ins (`node:crypto`, `node:zlib`), Vite aliases both to tiny browser stand-ins for the renderer build (`src/solo/cryptoShim.ts`, `src/solo/zlibShim.ts`) while the server's own esbuild build keeps the real modules — so the deployed Harper is unaffected. Solo routing is authoritative on the active save: whenever a solo slot is loaded, `isLocalCall` (`src/api.ts`) serves **every** request in-app, so solo gameplay never reaches the network even if the transport flag is stale.
 - **Hosted** is what the browser build uses: the **hosted Harper** over HTTPS (`HOSTED_BASE_URL` in `src/api.ts`) validates every action server-side. The desktop app only ever reaches it for telemetry and feedback, never to play.
 
 There is no hosted web version of the game UI — the hosted Harper is endpoints only (gameplay for the browser demo, metrics uplink, feedback, dashboards).
@@ -240,7 +240,45 @@ Standalone tables: `Feedback` (player-submitted feedback: message, optional repl
 
 Tables are deliberately **not** exported over REST — everything flows through the custom resources below. On boot the server **reconciles** the seed tables against the definition JSON, deleting any orphaned records left by a rename/removal (Harper's loader only upserts, so this prevents stale duplicates like an old "Water Restoration Kit"). Reads are also **self-healing**: `safeGet` force-decodes a record on read and, if a schema change ever left it un-decodable, **purges** the bad row and returns null rather than throwing — so one corrupt record can't break a scan or the achievement fan-out.
 
-## API resources (`server/resources.ts` → `resources.js`)
+## API resources (`server/` → `resources.js`)
+
+The server is a layer of modules under `server/`, bundled by esbuild into the single
+`resources.js` that Harper loads. `server/resources.ts` is **the entry point and nothing
+else**: it re-exports the endpoint classes below under the exact names Harper serves, so
+that one short file is the whole public API surface. The implementation sits behind it,
+each module depending only on the ones above it:
+
+| Module | Holds |
+|---|---|
+| `core.ts` | the `databases` handle, `GameError` + the refusal counters, pure helpers, global constants, the activity feed |
+| `store.ts` | salvage and safe record access (`safeGet`, `allOf`, `toArray`), `RollupCache` |
+| `keys.ts` | the world/area key contract and its migration |
+| `worlds.ts` | world lookup, seed reconciliation, save repair and migrations |
+| `home.ts` | home styles, upgrade tracks, room geometry, trail tents |
+| `player.ts` | field guides, appearance, passcodes, the write lock and patch coalescing |
+| `metrics.ts` | the metrics blob, daily counters, the play-time clock |
+| `biome.ts` | health, balance, animal returns, biome and recipe unlocks, crafting |
+| `tasks.ts` | daily tasks, player-authored goals, the client state `snapshot` |
+| `rate-limit.ts` | token buckets, client address, body size cap |
+| `achievements.ts` | triggers and awarding |
+| `endpoints-game.ts` | the `Resource` base classes and every player-facing endpoint |
+| `endpoints-metrics.ts` | `Heartbeat`, `Metrics`, the dashboard roll-up |
+| `endpoints-admin.ts` | `ServerHealth`, `SystemProbe`, `DevTools` |
+| `endpoints-telemetry.ts` | feedback, solo uplink, app-open funnel, landing + lesson counters |
+| `endpoints-pages.ts` | the static site: policy pages, favicon, og-image, PDFs, robots, sitemap |
+
+A few call-time references run back up that list (a save migration in `worlds.ts` calls
+`recalcBiome`; `sanitizePlayer` reads the metrics blob). That is fine — they are all calls
+from inside function bodies. What must never appear is a **top-level value** in one module
+reading a binding from a module that initialises later: the solo build goes through Vite,
+where that is a real temporal-dead-zone crash rather than something the bundler papers over.
+
+Harper's globals (`databases`, `Resource`) are declared once in `server/harper.d.ts`.
+
+The suites that check the server by grepping its source read it through
+`tests/serverSource.ts`, which lists the modules in that same order; `tests/unit/server-source.test.ts`
+fails if a new module is added and not listed, so those checks cannot quietly go blind.
+
 
 | Endpoint | Does |
 |---|---|
@@ -270,7 +308,7 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `POST /SyncPlayer/` | Persist position / area changes (seeds an area's starting terrain on first entry) |
 | `POST /Heartbeat/` | Accrue play time + session counts while the game is open |
 | `POST /AppendFeed/` | Persist activity-feed messages (pruned to the last 100 per world) |
-| `POST /MyWorlds/` | **Legacy compat only.** No current client calls it; builds older than 0.3.0 do, on paths where a 404 would drop the player's save pointer. See the COMPAT note in `server/resources.ts` before removing it |
+| `POST /MyWorlds/` | **Legacy compat only.** No current client calls it; builds older than 0.3.0 do, on paths where a 404 would drop the player's save pointer. See the COMPAT note in `server/endpoints-game.ts` before removing it |
 | `GET /Metrics/<playerId>` | One player's own live metrics view (public — knowing the save UUID is the capability, as everywhere else) |
 | `GET /MetricsSummary/` · `GET /MetricsPlayers/` | Analytics roll-up: aggregates, and per-player rows (paginated). **Super-user only** (see below) |
 | `POST /SyncMetrics/` | Solo metrics uplink: upserts one solo save's metrics snapshot into `SoloMetrics`, keyed by the save slot's UUID (see Metrics & analytics) |
@@ -281,9 +319,10 @@ Tables are deliberately **not** exported over REST — everything flows through 
 | `GET /privacy.html` · `GET /age-rating.html` · `GET /support.html` | Store-listing pages (privacy policy, age suitability, support/FAQ) served as endpoints — HTML inlined from `public/*.html` by `scripts/build-pages.mjs` |
 | `GET /img/<name>.webp` | The landing + teachers page screenshots, content-hashed and served `immutable` for a year. They were base64 data URIs inside the HTML until the pages hit 470 KB and 260 KB of render-blocking document; as real URLs the pages are ~66 KB each, the images cache independently, and the four screenshots BOTH pages use are fetched once. Bytes ride along in `server/img-assets.ts` (generated from `public/img/`) |
 | `GET /learn/<slug>` | The classroom student pages — `web-development` (the lesson) and `code-builder` (a three-file browser code editor with a live preview). One resource dispatching on `getId()`, same mechanism as `/img/<name>.webp`; unknown slugs 404 from an explicit map. `noindex` on the builder: it is a tool, and an indexed code editor competes with the lesson that explains it |
-| `POST /LessonEvent/` | The classroom pages' anonymous counter beacon — ONE batched request per page-session (`sendBeacon` on pagehide), allowlisted counter names only. No identifiers, no free text, no raw durations, and nothing a student typed. Public, `telemetry` tier; see `LESSON_EXACT` in `server/resources.ts` for the whole of what can be stored |
+| `POST /LessonEvent/` | The classroom pages' anonymous counter beacon — ONE batched request per page-session (`sendBeacon` on pagehide), allowlisted counter names only. No identifiers, no free text, no raw durations, and nothing a student typed. Public, `telemetry` tier; see `LESSON_EXACT` in `server/endpoints-telemetry.ts` for the whole of what can be stored |
 | `GET /LessonStats/` | **Super-user only.** Rollup of those counters for the /dashboard **Classroom** section: the funnel, errors ranked as a work queue for explanation copy, which ideas students pick, time-in-builder buckets, and the blocked-school-network signal |
 | `GET /teachers` | The classroom page — what the game teaches, the 45–60 min lesson arc, discussion prompts, and the two free PDFs. Same inlining path as the pages above; its own URL rather than an anchor on `/` because teachers arrive from a different search and need something shareable |
+| `GET /es/` | The Spanish site. One resource dispatching on `getId()` like `/learn` and `/teachers`, so the whole language is one export and `/es/` itself is the empty slug. Which pages exist, in which languages, is the table in `scripts/site-pages.mjs` — `hreflang`, the sitemap entry and the build's language-link check are all generated from it |
 
 ---
 
@@ -293,7 +332,7 @@ Design-level descriptions of these systems live in the [README](README.md); what
 
 ### Response compression & revalidation
 
-Harper's REST path does not compress resource responses, so the two large ones compress themselves (`server/resources.ts`, `snapshotResponse` and `GameData`). Both share one contract, and it matters: **with no HTTP request context they return the plain object.** That path is the in-app solo backend, which uses the return value as the data and runs in a browser where `node:zlib` is a no-op shim — and it is also how `tests/integration/harness.ts` calls them.
+Harper's REST path does not compress resource responses, so the two large ones compress themselves (`server/endpoints-game.ts`, `snapshotResponse` and `GameData`). Both share one contract, and it matters: **with no HTTP request context they return the plain object.** That path is the in-app solo backend, which uses the return value as the data and runs in a browser where `node:zlib` is a no-op shim — and it is also how `tests/integration/harness.ts` calls them.
 
 - **Brotli quality is pinned to 5** (`BROTLI_QUALITY`). Node's default is 11, which on a 363 KB snapshot costs **over a second of CPU per request** to save ~1 KB over q5. Measured on that snapshot: q4 → 14.5 KB / 1.9 ms · q5 → 10.5 KB / 3.0 ms · q9 → 10.0 KB / 94 ms · q11 → 9.3 KB / 1035 ms. Never call bare `brotliCompressSync(buf)` on a request path.
 - **`GameData`'s ETag is the build stamp** and its compressed forms are cached, because the catalog is identical for every client and changes only on deploy.
@@ -322,13 +361,15 @@ The expanded guide's "which habitat object is this animal waiting for?" prompt i
 
 ### Localization (i18n)
 
-All player-facing text flows through a zero-dependency i18n layer (`src/i18n/`). The game ships in **English and Spanish** (pick on the title screen or in Settings → Language); non-English catalogs are lazy-loaded as their own Vite chunks, so English players never download them. `core.ts` is the engine — `t(key, params)` with `{name}` interpolation and `{one, other}` plurals, `tList()` for randomized line pools, and `content(kind, id, field, fallback)` for data-content overlays — and it's environment-free, so the exact same module runs in the React UI, in Phaser, inside `server/resources.ts` (both the hosted bundle and the solo in-renderer import — in solo, switching language localizes server errors live), and under Vitest.
+All player-facing text flows through a zero-dependency i18n layer (`src/i18n/`). The game ships in **English and Spanish** (pick on the title screen or in Settings → Language); non-English catalogs are lazy-loaded as their own Vite chunks, so English players never download them. `core.ts` is the engine — `t(key, params)` with `{name}` interpolation and `{one, other}` plurals, `tList()` for randomized line pools, and `content(kind, id, field, fallback)` for data-content overlays — and it's environment-free, so the exact same module runs in the React UI, in Phaser, inside the `server/` modules (both the hosted bundle and the solo in-renderer import — in solo, switching language localizes server errors live), and under Vitest.
 
 English catalogs live in `src/i18n/en/` split by area: `app.json` (shell, HUD, toasts, settings), `panels.json` (journal, crafting, achievements, tutorial, help…), `narrative.json` (feed beats, per-biome line pools, biome lore), `game.json` (in-world Phaser prompts), and `server.json` (every `GameError`, daily tasks, "why it returned" prose). The client entry (`src/i18n/index.ts`) registers all of them and persists the language choice; the server entry (`src/i18n/server.ts`) registers only `server.json` so the hosted bundle stays lean.
 
 **Game content** (animal names/facts, recipes, biomes, weather guide prose in `data/*.json`) is *not* duplicated into catalogs — display sites wrap it in `content()`, whose fallback is the English text already in the data. `npm run i18n:extract` generates the full translator template (`src/i18n/templates/content.en.json`, ~1,900 fields); a translation is that file copied to `src/i18n/<locale>/content.json` with values translated.
 
-**Adding a language:** create `src/i18n/<locale>/*.json` mirroring the en catalogs (plus the content overlay from the template — partial files are fine, everything falls back to English), add a lazy loader + `LOCALE_NAMES` entry in `src/i18n/index.ts`, and it appears in both language pickers. Spanish (`src/i18n/es/`) is the reference implementation. `npm run i18n:check` (also part of `npm run check`, so CI runs it) lints that every `t()` key referenced in code exists in the en catalogs and reports locale-parity gaps for any other locale; `tests/unit/i18n-es.test.ts` additionally enforces full es↔en key, placeholder, and pool-length parity. Known v1 limits: hosted server errors stay English (no per-request locale yet), persisted feed entries keep the language they were written in, and the store-listing pages (`public/*.html`) are deliberately English-only.
+**Adding a language:** create `src/i18n/<locale>/*.json` mirroring the en catalogs (plus the content overlay from the template — partial files are fine, everything falls back to English), add a lazy loader + `LOCALE_NAMES` entry in `src/i18n/index.ts`, and it appears in both language pickers. Spanish (`src/i18n/es/`) is the reference implementation. `npm run i18n:check` (also part of `npm run check`, so CI runs it) lints that every `t()` key referenced in code exists in the en catalogs and reports locale-parity gaps for any other locale; `tests/unit/i18n-es.test.ts` additionally enforces full es↔en key, placeholder, and pool-length parity. Known v1 limits: hosted server errors stay English (no per-request locale yet), and persisted feed entries keep the language they were written in.
+
+**The site is translated separately from the game.** `public/*.html` is hand-written HTML, not `t()` calls, so a translated page is a translated FILE: `public/es/landing.html` beside `public/landing.html`, with its own row in `scripts/site-pages.mjs` sharing the English page's `group`. Everything else follows from that one row — `scripts/build-pages.mjs` injects the reciprocal `hreflang` set (each version listing itself and every sibling, plus `x-default`), `/sitemap.xml` emits the same pairs as `xhtml:link` alternates, and the build FAILS if the new page's canonical points anywhere but at itself or if either page has no link a reader can click to reach the other. Nothing sniffs `Accept-Language` and nothing redirects on it: Google asks that sites not guess, and a visitor dropped into a language they did not pick often cannot get back out. `tests/unit/site-locales.test.ts` holds the whole arrangement up, including that the two landing pages still share a stylesheet and the same set of sections — which is where a translated page starts to rot.
 
 ### World scoping
 
@@ -366,4 +407,4 @@ Each save is a name + passcode pair. Passcodes are **never stored in plaintext**
 
 - Passcodes are salted + scrypt-hashed, but auth is still lightweight: game endpoints identify a save by the `playerId` in the request body rather than a verified session token, so anyone who knows a save's id could act on it. Add per-request session tokens (issued on login/create, checked on every mutation) before anything public.
 - Animal behavior is gentle wandering + click-to-observe. Weather, seasons and a **day/night cycle** (dawn / day / dusk / night, equal quarters of the play-time day, eased rather than snapped — `applyDayNight` in `src/game/WorldScene.ts`) are all driven off the same play-time clock.
-- Harper subtlety: conditional searches inside one transaction don't see that transaction's own writes, so endpoints pass fresh records into recalculation explicitly (see comments in `server/resources.ts`).
+- Harper subtlety: conditional searches inside one transaction don't see that transaction's own writes, so endpoints pass fresh records into recalculation explicitly (see the comments in `server/biome.ts` and `server/endpoints-game.ts`).

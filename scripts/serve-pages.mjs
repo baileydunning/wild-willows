@@ -26,6 +26,8 @@ import { extname, join, dirname, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
+import { SITE_PAGES } from './site-pages.mjs';
+
 const root = join(dirname(fileURLToPath(import.meta.url)), '..');
 
 const args = process.argv.slice(2);
@@ -34,24 +36,31 @@ const shouldOpen = !args.includes('--no-open');
 
 /* URL path -> the file in public/ that serves it.
  *
- * Kept in step with PUBLIC_PAGES in server/resources.ts by hand, and that is
- * fine: this is a preview tool, and a page missing here is a 404 with a list of
- * every route it does know, not a silent wrong answer. */
-const PAGES = {
-	'/': 'public/landing.html',
-	'/privacy.html': 'public/privacy.html',
-	'/age-rating.html': 'public/age-rating.html',
-	'/support.html': 'public/support.html',
-	'/teachers': 'public/teachers-index.html',
-	'/teachers/science': 'public/teachers-science.html',
-	'/teachers/coding': 'public/teachers-coding.html',
-	'/dashboard': 'public/dashboard.html',
-	'/learn': 'public/learn-index.html',
-	'/learn/code-builder': 'public/learn-code-builder.html',
-	'/learn/web-development': 'public/learn-web-development.html',
-	'/developers': 'public/developers-api.html',
-	'/developers/api': 'public/developers-api.html',
-};
+ * Derived from scripts/site-pages.mjs — the same table the build and the server
+ * read — so a page cannot exist on the site and be missing from the preview.
+ * That used to be a hand-copy with a comment saying the drift was acceptable
+ * because a missing page 404s loudly rather than answering wrong. It stopped
+ * being acceptable the moment a page could exist in two languages: /es/ was on
+ * the site, built, in the sitemap, and the one place you would go to LOOK at it
+ * said it did not exist.
+ *
+ * Imported rather than copied because it is pure data. build-pages.mjs is not:
+ * it base64s 3 MB of audio and PDFs at import time, which would make this tool
+ * slower than the build it exists to avoid.
+ *
+ * Trailing slashes are stripped from the request below, so the keys are stripped
+ * to match ('/es/' -> '/es').
+ *
+ * NOTE: hreflang links are injected by the build, not written into public/, so
+ * they are the one thing here that is not what ships. Everything else is. */
+const PAGES = Object.fromEntries(
+	SITE_PAGES.filter((p) => p.src).map((p) => [p.path.replace(/\/+$/, '') || '/', p.src]),
+);
+
+/* Preview-only: URLs Harper answers that the table deliberately does not list,
+ * because it lists the canonical one of the pair. /developers serves the API
+ * docs; /developers/api is the canonical it points at. */
+Object.assign(PAGES, { '/developers': 'public/developers-api.html' });
 
 /* Same directive and same rules as scripts/build-pages.mjs. Duplicated on
  * purpose rather than exported from there: build-pages does a lot of other work

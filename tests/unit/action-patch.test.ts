@@ -9,6 +9,7 @@ import {
 	applyRemoveResult,
 } from '../../src/actionPatch';
 import type { GameState } from '../../src/types';
+import { nodeStateKey } from '../../src/game/worldRules';
 
 // Six verbs used to cost two serial round trips: the POST, then a full GameState
 // refetch before anything could be drawn. That refetch was the safety net —
@@ -42,14 +43,15 @@ const placement = (over: any = {}) => ({
 
 describe('applyCollectResult', () => {
 	it('records the node cooldown under the id the reader looks it up by', () => {
-		// WorldScene.nodeAvailable reads `${worldId}:${area}:${nodeId}`. If these two
-		// ever disagree the node renders as full and the player gathers a bare patch.
+		// The reader looks this cooldown up by nodeStateKey(). If writer and reader
+		// ever disagree the node renders as full and the player gathers a bare patch,
+		// so assert against the real function rather than a copy of its shape.
 		const next = applyCollectResult(
 			{ ok: true, inventory: { wood: 5 }, nodeId: 'n7', harvestedAt: 1000 },
 			base(),
 			'meadow',
 		);
-		expect(next?.nodeStates).toEqual([{ id: 'w1:meadow:n7', harvestedAt: 1000 }]);
+		expect(next?.nodeStates).toEqual([{ id: nodeStateKey('w1', 'meadow', 'n7'), harvestedAt: 1000 }]);
 		expect(next?.player.inventory).toEqual({ wood: 5 });
 	});
 
@@ -57,7 +59,7 @@ describe('applyCollectResult', () => {
 		const prev = base();
 		delete (prev as any).worldId;
 		const next = applyCollectResult({ ok: true, inventory: {}, nodeId: 'n7', harvestedAt: 1 }, prev, 'meadow');
-		expect(next?.nodeStates[0].id).toBe('p1:meadow:n7');
+		expect(next?.nodeStates[0].id).toBe(nodeStateKey('p1', 'meadow', 'n7'));
 	});
 
 	it('replaces an existing cooldown rather than stacking a second row', () => {

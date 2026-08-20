@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { useGame } from '../state';
 import type { AnimalDef, Discovery, GameData, FoodEdge } from '../types';
 import { customGoalsUnlocked, guideToolId, hasGuide, hasExpandedGuide } from '../types';
-import { animalSpriteDataUri } from '../game/textures';
+import { animalSpriteDataUri } from '../game/sprites';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';

@@ -36,9 +36,11 @@
 			
 			   The dashboard's own rules come AFTER the include and win every tie —
 			   which matters for the five selectors both sheets define (.wrap, .brand,
-			   body, html, section). The three this page wanted most — .btn, .chip and
-			   .nav — the dashboard never defined at all, so they arrive for free and
-			   the view tabs are real site chips.
+			   body, html, section). The two this page wanted most — .btn and .chip —
+			   the dashboard never defined at all, so they arrive for free and the view
+			   tabs are real site chips. (There is deliberately no site nav here: this
+			   is an internal view reached by URL, and a menu bar across the top of it
+			   was navigation to places its one reader was not going.)
 			
 			   THREE OF THE OLD VALUES FAILED AA on the site's creams, measured:
 			     --muted  #6b7263 -> 4.29 on --paper, 3.92 on --paper-deep
@@ -146,7 +148,6 @@
 			   Signed out, the page is a wordmark-free form on a cream background and
 			   nothing else. The title is neutral in the markup too; the real one is
 			   set from script once there is a session. */
-			body.signed-out .nav,
 			body.signed-out header.top,
 			body.signed-out .views,
 			body.signed-out .meta,
@@ -190,13 +191,6 @@
 				background: var(--card);
 				border: 1.5px solid var(--rule);
 				border-radius: var(--radius);
-			}
-
-			/* The site nav, which this page did not have. Full-bleed like the rest of
-			   the dashboard rather than site-core's centered 1080px wrap. */
-			.nav .wrap {
-				max-width: 1180px;
-				padding: 0 clamp(0.9rem, 3vw, 2rem);
 			}
 
 			/* ---- header ---- */
@@ -243,10 +237,16 @@
 				color: var(--muted);
 				font-size: 0.82rem;
 			}
+			/* Right-aligned, same edge as the filters below it: who you are and when
+			   the numbers were fetched are status, not content, and status belongs
+			   out of the way of the left-hand reading edge the panels start on. */
 			.metaid {
 				display: flex;
 				flex-direction: column;
+				align-items: flex-end;
+				text-align: right;
 				gap: 0.1rem;
+				margin-left: auto;
 			}
 			/* Right-aligned and allowed to wrap onto its own lines: on a narrow window
 			   the filters take the width they need and the identity stays put, rather
@@ -1732,25 +1732,6 @@
 		/>
 	</head>
 	<body>
-		<nav class="nav">
-				<div class="wrap">
-					<a class="brand" href="/"
-						><svg viewBox="0 0 24 24" aria-hidden="true">
-							<circle cx="12" cy="12" r="11" fill="#4a7c59" />
-							<path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2" /></svg
-						> Wild Willows</a
-					>
-					<!-- Deliberately short. This is an internal page reached by URL, not
-					     something anyone navigates TO from the site, so the nav here is a
-					     way back out rather than a menu. The teacher pages are not a way
-					     out of the dashboard for the one person who can open it. -->
-					<div class="links">
-						<a class="hide-sm" href="/">The game</a>
-						<a class="hide-sm" href="/learn/code-builder">Code Builder</a>
-					</div>
-				</div>
-		</nav>
-
 		<div class="wrap">
 			<header class="top">
 				<div class="brand">
@@ -4000,6 +3981,8 @@
 						'privacy-page': 'Privacy policy (viewed)',
 						'support-page': 'Support page (viewed)',
 						'rating-page': 'Age suitability (viewed)',
+						about: 'About page (link)',
+						'about-page': 'About the developer (viewed)',
 						'pdf-guide': 'Educator guide (click)',
 						'pdf-worksheets': 'Worksheets (click)',
 						'school-copy': 'Classroom copy request',
@@ -4138,12 +4121,16 @@
 				/* The five achievements the most caretakers have, and how long each took
 			 * from the moment the save was created.
 			 *
-			 * Median leads and the mean sits beside it: one person who left the game
-			 * open overnight before finishing the tutorial moves a mean by hours and
-			 * the median not at all, and with a few dozen saves that is the common
-			 * case rather than the exception. The spread is shown for the same
-			 * reason — "median 4m, fastest 40s, slowest 3h" is a different fact from
-			 * "median 4m" and the second one on its own invites the wrong plan. */
+			 * MEDIAN AND QUARTILES, not a mean and a min-max range. Both of those
+			 * described one save rather than the milestone: with a few dozen samples
+			 * a single save resumed weeks later put the mean of a 5-minute milestone
+			 * at fifteen hours, and — because that same save appears in every row —
+			 * made every range end at the same number. A column that reads the same
+			 * on every line is not telling you anything about the lines.
+			 *
+			 * Spread is still worth showing: "median 5m" alone invites a plan that
+			 * "median 5m, middle half 2m to 18m" would not. The middle half is the
+			 * version of that fact which moves with the milestone. */
 			function topAchievementsHTML(s) {
 				const a = (s && s.achievements) || {};
 				const top = a.topAchievements || [];
@@ -4153,17 +4140,19 @@
 				// into "1m" and "in 8 seconds" into "0m" — the fast end is the
 				// interesting end for a first milestone, so keep seconds below a minute.
 				const dur = (sec) => (n(sec) < 60 ? `${Math.round(n(sec))}s` : fmtDur(sec));
+				// Quartiles over three or fewer samples are just the samples with extra
+				// steps, so the column stays blank until there are enough to divide.
+				const MIN_FOR_QUARTILES = 4;
 				const rows = top
 					.map((t) => {
 						const spread =
-							t.timed > 1 && t.fastestSeconds != null
-								? `<span class="alltime">${dur(t.fastestSeconds)}–${dur(t.slowestSeconds)}</span>`
+							t.timed >= MIN_FOR_QUARTILES && t.p25SecondsToEarn != null
+								? `<span class="alltime">${dur(t.p25SecondsToEarn)}–${dur(t.p75SecondsToEarn)}</span>`
 								: '';
 						return (
 							`<tr><td>${esc(t.name)}</td>` +
 							`<td class="num">${fmt(t.players)}</td>` +
 							`<td class="num">${t.medianSecondsToEarn == null ? '—' : dur(t.medianSecondsToEarn)}</td>` +
-							`<td class="num">${t.avgSecondsToEarn == null ? '—' : dur(t.avgSecondsToEarn)}</td>` +
 							`<td class="num">${spread || '—'}</td></tr>`
 						);
 					})
@@ -4178,18 +4167,28 @@
 				 * match the column the median was drawn from is otherwise just a
 				 * discrepancy the reader has to invent an explanation for. */
 				const idleSkipped = n(cov.idleSkipped);
+				/* Durations dropped for spanning more than a day. Counted per
+				 * (milestone, save), not per save — one save resumed after a long
+				 * break contributes several — so it is worded as timings, not saves. */
+				const overLong = n(cov.overLongSkipped);
 				return (
 					`<div class="card" style="margin-top:.8rem"><h3>First five milestones<span class="tag">most earned · time from starting the save</span></h3>` +
 					`<table class="tbl"><thead><tr><th>Achievement</th><th class="num">Caretakers</th><th class="num">Median</th>` +
-					`<th class="num">Mean</th><th class="num">Range</th></tr></thead><tbody>${rows}</tbody></table>` +
+					`<th class="num" title="25th to 75th percentile — where half of caretakers land">Middle half</th>` +
+					`</tr></thead><tbody>${rows}</tbody></table>` +
 					(missing > 0
 						? `<p class="emptynote">Based on ${fmt(cov.savesWithTimestamps)} of ${fmt(cov.savesWithAchievements)} saves. ` +
 							`The other ${fmt(missing)} last reported before per-achievement timestamps existed, so they count for nothing here until they next sync.</p>`
 						: '') +
 					(idleSkipped > 0
-						? `<p class="emptynote">Median, mean and range exclude ${fmt(idleSkipped)} ${idleSkipped === 1 ? 'save that was' : 'saves that were'} ` +
+						? `<p class="emptynote">The timings exclude ${fmt(idleSkipped)} ${idleSkipped === 1 ? 'save that was' : 'saves that were'} ` +
 							`left open rather than played — the clock kept running while nobody did, so the durations on those are hours of nothing. ` +
 							`They still count under Caretakers: the milestone was earned, it just can't say how long it took.</p>`
+						: '') +
+					(overLong > 0
+						? `<p class="emptynote">A further ${fmt(overLong)} ${overLong === 1 ? 'timing was' : 'timings were'} dropped for spanning ` +
+							`more than a day. These are the first five milestones, so a wall clock measured in days is a save that was quit and ` +
+							`resumed rather than a caretaker taking their time.</p>`
 						: '') +
 					`</div>`
 				);

@@ -52,6 +52,23 @@ contextBridge.exposeInMainWorld('wildWillowsDesktop', {
 		read: (slotId) => ipcRenderer.invoke('saves:read', slotId),
 		write: (slotId, contents) => ipcRenderer.invoke('saves:write', slotId, contents),
 		remove: (slotId) => ipcRenderer.invoke('saves:remove', slotId),
+		// Fired when the main process had to fall back to `.tmp` or `.bak` because
+		// the primary slot file would not parse (electron/saves.js). The renderer
+		// reports it upstream — a desktop save that went bad is otherwise invisible,
+		// because solo's backend is local and writes its incident row locally too.
+		// Returns an unsubscribe fn; the listener is wrapped so the raw IpcRendererEvent
+		// (which carries `sender`) never crosses the bridge.
+		onRecovered: (cb) => {
+			const handler = (_event, info) => {
+				try {
+					cb(info);
+				} catch {
+					/* a listener fault must not break the save path */
+				}
+			};
+			ipcRenderer.on('saves:recovered', handler);
+			return () => ipcRenderer.off('saves:recovered', handler);
+		},
 	},
 	// Steam Stats/Achievements: the renderer owns the live game metrics now, so it
 	// pushes the active player's metrics view to the main process, which maps them

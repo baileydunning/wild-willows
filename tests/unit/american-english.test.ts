@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { readFileSync, readdirSync } from 'node:fs';
 import { resolve, join } from 'node:path';
+import { LAYERS } from '../serverSource';
 
 // The website is written in American English. It had drifted: 120-odd British
 // spellings across the pages, the stylesheets, the dashboard and the server's
@@ -68,6 +69,26 @@ const BRITISH: Array<[string, string]> = [
 	['jewellery', 'jewelry'],
 	['manoeuvre', 'maneuver'],
 	['sulphur', 'sulfur'],
+	// Inflections the list above misses: \bhonour\b does not match
+	// "honouring", and the -isation forms are a separate word from the -ise.
+	['honouring', 'honoring'],
+	['behaviours', 'behaviors'],
+	['initialise', 'initialize'],
+	['initialised', 'initialized'],
+	['initialisation', 'initialization'],
+	['normalise', 'normalize'],
+	['normalises', 'normalizes'],
+	['normalised', 'normalized'],
+	['normalisation', 'normalization'],
+	['sanitise', 'sanitize'],
+	['sanitised', 'sanitized'],
+	['serialised', 'serialized'],
+	['prioritise', 'prioritize'],
+	['synchronise', 'synchronize'],
+	['authorise', 'authorize'],
+	['authorisation', 'authorization'],
+	['artefact', 'artifact'],
+	['artefacts', 'artifacts'],
 ];
 
 /* `aria-labelledby` is an ARIA attribute name, not prose, and renaming it would
@@ -79,10 +100,11 @@ const FILES = [
 		.filter((f) => f.endsWith('.html'))
 		.map((f) => join('public', f)),
 	...readdirSync(resolve(root, 'public/partials')).map((f) => join('public/partials', f)),
-	'server/resources.ts',
+	...LAYERS.map((m) => `server/${m}.ts`),
+	'ARCHITECTURE.md',
 ];
 
-describe('the website is written in American English', () => {
+describe('the website and ARCHITECTURE.md are written in American English', () => {
 	it.each(FILES)('%s', (file) => {
 		const src = readFileSync(resolve(root, file), 'utf8').replace(EXEMPT, '');
 		const found: string[] = [];

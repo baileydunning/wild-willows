@@ -153,7 +153,7 @@ describe('player highlights sort', () => {
 			{ id: 'mid', playSeconds: 900, totalActions: 1, biomeSummary: {} },
 		];
 		expect(orderBy('animals', noAnimals)).toEqual(['high', 'mid', 'low']);
-		expect(orderBy('animals', [...noAnimals].reverse())).toEqual(['high', 'mid', 'low']);
+		expect(orderBy('animals', noAnimals.toReversed())).toEqual(['high', 'mid', 'low']);
 	});
 
 	it('reads recency in units a person would say out loud', () => {

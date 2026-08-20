@@ -9,6 +9,7 @@ server/theme-audio.ts
 server/pdf-assets.ts
 server/img-assets.ts
 server/page-lastmod.ts
+server/site-pages.ts
 
 # Vendored / lockfiles
 package-lock.json
