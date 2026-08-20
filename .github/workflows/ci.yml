@@ -12,9 +12,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  # 0) Formatting (Prettier) — fails the build if anything isn't formatted.
+  # 0) Lint. Two layers, and they answer different questions:
+  #      • oxlint   — semantics. Type-aware (via oxlint-tsgolint, the same
+  #                   typescript-go engine as tsc 7). Warnings do NOT fail; the
+  #                   rules set to `error` in .oxlintrc.json do. That file's header
+  #                   explains why this is not ESLint.
+  #      • prettier — formatting. Fails on anything unformatted.
   lint:
-    name: Lint (Prettier)
+    name: Lint
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +28,8 @@ jobs:
           node-version-file: .nvmrc
           cache: npm
       - run: npm ci
+      - name: Lint (oxlint, type-aware)
+        run: npm run lint:code
       - name: Verify formatting
         run: npm run format:check
 
@@ -64,8 +71,18 @@ jobs:
       - run: npm ci
       - name: Build server bundle (resources.js) for the integration harness
         run: npm run build:server
-      - name: Run Vitest (unit + integration)
-        run: npx vitest run
+      # --coverage is what enforces the floor in vitest.config.ts. Without it the
+      # thresholds are never evaluated and the job passes on a suite that has
+      # quietly stopped covering half the code.
+      - name: Run Vitest (unit + integration) with the coverage floor
+        run: npx vitest run --coverage
+      - name: Upload coverage report
+        if: ${{ !cancelled() }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage
+          path: coverage
+          retention-days: 7
 
   # 3) Solo E2E (Playwright) — offline solo mode against the static web build.
   e2e-solo:

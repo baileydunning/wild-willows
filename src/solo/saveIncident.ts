@@ -13,8 +13,18 @@ import { hostedBase, IS_DESKTOP } from '../api';
 
 import { APP_VERSION, BUILD_TIME } from '../platform';
 
-/** Tell the hosted instance that a save could not be read. Fire and forget. */
-export function reportSaveIncident(recordId: string, kind: 'unreadable' | 'refused' = 'unreadable'): void {
+/**
+ * Tell the hosted instance that a save could not be read. Fire and forget.
+ *
+ * `table` namespaces the record id. It defaults to 'Player' because that is what
+ * the server's own noteSaveIncident records; desktop slot files pass
+ * 'SoloSaveSlot' so a filename can never be mistaken for a Player record id.
+ */
+export function reportSaveIncident(
+	recordId: string,
+	kind: 'unreadable' | 'refused' = 'unreadable',
+	table: 'Player' | 'SoloSaveSlot' = 'Player',
+): void {
 	try {
 		if (!recordId) return;
 		// Desktop and the demo's offline fallback post cross-origin to the hosted
@@ -27,7 +37,7 @@ export function reportSaveIncident(recordId: string, kind: 'unreadable' | 'refus
 			keepalive: true,
 			signal: AbortSignal.timeout(10_000),
 			body: JSON.stringify({
-				table: 'Player',
+				table,
 				recordId,
 				kind,
 				platform: IS_DESKTOP ? 'desktop' : 'web',
@@ -40,4 +50,35 @@ export function reportSaveIncident(recordId: string, kind: 'unreadable' | 'refus
 	} catch {
 		/* never surface a telemetry failure to the player */
 	}
+}
+
+/**
+ * Desktop only: listen for the main process recovering a slot from its backup.
+ *
+ * electron/saves.js writes slot files atomically and keeps the previous save as
+ * `.bak`. When the primary file will not parse it falls back, heals the slot,
+ * and emits here. The player is fine — they got a readable save — but the event
+ * must not stay local: solo's backend runs in-app, so the SaveIncident row it
+ * would normally write lands in the player's OWN database and never reaches us.
+ * This is the only way a desktop save going bad becomes visible on /dashboard.
+ *
+ * Safe to call anywhere: no bridge (web), or an older desktop shell without
+ * `onRecovered`, both no-op. Idempotent — repeat calls do not stack listeners.
+ */
+interface RecoveryBridge {
+	saves?: {
+		onRecovered?(cb: (info: { slotId: string; from: 'tmp' | 'bak' }) => void): () => void;
+	};
+}
+
+let watching = false;
+export function watchDesktopSaveRecovery(): void {
+	if (watching) return;
+	const desktopSaves = (globalThis as { wildWillowsDesktop?: RecoveryBridge }).wildWillowsDesktop?.saves;
+	if (!desktopSaves?.onRecovered) return;
+	watching = true;
+	desktopSaves.onRecovered((info) => {
+		console.warn(`[saves] slot ${info.slotId} recovered from .${info.from}`);
+		reportSaveIncident(info.slotId, 'unreadable', 'SoloSaveSlot');
+	});
 }

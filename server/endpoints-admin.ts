@@ -128,7 +128,7 @@ export class ServerHealth extends DashboardEndpoint {
 		 * missed: the response_* and duration metrics resolved, so the panel looked
 		 * alive while thread utilization, CPU, database size and replication lag all
 		 * rendered as em-dashes — the failure mode that looks exactly like a healthy
-		 * idle server. Harper's names vary by version and casing, so normalise both
+		 * idle server. Harper's names vary by version and casing, so normalize both
 		 * sides to bare lowercase letters and match on that: mainThreadUtilization,
 		 * main-thread-utilization and MAIN_THREAD_UTILIZATION all reduce to the same
 		 * key. `metricsSeen` in the response lists whatever did NOT match, so an
@@ -391,7 +391,7 @@ export class ServerHealth extends DashboardEndpoint {
 		// Utilization arrives as a 0-1 ratio from some sources and an already-scaled
 		// percent from others (cpu-usage reads 23, thread utilization reads 0.85).
 		// round1 on a ratio is destructive — 0.853 becomes 0.9, which is the
-		// difference between "comfortable" and "at the ceiling" — so normalise to a
+		// difference between "comfortable" and "at the ceiling" — so normalize to a
 		// percent first and keep one decimal of real precision.
 		const asPct = (v: any): number | null => {
 			// null must survive as null. Number(null) is 0 and 0 is finite, so the
@@ -953,7 +953,7 @@ export function metricsListRow(r: any) {
  *
  * Matched on the slug of the save's NAME rather than its id, because ids carry a
  * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
- * because slugId normalises the ways the name gets typed — `bailey_test`,
+ * because slugId normalizes the ways the name gets typed — `bailey_test`,
  * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
  * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
  * not qualify. Several saves can share the name, which is the intended way to

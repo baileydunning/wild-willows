@@ -85,6 +85,37 @@ const MENU_PANELS = new Set([
  *  larger number is a broken or hostile client, not a busy player. */
 const MAX_MENU_OPENS_PER_BEAT = 200;
 
+/**
+ * Ceiling on a single "time to earn" duration, in ms.
+ *
+ * Only the FIRST FIVE milestones are reported with timings, and those are the
+ * tutorial and its immediate neighbors — minutes of play, not days. So a
+ * duration longer than this is not a slow player, it is a save that was quit and
+ * resumed later, and the wall clock kept counting through the gap. `isIdleAnomaly`
+ * catches a window left open; nothing else catches a save closed on Monday and
+ * reopened in March.
+ */
+const PACING_MAX_MS = DAY_MS;
+
+/**
+ * Percentile of an ALREADY-SORTED ascending array, by linear interpolation
+ * between the two neighboring order statistics. Returns null for an empty
+ * array; with one element every percentile is that element.
+ *
+ * Interpolated rather than nearest-rank so the answer moves smoothly as saves
+ * arrive — a nearest-rank quartile over a few dozen values jumps between two
+ * stored durations and reads as though something changed when nothing did.
+ */
+function percentile(sorted: number[], q: number): number | null {
+	if (!sorted.length) return null;
+	if (sorted.length === 1) return round1(sorted[0]);
+	const pos = (sorted.length - 1) * q;
+	const lo = Math.floor(pos);
+	const hi = Math.ceil(pos);
+	if (lo === hi) return round1(sorted[lo]);
+	return round1(sorted[lo] + (sorted[hi] - sorted[lo]) * (pos - lo));
+}
+
 /** Did this save spend its time as an unattended window rather than as play? */
 function isIdleAnomaly(row: { playSeconds?: number; totalActions?: number }): boolean {
 	const minutes = (row.playSeconds || 0) / 60;
@@ -1093,13 +1124,17 @@ async function metricsRollup(target?: any): Promise<{
 		 * last five and therefore systematically under-counts the early
 		 * achievements that are the popular ones.
 		 *
-		 * "Time to earn" is measured from the save's creation, and is reported as a
-		 * MEDIAN alongside the mean: one player who left the game open for a week
-		 * before finishing the tutorial drags a mean badly, and with a handful of
-		 * saves it is a mean of almost nothing. `players` and `timed` are both
-		 * reported because they differ — a save whose snapshot predates this field
-		 * counts for neither, and one with no usable creation time counts for
-		 * popularity but not for pacing. */
+		 * "Time to earn" is measured from the save's creation and reported as a
+		 * MEDIAN plus the middle half (p25-p75). It used to be a mean and a
+		 * min-max range, and both of those reported the most extreme save in the
+		 * set rather than anything about the milestone: one save resumed weeks
+		 * later put the mean of a five-minute milestone at fifteen hours, and since
+		 * that save holds every early achievement it set the top of EVERY row's
+		 * range to the same number. Quartiles move with the milestone.
+		 *
+		 * `players` and `timed` are both reported because they differ — a save whose
+		 * snapshot predates this field counts for neither, and one with no usable
+		 * creation time counts for popularity but not for pacing. */
 		/* Idle windows are counted for POPULARITY but never for PACING.
 		 *
 		 * "Time to earn" is wall-clock from the save's creation, so a window left
@@ -1117,6 +1152,7 @@ async function metricsRollup(target?: any): Promise<{
 		 * are drawn from. */
 		const achEarnedBy = new Map<string, { players: number; times: number[] }>();
 		let timingIdleSkipped = 0;
+		let timingOverLongSkipped = 0;
 		for (const v of withAch) {
 			const map = v.achievements.earnedAt;
 			if (!map || typeof map !== 'object') continue;
@@ -1130,7 +1166,21 @@ async function metricsRollup(target?: any): Promise<{
 				// Guard both ends: a missing createdAt yields an absurd age, and clock
 				// skew on a client-stamped timestamp can put an achievement before the
 				// save existed. Neither is a real duration.
-				if (v.createdAt && Number.isFinite(ms) && ms >= 0 && ms <= 365 * DAY_MS) e.times.push(ms / 1000);
+				if (!v.createdAt || !Number.isFinite(ms) || ms < 0) continue;
+				// And guard the top. These are the FIRST FIVE milestones — the tutorial
+				// and its immediate neighbors — so a wall-clock duration measured in
+				// days is a save that was closed and reopened, not somebody taking a
+				// long time. One 39-day gap was enough to put the mean of a 5-minute
+				// milestone at fifteen hours, and to make every row's range end at the
+				// same number, which is the tell that the number belonged to the save
+				// rather than to the milestone. The `idle` flag above catches a window
+				// left open; it cannot see a save that was quit and resumed a month
+				// later, and this is what does.
+				if (ms > PACING_MAX_MS) {
+					timingOverLongSkipped++;
+					continue;
+				}
+				e.times.push(ms / 1000);
 			}
 		}
 		const achDefs = await defs().catch(() => null);
@@ -1139,21 +1189,19 @@ async function metricsRollup(target?: any): Promise<{
 			.slice(0, 5)
 			.map(([id, e]) => {
 				const sorted = [...e.times].sort((a, b) => a - b);
-				const mid = sorted.length
-					? sorted.length % 2
-						? sorted[(sorted.length - 1) / 2]
-						: (sorted[sorted.length / 2 - 1] + sorted[sorted.length / 2]) / 2
-					: null;
 				return {
 					id,
 					name: (achDefs as any)?.achievement?.get?.(id)?.name || id,
 					players: e.players,
 					// How many of those players had a usable duration behind them.
 					timed: sorted.length,
-					medianSecondsToEarn: mid == null ? null : round1(mid),
-					avgSecondsToEarn: sorted.length ? round1(sorted.reduce((a, b) => a + b, 0) / sorted.length) : null,
-					fastestSeconds: sorted.length ? round1(sorted[0]) : null,
-					slowestSeconds: sorted.length ? round1(sorted[sorted.length - 1]) : null,
+					medianSecondsToEarn: percentile(sorted, 0.5),
+					// The middle half. Reported instead of a mean and a min-max range,
+					// both of which described the single most extreme save in the set and
+					// therefore read almost identically on every row. Quartiles move with
+					// the milestone, which is the thing the card is about.
+					p25SecondsToEarn: percentile(sorted, 0.25),
+					p75SecondsToEarn: percentile(sorted, 0.75),
 				};
 			});
 		// Saves whose snapshot predates the per-achievement timestamps contribute
@@ -1164,6 +1212,10 @@ async function metricsRollup(target?: any): Promise<{
 				.length,
 			// Counted in `players`, excluded from every duration — see above.
 			idleSkipped: timingIdleSkipped,
+			// Individual (achievement, save) durations dropped for spanning more than
+			// PACING_MAX_MS. Not a count of saves: one resumed save can contribute
+			// several of these.
+			overLongSkipped: timingOverLongSkipped,
 		};
 
 		const achievementsSummary = {

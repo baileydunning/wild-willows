@@ -1,0 +1,130 @@
+// SEMANTIC LINT LAYER (JSONC — oxlint accepts comments here).
+//
+// Prettier answers "is it formatted". This answers "is it correct".
+//
+// It is oxlint rather than ESLint for one hard reason: this repo is on
+// typescript@7, the native (Go) compiler, which ships NO JavaScript compiler API
+// — ts.createProgram / ts.createSourceFile / ts.SyntaxKind are all undefined, so
+// @typescript-eslint/typescript-estree throws on import against it ("Cannot read
+// properties of undefined (reading 'Cjs')"), and typescript-eslint declares a
+// peer range of <6.1.0. That is not a config problem and no flag fixes it.
+//
+// oxlint parses with its own Rust parser and takes type information from
+// oxlint-tsgolint, which wraps the same typescript-go engine as tsc 7 — so the
+// `--type-aware` rules below are checked against the types tsc itself sees, not
+// a second TypeScript's opinion of them.
+//
+// The rejected alternative was keeping ESLint by installing a lint-only
+// typescript@5 in a nested package. It works, but it puts two TypeScript
+// versions in the repo and lets lint diagnostics drift from what tsc reports,
+// which is a worse failure mode than using a different linter. Revisit when
+// typescript-eslint supports the TS 7 API.
+//
+// STARTED WARN-HEAVY ON PURPOSE. Warnings do not fail oxlint (exit 0), so
+// `npm run lint` stays green while the existing backlog (~500 warnings at the
+// time this landed) is worked down. The handful of rules set to "error" had ZERO
+// hits when they were added, so they gate new code without demanding a cleanup
+// first. That is the ratchet: when a rule's count reaches zero, promote it.
+{
+	"$schema": "./node_modules/oxlint/configuration_schema.json",
+
+	"plugins": ["typescript", "unicorn", "react", "react-perf", "promise", "import", "oxc", "vitest", "jsx-a11y", "node"],
+
+	"categories": {
+		"correctness": "warn",
+		"suspicious": "warn",
+		"perf": "warn",
+		"pedantic": "off",
+		"style": "off"
+	},
+
+	"env": { "browser": true, "es2024": true, "node": true },
+
+	// Generated output. Kept in step with .prettierignore — both lists exist
+	// because a generated file is not code anyone edits, and a 2.8MB inlined
+	// asset blob is not worth a linter's time.
+	"ignorePatterns": [
+		"node_modules/**",
+		"web/**",
+		"build/**",
+		"dist/**",
+		"coverage/**",
+		"resources.js",
+		"server/pages.ts",
+		"server/theme-audio.ts",
+		"server/pdf-assets.ts",
+		"server/img-assets.ts",
+		"server/page-lastmod.ts",
+		"server/site-pages.ts",
+		"playwright-report/**",
+		"test-results/**",
+		".research/**",
+		"public/**",
+		"preview-tmp/**",
+		".preview/**"
+	],
+
+	"rules": {
+		// --- OFF: does not apply to this stack. Each one was verified by reading
+		//     the actual hits, not assumed. ---
+		"react/react-in-jsx-scope": "off", // we use the automatic JSX runtime
+		"import/no-named-as-default-member": "off", // React.useState etc.
+		"import/default": "off", // phaser's CJS default export
+		"vitest/valid-expect": "off", // vitest DOES support expect(value, message)
+		"typescript/consistent-return": "off", // fires on every conditional useEffect cleanup
+		"no-template-curly-in-string": "off", // code-builder fixtures contain literal ${...} on purpose
+
+		// --- OFF: deliberate style here, so flagging it would be noise forever ---
+		"no-await-in-loop": "off", // server code awaits Harper in sequence on purpose
+		"no-underscore-dangle": "off",
+		"no-shadow": "off",
+		"unicorn/consistent-function-scoping": "off",
+		"unicorn/no-array-sort": "off",
+		"react/no-array-index-key": "off",
+		"react-perf/jsx-no-new-function-as-prop": "off",
+		"react-perf/jsx-no-new-object-as-prop": "off",
+		"react-perf/jsx-no-new-array-as-prop": "off",
+		"react-perf/jsx-no-jsx-as-prop": "off",
+		"typescript/no-unsafe-type-assertion": "off",
+		"typescript/no-unnecessary-type-arguments": "off",
+		"vitest/require-mock-type-parameters": "off",
+		"vitest/require-to-throw-message": "off",
+
+		// --- WARN: real, but too many existing hits to gate on today. An async
+		//     onClick has nowhere to put a rejection; worth fixing, not worth
+		//     blocking on. ---
+		"typescript/no-misused-promises": "warn",
+
+		// --- ERROR: zero hits as of this commit, so they cost nothing today and
+		//     stop the next one. ---
+		"react-hooks/rules-of-hooks": "error",
+		"typescript/no-array-delete": "error",
+		"typescript/no-duplicate-enum-values": "error",
+		"typescript/no-unsafe-declaration-merging": "error",
+		"typescript/no-implied-eval": "error",
+		"no-eval": "error",
+		"no-self-compare": "error",
+		"unicorn/no-invalid-remove-event-listener": "error",
+		"unicorn/no-await-in-promise-methods": "error",
+		"unicorn/no-single-promise-in-promise-methods": "error",
+		"unicorn/no-thenable": "error"
+	},
+
+	"overrides": [
+		{
+			"files": ["tests/**"],
+			"rules": {
+				// The lesson/runner harnesses build a Function from the lesson's own
+				// source on purpose — that IS the thing under test.
+				"typescript/no-implied-eval": "off",
+				"vitest/expect-expect": "off"
+			}
+		},
+		{
+			"files": ["scripts/**", "electron/**"],
+			// Build scripts and the Electron main process are Node programs; stdout
+			// is how they report.
+			"rules": { "no-console": "off" }
+		}
+	]
+}

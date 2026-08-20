@@ -490,7 +490,7 @@ async function request<T>(path: string, options?: RequestInit): Promise<T> {
 		// fixes two things this line got wrong. It drops the report when the page
 		// is unloading, hidden or offline — most of what reached the crash panel
 		// was the metrics uplink and the feed flush being killed on the way out,
-		// which no code change could ever have fixed. And it normalises the id out
+		// which no code change could ever have fixed. And it normalizes the id out
 		// of the path, so `/Metrics/<playerId>` aggregates into ONE row instead of
 		// a fresh one per player. What the player sees below is unchanged.
 		reportFetchFailure(e, method, path);

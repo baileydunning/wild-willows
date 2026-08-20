@@ -8,6 +8,8 @@ Built with TypeScript, React + Vite (UI shell), Phaser 3 (world), and Harper v5 
 
 > **Source available, not open source.** © 2026 Bailey Dunning, all rights reserved. The code is here to be read, studied and learned from — no licence to use it is granted. See [NOTICE.md](NOTICE.md) for what that does and doesn't allow. Running, building, distributing or deriving from it needs written permission; ask and it may well be yes.
 
+Working on it? [CONTRIBUTING.md](CONTRIBUTING.md) is how to run, test and ship it; [ARCHITECTURE.md](ARCHITECTURE.md) is why it is built this way.
+
 ## Quick start
 
 ```bash

@@ -28,6 +28,8 @@ interface DesktopBridge {
 		read(slotId: string): Promise<string | null>;
 		write(slotId: string, contents: string): Promise<void>;
 		remove(slotId: string): Promise<void>;
+		/** Present from the build that added backup recovery; older shells omit it. */
+		onRecovered?(cb: (info: { slotId: string; from: 'tmp' | 'bak' }) => void): () => void;
 	};
 }
 

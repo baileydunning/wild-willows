@@ -1,6 +1,6 @@
 # Contributing / Developer guide
 
-Everything you need to run, test, build, ship and extend Wild Willows. For what the game *is*, see [README.md](README.md).
+Everything you need to run, test, build, ship and extend Wild Willows. For what the game *is*, see [README.md](README.md); for *why* it is built this way — how the app uses Harper, the solo-runs-the-server split, how saves are made durable, why `harper` is pinned exactly — see [ARCHITECTURE.md](ARCHITECTURE.md).
 
 > **Source available, not open source.** © 2026 Bailey Dunning, all rights reserved. The code is here to be read, studied and learned from — no licence to use it is granted. See [NOTICE.md](NOTICE.md) for what that does and doesn't allow. Running, building, distributing or deriving from it needs written permission; ask and it may well be yes.
 
