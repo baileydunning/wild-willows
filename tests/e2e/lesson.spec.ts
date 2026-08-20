@@ -127,7 +127,7 @@ test.describe('the rail shows progress without hiding the order', () => {
 		const rows = await page.$$eval('.lrail a', (els) =>
 			els.map((a) => ({
 				n: a.getAttribute('data-ch'),
-				numText: a.querySelector('.rnum')!.textContent!.trim(),
+				numText: a.querySelector('.rnum')!.textContent.trim(),
 				numVisible: getComputedStyle(a.querySelector('.rnum')!).color !== 'rgba(0, 0, 0, 0)',
 				tick: getComputedStyle(a, '::after').opacity,
 				done: a.classList.contains('is-done'),
@@ -193,7 +193,7 @@ test.describe('the file picker', () => {
 		// Chapter 10's challenges say "it is in index.html" and "that one is in
 		// styles.css". Those files were context-only, so the runner exposed main.js
 		// and nothing else, and two of the five challenges could not be done at all.
-		const tabs = await page.$$eval('#chapter-10 > ww-runner .wwr-tab', (els) => els.map((e) => e.textContent!.trim()));
+		const tabs = await page.$$eval('#chapter-10 > ww-runner .wwr-tab', (els) => els.map((e) => e.textContent.trim()));
 		expect(tabs).toEqual(['index.html', 'styles.css', 'main.js']);
 	});
 

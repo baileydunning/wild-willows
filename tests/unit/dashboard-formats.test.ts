@@ -29,7 +29,7 @@ const DASHBOARD = readFileSync(resolve(__dirname, '../../', 'public/dashboard.ht
  *  happens to follow. Strings are skipped so a semicolon inside one cannot end
  *  the scan early; regex literals are not, which is fine for the helpers lifted
  *  here — none of their patterns contain a bracket or a quote. */
-function lift<T>(name: string, deps = ''): T {
+function lift(name: string, deps = ''): unknown {
 	const start = DASHBOARD.indexOf(`const ${name} = (`);
 	expect(start, `${name} not found in dashboard.html`).toBeGreaterThan(-1);
 	let depth = 0;
@@ -58,7 +58,7 @@ function lift<T>(name: string, deps = ''): T {
 const N_AND_FMT = "const n = (x) => (x == null || isNaN(x) ? 0 : x);\nconst fmt = (x) => n(x).toLocaleString('en-US');";
 
 describe('fmtShort — the highlight card stat strip', () => {
-	const fmtShort = lift<(x: unknown) => string>('fmtShort', N_AND_FMT);
+	const fmtShort = lift('fmtShort', N_AND_FMT) as (x: unknown) => string;
 
 	it('leaves anything under a thousand exactly as it is', () => {
 		expect(fmtShort(0)).toBe('0');
@@ -97,7 +97,7 @@ describe('fmtShort — the highlight card stat strip', () => {
 });
 
 describe('speciesName — the arrivals timeline label', () => {
-	const speciesName = lift<(a: { id: string; name?: string }) => string>('speciesName');
+	const speciesName = lift('speciesName') as (a: { id: string; name?: string }) => string;
 
 	it('uses the name the save recorded', () => {
 		expect(speciesName({ id: 'red-winged-blackbird', name: 'Red-winged Blackbird' })).toBe('Red-winged Blackbird');

@@ -55,9 +55,10 @@ describe('daily tasks stay scoped to personally-unlocked biomes', () => {
 			for (const rid of Object.keys(t.reward || {})) {
 				expect(allowed.has(rid), `reward "${rid}" in "${t.text}" must be a meadow resource`).toBe(true);
 			}
-			if (t.counter?.startsWith('res:')) {
-				expect(allowed.has(t.counter.slice(4)), `gather target in "${t.text}"`).toBe(true);
-			}
+			// Resolved first, then asserted unconditionally: a task with no gather
+			// counter has nothing to scope, which is a pass, not a skipped check.
+			const gathered = t.counter?.startsWith('res:') ? t.counter.slice(4) : null;
+			expect(gathered === null || allowed.has(gathered), `gather target in "${t.text}"`).toBe(true);
 		}
 	});
 

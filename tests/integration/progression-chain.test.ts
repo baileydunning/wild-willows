@@ -156,14 +156,16 @@ describe('walking the unlock chain end to end', () => {
 			const prevState = after.biomeStates.find((b: any) => b.biomeId === prev);
 			expect(prevState.health).toBeGreaterThanOrEqual(biome.unlock.minHealth || 0);
 			expect(prevState.returnedCount).toBeGreaterThanOrEqual(biome.unlock.minAnimals || 0);
-			if (biome.unlock.minTotalAnimals) {
-				expect(after.discoveries.length).toBeGreaterThanOrEqual(biome.unlock.minTotalAnimals);
-			}
+			// `|| 0` rather than an `if`: a biome with no total-animal requirement
+			// asserts >= 0, which is the same thing skipping the check meant, and
+			// keeps the expect unconditional so a missing assertion is visible.
+			expect(after.discoveries.length).toBeGreaterThanOrEqual(biome.unlock.minTotalAnimals || 0);
 		});
 	}
 
 	it('ends with all six areas open and the whole preserve reachable', async () => {
-		expect((await openAreas(w, pid)).sort()).toEqual(BIOMES.map((b) => b.id).sort());
+		const byId = (a: string, b: string) => a.localeCompare(b);
+		expect((await openAreas(w, pid)).sort(byId)).toEqual(BIOMES.map((b) => b.id).sort(byId));
 	});
 
 	it('crowns the run with Caretaker of the Whole once every animal is home', async () => {

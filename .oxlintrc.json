@@ -46,6 +46,13 @@
 	"ignorePatterns": [
 		"node_modules/**",
 		"web/**",
+		// The Capacitor iOS wrapper. `ios/App/App/public` is a COPY of the web
+		// build that `npx cap sync` regenerates, so linting it means linting the
+		// same minified bundles twice and reporting them as source.
+		"ios/**",
+		"android/**",
+		".wrangler/**",
+		"app-store-screenshots/**",
 		"build/**",
 		"dist/**",
 		"coverage/**",

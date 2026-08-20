@@ -108,7 +108,7 @@ test.describe('the two kit pages', () => {
 		await page.goto('/teachers/science');
 		const rows = page.locator('#ladder table tbody tr');
 		await expect(rows).toHaveCount(25);
-		const health = await rows.evaluateAll((els) => els.map((r) => parseInt(r.cells[2].textContent!, 10)));
+		const health = await rows.evaluateAll((els) => els.map((r) => parseInt(r.cells[2].textContent, 10)));
 		expect(health).toEqual([...health].sort((a, b) => a - b));
 		expect(health[0]).toBe(8);
 		expect(health[health.length - 1]).toBe(80);

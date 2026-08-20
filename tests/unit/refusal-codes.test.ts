@@ -73,11 +73,11 @@ function refusalSites(): Site[] {
 	const sites: Site[] = [];
 	for (const { path, src } of FILES) {
 		for (const m of src.matchAll(/new GameError\(/g)) {
-			const open = m.index! + m[0].length - 1;
+			const open = m.index + m[0].length - 1;
 			const args = splitArgs(src.slice(open + 1, matchParen(src, open)));
 			const key = args[0]?.match(/^\s*tr\(\s*'([^']+)'/)?.[1] ?? null;
 			const code = args[2]?.trim().match(/^'([^']+)'$/)?.[1] ?? null;
-			sites.push({ key, code, at: `${path}:${src.slice(0, m.index!).split('\n').length}` });
+			sites.push({ key, code, at: `${path}:${src.slice(0, m.index).split('\n').length}` });
 		}
 	}
 	return sites;

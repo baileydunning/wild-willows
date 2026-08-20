@@ -53,7 +53,7 @@ describe('LocalTable CRUD (mirrors the slice of Harper the server uses)', () => 
 		await db.Placement.put({ id: 'a', objectId: 'o1' });
 		await db.Placement.put({ id: 'b', objectId: 'o2' });
 		const rows = db.Placement.search();
-		expect(rows.map((r: any) => r.id).sort()).toEqual(['a', 'b']);
+		expect(rows.map((r: any) => String(r.id)).sort((a: string, b: string) => a.localeCompare(b))).toEqual(['a', 'b']);
 	});
 
 	it('reads are copies — mutating a returned row does not corrupt the store', async () => {
