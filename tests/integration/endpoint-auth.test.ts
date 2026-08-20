@@ -126,6 +126,7 @@ const PUBLIC = [
 	'privacy',
 	'age-rating',
 	'support',
+	'about',
 	'teachers',
 	'es', // /es/ — the Spanish site
 	'learn', // /learn/<slug> — the classroom student pages

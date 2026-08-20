@@ -52,7 +52,15 @@ import { getPlayer, patchPlayer } from './player';
 export const KEY_REV = 3;
 
 /** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 3. */
-export const WORLD_KEYED = new Set(['BiomeState', 'NodeState', 'TerrainTile', 'Discovery', 'Placement', 'Chest', 'FeedEntry']);
+export const WORLD_KEYED = new Set([
+	'BiomeState',
+	'NodeState',
+	'TerrainTile',
+	'Discovery',
+	'Placement',
+	'Chest',
+	'FeedEntry',
+]);
 
 /** Tables re-keyed by the KEY_REV 3 migration (see migrateWorldKeys). */
 const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];

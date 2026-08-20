@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>About the developer &mdash; Wild Willows</title>
+<meta name="description" content="Wild Willows is made by one person: Bailey Dunning, a software developer in Colorado with a background in education, and a Great Pyrenees mix named Willow.">
+<link rel="canonical" href="https://wildwillows.app/about">
+<meta name="robots" content="index, follow">
+<meta name="theme-color" content="#2b3149">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E">
+<link rel="mask-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Ccircle cx='12' cy='12' r='11' fill='%234a7c59'/%3E%3Cpath d='M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8' fill='%23d8eec2'/%3E%3C/svg%3E" color="#4a7c59">
+
+<meta property="og:type" content="profile">
+<meta property="og:site_name" content="Wild Willows">
+<meta property="og:title" content="About the developer &mdash; Wild Willows">
+<meta property="og:description" content="One person makes Wild Willows: a Colorado software developer who used to build curriculum for schools, and a dog named Willow the game is named after.">
+<meta property="og:url" content="https://wildwillows.app/about">
+<meta property="og:image" content="https://wildwillows.app/og-image.jpg?v=2">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The Wild Willows wordmark over all six restored biomes: meadow, forest, wetland, scrubland, alpine heights and shore, each full of plants, ponds and animals.">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="About the developer &mdash; Wild Willows">
+<meta name="twitter:description" content="One person makes Wild Willows: a Colorado software developer, a background in education, and a dog named Willow.">
+<meta name="twitter:image" content="https://wildwillows.app/og-image.jpg?v=2">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<!-- ONE request, at the three weights this site actually sets: body 500,
+     headings 700, chips 600. The preload alone is enough (high priority, and
+     onload promotes it); the noscript copy is the fallback. -->
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap" onload="this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Quicksand:wght@500;600;700&display=swap"></noscript>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "AboutPage",
+      "name": "About the developer — Wild Willows",
+      "url": "https://wildwillows.app/about",
+      "description": "Who makes Wild Willows, and why the game is the way it is.",
+      "inLanguage": "en",
+      "isPartOf": { "@type": "WebSite", "name": "Wild Willows", "url": "https://wildwillows.app/" },
+      "mainEntity": {
+        "@type": "Person",
+        "name": "Bailey Dunning",
+        "jobTitle": "Software developer",
+        "email": "wildwillowsgame@gmail.com",
+        "description": "Solo developer of Wild Willows. Former instructional designer, now a full-stack software engineer, based in Colorado.",
+        "sameAs": [
+          "https://www.reddit.com/user/wildwillowsdev",
+          "https://bai13y.itch.io/wild-willows"
+        ],
+        "alumniOf": { "@type": "EducationalOrganization", "name": "Turing School of Software & Design" },
+        "knowsAbout": ["Game development", "Web development", "APIs", "Instructional design", "Ecology"]
+      },
+      "about": {
+        "@type": "VideoGame",
+        "name": "Wild Willows",
+        "url": "https://wildwillows.app/",
+        "author": { "@type": "Person", "name": "Bailey Dunning" }
+      }
+    }
+  ]
+}
+</script>
+
+<style>
+<!-- @include public/partials/site-core.css -->
+
+/* ============================================================
+   /about only. Everything above is public/partials/site-core.css,
+   inlined at build time by scripts/build-pages.mjs — the shared
+   design system, byte-locked to the landing page's own <style>
+   (tests/unit/site-css.test.ts). Anything only this page needs
+   lives down here, and the class names are checked against that
+   sheet first: `hero-about` rather than a bare word it already
+   defines. This page @includes the partial instead of carrying a
+   fourth hand-copy of it, which is the direction the landing,
+   support and age-rating pages are meant to go.
+   ============================================================ */
+
+.band{background:var(--paper-deep)}
+
+/* hero: the landing page's dusk, shorter. This is a story, not a storefront. */
+.hero.hero-about .wrap{padding:3.4rem 1.2rem 3.6rem}
+.hero.hero-about .wordmark{font-size:clamp(1.9rem,5vw,3.1rem)}
+
+/* The page is mostly prose, so it gets ONE readable column rather than the
+   full 1080px wrap: a 40rem measure is about 75 characters a line, which is
+   where long-form text stops being tiring to read. */
+.prose{max-width:40rem;margin:0 auto;font-size:1.04rem}
+.prose p{color:var(--ink-soft)}
+.prose p:last-child{margin-bottom:0}
+.prose b,.prose strong{color:var(--ink)}
+.prose .lede{font-size:1.12rem;color:var(--ink);font-weight:600}
+
+/* generic cream panel + a two-up grid, so sections stop reinventing a card */
+.card{background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);box-shadow:var(--shadow);padding:1.4rem 1.5rem}
+.card h2{font-size:1.08rem;margin:0 0 .4rem}
+.card p{color:var(--ink-soft);font-size:.96rem;margin:0}
+.card p + p{margin-top:.6rem}
+.card b{color:var(--ink)}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:1.1rem;max-width:56rem;margin:1.8rem auto 0}
+@media(max-width:640px){.g2{grid-template-columns:1fr}}
+
+/* one screenshot, framed in the game's own panel */
+figure.win{max-width:42rem;margin:1.8rem auto 0}
+
+/* real photographs, in the same cream panel everything else on the site sits
+   in. Both are portrait, which is why they get their own narrow measure rather
+   than the .win frame the landscape game screenshots use: a full-width portrait
+   photo pushes the paragraph after it a whole screen down. */
+.photo{margin:0;background:var(--panel);border:1.5px solid var(--panel-edge);border-radius:var(--rlg);
+  box-shadow:var(--shadow);padding:.5rem}
+.photo img{display:block;width:100%;height:auto;border-radius:calc(var(--rlg) - 7px)}
+
+/* prose and a photo, side by side. The photo column is deliberately narrow:
+   these are portrait phone pictures, and at full measure one of them is a
+   screen of its own and shoves the next paragraph out of sight. Alternating
+   which side it sits on keeps the page from listing to one edge. */
+.withphoto{display:grid;grid-template-columns:minmax(0,1fr) 15rem;gap:2rem;align-items:start;max-width:54rem;margin:0 auto}
+.withphoto .prose{margin:0;max-width:none}
+.withphoto.flip{grid-template-columns:15rem minmax(0,1fr)}
+.withphoto.flip .prose{order:2}
+.withphoto.flip .photo{order:1}
+@media(max-width:800px){
+  .withphoto{grid-template-columns:1fr;gap:1.6rem;max-width:40rem}
+  .withphoto .photo{max-width:17rem;margin:0 auto;width:100%}
+  .withphoto.flip .prose{order:1}
+  .withphoto.flip .photo{order:2}
+}
+
+/* final CTA: back to the dusk */
+.final{position:relative;background:linear-gradient(180deg,var(--paper) 0%,var(--dusk) 0%,var(--night2) 55%,var(--night) 100%);color:#f2f0dd;text-align:center;overflow:hidden;padding:4.2rem 0 4.6rem}
+.final h2{color:#f7f4e4}
+.final p{color:#d9d2ba;max-width:34rem;margin:0 auto 1.6rem}
+.final .cta-row{justify-content:center;position:relative;z-index:2}
+
+footer{background:#1d2334;color:#a9a893;padding:2.1rem 0;font-size:.9rem}
+footer .wrap{display:flex;flex-wrap:wrap;gap:1rem 2rem;align-items:center;justify-content:space-between}
+footer .brand{color:#e3ddc6}
+footer a{color:#cfc9ad;text-decoration:none}
+footer a:hover{color:#fff}
+footer .foot-links{display:flex;gap:1.2rem;flex-wrap:wrap}
+
+/* section anchors clear the sticky nav */
+section[id]{scroll-margin-top:66px}
+</style>
+</head>
+<body>
+
+<nav class="nav"><div class="wrap">
+  <a class="brand" href="/"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</a>
+  <div class="links">
+    <a class="hide-sm" href="#background">Background</a>
+    <a class="hide-sm" href="#classroom">Teaching &amp; code</a>
+    <a class="hide-sm" href="#willow">Willow</a>
+    <a class="hide-sm" href="/support.html" data-track="support">Support</a>
+    <a class="btn btn-go" href="/">The game</a>
+  </div>
+</div></nav>
+
+<header class="hero hero-about" id="top">
+  <div class="hero-scene" aria-hidden="true">
+    <span class="star" style="top:11%;left:16%;width:3px;height:3px"></span>
+    <span class="star" style="top:17%;left:35%;width:2px;height:2px;animation-delay:.9s"></span>
+    <span class="star" style="top:9%;left:59%;width:2px;height:2px;animation-delay:1.6s"></span>
+    <span class="star" style="top:20%;left:74%;width:3px;height:3px;animation-delay:.4s"></span>
+    <span class="star" style="top:12%;left:88%;width:2px;height:2px;animation-delay:2.2s"></span>
+    <span class="fly" style="bottom:15%;left:26%"></span>
+    <span class="fly" style="bottom:12%;left:42%;animation-delay:2.5s"></span>
+    <span class="fly" style="bottom:21%;left:68%;animation-delay:4.5s"></span>
+    <svg viewBox="0 0 1600 420" preserveAspectRatio="xMidYMax slice">
+      <g>
+        <circle cx="255" cy="70" r="30" fill="#f4ecca" opacity=".95"/>
+        <circle cx="244" cy="62" r="26" fill="#4b4260" opacity=".45"/>
+      </g>
+      <path d="M0 330 Q 240 262 520 312 T 1080 300 T 1600 312 V420 H0 Z" fill="#2c3327" opacity=".9"/>
+      <path d="M0 366 Q 300 322 640 354 T 1200 348 T 1600 358 V420 H0 Z" fill="#1f2b1d"/>
+      <path d="M64 400 q-4 -30 6 -46 M84 402 q2 -26 -6 -42 M104 400 q-2 -32 8 -50 M1258 398 q-4 -26 6 -42 M1278 400 q2 -24 -4 -38 M1296 398 q-2 -28 8 -44"
+        stroke="#16210f" stroke-width="3.5" fill="none" stroke-linecap="round" opacity=".85"/>
+    </svg>
+  </div>
+  <div class="wrap">
+    <h1 class="wordmark">About the developer</h1>
+    <p class="lead">Hi, I'm Bailey. I'm a software developer based in Colorado and the person building Wild Willows.</p>
+  </div>
+</header>
+
+<section id="outside" style="padding-top:3.2rem"><div class="wrap">
+  <div class="withphoto">
+  <div class="prose">
+    <p>I've always spent a lot of time outside. Hiking, backpacking, kayaking, camping, and generally wandering around looking at plants and animals has been a pretty consistent part of my life. I'm not an ecologist, and I don't want to pretend to be one. I'm just someone who really likes being outside and tends to get interested in why a place looks the way it does, what lives there, and how all of those things affect each other.</p>
+    <p class="lede">That interest is a big part of where Wild Willows came from.</p>
+  </div>
+  <figure class="photo">
+    <img decoding="async" width="800" height="1000" src="/img/bailey-and-willow-9aa39f1c.webp" alt="Bailey sitting in a sunlit hollow at the base of an old weathered tree, wearing a straw hat and a pink jacket, with Willow, a big white Great Pyrenees mix, sitting in the hollow beside her.">
+  </figure>
+  </div>
+</div></section>
+
+<section class="band" id="background"><div class="wrap">
+  <div class="prose">
+    <p>My background is actually a mix of education and technology.</p>
+    <p>I studied digital art, technology and creative writing at the University of Denver. More than any one skill, that taught me how to learn a lot of different software and be creative with it. I was also a goalie on the lacrosse team there, and coached middle and high school girls' lacrosse for over a decade afterward.</p>
+    <p>Before I became a software developer, I worked in instructional design at the Random Acts of Kindness Foundation, where I helped build curriculum and educational resources for schools. I spent a lot of time thinking about how to take a larger idea and turn it into something students could actually engage with.</p>
+    <p>Years later, I changed careers and learned how to code at Turing School of Software &amp; Design. That ended up changing my life pretty dramatically. I went from having essentially no professional software background to spending the next several years working as a full-stack engineer on web applications, APIs, infrastructure, authentication systems, and other production software.</p>
+  </div>
+</div></section>
+
+<section id="slow"><div class="wrap">
+  <div class="prose">
+    <p>I also spent those years working in pretty high-stress tech environments. There were deadlines, incidents, constantly changing priorities, pressure to move faster, and the general feeling that there was always another thing that needed your attention. I learned a huge amount from that part of my career, but it also made me appreciate how rare it can feel to have something that isn't asking you to hurry.</p>
+    <p>That became important when I started thinking about what kind of game I actually wanted to make.</p>
+    <p>I didn't want Wild Willows to be another thing demanding that you optimize everything or keep up with a clock. I wanted to make something slower. There are no timers pushing you forward and no real penalty for taking your time. You can wander around, work on something for a while, get distracted by an animal, go decorate your house, or just stop and listen to the music.</p>
+  </div>
+  <figure class="win">
+    <div class="winbar"><span class="wdot"></span><b>Willow Meadow, before &amp; after</b></div>
+    <img decoding="async" loading="lazy" width="1160" height="725" src="/img/meadow-before-after-c5de53a0.webp" alt="The same corner of Willow Meadow in Wild Willows side by side: bare dry ground with only a tent and campfire on the left, and on the right the restored version with a cottage, grass, wildflowers, a pond, a bench and a bluebird.">
+  </figure>
+</div></section>
+
+<section class="band" id="classroom"><div class="wrap">
+  <div class="prose">
+    <p>For a long time, education and software felt like two pretty separate parts of my career. Wild Willows has been the first project where they've really started overlapping again.</p>
+    <p>I originally started building it because I wanted to make a cozy game about restoring damaged land and getting wildlife to come back. I liked the idea of progression being tied to making a place healthier instead of defeating something or maximizing production. The basic loop is still pretty simple: reshape the land, plant things, create habitat, and see what starts returning.</p>
+    <p>As I kept working on it, I realized there were a lot of other things I wanted to explore through the project too.</p>
+    <p>I started making classroom resources around the ecology systems in the game. Then I built a public API around the game data and started creating coding lessons with it. Students can use the same data the game uses to learn things like JavaScript, JSON, arrays, loops, filtering, and APIs.</p>
+    <p>That part has been especially meaningful to me because I remember what it felt like to be completely new to programming. Coding gave me a career I never expected to have, and I like the idea that this weird little game I made might be somebody else's first introduction to it.</p>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <h2>For teachers</h2>
+      <p>Two free classroom kits: <a href="/teachers/science" data-track="edu-nav">Ecosystems &amp; Habitat</a> for grades 5&ndash;8, with an educator guide and six student worksheets, and <a href="/teachers/coding" data-track="edu-nav">Intro to APIs &amp; Web Development</a> for grades 9&ndash;12. <a href="/teachers" data-track="edu-nav">Both are here</a>, along with free copies for schools.</p>
+    </div>
+    <div class="card">
+      <h2>For anyone learning to code</h2>
+      <p>The <a href="/learn" data-track="learn-nav">classroom pages</a> teach JavaScript against real data &mdash; a lesson, and an editor with thirty project ideas. The data itself comes from the <a href="/developers/api" data-track="api-docs">public API</a>, which is free, needs no key, and is the same one the game reads.</p>
+    </div>
+  </div>
+</div></section>
+
+<section id="willow"><div class="wrap">
+  <div class="head">
+    <h2>And then there's Willow</h2>
+  </div>
+  <div class="withphoto flip">
+  <div class="prose">
+    <p>Willow is my Great Pyrenees and Border Collie mix, and yes, Wild Willows is named after her. She's also a certified therapy dog, and for the past four years we've volunteered together at Tennyson Center for Children.</p>
+    <p>She has been with me through a lot of different chapters of my life and has spent an unreasonable number of hours sleeping next to me and barking at squirrels while I work on this game.</p>
+  </div>
+  <figure class="photo">
+    <img decoding="async" loading="lazy" width="800" height="1000" src="/img/willow-5a40e3a7.webp" alt="Willow, a white Great Pyrenees and Border Collie mix in a teal collar, standing on sunlit grass with her tail up and her mouth open in a grin.">
+  </figure>
+  </div>
+</div></section>
+
+<section class="band" id="next"><div class="wrap">
+  <div class="head">
+    <h2>What I want it to become</h2>
+  </div>
+  <div class="prose">
+    <p>At this point, I'm still figuring out exactly what Wild Willows will become.</p>
+    <p>I want to keep making the game better and deeper. I want the ecology systems to become more interesting without turning the game into a textbook. I want teachers to be able to use pieces of it in ways that are actually useful to them. I want the coding resources to keep growing. And I want to keep the project open enough that people can do things with it that I haven't thought of.</p>
+    <p class="lede">Mostly, I want to build something I care about.</p>
+    <p>Wild Willows has given me a place to bring together a lot of things that used to feel unrelated in my life, and I'm interested in seeing where that goes.</p>
+  </div>
+</div></section>
+
+<section class="final" id="hello">
+  <span class="fly" style="bottom:24%;left:18%"></span>
+  <span class="fly" style="bottom:30%;left:44%;animation-delay:3s"></span>
+  <span class="fly" style="bottom:20%;left:72%;animation-delay:5.5s"></span>
+  <div class="wrap">
+    <h2>Say hello</h2>
+    <p>Bug reports, questions, classroom ideas and pictures of your preserve all reach the same person. I read everything.</p>
+    <div class="cta-row">
+      <a class="btn btn-go" href="/support.html" data-track="support">Ways to reach me</a>
+      <a class="btn btn-paper" href="https://www.reddit.com/r/wildwillows/" rel="noopener" data-track="reddit">r/wildwillows</a>
+      <a class="btn btn-night" href="/">Back to the game</a>
+    </div>
+  </div>
+</section>
+
+<footer><div class="wrap">
+  <div class="brand"><svg viewBox="0 0 24 24" aria-hidden="true" style="width:24px;height:24px"><circle cx="12" cy="12" r="11" fill="#4a7c59"/><path d="M7 17C7 10.5 11 7.5 17 7.2c.3 6-2.7 10-10 9.8" fill="#d8eec2"/></svg> Wild Willows</div>
+  <div class="foot-links">
+    <a href="/">The game</a>
+    <a href="/teachers" data-track="edu-nav">For teachers</a>
+    <a href="https://apps.apple.com/us/app/wild-willows/id6787300760?mt=12" rel="noopener" data-track="appstore">App Store</a>
+    <a href="https://bai13y.itch.io/wild-willows" rel="noopener" data-track="itch">itch.io</a>
+    <a href="/privacy.html" data-track="privacy">Privacy</a>
+    <a href="/age-rating.html">Age suitability</a>
+    <a href="/support.html" data-track="support">Support</a>
+  </div>
+  <div>Made by Bailey Dunning &middot; Music &amp; sound by Jon Licht</div>
+</div></footer>
+
+<script>
+(function(){
+  /* ------------------------------------------------ outbound click beacon
+     The same anonymous, aggregate-only beacon the landing page uses
+     (POST /LandingEvent/, counted per day in Harper, shown on /dashboard).
+
+     Outbound targets reuse the landing page's names ('appstore', 'itch',
+     'privacy', 'support', 'edu-nav', 'learn-nav', 'api-docs', 'reddit'), so a
+     click from here lands in the same bucket as the same click from the landing
+     page. That is the number worth having; where it was clicked from is not.
+
+     No page-level 'visit' ping: that is ONE undifferentiated series shared by
+     every page that sends it, so a ping from here would silently inflate the
+     landing page's number with no way to unmix them. This page reports itself
+     with its own click target instead, the same trade /support and /privacy
+     made. */
+  function track(type,target,from){
+    try{
+      var payload=JSON.stringify({type:type,target:target||null,
+        from:from||undefined});
+      if(navigator.sendBeacon){navigator.sendBeacon('/LandingEvent/',new Blob([payload],{type:'application/json'}));}
+      else{fetch('/LandingEvent/',{method:'POST',headers:{'content-type':'application/json'},body:payload,keepalive:true}).catch(function(){});}
+    }catch(e){}
+  }
+  /* Once per browser session: did anyone read the page at all. */
+  function sendPageView(){
+    if(sendPageView.done)return; sendPageView.done=true;
+    try{
+      if(sessionStorage.getItem('ww_about_seen'))return;
+      sessionStorage.setItem('ww_about_seen','1');track('click','about-page');
+    }catch(e){track('click','about-page');}
+  }
+  if(window.requestIdleCallback)requestIdleCallback(sendPageView,{timeout:3000});
+  else setTimeout(sendPageView,500);
+  window.addEventListener('pagehide',sendPageView);
+  document.addEventListener('click',function(e){
+    var el=e.target&&e.target.closest&&e.target.closest('[data-track]');
+    if(el&&el.tagName==='A')track('click',el.getAttribute('data-track'));
+  });
+})();
+</script>
+
+</body>
+</html>

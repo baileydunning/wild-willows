@@ -407,6 +407,13 @@ const LANDING_CLICK_TARGETS = new Set([
 	'privacy-page',
 	'support-page',
 	'rating-page',
+	// The /about page: 'about' is the footer link that gets someone there,
+	// 'about-page' is the page reporting itself once per browser session, on the
+	// same trade the policy pages made. Two targets rather than one because they
+	// answer different questions — whether the footer link is worth its place,
+	// and whether anyone reads the page once they land on it.
+	'about',
+	'about-page',
 	'pdf-guide',
 	'pdf-worksheets',
 	'school-copy',

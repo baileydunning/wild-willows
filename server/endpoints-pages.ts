@@ -8,6 +8,7 @@
 import { pageLastmod } from './page-lastmod';
 import { DEFAULT_LOCALE, PAGE_ALTERNATES, PUBLIC_PAGES, SITE_ORIGIN } from './site-pages';
 import {
+	aboutHtml,
 	ageRatingHtml,
 	buildStamp,
 	dashboardHtml,
@@ -216,6 +217,13 @@ export class AgeRatingPage extends PublicEndpoint {
 export class SupportPage extends PublicEndpoint {
 	async get() {
 		return htmlPage(this, 'support', supportHtml);
+	}
+}
+
+/** GET /about — who makes the game: background, why it is slow, and the dog. */
+export class AboutPage extends PublicEndpoint {
+	async get() {
+		return htmlPage(this, 'about', aboutHtml);
 	}
 }
 

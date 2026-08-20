@@ -47,7 +47,10 @@ export function areaGrid(d: any, area: string): { cols: number; rows: number } {
  * WorldScene: the gates are one tile in from each side, on the middle row of
  * the playable band. The first biome has no gate west, the last none east.
  */
-export function gateGeomOf(d: any, area: string): { gateY: number; landRight: number; westGate: boolean; eastGate: boolean } {
+export function gateGeomOf(
+	d: any,
+	area: string,
+): { gateY: number; landRight: number; westGate: boolean; eastGate: boolean } {
 	const biome = d.biome.get(area);
 	const g = biome?.grid;
 	const cols = g?.cols || GRID_W;

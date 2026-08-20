@@ -106,6 +106,7 @@ export {
 	PrivacyPage as privacy,
 	AgeRatingPage as 'age-rating',
 	SupportPage as support,
+	AboutPage as about,
 	TeachersPage as teachers,
 	LearnPage as learn,
 	DevelopersPage as developers,

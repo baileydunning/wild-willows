@@ -15,7 +15,10 @@ describe('the server source the text-scanning suites read', () => {
 			onDisk.filter((m) => !listed.includes(m as (typeof LAYERS)[number])),
 			'add these to LAYERS in tests/serverSource.ts, or the suites that grep the server go blind to them',
 		).toEqual([]);
-		expect(listed.filter((m) => !onDisk.includes(m)), 'LAYERS names a module that no longer exists').toEqual([]);
+		expect(
+			listed.filter((m) => !onDisk.includes(m)),
+			'LAYERS names a module that no longer exists',
+		).toEqual([]);
 	});
 
 	it('reads as one body of code, not an empty string', () => {

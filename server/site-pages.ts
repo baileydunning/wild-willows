@@ -51,6 +51,13 @@ export const PUBLIC_PAGES: Record<string, SitePage> = {
 		"redirect": true,
 		"sitemap": true
 	},
+	"about": {
+		"group": "about",
+		"locale": "en",
+		"path": "/about",
+		"redirect": true,
+		"sitemap": true
+	},
 	"teachers": {
 		"group": "teachers",
 		"locale": "en",

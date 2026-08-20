@@ -118,6 +118,22 @@ export const SITE_PAGES = [
 		redirect: true,
 		sitemap: true,
 	},
+	// Who makes the game. Its own URL rather than a section of the landing page
+	// for the same reason /teachers is: it answers a different question, from a
+	// visitor who has usually already played, and it is the page a press mention
+	// or a store listing links when it wants "the developer" rather than "the
+	// game". Extensionless like /teachers and /learn — nothing external points at
+	// an .html version of it, so it gets the cleaner path.
+	{
+		key: 'about',
+		group: 'about',
+		locale: 'en',
+		const: 'aboutHtml',
+		src: 'public/about.html',
+		path: '/about',
+		redirect: true,
+		sitemap: true,
+	},
 	// The teachers section: a hub and its two kits, all three under one resource.
 	//
 	// /teachers is extensionless on purpose — it is not a store-listing URL that

@@ -128,7 +128,13 @@ export async function findInWorld(table: any, worldId: string, id: string): Prom
  * recognizes them regardless of the id scheme; callers act on the tile's real
  * `.id`, so legacy rows are patched/deleted correctly and heal over time.
  */
-export async function findTerrainAt(table: any, worldId: string, area: string, x: number, y: number): Promise<any | null> {
+export async function findTerrainAt(
+	table: any,
+	worldId: string,
+	area: string,
+	x: number,
+	y: number,
+): Promise<any | null> {
 	// The current id IS the position, so try it directly before scanning. A hit
 	// here turns the most frequent lookup in the game (every dig, plant, place and
 	// terraform does at least one) into a single point read.

@@ -128,7 +128,8 @@ export function homeOf(player: any) {
 	const t = player?.homeTier || 1; // legacy: map the old single tier onto space + comfort
 	return { ...DEFAULT_HOME, space: t, comfort: t, styleLocked: t > 1 };
 }
-export const homeCarryBonus = (player: any) => HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
+export const homeCarryBonus = (player: any) =>
+	HOME_TRACKS.comfort.levels[(homeOf(player).comfort || 1) - 1]?.carry || 0;
 
 // A freshly built house sits at 5 total track levels (space 2 + three at 1);
 // every level bought on any track past that strengthens the style's perk.
