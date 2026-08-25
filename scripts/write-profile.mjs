@@ -51,7 +51,15 @@ const deepFreeze = (v) => {
 const sizeOf = (v) => Buffer.byteLength(JSON.stringify(v ?? null), 'utf8');
 
 const stats = { writes: 0, writeBytes: 0, rows: 0, readBytes: 0 };
-const resetStats = () => Object.keys(stats).forEach((k) => (stats[k] = 0));
+const byW = new Map(); // "endpoint|table" -> writes
+const byR = new Map(); // "endpoint|table" -> rows read
+let CURRENT = '(setup)';
+const bump = (m, key, n = 1) => m.set(key, (m.get(key) || 0) + n);
+const resetStats = () => {
+	Object.keys(stats).forEach((k) => (stats[k] = 0));
+	byW.clear();
+	byR.clear();
+};
 
 /** The primary-key prefix a query is bounded to, mirroring Harper's
  *  `starts_with` → primaryStore.getRange. Without this every scan reads the
@@ -77,22 +85,26 @@ function makeTable(name) {
 			const r = rows.get(String(id));
 			if (r) {
 				stats.rows++;
+				bump(byR, `${CURRENT}|${name}`);
 				stats.readBytes += sizeOf(r);
 			}
 			return r ? deepFreeze(structuredClone(r)) : undefined;
 		},
 		async put(row) {
 			stats.writes++;
+			bump(byW, `${CURRENT}|${name}`);
 			stats.writeBytes += sizeOf(row);
 			rows.set(String(row.id), structuredClone(row));
 		},
 		async patch(id, partial) {
 			stats.writes++;
+			bump(byW, `${CURRENT}|${name}`);
 			stats.writeBytes += sizeOf(partial);
 			rows.set(String(id), { ...(rows.get(String(id)) || { id }), ...structuredClone(partial) });
 		},
 		async delete(id) {
 			stats.writes++;
+			bump(byW, `${CURRENT}|${name}`);
 			rows.delete(String(id));
 		},
 		search(query) {
@@ -100,6 +112,7 @@ function makeTable(name) {
 			const keys = prefix === null ? [...rows.keys()] : [...rows.keys()].filter((k) => k.startsWith(prefix));
 			const snap = keys.map((k) => rows.get(k));
 			stats.rows += snap.length;
+			bump(byR, `${CURRENT}|${name}`, snap.length);
 			for (const r of snap) stats.readBytes += sizeOf(r);
 			return (async function* () {
 				for (const r of snap) yield deepFreeze(structuredClone(r));
@@ -169,8 +182,8 @@ globalThis.databases = {
 	},
 };
 const mod = await import(join(root, 'resources.js'));
-const post = (cls, body) => new mod[cls]().post(body);
-const get = (cls, id) => new mod[cls](id).get();
+const post = (cls, body) => ((CURRENT = cls), new mod[cls]().post(body));
+const get = (cls, id) => ((CURRENT = cls + ' GET'), new mod[cls](id).get());
 const appearance = { skin: 'light', hair: 'brown', hairStyle: 'short', build: 'average', outfit: 'green', hat: 'none' };
 
 // ------------------------------------------------------------------ profiles
@@ -223,26 +236,6 @@ async function browserProfile() {
 	holder.db = freshDb();
 	const pid = (await post('CreatePlayer', { name: 'Ada', passcode: 'pw1234', appearance })).playerId;
 	await post('Heartbeat', { playerId: pid });
-	// Warm the PROCESS before measuring. reconcileDefinitions() (server/worlds.ts)
-	// rewrites every seed record — Biome, Recipe, HabitatObject, ToolDef,
-	// ResourceType, Animal, Achievement — on its first call in a worker, and
-	// memoizes the promise. That is ~630 writes ONCE PER WORKER at boot, amortized
-	// over the life of the process. Measuring the first minute of play charged all
-	// of it to a single player-minute and overstated browser writes about 7x
-	// (729/min vs the true 97/min), which in turn understated PRO capacity by the
-	// same factor. Burn a throwaway action first so the pass has already run.
-	await post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'warm', resourceId: 'seeds' }).catch(
-		() => {},
-	);
-	await get('GameState', pid).catch(() => {});
-	// It is dispatched as `void reconcileDefinitions()` (worlds.ts) — fire and
-	// forget — so triggering it is not enough: its writes drain asynchronously
-	// into whatever window is open next. Wait for the write counter to go quiet.
-	for (let i = 0; i < 200; i++) {
-		const before = stats.writes;
-		await new Promise((r) => setTimeout(r, 10));
-		if (stats.writes === before) break;
-	}
 	const p = holder.db.Player._rows.get(pid);
 	holder.db.Player._rows.set(pid, {
 		...p,
@@ -293,41 +286,45 @@ async function browserProfile() {
 	};
 }
 
-// -------------------------------------------------------------------- report
-const TIERS = {
-	'Free (START)': { writes: 1_000, reads: 1_000, writeKb: 100, readKb: 1024 },
-	PRO: { writes: 120_000, reads: 1_000_000, writeKb: 400 * 1024, readKb: 1024 * 1024 },
+// ------------------------------------------------------------- write profile
+await desktopProfile();
+const b1 = await browserProfile();
+const w1 = new Map(byW), r1 = new Map(byR);
+const b = await browserProfile();
+console.log(`RUN 1 (cold process): ${b1.writesMin} writes, ${Math.round(b1.rowsMin)} rows read`);
+console.log(`RUN 2 (warm process): ${b.writesMin} writes, ${Math.round(b.rowsMin)} rows read`);
+void w1; void r1;
+
+const roll = (m) => {
+	const byKey = new Map();
+	for (const [k, n] of m) {
+		const [ep, tbl] = k.split('|');
+		bumpInto(byKey, ep, tbl, n);
+	}
+	return byKey;
 };
-const cap = (cost, limit) => (cost <= 0 ? Infinity : Math.floor(limit / cost));
-const fmt = (n) => (n === Infinity ? 'no limit' : n.toLocaleString());
+function bumpInto(map, ep, tbl, n) {
+	if (!map.has(ep)) map.set(ep, new Map());
+	const t = map.get(ep);
+	t.set(tbl, (t.get(tbl) || 0) + n);
+}
+const total = (m) => [...m.values()].reduce((a, x) => a + x, 0);
 
-function capacity(p, tier) {
-	const c = {
-		writes: cap(p.writesMin, tier.writes),
-		reads: cap(p.rowsMin, tier.reads),
-		'write data': cap(p.writeKbMin, tier.writeKb),
-		'read data': cap(p.readKbMin, tier.readKb),
-	};
-	const [binds, value] = Object.entries(c).sort((a, b) => a[1] - b[1])[0];
-	return { value, binds };
+function table(m, label) {
+	const rolled = roll(m);
+	const rows = [...rolled.entries()]
+		.map(([ep, tbls]) => [ep, total(tbls), [...tbls.entries()].sort((a, b) => b[1] - a[1])])
+		.sort((a, b) => b[1] - a[1]);
+	const grand = rows.reduce((a, r) => a + r[1], 0);
+	console.log(`\n=== ${label} — ${grand} total ===`);
+	for (const [ep, n, tbls] of rows) {
+		const pct = ((n / grand) * 100).toFixed(1).padStart(5);
+		console.log(`${pct}%  ${String(n).padStart(5)}  ${ep}`);
+		for (const [t, tn] of tbls) console.log(`                     ${String(tn).padStart(5)}  ${t}`);
+	}
 }
 
-const profiles = [await desktopProfile(), await browserProfile()];
-let md = `<!-- capacity-report -->\n### Concurrent saves this build can support\n\n`;
-md += `| Build | Free (START) | PRO | Binds on | Cost per save/min |\n|---|--:|--:|---|---|\n`;
-for (const p of profiles) {
-	const free = capacity(p, TIERS['Free (START)']);
-	const pro = capacity(p, TIERS.PRO);
-	md += `| **${p.label}** | ${fmt(free.value)} | ${fmt(pro.value)} | ${free.binds} (free) / ${pro.binds} (PRO) | ${p.writesMin.toFixed(1)} writes, ${p.writeKbMin.toFixed(1)} KB out, ${Math.round(p.rowsMin)} rows in |\n`;
-}
-md += `\n<details><summary>What was measured</summary>\n\n`;
-for (const p of profiles) md += `- **${p.label}** — ${p.note}. ${p.detail}.\n`;
-md += `\nClient cadences read from source: heartbeat every ${HEARTBEAT_MS / 1000}s, feed flush every ${FEED_FLUSH_MS / 1000}s, metrics uplink every ${UPLINK_MIN} min.\n`;
-md += `\nSimulated against the built \`resources.js\` with an in-memory Harper. A number moving in a PR means the write or read path changed — worth a look. The game's own \`Math.random()\` makes landed-action counts vary a little run to run, so treat ±10% as noise.\n</details>\n`;
-
-process.stdout.write(md);
-const outIdx = process.argv.indexOf('--out');
-if (outIdx > -1 && process.argv[outIdx + 1]) {
-	writeFileSync(process.argv[outIdx + 1], md);
-	console.error(`\nwrote ${process.argv[outIdx + 1]}`);
-}
+console.log(`Browser demo, one save, one simulated minute at 40 actions/min`);
+console.log(`writes ${b.writesMin}  ·  rows read ${Math.round(b.rowsMin)}  ·  ${b.writeKbMin.toFixed(1)} KB written`);
+table(byW, 'WRITES by endpoint / table');
+table(byR, 'ROW READS by endpoint / table');

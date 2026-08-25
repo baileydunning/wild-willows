@@ -265,13 +265,13 @@ async function browserProfile() {
 	// re-sync every 4 actions. That rate is the p99 of observed play (median is
 	// ~13/min, heaviest sustained save 47/min), so this profile is a heavy real
 	// player rather than a worst case nobody reaches.
-	for (let i = 0; i < 27; i++) {
+	for (let i = 0; i < 9; i++) {
 		landed += await post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: `n${i}`, resourceId: 'seeds' })
 			.then(() => 1)
 			.catch(() => 0);
 		if (i % 4 === 0) await get('GameState', pid).catch(() => {});
 	}
-	for (let i = 0; i < 13; i++) {
+	for (let i = 0; i < 4; i++) {
 		landed += await post('Terraform', {
 			playerId: pid,
 			area: 'meadow',
