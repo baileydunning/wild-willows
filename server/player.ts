@@ -11,6 +11,7 @@ import { t as tr } from '../src/i18n/server';
 import { GameError, db } from './core';
 import { safeGet } from './store';
 import { noteKeyedWorlds } from './keys';
+import { cached, closeScope, openScope } from './scan-cache';
 import { readDaily, readMetrics } from './metrics';
 
 // ------------------------------------------------------------- field guides
@@ -317,6 +318,25 @@ const playerLocks = new Map<string, Promise<void>>();
 const pendingPlayerPatch = new Map<string, any>();
 const bufferingPlayers = new Set<string>();
 
+/**
+ * The STORED player row, read once per request.
+ *
+ * Every gameplay action reads this row two or three times — requirePlayer on the
+ * way in, the achievement sweep, bumpMetrics merging onto the freshest copy —
+ * and inside a lock it cannot change between them, because patchPlayer buffers
+ * (below) and nothing else writes Player mid-action. The reads were identical;
+ * the only thing the second and third bought was latency.
+ *
+ * Deliberately the stored row, WITHOUT the pending patch overlaid. Callers that
+ * want this request's own writes folded in go through getPlayer, which is the
+ * one place that overlay belongs; a cache that quietly applied it would change
+ * WHEN an achievement fires (a trigger reading the metrics its own action just
+ * bumped) rather than only how often a row is read.
+ */
+export async function readPlayerRow(playerId: string): Promise<any | null> {
+	return cached(playerId, 'Player|row', () => safeGet(db().Player, playerId));
+}
+
 /** Patch the player row — buffered inside a lock, written through outside one. */
 export async function patchPlayer(playerId: string, partial: any): Promise<void> {
 	if (!playerId || !partial) return;
@@ -332,7 +352,7 @@ export async function patchPlayer(playerId: string, partial: any): Promise<void>
 
 /** The player row as this request has left it: stored row plus anything pending. */
 export async function getPlayer(playerId: string): Promise<any | null> {
-	const stored = await safeGet(db().Player, playerId);
+	const stored = await readPlayerRow(playerId);
 	const pending = pendingPlayerPatch.get(playerId);
 	if (!pending) return stored;
 	return { ...(stored || { id: playerId }), ...pending };
@@ -351,6 +371,10 @@ export async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>):
 	playerLocks.set(playerId, mine);
 	if (ahead) await ahead;
 	bufferingPlayers.add(playerId);
+	// The read scope opens with the write buffer and closes with it, for the same
+	// reason: this is the span in which one request, and only one, is acting on
+	// this save. See scan-cache.ts for why the id is the whole safety argument.
+	openScope(playerId);
 	try {
 		return await fn();
 	} finally {
@@ -364,6 +388,9 @@ export async function withPlayerLock<T>(playerId: string, fn: () => Promise<T>):
 		} catch (e: any) {
 			console.error(`flushing player writes for ${playerId} failed —`, e?.message || e);
 		}
+		// After the flush, so the write above still invalidates a scope that is open
+		// — the next request must never inherit this one's rows.
+		closeScope(playerId);
 		release();
 		// Only the last one out clears the slot, or a queued request would be
 		// dropped from the chain and start racing again.

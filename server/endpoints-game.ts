@@ -14,7 +14,7 @@ import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:z
 
 import { FEED_CAP, GameError, NODE_REGEN_SECONDS, appendFeed, clamp, db, hash64, posInt, sumValues } from './core';
 import { allOf, existsRaw, forceRemove, safeGet } from './store';
-import { byPlayer } from './keys';
+import { byPlayer, placementKey } from './keys';
 import {
 	byArea,
 	byWorld,
@@ -1594,14 +1594,17 @@ export class PlaceObject extends PublicEndpoint {
 				);
 			}
 
-			const placements = await byWorld(t.Placement, wid);
-			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+			// Both questions below are about THIS area only, and under KEY_REV 4 the
+			// area is in the key — so ask for one area's run rather than the world's
+			// and filter five sixths of it away here.
+			const placements = await byArea(t.Placement, wid, area);
+			if (placements.some((p) => p.x === tx && p.y === ty)) {
 				throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
 			}
 			// Some structures are one-per-biome (e.g. the trail tent — a single shared
 			// home base in each wild biome, not a tent city). World-scoped, because
 			// each tent opens into one shared interior per biome (like the home).
-			if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
+			if (def.onePerArea && placements.some((p) => p.objectId === objectId)) {
 				throw new GameError(tr('server.err.onePerArea', { name: def.name }), 409, 'server.err.onePerArea');
 			}
 			// terrain/water rules only apply outdoors — interiors have no terrain
@@ -1622,7 +1625,7 @@ export class PlaceObject extends PublicEndpoint {
 			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
 			await patchPlayer(playerId, { craftedItems });
 
-			const placementId = `${wid}:pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+			const placementId = placementKey(wid, area, `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
 			const placement = {
 				id: placementId,
 				worldId: wid,
@@ -1731,7 +1734,7 @@ export class Plant extends PublicEndpoint {
 		const perk = homePerk(player);
 		const headStart = perk?.id === 'growth' ? perk.strength : 0;
 		const now = Date.now();
-		const placementId = `${wid}:pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
+		const placementId = placementKey(wid, area, `pl_${now}_${Math.random().toString(36).slice(2, 8)}`);
 		const placement = {
 			id: placementId,
 			worldId: wid,
@@ -1920,7 +1923,7 @@ export class RemoveObject extends PublicEndpoint {
 			// interior — pack up in there first (mirrors the chest-must-be-empty rule).
 			if (placement.objectId === 'trail-tent') {
 				const interior = `tent-${placement.area}`;
-				const inside = (await byWorld(t.Placement, wid)).some((p) => p.area === interior);
+				const inside = (await byArea(t.Placement, wid, interior)).length > 0;
 				if (inside) throw new GameError(tr('server.err.tentNotEmpty'), 409, 'server.err.tentNotEmpty');
 			}
 
@@ -2476,15 +2479,28 @@ export class Terraform extends PublicEndpoint {
 			) {
 				throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 			}
-			const placements = await byWorld(t.Placement, wid);
-			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+			// One area's placements, not the world's: this asks whether anything
+			// stands on ONE tile, and reading the other five areas to answer it made
+			// the cost of a dig in the meadow grow every time the coast was built out.
+			const placements = await byArea(t.Placement, wid, area);
+			if (placements.some((p) => p.x === tx && p.y === ty)) {
 				throw new GameError(tr('server.err.somethingPlaced'), 400, 'server.err.somethingPlaced');
 			}
 
 			const tileId = `${wid}:${area}:${tx}:${ty}`;
 			// Match by position, not id: legacy beds carry an old id but must still be
 			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
-			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+			//
+			// Read as a LIST rather than through findTerrainAt, and lend it to the
+			// recalc below. findTerrainAt tries a point read first and falls back to
+			// this same area scan, which is the right trade where the lookup is all
+			// the caller wants — but here the recalc needs the whole area anyway, and
+			// this request writes a tile in between, so the two reads could not share
+			// a cached result. A dig into fresh ground therefore missed the point
+			// read AND scanned the area twice, and the second scan grew with every
+			// tile the player had ever shaped in this biome.
+			const areaTiles = await byArea(t.TerrainTile, wid, area);
+			const existing = areaTiles.find((tt: any) => tt.x === tx && tt.y === ty) || null;
 
 			// Compare-and-swap on the tile's type.
 			//
@@ -2588,6 +2604,9 @@ export class Terraform extends PublicEndpoint {
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
 				discoveries,
+				// Pre-write, with this action's change folded in above — see the note
+				// on `terrain` in recalcBiome.
+				terrain: areaTiles,
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -2672,7 +2691,7 @@ export class SyncPlayer extends PublicEndpoint {
 				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403, 'server.err.biomeLocked');
 			}
 			const wid = worldOf(player);
-			const hasTent = (await byWorld(t.Placement, wid)).some((p) => p.area === tb && p.objectId === 'trail-tent');
+			const hasTent = (await byArea(t.Placement, wid, tb)).some((p) => p.objectId === 'trail-tent');
 			if (!hasTent) throw new GameError(tr('server.err.noTentHere'), 404, 'server.err.noTentHere');
 			patch.area = area;
 		} else if (area) {

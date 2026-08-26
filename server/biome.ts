@@ -11,10 +11,10 @@ import { dayPhaseAt, nextPhaseAt, phasesSeen, seasonAt, weatherSnapshot, weather
 
 import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db } from './core';
 import { safeGet } from './store';
-import { KEY_REV } from './keys';
+import { KEY_REV, placementKey } from './keys';
 import { REPAIR_REV, byArea, byWorld, defs, findBiomeState, findInWorld, worldOf } from './worlds';
 import { CAPACITY_BY_BASKET, DEFAULT_HOME, START_INVENTORY, START_TOOLS, homeCarryBonus, homeOf } from './home';
-import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, sanitizePlayer } from './player';
+import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, readPlayerRow, sanitizePlayer } from './player';
 import { WEATHER_BIOME_IDS, bumpMetrics, encodeMetrics, freshMetrics, weatherTimeFromPlay } from './metrics';
 import { dailyTasksBlock, goalLimitFor } from './tasks';
 import { earnedAchievementIds } from './achievements';
@@ -214,7 +214,7 @@ export async function createPlayerRecords(
 	}));
 	for (const bs of biomeStates) await t.BiomeState.put(bs);
 
-	const chestPlacementId = `${wid}:pl_${playerId}_starter-chest`;
+	const chestPlacementId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
 	const placements = [
 		{
 			id: chestPlacementId,
@@ -622,6 +622,21 @@ export async function recalcBiome(
 		removeTerrainIds?: string[];
 		/** The world's Discovery rows, if the caller has already read them. */
 		discoveries?: any[];
+		/**
+		 * This area's TerrainTile rows AS THE CALLER READ THEM, before its own
+		 * writes — the add/remove deltas below are still applied on top, exactly as
+		 * they are to a list read here.
+		 *
+		 * Terraform is the reason this exists. It has to look at the area's tiles to
+		 * find the one under the cursor, then writes that tile, and the write means
+		 * the request-scoped cache cannot serve the same rows to the read below —
+		 * so a dig paid for two scans of the same area, growing with every tile the
+		 * player has ever shaped there. Handing the list down turns that back into
+		 * one, and it is not a shortcut past the write: the fold-in is what makes a
+		 * pre-write list and a post-write read equivalent, and it is the same
+		 * mechanism this function already relies on for placements.
+		 */
+		terrain?: any[];
 	} = {},
 ) {
 	const t = db();
@@ -629,7 +644,11 @@ export async function recalcBiome(
 	if (!d.biome.get(biomeId))
 		throw new GameError(tr('server.err.unknownBiome', { biome: biomeId }), 400, 'server.err.unknownBiome');
 
-	let placements = (await byWorld(t.Placement, wid)).filter((p) => p.area === biomeId);
+	// One area's placements. Under KEY_REV 4 the area is a key segment, so this is
+	// a bounded scan of that area's run rather than a scan of the whole world
+	// followed by a filter that discarded five sixths of it — which is what made
+	// the cost of recalculating the meadow grow every time the coast was built out.
+	let placements = await byArea(t.Placement, wid, biomeId);
 	if (opts.removeIds?.length) placements = placements.filter((p) => !opts.removeIds!.includes(p.id));
 	for (const ap of opts.addPlacements || []) {
 		if (ap.area !== biomeId) continue;
@@ -642,7 +661,7 @@ export async function recalcBiome(
 
 	// terraformed ground: each watered bed adds +1 health (capped) — tending the
 	// soil itself matters, not just the objects on it
-	let terrain = await byArea(t.TerrainTile, wid, biomeId);
+	let terrain = opts.terrain ?? (await byArea(t.TerrainTile, wid, biomeId));
 	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
 	for (const at of opts.addTerrain || []) {
 		if (at.area !== biomeId) continue;
@@ -669,7 +688,7 @@ export async function recalcBiome(
 
 	// Live sky for condition-gated rare animals: derived from the acting player's
 	// play-time clock, same as the weather snapshot and weather-gated gathering.
-	const actor = opts.player || (await safeGet(t.Player, playerId));
+	const actor = opts.player || (await readPlayerRow(playerId));
 	const wxTime = actor ? weatherTimeFromPlay(actor) : null;
 	const wx: WxContext | null =
 		wxTime === null
@@ -780,7 +799,7 @@ export async function recalcBiome(
 		.map((a: any) => ({ id: a?.animalId || a?.animal?.id, name: a?.animal?.name }))
 		.filter((a: any) => a.id);
 	if (Object.keys(dailyDeltas).length || Object.keys(deltas).length || arrived.length) {
-		const actor = opts.player || (await safeGet(t.Player, playerId));
+		const actor = opts.player || (await readPlayerRow(playerId));
 		if (actor) await bumpMetrics(actor, deltas, dailyDeltas, arrived);
 	}
 
@@ -849,7 +868,7 @@ export async function checkUnlocks(
 ): Promise<any[]> {
 	const t = db();
 	const d = await defs();
-	const player = fresh.player || (await safeGet(t.Player, playerId));
+	const player = fresh.player || (await readPlayerRow(playerId));
 	const unlockedNow: any[] = [];
 	const unlockedSet = new Set(player.unlockedBiomes || []);
 	// Newly-unlocked biomes each drop a one-time, claimable "welcome bundle" onto
@@ -857,13 +876,23 @@ export async function checkUnlocks(
 	// rewards, so they aren't retroactively gifted for biomes opened long ago.
 	const pendingRewards = new Set<string>(player.pendingUnlockRewards || []);
 	// the world's own unlock state is authoritative for prerequisites
-	const worldUnlocked = new Set((await byWorld(t.BiomeState, wid)).filter((b) => b.unlocked).map((b) => b.biomeId));
+	const states = await byWorld(t.BiomeState, wid);
+	const worldUnlocked = new Set(states.filter((b) => b.unlocked).map((b) => b.biomeId));
 
 	for (const biome of d.biomes) {
 		if (!biome.unlock || worldUnlocked.has(biome.id)) continue;
 		const u = biome.unlock;
+		// The prerequisite's row is already in `states` — the same scan that answered
+		// which biomes are open. Reading it again, once per unlock-gated biome, was
+		// five extra point reads on every action that recalculates anything, to
+		// re-fetch rows we were holding. Same shape as the states.find() in
+		// recipeUnlockContext, and the same fallback behind it: findBiomeState is the
+		// reliable lookup (a `.get()` can answer null for a row that exists on a cold
+		// instance), so it still stands behind a scan that came back without the row.
 		const prereq =
-			fresh.freshState?.biomeId === u.biome ? fresh.freshState : await findBiomeState(t.BiomeState, wid, u.biome);
+			fresh.freshState?.biomeId === u.biome
+				? fresh.freshState
+				: states.find((b: any) => b.biomeId === u.biome) || (await findBiomeState(t.BiomeState, wid, u.biome));
 		if (!prereq || !worldUnlocked.has(u.biome)) continue;
 		if ((prereq.health || 0) < (u.minHealth || 0)) continue;
 		if ((prereq.returnedCount || 0) < (u.minAnimals || 0)) continue;
@@ -1004,7 +1033,7 @@ export async function recipeUnlockContext(
 		const kind = d.animal.get(x.animalId)?.kind;
 		if (kind) returnedKinds[kind] = (returnedKinds[kind] || 0) + 1;
 	}
-	const placements = needPlaced ? (await byWorld(t.Placement, wid)).filter((p: any) => p.area === biomeId) : [];
+	const placements = needPlaced ? await byArea(t.Placement, wid, biomeId) : [];
 	const terrain = needWater ? await byArea(t.TerrainTile, wid, biomeId) : [];
 	const achievements = needAchievements ? await earnedAchievementIds(player.id) : new Set<string>();
 	const biomeHealth: Record<string, number> = {};

@@ -9,7 +9,7 @@
  * the hosted Harper over HTTPS from the renderer (see src/api.ts HOSTED_BASE_URL).
  */
 
-const { app, BrowserWindow, shell, ipcMain } = require('electron');
+const { app, BrowserWindow, Menu, shell, ipcMain } = require('electron');
 const path = require('node:path');
 const fs = require('node:fs');
 const steam = require('./steam');
@@ -196,8 +196,25 @@ function configureAboutPanel() {
 	});
 }
 
+// Windows/Linux ship a default Electron application menu bar — File / Edit /
+// View / Window / Help, including Reload and Toggle DevTools — drawn right on
+// top of the game window. It is the single loudest "this is just Electron" tell
+// in the packaged build, so drop it there.
+//
+// macOS is deliberately left alone: its menu lives in the system bar rather than
+// the window, and configureAboutPanel() above hangs the credits off its standard
+// App menu. It also NEEDS the menu — macOS takes the standard editing shortcuts
+// (Cmd+C/V/X/A) from menu items, so nulling the menu would break typing in the
+// save-name field. Windows and Linux get those from Chromium natively in
+// editable fields, with or without a menu.
+function configureAppMenu() {
+	if (process.platform === 'darwin') return;
+	Menu.setApplicationMenu(null);
+}
+
 async function boot() {
 	configureAboutPanel();
+	configureAppMenu();
 	steam.init(app); // no-op when not launched through Steam
 	metricsSync.start(); // listens for renderer metrics → Steam (no-op without Steam)
 	registerSaveIpc();

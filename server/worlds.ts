@@ -20,6 +20,7 @@ import toolsData from '../data/tools.json';
 import { db, isDecodeError } from './core';
 import { forceRemove, safeGet, tableName, toArray } from './store';
 import { KEY_REV, WORLD_KEYED, keyedWorlds, migrateWorldKeys, rememberKeyed, scanPrefix, worldIsKeyed } from './keys';
+import { cached } from './scan-cache';
 import { GUIDE_MAX, LEGACY_JOURNAL_TOOL, getPlayer, guideTool, patchPlayer } from './player';
 import { blocksGateTrail, gateGeomOf, recalcBiome, whyReturnedText } from './biome';
 import { awardWorldAchievements } from './achievements';
@@ -53,6 +54,14 @@ export function worldOf(player: any): string {
 export async function byWorld(table: any, worldId: string): Promise<any[]> {
 	if (!table || typeof table.search !== 'function' || !worldId) return [];
 	const name = tableName(table);
+	// Once per request, not once per caller. Three separate passes over one
+	// Terraform ask this exact question about BiomeState; the scope is keyed by the
+	// world id it was already handed, and is only ever open when a single request
+	// can write to what it holds (see scan-cache.ts).
+	return cached(worldId, `${name}|world`, () => readWorld(table, name, worldId));
+}
+
+async function readWorld(table: any, name: string, worldId: string): Promise<any[]> {
 	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
 	if (!WORLD_KEYED.has(name)) return (await toArray(table.search({}), name)).filter(own);
 
@@ -73,13 +82,23 @@ export async function byWorld(table: any, worldId: string): Promise<any[]> {
 /**
  * Tables whose ids carry the area as the SECOND key segment, `${wid}:${area}:…`.
  *
- * `NodeState` (`${wid}:${biomeId}:${nodeId}`) has the same shape and would work
- * here the day something reads nodes per biome — but nothing does today (the
- * snapshot wants every area, `Rest` deletes every area, and `CollectResource` is
- * a point read), and its rows carry no `area` field, so the legacy fallback below
- * could not filter them. Add it when there is a reader, not before.
+ * `Placement` joined under KEY_REV 4. Every per-biome reader of it — recalcBiome
+ * on each place/plant/terraform/remove, recipeUnlockContext on each craft, the
+ * collision checks in PlaceObject and Terraform — was reading all six areas and
+ * discarding five sixths in JS, which is the same waste this set was created to
+ * remove for terrain.
+ *
+ * `Chest` is deliberately NOT here even though its id now carries an area
+ * segment too (it must: its id IS its placement's). Nothing reads chests per
+ * area — the snapshot wants every one of them — so adding it would buy nothing
+ * and would claim a fast path no caller uses.
+ *
+ * `NodeState` joined when the snapshot stopped wanting every area. Its rows carry
+ * no `area` FIELD — which is what the note here used to say disqualified it — but
+ * its id has carried the area as its second segment all along, so `matches` below
+ * reads the segment for a row that has no field to read. See that predicate.
  */
-const AREA_KEYED = new Set(['TerrainTile']);
+const AREA_KEYED = new Set(['TerrainTile', 'Placement', 'NodeState']);
 
 /**
  * Bounded scan of ONE area's run inside one world.
@@ -101,8 +120,21 @@ const AREA_KEYED = new Set(['TerrainTile']);
  * healed in place, a hand-edited record — cannot leak into another area's view.
  */
 export async function byArea(table: any, worldId: string, area: string): Promise<any[]> {
-	const matches = (r: any) => r?.area === area;
-	if (!area || !AREA_KEYED.has(tableName(table)) || !(await worldIsKeyed(worldId)))
+	if (!table || !worldId) return [];
+	const name = tableName(table);
+	return cached(worldId, `${name}|area:${area}`, () => readArea(table, name, worldId, area));
+}
+
+async function readArea(table: any, name: string, worldId: string, area: string): Promise<any[]> {
+	// Prefer the row's own `area`, exactly as before. Fall back to the id's area
+	// segment only for a row that has no such field — NodeState, whose ids are
+	// `${wid}:${biomeId}:${nodeId}`. Field first, not segment first: the note on
+	// byArea explains why a row whose segment disagrees with its own area must
+	// never leak into another area's view, and that argument is unchanged for
+	// every table that has the field.
+	const matches = (r: any) =>
+		r?.area !== undefined ? r.area === area : String(r?.id ?? '').startsWith(`${worldId}:${area}:`);
+	if (!area || !AREA_KEYED.has(name) || !(await worldIsKeyed(worldId)))
 		return (await byWorld(table, worldId)).filter(matches);
 	const own = (r: any) => (r?.worldId ?? r?.playerId) === worldId;
 	return (await scanPrefix(table, `${worldId}:${area}:`)).filter((r: any) => own(r) && matches(r));
@@ -150,16 +182,20 @@ export async function findTerrainAt(
  * safeguard as findTerrainAt. Callers patch the row's real `.id`.
  */
 export async function findBiomeState(table: any, worldId: string, biomeId: string): Promise<any | null> {
-	const direct = await safeGet(table, `${worldId}:${biomeId}`);
-	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
-	const rows = await byWorld(table, worldId);
-	return rows.find((r: any) => r.biomeId === biomeId) || null;
+	return cached(worldId, `${tableName(table)}|biome:${biomeId}`, async () => {
+		const direct = await safeGet(table, `${worldId}:${biomeId}`);
+		if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
+		const rows = await byWorld(table, worldId);
+		return rows.find((r: any) => r.biomeId === biomeId) || null;
+	});
 }
 export async function findDiscovery(table: any, worldId: string, animalId: string): Promise<any | null> {
-	const direct = await safeGet(table, `${worldId}:${animalId}`);
-	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
-	const rows = await byWorld(table, worldId);
-	return rows.find((r: any) => r.animalId === animalId) || null;
+	return cached(worldId, `${tableName(table)}|animal:${animalId}`, async () => {
+		const direct = await safeGet(table, `${worldId}:${animalId}`);
+		if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
+		const rows = await byWorld(table, worldId);
+		return rows.find((r: any) => r.animalId === animalId) || null;
+	});
 }
 
 /**

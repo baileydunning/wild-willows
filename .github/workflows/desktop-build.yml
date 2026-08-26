@@ -3,6 +3,10 @@ name: Desktop build & publish to itch
 # Builds the solo-only desktop app for Windows, macOS, and Linux on native
 # runners. On an itch-v* OR plain v* tag push it then publishes each build to
 # itch.io with butler (channels windows / osx / linux of bai13y/wild-willows).
+#
+# Windows publishes the packaged FOLDER (dist/win-unpacked) rather than an
+# installer or a zip — see the comment on the selection step in the publish job
+# for why, and build.win in package.json for the matching `dir` target.
 # A plain manual run just builds the artifacts and skips publishing.
 #
 # Tag scheme (mirrors mas-release.yml):
@@ -101,14 +105,27 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload installers/archives
+      # Windows uploads the packaged FOLDER, not a single archive, because that
+      # is what gets pushed to itch (see the publish job). Pointing `path` at the
+      # directory makes it the artifact root, so the downloaded artifact IS the
+      # game folder — "Wild Willows.exe" sits at its top level, not one dir down.
+      - name: Upload packaged folder (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 14
+          path: dist/win-unpacked
+
+      - name: Upload installers/archives (macOS / Linux)
+        if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           if-no-files-found: error
           retention-days: 14
           path: |
-            dist/*.exe
             dist/*.dmg
             dist/*.zip
             dist/*.AppImage
@@ -152,9 +169,27 @@ jobs:
           GAME="bai13y/wild-willows"
           VERSION="${GITHUB_REF_NAME#itch-}"; VERSION="${VERSION#v}"   # itch-v0.1.0 / v0.1.0 -> 0.1.0
 
-          # Pick the best file per platform: portable zip for win/mac, AppImage for linux.
-          win=$(ls artifacts/wild-willows-windows/*.zip 2>/dev/null | head -1 || true)
-          [ -z "$win" ] && win=$(ls artifacts/wild-willows-windows/*.exe 2>/dev/null | head -1 || true)
+          # Pick what to push per platform: the packaged FOLDER for win, zip for
+          # mac, AppImage for linux.
+          #
+          # win is a directory, not a file, and that is deliberate — it is what itch
+          # asks for: "Instead of shipping an installer (MyGame_setup.exe or
+          # MyGame.msi), just push the install folder with butler."
+          # (https://itch.io/docs/itch/integrating/platforms/windows.html — butler's
+          # own manual calls installers "the absolute worst".) Pushing the folder is
+          # what lets the itch app show a single Play button, and it is what makes
+          # butler's delta patching work: it diffs the loose files, so a content-only
+          # update ships as a few MB instead of re-downloading ~400MB of Electron.
+          #
+          # This used to push *.zip — electron-builder's dump of that same tree as one
+          # archive — which is why the download was a folder of DLLs with the exe
+          # buried in it and no patching between versions.
+          win=artifacts/wild-willows-windows
+          if [ ! -f "$win/Wild Willows.exe" ]; then
+            echo "Windows artifact has no 'Wild Willows.exe' at its root — refusing to push:"
+            ls -la "$win" || true
+            exit 1
+          fi
           mac=$(ls artifacts/wild-willows-macos/*-mac.zip 2>/dev/null | head -1 || true)
           [ -z "$mac" ] && mac=$(ls artifacts/wild-willows-macos/*.dmg 2>/dev/null | head -1 || true)
           lin=$(ls artifacts/wild-willows-linux/*.AppImage 2>/dev/null | head -1 || true)

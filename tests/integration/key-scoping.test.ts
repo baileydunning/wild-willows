@@ -1,4 +1,4 @@
-// The key contract (KEY_REV 3) — see the block above `byPlayer` in
+// The key contract (KEY_REV 4) — see the block above `byPlayer` in
 // server/resources.ts and the note in schema.graphql.
 //
 // Every mutable row is keyed so one world's rows form a contiguous run in the
@@ -178,7 +178,10 @@ describe('key contract: migration', () => {
 
 		// A solo world's marker lives on the PLAYER row (see keyMarker) — the point
 		// being that it survives the World table going away.
-		expect(w.db.Player._rows.get(LEGACY).keyRev).toBe(3);
+		// Hardcoded rather than imported from the server: bumping the contract
+		// should be a deliberate edit here too, so a revision can never land
+		// without someone looking at what the migration is expected to produce.
+		expect(w.db.Player._rows.get(LEGACY).keyRev).toBe(4);
 		// The feed collapses from one row per line into a single row holding an
 		// array, so its ROW count is 1 whatever the line count was — the lines
 		// themselves are checked below.
@@ -190,6 +193,15 @@ describe('key contract: migration', () => {
 			expect(mine.length, `${name} lost or duplicated rows during migration`).toBe(expected[name]);
 			for (const row of mine) {
 				expect(String(row.id).startsWith(`${LEGACY}:`), `${name} row "${row.id}" was not re-keyed`).toBe(true);
+				// KEY_REV 4: placements and their chests carry the area as the second
+				// segment, which is what lets byArea bound a per-biome read to one
+				// area's run. A row that migrated to the world prefix but not the area
+				// one would read as "this biome has no placements".
+				if (name === 'Placement' || name === 'Chest') {
+					expect(String(row.id), `${name} row "${row.id}" has no area segment`).toBe(
+						`${LEGACY}:${row.area}:pl_1700000000000_abc123`,
+					);
+				}
 			}
 		}
 

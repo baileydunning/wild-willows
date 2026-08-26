@@ -123,7 +123,7 @@ describe('habitat growth over real time', () => {
 		w = await freshWorld();
 		pid = (await w.post('CreatePlayer', { name: 'Grow', passcode: '1234', appearance })).playerId;
 		await w.db.Placement.put({
-			id: `${pid}:pl_tree`,
+			id: `${pid}:meadow:pl_tree`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'willow-tree',
@@ -147,7 +147,7 @@ describe('habitat growth over real time', () => {
 		pid = (await w.post('CreatePlayer', { name: 'Cap', passcode: '1234', appearance })).playerId;
 		for (let i = 0; i < 20; i++) {
 			await w.db.Placement.put({
-				id: `${pid}:pl_${i}`,
+				id: `${pid}:meadow:pl_${i}`,
 				worldId: pid,
 				playerId: pid,
 				objectId: 'willow-tree',
@@ -194,7 +194,7 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 		const now = Date.now();
 		// a willow placed 9h ago crossed its 8h maturity during a 12h absence
 		await w.db.Placement.put({
-			id: `${pid}:pl_tree`,
+			id: `${pid}:meadow:pl_tree`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'willow-tree',
@@ -236,7 +236,7 @@ describe('condition-gated rare sightings', () => {
 		let i = 0;
 		const put = (objectId: string) =>
 			w.db.Placement.put({
-				id: `${pid}:pl_${i}`,
+				id: `${pid}:meadow:pl_${i}`,
 				worldId: pid,
 				playerId: pid,
 				objectId,

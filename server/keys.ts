@@ -33,13 +33,13 @@ import { getPlayer, patchPlayer } from './player';
 //     this preserves the exact property the full scans were there to protect:
 //     it never depends on a secondary index being warm.
 //
-// The key shapes (KEY_REV 3):
+// The key shapes (KEY_REV 4):
 //
 //   BiomeState        `${wid}:${biomeId}`
 //   NodeState         `${wid}:${biomeId}:${nodeId}`
 //   TerrainTile       `${wid}:${area}:${x}:${y}`
 //   Discovery         `${wid}:${animalId}`
-//   Placement         `${wid}:pl_${ts}_${rand}`   (was `pl_${ts}_${rand}`)
+//   Placement         `${wid}:${area}:pl_${ts}_${rand}`  (KEY_REV 3: `${wid}:pl_…`)
 //   Chest             the same id as its Placement — an invariant, not a coincidence
 //   FeedEntry         `${wid}:feed`               one row holding the whole feed
 //                                                 (was one row per line, `f_${wid}_${at}_${rand}`)
@@ -49,9 +49,36 @@ import { getPlayer, patchPlayer } from './player';
 // `-`) optionally plus `-${rand}`, and a world id is `w_${ts36}_${rand}`.
 // Neither can contain a colon, so no world's key prefix can be a prefix of
 // another world's key. (This is why the prefix is `${wid}:` and never `${wid}`.)
-export const KEY_REV = 3;
+//
+// KEY_REV 4 — WHY PLACEMENTS GREW AN AREA SEGMENT.
+//
+// Every per-biome reader of Placement was reading all six areas and throwing
+// five sixths away in JS: recalcBiome (on every place, plant, terraform and
+// remove), recipeUnlockContext (on every craft), the collision checks in
+// PlaceObject and Terraform. TerrainTile solved this a revision ago by putting
+// the area in the key, which is what lets `byArea` bound the scan to one area's
+// run; placements had the identical access pattern and none of the key shape.
+//
+// The segment is safe to bake into the id because a placement's area is FIXED
+// for its lifetime — MoveObject changes x/y within an area and never the area
+// itself, and nothing else rewrites it. If that ever stops being true, moving a
+// placement across areas becomes a delete-and-recreate (its Chest with it), not
+// a patch.
+export const KEY_REV = 4;
 
-/** Tables whose ids carry a `${worldId}:` prefix under KEY_REV 3. */
+/**
+ * The id of a placement (and, by the invariant above, of its chest).
+ *
+ * One function rather than a template repeated at six call sites, because the
+ * shape is now load-bearing in two directions at once: `byArea` reads the
+ * segment back out as a scan bound, and a Chest that disagreed with its
+ * Placement by one character would be a chest the game can no longer open.
+ */
+export function placementKey(worldId: string, area: string, tail: string): string {
+	return `${worldId}:${area}:${tail}`;
+}
+
+/** Tables whose ids carry a `${worldId}:` prefix. */
 export const WORLD_KEYED = new Set([
 	'BiomeState',
 	'NodeState',
@@ -62,8 +89,35 @@ export const WORLD_KEYED = new Set([
 	'FeedEntry',
 ]);
 
-/** Tables re-keyed by the KEY_REV 3 migration (see migrateWorldKeys). */
+/** Tables re-keyed by the migration (see migrateWorldKeys). Placement leads so
+ *  the area map it builds is ready for Chest, which follows it. */
 const REKEYED_TABLES = ['Placement', 'Chest', 'FeedEntry', 'BiomeState', 'NodeState', 'TerrainTile', 'Discovery'];
+
+/** Tables whose current key carries an area segment after the world id. */
+const AREA_SEGMENTED = new Set(['Placement', 'Chest']);
+
+/**
+ * The id `row` should have under the CURRENT key contract.
+ *
+ * Idempotent by construction: it strips the world prefix and the area segment if
+ * they are already there before putting them back, so a row that is already
+ * correct maps to itself and the migration skips it. That property is what lets
+ * this run on every world at every revision without a per-revision branch —
+ * `migrateWorldKeys` simply moves every row that is not already at its target.
+ */
+function targetId(name: string, worldId: string, row: any, area?: string): string {
+	const seg = AREA_SEGMENTED.has(name) ? area || row?.area || '' : '';
+	const tail = idTail(worldId, String(row?.id ?? ''), seg);
+	return seg ? `${worldId}:${seg}:${tail}` : `${worldId}:${tail}`;
+}
+
+/** A row id with the world prefix, and any area segment already on it, removed. */
+function idTail(worldId: string, id: string, area: string): string {
+	let tail = id;
+	if (tail.startsWith(`${worldId}:`)) tail = tail.slice(worldId.length + 1);
+	if (area && tail.startsWith(`${area}:`)) tail = tail.slice(area.length + 1);
+	return tail;
+}
 
 /**
  * Bounded scan of one contiguous primary-key run.
@@ -161,17 +215,37 @@ export async function worldIsKeyed(worldId: string, playerId?: string): Promise<
 }
 
 /**
- * Re-key one world's rows into the KEY_REV 3 contract, once, then mark the save
- * so it never happens again.
+ * The area segment a row should key under: its placement's for a Chest (the
+ * id-equality invariant is the placement's to define), its own otherwise.
+ */
+function areaFor(worldId: string, name: string, row: any, areaByTail: Map<string, string>): string {
+	const own = String(row?.area || '');
+	if (name !== 'Chest') return own;
+	// Try the chest's own area segment first, then a bare tail — the chest may be
+	// on either side of the migration when we ask.
+	const id = String(row?.id ?? '');
+	return areaByTail.get(idTail(worldId, id, own)) || areaByTail.get(idTail(worldId, id, '')) || own;
+}
+
+/**
+ * Re-key one world's rows into the current KEY_REV contract, once, then mark the
+ * save so it never happens again.
  *
- * The new id is simply `${wid}:${oldId}`. Old ids were already globally unique,
- * so the mapping is deterministic and collision-free, it needs no per-table
- * logic, and it preserves the Chest-id-equals-Placement-id invariant for free
- * (both rows carry the same old id, so both get the same new one).
+ * The new id is `targetId` above: the row's own globally-unique tail under the
+ * world prefix, plus an area segment for the tables that carry one. Old ids were
+ * already unique, so the mapping is deterministic and collision-free.
+ *
+ * The Chest-id-equals-Placement-id invariant is preserved DELIBERATELY now
+ * rather than for free. Under KEY_REV 3 both rows shared an old id and so got
+ * the same new one; now the id depends on the row's area, and a Chest whose
+ * `area` was ever lost or healed differently from its Placement's would key
+ * itself somewhere its placement is not — a chest the game can see and cannot
+ * open. So chests take their area from their placement, and fall back to their
+ * own only when there is no placement left to ask.
  *
  * This is the ONLY full scan left on the per-world path, it runs at most once
- * per world, and it runs from write paths only (login and heartbeat) — never
- * from a GET handler, which must not write.
+ * per world per revision, and it runs from write paths only (login and
+ * heartbeat) — never from a GET handler, which must not write.
  */
 export async function migrateWorldKeys(worldId: string, playerId?: string): Promise<void> {
 	if (!worldId || keyedWorlds.has(worldId)) return;
@@ -181,20 +255,27 @@ export async function migrateWorldKeys(worldId: string, playerId?: string): Prom
 		rememberKeyed(keyedWorlds, worldId);
 		return;
 	}
-	const prefix = `${worldId}:`;
 	try {
+		// Which area each of this world's placements lives in, by the tail its id
+		// reduces to. Built from EVERY placement (not just the ones being moved), so
+		// a chest that needs re-keying can still find its placement's area even when
+		// that placement was already correct.
+		const areaByTail = new Map<string, string>();
 		for (const name of REKEYED_TABLES) {
 			const table = t[name];
 			if (!table || typeof table.search !== 'function') continue;
-			const stale = (await toArray(table.search({}), name)).filter(
-				(r: any) => (r?.worldId ?? r?.playerId) === worldId && !String(r?.id ?? '').startsWith(prefix),
-			);
+			const mine = (await toArray(table.search({}), name)).filter((r: any) => (r?.worldId ?? r?.playerId) === worldId);
+			if (name === 'Placement')
+				for (const r of mine)
+					if (r?.area) areaByTail.set(idTail(worldId, String(r.id ?? ''), String(r.area)), String(r.area));
+			const want = (r: any) => targetId(name, worldId, r, areaFor(worldId, name, r, areaByTail));
+			const stale = mine.filter((r: any) => String(r?.id ?? '') !== want(r));
 			for (const row of stale) {
 				const oldId = String(row.id);
 				// Write the new row before removing the old one: a crash between the
 				// two leaves a duplicate (which byWorld dedupes by id) rather than a
 				// hole. Losing a placement is unrecoverable; seeing one twice is not.
-				await table.put({ ...row, id: `${prefix}${oldId}`, worldId });
+				await table.put({ ...row, id: want(row), worldId });
 				await table.delete(oldId);
 			}
 			if (stale.length) console.error(`key migration: re-keyed ${stale.length} ${name} row(s) for world ${worldId}`);

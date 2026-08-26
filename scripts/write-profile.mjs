@@ -9,12 +9,29 @@
 //   BROWSER — server-authoritative: every action is a request and the client
 //             re-syncs state around it.
 //
+// …and the BROWSER profile is run against two saves, which is the part that took
+// a while to learn the hard way.
+//
+//   FRESH       — a save that has just been created. This is what this script
+//                 measured for its whole life, and it is a misleading instrument
+//                 on its own: every table that GROWS with play is near-empty in
+//                 it, so the only thing it can really see is the constant factor.
+//   COMPLETIONIST — a save with the preserve built out. Same minute of play, same
+//                 forty actions, on a world with objects, shaped terrain, every
+//                 animal home and every achievement earned.
+//
+// The gap between them is the whole point. Read amplification is invisible on a
+// fresh save and is what decides whether capacity holds up as people play, so a
+// change that improves one number and not the other is a change whose value you
+// have not measured yet. Print both, always, and compare per table — the growth
+// column at the bottom is where a scan that tracks world size shows itself.
+//
 // Capacity is min(limit / per-player-cost) across every Harper limit, so the
 // report names whichever one binds. The DATA caps bind long before the
 // operation counts on the free tier — 100 KB of writes per minute is about two
 // save files a minute for the whole deployment.
 //
-// Run:  node scripts/capacity-report.mjs [--out report.md]
+// Run:  node scripts/write-profile.mjs
 // Needs: npm run build:server   (this reads the built bundle, like CI ships it)
 
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -31,7 +48,7 @@ const src = (p) => readFileSync(join(root, p), 'utf8');
 // report. A miss throws rather than silently reporting against a stale default.
 function constFromSource(file, name, re) {
 	const m = src(file).match(re);
-	if (!m) throw new Error(`capacity-report: could not read ${name} from ${file}`);
+	if (!m) throw new Error(`write-profile: could not read ${name} from ${file}`);
 	return Number(m[1].replace(/_/g, '')); // source uses 30_000 style separators
 }
 const UPLINK_MIN =
@@ -232,7 +249,104 @@ async function desktopProfile() {
 	};
 }
 
-async function browserProfile() {
+// ------------------------------------------------------- the built-out save
+//
+// Sized against the real boards (data/biomes.json: 30x26, meadow 44x26), so this
+// is a preserve someone has genuinely worked on rather than a synthetic worst
+// case — roughly a sixth of each board built on and a quarter of it shaped.
+// Every animal is home and every achievement earned, which is what a save looks
+// like at the point the per-action achievement sweep has the most rows to read.
+const BUILT = { objectsPerArea: 120, tilesPerArea: 200 };
+const AREAS = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
+
+/**
+ * Fill a world in, under the CURRENT key shapes.
+ *
+ * Written straight to the store rather than through the endpoints: going through
+ * PlaceObject and Terraform would take far longer and would also exercise the
+ * very code this is meant to measure. The ids must match the key contract
+ * exactly (`${wid}:${area}:…` — see server/keys.ts), or the reads under test take
+ * their legacy fallback path and the profile measures something nobody runs.
+ *
+ * Everything sits clear of the rows the simulated minute acts on (it digs along
+ * y=2), because a seeded object on a tile the profile tries to dig makes every
+ * terraform fail — and a run where the actions never landed still prints a
+ * confident-looking table. The `landed` assertion below is the backstop for that.
+ */
+function seedBuiltOutSave(pid) {
+	const now = Date.now();
+	const AGED = now - 9e8; // long past every growSeconds / matureHours threshold
+	for (const area of AREAS) {
+		for (let i = 0; i < BUILT.objectsPerArea; i++) {
+			const id = `${pid}:${area}:pl_built_${i}`;
+			holder.db.Placement._rows.set(id, {
+				id,
+				worldId: pid,
+				playerId: pid,
+				objectId: 'wildflower',
+				area,
+				x: 3 + (i % 24),
+				y: 5 + Math.floor(i / 24),
+				placedAt: AGED,
+			});
+		}
+		for (let i = 0; i < BUILT.tilesPerArea; i++) {
+			const x = 3 + (i % 24);
+			const y = 11 + Math.floor(i / 24);
+			const id = `${pid}:${area}:${x}:${y}`;
+			// All one type on purpose. The mix changes biome health, which changes
+			// which animals come home, which changes the WRITES — and this is a read
+			// measurement that has to be the same number every run.
+			holder.db.TerrainTile._rows.set(id, {
+				id,
+				worldId: pid,
+				playerId: pid,
+				area,
+				x,
+				y,
+				type: 'soil',
+				updatedAt: AGED,
+			});
+		}
+	}
+	for (const a of [...load('data/animals-1.json'), ...load('data/animals-2.json')]) {
+		const id = `${pid}:${a.id}`;
+		holder.db.Discovery._rows.set(id, {
+			id,
+			worldId: pid,
+			playerId: pid,
+			animalId: a.id,
+			biomeId: a.biome,
+			comfort: 'comfortable',
+			timesObserved: 1,
+			firstObservedAt: AGED,
+			whyReturned: 'x',
+		});
+	}
+	for (const ach of load('data/achievements.json')) {
+		const id = `${pid}:${ach.id}`;
+		holder.db.PlayerAchievement._rows.set(id, {
+			id,
+			playerId: pid,
+			achievementId: ach.id,
+			biome: ach.biome,
+			earnedAt: AGED,
+		});
+	}
+	// A save this far along has the whole preserve open, and several reads under
+	// test behave differently for a locked biome (checkUnlocks skips it, the
+	// action gates refuse it), so leaving them shut would measure a world nobody
+	// has.
+	const player = holder.db.Player._rows.get(pid);
+	holder.db.Player._rows.set(pid, { ...player, unlockedBiomes: [...AREAS] });
+	for (const area of AREAS) {
+		const id = `${pid}:${area}`;
+		const bs = holder.db.BiomeState._rows.get(id);
+		if (bs) holder.db.BiomeState._rows.set(id, { ...bs, unlocked: true });
+	}
+}
+
+async function browserProfile({ built = false } = {}) {
 	holder.db = freshDb();
 	const pid = (await post('CreatePlayer', { name: 'Ada', passcode: 'pw1234', appearance })).playerId;
 	await post('Heartbeat', { playerId: pid });
@@ -242,6 +356,17 @@ async function browserProfile() {
 		tools: { ...(p.tools || {}), shovel: 4, axe: 4, watering: 4, net: 4 },
 		inventory: Object.fromEntries(['seeds', 'stones', 'branches', 'fiber', 'water'].map((r) => [r, 20])),
 	});
+
+	if (built) {
+		seedBuiltOutSave(pid);
+		// Settle the seeded world through the game's OWN code before measuring.
+		// Rows written by hand disagree with what the server would have computed
+		// for them — animal comfort most of all — so the first real action spends a
+		// burst of writes reconciling the fixture rather than doing anything a
+		// player did. Recalculating each area here moves that burst outside the
+		// measured minute, where it belongs.
+		for (const area of AREAS) await post('RecalcBiome', { playerId: pid, biomeId: area }).catch(() => {});
+	}
 
 	resetStats();
 	let landed = 0;
@@ -275,8 +400,19 @@ async function browserProfile() {
 			.then(() => 1)
 			.catch(() => 0);
 	}
+	// A refused action still reads rows and still lands in the table, so a run
+	// where most of them threw prints a plausible-looking profile of a minute of
+	// play that never happened. Cheap to check, and it has already caught a seeded
+	// object sitting on a tile the profile was about to dig.
+	if (landed < 36) {
+		throw new Error(
+			`write-profile: only ${landed} of 40 actions landed on the ${built ? 'built-out' : 'fresh'} save — ` +
+				`the numbers below would describe a minute of refusals, not of play`,
+		);
+	}
+
 	return {
-		label: 'Browser demo',
+		label: built ? 'Browser demo, built-out save' : 'Browser demo, fresh save',
 		note: 'server-authoritative: every action is a request and the client re-syncs state around it',
 		writesMin: stats.writes,
 		writeKbMin: stats.writeBytes / 1024,
@@ -287,13 +423,22 @@ async function browserProfile() {
 }
 
 // ------------------------------------------------------------- write profile
+
+/** Run one browser profile twice and keep the WARM numbers.
+ *
+ *  The first pass through a cold process pays for one-time work — module init,
+ *  the key migration, the memo sets filling — that no real request after the
+ *  first one pays. Reporting it as the cost of a minute of play would overstate
+ *  every figure here, so the cold run is made and discarded. */
+async function measure(opts) {
+	const cold = await browserProfile(opts);
+	const warm = await browserProfile(opts);
+	return { cold, warm, writes: new Map(byW), reads: new Map(byR) };
+}
+
 await desktopProfile();
-const b1 = await browserProfile();
-const w1 = new Map(byW), r1 = new Map(byR);
-const b = await browserProfile();
-console.log(`RUN 1 (cold process): ${b1.writesMin} writes, ${Math.round(b1.rowsMin)} rows read`);
-console.log(`RUN 2 (warm process): ${b.writesMin} writes, ${Math.round(b.rowsMin)} rows read`);
-void w1; void r1;
+const fresh = await measure({ built: false });
+const built = await measure({ built: true });
 
 const roll = (m) => {
 	const byKey = new Map();
@@ -309,6 +454,7 @@ function bumpInto(map, ep, tbl, n) {
 	t.set(tbl, (t.get(tbl) || 0) + n);
 }
 const total = (m) => [...m.values()].reduce((a, x) => a + x, 0);
+const num = (n) => Number(n).toLocaleString('en-US');
 
 function table(m, label) {
 	const rolled = roll(m);
@@ -316,15 +462,63 @@ function table(m, label) {
 		.map(([ep, tbls]) => [ep, total(tbls), [...tbls.entries()].sort((a, b) => b[1] - a[1])])
 		.sort((a, b) => b[1] - a[1]);
 	const grand = rows.reduce((a, r) => a + r[1], 0);
-	console.log(`\n=== ${label} — ${grand} total ===`);
+	console.log(`\n=== ${label} — ${num(grand)} total ===`);
 	for (const [ep, n, tbls] of rows) {
 		const pct = ((n / grand) * 100).toFixed(1).padStart(5);
-		console.log(`${pct}%  ${String(n).padStart(5)}  ${ep}`);
-		for (const [t, tn] of tbls) console.log(`                     ${String(tn).padStart(5)}  ${t}`);
+		console.log(`${pct}%  ${num(n).padStart(7)}  ${ep}`);
+		for (const [t, tn] of tbls) if (tn) console.log(`                       ${num(tn).padStart(7)}  ${t}`);
 	}
 }
 
-console.log(`Browser demo, one save, one simulated minute at 40 actions/min`);
-console.log(`writes ${b.writesMin}  ·  rows read ${Math.round(b.rowsMin)}  ·  ${b.writeKbMin.toFixed(1)} KB written`);
-table(byW, 'WRITES by endpoint / table');
-table(byR, 'ROW READS by endpoint / table');
+/** Row reads per table, across every endpoint. */
+function perTable(m) {
+	const out = new Map();
+	for (const [k, n] of m) {
+		const tbl = k.split('|')[1];
+		out.set(tbl, (out.get(tbl) || 0) + n);
+	}
+	return out;
+}
+
+console.log('Browser demo, one save, one simulated minute at 40 actions/min\n');
+for (const [name, r] of [
+	['fresh save', fresh],
+	['built-out save', built],
+]) {
+	console.log(
+		`${name.padEnd(16)} ${num(r.warm.writesMin).padStart(7)} writes   ` +
+			`${num(Math.round(r.warm.rowsMin)).padStart(7)} rows read   ` +
+			`${r.warm.writeKbMin.toFixed(1).padStart(6)} KB written`,
+	);
+}
+
+table(built.writes, 'WRITES by endpoint / table — built-out save');
+table(built.reads, 'ROW READS by endpoint / table — built-out save');
+table(fresh.reads, 'ROW READS by endpoint / table — fresh save');
+
+// --------------------------------------------------------- the growth column
+//
+// The reason both profiles are run. A table whose growth factor is ~1x costs the
+// same however much of the game someone has played; anything well above that is
+// a read that tracks world size, and it is what decides whether a launch-day
+// capacity number still holds three months in. Sorted by the built-out cost,
+// because that is the one that has to be paid.
+const freshT = perTable(fresh.reads);
+const builtT = perTable(built.reads);
+const tables = [...new Set([...freshT.keys(), ...builtT.keys()])]
+	.map((t) => [t, freshT.get(t) || 0, builtT.get(t) || 0])
+	.filter(([, f, b]) => f || b)
+	.sort((a, b) => b[2] - a[2]);
+
+console.log('\n=== ROW READS per table — how the cost grows with the save ===');
+console.log(`${'table'.padEnd(20)}${'fresh'.padStart(9)}${'built-out'.padStart(12)}${'growth'.padStart(9)}`);
+for (const [t, f, b] of tables) {
+	const growth = f ? `${(b / f).toFixed(1)}x` : b ? 'n/a' : '—';
+	console.log(`${t.padEnd(20)}${num(f).padStart(9)}${num(b).padStart(12)}${growth.padStart(9)}`);
+}
+const fTotal = [...freshT.values()].reduce((a, x) => a + x, 0);
+const bTotal = [...builtT.values()].reduce((a, x) => a + x, 0);
+console.log(
+	`${'TOTAL'.padEnd(20)}${num(fTotal).padStart(9)}${num(bTotal).padStart(12)}` +
+		`${`${(bTotal / fTotal).toFixed(1)}x`.padStart(9)}`,
+);

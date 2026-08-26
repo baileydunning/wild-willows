@@ -9,7 +9,7 @@ import { db } from './core';
 import { safeGet } from './store';
 import { byPlayer } from './keys';
 import { byArea, byWorld, defs, worldOf } from './worlds';
-import { GUIDE_MAX, guideTool } from './player';
+import { GUIDE_MAX, guideTool, readPlayerRow } from './player';
 import { readMetrics, round1 } from './metrics';
 import { analyzeWater } from './biome';
 
@@ -189,7 +189,7 @@ export async function awardAchievements(
 		// so one row left undecodable must not throw a
 		// storage-layer decode error on every action. safeGet force-decodes, purges
 		// the corrupt row, and returns null → this player is simply skipped.
-		const player = opts.player && opts.player.id === playerId ? opts.player : await safeGet(t.Player, playerId);
+		const player = opts.player && opts.player.id === playerId ? opts.player : await readPlayerRow(playerId);
 		if (!player) return [];
 		const earned = await earnedAchievementIds(playerId, player);
 		// achievement context comes from the world the player is acting in

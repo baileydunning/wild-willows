@@ -12,11 +12,65 @@ import { t as tr } from '../src/i18n/server';
 import { safeGet } from './store';
 import { worldIsKeyed } from './keys';
 import { byWorld } from './worlds';
+import { invalidateTable } from './scan-cache';
+
+// ------------------------------------------------- the invalidating db handle
+//
+// Tables are handed out wrapped so that a write drops the request-scoped reads of
+// that table before it lands (see scan-cache.ts). This is the ONE place that can
+// hold that guarantee: every write in the server reaches its table through db(),
+// so there is no call site left that could forget to invalidate — and "somebody
+// has to remember" is precisely how a read cache turns into a wrong-state bug.
+// The failure it prevents is already documented at the `addPlacements` fold-in in
+// recalcBiome: a search inside a transaction can return the pre-write version of
+// a record, and serving a cached pre-write row would be the same bug with a
+// friendlier name.
+//
+// The wrapper traps `get` only, and only substitutes put / patch / delete.
+// Everything else — search, get, primaryStore, name — comes back untouched, so
+// nothing downstream (safeGet's raw-bytes salvage, tableName, Harper's own
+// internals) can tell the difference.
+const WRITE_METHODS = new Set(['put', 'patch', 'delete']);
+const tableProxies = new WeakMap<object, any>();
+const dbProxies = new WeakMap<object, any>();
+
+function wrapTable(table: any): any {
+	if (!table || (typeof table !== 'object' && typeof table !== 'function')) return table;
+	const held = tableProxies.get(table);
+	if (held) return held;
+	const name = table.name || table.tableName || '';
+	const proxy = new Proxy(table, {
+		get(target: any, prop: any) {
+			const v = Reflect.get(target, prop, target);
+			if (typeof v !== 'function' || !WRITE_METHODS.has(prop)) return v;
+			return (...args: any[]) => {
+				// Before, not after: a write that threw still may have landed, and a
+				// cache kept across an uncertain write is the worst of both.
+				invalidateTable(name);
+				return v.apply(target, args);
+			};
+		},
+	});
+	tableProxies.set(table, proxy);
+	return proxy;
+}
+
+function wrapDb(d: any): any {
+	const held = dbProxies.get(d);
+	if (held) return held;
+	const proxy = new Proxy(d, {
+		get(target: any, prop: any) {
+			return wrapTable(Reflect.get(target, prop, target));
+		},
+	});
+	dbProxies.set(d, proxy);
+	return proxy;
+}
 
 export const db = () => {
 	const d = typeof databases !== 'undefined' && databases ? databases.wildwillows : null;
 	if (!d || !d.Player) throw new GameError(tr('server.err.dbStarting'), 503, 'server.err.dbStarting');
-	return d;
+	return wrapDb(d);
 };
 
 // ---------------------------------------------------------------- helpers

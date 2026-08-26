@@ -11,7 +11,7 @@ import { isWeatherGatheredResource, weatherSnapshot } from './weather';
 
 import { FEED_CAP, FIRST_ANIMAL_ID, NODE_REGEN_SECONDS, db, hash32, readFeed, seededRng } from './core';
 import { byPlayer } from './keys';
-import { byWorld, defs, worldOf } from './worlds';
+import { byArea, byWorld, defs, worldOf } from './worlds';
 import { HOME_STYLES, tentBiomeOf } from './home';
 import { getPlayer, hasExpandedGuide, hasGuide, sanitizePlayer } from './player';
 import {
@@ -1209,7 +1209,22 @@ export async function snapshot(playerId: string, opts: { worldId?: string } = {}
 			byWorld(t.Placement, wid),
 			byWorld(t.Chest, wid),
 			byWorld(t.Discovery, wid),
-			byWorld(t.NodeState, wid),
+			// THE AREA THE PLAYER IS STANDING IN, not all six.
+			//
+			// A node state is one fact — "this spot is regrowing, and until when" —
+			// and the client only ever asks it of the area on screen (WorldScene
+			// builds its lookup from this list for the nodes it is drawing). The
+			// snapshot was sending every area's, on a table that gains a permanent
+			// row for every gathering spot a save has ever touched, which made a
+			// state refresh cost more the longer someone had played.
+			//
+			// This needs no client change, because the client already refetches the
+			// whole snapshot on every area change (changeArea in src/state.tsx syncs
+			// the player's area, then adopts a fresh GameState) — the round trip the
+			// area-scoped read would have required is one the game was already making.
+			// An interior ('home', 'tent-<biome>') has no gathering nodes, so it
+			// correctly reads as none.
+			byArea(t.NodeState, wid, player?.area || 'meadow'),
 			byWorld(t.TerrainTile, wid),
 			byPlayer(t.PlayerAchievement, playerId),
 			readFeed(wid),
