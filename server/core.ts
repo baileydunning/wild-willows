@@ -34,13 +34,38 @@ const WRITE_METHODS = new Set(['put', 'patch', 'delete']);
 const tableProxies = new WeakMap<object, any>();
 const dbProxies = new WeakMap<object, any>();
 
-function wrapTable(table: any): any {
+// The name a table answers to, and the one thing in here that must never be ''.
+//
+// It used to be read off the table alone (`table.name || table.tableName`), and
+// that held on Harper, where a table is a class and `.name` is its class name —
+// and in every test harness, whose fake tables are object literals with a `name`
+// property. It did NOT hold in the one place that ships: the in-app solo backend
+// builds `db[name] = new LocalTable()` (src/solo/localDb.ts), so the name is the
+// KEY on the db object and an INSTANCE has no `.name` at all.
+//
+// An empty name is not a missing optimization, it is three silent corruptions at
+// once, and the desktop game hit all three:
+//   - tableName() returns '', so scan-cache entry keys collapse to `|world` and
+//     `|area:meadow` for EVERY table — one table's rows get served for another's.
+//   - '' is in neither WORLD_KEYED nor AREA_KEYED, so every per-world read falls
+//     back to an unbounded scan of every save in the database.
+//   - invalidateTable('') returns immediately, so no write ever drops the cache.
+// Symptom: biome health frozen, no animal but the grasshopper ever returns, and
+// the whole game slows down as the database fills.
+//
+// So the db key is the authority. wrapDb knows it — it is the property being
+// looked up — and the proxy answers `name` with it, which fixes tableName() for
+// every reader at once because every read reaches its table through db().
+function wrapTable(table: any, key = ''): any {
 	if (!table || (typeof table !== 'object' && typeof table !== 'function')) return table;
 	const held = tableProxies.get(table);
 	if (held) return held;
-	const name = table.name || table.tableName || '';
+	const name = table.name || table.tableName || key;
 	const proxy = new Proxy(table, {
 		get(target: any, prop: any) {
+			// Answer the resolved name, so a backend whose tables carry none (LocalDb)
+			// reads identically to Harper through tableName().
+			if (prop === 'name' && !Reflect.get(target, prop, target)) return name;
 			const v = Reflect.get(target, prop, target);
 			if (typeof v !== 'function' || !WRITE_METHODS.has(prop)) return v;
 			return (...args: any[]) => {
@@ -60,7 +85,8 @@ function wrapDb(d: any): any {
 	if (held) return held;
 	const proxy = new Proxy(d, {
 		get(target: any, prop: any) {
-			return wrapTable(Reflect.get(target, prop, target));
+			// The property key IS the table name — see the note on wrapTable.
+			return wrapTable(Reflect.get(target, prop, target), typeof prop === 'string' ? prop : '');
 		},
 	});
 	dbProxies.set(d, proxy);

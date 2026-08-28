@@ -103,6 +103,13 @@ export function closeScope(key: string): void {
  * rows costs nothing next to the store read it replaces.
  */
 export async function cached<T>(scopeKey: string, entryKey: string, load: () => Promise<T>): Promise<T> {
+	// An entry key with no table segment means the caller could not name its table
+	// (`${tableName(t)}|world` on a table that answered ''), and every such caller
+	// would collide on ONE entry — the whole point of the prefix is that a write to
+	// one table drops exactly that table's reads. core.ts resolves the name from
+	// the db key so this should be unreachable; if a new backend ever makes it
+	// reachable again, read through uncached. Slow is recoverable. Wrong is not.
+	if (entryKey.startsWith('|')) return detach(await load());
 	const scope = scopeKey ? scopes.get(scopeKey) : undefined;
 	if (!scope) return detach(await load());
 	const held = scope.entries.get(entryKey);

@@ -177,3 +177,56 @@ describe('the scope does not outlive the request', () => {
 		closeScope(SCOPE);
 	});
 });
+
+// The bug this file did not catch, and why.
+//
+// Entry keys are `${tableName(table)}|…`, and tableName() used to read the name
+// off the table alone. Harper tables are classes, so `.name` is their class name;
+// every fake table in this repo's harnesses is an object literal with a `name`
+// property. The in-app solo backend is the only one that is neither — LocalDb
+// builds `db[name] = new LocalTable()`, so the name lives on the db object and an
+// instance has none.
+//
+// The result was not a missing optimization. Every key collapsed to `|world` and
+// `|area:…`, so one table's rows were served for another's; '' matched neither
+// WORLD_KEYED nor AREA_KEYED, so every read became an unbounded scan; and
+// invalidateTable('') returned before doing anything. In the shipped desktop game
+// biome health froze, and no animal but the grasshopper ever came home.
+//
+// Two guards, tested here because a nameless table is exactly what no other
+// harness models: db() resolves the name from the db key (server/core.ts), and
+// cached() refuses to cache a key it cannot attribute to a table.
+describe('a table that does not know its own name', () => {
+	it('never shares one cache entry between tables', async () => {
+		openScope(SCOPE);
+		try {
+			const [placements, pState] = counted(() => [{ id: 'p1' }]);
+			const [discoveries, dState] = counted(() => [{ id: 'd1' }]);
+			// What worlds.ts builds when tableName() answers '' for both tables.
+			const a = await cached(SCOPE, '|world', placements);
+			const b = await cached(SCOPE, '|world', discoveries);
+			expect(pState.calls).toBe(1);
+			// The failure: one load, and Discovery handed back Placement's rows.
+			expect(dState.calls, 'an unattributable key must not be cached').toBe(1);
+			expect(a).toEqual([{ id: 'p1' }]);
+			expect(b).toEqual([{ id: 'd1' }]);
+		} finally {
+			closeScope(SCOPE);
+		}
+	});
+
+	it('still caches normally once the name resolves', async () => {
+		openScope(SCOPE);
+		try {
+			const [load, state] = counted(() => [{ id: 'p1' }]);
+			await cached(SCOPE, 'Placement|world', load);
+			await cached(SCOPE, 'Placement|world', load);
+			expect(state.calls).toBe(1);
+			invalidateTable('Placement');
+			await cached(SCOPE, 'Placement|world', load);
+			expect(state.calls).toBe(2);
+		} finally {
+			closeScope(SCOPE);
+		}
+	});
+});
