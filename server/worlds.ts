@@ -535,7 +535,7 @@ export async function repairSave(
 		const renamed = await migrateAnimalAliases(worldId, playerId);
 		const dropped = await pruneUnknownDiscoveries(worldId, d);
 		const refiled = await reconcileDiscoveryBiomes(worldId, d);
-		await repairGateTrails(worldId, d);
+		const unblocked = await repairGateTrails(worldId, d);
 		await migrateFieldJournal(playerId, d, opts.player);
 		// Any of those three changes which animals count as home, and
 		// BiomeState.returnedCount is a stored number that only recalcBiome
@@ -544,7 +544,11 @@ export async function repairSave(
 		// the `*-reborn` achievement triggers. Only pay for it when something
 		// actually moved: an already-clean save (which is every save after the
 		// first pass, and every save created from 0.3 on) does no extra work.
-		if (renamed || dropped || refiled) await recalcRepairedBiomes(worldId, playerId, d);
+		// `unblocked` joins them for the same reason: clearing a gate-blocking tile
+		// deletes PLAYER-shaped open water, and BiomeState.playerWater is a stored
+		// number only recalcBiome recomputes. Left alone, the Lakemaker trigger would
+		// keep reading a lake that the repair had just drained.
+		if (renamed || dropped || refiled || unblocked) await recalcRepairedBiomes(worldId, playerId, d);
 		await patchPlayer(playerId, { repairRev: REPAIR_REV });
 	} catch (e: any) {
 		// Same contract as the key migration: a failed repair must never break the

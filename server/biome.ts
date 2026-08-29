@@ -680,6 +680,14 @@ export async function recalcBiome(
 	const openWaterTiles = terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length;
 	// rivers and lakes shaped with the watering can feed water-dwelling animals
 	const water = analyzeWater(terrain);
+	// The same analysis with the seeded starting channels excluded — what the
+	// PLAYER shaped. Stored on the row below rather than recomputed, because the
+	// achievement sweep needs exactly this and had no way to get it without
+	// re-scanning the biome's terrain on every action anywhere in the world (see
+	// the water() note in achievements.ts). It is derived from the authoritative
+	// `terrain` list this function is already holding, so persisting it costs
+	// nothing here and removes a whole-area scan from every action there.
+	const playerWater = analyzeWater(terrain, true);
 
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
 	const now = Date.now();
@@ -763,12 +771,13 @@ export async function recalcBiome(
 	const returnedCount = returnedHere();
 	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
 	const bsId = prior?.id ?? `${wid}:${biomeId}`;
-	await t.BiomeState.patch(bsId, { health, balance, returnedCount });
+	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater });
 	const biomeState = {
 		...(prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health,
 		balance,
 		returnedCount,
+		playerWater,
 	};
 
 	// Feed the daily task board: positive health gains and newly returned

@@ -45,6 +45,7 @@
 		"desktop:dist": "npm run build && electron-builder",
 		"desktop:mas": "npm run build && electron-builder --mac mas --universal",
 		"capacity": "npm run build:server && node scripts/capacity-report.mjs",
+		"read-bench": "npm run build:server && node scripts/read-bench.mjs",
 		"readability": "node scripts/readability.mjs",
 		"deploy:purge": "node scripts/purge-cache.mjs",
 		"test:e2e:website": "playwright test --config playwright.website.config.ts"

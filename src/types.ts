@@ -415,6 +415,17 @@ export interface BiomeState {
 	balance: number;
 	returnedCount: number;
 	unlocked: boolean;
+	/**
+	 * Open water the PLAYER shaped here — seeded starting channels excluded —
+	 * as the largest connected body, written by recalcBiome from the biome's own
+	 * terrain. It is what lets `waterShape` in src/recipes.ts answer for a biome
+	 * the player is not standing in, now that the snapshot only sends the current
+	 * area's tiles.
+	 *
+	 * Optional: a save whose biomes have not been recalculated since this field
+	 * existed has no value yet, and every reader falls back to counting tiles.
+	 */
+	playerWater?: { tiles: number; lake: number; river: number };
 }
 
 /**

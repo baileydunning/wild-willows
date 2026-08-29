@@ -298,6 +298,22 @@ export async function awardAchievements(
 		if (undecided.length) {
 			probing = false;
 			for (const b of askedAbout) {
+				// recalcBiome stores this on the biome row, computed from the same
+				// terrain list it was already holding, and the fold-in above means a
+				// biome recalculated by THIS request is the version we see. So the
+				// common case — a trigger asking about a biome nobody touched — is
+				// answered from a row we have, instead of scanning that biome's terrain
+				// on every action taken anywhere in the world. Digging in the forest was
+				// reading every wetland tile to re-decide Lakemaker.
+				//
+				// Absent means: a save whose biomes have not been recalculated since
+				// this field existed, or a repair that cleared water without a recalc.
+				// Fall back to the scan — the value is never guessed, only skipped.
+				const stored = (stateByBiome.get(b) as any)?.playerWater;
+				if (stored) {
+					waterCache.set(b, stored);
+					continue;
+				}
 				// player-shaped water only — seeded starting channels don't earn Lakemaker
 				const tiles = opts.terrain
 					? opts.terrain.filter((tt: any) => tt.area === b)
