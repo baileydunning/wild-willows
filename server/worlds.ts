@@ -518,7 +518,12 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 // REV 3: the field journal split into a pair of guides per area, so every save
 // carrying the old preserve-wide tier needs one pass to be handed the books it
 // already paid for (migrateFieldJournal).
-export const REPAIR_REV = 3;
+// REV 4: BiomeState.playerWater arrived, and a row written before it exists is
+// not merely missing an optimization — the client's fallback reads open water
+// out of `state.terrain`, which now carries only the area the player is standing
+// in, so a wetland lake is invisible from the meadow and a recipe the server
+// would happily craft shows up locked. Backfilled below.
+export const REPAIR_REV = 4;
 
 export async function repairSave(
 	worldId: string,
@@ -548,7 +553,17 @@ export async function repairSave(
 		// deletes PLAYER-shaped open water, and BiomeState.playerWater is a stored
 		// number only recalcBiome recomputes. Left alone, the Lakemaker trigger would
 		// keep reading a lake that the repair had just drained.
-		if (renamed || dropped || refiled || unblocked) await recalcRepairedBiomes(worldId, playerId, d);
+		//
+		// The water backfill joins them from the other direction: nothing MOVED,
+		// but a biome row from before `playerWater` existed has never had one
+		// written, and only recalcBiome writes it. One scan of this world's biome
+		// rows buys the answer, and the rows are handed to the sweep below so the
+		// scan is not paid for twice. A save that has one on every open biome —
+		// which is every save recalculated even once since 0.3.12 — does no work.
+		const states = await byWorld(db().BiomeState, worldId);
+		const missingWater = states.some((b: any) => b.unlocked && d.biome.get(b.biomeId) && !b.playerWater);
+		if (renamed || dropped || refiled || unblocked || missingWater)
+			await recalcRepairedBiomes(worldId, playerId, d, states);
 		await patchPlayer(playerId, { repairRev: REPAIR_REV });
 	} catch (e: any) {
 		// Same contract as the key migration: a failed repair must never break the
@@ -603,9 +618,9 @@ async function migrateFieldJournal(playerId: string, d: any, cached?: any): Prom
  * the achievements it earns are awarded here too rather than waiting for the
  * player's next placement.
  */
-async function recalcRepairedBiomes(worldId: string, playerId: string, d: any): Promise<void> {
+async function recalcRepairedBiomes(worldId: string, playerId: string, d: any, known?: any[]): Promise<void> {
 	const t = db();
-	const states = await byWorld(t.BiomeState, worldId);
+	const states = known ?? (await byWorld(t.BiomeState, worldId));
 	const open = states.filter((b: any) => b.unlocked && d.biome.get(b.biomeId)).map((b: any) => b.biomeId);
 	// One Discovery read for the whole sweep, lent to every recalc and to the
 	// achievement pass — this loop used to re-read the world's discoveries once

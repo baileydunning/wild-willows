@@ -371,7 +371,16 @@ describe('the counts the repair pass leaves behind', () => {
 		// A deliberately wrong count on a save with nothing to repair: the pass has
 		// no reason to look, so it stays wrong until the next real recalc. This is
 		// the cheap path every save takes from the second login on.
-		w.db.BiomeState._rows.set(meadow, { ...w.db.BiomeState._rows.get(meadow), returnedCount: 42 });
+		//
+		// `playerWater` is part of being clean, not decoration: a biome row without
+		// one is a row from before the field existed, and the repair recalculates to
+		// backfill it (see upgrade-safety). A row that has one gives the pass nothing
+		// to do, which is the path this test is about.
+		w.db.BiomeState._rows.set(meadow, {
+			...w.db.BiomeState._rows.get(meadow),
+			returnedCount: 42,
+			playerWater: { tiles: 0, lake: 0, river: 0 },
+		});
 
 		await login();
 

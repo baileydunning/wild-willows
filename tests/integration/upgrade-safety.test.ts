@@ -108,3 +108,84 @@ describe('a save from the shipped build survives the update', () => {
 		expect(del.ok).toBe(true);
 	});
 });
+
+/**
+ * A biome row written before BiomeState.playerWater existed.
+ *
+ * The field is the authoritative count of open water the PLAYER shaped in a
+ * biome, and the client prefers it for a reason: since the snapshot stopped
+ * sending every area's tiles, waterShape()'s fallback can only see the area on
+ * screen. So an old wetland row and a player standing in the meadow read as a
+ * wetland with no water at all, and a water-gated recipe the server would craft
+ * on request shows up locked in the book.
+ *
+ * Only recalcBiome ever writes the field, so an old row cannot heal on its own —
+ * it heals the next time something recalculates that biome, which for a biome
+ * the player is not visiting may be a long while. Hence the backfill, and hence
+ * REPAIR_REV 4: a save already stamped at the previous rev has to be looked at
+ * once more, or the pass it needs is exactly the one it skips.
+ */
+describe('a biome row from before playerWater', () => {
+	it('has one backfilled on the next beat, counting only what the player shaped', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Wade', passcode: 'hunter2', appearance })).playerId;
+		// Six connected tiles of open water the player made, plus one seeded tile
+		// touching them — the count is of shaped water, so the seeded one is not
+		// part of it and does not join the lake either.
+		for (let x = 3; x <= 8; x++)
+			await w.db.TerrainTile.put({
+				id: `${pid}:meadow:${x}:9`,
+				worldId: pid,
+				playerId: pid,
+				area: 'meadow',
+				x,
+				y: 9,
+				type: 'water',
+				updatedAt: Date.now(),
+			});
+		await w.db.TerrainTile.put({
+			id: `${pid}:meadow:9:9`,
+			worldId: pid,
+			playerId: pid,
+			area: 'meadow',
+			x: 9,
+			y: 9,
+			type: 'water',
+			seeded: true,
+			updatedAt: Date.now(),
+		});
+
+		// The shipped build's shape: a biome row that has never carried the field,
+		// on a save already stamped with the repair rev of its day.
+		const bs: any = w.db.BiomeState._rows.get(`${pid}:meadow`);
+		delete bs.playerWater;
+		await w.db.Player.patch(pid, { repairRev: 3 });
+		expect(w.db.BiomeState._rows.get(`${pid}:meadow`).playerWater).toBeUndefined();
+
+		await w.post('Heartbeat', { playerId: pid });
+
+		const healed: any = w.db.BiomeState._rows.get(`${pid}:meadow`);
+		expect(healed.playerWater).toBeTruthy();
+		expect(healed.playerWater.tiles).toBe(6);
+		expect(healed.playerWater.lake).toBe(6);
+	});
+
+	it('is a one-time pass, not a recalculation on every beat', async () => {
+		const pid = (await w.post('CreatePlayer', { name: 'Dry', passcode: 'hunter2', appearance })).playerId;
+		const bs: any = w.db.BiomeState._rows.get(`${pid}:meadow`);
+		delete bs.playerWater;
+		await w.db.Player.patch(pid, { repairRev: 3 });
+
+		await w.post('Heartbeat', { playerId: pid });
+		expect(w.db.BiomeState._rows.get(`${pid}:meadow`).playerWater).toBeTruthy(); // a dry biome still gets its zeros
+
+		// The save is stamped at the new rev now, so the next beat does not reach
+		// the repair at all: nothing recalculates, nothing is written, and the only
+		// biome read left is the growth pass's own — a second scan here would be the
+		// backfill running again on a timer.
+		w.db.BiomeState._resetWriteStats();
+		w.db.BiomeState._resetScanStats();
+		await w.post('Heartbeat', { playerId: pid });
+		expect(w.db.BiomeState._writeStats().total).toBe(0);
+		expect(w.db.BiomeState._scanStats().scans).toBe(1);
+	});
+});
