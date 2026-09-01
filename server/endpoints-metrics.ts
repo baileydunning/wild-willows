@@ -261,20 +261,25 @@ export class Heartbeat extends PublicEndpoint {
 			const longAway = newSession && awaySince > 0 && now - awaySince > 10 * 60_000;
 			// Read every placement in the world ONLY when the answer could be yes.
 			//
-			// This scan exists to fill `crossed`, and `crossed` is consulted only on
-			// the not-long-away path below. A biome can only land in it if some
-			// plant's maturity moment falls in the window ending now — and
-			// `nextMaturityAt` on the player row IS the soonest such moment for the
-			// whole save. While it is still in the future, this scan was several
-			// hundred rows spent proving a foregone conclusion, twice a minute, on a
-			// timer, for the life of the save.
+			// A biome can only land in `crossed` if some plant's maturity moment falls
+			// in the window ending now — and `nextMaturityAt` on the player row IS the
+			// soonest such moment for the whole save. While it is still in the future,
+			// this scan was several hundred rows spent proving a foregone conclusion,
+			// twice a minute, on a timer, for the life of the save.
 			//
 			// undefined means nobody has computed it yet, so scan (and compute it).
 			// 0 means we looked and nothing is growing. A value in the past means
 			// something finished and we owe the sweep a look.
+			//
+			// THE ABSENCE IS NOT AN EXCEPTION. A long-away beat recalculates every
+			// unlocked biome without consulting `crossed`, so skipping the scan there
+			// looked free — but the welcome-back summary counts the placements that
+			// matured while the player was gone from these same rows, and with none of
+			// them read it told a player returning to a grown willow that nothing had
+			// happened. The window guard above already covers the cost: it is one scan
+			// on the one beat where something is known to have finished.
 			const pending = player.nextMaturityAt;
-			const mayHaveCrossed = pending === undefined || (pending > 0 && now >= pending);
-			const scanned = !longAway && mayHaveCrossed;
+			const scanned = pending === undefined || (pending > 0 && now >= pending);
 			const placements = scanned ? await byWorld(t.Placement, wid) : [];
 			const sinceBeat = last > 0 ? last : now;
 
