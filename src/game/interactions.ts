@@ -23,9 +23,9 @@ export function canPaintClick(ctx: ClickContext): boolean {
 
 // ------------------------------------------------------- sleeping furniture
 
-/** The two things you can sleep on. Mirrors SLEEPABLE_OBJECTS in
+/** The things you can sleep on. Mirrors SLEEPABLE_OBJECTS in
  *  server/resources.ts, which is the authoritative copy. */
-export const SLEEPABLE_OBJECTS: ReadonlySet<string> = new Set(['home-bed', 'home-sleeping-bag']);
+export const SLEEPABLE_OBJECTS: ReadonlySet<string> = new Set(['home-bed', 'home-sleeping-bag', 'hammock']);
 
 export const isSleepable = (objectId: string | null | undefined): boolean =>
 	!!objectId && SLEEPABLE_OBJECTS.has(objectId);

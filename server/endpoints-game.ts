@@ -1784,16 +1784,24 @@ export class Plant extends PublicEndpoint {
 }
 
 /**
- * When a planted, yield-bearing plant is ready to harvest — mature the first
- * time, then `regrowSeconds` after each harvest. Returns the ms timestamp it
- * becomes ready, or null if it never yields.
+ * When a yield-bearing thing is ready to harvest — mature (or, for a crafted
+ * structure, placed) the first time, then `regrowSeconds` after each harvest.
+ * Returns the ms timestamp it becomes ready, or null if it never yields.
+ *
+ * Not everything that yields is planted. A rain basin is crafted and set down,
+ * and then fills on its own; it has no `plantedAt` and nothing to grow, so it is
+ * ready from the moment it is standing. Weather is deliberately NOT part of this
+ * — readiness is a clock, and `harvestWeather` gates the take on top of it (see
+ * HarvestPlacement). Folding the sky in here would make a shower that ends
+ * mid-refill look like the basin had been emptied.
  */
 function harvestReadyAt(def: any, placement: any): number | null {
 	const y = def?.yield;
-	if (!y || !def?.plantable || !placement?.plantedAt) return null;
-	const growMs = (def.growSeconds || 0) * 1000;
+	if (!y || !placement) return null;
 	const regrowMs = (y.regrowSeconds || 60) * 1000;
-	return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+	if (placement.lastHarvestAt) return placement.lastHarvestAt + regrowMs;
+	if (def.plantable) return placement.plantedAt ? placement.plantedAt + (def.growSeconds || 0) * 1000 : null;
+	return placement.placedAt ?? null;
 }
 
 /**
@@ -1820,6 +1828,34 @@ export class HarvestPlacement extends PublicEndpoint {
 			const readyAt = harvestReadyAt(def, placement);
 			if (readyAt == null || now < readyAt)
 				throw new GameError(tr('server.err.notReadyYet'), 400, 'server.err.notReadyYet');
+
+			// Some things only give up their yield under the right sky: a rain basin
+			// is a stone bowl, and a stone bowl in fair weather is an empty stone bowl.
+			//
+			// Gated exactly like a weather-gathered resource node (see CollectResource),
+			// and for the same reasons: recomputed here rather than trusted from the
+			// client, a dev weather override wins outright because it is what the client
+			// painted the sky from, and the accrued-play-time clock this runs on trails
+			// the client's smooth one by up to a heartbeat — so a player standing in
+			// visible rain is not told it isn't raining. The grace can only ever admit a
+			// harvest the player was about to be, or just was, entitled to.
+			const gate: string[] = def.harvestWeather || [];
+			if (gate.length) {
+				const forced = player?.devWeather?.type || null;
+				const base = weatherTimeFromPlay(player);
+				const ok = forced
+					? gate.includes(forced)
+					: [base - MAX_BEAT_MS, base, base + MAX_BEAT_MS].some((at) =>
+							gate.includes(weatherTypeAt(wid, placement.area, Math.max(0, at))),
+						);
+				if (!ok) {
+					throw new GameError(
+						tr('server.err.harvestWeatherOnly', { name: def.name }),
+						409,
+						'server.err.harvestWeatherOnly',
+					);
+				}
+			}
 
 			// grant the yield, respecting carrying capacity
 			const capacity = inventoryCapacity(player);
@@ -2151,7 +2187,9 @@ export class UpgradeHome extends PublicEndpoint {
 }
 
 // Objects you can sleep in/on to rest and refresh the preserve's gathering spots.
-const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
+// The hammock counts wherever it hangs: it is `placement: 'both'`, so it rests you
+// strung between two posts out in a biome as readily as it does indoors.
+const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed', 'hammock'];
 
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {

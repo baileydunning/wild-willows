@@ -176,12 +176,14 @@ export function tentRoom() {
 }
 
 // ------------------------------------------------------- sleeping furniture
-// The two things you can sleep on. Sleeping skips the clock to the next dawn, so
+// The things you can sleep on. Sleeping skips the clock to the next dawn, so
 // a bed parked in the doorway is a trap: every attempt to leave lands on it.
+// The hammock is one of these too, so it is held to the same doorway rule
+// indoors — out in a biome there is no doorway and nothing to block.
 // Keep them clear of the exit. The client mirrors this rule so the placement
 // ghost turns red (see canPlaceAt in src/game/WorldScene.ts), but this is the
 // copy that counts — the frontend is never trusted.
-export const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag']);
+export const SLEEPABLE_OBJECTS = new Set(['home-bed', 'home-sleeping-bag', 'hammock']);
 
 /** The door tile of an interior: bottom wall, horizontally centered. Must match
  *  `roomSpec()` in the client, which derives it from the same rectangle. */

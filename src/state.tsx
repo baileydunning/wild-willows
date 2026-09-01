@@ -566,10 +566,18 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		}
 	}, [state]);
 
-	// Announce newly unlocked recipes. When progress in a biome crosses a gate,
-	// new recipes appear in the crafting menu — surface that clearly so players
-	// know there's something new to make. The first computation after a load just
-	// seeds the baseline silently (so we don't toast every starter recipe).
+	// Announce newly unlocked recipes — in the FEED, not the HUD.
+	//
+	// A new recipe is not something you have to act on the moment it lands: it
+	// sits in the crafting menu until you want it. Toasting each one interrupted
+	// whatever the player was doing to tell them about a thing that would still
+	// be there later, and gate crossings tend to arrive in a clump — restore a
+	// biome a few points and several unlock at once, stacking the HUD with
+	// notices nobody asked for. The feed line keeps the announcement, scrollable
+	// and timestamped, for a player who wants to know what just opened up.
+	//
+	// The first computation after a load still seeds the baseline silently, so a
+	// login doesn't replay every starter recipe into the feed.
 	useEffect(() => {
 		if (!data || !state) return;
 		const now = unlockedRecipeIds(data, state);
@@ -579,16 +587,6 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		const added = [...now].filter((id) => !prev.has(id));
 		if (!added.length) return;
 		const defs = added.map((id) => data.recipes.find((r) => r.id === id)).filter(Boolean) as typeof data.recipes;
-		// Recipes are tuned to unlock roughly one at a time; announce each by name.
-		// (Cap the toasts if several ever land together so we don't flood the HUD.)
-		defs.slice(0, 3).forEach((r) =>
-			toast(
-				t('app.toast.recipeUnlocked', {
-					name: content('recipe', r.id, 'name', r.name),
-				}),
-				'unlock',
-			),
-		);
 		for (const r of defs)
 			pushLog(
 				'sparkle',
@@ -597,7 +595,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				}),
 				true,
 			);
-	}, [data, state, toast, pushLog]);
+	}, [data, state, pushLog]);
 
 	// Announce freshly earned achievements by diffing the snapshot (the server
 	// awards them; we surface the gold toast + a feed line carrying the flavor).

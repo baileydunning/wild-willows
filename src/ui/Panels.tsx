@@ -527,89 +527,94 @@ export function CraftingPanel() {
 	return (
 		<Panel title={t('panels.crafting.title')} icon="hammer" onClose={() => setPanel(null)} wide bodyRef={bodyRef}>
 			<p className="muted">{t('panels.crafting.intro', { count: linked.length })}</p>
-			<div className="craft-filter">
-				<label htmlFor="craft-place">{t('panels.crafting.placeLabel')}</label>
-				<select id="craft-place" value={placeFilter} onChange={(e) => setPlaceFilter(e.target.value)}>
-					<option value="all">{t('panels.crafting.allAreas')}</option>
-					<option value="home">{t('panels.crafting.insideHome')}</option>
-					{filterAreas.map((b) => (
-						<option key={b.id} value={b.id}>
-							{content('biome', b.id, 'name', b.name)}
-						</option>
-					))}
-				</select>
-				<label htmlFor="craft-type">{t('panels.crafting.typeLabel')}</label>
-				<select id="craft-type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
-					<option value="all">{t('panels.crafting.allTypes')}</option>
-					{filterTypes.map((c) => (
-						<option key={c} value={c}>
-							{catLabel[c] || c}
-						</option>
-					))}
-				</select>
-				<label htmlFor="craft-search" className="sr-only">
-					{t('panels.crafting.searchRecipes')}
-				</label>
-				<input
-					id="craft-search"
-					className="craft-search"
-					type="search"
-					placeholder={t('panels.crafting.searchPlaceholder')}
-					value={query}
-					onChange={(e) => setQuery(e.target.value)}
-					autoComplete="off"
-					aria-label={t('panels.crafting.searchRecipes')}
-				/>
-			</div>
-			{placeable.length > 0 && (
-				<div className="placeable-bar">
-					<b>{t('panels.crafting.readyToPlace')}</b>
-					{placeable.map(([id, qty]) => {
-						const def = data.habitatObjects.find((o) => o.id === id);
-						const defName = def ? content('habitatObject', def.id, 'name', def.name) : id;
-						const indoorOK = def?.placement === 'indoor' || def?.placement === 'both';
-						// a trail-tent interior follows home rules at the starter size (space 1)
-						const inTent = player.area.startsWith('tent-');
-						const indoors = player.area === 'home' || inTent;
-						const space = inTent ? 1 : player.home?.space || 1;
-						const homeBigEnough = !def?.homeMin || space >= def.homeMin;
-						const here = indoors
-							? indoorOK && homeBigEnough
-							: (def?.biomes || []).includes(player.area) && def?.placement !== 'indoor';
-						if (!here) {
-							const msg = indoors
-								? !indoorOK
-									? t('panels.crafting.notIndoor', { name: defName })
-									: inTent
-										? t('panels.crafting.tentTooSmall', { name: defName })
-										: t('panels.crafting.needsBiggerHome', { name: defName })
-								: def?.placement === 'indoor'
-									? t('panels.crafting.indoorOnly', { name: defName })
-									: t('panels.crafting.wrongArea', {
-											name: defName,
-											area: areaName,
-											areas:
-												(def?.biomes || [])
-													.map((b) => {
-														const x = data.biomes.find((xb) => xb.id === b);
-														return x ? content('biome', x.id, 'name', x.name) : b;
-													})
-													.join(', ') || t('panels.crafting.anotherArea'),
-										});
+			{/* The filters and what you have in hand stay put while the list scrolls:
+			    the recipe list is long, and both of these are things you reach for
+			    mid-scroll — narrowing the list, or placing the thing you just made. */}
+			<div className="craft-sticky">
+				<div className="craft-filter">
+					<label htmlFor="craft-place">{t('panels.crafting.placeLabel')}</label>
+					<select id="craft-place" value={placeFilter} onChange={(e) => setPlaceFilter(e.target.value)}>
+						<option value="all">{t('panels.crafting.allAreas')}</option>
+						<option value="home">{t('panels.crafting.insideHome')}</option>
+						{filterAreas.map((b) => (
+							<option key={b.id} value={b.id}>
+								{content('biome', b.id, 'name', b.name)}
+							</option>
+						))}
+					</select>
+					<label htmlFor="craft-type">{t('panels.crafting.typeLabel')}</label>
+					<select id="craft-type" value={typeFilter} onChange={(e) => setTypeFilter(e.target.value)}>
+						<option value="all">{t('panels.crafting.allTypes')}</option>
+						{filterTypes.map((c) => (
+							<option key={c} value={c}>
+								{catLabel[c] || c}
+							</option>
+						))}
+					</select>
+					<label htmlFor="craft-search" className="sr-only">
+						{t('panels.crafting.searchRecipes')}
+					</label>
+					<input
+						id="craft-search"
+						className="craft-search"
+						type="search"
+						placeholder={t('panels.crafting.searchPlaceholder')}
+						value={query}
+						onChange={(e) => setQuery(e.target.value)}
+						autoComplete="off"
+						aria-label={t('panels.crafting.searchRecipes')}
+					/>
+				</div>
+				{placeable.length > 0 && (
+					<div className="placeable-bar">
+						<b>{t('panels.crafting.readyToPlace')}</b>
+						{placeable.map(([id, qty]) => {
+							const def = data.habitatObjects.find((o) => o.id === id);
+							const defName = def ? content('habitatObject', def.id, 'name', def.name) : id;
+							const indoorOK = def?.placement === 'indoor' || def?.placement === 'both';
+							// a trail-tent interior follows home rules at the starter size (space 1)
+							const inTent = player.area.startsWith('tent-');
+							const indoors = player.area === 'home' || inTent;
+							const space = inTent ? 1 : player.home?.space || 1;
+							const homeBigEnough = !def?.homeMin || space >= def.homeMin;
+							const here = indoors
+								? indoorOK && homeBigEnough
+								: (def?.biomes || []).includes(player.area) && def?.placement !== 'indoor';
+							if (!here) {
+								const msg = indoors
+									? !indoorOK
+										? t('panels.crafting.notIndoor', { name: defName })
+										: inTent
+											? t('panels.crafting.tentTooSmall', { name: defName })
+											: t('panels.crafting.needsBiggerHome', { name: defName })
+									: def?.placement === 'indoor'
+										? t('panels.crafting.indoorOnly', { name: defName })
+										: t('panels.crafting.wrongArea', {
+												name: defName,
+												area: areaName,
+												areas:
+													(def?.biomes || [])
+														.map((b) => {
+															const x = data.biomes.find((xb) => xb.id === b);
+															return x ? content('biome', x.id, 'name', x.name) : b;
+														})
+														.join(', ') || t('panels.crafting.anotherArea'),
+											});
+								return (
+									<button key={id} className="cant-place" title={msg} onClick={() => notify(msg, 'info')}>
+										<ObjectIcon shape={def?.shape} color={def?.color} size={18} /> {defName} ×{qty}
+									</button>
+								);
+							}
 							return (
-								<button key={id} className="cant-place" title={msg} onClick={() => notify(msg, 'info')}>
+								<button key={id} onClick={() => startPlacement(id)}>
 									<ObjectIcon shape={def?.shape} color={def?.color} size={18} /> {defName} ×{qty}
 								</button>
 							);
-						}
-						return (
-							<button key={id} onClick={() => startPlacement(id)}>
-								<ObjectIcon shape={def?.shape} color={def?.color} size={18} /> {defName} ×{qty}
-							</button>
-						);
-					})}
-				</div>
-			)}
+						})}
+					</div>
+				)}
+			</div>
 			{visible.length === 0 &&
 				plantableMatches.length === 0 &&
 				(query.trim() ? (

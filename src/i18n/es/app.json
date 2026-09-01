@@ -41,7 +41,6 @@
 		"reload": "Recargar el juego"
 	},
 	"toast": {
-		"recipeUnlocked": "Nueva receta de fabricación desbloqueada — {name}",
 		"achievementUnlocked": "Logro desbloqueado — {name}",
 		"taskComplete": "Tarea completada — reclama tu recompensa en el tablero",
 		"startersDone": "¡Añade tus propios objetivos! Ya puedes diseñar los tuyos — abre el tablero (G).",

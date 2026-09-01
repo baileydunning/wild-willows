@@ -39,7 +39,7 @@ import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { isTypingTarget } from '../typing';
 import { scheduleFlush, cancelFlush } from '../perf';
-import { harvestReadyAt } from '../types';
+import { harvestReadyAt, harvestWeatherOk } from '../types';
 import type { BiomeDef, HabitatObjectDef, Placement } from '../types';
 import {
 	TILE,
@@ -3970,9 +3970,15 @@ export class WorldScene extends Phaser.Scene {
 		const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
 		const growing = growMs > 0 && age < growMs;
 		let ready = 0;
-		if (def?.yield && p.plantedAt && !growing) {
-			const at = harvestReadyAt(def, { plantedAt: p.plantedAt, lastHarvestAt: p.lastHarvestAt });
-			ready = at != null && Date.now() >= at ? 1 : 0;
+		if (def?.yield && (p.plantedAt || !def.plantable) && !growing) {
+			const at = harvestReadyAt(def, {
+				plantedAt: p.plantedAt,
+				placedAt: p.placedAt,
+				lastHarvestAt: p.lastHarvestAt,
+			});
+			// The sky is in the key, not in harvestReadyAt: a rain basin's glint has to
+			// come and go with the weather, and this key is what triggers the repaint.
+			ready = at != null && Date.now() >= at && harvestWeatherOk(def, this.currentWeatherType()) ? 1 : 0;
 		}
 		return [
 			p.objectId,
@@ -4096,13 +4102,14 @@ export class WorldScene extends Phaser.Scene {
 		// Harvest-ready plants get a soft golden glint above them; if one will
 		// become ready later (regrowing after a harvest), nudge a repaint then so
 		// the glint appears on its own.
-		if (def.yield && p.plantedAt && !stillGrowing) {
+		if (def.yield && (p.plantedAt || !def.plantable) && !stillGrowing) {
 			const readyAt = harvestReadyAt(def, {
 				plantedAt: p.plantedAt,
+				placedAt: (p as any).placedAt,
 				lastHarvestAt: (p as any).lastHarvestAt,
 			});
 			const now = Date.now();
-			if (readyAt != null && now >= readyAt) {
+			if (readyAt != null && now >= readyAt && harvestWeatherOk(def, this.currentWeatherType())) {
 				// A single small, dim star that twinkles occasionally above the plant —
 				// staggered per-plant so a field of ready plants doesn't pulse in
 				// unison (the old full glow on every plant read as a wall of light).
@@ -4207,7 +4214,9 @@ export class WorldScene extends Phaser.Scene {
 						objectId: p.objectId,
 						name: defName,
 						plantedAt: p.plantedAt,
+						placedAt: (p as any).placedAt,
 						lastHarvestAt: (p as any).lastHarvestAt,
+						area: this.area,
 						x: p.x,
 						y: p.y,
 						rotation: p.rotation || 0,

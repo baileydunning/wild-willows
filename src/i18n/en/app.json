@@ -41,7 +41,6 @@
 		"reload": "Reload the game"
 	},
 	"toast": {
-		"recipeUnlocked": "New Crafting Recipe Unlocked — {name}",
 		"achievementUnlocked": "Achievement unlocked — {name}",
 		"taskComplete": "Task complete — claim your reward on the board",
 		"startersDone": "Add your own goals! You can now design your own — open the board (G).",

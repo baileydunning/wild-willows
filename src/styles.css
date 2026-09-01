@@ -2505,6 +2505,31 @@ input {
 .guide-upsell b {
 	white-space: nowrap;
 }
+/* The crafting panel's own header: the Place/Type/Search row and the "ready to
+   place" tray ride along at the top while the recipe list scrolls under them.
+   Both are things you reach for mid-scroll — narrow the list, or put down the
+   thing you just made — and hunting back to the top for either was the whole
+   complaint.
+
+   .panel-body is the scroll container and carries 14px/20px of padding, so this
+   sticks at -14px (its own padding-top covers that band) and bleeds 20px out to
+   the panel's edges and back in — otherwise recipes would slide past in the
+   gutters either side of it. */
+.craft-sticky {
+	position: sticky;
+	top: -14px;
+	z-index: 3;
+	margin: 0 -20px;
+	padding: 14px 20px 1px;
+	background: var(--paper);
+	border-bottom: 1.5px solid var(--line);
+}
+/* The tray grows with every unplaced item you are carrying; past a few rows it
+   would be eating the panel it is pinned to, so it scrolls on its own. */
+.craft-sticky .placeable-bar {
+	max-height: 24vh;
+	overflow-y: auto;
+}
 /* flex-wrap: longer localized labels (e.g. Spanish) push the search box to its own line */
 .craft-filter {
 	display: flex;
