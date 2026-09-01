@@ -356,6 +356,50 @@ export function matureMs(def: any): number {
 	return (def?.matureHours || 0) * 3_600_000;
 }
 
+/**
+ * The soonest moment any of these placements still has left to mature, or 0 when
+ * none of them does.
+ *
+ * 0 and `undefined` are DIFFERENT answers and the distinction is load-bearing: 0
+ * means we looked and nothing is pending, `undefined` means nobody has looked.
+ * The heartbeat may skip its world-wide placement scan on the first, never on the
+ * second. See the note where it does.
+ */
+export function nextMaturityFrom(d: any, placements: any[], now: number): number {
+	let soonest = 0;
+	for (const p of placements) {
+		const ms = matureMs(d.object.get(p.objectId));
+		if (ms <= 0) continue;
+		const at = (p.placedAt || 0) + ms;
+		if (at > now && (soonest === 0 || at < soonest)) soonest = at;
+	}
+	return soonest;
+}
+
+/**
+ * Fold one freshly placed thing into a known next-maturity time.
+ *
+ * Only ever moves the moment EARLIER, which is the safe direction: too early
+ * costs one scan that finds nothing and then corrects itself, too late silently
+ * skips the beat that would have noticed a plant finishing. For the same reason
+ * an unknown stays unknown — claiming this placement is the soonest, when older
+ * ones we have never looked at may be sooner, is exactly the too-late guess.
+ */
+export function withPendingMaturity(
+	known: number | undefined,
+	def: any,
+	placedAt: number,
+	now: number,
+): number | undefined {
+	const ms = matureMs(def);
+	if (ms <= 0) return known;
+	const at = (placedAt || 0) + ms;
+	if (at <= now) return known;
+	if (known === undefined) return undefined;
+	if (known === 0 || at < known) return at;
+	return known;
+}
+
 /** True once a placement has been in the ground long enough to mature. */
 function isMature(def: any, p: any, now: number): boolean {
 	const ms = matureMs(def);

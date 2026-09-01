@@ -319,6 +319,8 @@ const VOLATILE = new Set([
 	// matters — wetland-lakemaker in PlayerAchievement, which the pond phase above
 	// exists to earn, and which IS compared.
 	'playerWater',
+	// Same: new derived bookkeeping, checked explicitly below rather than diffed.
+	'nextMaturityAt',
 ]);
 const canon = (v) => {
 	if (Array.isArray(v)) return v.map(canon);
@@ -332,6 +334,45 @@ const canon = (v) => {
 	}
 	return v;
 };
+// Growth gating: the heartbeat may skip its world-wide placement scan only while
+// nothing is due to mature. Nothing else in this session grows — every seeded
+// placement is back-dated past every threshold — so without this the gate would
+// measure as a pure win and never be asked the one question it can get wrong:
+// does a plant finishing still wake the sweep?
+const growth = { armed: 0, quiet: 0, woke: 0 };
+{
+	const rows = () => stats.byTable.Placement || 0;
+	// A grass-patch matures in 2h. Planting one is what arms the gate.
+	await act('PlaceObject', () =>
+		post('PlaceObject', { playerId: PID, area: 'meadow', objectId: 'grass-patch', x: 19, y: 9 }),
+	);
+	growth.armed = holder.db.Player._rows.get(PID)?.nextMaturityAt ?? -1;
+	// Bring the threshold to just ahead of now, keeping the gate's own bookkeeping
+	// honest. A grass-patch takes two hours, and jumping the clock that far makes
+	// the beat "long away" — which recalculates every biome unconditionally and so
+	// would pass this test without ever consulting `crossed`. That is the path the
+	// gate CANNOT break. The one it can is a plant finishing mid-session, so move
+	// the plant instead of the clock.
+	{
+		const pl = [...holder.db.Placement._rows.values()].find((x) => x.x === 19 && x.y === 9 && x.area === 'meadow');
+		const matureAt = clock + 60_000;
+		holder.db.Placement._rows.set(pl.id, { ...pl, placedAt: matureAt - 2 * 60 * 60 * 1000 });
+		const pr = holder.db.Player._rows.get(PID);
+		holder.db.Player._rows.set(PID, { ...pr, nextMaturityAt: matureAt });
+		growth.armed = matureAt;
+	}
+	// Nothing is due yet: this beat should not read a single placement.
+	let before = rows();
+	await act('Heartbeat', () => post('Heartbeat', { playerId: PID }));
+	growth.quiet = rows() - before;
+	// Two minutes on — past the plant, well inside the ten-minute away threshold,
+	// so this is the mid-session path. It MUST look, or the plant never counts.
+	clock += 120_000;
+	before = rows();
+	await act('Heartbeat', () => post('Heartbeat', { playerId: PID }));
+	growth.woke = rows() - before;
+}
+
 // The goal board is COMPUTED per snapshot, not stored, so no table row carries
 // it and the fingerprint above would miss a change that only moved a goal's
 // progress. That is exactly the failure mode of scoping a read the goal board
@@ -383,6 +424,10 @@ for (const [l, xs] of Object.entries(byLabel))
 		.filter((b) => b.playerWater && (b.playerWater.tiles || b.playerWater.lake))
 		.map((b) => `${b.biomeId} lake=${b.playerWater.lake} tiles=${b.playerWater.tiles}`);
 	const wetland = [...w.values()].find((b) => b.biomeId === 'wetland')?.playerWater;
+	console.log(
+		`growth gate   armed=${growth.armed > 0 ? 'yes' : 'NO'}  quiet beat read ${growth.quiet} placements  ` +
+			`beat after maturity read ${growth.woke}  ->  ${growth.armed > 0 && growth.quiet === 0 && growth.woke > 0 ? 'OK' : 'MISMATCH'}`,
+	);
 	console.log(`playerWater   ${shaped.join(' · ') || '(none stored)'}`);
 	console.log(
 		`  expect      wetland lake=9 tiles=9  ->  ${wetland?.lake === 9 && wetland?.tiles === 9 ? 'OK' : 'MISMATCH'}`,

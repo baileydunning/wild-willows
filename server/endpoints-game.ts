@@ -80,6 +80,7 @@ import {
 	inventoryCapacity,
 	matureMs,
 	recalcBiome,
+	withPendingMaturity,
 	recipeUnlockContext,
 	recipeUnlockMet,
 	seedStartingTerrain,
@@ -1639,6 +1640,16 @@ export class PlaceObject extends PublicEndpoint {
 			};
 			await t.Placement.put(placement);
 
+			// A new grower can only move the soonest maturity moment EARLIER, and the
+			// heartbeat skips its world-wide placement scan while that moment is still
+			// ahead of now — so tell it, rather than making it re-derive the fact from
+			// every row in the save twice a minute. withPendingMaturity leaves an
+			// unknown unknown; see the note on it.
+			{
+				const at = withPendingMaturity(player.nextMaturityAt, def, placement.placedAt, Date.now());
+				if (at !== undefined && at !== player.nextMaturityAt) await patchPlayer(playerId, { nextMaturityAt: at });
+			}
+
 			if (def.isChest) {
 				await t.Chest.put({
 					id: placementId,
@@ -1747,6 +1758,13 @@ export class Plant extends PublicEndpoint {
 			plantedAt: now - Math.round((def.growSeconds || 0) * 1000 * headStart),
 		};
 		await t.Placement.put(placement);
+		// Same as PlaceObject above — and it matters more here, because planting is
+		// what actually creates growers. The perk back-dates `placedAt`, so reading
+		// it (rather than `now`) is what keeps a head start honest.
+		{
+			const at = withPendingMaturity(player.nextMaturityAt, def, placement.placedAt, now);
+			if (at !== undefined && at !== player.nextMaturityAt) await patchPlayer(playerId, { nextMaturityAt: at });
+		}
 
 		const discoveries = await byWorld(t.Discovery, wid);
 		const recalc = await recalcBiome(wid, playerId, area, {
