@@ -100,17 +100,36 @@ test.describe('every public route', () => {
 /**
  * Wait until the page has stopped changing shape.
  *
- * THE FONT ARRIVES AFTER FIRST PAINT, ON PURPOSE. Every page loads Quicksand with
- * `media="print"` and swaps it to `all` on load, which keeps the stylesheet off
- * the critical path and guarantees exactly one reflow afterwards. On a long
- * document that reflow can move a section hundreds of pixels — and a browser that
- * has already jumped to a #hash does not re-jump when it does.
+ * THE FONT ARRIVES AFTER FIRST PAINT, ON PURPOSE. Every page loads Quicksand off
+ * the critical path — `media="print"` swapped to `all` on the landing pages, a
+ * `rel="preload"` link promoted to a stylesheet on the rest — which guarantees
+ * exactly one reflow afterwards. On a long document that reflow can move a
+ * section hundreds of pixels, and a browser that has already jumped to a #hash
+ * does not re-jump when it does.
  *
  * That is why CI saw `#corrections` at -832px while a local run with no font
  * egress saw it land perfectly: the test was racing the swap, not measuring the
  * CSS. Settle first, then measure.
+ *
+ * WHY THREE WAITS, WHEN THE POINT IS ONE REFLOW. Because the first two each
+ * leave a hole the next one closes, and the -181px that came back after this
+ * function already existed went through both of them:
+ *
+ *  • `document.fonts.ready` resolves against the faces the document knows about,
+ *    and the sheet that DECLARES Quicksand is exactly the thing still in flight.
+ *    Ask too early and the FontFaceSet is empty, so `ready` is a promise that
+ *    nothing is pending — which is true, and useless.
+ *  • So wait for the network to go quiet first: the sheet is applied and its
+ *    faces are pending by the time `ready` is asked. Bounded and swallowed
+ *    because a runner with no font egress never gets its quiet moment from that
+ *    request, and the fallback it renders instead was stable from the start.
+ *  • A height that repeats once is not a height that has settled. Two equal
+ *    samples 100ms apart is also what the document looks like in the gap between
+ *    the sheet landing and the face swapping in, so the hold has to be longer
+ *    than the gap.
  */
 async function settled(page: Page) {
+	await page.waitForLoadState('networkidle', { timeout: 8000 }).catch(() => {});
 	// Awaited inside the page and resolved to nothing: `document.fonts.ready`
 	// hands back the FontFaceSet, which does not survive being serialized out.
 	await page
@@ -119,10 +138,13 @@ async function settled(page: Page) {
 		})
 		.catch(() => {});
 	let last = -1;
-	for (let i = 0; i < 20; i++) {
+	let held = 0;
+	for (let i = 0; i < 40; i++) {
 		const h = await page.evaluate(() => document.documentElement.scrollHeight);
-		if (h === last) return;
-		last = h;
+		if (h !== last) {
+			last = h;
+			held = 0;
+		} else if (++held >= 3) return;
 		await page.waitForTimeout(100);
 	}
 }

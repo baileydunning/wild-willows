@@ -2298,9 +2298,6 @@
       ],
       "requirements": {
         "minHealth": 40,
-        "water": {
-          "tiles": 1
-        },
         "objects": {
           "catclaw-acacia": 2,
           "bush-muhly": 1,
@@ -2641,9 +2638,6 @@
       "eatenBy": [],
       "requirements": {
         "minHealth": 35,
-        "water": {
-          "tiles": 1
-        },
         "objects": {
           "carrion-patch": 1,
           "saguaro": 1,
@@ -4225,9 +4219,6 @@
       "eatenBy": [],
       "requirements": {
         "minHealth": 75,
-        "water": {
-          "tiles": 1
-        },
         "objects": {
           "canyon-ledge-den": 1,
           "mesquite-tree": 1,

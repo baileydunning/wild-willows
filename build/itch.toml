@@ -1,0 +1,14 @@
+# itch app manifest, copied to the root of the packaged Windows folder as
+# .itch.toml by build.win.extraFiles in package.json.
+#
+# Without it the itch app guesses which file to run by scanning the folder. With
+# it the app shows one button, labelled Play, wired to the game exe by name — so
+# a player who installs through the itch app sees the Wild Willows icon and a
+# Play button, never the folder of Electron DLLs sitting behind it.
+#
+# The path is the productName from package.json ("Wild Willows") + .exe. If
+# productName ever changes, this MUST change with it or the app falls back to
+# guessing. See https://itch.io/docs/itch/integrating/manifest.html
+[[actions]]
+name = "play"
+path = "Wild Willows.exe"

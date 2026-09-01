@@ -1,7 +1,7 @@
 {
 	"name": "wild-willows",
 	"author": "Bailey Dunning",
-	"version": "0.3.11",
+	"version": "0.3.12",
 	"private": true,
 	"license": "UNLICENSED",
 	"description": "Wild Willows — a cozy nature-restoration life sim",
@@ -45,10 +45,12 @@
 		"desktop:dist": "npm run build && electron-builder",
 		"desktop:mas": "npm run build && electron-builder --mac mas --universal",
 		"capacity": "npm run build:server && node scripts/capacity-report.mjs",
+		"read-bench": "npm run build:server && node scripts/read-bench.mjs",
 		"readability": "node scripts/readability.mjs",
 		"deploy:purge": "node scripts/purge-cache.mjs",
 		"test:e2e:website": "playwright test --config playwright.website.config.ts"
 	},
+	"windowsBuildComment": "Windows packages to a plain FOLDER (build.win.target = [\"dir\"]) and .github/workflows/desktop-build.yml pushes that folder to itch with butler. Not a zip, not an installer. The zip target on Windows is electron-builder's dump of the whole win-unpacked tree, and that workflow used to prefer *.zip over *.exe for the itch `windows` channel, so what a player downloaded was a folder of raw Electron internals with the game exe buried in it. An NSIS installer looks like the fix and is not: itch's own docs say to push the install folder instead of an installer, butler's manual calls installers 'the absolute worst', and the itch app would re-run the installer every time a player hit Launch. A `portable` single exe is worse still — read templates/nsis/portable.nsi in app-builder-lib: it RMDir /r's the unpack dir on entry AND on exit, so all ~400MB re-extracts to TEMP on every single launch, with no caching. The folder is what gives the itch app one Play button (wired up by build/itch.toml, copied in as .itch.toml via win.extraFiles) and what lets butler ship content-only updates as a few MB of delta instead of the whole payload. Related: build.electronLanguages is TOP-LEVEL, not under `mac` where it used to sit — in electron-builder 26 it applies per-platform (mac strips *.lproj, win/linux strip locales/*.pak), so keeping it mac-only meant the DMG shipped 2 locales while Windows and Linux shipped all 55, for languages the game is not translated into. The value is `en-US`, NOT `en`, and that is load-bearing: electron-builder's locale matcher only tests wanted === filename and wanted.startsWith(filename + '-'), never the reverse, so on Windows and Linux — where the files are locales/en-US.pak — a wanted value of `en` matches NOTHING and English is stripped out of the build. (Confirmed by packaging it: win-unpacked/locales came out holding es.pak alone.) `en-US` is right on every platform — it matches en-US.pak exactly, and on macOS the prefix rule matches en.lproj.",
 	"masComment": "Mac App Store variant (`npm run desktop:mas`). Inherits `mac` config, so everything notarized-DMG-specific is overridden here: MAS uses the App Sandbox instead of the hardened runtime + notarization, its own entitlements pair, and a provisioning profile from developer.apple.com (put it at build/embedded.provisionprofile — gitignored; CI decodes it from a secret). steamworks.js is excluded: Steam can't run inside the MAS sandbox and electron/steam.js already no-ops when the module is missing. ITSAppUsesNonExemptEncryption=false answers App Store Connect's export-compliance question (HTTPS only). NOTE (electron-builder 26+): mac.notarize is now a boolean — the notary team ID JB4CT3MZ6L moved to the APPLE_TEAM_ID env var, which CI must set alongside APPLE_ID and APPLE_APP_SPECIFIC_PASSWORD.",
 	"lintComment": "Two linters, on purpose. Prettier owns formatting; oxlint owns semantics (.oxlintrc.json). It is NOT ESLint because this repo runs typescript@7 — the native Go compiler, which publishes no JS compiler API — and @typescript-eslint/typescript-estree throws on import against it (ts.Extension is undefined) with a peer range of <6.1.0. oxlint has its own parser and takes type information from oxlint-tsgolint, which wraps the same typescript-go engine as tsc 7, so `--type-aware` rules see the types tsc actually sees. oxlint-tsgolint is version-coupled to the TypeScript it wraps (7.0.2001 -> 7.0.2): bump it WITH typescript, not independently. Revisit ESLint when typescript-eslint supports the TS 7 API.",
 	"harperComment": "`harper` is pinned EXACTLY (no caret) to the version the hosted cluster runs — 5.1.26. It is a devDependency, but it is not a normal one: tests/integration/harness.ts drives the real built resources.js through harper's own msgpackr copy, so the record encoding these tests exercise has to be the encoding production uses, and `harper dev .` is only a useful local server if it behaves like the deployed one. A caret broke exactly that. `^5.1.15` silently resolved to 5.2.2, which meant local dev and CI were testing against a Harper the cluster does not run — and 5.2 deprecates allowRead/allowUpdate/allowCreate/allowDelete, which is the whole authorization model in server/resources.ts (PublicEndpoint and DashboardEndpoint). Raise this pin when the cluster is upgraded, not before, and read the 5.2 notes first: the deprecated hooks fail OPEN, and tests/integration/metrics-split.test.ts asserts on allowRead() directly rather than through dispatch, so it would stay green while the dashboard endpoints stopped being protected.",
@@ -82,6 +84,10 @@
 		"appId": "io.harper.wildwillows",
 		"productName": "Wild Willows",
 		"copyright": "© 2026 Bailey Dunning · Music & sound by Jon Licht",
+		"electronLanguages": [
+			"en-US",
+			"es"
+		],
 		"files": [
 			"electron/**/*",
 			"package.json"
@@ -115,10 +121,6 @@
 		"buildDependenciesFromSource": false,
 		"mac": {
 			"category": "public.app-category.games",
-			"electronLanguages": [
-				"en",
-				"es"
-			],
 			"target": [
 				{
 					"target": "dmg",
@@ -157,8 +159,13 @@
 		},
 		"win": {
 			"target": [
-				"nsis",
-				"zip"
+				"dir"
+			],
+			"extraFiles": [
+				{
+					"from": "build/itch.toml",
+					"to": ".itch.toml"
+				}
 			]
 		},
 		"linux": {

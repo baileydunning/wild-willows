@@ -28,6 +28,16 @@ interface Table {
 	 *  those scans were unbounded. The key-scoping tests assert on both. */
 	_scanStats(): { rowsScanned: number; scans: number; unboundedScans: number };
 	_resetScanStats(): void;
+	/**
+	 * Point reads (get) since the last _resetScanStats().
+	 *
+	 * Counted separately because a row read by id is invisible to the scan stats,
+	 * and the Player row — the single most re-read row in the game, three times
+	 * per action before the request-scoped cache — is only ever fetched that way.
+	 * Read amplification that only shows up in point reads regresses just as
+	 * silently as the scanned kind, and nothing here could see it.
+	 */
+	_pointReads(): number;
 	/** put + patch + delete since the last _resetWriteStats(). On Harper each of
 	 *  these is a billable write, and the free tier allows 1,000/minute TOTAL
 	 *  across every player — so this is the number that sets concurrency. */
@@ -83,6 +93,7 @@ function makeTable(name = 'Table'): Table {
 	let rowsScanned = 0;
 	let scans = 0;
 	let unboundedScans = 0;
+	let pointReads = 0;
 	let puts = 0;
 	let patches = 0;
 	let deletes = 0;
@@ -118,6 +129,7 @@ function makeTable(name = 'Table'): Table {
 
 	const table: Table = {
 		async get(id) {
+			pointReads++;
 			// Harper returns null for a record it cannot decode — it does NOT throw.
 			if (corrupt.has(id)) return undefined;
 			return rows.has(id) ? frozenCopy(rows.get(id)) : undefined;
@@ -155,6 +167,7 @@ function makeTable(name = 'Table'): Table {
 			})();
 		},
 		_scanStats: () => ({ rowsScanned, scans, unboundedScans }),
+		_pointReads: () => pointReads,
 		_writeStats: () => ({ puts, patches, deletes, total: puts + patches + deletes }),
 		_resetWriteStats() {
 			puts = 0;
@@ -165,6 +178,7 @@ function makeTable(name = 'Table'): Table {
 			rowsScanned = 0;
 			scans = 0;
 			unboundedScans = 0;
+			pointReads = 0;
 		},
 		_rows: rows,
 		name,

@@ -23,6 +23,18 @@ function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set
  * opened — while the server, which is the real gate, still refused the craft.
  */
 export function waterShape(state: GameState, biomeId: string): { tiles: number; lake: number; river: number } {
+	// The server stores this per biome (BiomeState.playerWater), computed by
+	// recalcBiome from that biome's whole terrain list. Prefer it: this function is
+	// asked about a RECIPE's biome, not the one on screen, and since the snapshot
+	// stopped sending every area's tiles the local computation below can only see
+	// the area the player is standing in. Reading the stored value is what keeps a
+	// wetland recipe showing as unlocked while you stand in the meadow.
+	//
+	// The computation stays as the fallback, for a biome whose row predates the
+	// field — and it is still exact whenever the tiles for that biome are present,
+	// which is always true for the area on screen.
+	const stored = state.biomeStates?.find((b) => b.biomeId === biomeId)?.playerWater;
+	if (stored) return { tiles: stored.tiles || 0, lake: stored.lake || 0, river: stored.river || 0 };
 	const cells = new Set(
 		(state.terrain || [])
 			.filter((t) => t.area === biomeId && t.type === 'water' && !t.seeded)

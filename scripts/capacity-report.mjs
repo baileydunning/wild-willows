@@ -223,6 +223,26 @@ async function browserProfile() {
 	holder.db = freshDb();
 	const pid = (await post('CreatePlayer', { name: 'Ada', passcode: 'pw1234', appearance })).playerId;
 	await post('Heartbeat', { playerId: pid });
+	// Warm the PROCESS before measuring. reconcileDefinitions() (server/worlds.ts)
+	// rewrites every seed record — Biome, Recipe, HabitatObject, ToolDef,
+	// ResourceType, Animal, Achievement — on its first call in a worker, and
+	// memoizes the promise. That is ~630 writes ONCE PER WORKER at boot, amortized
+	// over the life of the process. Measuring the first minute of play charged all
+	// of it to a single player-minute and overstated browser writes about 7x
+	// (729/min vs the true 97/min), which in turn understated PRO capacity by the
+	// same factor. Burn a throwaway action first so the pass has already run.
+	await post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: 'warm', resourceId: 'seeds' }).catch(
+		() => {},
+	);
+	await get('GameState', pid).catch(() => {});
+	// It is dispatched as `void reconcileDefinitions()` (worlds.ts) — fire and
+	// forget — so triggering it is not enough: its writes drain asynchronously
+	// into whatever window is open next. Wait for the write counter to go quiet.
+	for (let i = 0; i < 200; i++) {
+		const before = stats.writes;
+		await new Promise((r) => setTimeout(r, 10));
+		if (stats.writes === before) break;
+	}
 	const p = holder.db.Player._rows.get(pid);
 	holder.db.Player._rows.set(pid, {
 		...p,
@@ -241,15 +261,17 @@ async function browserProfile() {
 			entries: Array.from({ length: 8 }, (_, i) => ({ at: Date.now() + i, icon: 'leaf', text: `line ${f}-${i}` })),
 		}).catch(() => {});
 	}
-	// 40 gathers + 20 terraform + a state re-sync every 4 actions — a child who
-	// has found the loop and is running it.
-	for (let i = 0; i < 40; i++) {
+	// 40 gameplay actions a minute — 27 gathers + 13 terraform, plus a state
+	// re-sync every 4 actions. That rate is the p99 of observed play (median is
+	// ~13/min, heaviest sustained save 47/min), so this profile is a heavy real
+	// player rather than a worst case nobody reaches.
+	for (let i = 0; i < 27; i++) {
 		landed += await post('CollectResource', { playerId: pid, biomeId: 'meadow', nodeId: `n${i}`, resourceId: 'seeds' })
 			.then(() => 1)
 			.catch(() => 0);
 		if (i % 4 === 0) await get('GameState', pid).catch(() => {});
 	}
-	for (let i = 0; i < 20; i++) {
+	for (let i = 0; i < 13; i++) {
 		landed += await post('Terraform', {
 			playerId: pid,
 			area: 'meadow',

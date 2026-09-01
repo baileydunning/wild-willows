@@ -47,9 +47,229 @@ What it costs:
   is imported at once into one page.
 - `resources.js` is committed, and three separate things consume that exact
   artifact. Rebuild it with `npm run build:server` whenever `server/` changes —
-  see section 2.
+  see section 3.
 
-## 2. How the app uses Harper
+## 2. The website is not the game
+
+Two things ship from this repo that look like one thing. They share a repo, a
+brand and a Harper instance, and almost nothing else — different source, different
+build, different reason to exist.
+
+| | The site | The game |
+| --- | --- | --- |
+| Source | HTML files in `public/` | React + Phaser in `src/` |
+| Build | `scripts/build-pages.mjs` inlines it into `server/pages.ts` | Vite, into `web/` |
+| Shipped as | A string inside `resources.js` | A static bundle |
+| Served by | Harper endpoints on `wildwillows.app` | The desktop app, itch, and `play.wildwillows.app` |
+| Changes when | A page is edited | The game is edited |
+
+The site has no framework, no client-side router and no hydration. A page is one
+HTML file with `<style>` and `<script>` inline, `@include`-ing shared partials
+from `public/partials/`. That is not minimalism for its own sake: these pages are
+read once by someone deciding whether to download a game, or by a teacher
+deciding whether to use it in a classroom, and a framework would put a JavaScript
+bundle between them and a paragraph of text.
+
+The game is the opposite problem — a Phaser world, a React shell, a few hundred
+KB of procedurally-generated sprites — and it is built and shipped as a normal
+Vite app.
+
+### The pages are strings in the server bundle
+
+`scripts/build-pages.mjs` reads each page in `public/`, expands its `@include`
+directives, and writes the whole thing into `server/pages.ts` as an exported
+string constant. `resources.js` bundles that, so a deployed Harper is carrying
+the site's HTML in its own code. Same for the images (`img-assets.ts`), the
+classroom PDFs (`pdf-assets.ts`) and the theme audio (`theme-audio.ts`), all
+base64 in generated modules.
+
+This is why `config.yaml` says the hosted Harper serves **no static files**.
+There is no bucket, no CDN origin, no `public/` directory on a server. There is
+an endpoint per URL, and the endpoint returns a string it was compiled with.
+
+What that buys: one deploy artifact, one thing to roll back, and a page that
+cannot be out of step with the API that serves it. What it costs: every content
+edit is a rebuild and a redeploy, and `server/pages.ts` is a 1.7 MB generated
+file in the repo. Both are fine at this size and would not be at ten times it.
+
+Generated, committed, never hand-edited: `server/pages.ts`, `server/site-pages.ts`,
+`server/page-lastmod.ts`, `server/img-assets.ts`, `server/pdf-assets.ts`,
+`server/theme-audio.ts`.
+
+### One URL table
+
+`scripts/site-pages.mjs` is the single source for every public URL: which file it
+builds from, what path serves it, which locale it is written in, which pages are
+translations of one another, whether it 301s to the apex, and whether it appears
+in `/sitemap.xml`.
+
+It replaced three lists that had to agree — the inline-these-files map, the
+sitemap's URLs, and the lastmod source map — and nothing checked that they did.
+The failure mode is silent and slow: a page added to the site but forgotten in
+the sitemap is simply never indexed, and you find out months later. Adding a
+second language would have turned three lists into six, which is what finally
+forced it.
+
+It lives in `scripts/` rather than `server/` because two consumers need it from
+different worlds. `build-pages.mjs` imports it directly at build time as plain
+Node; `server/endpoints-pages.ts` is bundled by esbuild and reads
+`server/site-pages.ts`, which `build-pages.mjs` generates from it.
+
+`tests/unit/site-locales.test.ts` holds the parts that break quietly — hreflang
+has to be reciprocal, every group needs an `x-default`, and a `sitemap: true`
+page has to actually appear in the sitemap.
+
+### Spanish is a subdirectory, and never automatic
+
+`/es/` rather than `es.wildwillows.app`: a subdirectory inherits the apex's
+search authority instead of splitting it, and costs no extra hosting.
+
+Nothing sniffs `Accept-Language`. Google explicitly asks that sites not
+auto-redirect on presumed language, and a visitor bounced into a language they
+did not pick has no obvious way back out. The footer link is the way in.
+
+The Spanish copy uses the terminology in `src/i18n/es`, so the site and the game
+call things the same thing. The game has shipped full Spanish since 0.3; until
+this page existed, none of that was discoverable by anyone searching in Spanish,
+because every public URL was `lang="en"` and said so.
+
+### The 301 is per-path, not a blanket rule
+
+Harper's own hostname is reachable directly, and public pages requested there are
+301'd to the apex so there is one canonical URL per page.
+
+That redirect is a **flag in the URL table**, checked per path, and it must stay
+that way. The desktop app, the itch build and the browser demo all call this same
+Harper by its real hostname for gameplay. A blanket host-based redirect would
+break every one of them.
+
+`/dashboard` carries neither flag — no redirect, no sitemap entry — and is served
+`private, no-store` so a shared cache cannot hand an authed page to whoever asks
+next.
+
+
+### The browser IDE
+
+`/learn/web-development` and `/learn/code-builder` both run student code in the
+browser. Both use one custom element, `<ww-runner>` — about fifteen times in
+one-file mode for the lesson's inline examples, once in three-file mode with tabs
+for the builder. One implementation, so a student who has used the examples
+already knows how the builder behaves.
+
+It is inlined into both pages at build time by the same `@include` mechanism as
+every other partial. It is not served as its own file, because the hosted Harper
+serves no static files and two separate copies of an editor would drift.
+
+**No dependencies.** No CodeMirror, no Monaco, no CDN. School networks block
+CDNs, the page has to inline into `resources.js` as one string, and a styled
+`<textarea>` genuinely is enough for a 40-line file.
+
+**Student code runs in a sandboxed iframe.** Three sources are assembled into one
+HTML document and handed to an iframe with `sandbox="allow-scripts"` and
+deliberately *without* `allow-same-origin`, so the code runs on an opaque origin
+and cannot reach this page. Two consequences follow from that and are easy to
+mistake for unrelated problems:
+
+- `GET /GameData` has to send `Access-Control-Allow-Origin`. Without it the fetch
+  the entire lesson is about fails from inside the sandbox.
+- An opaque origin shares no HTTP cache and never sends `If-None-Match`, which is
+  why a classroom produces zero 304s and why the catalog's rate limit is sized
+  the way section 5 describes.
+
+**The reporting harness gets its own script block.** A small runtime is injected
+ahead of the student's code to report errors and console output back out by
+`postMessage` — the only route available, since the host cannot reach into an
+opaque-origin frame.
+
+It used to be concatenated into a single block with the student's code, which
+broke the one case it exists for. A syntax error is a *parse*-time failure: the
+browser discards the whole block before executing any of it. So a student who
+left a `var` dangling took the harness down with them — `window.onerror` was
+never installed, nothing was posted, and the result was a blank preview, an empty
+console, and an error visible only in devtools. Two blocks means the harness
+installs on its own and a parse error in the student's block is reported like any
+other mistake.
+
+The harness is written as a real function and stringified rather than built from
+string literals. As literals it was a JavaScript program expressed inside
+JavaScript strings, where every backslash needs doubling and nothing checks that
+you did it — one `\n` that was meant to be two characters became an actual
+newline, split a string across two lines, and made the whole harness fail to
+parse.
+
+**What the harness reports, and what it does not.** It wraps `window.fetch` to
+report *only whether the request succeeded* — never the URL, never the response.
+A school filter blocking the API breaks the lesson completely and silently, the
+teacher assumes the site is broken, and from where the student is sitting it
+looks exactly like a mistake in their own code.
+
+Console output is capped at 2,000 characters and 200 lines. Chapter 4's
+instruction is literally `console.log(data)` on the whole game catalog: ~300 KB
+of JSON, ~600 KB pretty-printed, posted across a message channel and written into
+the DOM. The browser did that instead of painting, which reads to a student as
+"the console is broken". Arrays longer than eight print as a count plus the first
+three, because `[object Object]` would make the console useless for exactly the
+chapter it supports.
+
+**Silent failures are caught deliberately.** Nothing is thrown when a page renders
+the word `undefined` or `[object Object]`; it just looks wrong, and a beginner has
+no idea what to search for. After load, the harness reads the rendered text and
+sends a hint.
+
+That check reads a *clone* of the body with scripts and styles removed. It used
+to use `document.body.innerText`, and `innerText`
+falls back to `textContent` when an element is not being rendered — which is every
+JavaScript-only example in the lesson. So a hidden preview returned the *source*
+of both script blocks, including the harness, and the harness contains the literal
+string `[object Object]`. The check matched itself, and every console example in
+chapters 5 through 9 accused the student of rendering an object they never
+rendered.
+
+**Errors are translated into plain English.** `ERROR_HELP` is an ordered,
+most-specific-first list of the mistakes beginners actually make, and each entry
+says what it means and what to check. `TypeError: Cannot read properties of null`
+teaches nothing in week one; "querySelector gives you null when it cannot find
+what you asked for — check the spelling, and remember `#name` looks for
+`id="name"`" fixes the bug and teaches what null is at the same time. Which
+explanation to write next is decided by counting which errors actually fire, not
+by guessing.
+
+Errors surface in the UI, never only in a console the student will not open. A
+blank preview with a silent error is the most reliable way to make a beginner
+conclude they are bad at this and stop.
+
+**Download is the real save system.** `localStorage` holds the working copy, but
+managed Chromebook carts often do not hand a student the same machine twice, so
+work has to survive to the next period some other way. Download produces exactly
+what the preview ran, minus the harness — one function, one format, and Import
+parses that same format back into three files. A downloaded file that behaved
+differently from the preview would be the worst possible ending to the lesson.
+
+Nothing a student types ever leaves the browser. The only thing reported is the
+allowlisted counters in section 4.
+
+### Three hostnames, and why they are separate
+
+| Hostname | What it is | Served by |
+| --- | --- | --- |
+| `wildwillows.app` | The site and the game API | Proxied CNAME to the hosted Harper |
+| `play.wildwillows.app` | The browser demo | A Cloudflare Worker with static assets |
+| `wild.willows.harperfabric.com` | The vendor hostname | Harper directly |
+
+The apex is a proxied CNAME to Harper, and Harper has to issue its own
+certificate for that name. Hanging the demo off `wildwillows.app/play` would
+therefore make shipping the demo wait on that certificate, and on every future
+change to it. A subdomain gets its certificate from Cloudflare automatically and
+shares nothing with the origin, so the demo can go down or be redeployed without
+touching the game API.
+
+`HOSTED_BASE_URL` in `src/api.ts` is the apex, baked into every shipped build —
+desktop, itch demo, the metrics uplink, the app-open ping, feedback, and the
+save-incident and client-error reporters. Owning the name is what makes moving
+hosts a DNS change instead of a release that strands every installed copy. Do not
+put the vendor hostname back there.
+
+## 3. How the app uses Harper
 
 Harper is the database, the application server and the web server. The whole
 hosted side of Wild Willows is one Harper component: no Express in front of it,
@@ -127,7 +347,8 @@ users get through. Note the version trap in the pinning section below: Harper 5.
 deprecates these hooks and they **fail open**.
 
 The static site is endpoints too — the hosted Harper serves no static files at
-all. The landing page, the policy and age-rating pages, support, teachers, the
+all, and section 2 covers how those pages get compiled into the bundle. The
+landing page, the policy and age-rating pages, support, teachers, the
 dashboard, images, the classroom PDFs, `robots.txt` and `sitemap.xml` are all
 `endpoints-pages.ts` classes, exported under the exact URL path they serve
 (`PrivacyPage as privacy`, `RobotsTxt as 'robots.txt'`). The PDFs are exported
@@ -341,7 +562,7 @@ undecodable ones.
 feature the shims do not have — a secondary-index query, a transaction, a
 subscription — breaks solo play and the integration suite along with it.
 
-## 3. The public API, and keeping it from being abused
+## 4. The public API, and keeping it from being abused
 
 Two different audiences reach this server without credentials. The game clients
 — desktop, the itch demo, the web build — call the gameplay endpoints. And
@@ -358,7 +579,7 @@ agree:
 1. **The export map in `server/resources.ts`** — the only routes that exist at
    all. No table is `@export`-ed, so nothing is reachable by accident.
 2. **The base class each endpoint extends** — `PublicEndpoint`,
-   `DashboardEndpoint`, or raw `Resource` (see section 2).
+   `DashboardEndpoint`, or raw `Resource` (see section 3).
 3. **The `PROXIED` allowlist in `workers/play.js`** — which of those the demo's
    public hostname republishes.
 
@@ -575,7 +796,122 @@ corrupt state.
 Nothing at the edge should ever be the only thing standing in front of an
 endpoint.
 
-## 4. Where state lives
+## 5. The Cloudflare configuration
+
+The origin's rate limits are sized on the assumption that these rules exist, so
+changing one without the other changes what the numbers mean.
+`.research/cloudflare-edge.md` holds the full configuration, including Terraform.
+
+### The demo Worker
+
+`workers/play.js`, configured by `wrangler.jsonc`, does two jobs.
+
+**It proxies the API.** The browser demo is server-authoritative
+(`DEMO_WEB_BACKEND = 'harper'`), so every action is a request to Harper. Sent
+from the browser to a different hostname those are cross-origin, needing a CORS
+preflight Harper does not answer — and the client swallows those failures by
+design, so they fail *silently*. Proxying makes the browser's request same-origin
+and the hop to Harper server-side, where CORS does not apply.
+
+The proxy list is an **explicit allowlist**, never a prefix match. Every
+dashboard and admin endpoint is deliberately absent, and must stay absent — this
+Worker sits on a public hostname with nothing in front of it, so a
+"proxy everything except X" rule would publish each new endpoint the day it is
+added.
+
+**It keeps the demo out of search.** A playable, self-contained demo gets indexed
+as a page about Wild Willows and competes with the real landing page, splitting
+the ranking between a marketing page and a bare game canvas. Every asset response
+gets `x-robots-tag: noindex` and a canonical link to the apex.
+
+Two configuration details that are easy to get wrong:
+
+- **`run_worker_first: ["/*", "!/assets/*", "!/audio/*"]`.** It defaults to
+  false, which means a Worker with assets never sees requests that match an
+  asset — so those robots headers would silently never apply. It is `/*` rather
+  than a list of the proxied endpoints because `not_found_handling` is
+  `single-page-application`: a path the Worker does not see is answered with
+  `index.html` and a **200**, so a forgotten entry would not 404, it would hand a
+  page of HTML to a game action and look like corrupt server state. The two
+  excluded directories can never hold an endpoint, and are ~15 of the ~20
+  requests a cold load makes — asset requests are free, Worker invocations are
+  billed.
+- **The Worker forwards `cf-connecting-ip`.** It is set by Cloudflare on the
+  inbound request and cannot be spoofed by the browser, and it is the only thing
+  that tells the origin's rate limiter one caller from another. Without it every
+  request through the Worker looks like the same anonymous client and shares one
+  bucket.
+
+The Worker's own rate limiter (300/min, 120 burst) is **best effort and not the
+boundary**: its state lives in one isolate, and Cloudflare runs many across many
+locations and recycles them freely. It is there because it is nearly free and
+absorbs one script hammering from one place.
+
+### The `/GameData` cache rules
+
+`GameData` is the public catalog: identical for every client, changing only on
+deploy, and documented at `/developers/api` as a free public dataset with no API
+key. It answers `public, max-age=0, must-revalidate, s-maxage=86400`, and the
+edge is what makes that mean anything.
+
+Four rules, all available on the free plan:
+
+1. **Cache rule on `/GameData*`** — eligible for cache, edge TTL from the origin
+   header, browser TTL overridden to 10 minutes, and **cache key ignores all
+   query string parameters**. That last part is the important one:
+   `GET /GameData?x=91723` is otherwise a different cache object, so a miss and
+   an origin fetch, and that is the entire cache-busting attack in one browser
+   console loop. The endpoint reads no parameters, so every query string on it is
+   a mistake or an attack. Knowingly accepted: `?v=2` to force a fresh copy now
+   returns the cached one, which is fine because deploys purge.
+2. **Block non-GET/HEAD** (custom rule). The origin already refuses these; this
+   refuses them nearer the sender.
+3. **Managed Challenge on any query string** (custom rule). Rule 1 already makes
+   these hits; this stops a script *discovering* that.
+4. **Rate limiting at 1,200/min per IP**, Managed Challenge rather than Block.
+
+**Read the gotcha before touching rule 4.** Cloudflare's rate limiting counts
+*every* request, cache hits included; the setting that changes that is Business
+and Enterprise only. The one thing on this zone that looks like abuse and is not
+is a classroom — thirty students pressing Run twenty times a minute is 600
+requests from one school address, today all cache hits costing nothing. An edge
+rule set to 60/min would block that class while the origin sat idle. So the edge
+number is a flood ceiling at twice the classroom figure, and the origin's 60/min
+does the precise work on whatever actually gets through the cache. A blocked
+classroom is a support email; a challenged one is a blink for the student and a
+wall for a script.
+
+Browser TTL is overridden to 10 minutes, so a client receives `max-age=600` even
+though the origin sends `max-age=0`. Short enough that a deploy is visible almost
+at once, long enough that a class re-running a fetch example pays for one request
+instead of twenty. `/developers/api` documents the *received* value, because
+`curl -I` shows the received one.
+
+### Deploys must purge
+
+The day-long edge TTL is only true if a deploy invalidates it. `npm run
+deploy:purge` (`scripts/purge-cache.mjs`) purges both spellings of the URL —
+`/GameData` and `/GameData/`, since the itch demo fetches the trailing-slash one —
+and needs `CLOUDFLARE_ZONE_ID` and a `CLOUDFLARE_API_TOKEN` with Zone → Cache
+Purge. Run it **after** the new build is serving; purging first just re-caches the
+old body.
+
+`tests/integration/gamedata-rate.test.ts` pins the cache header, including on the
+304 path, where dropping it would leave the edge holding a body with no
+instruction about how long it may keep it.
+
+### The known hole
+
+Everything above is bypassed by talking to the Harper hostname directly, which is
+also how a forged `cf-connecting-ip` gets a fresh per-caller bucket on every
+request. The origin's service-wide ceiling exists precisely because that hole
+cannot be closed from inside the application.
+
+Closing it properly means Authenticated Origin Pulls, or an allowlist of
+Cloudflare IP ranges at the origin. Careful: `workers/play.js` proxies the demo
+straight to that hostname, so test the browser demo immediately after.
+
+## 6. Where state lives
 
 There are three players' worth of state in this project and they have very
 different durability requirements.
@@ -637,7 +973,7 @@ deletes it. One save, for the seconds between closing and reopening.
 `SOLO_SAVE_DB` and `SOLO_SAVE_STORE` are **persisted schema**. Renaming either
 after players have migrated does not move their saves, it hides them.
 
-## 5. The desktop shell
+## 7. The desktop shell
 
 `electron/` is a shell around the bundled web build and nothing more. It loads
 `web/index.html` from disk over `file://`. It has no in-app browsing, no OAuth
@@ -676,7 +1012,7 @@ Two platform quirks worth knowing about:
   the sandbox, and `electron/steam.js` already no-ops when the module is
   missing.
 
-## 6. Dependencies that are pinned, and why
+## 8. Dependencies that are pinned, and why
 
 **`harper` is pinned exactly — no caret.** It must equal the version the hosted
 cluster runs (currently `5.1.26`). It is a devDependency, but not a normal one:
@@ -703,7 +1039,7 @@ dependency electron-builder has to package.
 **`oxlint-tsgolint` is version-coupled to TypeScript.** `7.0.2001` wraps
 `typescript@7.0.2`. Bump it *with* `typescript`, not independently.
 
-## 7. Testing strategy
+## 9. Testing strategy
 
 Four suites, deliberately separated by what they can prove:
 
@@ -745,7 +1081,7 @@ The Phaser-bound game modules are excluded because they cannot be instantiated
 without a WebGL context. The two modules that hold the game's *rules*
 (`worldRules.ts`, `interactions.ts`) are pure and are deliberately counted.
 
-## 8. Tooling: what checks what
+## 10. Tooling: what checks what
 
 | Command | Answers |
 | --- | --- |
@@ -767,7 +1103,7 @@ That is the ratchet: when a rule's warning count reaches zero, promote it to
 which — ones that do not apply to this stack (each verified by reading the
 actual hits, not assumed), and ones that are deliberate style here.
 
-## 9. Decision log
+## 11. Decision log
 
 | Decision | Because | Revisit when |
 | --- | --- | --- |
@@ -784,6 +1120,14 @@ actual hits, not assumed), and ones that are deliberate style here.
 | Per-caller *and* service-wide rate buckets | The caller's address is a header, forgeable by anything skipping the Worker | There is a shared secret between edge and origin |
 | `GameData` capped at 60/min | Sized against what can miss the edge cache, not what a classroom sends | The edge cache rules change |
 | Anonymous telemetry keys are allowlisted | A permanent row from a client-supplied key is the sharpest anonymous action | — |
+| Site pages compiled into the server bundle | One deploy artifact; a page can't be out of step with the API serving it | Content edits outgrow a rebuild-and-redeploy |
+| One URL table (`scripts/site-pages.mjs`) | Three lists had to agree and nothing checked that they did | — |
+| Student code runs in an `allow-scripts` iframe with no same-origin | It cannot reach the host page; the cost is that `/GameData` must send CORS | — |
+| The browser IDE has no dependencies | School networks block CDNs, and the page has to inline as one string | A textarea stops being enough |
+| Spanish at `/es/`, never auto-redirected | A subdirectory inherits the apex's authority; Google asks sites not to presume language | — |
+| The demo lives on its own subdomain | The apex waits on Harper's certificate; a subdomain gets one from Cloudflare | — |
+| `/GameData` cache key ignores the query string | `?x=<random>` is otherwise a miss per request — the whole cache-busting attack | — |
+| Edge rate limit is a flood ceiling, not a mirror | Cloudflare counts cache hits below Business, so a 60/min edge rule would block a classroom | The zone moves to Business+ |
 | `harper` pinned exactly | Tests must exercise the encoding and auth model production runs | The cluster is upgraded |
 | `harper` is dev-only | Solo needs no server; keeps native trees out of every packaged app | Hosted play ships in the desktop build |
 | Coverage floor, not target | Protects against erosion without rewarding tests-for-lines | — |

@@ -11,7 +11,7 @@ import { isWeatherGatheredResource, weatherSnapshot } from './weather';
 
 import { FEED_CAP, FIRST_ANIMAL_ID, NODE_REGEN_SECONDS, db, hash32, readFeed, seededRng } from './core';
 import { byPlayer } from './keys';
-import { byWorld, defs, worldOf } from './worlds';
+import { byArea, byWorld, defs, worldOf } from './worlds';
 import { HOME_STYLES, tentBiomeOf } from './home';
 import { getPlayer, hasExpandedGuide, hasGuide, sanitizePlayer } from './player';
 import {
@@ -79,9 +79,10 @@ export interface TaskCtx {
 	placements?: any[];
 	/** every Chest row in this world (for "collect N" goal progress) */
 	chests?: any[];
-	/** every TerrainTile row in this world (for the starter chain's stream goal).
-	 *  Optional: callers that don't have it pass nothing and the water-shaped
-	 *  metric reads zero, which is only ever a goal showing 0/3 for one render. */
+	/** The CURRENT AREA's TerrainTile rows — not the world's, since the snapshot
+	 *  stopped reading every area. Only a fallback now: the stream goal reads
+	 *  `playerWater` off the biome rows, and reaches for these only for a biome
+	 *  that has not been recalculated since that field existed. */
 	terrain?: any[];
 	now: number;
 	/** The biomes the PLAYER personally unlocked — the reward/gather pool draws
@@ -822,7 +823,34 @@ function starterTasks(ctx: TaskCtx): any[] {
 	const meadowGuide = hasGuide(ctx.player, 'meadow');
 	// Largest connected body of water the PLAYER shaped — the seeded channels the
 	// wetland ships with are excluded, so a stream has to be dug, not inherited.
-	const water = analyzeWater(ctx.terrain || [], true);
+	// Largest body of player-shaped water anywhere in the preserve, read off the
+	// biome rows rather than recomputed from every tile in the world.
+	//
+	// recalcBiome stores `playerWater` per biome, from the authoritative terrain
+	// list it already holds. Taking the max across biomes is not an approximation
+	// of the old whole-world analyzeWater — it is strictly better: water bodies
+	// cannot span biomes (each is its own board), but the old call keyed cells by
+	// `${x},${y}` with every area's tiles in one set, so two separate ponds at the
+	// same coordinates in different biomes merged into one imaginary lake.
+	//
+	// `ctx.terrain` is the fallback for a biome not yet recalculated since this
+	// field existed. It covers the area the player is standing in, which in the
+	// starter chain is the meadow this goal is about.
+	const water = { tiles: 0, lake: 0, river: 0 };
+	for (const bs of ctx.biomeStates || []) {
+		const w =
+			bs?.playerWater ||
+			(ctx.terrain?.some((tt: any) => tt.area === bs?.biomeId)
+				? analyzeWater(
+						ctx.terrain.filter((tt: any) => tt.area === bs.biomeId),
+						true,
+					)
+				: null);
+		if (!w) continue;
+		water.tiles += w.tiles || 0;
+		water.lake = Math.max(water.lake, w.lake || 0);
+		water.river = Math.max(water.river, w.river || 0);
+	}
 	return [
 		{
 			id: 'start-seeds',
@@ -1209,8 +1237,37 @@ export async function snapshot(playerId: string, opts: { worldId?: string } = {}
 			byWorld(t.Placement, wid),
 			byWorld(t.Chest, wid),
 			byWorld(t.Discovery, wid),
-			byWorld(t.NodeState, wid),
-			byWorld(t.TerrainTile, wid),
+			// THE AREA THE PLAYER IS STANDING IN, not all six.
+			//
+			// A node state is one fact — "this spot is regrowing, and until when" —
+			// and the client only ever asks it of the area on screen (WorldScene
+			// builds its lookup from this list for the nodes it is drawing). The
+			// snapshot was sending every area's, on a table that gains a permanent
+			// row for every gathering spot a save has ever touched, which made a
+			// state refresh cost more the longer someone had played.
+			//
+			// This needs no client change, because the client already refetches the
+			// whole snapshot on every area change (changeArea in src/state.tsx syncs
+			// the player's area, then adopts a fresh GameState) — the round trip the
+			// area-scoped read would have required is one the game was already making.
+			// An interior ('home', 'tent-<biome>') has no gathering nodes, so it
+			// correctly reads as none.
+			byArea(t.NodeState, wid, player?.area || 'meadow'),
+			// THE AREA THE PLAYER IS STANDING IN, for the same reason as NodeState
+			// above, and only once nothing read it whole any more.
+			//
+			// Two things used to need every area's tiles. The starter chain's stream
+			// goal did, and now reads `playerWater` off the biome rows instead (see
+			// starterTasks). The client did, for `waterShape` in src/recipes.ts, which
+			// gates water-shaped recipes for the recipe's OWN biome rather than the
+			// one on screen — that one reads the same stored field now, with the
+			// terrain computation kept behind it as a fallback.
+			//
+			// Everything else was already per-area: WorldScene draws, hashes and
+			// collision-tests `tt.area === this.area`, the optimistic patches filter
+			// by area, and the tutorial's water steps are meadow-only and latch on a
+			// persisted `tutorialStep` that never regresses.
+			byArea(t.TerrainTile, wid, player?.area || 'meadow'),
 			byPlayer(t.PlayerAchievement, playerId),
 			readFeed(wid),
 		]);

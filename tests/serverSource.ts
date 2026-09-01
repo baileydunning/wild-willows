@@ -25,6 +25,10 @@ const SERVER = resolve(process.cwd(), 'server');
 
 /** Authored server modules, in dependency order — the order of the old single file. */
 export const LAYERS = [
+	// Depends on nothing and is imported by core, so it leads the list — the one
+	// place a module can be inserted without moving anything relative to anything
+	// else, which is what the ordering note above is protecting.
+	'scan-cache',
 	'core',
 	'store',
 	'keys',

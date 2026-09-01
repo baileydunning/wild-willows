@@ -14,7 +14,7 @@ import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:z
 
 import { FEED_CAP, GameError, NODE_REGEN_SECONDS, appendFeed, clamp, db, hash64, posInt, sumValues } from './core';
 import { allOf, existsRaw, forceRemove, safeGet } from './store';
-import { byPlayer } from './keys';
+import { byPlayer, placementKey } from './keys';
 import {
 	byArea,
 	byWorld,
@@ -80,6 +80,7 @@ import {
 	inventoryCapacity,
 	matureMs,
 	recalcBiome,
+	withPendingMaturity,
 	recipeUnlockContext,
 	recipeUnlockMet,
 	seedStartingTerrain,
@@ -1594,14 +1595,17 @@ export class PlaceObject extends PublicEndpoint {
 				);
 			}
 
-			const placements = await byWorld(t.Placement, wid);
-			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+			// Both questions below are about THIS area only, and under KEY_REV 4 the
+			// area is in the key — so ask for one area's run rather than the world's
+			// and filter five sixths of it away here.
+			const placements = await byArea(t.Placement, wid, area);
+			if (placements.some((p) => p.x === tx && p.y === ty)) {
 				throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
 			}
 			// Some structures are one-per-biome (e.g. the trail tent — a single shared
 			// home base in each wild biome, not a tent city). World-scoped, because
 			// each tent opens into one shared interior per biome (like the home).
-			if (def.onePerArea && placements.some((p) => p.area === area && p.objectId === objectId)) {
+			if (def.onePerArea && placements.some((p) => p.objectId === objectId)) {
 				throw new GameError(tr('server.err.onePerArea', { name: def.name }), 409, 'server.err.onePerArea');
 			}
 			// terrain/water rules only apply outdoors — interiors have no terrain
@@ -1622,7 +1626,7 @@ export class PlaceObject extends PublicEndpoint {
 			if (craftedItems[objectId] <= 0) delete craftedItems[objectId];
 			await patchPlayer(playerId, { craftedItems });
 
-			const placementId = `${wid}:pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`;
+			const placementId = placementKey(wid, area, `pl_${Date.now()}_${Math.random().toString(36).slice(2, 8)}`);
 			const placement = {
 				id: placementId,
 				worldId: wid,
@@ -1635,6 +1639,16 @@ export class PlaceObject extends PublicEndpoint {
 				rotation: isRotatable(def) ? normRot(rotation) : 0,
 			};
 			await t.Placement.put(placement);
+
+			// A new grower can only move the soonest maturity moment EARLIER, and the
+			// heartbeat skips its world-wide placement scan while that moment is still
+			// ahead of now — so tell it, rather than making it re-derive the fact from
+			// every row in the save twice a minute. withPendingMaturity leaves an
+			// unknown unknown; see the note on it.
+			{
+				const at = withPendingMaturity(player.nextMaturityAt, def, placement.placedAt, Date.now());
+				if (at !== undefined && at !== player.nextMaturityAt) await patchPlayer(playerId, { nextMaturityAt: at });
+			}
 
 			if (def.isChest) {
 				await t.Chest.put({
@@ -1731,7 +1745,7 @@ export class Plant extends PublicEndpoint {
 		const perk = homePerk(player);
 		const headStart = perk?.id === 'growth' ? perk.strength : 0;
 		const now = Date.now();
-		const placementId = `${wid}:pl_${now}_${Math.random().toString(36).slice(2, 8)}`;
+		const placementId = placementKey(wid, area, `pl_${now}_${Math.random().toString(36).slice(2, 8)}`);
 		const placement = {
 			id: placementId,
 			worldId: wid,
@@ -1744,6 +1758,13 @@ export class Plant extends PublicEndpoint {
 			plantedAt: now - Math.round((def.growSeconds || 0) * 1000 * headStart),
 		};
 		await t.Placement.put(placement);
+		// Same as PlaceObject above — and it matters more here, because planting is
+		// what actually creates growers. The perk back-dates `placedAt`, so reading
+		// it (rather than `now`) is what keeps a head start honest.
+		{
+			const at = withPendingMaturity(player.nextMaturityAt, def, placement.placedAt, now);
+			if (at !== undefined && at !== player.nextMaturityAt) await patchPlayer(playerId, { nextMaturityAt: at });
+		}
 
 		const discoveries = await byWorld(t.Discovery, wid);
 		const recalc = await recalcBiome(wid, playerId, area, {
@@ -1763,16 +1784,24 @@ export class Plant extends PublicEndpoint {
 }
 
 /**
- * When a planted, yield-bearing plant is ready to harvest — mature the first
- * time, then `regrowSeconds` after each harvest. Returns the ms timestamp it
- * becomes ready, or null if it never yields.
+ * When a yield-bearing thing is ready to harvest — mature (or, for a crafted
+ * structure, placed) the first time, then `regrowSeconds` after each harvest.
+ * Returns the ms timestamp it becomes ready, or null if it never yields.
+ *
+ * Not everything that yields is planted. A rain basin is crafted and set down,
+ * and then fills on its own; it has no `plantedAt` and nothing to grow, so it is
+ * ready from the moment it is standing. Weather is deliberately NOT part of this
+ * — readiness is a clock, and `harvestWeather` gates the take on top of it (see
+ * HarvestPlacement). Folding the sky in here would make a shower that ends
+ * mid-refill look like the basin had been emptied.
  */
 function harvestReadyAt(def: any, placement: any): number | null {
 	const y = def?.yield;
-	if (!y || !def?.plantable || !placement?.plantedAt) return null;
-	const growMs = (def.growSeconds || 0) * 1000;
+	if (!y || !placement) return null;
 	const regrowMs = (y.regrowSeconds || 60) * 1000;
-	return placement.lastHarvestAt ? placement.lastHarvestAt + regrowMs : placement.plantedAt + growMs;
+	if (placement.lastHarvestAt) return placement.lastHarvestAt + regrowMs;
+	if (def.plantable) return placement.plantedAt ? placement.plantedAt + (def.growSeconds || 0) * 1000 : null;
+	return placement.placedAt ?? null;
 }
 
 /**
@@ -1799,6 +1828,34 @@ export class HarvestPlacement extends PublicEndpoint {
 			const readyAt = harvestReadyAt(def, placement);
 			if (readyAt == null || now < readyAt)
 				throw new GameError(tr('server.err.notReadyYet'), 400, 'server.err.notReadyYet');
+
+			// Some things only give up their yield under the right sky: a rain basin
+			// is a stone bowl, and a stone bowl in fair weather is an empty stone bowl.
+			//
+			// Gated exactly like a weather-gathered resource node (see CollectResource),
+			// and for the same reasons: recomputed here rather than trusted from the
+			// client, a dev weather override wins outright because it is what the client
+			// painted the sky from, and the accrued-play-time clock this runs on trails
+			// the client's smooth one by up to a heartbeat — so a player standing in
+			// visible rain is not told it isn't raining. The grace can only ever admit a
+			// harvest the player was about to be, or just was, entitled to.
+			const gate: string[] = def.harvestWeather || [];
+			if (gate.length) {
+				const forced = player?.devWeather?.type || null;
+				const base = weatherTimeFromPlay(player);
+				const ok = forced
+					? gate.includes(forced)
+					: [base - MAX_BEAT_MS, base, base + MAX_BEAT_MS].some((at) =>
+							gate.includes(weatherTypeAt(wid, placement.area, Math.max(0, at))),
+						);
+				if (!ok) {
+					throw new GameError(
+						tr('server.err.harvestWeatherOnly', { name: def.name }),
+						409,
+						'server.err.harvestWeatherOnly',
+					);
+				}
+			}
 
 			// grant the yield, respecting carrying capacity
 			const capacity = inventoryCapacity(player);
@@ -1920,7 +1977,7 @@ export class RemoveObject extends PublicEndpoint {
 			// interior — pack up in there first (mirrors the chest-must-be-empty rule).
 			if (placement.objectId === 'trail-tent') {
 				const interior = `tent-${placement.area}`;
-				const inside = (await byWorld(t.Placement, wid)).some((p) => p.area === interior);
+				const inside = (await byArea(t.Placement, wid, interior)).length > 0;
 				if (inside) throw new GameError(tr('server.err.tentNotEmpty'), 409, 'server.err.tentNotEmpty');
 			}
 
@@ -2130,7 +2187,9 @@ export class UpgradeHome extends PublicEndpoint {
 }
 
 // Objects you can sleep in/on to rest and refresh the preserve's gathering spots.
-const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
+// The hammock counts wherever it hangs: it is `placement: 'both'`, so it rests you
+// strung between two posts out in a biome as readily as it does indoors.
+const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed', 'hammock'];
 
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {
@@ -2476,15 +2535,28 @@ export class Terraform extends PublicEndpoint {
 			) {
 				throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 			}
-			const placements = await byWorld(t.Placement, wid);
-			if (placements.some((p) => p.area === area && p.x === tx && p.y === ty)) {
+			// One area's placements, not the world's: this asks whether anything
+			// stands on ONE tile, and reading the other five areas to answer it made
+			// the cost of a dig in the meadow grow every time the coast was built out.
+			const placements = await byArea(t.Placement, wid, area);
+			if (placements.some((p) => p.x === tx && p.y === ty)) {
 				throw new GameError(tr('server.err.somethingPlaced'), 400, 'server.err.somethingPlaced');
 			}
 
 			const tileId = `${wid}:${area}:${tx}:${ty}`;
 			// Match by position, not id: legacy beds carry an old id but must still be
 			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
-			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
+			//
+			// Read as a LIST rather than through findTerrainAt, and lend it to the
+			// recalc below. findTerrainAt tries a point read first and falls back to
+			// this same area scan, which is the right trade where the lookup is all
+			// the caller wants — but here the recalc needs the whole area anyway, and
+			// this request writes a tile in between, so the two reads could not share
+			// a cached result. A dig into fresh ground therefore missed the point
+			// read AND scanned the area twice, and the second scan grew with every
+			// tile the player had ever shaped in this biome.
+			const areaTiles = await byArea(t.TerrainTile, wid, area);
+			const existing = areaTiles.find((tt: any) => tt.x === tx && tt.y === ty) || null;
 
 			// Compare-and-swap on the tile's type.
 			//
@@ -2588,6 +2660,9 @@ export class Terraform extends PublicEndpoint {
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
 				discoveries,
+				// Pre-write, with this action's change folded in above — see the note
+				// on `terrain` in recalcBiome.
+				terrain: areaTiles,
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -2672,7 +2747,7 @@ export class SyncPlayer extends PublicEndpoint {
 				throw new GameError(tr('server.err.biomeLocked', { biome: biome.name }), 403, 'server.err.biomeLocked');
 			}
 			const wid = worldOf(player);
-			const hasTent = (await byWorld(t.Placement, wid)).some((p) => p.area === tb && p.objectId === 'trail-tent');
+			const hasTent = (await byArea(t.Placement, wid, tb)).some((p) => p.objectId === 'trail-tent');
 			if (!hasTent) throw new GameError(tr('server.err.noTentHere'), 404, 'server.err.noTentHere');
 			patch.area = area;
 		} else if (area) {

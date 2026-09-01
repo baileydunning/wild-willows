@@ -10,7 +10,7 @@ import { actionForToken, BIND_ACTIONS, tokenFromEvent } from './keybindings';
 import { GameProvider, useGame, useGameFeed } from './state';
 import { useI18n } from './i18n/react';
 import { liveDayPhase, liveWeatherType } from './weather';
-import { harvestReadyAt } from './types';
+import { harvestReadyAt, harvestWeatherOk } from './types';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { ColorblindFilters } from './ui/ColorblindFilters';
@@ -182,7 +182,11 @@ interface ClickedPlacement {
 	objectId: string;
 	name: string;
 	plantedAt?: number;
+	/** Crafted structures that yield (the rain basin) have no plantedAt — they are
+	 *  ready from the moment they are set down, so readiness reads off this. */
+	placedAt?: number;
 	lastHarvestAt?: number;
+	area?: string;
 	x?: number;
 	y?: number;
 	rotation?: number;
@@ -264,15 +268,20 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
-	const { removePlacement, rotatePlacement, harvest, data } = useGame();
+	const { removePlacement, rotatePlacement, harvest, data, state } = useGame();
 	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
 	const readyAt = harvestReadyAt(def, {
 		plantedAt: item.plantedAt,
+		placedAt: item.placedAt,
 		lastHarvestAt: item.lastHarvestAt,
 	});
-	const canHarvest = readyAt != null && Date.now() >= readyAt;
+	// A rain basin can be full and still refuse to be emptied: it wants rain
+	// falling. Offer the action only when the server would honor it, so the menu
+	// never dangles a harvest that comes back as an error.
+	const weatherHere = liveWeatherType(state?.worldId, item.area || state?.player?.area || '', state?.weather);
+	const canHarvest = readyAt != null && Date.now() >= readyAt && harvestWeatherOk(def, weatherHere);
 	const yieldName = def?.yield
 		? content(
 				'resource',

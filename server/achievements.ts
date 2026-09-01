@@ -9,7 +9,7 @@ import { db } from './core';
 import { safeGet } from './store';
 import { byPlayer } from './keys';
 import { byArea, byWorld, defs, worldOf } from './worlds';
-import { GUIDE_MAX, guideTool } from './player';
+import { GUIDE_MAX, guideTool, readPlayerRow } from './player';
 import { readMetrics, round1 } from './metrics';
 import { analyzeWater } from './biome';
 
@@ -189,7 +189,7 @@ export async function awardAchievements(
 		// so one row left undecodable must not throw a
 		// storage-layer decode error on every action. safeGet force-decodes, purges
 		// the corrupt row, and returns null → this player is simply skipped.
-		const player = opts.player && opts.player.id === playerId ? opts.player : await safeGet(t.Player, playerId);
+		const player = opts.player && opts.player.id === playerId ? opts.player : await readPlayerRow(playerId);
 		if (!player) return [];
 		const earned = await earnedAchievementIds(playerId, player);
 		// achievement context comes from the world the player is acting in
@@ -298,6 +298,22 @@ export async function awardAchievements(
 		if (undecided.length) {
 			probing = false;
 			for (const b of askedAbout) {
+				// recalcBiome stores this on the biome row, computed from the same
+				// terrain list it was already holding, and the fold-in above means a
+				// biome recalculated by THIS request is the version we see. So the
+				// common case — a trigger asking about a biome nobody touched — is
+				// answered from a row we have, instead of scanning that biome's terrain
+				// on every action taken anywhere in the world. Digging in the forest was
+				// reading every wetland tile to re-decide Lakemaker.
+				//
+				// Absent means: a save whose biomes have not been recalculated since
+				// this field existed, or a repair that cleared water without a recalc.
+				// Fall back to the scan — the value is never guessed, only skipped.
+				const stored = (stateByBiome.get(b) as any)?.playerWater;
+				if (stored) {
+					waterCache.set(b, stored);
+					continue;
+				}
 				// player-shaped water only — seeded starting channels don't earn Lakemaker
 				const tiles = opts.terrain
 					? opts.terrain.filter((tt: any) => tt.area === b)

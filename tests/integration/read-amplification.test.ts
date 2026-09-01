@@ -52,6 +52,32 @@ function seedTerrain(perArea: number) {
 }
 
 /**
+ * Give the world placements in every area, under the current key shape.
+ *
+ * `wildflower` has no growSeconds and no matureHours, so every row counts the
+ * same however long the test takes — the assertions here are about how many rows
+ * were READ, and a placement whose contribution drifts with wall-clock time would
+ * make them about something else.
+ */
+function seedPlacements(perArea: number) {
+	for (const area of AREAS) {
+		for (let i = 0; i < perArea; i++) {
+			const id = `${playerId}:${area}:pl_seed_${i}`;
+			w.db.Placement._rows.set(id, {
+				id,
+				worldId: playerId,
+				playerId,
+				objectId: 'wildflower',
+				area,
+				x: 100 + (i % 40),
+				y: 300 + Math.floor(i / 40),
+				placedAt: 1780000000000,
+			});
+		}
+	}
+}
+
+/**
  * Mark wetland-lakemaker already earned.
  *
  * It is the only trigger that asks about terrain, and until it is earned every
@@ -90,6 +116,20 @@ describe('per-area reads stay per-area', () => {
 		// the cost of a dig in the meadow grows every time the player shapes the coast.
 		expect(tiles).toBeGreaterThan(0);
 		expect(tiles, `terraform scanned ${tiles} tiles; the meadow only has ~100`).toBeLessThan(300);
+	});
+
+	it('a terraform reads its own biome’s placements, not all six biomes’', async () => {
+		// KEY_REV 4 put the area in a placement's key for exactly this. Every
+		// per-biome reader of Placement — this collision check, recalcBiome,
+		// recipeUnlockContext — was reading the world and discarding five sixths.
+		seedPlacements(60); // 360 objects, 60 of them in the meadow
+		earnLakemaker();
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+		const rows = scanned('Placement');
+
+		expect(rows).toBeGreaterThan(0);
+		expect(rows, `terraform scanned ${rows} placements; the meadow only has ~60`).toBeLessThan(180);
 	});
 
 	it('the cost of an action in one biome does not grow when ANOTHER biome does', async () => {
@@ -166,6 +206,135 @@ describe('one request reads a row once', () => {
 		resetScans();
 		await w.post('Heartbeat', { playerId });
 		expect(scanned('Discovery')).toBe(0);
+	});
+});
+
+describe('one request reads the world’s biome states once', () => {
+	// BiomeState is six rows per world and never grows — and it was half of every
+	// row read in a heavy minute of play, because one Terraform asked for the same
+	// six rows three times over: recalcBiome's prior state, checkUnlocks' unlock
+	// set, and the achievement sweep's health/returned set. Nothing between those
+	// reads changed the data.
+	//
+	// This is the constant-factor half of read amplification. It does not get worse
+	// as a save grows, which is exactly why it survived so long: it never showed up
+	// as a save that got slower the more of it you built.
+	it('a terraform scans BiomeState once, not once per pass', async () => {
+		earnLakemaker();
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+		const { rowsScanned, scans } = w.db.BiomeState._scanStats();
+
+		expect(scans, `scanned BiomeState ${scans} times for one action`).toBeLessThanOrEqual(1);
+		// Six biomes; a second pass over them would read twelve.
+		expect(rowsScanned).toBeLessThanOrEqual(6);
+	});
+
+	it('a gather reads the player row once, not once per pass', async () => {
+		// requirePlayer on the way in, the achievement sweep, and bumpMetrics
+		// merging onto the freshest copy were three reads of a row that cannot
+		// change between them: inside the lock patchPlayer BUFFERS, so the stored
+		// row is fixed for the whole action.
+		w.db.Player._resetScanStats();
+		await w.post('CollectResource', { playerId, biomeId: 'meadow', nodeId: 'n1', resourceId: 'seeds' });
+
+		const reads = w.db.Player._pointReads();
+		expect(reads).toBeGreaterThan(0);
+		expect(reads, `read the player row ${reads} times for one gather`).toBeLessThanOrEqual(1);
+		expect(w.db.Player._scanStats().scans, 'the player row should never be found by scanning').toBe(0);
+	});
+});
+
+describe('the snapshot reads the area the player is standing in', () => {
+	/**
+	 * Node states across every area, under the current key shape
+	 * (`${wid}:${biomeId}:${nodeId}`). These rows are never deleted, so this table
+	 * gains one for every gathering spot a save has ever touched — which is what
+	 * made a state refresh cost more the longer someone had played.
+	 */
+	function seedNodes(perArea: number) {
+		for (const area of AREAS) {
+			for (let i = 0; i < perArea; i++) {
+				const id = `${playerId}:${area}:seed${i}`;
+				w.db.NodeState._rows.set(id, { id, worldId: playerId, playerId, harvestedAt: 1780000000000 });
+			}
+		}
+	}
+
+	it('reads one area’s nodes, not all six', async () => {
+		seedNodes(50); // 300 rows, 50 of them in the meadow
+		resetScans();
+		await w.get<any>('GameState', playerId);
+		const rows = scanned('NodeState');
+
+		expect(rows).toBeGreaterThan(0);
+		expect(rows, `snapshot scanned ${rows} node states; the meadow only has ~50`).toBeLessThan(150);
+	});
+
+	it('still tells the client which spots are regrowing where it is standing', async () => {
+		// The cost saving is worthless if the client stops knowing a node is on
+		// cooldown — it would draw the spot as ready and the server would refuse the
+		// gather. So: gather one, then read it back out of the snapshot.
+		await w.post('CollectResource', { playerId, biomeId: 'meadow', nodeId: 'n1', resourceId: 'seeds' });
+		const state = await w.get<any>('GameState', playerId);
+		expect(state.nodeStates.map((n: any) => n.id)).toContain(`${playerId}:meadow:n1`);
+	});
+
+	it('follows the player to another area', async () => {
+		seedNodes(3);
+		const p = await w.db.Player.get(playerId);
+		await w.db.Player.patch(playerId, { unlockedBiomes: [...(p.unlockedBiomes || []), 'forest'] });
+		await w.post('SyncPlayer', { playerId, x: 5, y: 5, area: 'forest' });
+		const state = await w.get<any>('GameState', playerId);
+
+		// changeArea in src/state.tsx syncs the area and then adopts a fresh
+		// snapshot, so this is the sequence the real client makes on every crossing.
+		expect(state.nodeStates.length).toBeGreaterThan(0);
+		expect(
+			state.nodeStates.every((n: any) => String(n.id).startsWith(`${playerId}:forest:`)),
+			'the snapshot carried another area’s nodes',
+		).toBe(true);
+	});
+});
+
+describe('a cached read never outlives the write that invalidates it', () => {
+	// The whole risk of reading once per request rather than once per caller. A
+	// stale row here is not a slow game, it is a wrong one — the same failure
+	// recalcBiome's `addPlacements` fold-in exists to prevent, with nothing to see
+	// in a profile. scan-cache.test.ts pins the mechanism; these two hold the
+	// wiring, which is the part that can silently come loose.
+
+	it('re-reads a table this request has written', async () => {
+		// Placing an object reads the area's placements (is this spot taken? is this
+		// a one-per-area structure?), writes the new placement, and then
+		// recalculates the biome from that area's placements. The second read is not
+		// waste — it is the one that must not answer from before the write. If
+		// invalidation ever stopped being wired through db(), this number would
+		// quietly drop to one and nothing else would look wrong: recalcBiome folds
+		// the new row in by hand, so the game would stay correct right up until the
+		// first caller that doesn't.
+		seedPlacements(5);
+		earnLakemaker();
+		const p = await w.db.Player.get(playerId);
+		await w.db.Player.patch(playerId, { inventory: { ...(p.inventory || {}), seeds: 20, fiber: 20 } });
+		await w.post('CraftItem', { playerId, recipeId: 'grass-patch' });
+
+		resetScans();
+		await w.post('PlaceObject', { playerId, objectId: 'grass-patch', area: 'meadow', x: 6, y: 6 });
+		expect(w.db.Placement._scanStats().scans).toBeGreaterThanOrEqual(2);
+	});
+
+	it('does not carry one action’s rows into the next', async () => {
+		earnLakemaker();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 5, y: 5, action: 'dig' });
+
+		// A scope that leaked past its request would serve the previous action's
+		// terrain here and read nothing at all.
+		expect(w.db.TerrainTile._scanStats().scans).toBeGreaterThan(0);
+		const state = await w.get<any>('GameState', playerId);
+		expect(state.terrain.filter((t: any) => t.area === 'meadow')).toHaveLength(2);
 	});
 });
 

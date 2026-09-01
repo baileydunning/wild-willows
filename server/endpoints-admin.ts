@@ -9,7 +9,7 @@ import { buildStamp } from './pages';
 import { SEASONS, WEATHER_TYPES, nextPhaseAt } from './weather';
 
 import { BASE_HEALTH, GameError, db, hash32, seededRng } from './core';
-import { byPlayer } from './keys';
+import { byPlayer, placementKey } from './keys';
 import { byArea, byWorld, defs, findBiomeState, worldOf } from './worlds';
 import {
 	DEFAULT_HOME,
@@ -1111,7 +1111,7 @@ export class DevTools extends PublicEndpoint {
 					});
 				}
 				// Recreate the empty starter chest by the camp.
-				const chestId = `${wid}:pl_${playerId}_starter-chest`;
+				const chestId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
 				await t.Placement.put({
 					id: chestId,
 					worldId: wid,
@@ -1380,7 +1380,7 @@ export class DevTools extends PublicEndpoint {
 						if (!openFloor(x, y)) return false;
 						taken.add(`${x},${y}`);
 						const row: any = {
-							id: `${wid}:pl_dev_home_${x}_${y}`,
+							id: placementKey(wid, 'home', `pl_dev_home_${x}_${y}`),
 							worldId: wid,
 							playerId,
 							objectId: def.id,
@@ -1592,7 +1592,7 @@ export class DevTools extends PublicEndpoint {
 					if (!def || !free(x, y)) return false;
 					occupied.add(`${x},${y}`);
 					const row: any = {
-						id: `${wid}:pl_dev_${ar}_${x}_${y}`,
+						id: placementKey(wid, ar, `pl_dev_${ar}_${x}_${y}`),
 						worldId: wid,
 						playerId,
 						objectId: def.id,
@@ -1689,7 +1689,7 @@ export class DevTools extends PublicEndpoint {
 					spannedWater.add(`${cell.x},${cell.y}`);
 					standing.add(def.id);
 					places.push({
-						id: `${wid}:pl_dev_${ar}_${cell.x}_${cell.y}`,
+						id: placementKey(wid, ar, `pl_dev_${ar}_${cell.x}_${cell.y}`),
 						worldId: wid,
 						playerId,
 						objectId: def.id,

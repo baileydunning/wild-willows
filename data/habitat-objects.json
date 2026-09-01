@@ -3046,7 +3046,16 @@
       ],
       "shape": "rainbasin",
       "color": "#6fa8d6",
-      "description": "A carved stone bowl that catches rainwater and holds it. Precious out here, and rarely full for long."
+      "description": "A carved stone bowl that catches rainwater and holds it. Precious out here, and rarely full for long.",
+      "harvestWeather": [
+        "rain",
+        "storm"
+      ],
+      "yield": {
+        "resourceId": "water",
+        "qty": 2,
+        "regrowSeconds": 90
+      }
     },
     {
       "id": "dew-lantern",

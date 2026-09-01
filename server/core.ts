@@ -12,11 +12,91 @@ import { t as tr } from '../src/i18n/server';
 import { safeGet } from './store';
 import { worldIsKeyed } from './keys';
 import { byWorld } from './worlds';
+import { invalidateTable } from './scan-cache';
+
+// ------------------------------------------------- the invalidating db handle
+//
+// Tables are handed out wrapped so that a write drops the request-scoped reads of
+// that table before it lands (see scan-cache.ts). This is the ONE place that can
+// hold that guarantee: every write in the server reaches its table through db(),
+// so there is no call site left that could forget to invalidate — and "somebody
+// has to remember" is precisely how a read cache turns into a wrong-state bug.
+// The failure it prevents is already documented at the `addPlacements` fold-in in
+// recalcBiome: a search inside a transaction can return the pre-write version of
+// a record, and serving a cached pre-write row would be the same bug with a
+// friendlier name.
+//
+// The wrapper traps `get` only, and only substitutes put / patch / delete.
+// Everything else — search, get, primaryStore, name — comes back untouched, so
+// nothing downstream (safeGet's raw-bytes salvage, tableName, Harper's own
+// internals) can tell the difference.
+const WRITE_METHODS = new Set(['put', 'patch', 'delete']);
+const tableProxies = new WeakMap<object, any>();
+const dbProxies = new WeakMap<object, any>();
+
+// The name a table answers to, and the one thing in here that must never be ''.
+//
+// It used to be read off the table alone (`table.name || table.tableName`), and
+// that held on Harper, where a table is a class and `.name` is its class name —
+// and in every test harness, whose fake tables are object literals with a `name`
+// property. It did NOT hold in the one place that ships: the in-app solo backend
+// builds `db[name] = new LocalTable()` (src/solo/localDb.ts), so the name is the
+// KEY on the db object and an INSTANCE has no `.name` at all.
+//
+// An empty name is not a missing optimization, it is three silent corruptions at
+// once, and the desktop game hit all three:
+//   - tableName() returns '', so scan-cache entry keys collapse to `|world` and
+//     `|area:meadow` for EVERY table — one table's rows get served for another's.
+//   - '' is in neither WORLD_KEYED nor AREA_KEYED, so every per-world read falls
+//     back to an unbounded scan of every save in the database.
+//   - invalidateTable('') returns immediately, so no write ever drops the cache.
+// Symptom: biome health frozen, no animal but the grasshopper ever returns, and
+// the whole game slows down as the database fills.
+//
+// So the db key is the authority. wrapDb knows it — it is the property being
+// looked up — and the proxy answers `name` with it, which fixes tableName() for
+// every reader at once because every read reaches its table through db().
+function wrapTable(table: any, key = ''): any {
+	if (!table || (typeof table !== 'object' && typeof table !== 'function')) return table;
+	const held = tableProxies.get(table);
+	if (held) return held;
+	const name = table.name || table.tableName || key;
+	const proxy = new Proxy(table, {
+		get(target: any, prop: any) {
+			// Answer the resolved name, so a backend whose tables carry none (LocalDb)
+			// reads identically to Harper through tableName().
+			if (prop === 'name' && !Reflect.get(target, prop, target)) return name;
+			const v = Reflect.get(target, prop, target);
+			if (typeof v !== 'function' || !WRITE_METHODS.has(prop)) return v;
+			return (...args: any[]) => {
+				// Before, not after: a write that threw still may have landed, and a
+				// cache kept across an uncertain write is the worst of both.
+				invalidateTable(name);
+				return v.apply(target, args);
+			};
+		},
+	});
+	tableProxies.set(table, proxy);
+	return proxy;
+}
+
+function wrapDb(d: any): any {
+	const held = dbProxies.get(d);
+	if (held) return held;
+	const proxy = new Proxy(d, {
+		get(target: any, prop: any) {
+			// The property key IS the table name — see the note on wrapTable.
+			return wrapTable(Reflect.get(target, prop, target), typeof prop === 'string' ? prop : '');
+		},
+	});
+	dbProxies.set(d, proxy);
+	return proxy;
+}
 
 export const db = () => {
 	const d = typeof databases !== 'undefined' && databases ? databases.wildwillows : null;
 	if (!d || !d.Player) throw new GameError(tr('server.err.dbStarting'), 503, 'server.err.dbStarting');
-	return d;
+	return wrapDb(d);
 };
 
 // ---------------------------------------------------------------- helpers

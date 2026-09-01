@@ -195,8 +195,13 @@ export interface HabitatObjectDef {
 	/** …and the bonus restoration points it contributes once it is. */
 	matureBonus?: number;
 	/** A renewable harvest: once mature, gathering grants this yield and the plant
-	 * regrows it after `regrowSeconds` (it stays planted). */
+	 * regrows it after `regrowSeconds` (it stays planted). A crafted structure can
+	 * carry one too — the rain basin fills with water — in which case it is ready
+	 * from the moment it is placed rather than from the moment it finishes growing. */
 	yield?: { resourceId: string; qty: number; regrowSeconds: number };
+	/** Weather types this object's yield can be taken in. A rain basin only gives
+	 * up its water while rain is actually falling; absent means any weather. */
+	harvestWeather?: string[];
 	bridge?: boolean;
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
@@ -294,18 +299,37 @@ export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
 	return Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
 }
 
-/** When a yield-bearing plant is ready to harvest — its maturity the first time,
+/** When a yield-bearing thing is ready to harvest — its maturity the first time,
  *  then `regrowSeconds` after each harvest. null if it never yields / isn't
- *  planted. Shared by the client UI and the world glint. */
+ *  planted. Shared by the client UI and the world glint.
+ *
+ *  Mirrors the server's copy in endpoints-game.ts, which is the one that counts.
+ *  A planted thing has to finish growing before its first yield; a crafted
+ *  structure that fills by itself (the rain basin) has nothing to grow, so it is
+ *  ready as soon as it is standing. Weather is NOT part of this: readiness is a
+ *  clock, and `harvestWeather` is a separate gate applied on top — a basin that
+ *  is full but standing under a blue sky is ready and simply cannot be emptied
+ *  yet. Keeping them apart is what stops a passing shower from resetting the
+ *  regrow timer. */
+/** Whether an object's yield can be taken under `weatherType`. `harvestWeather`
+ *  absent or empty means any sky will do; a rain basin lists the wet ones.
+ *  Mirrors the gate in HarvestPlacement (server/endpoints-game.ts), which is the
+ *  copy that counts — this one only decides what the UI offers. */
+export function harvestWeatherOk(def: HabitatObjectDef | undefined, weatherType: string): boolean {
+	const gate = def?.harvestWeather;
+	return !gate || gate.length === 0 || gate.includes(weatherType);
+}
+
 export function harvestReadyAt(
 	def: HabitatObjectDef | undefined,
-	p: { plantedAt?: number; lastHarvestAt?: number } | undefined,
+	p: { plantedAt?: number; lastHarvestAt?: number; placedAt?: number } | undefined,
 ): number | null {
 	const y = def?.yield;
-	if (!y || !def?.plantable || !p?.plantedAt) return null;
-	const growMs = (def.growSeconds || 0) * 1000;
+	if (!y || !p) return null;
 	const regrowMs = (y.regrowSeconds || 60) * 1000;
-	return p.lastHarvestAt ? p.lastHarvestAt + regrowMs : p.plantedAt + growMs;
+	if (p.lastHarvestAt) return p.lastHarvestAt + regrowMs;
+	if (def?.plantable) return p.plantedAt ? p.plantedAt + (def.growSeconds || 0) * 1000 : null;
+	return p.placedAt ?? null;
 }
 
 export interface HomeTrackLevel {
@@ -415,6 +439,17 @@ export interface BiomeState {
 	balance: number;
 	returnedCount: number;
 	unlocked: boolean;
+	/**
+	 * Open water the PLAYER shaped here — seeded starting channels excluded —
+	 * as the largest connected body, written by recalcBiome from the biome's own
+	 * terrain. It is what lets `waterShape` in src/recipes.ts answer for a biome
+	 * the player is not standing in, now that the snapshot only sends the current
+	 * area's tiles.
+	 *
+	 * Optional: a save whose biomes have not been recalculated since this field
+	 * existed has no value yet, and every reader falls back to counting tiles.
+	 */
+	playerWater?: { tiles: number; lake: number; river: number };
 }
 
 /**

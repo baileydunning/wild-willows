@@ -195,14 +195,17 @@ describe('blocksDoorway — beds stay clear of the exit', () => {
 });
 
 describe('isSleepable', () => {
-	it('recognises exactly the two sleepables', () => {
+	it('recognises the things you can sleep on', () => {
 		expect(isSleepable('home-bed')).toBe(true);
 		expect(isSleepable('home-sleeping-bag')).toBe(true);
+		// The hammock joined them: it is `placement: 'both'`, so it rests you
+		// indoors or strung between two posts out in a biome.
+		expect(isSleepable('hammock')).toBe(true);
 	});
 
 	it('rejects lookalikes and non-furniture', () => {
 		// 'reed-bed' / 'eelgrass-bed' are outdoor habitat, not somewhere you sleep.
-		for (const id of ['reed-bed', 'eelgrass-bed', 'oyster-bed', 'hammock', 'workbench', '', null, undefined]) {
+		for (const id of ['reed-bed', 'eelgrass-bed', 'oyster-bed', 'workbench', '', null, undefined]) {
 			expect(isSleepable(id as any)).toBe(false);
 		}
 	});

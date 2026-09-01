@@ -54,6 +54,23 @@ let writeVersion = 0;
 export const dbWriteVersion = () => writeVersion;
 
 class LocalTable {
+	/**
+	 * The table's name, as `databases.wildwillows` would answer it.
+	 *
+	 * Not decoration. The server reads it back through `tableName()` to decide a
+	 * key prefix (WORLD_KEYED / AREA_KEYED in server/worlds.ts) and to key and
+	 * invalidate the request scan cache. An instance without it reads as the empty
+	 * string, every table shares one cache entry, and the solo game quietly serves
+	 * one table's rows for another's — which is not a slow game, it is a wrong one.
+	 * Harper's own tables are classes, so `.name` is there for free; this is the
+	 * backend that has to say so out loud.
+	 */
+	readonly name: string;
+
+	constructor(name: string) {
+		this.name = name;
+	}
+
 	private rows = new Map<string, any>();
 	// Serializing the whole save on every autosave got steadily more expensive as
 	// a preserve grew, and a typical action dirties one or two tables out of nine.
@@ -168,11 +185,11 @@ export type LocalDatabase = Record<string, LocalTable>;
 export function makeLocalDatabase(): LocalDatabase {
 	const db: LocalDatabase = {};
 	for (const [name, data] of Object.entries(SEED)) {
-		const t = new LocalTable();
+		const t = new LocalTable(name);
 		for (const rec of data.records || []) if (rec && rec.id != null) void t.put(rec);
 		db[name] = t;
 	}
-	for (const name of DYNAMIC_TABLES) db[name] = new LocalTable();
+	for (const name of DYNAMIC_TABLES) db[name] = new LocalTable(name);
 	return db;
 }
 

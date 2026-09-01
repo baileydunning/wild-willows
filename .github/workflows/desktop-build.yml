@@ -3,6 +3,10 @@ name: Desktop build & publish to itch
 # Builds the solo-only desktop app for Windows, macOS, and Linux on native
 # runners. On an itch-v* OR plain v* tag push it then publishes each build to
 # itch.io with butler (channels windows / osx / linux of bai13y/wild-willows).
+#
+# Windows publishes the packaged FOLDER (dist/win-unpacked) rather than an
+# installer or a zip — see the comment on the selection step in the publish job
+# for why, and build.win in package.json for the matching `dir` target.
 # A plain manual run just builds the artifacts and skips publishing.
 #
 # Tag scheme (mirrors mas-release.yml):
@@ -14,6 +18,17 @@ name: Desktop build & publish to itch
 #   git tag itch-v0.1.0 && git push origin itch-v0.1.0  → build AND publish to itch
 #   git tag v0.1.0 && git push origin v0.1.0            → build AND publish to itch (+ mas fires too)
 #   Actions tab → Run workflow                          → build artifacts only (no publish)
+#   a PR touching the packaging config                  → Windows packaging check only
+#
+# THE PACKAGING CHECK EXISTS BECAUSE EVERYTHING ELSE HERE RUNS TOO LATE. Until it
+# was added, nothing about the Windows package was exercised until a release tag
+# was already pushed: the unit, integration and E2E suites all pass on a build
+# whose packaged folder is missing the file that gives it a Play button, because
+# none of them package anything. That is not a hypothetical — a `.itch.toml`
+# dropped by an artifact upload survived a completely green PR. So a PR that
+# changes what goes INTO the package runs the real packaging step, uploads the
+# folder through the same action the release uses, and downloads it again on
+# another runner to check what actually arrived. Publishing is never involved.
 #
 # The version is taken from the tag (itch-v0.1.0 → 0.1.0, v0.1.0 → 0.1.0), same
 # as mas-release.yml, so package.json is never bumped.
@@ -24,6 +39,16 @@ name: Desktop build & publish to itch
 on:
   push:
     tags: ['itch-v*', 'v*']
+  # Packaging-only, and only when the packaging could have changed. A five-minute
+  # Windows runner on every PR would be a slow way to learn nothing; these paths
+  # are the ones that decide what the packaged folder contains.
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'build/**'
+      - 'electron/**'
+      - '.github/workflows/desktop-build.yml'
   workflow_dispatch:
 
 # Don't let two runs on the same tag/ref pile up.
@@ -34,6 +59,9 @@ concurrency:
 jobs:
   build:
     name: Build (${{ matrix.os }})
+    # Tags and manual runs only. A PR gets the packaging check at the bottom of
+    # this file instead — one runner, no signing secrets, nothing published.
+    if: github.event_name != 'pull_request'
     runs-on: ${{ matrix.os }}
     strategy:
       fail-fast: false
@@ -101,14 +129,37 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Upload installers/archives
+      # Windows uploads the packaged FOLDER, not a single archive, because that
+      # is what gets pushed to itch (see the publish job). Pointing `path` at the
+      # directory makes it the artifact root, so the downloaded artifact IS the
+      # game folder — "Wild Willows.exe" sits at its top level, not one dir down.
+      #
+      # include-hidden-files IS LOAD-BEARING, and its absence fails silently.
+      # upload-artifact v4 skips every path beginning with a dot unless it is
+      # set, and the whole point of shipping the folder — one Play button in the
+      # itch app — rides on `.itch.toml`, which build.win.extraFiles copies in
+      # from build/itch.toml. Left unset, the upload still succeeds, the exe is
+      # still at the root, the guard in the publish job still passes, and what
+      # butler pushes is a manifest-less folder: delta patching keeps working,
+      # the Play button does not.
+      - name: Upload packaged folder (Windows)
+        if: matrix.os == 'windows-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact }}
+          if-no-files-found: error
+          retention-days: 14
+          include-hidden-files: true
+          path: dist/win-unpacked
+
+      - name: Upload installers/archives (macOS / Linux)
+        if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact }}
           if-no-files-found: error
           retention-days: 14
           path: |
-            dist/*.exe
             dist/*.dmg
             dist/*.zip
             dist/*.AppImage
@@ -152,9 +203,32 @@ jobs:
           GAME="bai13y/wild-willows"
           VERSION="${GITHUB_REF_NAME#itch-}"; VERSION="${VERSION#v}"   # itch-v0.1.0 / v0.1.0 -> 0.1.0
 
-          # Pick the best file per platform: portable zip for win/mac, AppImage for linux.
-          win=$(ls artifacts/wild-willows-windows/*.zip 2>/dev/null | head -1 || true)
-          [ -z "$win" ] && win=$(ls artifacts/wild-willows-windows/*.exe 2>/dev/null | head -1 || true)
+          # Pick what to push per platform: the packaged FOLDER for win, zip for
+          # mac, AppImage for linux.
+          #
+          # win is a directory, not a file, and that is deliberate — it is what itch
+          # asks for: "Instead of shipping an installer (MyGame_setup.exe or
+          # MyGame.msi), just push the install folder with butler."
+          # (https://itch.io/docs/itch/integrating/platforms/windows.html — butler's
+          # own manual calls installers "the absolute worst".) Pushing the folder is
+          # what lets the itch app show a single Play button, and it is what makes
+          # butler's delta patching work: it diffs the loose files, so a content-only
+          # update ships as a few MB instead of re-downloading ~400MB of Electron.
+          #
+          # This used to push *.zip — electron-builder's dump of that same tree as one
+          # archive — which is why the download was a folder of DLLs with the exe
+          # buried in it and no patching between versions.
+          win=artifacts/wild-willows-windows
+          # Both files, because either one going missing is a broken release and
+          # only one of them is visible. No exe is a folder that cannot run; no
+          # .itch.toml is a folder that runs but leaves the itch app with nothing
+          # to point Play at, and that one travels through an artifact upload
+          # that drops dotfiles by default (see include-hidden-files above).
+          if [ ! -f "$win/Wild Willows.exe" ] || [ ! -f "$win/.itch.toml" ]; then
+            echo "Windows artifact is incomplete — needs 'Wild Willows.exe' AND '.itch.toml' at its root. Refusing to push:"
+            ls -la "$win" || true
+            exit 1
+          fi
           mac=$(ls artifacts/wild-willows-macos/*-mac.zip 2>/dev/null | head -1 || true)
           [ -z "$mac" ] && mac=$(ls artifacts/wild-willows-macos/*.dmg 2>/dev/null | head -1 || true)
           lin=$(ls artifacts/wild-willows-linux/*.AppImage 2>/dev/null | head -1 || true)
@@ -172,3 +246,76 @@ jobs:
           push "$lin" linux
 
           "$BUTLER" status "$GAME"
+
+  # ---------------------------------------------------------------- PR checks
+  #
+  # Package Windows the way a release does, then prove the artifact that comes
+  # back out the other side is still a shippable folder. Split across two
+  # runners on purpose: the upload is half of what is being tested, so checking
+  # the files on the machine that built them would miss exactly the failure this
+  # exists to catch.
+  package-windows:
+    name: Windows packaging (no publish)
+    if: github.event_name == 'pull_request'
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build web client + server bundle
+        run: npm run build
+        env:
+          WW_CHANNEL: itch
+
+      - name: Package desktop app
+        run: npx electron-builder --publish never
+
+      - name: Upload packaged folder
+        uses: actions/upload-artifact@v4
+        with:
+          name: win-unpacked-pr
+          if-no-files-found: error
+          # The whole point of the check. Without it the folder uploads without
+          # its manifest and this job still goes green.
+          include-hidden-files: true
+          # Nobody downloads this by hand; it exists to be re-downloaded by the
+          # job below, one minute from now.
+          retention-days: 1
+          path: dist/win-unpacked
+
+  verify-windows-package:
+    name: Windows artifact survives the round trip
+    if: github.event_name == 'pull_request'
+    needs: package-windows
+    runs-on: ubuntu-latest
+    steps:
+      - name: Download the packaged folder
+        uses: actions/download-artifact@v4
+        with:
+          name: win-unpacked-pr
+          path: win
+
+      - name: Check what actually arrived
+        run: |
+          set -euo pipefail
+          # The same two files the publish job refuses to push without, checked
+          # here on a branch instead of on a tag with a release half out the door.
+          missing=0
+          for f in "Wild Willows.exe" ".itch.toml"; do
+            if [ ! -f "win/$f" ]; then echo "MISSING from the artifact: $f"; missing=1; fi
+          done
+          if [ "$missing" = 1 ]; then
+            echo "--- what the artifact does contain ---"
+            ls -la win
+            echo "A dotfile missing here means the upload dropped it — see include-hidden-files."
+            exit 1
+          fi
+          echo "Artifact looks shippable:"
+          ls -la "win/Wild Willows.exe" "win/.itch.toml"
