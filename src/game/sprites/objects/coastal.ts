@@ -24,21 +24,6 @@ export const COASTAL: SpriteSet = {
 		g.fillEllipse(8, 18, 10, 22).fillEllipse(18, 20, 10, 18).fillEllipse(28, 17, 10, 22);
 		g.fillStyle(C('#8a9a4e'), 1).fillCircle(12, 10, 2.4).fillCircle(24, 12, 2.4);
 	}),
-	coralgarden: def(42, 32, (g) => {
-		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(21, 26, 40, 12); // sandy bed
-		g.fillStyle(C('#5d96c8'), 0.55).fillEllipse(21, 24, 36, 9); // shallow water film
-		const branch = (x: number, h: number, c: string) => {
-			g.fillStyle(C(c), 1).fillRoundedRect(x - 2, 26 - h, 4, h, 2);
-			g.fillCircle(x, 26 - h, 3);
-		};
-		branch(10, 14, '#e58b6f');
-		branch(17, 20, '#f2a98f');
-		branch(24, 16, '#e0876f');
-		branch(31, 12, '#e8a07a');
-		branch(20, 11, '#d96e8a');
-		g.fillStyle(C('#6f9a52'), 1).fillEllipse(6, 22, 5, 12).fillEllipse(36, 21, 5, 12); // kelp fronds
-		g.fillStyle(0xffffff, 0.4).fillCircle(15, 19, 1.2).fillCircle(27, 17, 1.2);
-	}),
 	seaglasslantern: def(22, 44, (g) => {
 		g.fillStyle(C('#7c5a3c'), 1).fillRect(9, 30, 4, 12); // driftwood post
 		g.fillStyle(C('#b0a088'), 1).fillRoundedRect(4, 8, 14, 22, 3); // weathered frame
@@ -70,18 +55,6 @@ export const COASTAL: SpriteSet = {
 		g.lineBetween(15, 7, 5, 19).lineBetween(15, 7, 15, 20).lineBetween(15, 7, 25, 19);
 		g.fillStyle(C('#f2ece0'), 1).fillCircle(11, 17, 3).fillCircle(19, 17, 3).fillCircle(15, 14, 3.4); // pearls
 		g.fillStyle(0xffffff, 0.85).fillCircle(10, 15, 1.1).fillCircle(18, 15, 1.1).fillCircle(14, 12, 1.2);
-	}),
-	seaglasspath: def(34, 26, (g) => {
-		g.fillStyle(C('#dcc890'), 1).fillRoundedRect(1, 4, 32, 18, 8); // sand
-		const bits: [number, number, string][] = [
-			[8, 9, '#8fc6c2'],
-			[15, 13, '#a9d8d0'],
-			[22, 9, '#bcd8e6'],
-			[27, 15, '#9fd0cc'],
-			[12, 17, '#8fc6c2'],
-			[20, 7, '#a9d8d0'],
-		];
-		for (const [x, y, c] of bits) g.fillStyle(C(c), 0.95).fillRoundedRect(x - 2, y - 2, 4.5, 4.5, 1);
 	}),
 	driftpile: def(40, 24, (g) => {
 		const cols = ['#c8b89a', '#b8a888', '#d8cab0'];

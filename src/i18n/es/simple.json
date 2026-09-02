@@ -1213,7 +1213,7 @@
 				"unlock": {
 					"label": "Lleva las Alturas Vientogris al 80% de salud con 17 animales alpinos. Recibe 85 animales en total. Crea un Marcador de Ruta."
 				},
-				"description": "Un tramo de costa gastado donde el mar rompe al este. Las dunas se deshicieron y las charcas están vacías. Aún llegan vidrio de mar, kelp, coral y alguna perla.",
+				"description": "Un tramo de costa gastado donde el mar rompe al este. Las dunas se deshicieron y las charcas están vacías. Aún llegan vidrio de mar, kelp, madera de deriva y alguna perla.",
 				"restorationGoal": "Sujeta las dunas, recupera charcas y kelp, y vuelve a abrir la costa a su vida."
 			},
 			"meadow": {
@@ -1384,9 +1384,6 @@
 			},
 			"coastal-nesting-area": {
 				"description": "Una franja tranquila y acordonada de playa alta para anidar."
-			},
-			"coral-garden": {
-				"description": "Trozos de coral trasplantados que vuelven a formar arrecife. Comida y cobijo para toda la orilla."
 			},
 			"sea-glass-lantern": {
 				"description": "Vidrio de playa montado en madera. Da una luz verde suave al atardecer."

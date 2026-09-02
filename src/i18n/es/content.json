@@ -1614,7 +1614,7 @@
 				}
 			},
 			"coastal": {
-				"description": "Un tramo de costa erosionado donde el océano abierto rompe a lo largo del borde oriental. Las dunas se han lavado y las pozas de marea están vacías, pero el vidrio de mar, el kelp, el coral y alguna que otra perla todavía llegan con la marea.",
+				"description": "Un tramo de costa erosionado donde el océano abierto rompe a lo largo del borde oriental. Las dunas se han lavado y las pozas de marea están vacías, pero el vidrio de mar, el kelp, la madera de deriva y alguna que otra perla todavía llegan con la marea.",
 				"name": "Costa del Pelícano",
 				"restorationGoal": "Fija las dunas, restaura las pozas de marea y el kelp varado, y reabre la costa a la vida marina.",
 				"unlock": {
@@ -2162,10 +2162,6 @@
 			"coastal-nesting-area": {
 				"description": "Un tramo tranquilo y acordonado de playa alta para anidar.",
 				"name": "Zona de Anidación Costera"
-			},
-			"coral-garden": {
-				"description": "Cascajo de coral trasplantado que vuelve a crecer hasta formar un arrecife vivo: alimento y refugio para toda la línea de marea.",
-				"name": "Jardín de Coral"
 			},
 			"crystal-cairn": {
 				"description": "Una geoda partida sobre piedras apiladas: un reluciente hito del desierto.",
@@ -3660,9 +3656,6 @@
 			"coastal-nesting-area": {
 				"name": "Zona de Anidación Costera"
 			},
-			"coral-garden": {
-				"name": "Jardín de Coral"
-			},
 			"crystal-cairn": {
 				"name": "Mojón de Cristal"
 			},
@@ -4630,9 +4623,6 @@
 			},
 			"clean-water": {
 				"name": "Agua Limpia"
-			},
-			"coral": {
-				"name": "Coral"
 			},
 			"dewdrops": {
 				"name": "Rocío Matinal"

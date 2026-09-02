@@ -903,27 +903,6 @@
       }
     },
     {
-      "id": "coral-garden",
-      "name": "Coral Garden",
-      "category": "habitat",
-      "unlockBiome": "coastal",
-      "unlock": {
-        "minHealth": 48,
-        "biomesOpen": 6,
-        "label": "Restore Pelican Shore to 48% health and open 6 areas of the preserve"
-      },
-      "output": {
-        "itemId": "coral-garden",
-        "qty": 1
-      },
-      "materials": {
-        "coral": 4,
-        "kelp": 3,
-        "stones": 2,
-        "water": 2
-      }
-    },
-    {
       "id": "sea-glass-lantern",
       "name": "Sea Glass Lantern",
       "category": "structure",

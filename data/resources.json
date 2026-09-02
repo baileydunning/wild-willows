@@ -189,12 +189,6 @@
 			"color": "#8fc6c2"
 		},
 		{
-			"id": "coral",
-			"name": "Coral",
-			"tool": "shovel",
-			"color": "#e58b6f"
-		},
-		{
 			"id": "pearl",
 			"name": "Pearl",
 			"tool": "basket",

@@ -1015,22 +1015,6 @@
       "description": "A general roped-off stretch of quiet upper beach, marked with posts and line. It protects the ground broadly — the narrower closures are far more particular about what they cover."
     },
     {
-      "id": "coral-garden",
-      "name": "Coral Garden",
-      "placement": "outdoor",
-      "biomes": [
-        "coastal"
-      ],
-      "healthValue": 8,
-      "needs": [
-        "food",
-        "shelter"
-      ],
-      "shape": "coralgarden",
-      "color": "#e58b6f",
-      "description": "DEPRECATED — do not offer in this biome. There are no shallow reef-building corals in the temperate northeast Pacific; reef corals need water around 23-25 C and this coast runs 11-21 C. Replaced by the Kelp Forest object."
-    },
-    {
       "id": "sea-glass-lantern",
       "name": "Sea Glass Lantern",
       "placement": "outdoor",

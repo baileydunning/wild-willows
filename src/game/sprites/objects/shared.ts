@@ -74,49 +74,6 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#a3814f'), 1).fillRect(2, 6, 5, 18).fillRect(29, 6, 5, 18);
 		g.fillRect(0, 9, 36, 4).fillRect(0, 17, 36, 4);
 	}),
-	path: def(34, 26, (g) => {
-		g.fillStyle(C('#c9b98a'), 1).fillRoundedRect(1, 4, 32, 18, 8);
-		g.fillStyle(C('#b5a578'), 1).fillCircle(10, 13, 3).fillCircle(22, 11, 3).fillCircle(17, 17, 2.4);
-	}),
-	gravel: def(34, 26, (g) => {
-		g.fillStyle(C('#bdb6a4'), 1).fillRoundedRect(1, 4, 32, 18, 8);
-		g.fillStyle(C('#9a948a'), 1);
-		const dots = [
-			[7, 9],
-			[13, 14],
-			[19, 10],
-			[25, 15],
-			[10, 18],
-			[22, 18],
-			[16, 8],
-			[28, 9],
-		];
-		for (const [x, y] of dots) g.fillCircle(x, y, 1.8);
-		g.fillStyle(C('#cfcabd'), 1).fillCircle(11, 11, 1.2).fillCircle(20, 16, 1.2).fillCircle(26, 11, 1.2);
-	}),
-	planks: def(34, 26, (g) => {
-		g.fillStyle(C('#8c6a42'), 1).fillRoundedRect(1, 4, 32, 18, 3);
-		g.fillStyle(C('#a3814f'), 1);
-		for (let i = 0; i < 3; i++) g.fillRoundedRect(3, 6 + i * 5.6, 28, 4.4, 1.5); // boards
-		g.lineStyle(1, C('#7c5a3c'), 1).lineBetween(11, 5, 11, 21).lineBetween(23, 5, 23, 21); // seams
-	}),
-	flagstone: def(34, 26, (g) => {
-		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(1, 4, 32, 18, 5);
-		g.fillStyle(C('#a8a8a2'), 1);
-		g.fillTriangle(3, 6, 15, 5, 9, 20).fillTriangle(15, 5, 17, 21, 5, 20); // irregular slabs
-		g.fillStyle(C('#9a9a94'), 1).fillTriangle(17, 5, 31, 7, 21, 20).fillTriangle(31, 7, 31, 20, 21, 20);
-		g.lineStyle(1.2, C('#6e6e68'), 0.8).lineBetween(16, 5, 19, 21); // grout
-	}),
-	mossy: def(34, 26, (g) => {
-		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(1, 4, 32, 18, 5);
-		g.fillStyle(C('#a8a8a2'), 1).fillCircle(10, 12, 5).fillCircle(23, 13, 5.4).fillCircle(17, 9, 4);
-		g.fillStyle(C('#5d8a4a'), 0.85)
-			.fillCircle(7, 16, 2.6)
-			.fillCircle(15, 17, 3)
-			.fillCircle(26, 17, 2.6)
-			.fillCircle(20, 7, 2.2);
-		g.fillStyle(C('#74a85e'), 0.9).fillCircle(13, 14, 1.6).fillCircle(24, 10, 1.6);
-	}),
 	chest: def(32, 28, (g) => {
 		g.fillStyle(C('#8a6a44'), 1).fillRoundedRect(2, 8, 28, 18, 3);
 		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(2, 4, 28, 9, 3);

@@ -1615,7 +1615,7 @@
 				}
 			},
 			"coastal": {
-				"description": "A scoured stretch of coast where the open ocean breaks along the western edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, coral, and the odd pearl still wash up on the tide.",
+				"description": "A scoured stretch of coast where the open ocean breaks along the western edge. The dunes have washed out and the tidepools are empty, but sea glass, kelp, driftwood, and the odd pearl still wash up on the tide.",
 				"name": "Pelican Shore",
 				"restorationGoal": "Anchor the dunes, restore tidepools and kelp wrack, and reopen the shore to coastal life.",
 				"unlock": {
@@ -2645,10 +2645,6 @@
 			"cocoon-leaf-drift": {
 				"description": "A drift of curled fallen leaves left banked against a log. Giant silk moths spin their cocoons inside a leaf that then falls with it, so the whole next generation is lying in this pile all winter.",
 				"name": "Cocoon Leaf Drift"
-			},
-			"coral-garden": {
-				"description": "DEPRECATED — do not offer in this biome. There are no shallow reef-building corals in the temperate northeast Pacific; reef corals need water around 23-25 C and this coast runs 11-21 C. Replaced by the Kelp Forest object.",
-				"name": "Coral Garden"
 			},
 			"coralline-algae-crust": {
 				"description": "Pink, branching coralline and red algae turf on low-zone rock. Surfgrass seeds carry bristly arms that hook onto these branches — no turf, no surfgrass.",
@@ -4103,9 +4099,6 @@
 			"cocoon-leaf-drift": {
 				"name": "Cocoon Leaf Drift"
 			},
-			"coral-garden": {
-				"name": "Coral Garden"
-			},
 			"coralline-algae-crust": {
 				"name": "Coralline Turf"
 			},
@@ -5001,9 +4994,6 @@
 			},
 			"clean-water": {
 				"name": "Clean Water"
-			},
-			"coral": {
-				"name": "Coral"
 			},
 			"dewdrops": {
 				"name": "Morning Dew"

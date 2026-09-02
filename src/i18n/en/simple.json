@@ -1213,7 +1213,7 @@
 				"unlock": {
 					"label": "Bring Graywind Heights to 80% health with 17 alpine animals back. Welcome 85 animals in all. Craft a Migration Path Marker."
 				},
-				"description": "A worn stretch of coast where the open sea breaks on the east edge. The dunes washed out and the tidepools are empty. Sea glass, kelp, coral, and the odd pearl still wash up.",
+				"description": "A worn stretch of coast where the open sea breaks on the east edge. The dunes washed out and the tidepools are empty. Sea glass, kelp, driftwood, and the odd pearl still wash up.",
 				"restorationGoal": "Hold the dunes in place, bring back tidepools and kelp, and open the shore to coast life again."
 			},
 			"meadow": {
@@ -1351,9 +1351,6 @@
 			},
 			"coastal-nesting-area": {
 				"description": "A roped-off quiet strip of upper beach for nesting."
-			},
-			"coral-garden": {
-				"description": "Moved coral pieces that grow back into a living reef. Food and shelter for the whole shore."
 			},
 			"sea-glass-lantern": {
 				"description": "Beach glass set in driftwood. It throws soft sea-green light at dusk."

@@ -224,13 +224,6 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#bcd8e6'), 0.92).fillTriangle(9, 3, 14, 9, 5, 10);
 		g.fillStyle(0xffffff, 0.5).fillCircle(7, 8, 1).fillCircle(16, 11, 1);
 	});
-	n('coral', 28, 26, (g) => {
-		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(14, 22, 24, 8); // sandy base
-		g.fillStyle(C('#e58b6f'), 1); // branching coral
-		g.fillRoundedRect(11, 6, 5, 16, 2).fillRoundedRect(5, 11, 4, 11, 2).fillRoundedRect(18, 9, 4, 13, 2);
-		g.fillStyle(C('#f2a98f'), 1).fillCircle(13, 6, 3).fillCircle(7, 11, 2.6).fillCircle(20, 9, 2.6);
-		g.fillStyle(0xffffff, 0.35).fillCircle(12, 6, 1.2);
-	});
 	n('pearl', 24, 22, (g) => {
 		g.fillStyle(C('#c8b8a8'), 1).fillEllipse(12, 15, 22, 13); // open shell
 		g.lineStyle(1.4, C('#a89a88'), 1);

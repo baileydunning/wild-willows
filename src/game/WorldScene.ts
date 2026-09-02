@@ -19,11 +19,16 @@ import {
 	makeNodeTextures,
 	makeObjectTextures,
 	makePlayerTexture,
+	connOf,
+	ensureWaterTile,
+	PATH_SHAPES,
+	ensurePathTile,
 	snapshotResourceIcons,
 	snapshotObjectIcons,
 	INV_TEX_SCALE,
 	TEX_SCALE,
 } from './sprites';
+import type { Conn } from './sprites';
 import {
 	seasonStyle,
 	weatherType,
@@ -229,9 +234,17 @@ export class WorldScene extends Phaser.Scene {
 	// session, so tearing them all down on every dig made each dig cost more than
 	// the last. Keyed "tx,ty"; `it` is the plant-bed interactable for watered soil.
 	private terrain!: Phaser.GameObjects.Group;
+	// `conn` is the neighbour mask the tile's art was built for — see drawTerrain.
 	private terrainSprites = new Map<
 		string,
-		{ type: string; img: Phaser.GameObjects.Image; zone?: Phaser.GameObjects.GameObject; it?: Interactable }
+		{
+			type: string;
+			conn: Conn;
+			img: Phaser.GameObjects.Image;
+			deco?: Phaser.GameObjects.Image;
+			zone?: Phaser.GameObjects.GameObject;
+			it?: Interactable;
+		}
 	>();
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
 	private animalSig = ''; // routine refresh doesn't reset their wandering
@@ -2691,45 +2704,77 @@ export class WorldScene extends Phaser.Scene {
 			if (tile.area !== this.area) continue;
 			want.set(`${tile.x},${tile.y}`, tile);
 		}
-		// Gone, or retyped (tilled → watered → water): drop the old sprite.
+		// Open water is drawn edge-aware, so a tile's art depends on its NEIGHBOURS
+		// as well as its own type: flooding one tile beside a pond has to repaint
+		// that pond's bank, or the two stay separate puddles. The mask is part of
+		// what the diff compares for exactly that reason — and it costs nothing,
+		// because a dig can only change the shape of the four tiles around it.
+		const isWater = (x: number, y: number) => want.get(`${x},${y}`)?.type === 'water';
+		const connOfTile = (t: { x: number; y: number; type: string }): Conn =>
+			t.type === 'water'
+				? connOf(isWater(t.x, t.y - 1), isWater(t.x + 1, t.y), isWater(t.x, t.y + 1), isWater(t.x - 1, t.y))
+				: 0;
+		// Gone, retyped (tilled → watered → water), or newly joined to a neighbour.
 		for (const [key, cur] of [...this.terrainSprites]) {
 			const next = want.get(key);
-			if (next && next.type === cur.type) continue;
+			if (next && next.type === cur.type && connOfTile(next) === cur.conn) continue;
 			this.tweens.killTweensOf(cur.img);
 			cur.img.destroy();
 			cur.zone?.destroy();
+			if (cur.deco) {
+				this.tweens.killTweensOf(cur.deco);
+				cur.deco.destroy();
+			}
 			this.terrainSprites.delete(key);
 		}
-		// New, or retyped: build it.
+		// New, retyped, or re-shaped: build it.
 		for (const [key, tile] of want) {
 			if (this.terrainSprites.has(key)) continue;
-			this.terrainSprites.set(key, this.buildTerrainTile(tile));
+			this.terrainSprites.set(key, this.buildTerrainTile(tile, connOfTile(tile)));
 		}
 		// refreshDynamic resets this.interactables before calling us, so every
 		// surviving bed has to re-announce itself even when its sprite didn't change.
 		for (const entry of this.terrainSprites.values()) if (entry.it) this.interactables.push(entry.it);
 	}
 
-	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one tile. */
-	private buildTerrainTile(tile: { x: number; y: number; type: string }) {
+	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one
+	 *  tile. `conn` is which of its neighbours are the same surface. */
+	private buildTerrainTile(tile: { x: number; y: number; type: string }, conn: Conn) {
 		const x = tile.x * TILE + 16;
 		const y = tile.y * TILE + 16;
 		if (tile.type === 'water') {
-			const img = this.img(x, y, 'terrain-water').setDepth(1.6);
+			const img = this.img(x, y, ensureWaterTile(this, conn)).setDepth(1.6);
 			this.terrain.add(img);
-			this.tweens.add({
-				targets: img,
-				alpha: { from: 1, to: 0.86 },
-				duration: 1300 + ((tile.x + tile.y) % 4) * 180,
-				yoyo: true,
-				repeat: -1,
-				ease: 'Sine.easeInOut',
-			});
-			return { type: tile.type, img };
+			// The old surface breathed by fading each tile between alpha 1 and 0.86 on
+			// its own staggered timer. That left every tile of a pond a slightly
+			// different blue at any moment — drawing in the very grid the edge-aware
+			// art exists to hide — so the body is flat and opaque now. The wetness
+			// moved to a ripple sprite per tile instead: same shapes the old single
+			// water tile drew, but the tile's hash picks which of the four, flips it
+			// and nudges it, so the highlight is everywhere and repeats nowhere.
+			// Offsets stay inside ±4 so a ripple can't reach across a bank onto grass.
+			const h = hashStr(`${tile.x},${tile.y}`) >>> 0;
+			const deco = this.img(x + ((h >>> 4) % 9) - 4, y + ((h >>> 8) % 9) - 4, `water-ripple${h % 4}`)
+				.setDepth(1.62)
+				.setFlipX(((h >>> 3) & 1) === 1);
+			this.terrain.add(deco);
+			// Half the tiles drift, the rest hold still: enough movement to read as a
+			// live surface, and still fewer infinite tweens than one per water tile.
+			if (!getPrefs().reduceMotion && h & 1)
+				this.tweens.add({
+					targets: deco,
+					alpha: { from: 0.55, to: 1 },
+					x: deco.x + 2.5,
+					duration: 2400 + (h % 1100),
+					yoyo: true,
+					repeat: -1,
+					ease: 'Sine.easeInOut',
+				});
+			return { type: tile.type, conn, img, deco };
 		}
 		const img = this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5);
 		this.terrain.add(img);
-		if (tile.type !== 'watered') return { type: tile.type, img };
+		if (tile.type !== 'watered') return { type: tile.type, conn, img };
 		// watered beds are ready for planting; terraform clicks still reach the
 		// soil here so the can/shovel can flood or clear it (with confirmation)
 		const it: Interactable = {
@@ -2744,7 +2789,7 @@ export class WorldScene extends Phaser.Scene {
 		const zone = this.add.zone(x, y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true });
 		this.terrain.add(zone);
 		this.registerInteractable(it, zone, { terraformPassthrough: true });
-		return { type: tile.type, img, zone, it };
+		return { type: tile.type, conn, img, zone, it };
 	}
 
 	/** Wire an interactable so it can also be tapped/clicked directly (mobile-first). */
@@ -3999,6 +4044,7 @@ export class WorldScene extends Phaser.Scene {
 			p.lastHarvestAt || 0,
 			growing ? 1 : 0,
 			ready,
+			this.pathConn(p), // 0 for anything that isn't a path
 		].join('|');
 	}
 
@@ -4020,6 +4066,12 @@ export class WorldScene extends Phaser.Scene {
 	 */
 	private buildPlacement(p: any): PlacementEntry {
 		const def = this.objectDef(p.objectId)!;
+		// A path is the ground rather than a thing standing on it, and the three
+		// places below treat it that way: no cast shadow, an edge-aware tile so a
+		// run of them is one surface, and none of the per-item flip/lean/size/shade
+		// that makes a hedgerow look natural and made a walkway look like spilled
+		// pills. See sprites/objects/paths.ts.
+		const flat = PATH_SHAPES.has(def.shape || '');
 		const objs: Phaser.GameObjects.GameObject[] = [];
 		const its: Interactable[] = [];
 		let growth: { at: number; matures: boolean } | undefined;
@@ -4033,11 +4085,12 @@ export class WorldScene extends Phaser.Scene {
 		const x = p.x * TILE + 16;
 		const y = p.y * TILE + 16;
 		const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-		own(
-			this.img(x, y + (tall ? 22 : 10), 'shadow')
-				.setDepth(3)
-				.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
-		);
+		if (!flat)
+			own(
+				this.img(x, y + (tall ? 22 : 10), 'shadow')
+					.setDepth(3)
+					.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
+			);
 
 		// freshly planted things start as a sprout and grow in
 		const growMs = (def.growSeconds || 0) * 1000;
@@ -4046,9 +4099,12 @@ export class WorldScene extends Phaser.Scene {
 		// fall back to the generic kit sprite if this object's shape texture is
 		// missing (e.g. data with a newer shape than the loaded client), so a
 		// placed item never renders as a blank/black missing-texture square
-		const shapeKey = `obj-${def.shape || 'kit'}`;
+		const shapeKey = flat ? ensurePathTile(this, def.shape!, this.pathConn(p)) : `obj-${def.shape || 'kit'}`;
 		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
-		const img = own(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
+		// Paths sit at a fixed low depth, just above terrain: they are underfoot, so
+		// they must never sort in front of the caretaker walking along them the way
+		// a y-sorted object does.
+		const img = own(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(flat ? 1.7 : y));
 		// Recorded on the entry, not scheduled: armGrowthTimer() sets one timer for
 		// the soonest across the whole field, and a surviving entry replays this
 		// without being rebuilt.
@@ -4072,7 +4128,7 @@ export class WorldScene extends Phaser.Scene {
 		// id, so they are decided ONCE, here. The draw ORDER matters — it is what
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
-		if (isFixture) {
+		if (flat || isFixture) {
 			if (rot) img.setRotation(rot);
 		} else {
 			const vr = mulberry32(hashStr(p.id));
@@ -4862,6 +4918,26 @@ export class WorldScene extends Phaser.Scene {
 			this.placementByTileSrc = placements;
 		}
 		return this.placementByTile.get(`${this.area}:${tx},${ty}`);
+	}
+
+	/**
+	 * How a path placement joins the ones around it.
+	 *
+	 * Placing a path has to change the art of its NEIGHBOURS as well as its own,
+	 * which is why this is folded into placementKey(): the tile that just gained a
+	 * neighbour fails its diff and is rebuilt in the same pass. The four lookups
+	 * go through placementAt(), already memoised against the identity of the
+	 * placements array, so this stays four map hits per path per repaint.
+	 *
+	 * Materials connect to each OTHER on purpose — a gravel path that runs into a
+	 * plank one is still one walkway, and the junction reads better squared off
+	 * than as two rounded ends that happen to touch.
+	 */
+	private pathConn(p: { objectId: string; x: number; y: number }): Conn {
+		const isPath = (objectId?: string) => !!objectId && PATH_SHAPES.has(this.objectDef(objectId)?.shape || '');
+		if (!isPath(p.objectId)) return 0;
+		const at = (x: number, y: number) => isPath(this.placementAt(x, y)?.objectId);
+		return connOf(at(p.x, p.y - 1), at(p.x + 1, p.y), at(p.x, p.y + 1), at(p.x - 1, p.y));
 	}
 
 	/**

@@ -3,6 +3,7 @@
 
 import Phaser from 'phaser';
 import { C, tex } from './canvas';
+import { makeWaterDetailTextures } from './tiles';
 
 export function makeBaseTextures(scene: Phaser.Scene) {
 	// ground tile (white — tinted per biome/health at runtime)
@@ -145,13 +146,11 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.lineStyle(2.5, C('#6e5238'), 0.9);
 		g.lineBetween(5, 8, 25, 8).lineBetween(5, 15, 25, 15).lineBetween(5, 22, 25, 22);
 	});
-	tex(scene, 'terrain-water', 32, 32, (g) => {
-		g.fillStyle(C('#4a7ba8'), 1).fillRoundedRect(0, 0, 32, 32, 5);
-		g.fillStyle(C('#5d96c8'), 1).fillRoundedRect(2, 2, 28, 28, 5);
-		g.lineStyle(2, C('#8fc0e0'), 0.8);
-		g.lineBetween(6, 11, 14, 11).lineBetween(16, 20, 25, 20).lineBetween(8, 26, 15, 26);
-		g.fillStyle(0xffffff, 0.5).fillCircle(23, 8, 1.6);
-	});
+	// Open water is edge-aware — sixteen shapes, one per neighbour combination —
+	// so a dug channel reads as one body of water rather than a row of puddles.
+	// Those shapes are rasterized on demand (ensureWaterTile); only the ripples
+	// scattered over the surface are registered here.
+	makeWaterDetailTextures(scene);
 	tex(scene, 'watered', 30, 30, (g) => {
 		g.fillStyle(C('#6a4f34'), 1).fillRoundedRect(1, 1, 28, 28, 7);
 		g.lineStyle(2.5, C('#54402a'), 0.9);
