@@ -1026,6 +1026,14 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 						}
 					}
 					if (r.newAnimals?.length) {
+						// ONE chime for the batch, not one per animal. A heartbeat that comes back
+						// from a long absence can carry half a dozen arrivals, and six copies of a
+						// seven-second cue landing on top of each other is a wall of sound rather
+						// than a welcome. The toasts and the journal still name every animal
+						// individually — only the sound is collapsed. (audio.ts holds a cooldown on
+						// this id as well, for the second batch that a recalc can land moments
+						// later.)
+						bridge.emit('audio-sfx', { id: 'animalReturn' });
 						for (const na of r.newAnimals) {
 							const name = na.animal
 								? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal'))
@@ -1196,6 +1204,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			try {
 				const result = await fn();
 				if (result?.newAnimals?.length) {
+					// One chime for the batch — see the note on the heartbeat's arrivals.
+					bridge.emit('audio-sfx', { id: 'animalReturn' });
 					for (const na of result.newAnimals) {
 						const name = na.animal
 							? content('animal', na.animal.id, 'name', na.animal.name || t('app.fallback.animal'))

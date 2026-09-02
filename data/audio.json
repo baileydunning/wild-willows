@@ -1,6 +1,7 @@
 {
   "music": {
     "wildwillowstheme": "/audio/music/WildWillows_ThemeIdea.mp3",
+    "home": "/audio/music/HomeMusic.mp3",
     "meadowambient": "/audio/music/willowmeadow/meadowambient.mp3",
     "meadowambient_level2": "/audio/music/willowmeadow/meadowambient_level2.mp3",
     "meadowambient_level3": "/audio/music/willowmeadow/meadowambient_level3.mp3",
@@ -26,7 +27,11 @@
     "rain": "/audio/sfx/rain.mp3"
   },
   "sfx": {
-    "areaUnlocked": "/audio/sfx/AreaUnlocked.ogg",
+    "areaUnlocked": "/audio/sfx/BiomeUnlocked.mp3",
+    "animalReturn": "/audio/sfx/AnimalReturn1.mp3",
+    "upgrade": "/audio/sfx/Upgrade1.mp3",
+    "fireCrackling": "/audio/sfx/FireCrackling.mp3",
+    "sunriseBirds": "/audio/sfx/SunriseBirds.mp3",
     "cant": "/audio/sfx/cant.ogg",
     "hover": [
       "/audio/sfx/hover1.ogg",
@@ -47,26 +52,34 @@
     "plant": "/audio/sfx/plant.mp3"
   },
   "sfxGain": {
+    "areaUnlocked": 0.32,
     "cant": 0.45,
     "craft": 0.85,
     "dig": 0.595,
+    "fireCrackling": 0.3,
     "harvest": 0.476
   },
   "musicGain": {
-    "hollowforest_level1": 0.5,
-    "hollowforest_level2": 0.5,
-    "hollowforest_level3": 0.5,
-    "wetlands_level1": 0.7,
-    "wetlands_level2": 0.7,
-    "wetlands_level3": 0.7,
-    "scrubland_level1": 0.7,
-    "scrubland_level2": 0.7,
-    "scrubland_level3": 0.7,
-    "graywind_level1": 0.7,
-    "graywind_level2": 0.7,
-    "graywind_level3": 0.7,
-    "pelicanbay_level1": 0.7,
-    "pelicanbay_level2": 0.7,
-    "pelicanbay_level3": 0.7
+    "wildwillowstheme": 0.55,
+    "home": 0.52,
+    "meadowambient": 1,
+    "meadowambient_level2": 1,
+    "meadowambient_level3": 1,
+    "hollowforest_level1": 0.31,
+    "hollowforest_level2": 0.31,
+    "hollowforest_level3": 0.31,
+    "wetlands_level1": 0.76,
+    "wetlands_level2": 0.76,
+    "wetlands_level3": 0.76,
+    "scrubland_level1": 0.81,
+    "scrubland_level2": 0.81,
+    "scrubland_level3": 0.81,
+    "graywind_level1": 0.71,
+    "graywind_level2": 0.71,
+    "graywind_level3": 0.71,
+    "pelicanbay_level1": 0.41,
+    "pelicanbay_level2": 0.41,
+    "pelicanbay_level3": 0.41
   }
+
 }

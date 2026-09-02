@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { existsSync, readFileSync } from 'node:fs';
+import { join, resolve } from 'node:path';
 
 // ---------------------------------------------------------------------------
 // audio.ts drives real <audio> elements through `new Audio()` (absent in jsdom)
@@ -274,6 +276,52 @@ describe('audio — music & ambience activation', () => {
 		expect(m.pause).toHaveBeenCalled();
 	});
 
+	/* LEAVING A PLACE SHOULD NOT REWIND ITS MUSIC.
+	 *
+	 * Crossing a border used to pause the old track AND send it back to zero, so a
+	 * lap of the preserve was the opening phrase of six pieces over and over. The
+	 * fix is the absence of those rewinds, which is exactly the kind of thing that
+	 * gets helpfully "tidied" back in later — hence a test.
+	 *
+	 * The crossfade runs on requestAnimationFrame, which the suite stubs into a
+	 * no-op; this one hands it a timestamp past the end of the fade so the whole
+	 * transition resolves in a single synchronous tick. */
+	it('leaves a track where it stood, and picks it up there on the way back', () => {
+		window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+			cb((typeof performance !== 'undefined' ? performance.now() : Date.now()) + 10_000);
+			return 0;
+		}) as any;
+		audio.primeAudio();
+		FakeAudio.instances = [];
+
+		audio.setMusicActive(true, 'meadowambient');
+		const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+		meadow.currentTime = 42; // three quarters of a minute into the piece
+
+		audio.setMusicActive(true, 'wetlands_level1'); // walk into the wetland
+		expect(meadow.paused).toBe(true);
+		expect(meadow.currentTime).toBe(42);
+
+		audio.setMusicActive(true, 'meadowambient'); // and back again
+		expect(meadow.paused).toBe(false);
+		expect(meadow.currentTime).toBe(42);
+	});
+
+	it('keeps its place when music is switched off and on', () => {
+		audio.primeAudio();
+		FakeAudio.instances = [];
+		audio.setMusicActive(true, 'meadowambient');
+		const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+		meadow.currentTime = 17;
+
+		audio.applyAudioPrefs({ musicEnabled: false });
+		expect(meadow.paused).toBe(true);
+		expect(meadow.currentTime).toBe(17);
+
+		audio.applyAudioPrefs({ musicEnabled: true });
+		expect(meadow.currentTime).toBe(17);
+	});
+
 	it('starts looping ambience softened below music level', () => {
 		audio.primeAudio();
 		FakeAudio.instances = [];
@@ -334,5 +382,156 @@ describe('audio — applyAudioPrefs', () => {
 		FakeAudio.instances = [];
 		bridge.emit('audio-sfx', { id: 'menuhover' });
 		expect(bySrc('menuhover.ogg')[0].volume).toBeCloseTo(0.8 * 0.4, 5);
+	});
+});
+
+describe('audio — cues that make room for themselves', () => {
+	/* A heartbeat coming back from a long absence can announce half a dozen
+	 * arrivals in one pass, and a second batch can follow moments later when the
+	 * recalc lands. state.tsx already collapses each batch to one emit; this is
+	 * the backstop for the batches themselves. */
+	it('plays one animal-return cue for a burst of arrivals', () => {
+		bind();
+		primeAndClear();
+		for (let i = 0; i < 5; i++) bridge.emit('audio-sfx', { id: 'animalReturn' });
+		const [el] = bySrc('AnimalReturn1.mp3');
+		expect(el).toBeDefined();
+		expect(el.play).toHaveBeenCalledTimes(1);
+	});
+
+	it('holds back only the cue that stacks, not everything around it', () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'animalReturn' });
+		bridge.emit('audio-sfx', { id: 'animalReturn' });
+		bridge.emit('audio-sfx', { id: 'dig' });
+		expect(bySrc('dig.ogg')[0].play).toHaveBeenCalledTimes(1);
+	});
+
+	it('softens the unlock fanfare, which is mastered far hotter than the rest', () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		// master 0.8 * sfx 0.75 * gain 0.32
+		expect(bySrc('BiomeUnlocked.mp3')[0].volume).toBeCloseTo(0.6 * 0.32, 5);
+	});
+});
+
+describe('audio — one ceremony at a time', () => {
+	/* The suite stubs requestAnimationFrame into a no-op, so a losing cue's fade
+	 * never advances on its own. These hand it a timestamp past the end of the
+	 * fade, which resolves the whole thing in one synchronous tick — the point
+	 * being that the loser actually stops, not how it got there. */
+	const runFades = () => {
+		window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+			cb((typeof performance !== 'undefined' ? performance.now() : Date.now()) + 10_000);
+			return 0;
+		}) as any;
+	};
+
+	it('hands the floor to the biome unlock when an animal is already announcing', () => {
+		bind();
+		primeAndClear();
+		runFades();
+		bridge.emit('audio-sfx', { id: 'animalReturn' });
+		const [arrival] = bySrc('AnimalReturn1.mp3');
+		expect(arrival.play).toHaveBeenCalledTimes(1);
+		expect(arrival.paused).toBe(false);
+
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		expect(bySrc('BiomeUnlocked.mp3')[0].play).toHaveBeenCalledTimes(1);
+		expect(arrival.paused).toBe(true); // faded out of the way, not left underneath
+		expect(arrival.volume).toBe(0);
+	});
+
+	it('drops an arrival that lands while the unlock is still speaking', () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		bridge.emit('audio-sfx', { id: 'animalReturn' });
+		const [arrival] = bySrc('AnimalReturn1.mp3');
+		expect(arrival?.play ?? (() => {})).not.toHaveBeenCalled();
+	});
+
+	it('does not spend the arrival cooldown on a chime nobody heard', () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		bridge.emit('audio-sfx', { id: 'animalReturn' }); // dropped — outranked
+		bySrc('BiomeUnlocked.mp3')[0].pause(); // the fanfare finishes
+		bridge.emit('audio-sfx', { id: 'animalReturn' });
+		expect(bySrc('AnimalReturn1.mp3')[0].play).toHaveBeenCalledTimes(1);
+	});
+
+	it("still answers the player's own hands mid-ceremony", () => {
+		bind();
+		primeAndClear();
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		bridge.emit('audio-sfx', { id: 'dig' });
+		expect(bySrc('dig.ogg')[0].play).toHaveBeenCalledTimes(1);
+	});
+});
+
+describe('audio — the campfire crackle', () => {
+	/* The scene sends a NEARNESS rather than an on/off, so the fire arrives with
+	 * the caretaker instead of appearing at a threshold. These pin the two things
+	 * that makes possible: the number reaching the element's volume, and the loop
+	 * starting and stopping once, at the edges of earshot. */
+	it('rides the nearness the scene sends, and starts only once', () => {
+		bind();
+		audio.primeAudio();
+		const [fire] = bySrc('FireCrackling.mp3');
+		expect(fire, 'the crackle loop should exist once audio is unlocked').toBeDefined();
+		expect(fire.loop).toBe(true);
+		expect(fire.play).not.toHaveBeenCalled(); // nothing burning nearby yet
+
+		bridge.emit('audio-fire', { level: 0.5 });
+		// master 0.8 * sfx 0.75 * gain 0.3 * nearness 0.5
+		expect(fire.volume).toBeCloseTo(0.6 * 0.3 * 0.5, 5);
+		expect(fire.play).toHaveBeenCalledTimes(1);
+
+		bridge.emit('audio-fire', { level: 1 });
+		expect(fire.volume).toBeCloseTo(0.6 * 0.3, 5);
+		expect(fire.play).toHaveBeenCalledTimes(1); // stepping closer is a volume change
+	});
+
+	it('goes quiet when the caretaker walks away', () => {
+		bind();
+		audio.primeAudio();
+		const [fire] = bySrc('FireCrackling.mp3');
+		bridge.emit('audio-fire', { level: 1 });
+		expect(fire.paused).toBe(false);
+		bridge.emit('audio-fire', { level: 0 });
+		expect(fire.paused).toBe(true);
+		expect(fire.currentTime).toBe(0);
+	});
+});
+
+describe('the audio manifest', () => {
+	// vitest runs from the repo root, same as the other source-reading suites
+	// (see tests/serverSource.ts). import.meta.url is not a file: URL under the
+	// jsdom environment this project runs in, so it cannot be used here.
+	const root = resolve(process.cwd());
+	const manifest = JSON.parse(readFileSync(join(root, 'data/audio.json'), 'utf8'));
+
+	/* Nothing else catches a path that points at nothing. The ids are typed off
+	 * this file so the call sites stay honest, but the VALUES are plain strings
+	 * that no type sees: playSfx no-ops on a missing asset, the console warning is
+	 * one line, and the symptom is a sound that simply never plays. */
+	it('names a file that exists, for every id', () => {
+		const missing: string[] = [];
+		for (const section of ['music', 'ambience', 'sfx'] as const) {
+			for (const [id, value] of Object.entries(manifest[section] as Record<string, string | string[]>)) {
+				for (const path of Array.isArray(value) ? value : [value]) {
+					if (!existsSync(join(root, 'public', path))) missing.push(`${section}.${id} -> ${path}`);
+				}
+			}
+		}
+		expect(missing, 'data/audio.json points at files that are not in public/').toEqual([]);
+	});
+
+	it('tunes only ids that exist', () => {
+		expect(Object.keys(manifest.sfxGain).filter((k) => !(k in manifest.sfx))).toEqual([]);
+		expect(Object.keys(manifest.musicGain).filter((k) => !(k in manifest.music))).toEqual([]);
 	});
 });

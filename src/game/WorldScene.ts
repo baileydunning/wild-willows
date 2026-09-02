@@ -203,6 +203,8 @@ export class WorldScene extends Phaser.Scene {
 	private playerShadow!: Phaser.GameObjects.Image;
 	private walkT = 0;
 	private walkAudioActive = false;
+	/** Last fire nearness sent to the mixer (0..1), so we only send changes. */
+	private fireAudioLevel = 0;
 	private keys!: any;
 	private moveKeys: {
 		up: Phaser.Input.Keyboard.Key[];
@@ -1175,6 +1177,7 @@ export class WorldScene extends Phaser.Scene {
 	private shutdown() {
 		this.alive = false;
 		this.setWalkAudio(false);
+		this.setFireAudio(0); // a torn-down scene must not leave a fire burning in the mixer
 		this.unsubs.forEach((u) => u());
 		this.unsubs = [];
 		// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
@@ -2175,8 +2178,14 @@ export class WorldScene extends Phaser.Scene {
 		}
 		const fires: { x: number; y: number }[] = [];
 		if (this.area === 'meadow') fires.push({ x: CAMP.fire.x * TILE, y: CAMP.fire.y * TILE });
+		// The stone hearth counts as a fire here as well, because this list feeds the
+		// crackle as well as the night lights and a hearth sounds like a fire from
+		// two tiles away. It cannot change the lighting: updateNightLights() bails
+		// before it asks for this list whenever we are indoors.
 		for (const p of placements || []) {
-			if (p.area === this.area && p.objectId === 'campfire') fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
+			if (p.area !== this.area) continue;
+			if (p.objectId === 'campfire' || p.objectId === 'home-fireplace')
+				fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
 		}
 		this.fireCache = fires;
 		this.fireCacheSrc = placements;
@@ -4908,6 +4917,7 @@ export class WorldScene extends Phaser.Scene {
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
+		this.updateFireAudio(); // ...and can be heard before they can be seen
 	}
 
 	/**
@@ -4935,6 +4945,44 @@ export class WorldScene extends Phaser.Scene {
 		if (this.walkAudioActive === active) return;
 		this.walkAudioActive = active;
 		bridge.emit('audio-walk', { active });
+	}
+
+	// Where the crackle starts and stops (world px). Inside the near radius you
+	// are standing at the fire; past the far one it is out of earshot. The far
+	// radius is deliberately tighter than FIRE_MASK, the ring of light a fire
+	// throws after dark: you should see a campfire from further away than you can
+	// hear it, and a fire audible from off-screen sounds like a bug.
+	private static readonly FIRE_AUDIO_NEAR = TILE * 1.5;
+	private static readonly FIRE_AUDIO_FAR = TILE * 6;
+
+	private setFireAudio(level: number) {
+		if (level === this.fireAudioLevel) return;
+		this.fireAudioLevel = level;
+		bridge.emit('audio-fire', { level });
+	}
+
+	/**
+	 * How near the caretaker is to the nearest fire, as a 0..1 the mixer fades on.
+	 *
+	 * Sent as a level rather than an on/off so the sound arrives with you instead
+	 * of appearing at a threshold — and quantised to twentieths before it is
+	 * compared, so walking past a campfire sends a couple of dozen messages rather
+	 * than one per frame for as long as you are in range.
+	 */
+	private updateFireAudio() {
+		const fires = this.firesHere();
+		let level = 0;
+		if (fires.length) {
+			let nearest = Infinity;
+			for (const f of fires) {
+				const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, f.x, f.y);
+				if (d < nearest) nearest = d;
+			}
+			const near = WorldScene.FIRE_AUDIO_NEAR;
+			const far = WorldScene.FIRE_AUDIO_FAR;
+			level = nearest <= near ? 1 : nearest >= far ? 0 : 1 - (nearest - near) / (far - near);
+		}
+		this.setFireAudio(Math.round(level * 20) / 20);
 	}
 
 	/** The compact interact key to show in-world — prefer a real key over the wide

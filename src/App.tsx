@@ -738,6 +738,9 @@ function Root() {
 	const [audioClock, setAudioClock] = useState(0);
 	const wasOpeningFlowRef = useRef(true);
 	const meadowCueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	/** The day phase this effect last saw, so first light can be noticed as a
+	 *  CHANGE. null until the first pass — see the sunrise cue below. */
+	const lastDayPhaseRef = useRef<string | null>(null);
 	const audioEnabled = (prefs as any).audioEnabled ?? true;
 	const masterVolume = typeof (prefs as any).masterVolume === 'number' ? (prefs as any).masterVolume : 0.8;
 	const musicEnabled = prefs.musicEnabled;
@@ -813,7 +816,7 @@ function Root() {
 		const scrublandHealth = state?.biomeStates.find((b) => b.biomeId === 'desert')?.health ?? 0;
 		const alpineHealth = state?.biomeStates.find((b) => b.biomeId === 'alpine')?.health ?? 0;
 		const coastalHealth = state?.biomeStates.find((b) => b.biomeId === 'coastal')?.health ?? 0;
-		const gameplayTrack =
+		const outdoorTrack =
 			state?.player.area === 'forest'
 				? forestHealth < 50
 					? 'hollowforest_level1'
@@ -849,6 +852,25 @@ function Root() {
 									: meadowHealth < 80
 										? 'meadowambient_level2'
 										: 'meadowambient_level3';
+		// Indoors the biome stops carrying the room. The cabin has its own piece,
+		// and it plays at every biome and every health level — what you hear in
+		// there is the house, not the land outside it.
+		const gameplayTrack = isHome ? 'home' : outdoorTrack;
+
+		/* FIRST LIGHT. One birdsong cue on the night -> dawn turn, and only that
+		 * turn: this effect re-runs on every audio clock tick, so "it is dawn" is
+		 * true for a whole phase and would retrigger for as long as it lasted.
+		 *
+		 * Never on the first pass into the world. With no previous phase to compare
+		 * against, a player who loads a save at dawn would be handed a sunrise they
+		 * did not watch arrive — so the menu deliberately forgets the phase rather
+		 * than recording one, and the first in-world pass always has nothing to
+		 * compare to. Indoors is silent too: the birds are outside. */
+		const lastPhase = lastDayPhaseRef.current;
+		lastDayPhaseRef.current = inOpeningFlow ? null : dayPhase;
+		if (!inOpeningFlow && outdoors && lastPhase && lastPhase !== 'dawn' && dayPhase === 'dawn') {
+			bridge.emit('audio-sfx', { id: 'sunriseBirds' });
+		}
 
 		if (inOpeningFlow) {
 			if (meadowCueTimeoutRef.current) {

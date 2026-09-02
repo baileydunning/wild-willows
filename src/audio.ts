@@ -64,6 +64,12 @@ let hummingLoopEl: HTMLAudioElement | null = null;
 let rainActive = false;
 let rainLoopEl: HTMLAudioElement | null = null;
 let stormLoopEl: HTMLAudioElement | null = null;
+/** How close the caretaker is to a fire: 0 = out of earshot, 1 = standing at it.
+ *  The crackle is one looping element whose volume tracks this, rather than a
+ *  cue that fires on arrival — walking past a campfire should sound like walking
+ *  past a campfire. */
+let fireNearness = 0;
+let fireLoopEl: HTMLAudioElement | null = null;
 let duckMultiplier = 1;
 let duckRaf: number | null = null;
 const lastSfxPick = new Map<SfxId, number>();
@@ -162,6 +168,29 @@ function effectiveStormVolume(): number {
 	return clamp01(state.masterVolume * state.musicVolume * 0.17);
 }
 
+function effectiveFireVolume(): number {
+	if (!state.enabled || !state.sfxEnabled) return 0;
+	const gain = sfxGain.fireCrackling ?? 1;
+	// Nearness last: it is the only part that changes while the player moves, and
+	// it multiplies whatever the preferences already allow.
+	return clamp01(state.masterVolume * state.sfxVolume * gain * fireNearness);
+}
+
+/*
+ * A TRACK KEEPS ITS PLACE WHILE YOU ARE AWAY FROM IT.
+ *
+ * Nothing below ever rewinds a music element. Walking from the meadow into the
+ * wetland pauses the meadow's piece where it stands, and walking back picks it
+ * up from that bar rather than restarting the opening phrase — which is what
+ * made a lap of the preserve sound like the same eight seconds of music four
+ * times over.
+ *
+ * The elements are cached per track for the life of the session (musicEls), and
+ * a paused HTMLAudioElement holds its currentTime, so this costs nothing and
+ * needs no bookkeeping: it is the ABSENCE of the rewinds that used to be here.
+ * Volume is still reset, because a resumed track has its volume set on the way
+ * back in and a stale one would ramp from the wrong place.
+ */
 function getMusicElement(track: MusicId): HTMLAudioElement {
 	let el = musicEls.get(track);
 	if (!el) {
@@ -177,32 +206,27 @@ function stopMusicFade() {
 	}
 	musicFadeRaf = null;
 	if (fadingMusicEl) {
-		fadingMusicEl.pause();
-		fadingMusicEl.currentTime = 0;
+		fadingMusicEl.pause(); // left where it stands — see the note above getMusicElement
 		fadingMusicEl.volume = 0;
 		fadingMusicEl = null;
 	}
 }
 
-/* Every write in here is guarded on the value ACTUALLY changing, and that is the
- * whole point of the function's shape.
+/* Silence every track that is not the current one or the one fading out — and
+ * leave each of them exactly where it stopped, so returning to that place in the
+ * world returns to that place in its music.
  *
- * Assigning `currentTime` runs the media element's seek algorithm even when the
- * value you assign is the value already there — it fires seeking/seeked and
- * touches the media pipeline regardless — and these are `preload="metadata"`
- * streaming elements (see createAudio), so the work is not free. `volume` is
- * cheaper but crosses the same boundary.
- *
- * This loop walks EVERY music track ever built: musicEls is a cache that is
- * never pruned, so a long session accumulates up to all 19 of them. And it runs
- * on EVERY game state change, via syncMusicPlayback. Re-zeroing an element that
- * is already paused at 0 with the volume already at 0 is pure cost for no
- * observable effect. */
+ * Both writes are guarded on the value ACTUALLY changing, and that is the whole
+ * point of the function's shape. This loop walks EVERY music track ever built:
+ * musicEls is a cache that is never pruned, so a long session accumulates up to
+ * all 20 of them, and it runs on EVERY game state change via syncMusicPlayback.
+ * Re-pausing an element that is already paused with its volume already at 0 is
+ * pure cost for no observable effect, and `volume` is not a free write — it
+ * crosses into the media pipeline. */
 function pauseOrphanedMusic() {
 	for (const el of musicEls.values()) {
 		if (el === musicEl || el === fadingMusicEl) continue;
 		if (!el.paused) el.pause();
-		if (el.currentTime !== 0) el.currentTime = 0;
 		if (el.volume !== 0) el.volume = 0;
 	}
 }
@@ -249,8 +273,7 @@ function startMusicCrossfade(nextTrack: MusicId, nextEl: HTMLAudioElement) {
 		}
 
 		if (fadingMusicEl) {
-			fadingMusicEl.pause();
-			fadingMusicEl.currentTime = 0;
+			fadingMusicEl.pause(); // keeps its position for the next time you come back
 			fadingMusicEl.volume = 0;
 			fadingMusicEl = null;
 		}
@@ -385,6 +408,16 @@ function ensureStormLoopElement(): HTMLAudioElement {
 	return stormLoopEl;
 }
 
+function ensureFireLoopElement(): HTMLAudioElement | null {
+	const path = AUDIO_ASSETS.sfx.fireCrackling;
+	if (typeof path !== 'string' || !path) return null;
+	if (!fireLoopEl) {
+		fireLoopEl = createAudio(path, true);
+	}
+	fireLoopEl.volume = effectiveFireVolume();
+	return fireLoopEl;
+}
+
 function tryPlayMusic() {
 	if (!wantsMusic || !state.enabled || !unlockedByGesture) return;
 	const next = getMusicElement(currentMusicId);
@@ -409,8 +442,9 @@ function syncMusicPlayback() {
 	if (!wantsMusic || !state.enabled || !state.musicEnabled) {
 		stopMusicFade();
 		if (musicEl) {
+			// Turning music off is another kind of leaving: it resumes where it
+			// stopped rather than starting the piece over.
 			musicEl.pause();
-			musicEl.currentTime = 0;
 			musicEl.volume = 0;
 		}
 		pauseOrphanedMusic();
@@ -512,28 +546,57 @@ function syncRainPlayback() {
 	}
 }
 
+function syncFirePlayback() {
+	const el = ensureFireLoopElement();
+	if (!el) return;
+	el.volume = effectiveFireVolume();
+	if (fireNearness <= 0 || !state.enabled || !state.sfxEnabled) {
+		el.pause();
+		el.currentTime = 0;
+		return;
+	}
+	if (!unlockedByGesture) return;
+	if (el.paused) {
+		void el.play().catch(() => {
+			// Browser autoplay policies can still block until another user gesture.
+		});
+	}
+}
+
 const DUCK_RAMP_DOWN_MS = 300;
 const DUCK_HOLD_MS = 3800;
 const DUCK_RAMP_UP_MS = 800;
 const DUCK_TARGET = 0.15;
 
-function duckForUnlock(holdMs = DUCK_HOLD_MS) {
+/**
+ * Pull the music and ambience down so a cue can be heard over them, hold, and
+ * bring them back.
+ *
+ * `target` is how far down: an area unlocking is a rare, large moment and gets
+ * the deep dip; an animal coming home happens often enough that the same dip
+ * would turn the soundtrack into a series of holes.
+ */
+function duckMusicFor(holdMs = DUCK_HOLD_MS, target = DUCK_TARGET) {
 	if (duckRaf !== null && typeof window !== 'undefined') {
 		window.cancelAnimationFrame(duckRaf);
 		duckRaf = null;
 	}
+	// Start the ramp from wherever the mix currently sits, not from full volume.
+	// A second cue arriving mid-duck used to snap the music back up and dip it
+	// again, which is more noticeable than the cue it was making room for.
+	const from = duckMultiplier;
 	const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
 	const total = DUCK_RAMP_DOWN_MS + holdMs + DUCK_RAMP_UP_MS;
 	const tick = (now: number) => {
 		const elapsed = now - start;
 		if (elapsed < DUCK_RAMP_DOWN_MS) {
 			const t = elapsed / DUCK_RAMP_DOWN_MS;
-			duckMultiplier = 1 - t * (1 - DUCK_TARGET);
+			duckMultiplier = from - t * (from - target);
 		} else if (elapsed < DUCK_RAMP_DOWN_MS + holdMs) {
-			duckMultiplier = DUCK_TARGET;
+			duckMultiplier = target;
 		} else {
 			const t = (elapsed - DUCK_RAMP_DOWN_MS - holdMs) / DUCK_RAMP_UP_MS;
-			duckMultiplier = DUCK_TARGET + clamp01(t) * (1 - DUCK_TARGET);
+			duckMultiplier = target + clamp01(t) * (1 - target);
 		}
 		if (musicEl) musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
 		if (ambienceEl) ambienceEl.volume = effectiveAmbienceVolume();
@@ -549,8 +612,118 @@ function duckForUnlock(holdMs = DUCK_HOLD_MS) {
 	duckRaf = window.requestAnimationFrame(tick);
 }
 
+/**
+ * Cues that make room for themselves, and how much room.
+ *
+ * An area unlocking is the game's biggest moment: deep dip, long hold. An animal
+ * returning is a smaller one that can arrive in bursts, so it dips less and for
+ * about as long as its own cue takes to say what it came to say.
+ */
+const SFX_DUCK: Partial<Record<SfxId, { hold: number; target: number }>> = {
+	areaUnlocked: { hold: DUCK_HOLD_MS, target: DUCK_TARGET },
+	animalReturn: { hold: 2200, target: 0.4 },
+};
+
+/**
+ * Cues that must not stack.
+ *
+ * A heartbeat that finds six animals home announces six arrivals, and an action
+ * that triggers a recalc can land a second batch a moment later. One chime per
+ * batch is the intent (state.tsx plays it once for the whole batch), and this is
+ * the backstop for the second batch — six overlapping copies of the same 7-second
+ * cue is a wall of sound, not a celebration.
+ */
+const SFX_COOLDOWN_MS: Partial<Record<SfxId, number>> = { animalReturn: 2500 };
+const lastSfxAt = new Map<SfxId, number>();
+
+/**
+ * THE CUE CHANNEL: one ceremony at a time, and the bigger one wins.
+ *
+ * These are the long, attention-carrying sounds — the ones that announce
+ * something rather than confirm it. Two of them playing over each other is not
+ * two pieces of news, it is mush, and the moment a biome opens is exactly the
+ * moment several animals come home, so the collision is the common case rather
+ * than the rare one.
+ *
+ * Higher number wins. An arriving cue that outranks the one playing takes the
+ * floor (the loser is faded, not chopped); one that ties or ranks lower is
+ * dropped rather than queued, because a fanfare for something that happened nine
+ * seconds ago is worse than no fanfare. Reordering the ladder is reordering these
+ * numbers and nothing else.
+ *
+ * Deliberately NOT in here: dig, craft, pickup, hover and the rest. Those are
+ * feedback for something the player just did with their own hands, and feedback
+ * that might not answer is worse than feedback that overlaps.
+ */
+const CUE_PRIORITY: Partial<Record<SfxId, number>> = {
+	areaUnlocked: 4, // a whole biome opening — the largest thing that happens
+	animalReturn: 3, // a species home again
+	upgrade: 2, // the player's own hands, but a milestone rather than a click
+	sunriseBirds: 1, // atmosphere; it yields to anything with news
+};
+const CUE_FADE_OUT_MS = 180;
+let activeCue: { priority: number; el: HTMLAudioElement } | null = null;
+let cueFadeRaf: number | null = null;
+
+/** Take a losing cue down over a beat instead of cutting it mid-word. */
+function fadeOutCue(el: HTMLAudioElement) {
+	if (cueFadeRaf !== null && typeof window !== 'undefined') {
+		window.cancelAnimationFrame(cueFadeRaf);
+		cueFadeRaf = null;
+	}
+	const stop = () => {
+		el.pause();
+		try {
+			el.currentTime = 0;
+		} catch {
+			/* not seekable — it is stopping either way */
+		}
+	};
+	if (typeof window === 'undefined' || typeof window.requestAnimationFrame !== 'function') {
+		stop();
+		return;
+	}
+	const from = el.volume;
+	const start = typeof performance !== 'undefined' ? performance.now() : Date.now();
+	const tick = (t: number) => {
+		const progress = clamp01((t - start) / CUE_FADE_OUT_MS);
+		el.volume = from * (1 - progress);
+		if (progress < 1) {
+			cueFadeRaf = window.requestAnimationFrame(tick);
+			return;
+		}
+		stop();
+		cueFadeRaf = null;
+	};
+	cueFadeRaf = window.requestAnimationFrame(tick);
+}
+
+/**
+ * Can this cue speak? Yes if nothing is speaking or it outranks whoever is —
+ * in which case the incumbent is faded out on the way past.
+ *
+ * A cue that has finished on its own leaves `paused`/`ended` set, so the channel
+ * frees itself without an event listener or a timer to keep in step with it.
+ */
+function takeCueFloor(priority: number, el: HTMLAudioElement): boolean {
+	const held = activeCue;
+	const speaking = !!held && !held.el.paused && !held.el.ended;
+	if (speaking && held) {
+		if (priority <= held.priority) return false;
+		if (held.el !== el) fadeOutCue(held.el);
+	}
+	activeCue = { priority, el };
+	return true;
+}
+
 function playSfx(id: SfxId) {
 	if (!state.enabled || !state.sfxEnabled || !unlockedByGesture) return;
+	const startedAt = typeof performance !== 'undefined' ? performance.now() : Date.now();
+	const cooldown = SFX_COOLDOWN_MS[id];
+	if (cooldown) {
+		const lastPlayed = lastSfxAt.get(id);
+		if (lastPlayed !== undefined && startedAt - lastPlayed < cooldown) return;
+	}
 	const source = AUDIO_ASSETS.sfx[id];
 	let path: string;
 	if (Array.isArray(source)) {
@@ -575,6 +748,12 @@ function playSfx(id: SfxId) {
 		el = createAudio(path, false);
 		sfxEls.set(path, el);
 	}
+	// Ask for the floor before anything is heard, and spend the cooldown only on a
+	// cue that actually plays: a chime dropped for an unlock must not also burn the
+	// window that would have let the next batch of arrivals be heard.
+	const priority = CUE_PRIORITY[id];
+	if (priority !== undefined && !takeCueFloor(priority, el)) return;
+	if (cooldown) lastSfxAt.set(id, startedAt);
 	const gain = sfxGain[id] ?? 1;
 	el.volume = clamp01(effectiveSfxVolume() * gain);
 	try {
@@ -585,7 +764,8 @@ function playSfx(id: SfxId) {
 	void el.play().catch(() => {
 		// Silent failure is fine; most often blocked until user interacts.
 	});
-	if (id === 'areaUnlocked') duckForUnlock();
+	const duck = SFX_DUCK[id];
+	if (duck) duckMusicFor(duck.hold, duck.target);
 }
 
 export function primeAudio() {
@@ -595,6 +775,7 @@ export function primeAudio() {
 	syncFootstepPlayback();
 	syncHummingPlayback();
 	syncRainPlayback();
+	syncFirePlayback();
 }
 
 export function applyAudioPrefs(prefs: AudioPrefs) {
@@ -609,6 +790,7 @@ export function applyAudioPrefs(prefs: AudioPrefs) {
 	syncFootstepPlayback();
 	syncHummingPlayback();
 	syncRainPlayback();
+	syncFirePlayback();
 }
 
 export function setMusicActive(active: boolean, track: MusicId = 'wildwillowstheme') {
@@ -638,6 +820,20 @@ function setRainActive(active: boolean) {
 	syncRainPlayback();
 }
 
+function setFireNearness(level: number) {
+	const next = clamp01(level);
+	if (next === fireNearness) return;
+	const wasSilent = fireNearness <= 0;
+	fireNearness = next;
+	// Moving around a fire is the common case and only changes a volume. Going
+	// through the full sync there would pause and restart the loop at every step.
+	if (!wasSilent && next > 0) {
+		if (fireLoopEl) fireLoopEl.volume = effectiveFireVolume();
+		return;
+	}
+	syncFirePlayback();
+}
+
 export function bindGameAudio(): () => void {
 	const offSfx = bridge.on('audio-sfx', (payload: any) => {
 		const id = String(payload?.id || '') as SfxId;
@@ -663,6 +859,11 @@ export function bindGameAudio(): () => void {
 	const offRain = bridge.on('audio-rain', (payload: any) => {
 		setRainActive(!!payload?.active);
 	});
+	// The scene sends a 0..1 nearness rather than an on/off, so the crackle fades
+	// up as you approach instead of appearing at a threshold.
+	const offFire = bridge.on('audio-fire', (payload: any) => {
+		setFireNearness(Number(payload?.level) || 0);
+	});
 	// Global menu-hover: one soft tick whenever the pointer enters any UI button,
 	// so every menu (top nav, character creation, home, panels…) is covered
 	// without wiring each button. Dedup by the button element so moving across a
@@ -685,6 +886,7 @@ export function bindGameAudio(): () => void {
 		offIdle();
 		offToast();
 		offRain();
+		offFire();
 		if (typeof document !== 'undefined') document.removeEventListener('pointerover', onPointerOver);
 	};
 }
