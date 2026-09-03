@@ -319,6 +319,7 @@ export class WorldScene extends Phaser.Scene {
 	private lastFocusY = Infinity;
 	private lastFocusLabel: string | null = null;
 	private lastFocusSource: 'near' | 'hover' | null = null;
+	private hasFocusHistory = false;
 
 	private placementObjectId: string | null = null;
 	private movingPlacementId: string | null = null;
@@ -5330,12 +5331,8 @@ export class WorldScene extends Phaser.Scene {
 		const fx = focus ? focus.x : Infinity;
 		const fy = focus ? focus.y : Infinity;
 		const flabel = focus ? focus.label : null;
-		if (
-			fx !== this.lastFocusX ||
-			fy !== this.lastFocusY ||
-			flabel !== this.lastFocusLabel ||
-			focusSource !== this.lastFocusSource
-		) {
+		const targetChanged = fx !== this.lastFocusX || fy !== this.lastFocusY || flabel !== this.lastFocusLabel;
+		if (targetChanged || focusSource !== this.lastFocusSource) {
 			this.lastFocusX = fx;
 			this.lastFocusY = fy;
 			this.lastFocusLabel = flabel;
@@ -5347,7 +5344,10 @@ export class WorldScene extends Phaser.Scene {
 					label: focus.label,
 					source: focusSource,
 				});
-				if (focusSource === 'near') bridge.emit('audio-sfx', { id: 'hover' });
+				if (this.hasFocusHistory && targetChanged && focusSource === 'near') {
+					bridge.emit('audio-sfx', { id: 'hover' });
+				}
+				this.hasFocusHistory = true;
 			} else {
 				bridge.emit('interactable-hover-clear');
 			}
