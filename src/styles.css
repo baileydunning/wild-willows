@@ -193,6 +193,13 @@ button.on {
 	color: var(--on-accent);
 	border-color: var(--green);
 }
+/* A selected filter carries its own count in a `.muted` span, and muted means
+   --ink-soft — which is a low-contrast grey sitting on a saturated green fill.
+   Anything muted inside a selected button reads against the fill instead. */
+button.on .muted {
+	color: var(--on-accent);
+	opacity: 0.78;
+}
 button.link {
 	background: none;
 	border: none;
@@ -1557,28 +1564,13 @@ input {
 }
 
 /* ---- Achievements panel ---- */
-.ach-progress {
-	height: 6px;
-	margin: 8px 20px 0;
-	border-radius: 999px;
-	background: var(--paper-2);
-	overflow: hidden;
-}
-.ach-progress-fill {
-	height: 100%;
-	background: var(--gold);
-	border-radius: 999px;
-	transition: width 0.4s ease;
-}
+/* Sized off the column it sits in rather than the viewport: the list shares the
+   panel with the completion rail now, so a viewport-width media query would have
+   kept two columns in a space only wide enough for one. */
 .ach-grid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
 	gap: 9px;
-}
-@media (max-width: 620px) {
-	.ach-grid {
-		grid-template-columns: 1fr;
-	}
 }
 .ach-card {
 	position: relative;
@@ -1667,6 +1659,186 @@ input {
 .ach-req-progress {
 	font-weight: 700;
 	color: var(--green-deep, #4a7a3a);
+}
+
+/* ---- Achievements: the two views ----
+   The menu holds two different questions — "what did I do?" and "what is left?"
+   — and they do not belong on screen at once. A switch sits above the filter row
+   with each view's own headline number on it, so the tracker advertises itself
+   from the achievement side instead of hiding behind a tab at the end of a row
+   of eight.
+
+   It is built from the SAME pill as the filters below it and shares their left
+   and right insets, so the two rows line up edge to edge and read as one stack
+   of controls. (It used to be a segmented control in a padded tray: the tray was
+   flush with the panel but every button inside it started 3px further in, so
+   nothing below it lined up with anything above it.) The switch stays the louder
+   of the two by taking the full width in halves. */
+.ach-views {
+	display: flex;
+	gap: 8px;
+	padding: 12px 20px 0;
+}
+.ach-views button {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	padding: 9px 14px;
+	border-radius: 13px;
+	font-weight: 700;
+	font-size: calc(13px * var(--ui-scale));
+}
+
+/* ---- Completion tracker (Achievements ▸ Completion) ----
+   A column of countable tracks. Everything is drawn from theme tokens so the
+   dark palette needs no counterpart rules: the dial's ring, the bar troughs and
+   the "finished" gold all resolve through :root. */
+.comp {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.comp-headline {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 16px 18px;
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	background: linear-gradient(180deg, var(--tint-leaf), var(--paper));
+}
+/* The ring is one conic gradient masked by a disc of panel paper — no SVG, no
+   second element, and it reads correctly at any --ui-scale. */
+.comp-dial {
+	--comp-pct: 0%;
+	position: relative;
+	flex: none;
+	width: 82px;
+	height: 82px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	background: conic-gradient(var(--green) var(--comp-pct), var(--track) 0);
+	transition: background 0.4s ease;
+}
+.comp-dial::before {
+	content: '';
+	position: absolute;
+	inset: 9px;
+	border-radius: 50%;
+	background: var(--paper);
+}
+.comp-dial-num {
+	position: relative;
+	font-weight: 700;
+	font-size: calc(19px * var(--ui-scale));
+	color: var(--green-deep);
+}
+.comp-headline-title {
+	font-weight: 700;
+	font-size: calc(16px * var(--ui-scale));
+}
+/* Each group is its own card: five calm blocks rather than one long list of
+   bars, which is what made the first pass read as crowded. */
+.comp-group {
+	display: flex;
+	flex-direction: column;
+	gap: 13px;
+	padding: 13px 15px 15px;
+	border: 1px solid var(--line);
+	border-radius: 13px;
+	background: var(--cream);
+}
+/* Scoped to .comp so it outranks `.panel-body h3`, whose 16px top margin would
+   double up on the flex gap that already separates the groups. */
+.comp .comp-group-title {
+	margin: 0;
+	font-size: calc(12px * var(--ui-scale));
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+	display: block;
+}
+.comp-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+.comp-row-icon {
+	flex: none;
+	width: 24px;
+	display: grid;
+	place-items: center;
+	color: var(--ink-soft);
+	padding-top: 1px;
+}
+/* A finished track is the SAME green, filled — completion is not a different
+   kind of progress, so it does not get a different colour. What changes is the
+   check in place of the track icon and the count going solid instead of muted.
+   (Gold belongs to earned achievements; borrowing it here read as an unrelated
+   second meaning halfway down the same bar.) */
+.comp-row.done .comp-row-icon {
+	color: var(--green);
+}
+.comp-row-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	min-width: 0;
+}
+.comp-row-label {
+	font-weight: 600;
+	font-size: calc(13.5px * var(--ui-scale));
+}
+.comp-row-count {
+	flex: none;
+	font-weight: 700;
+	font-size: calc(12px * var(--ui-scale));
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
+}
+.comp-row.done .comp-row-count {
+	color: var(--green);
+}
+.comp-bar {
+	height: 6px;
+	margin-top: 5px;
+	border-radius: 999px;
+	background: var(--track);
+	overflow: hidden;
+}
+.comp-bar-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: var(--green);
+	transition: width 0.4s ease;
+}
+/* Per-area lines: a thin ledger under the tracks, not a second card grid. */
+.comp-area {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 7px 0;
+	border-bottom: 1px solid var(--line);
+}
+.comp-area:last-child {
+	border-bottom: 0;
+}
+.comp-area.locked .comp-area-name,
+.comp-area.locked .comp-row-icon {
+	color: var(--ink-soft);
+}
+.comp-area-name {
+	font-weight: 600;
+	font-size: calc(13px * var(--ui-scale));
+}
+.comp-area-stats {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
 }
 
 /* ---- biome lore + coexistence notes ---- */
@@ -2686,6 +2858,12 @@ input {
 	padding: 12px 20px 14px;
 	-webkit-overflow-scrolling: touch;
 	scroll-snap-type: x proximity;
+	/* Snapping measures from the SCROLLPORT edge, not the padding box: with a row
+	   that overflows, the first tab snapped its own left edge to the row's border
+	   edge, which scrolled the 20px of padding-left away and left the row sitting
+	   flush against the panel while everything above and below it was inset. This
+	   inset tells the snap where the content really starts. */
+	scroll-padding: 0 20px;
 	border-bottom: 1.5px solid var(--line);
 	scrollbar-width: none;
 	-ms-overflow-style: none;
@@ -4336,6 +4514,23 @@ kbd {
 	letter-spacing: 0.3px;
 	color: var(--gold);
 	background: var(--tint-gold);
+	border-radius: 999px;
+	padding: 1px 7px;
+	vertical-align: middle;
+}
+
+/* How many you have made of this, beside the recipe's name. Deliberately NOT the
+   gold of the ONCE tag: gold means "there is only ever one of these", and a
+   tally is the opposite kind of fact. */
+.made-tag {
+	display: inline-block;
+	margin-left: 6px;
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	color: var(--green);
+	background: var(--tint-leaf);
 	border-radius: 999px;
 	padding: 1px 7px;
 	vertical-align: middle;

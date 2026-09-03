@@ -458,6 +458,12 @@ export function CraftingPanel() {
 		(catLabel[a] || a).localeCompare(catLabel[b] || b),
 	);
 	const alreadyMade = (r: RecipeDef) => !!r.once && (player.craftedEver?.[r.output.itemId] || 0) > 0;
+	// How many of this recipe's output the player has ever made — the lifetime
+	// tally the server keeps, so it survives spending, placing and dropping the
+	// thing. It counts ITEMS, not crafts: five recipes yield ×2, so for those a
+	// count of 12 is six trips to the bench. The tag says "made", which is true
+	// of both; anything promising "times crafted" would be wrong for those five.
+	const madeCount = (r: RecipeDef) => player.craftedEver?.[r.output.itemId] || 0;
 	// Biome-unlock kits are tracked by the "unlock next biome" goal, so they don't
 	// get their own craft-goal button.
 	const unlockKitIds = new Set(data.biomes.map((b) => b.unlock?.requiresItem).filter(Boolean) as string[]);
@@ -651,6 +657,13 @@ export function CraftingPanel() {
 										{r.once && (
 											<span className="once-tag" title={t('panels.crafting.onceTitle')}>
 												{t('panels.crafting.onceTag')}
+											</span>
+										)}
+										{/* A once-only recipe already says its piece with the ONCE tag and a
+										    "Crafted" button, so it doesn't also need a tally of one. */}
+										{!r.once && madeCount(r) > 0 && (
+											<span className="made-tag" title={t('panels.crafting.madeTitle', { n: madeCount(r) })}>
+												{t('panels.crafting.madeTag', { n: madeCount(r) })}
 											</span>
 										)}
 										<div className="muted small">

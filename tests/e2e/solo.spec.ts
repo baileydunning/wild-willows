@@ -126,7 +126,7 @@ const PANELS: { key: string; title: string | RegExp }[] = [
 	{ key: 'c', title: 'Crafting' },
 	{ key: 'b', title: /Gathering Basket/ },
 	{ key: 'j', title: /Field Guide/ },
-	{ key: 'k', title: 'Achievements' },
+	{ key: 'k', title: 'Progress' },
 	{ key: 't', title: 'Tools & Upgrades' },
 	{ key: 'm', title: 'The Preserve' },
 	{ key: 'g', title: 'Your Goals' },
@@ -243,7 +243,7 @@ test('the journal fills in as animals come home', async ({ page }) => {
 	await expect(page.locator('.journal-entry.entry-unknown')).toHaveCount(0);
 });
 
-test('the achievements panel renders the catalogue against a fresh save', async ({ page }) => {
+test('the progress panel renders both of its views against a fresh save', async ({ page }) => {
 	// Scope note: this covers the PANEL, not the awarding. Dev tools rebuild the
 	// world without ever calling awardAchievements() — only real endpoints do —
 	// so a dev-populated save legitimately shows nothing earned. That badges are
@@ -252,7 +252,7 @@ test('the achievements panel renders the catalogue against a fresh save', async 
 	await newSolo(page, 'Badge Collector');
 
 	await page.keyboard.press('k');
-	await expect(openPanelTitle(page)).toContainText('Achievements');
+	await expect(openPanelTitle(page)).toContainText('Progress');
 
 	const cards = page.locator('.ach-card');
 	await expect(cards.first()).toBeVisible();
@@ -261,7 +261,22 @@ test('the achievements panel renders the catalogue against a fresh save', async 
 	const count = await cards.count();
 	await expect(page.locator('.ach-card.locked')).toHaveCount(count);
 	await expect(page.locator('.ach-card.earned')).toHaveCount(0);
-	await expect(page.locator('.ach-progress')).toBeVisible();
+
+	// The completion tracker is the panel's other half, reached by the switch at
+	// the top. It is only ever one click from the achievement list — that is the
+	// whole reason it is a switch and not a tab at the end of the filter row.
+	const views = page.locator('.ach-views button');
+	await expect(views).toHaveCount(2);
+	await views.nth(1).click();
+	await expect(page.locator('.ach-card')).toHaveCount(0); // one view at a time
+	await expect(page.locator('.comp-dial-num')).toBeVisible();
+	// Every track measures against a real whole, so none of them can read "/ 0".
+	const counts = await page.locator('.comp-row-count').allInnerTexts();
+	expect(counts.length).toBeGreaterThan(0);
+	for (const c of counts) expect(c).not.toMatch(/\/\s*0$/);
+
+	await views.nth(0).click();
+	await expect(page.locator('.ach-card').first()).toBeVisible();
 });
 
 // ------------------------------------------------------------------ stability

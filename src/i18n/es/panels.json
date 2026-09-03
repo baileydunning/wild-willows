@@ -86,6 +86,8 @@
 		"nothingToCraft": "Todavía no hay nada que fabricar para esta área — restáurala más o elige otro lugar.",
 		"onceTag": "única vez",
 		"onceTitle": "Solo se puede fabricar una vez",
+		"madeTag": "hechos ×{n}",
+		"madeTitle": "Has hecho {n} de esto hasta ahora.",
 		"matTitle": "{inBasket} en la cesta, {inChests} en cofres vinculados",
 		"requiresTool": "Requiere una herramienta mejorada — mira el panel de Herramientas.",
 		"crafted": "Fabricado ✓",
@@ -345,8 +347,10 @@
 		}
 	},
 	"achievements": {
-		"title": "Logros",
+		"title": "Progreso",
 		"summary": "· {earned}/{total} · {points} pts",
+		"viewAchievements": "Logros",
+		"viewCompletion": "Completado",
 		"tabAll": "Todos",
 		"tabPreserve": "Reserva",
 		"reqTitle": "Cómo conseguirlo",
@@ -380,6 +384,32 @@
 			"journals": "Redacta la guía de campo de cada zona y la edición ampliada de cada una."
 		},
 		"progress": "Progreso: {value}"
+	},
+	"completion": {
+		"headline": "Reserva completada",
+		"headlineTracks": "{done} de {total} apartados completados",
+		"points": "{points} puntos conseguidos",
+		"areaStats": "{back}/{total} animales · {health}% de salud",
+		"areaLocked": "Aún sin abrir",
+		"group": {
+			"preserve": "La reserva",
+			"making": "Creación",
+			"kit": "Equipo y guías",
+			"honors": "Hogar y honores",
+			"byArea": "Por zona"
+		},
+		"row": {
+			"animals": "Animales acogidos",
+			"areas": "Zonas abiertas",
+			"restored": "Zonas restauradas",
+			"recipes": "Recetas fabricadas",
+			"habitat": "Hábitat colocado",
+			"plants": "Especies plantadas",
+			"tools": "Herramientas al máximo",
+			"guides": "Guías de campo",
+			"home": "Mejoras del hogar",
+			"achievements": "Logros"
+		}
 	},
 	"tutorial": {
 		"gettingStarted": "Primeros pasos",
@@ -580,7 +610,7 @@
 			"crafting": "Abrir la fabricación — funciona en cualquier lugar",
 			"basket": "Abrir tu cesta",
 			"journal": "Abrir el diario de campo",
-			"achievements": "Abrir los logros",
+			"achievements": "Abrir progreso",
 			"tasks": "Esconder / mostrar el tablero de objetivos",
 			"goals": "Abre el creador de objetivos — diseña tu propia lista de tareas",
 			"feed": "Abrir el registro de actividad (últimos 100 eventos)",

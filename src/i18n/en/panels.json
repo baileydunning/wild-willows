@@ -86,6 +86,8 @@
 		"nothingToCraft": "Nothing to craft for this area yet — restore it further or pick a different place.",
 		"onceTag": "one-time",
 		"onceTitle": "Can only be crafted once",
+		"madeTag": "made ×{n}",
+		"madeTitle": "You've made {n} of these so far.",
 		"matTitle": "{inBasket} in basket, {inChests} in linked chests",
 		"requiresTool": "Requires an upgraded tool — see Tools panel.",
 		"crafted": "Crafted ✓",
@@ -345,8 +347,10 @@
 		}
 	},
 	"achievements": {
-		"title": "Achievements",
+		"title": "Progress",
 		"summary": "· {earned}/{total} · {points} pts",
+		"viewAchievements": "Achievements",
+		"viewCompletion": "Completion",
 		"tabAll": "All",
 		"tabPreserve": "Preserve",
 		"reqTitle": "How to earn it",
@@ -380,6 +384,32 @@
 			"journals": "Write up every area's field guide, and the expanded edition of each."
 		},
 		"progress": "Progress: {value}"
+	},
+	"completion": {
+		"headline": "Preserve completion",
+		"headlineTracks": "{done} of {total} tracks finished",
+		"points": "{points} points earned",
+		"areaStats": "{back}/{total} animals · {health}% health",
+		"areaLocked": "Not yet opened",
+		"group": {
+			"preserve": "The preserve",
+			"making": "Making",
+			"kit": "Kit & guides",
+			"honors": "Home & honors",
+			"byArea": "By area"
+		},
+		"row": {
+			"animals": "Animals welcomed",
+			"areas": "Areas opened",
+			"restored": "Areas restored",
+			"recipes": "Recipes crafted",
+			"habitat": "Habitat standing",
+			"plants": "Species planted",
+			"tools": "Tools at top tier",
+			"guides": "Field guides",
+			"home": "Home upgrades",
+			"achievements": "Achievements"
+		}
 	},
 	"tutorial": {
 		"gettingStarted": "Getting started",
@@ -580,7 +610,7 @@
 			"crafting": "Open crafting — works anywhere",
 			"basket": "Open your basket",
 			"journal": "Open the field journal",
-			"achievements": "Open achievements",
+			"achievements": "Open progress",
 			"tasks": "Tuck away / show the goal board",
 			"goals": "Open the goals builder — design your own task list",
 			"feed": "Open the activity feed (last 100 events)",
