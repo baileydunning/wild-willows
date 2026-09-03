@@ -26,6 +26,8 @@
  *   tasks            daily tasks, custom goals, the client state snapshot
  *   rate-limit       token buckets, client address, body size cap
  *   achievements     triggers and awarding
+ *   completion       the "what is left?" tally, measured with src/completion.ts
+ *                    so the dashboard and the player's own panel agree
  *   endpoints-*      the Resource classes, grouped by who calls them:
  *                    game (players), metrics (heartbeat + roll-up),
  *                    admin (operators), telemetry (anonymous counters),

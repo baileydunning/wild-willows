@@ -38,6 +38,11 @@ export function Toolbelt() {
 	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor, brushSize, setBrushSize } =
 		useGame();
 	const { t, content } = useI18n();
+	// The brush picker is an accordion off the tool itself: picking up a shovel
+	// opens it, clicking that same shovel again folds it away. Somebody who always
+	// works one square at a time should be able to put the panel down and not have
+	// it in front of the world.
+	const [brushOpen, setBrushOpen] = useState(true);
 	usePrefs(); // reflect custom tool-select keys
 	// The toolbelt stays off screen until the tutorial step that hands it over, so
 	// a new caretaker's first minute is a meadow and a card telling them to walk —
@@ -57,7 +62,8 @@ export function Toolbelt() {
 	// offers more than one size. Holding a plain shovel, there is nothing to pick
 	// and nothing to explain.
 	const brushes = SHAPING_TOOLS.has(selectedTool) ? brushSizesFor(state.player.tools?.[selectedTool] || 1) : [1];
-	const showBrushes = brushes.length > 1;
+	const hasBrushes = brushes.length > 1;
+	const showBrushes = hasBrushes && brushOpen;
 	// Switching to a tool that cannot manage the current size drops back to a
 	// single square rather than silently shaping more ground than the picker shows.
 	const activeBrush = brushes.includes(brushSize) ? brushSize : 1;
@@ -65,7 +71,7 @@ export function Toolbelt() {
 	return (
 		<div className="toolbelt-wrap">
 			{showBrushes && (
-				<div className="brush-sizes" role="group" aria-label={t('app.toolbelt.brushGroup')}>
+				<div className="brush-sizes" id="brush-sizes" role="group" aria-label={t('app.toolbelt.brushGroup')}>
 					{brushes.map((n) => (
 						<button
 							key={n}
@@ -115,17 +121,33 @@ export function Toolbelt() {
 					const selected = selectedTool === meta.id;
 					const toolName = content('tool', meta.id, 'name', tierDef?.name || def?.name || meta.id);
 					const how = t(meta.how);
+					// A tool that carries brush sizes says on hover that clicking it again
+					// folds them away — otherwise the toggle is only found by accident.
+					const foldable = SHAPING_TOOLS.has(meta.id) && brushSizesFor(tier).length > 1;
+					const title = t('app.toolbelt.titleFormat', { name: toolName, key: keyForTool(meta.id), how });
 					return (
 						<button
 							key={meta.id}
 							className={`tool-slot ${selected ? 'on' : ''}`}
 							// `title` doubles as the screen-reader description (what the tool does),
 							// so the name stays short for navigation and the explanation follows.
-							title={t('app.toolbelt.titleFormat', { name: toolName, key: keyForTool(meta.id), how })}
+							title={foldable && selected ? `${title} — ${t('app.toolbelt.brushToggleHint')}` : title}
 							aria-label={toolName}
 							aria-pressed={selected}
 							aria-keyshortcuts={keyForTool(meta.id)}
+							aria-expanded={foldable && selected ? brushOpen : undefined}
+							// Only while the panel is actually on screen — aria-controls pointing
+							// at an id that isn't in the document is worse than none.
+							aria-controls={foldable && selected && showBrushes ? 'brush-sizes' : undefined}
 							onClick={() => {
+								// Clicking the tool already in hand folds its brush picker away,
+								// and clicking once more brings it back.
+								if (selected && foldable) {
+									const next = !brushOpen;
+									setBrushOpen(next);
+									notify(t(next ? 'app.toolbelt.brushShown' : 'app.toolbelt.brushHidden'));
+									return;
+								}
 								setSelectedTool(meta.id);
 								notify(t('app.toolbelt.selected', { name: toolName, how }));
 							}}

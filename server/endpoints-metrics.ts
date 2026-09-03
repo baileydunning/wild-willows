@@ -27,6 +27,8 @@ import { biomeMetrics, maturedBetween, nextMaturityFrom, recalcBiome } from './b
 import { starterTaskIds } from './tasks';
 import { bodyOf, rateLimit } from './rate-limit';
 import { achievementMetrics, awardAchievements, awardWorldAchievements } from './achievements';
+import { completionMetrics } from './completion';
+import { completionBucket } from '../src/completion';
 import { DashboardEndpoint, MAX_BEAT_MS, PublicEndpoint, SESSION_GAP_MS } from './endpoints-game';
 import { decodeMetricsCursor, encodeMetricsCursor, metricsListRow } from './endpoints-admin';
 
@@ -304,7 +306,11 @@ export class Heartbeat extends PublicEndpoint {
 			const discoveries = toRecalc.length ? await byWorld(t.Discovery, wid) : undefined;
 			for (const biomeId of toRecalc) {
 				const before = biomeStates.find((b: any) => b.biomeId === biomeId)?.health || 0;
-				const r = await recalcBiome(wid, playerId, biomeId, { player, discoveries });
+				// A returning session is the one moment a save is looked at end to end
+				// and the one place a per-action fold gets a free audit, so the
+				// welcome-back sweep re-derives the biome's terrain numbers from its
+				// rows. Mid-session (a plant finishing) stays on the cheap path.
+				const r = await recalcBiome(wid, playerId, biomeId, { player, discoveries, fresh: longAway });
 				healthGain += Math.max(0, (r.biomeState?.health || 0) - before);
 				newAnimals.push(...(r.newAnimals || []));
 				freshBiomeStates.push(r.biomeState);
@@ -445,6 +451,13 @@ async function buildDashboardRows(): Promise<any[]> {
 				tutorialStep: s.tutorialStep || 0,
 				activation: s.activation || {},
 				achievements: s.achievements || null,
+				// Completion tracker. Like the menu block below, solo and demo saves
+				// reach the roll-up through THIS projection rather than through
+				// metricsView, so it has to be lifted here or the summary aggregates
+				// as empty for the desktop audience — which is most of it. Null on
+				// every snapshot uplinked before the tally shipped; the summary counts
+				// those out of its denominator instead of scoring them 0%.
+				completion: s.completion || null,
 				biomeSummary: s.biomeSummary || {
 					biomesUnlocked: 0,
 					avgHealth: 0,
@@ -668,6 +681,11 @@ export class Metrics extends PublicEndpoint {
 				biomeSummary: bm.summary,
 				activation: activationFlags(view, bm.summary, player),
 				achievements: await achievementMetrics(id),
+				// The completion ("what is left?") tracker, tallied server-side from
+				// the same function the panel draws — see server/completion.ts. Null
+				// on a save whose rows would not read; the roll-up treats that as
+				// "not measured" rather than as 0%.
+				completion: await completionMetrics(id, { player, biomeStates: bm.biomes }),
 				biomes: bm.biomes,
 			},
 		};
@@ -1254,6 +1272,72 @@ async function metricsRollup(target?: any): Promise<{
 			completionHistogram,
 			topAchievements,
 			timingCoverage: achTimingCoverage,
+		};
+
+		/* Completion ("perfection") tracking, rolled up from each save's own tally.
+		 *
+		 * Two things this deliberately does not do. It does not score a save that
+		 * has never reported the block as 0% — those are snapshots from a client
+		 * that predates the tally, and folding them in would drag the average down
+		 * every time an old copy checked in. `notMeasured` says how many those are,
+		 * so a small `players` reads as coverage rather than as a player drop.
+		 *
+		 * And it does not re-derive the headline from the tracks. `overallPct` is
+		 * already the mean of a save's OWN ten tracks (see meanCompletion), so the
+		 * figure here is the mean of the headlines; the per-track table stands
+		 * beside it rather than being averaged into it a second time.
+		 *
+		 * That per-track table is the actionable half. `avgPct` is how far the
+		 * average preserve gets down a track and `finishedPct` how many reach the
+		 * end of it, and the rows are sorted COLDEST FIRST — a track everybody
+		 * starts and nobody finishes is the usual shape of a completion goal that
+		 * is out of reach, and it should be the first thing on the card.
+		 */
+		const withComp = all.filter((v) => v.completion && (v.completion.tracksTotal || 0) > 0);
+		const NC = withComp.length || 1;
+		const compOveralls = withComp.map((v) => Number(v.completion.overallPct) || 0).sort((a, b) => a - b);
+		// Buckets come from completionBucket (src/completion.ts) rather than being
+		// spelled out here, because the dashboard draws a fixed list of columns and
+		// silently drops any key that list doesn't name.
+		const completionHistogramPct: Record<string, number> = {};
+		for (const pctVal of compOveralls) {
+			const key = completionBucket(pctVal);
+			completionHistogramPct[key] = (completionHistogramPct[key] || 0) + 1;
+		}
+		const trackTotals = new Map<string, { sum: number; finished: number }>();
+		for (const v of withComp) {
+			for (const [id, raw] of Object.entries(v.completion.tracks || {})) {
+				const tk: any = raw || {};
+				const e = trackTotals.get(id) || { sum: 0, finished: 0 };
+				e.sum += Number(tk.pct) || 0;
+				const target = Number(tk.target) || 0;
+				if (target > 0 && (Number(tk.cur) || 0) >= target) e.finished++;
+				trackTotals.set(id, e);
+			}
+		}
+		const completionTracksSummary = [...trackTotals.entries()]
+			.map(([id, e]) => ({
+				id,
+				avgPct: round1(e.sum / NC),
+				finished: e.finished,
+				finishedPct: Math.round((e.finished / NC) * 100),
+			}))
+			.sort((a, b) => a.avgPct - b.avgPct || a.id.localeCompare(b.id));
+
+		const completionSummary = {
+			players: withComp.length,
+			notMeasured: all.length - withComp.length,
+			avgOverallPct: round1(compOveralls.reduce((a, b) => a + b, 0) / NC),
+			medianOverallPct: percentile(compOveralls, 0.5),
+			p90OverallPct: percentile(compOveralls, 0.9),
+			bestOverallPct: compOveralls.length ? compOveralls[compOveralls.length - 1] : 0,
+			fullyComplete: compOveralls.filter((pctVal) => pctVal >= 100).length,
+			avgTracksDone: round1(withComp.reduce((a, v) => a + (Number(v.completion.tracksDone) || 0), 0) / NC),
+			// Read off the rows rather than hard-coded, so adding an eleventh track
+			// doesn't leave this card quietly saying "of 10".
+			tracksTotal: withComp.reduce((m, v) => Math.max(m, Number(v.completion.tracksTotal) || 0), 0),
+			histogram: completionHistogramPct,
+			tracks: completionTracksSummary,
 		};
 
 		// Time-per-area: sum every save's dwell time, so you can see where players
@@ -1872,6 +1956,7 @@ async function metricsRollup(target?: any): Promise<{
 				starterChain,
 				actionTotals,
 				achievements: achievementsSummary,
+				completion: completionSummary,
 			},
 			rows: all,
 		};

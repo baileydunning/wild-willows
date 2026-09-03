@@ -597,6 +597,96 @@ export function analyzeWater(terrain: any[], playerOnly = false) {
 	return { tiles: cells.size, lake, river };
 }
 
+// ------------------------------------------- the terrain half of the numbers
+//
+// Everything recalcBiome derives from an area's TerrainTile rows: how many beds
+// are watered, how many tiles of open water the PLAYER shaped, and the geometry
+// of the water (see analyzeWater). Kept on the biome's own row, because none of
+// it moves on its own — terrain changes only when the player shapes it — so the
+// area scan that re-derived these numbers on every place, plant and dig was
+// reading a few hundred rows to arrive back at the answer already sitting on the
+// row it was about to write.
+//
+// The definitions are deliberately not part of this. A tile's type is its own
+// fact, read from nothing in data/*.json, so a game update cannot leave a stored
+// number disagreeing with the code that reads it. The placement half of the
+// recalc is not like that — placementCounts and the maturity bonus both read the
+// defs AND the wall clock — which is why it still scans every time.
+//
+// `rev` is how a change to what these numbers MEAN retires the stored copies:
+// bump it, and every row falls back to one scan exactly as a row written before
+// the field existed does.
+const TERRAIN_COUNTS_REV = 1;
+
+type WaterShape = { tiles: number; lake: number; river: number };
+type TerrainCounts = { rev: number; watered: number; openWater: number; water: WaterShape };
+
+/**
+ * One tile a request changed: the type it had and the type it now has, `null`
+ * for "did not exist" / "no longer exists".
+ *
+ * A caller that changes terrain and hands these down lets the recalc adjust the
+ * stored numbers instead of re-reading the area to recount them. It is not a
+ * shortcut past the write, for the same reason `addPlacements` is not: the fold
+ * is what makes the pre-action numbers and a post-action rescan equivalent.
+ */
+export type TerrainChange = { from: string | null; to: string | null };
+
+function terrainCountsFrom(terrain: any[]): TerrainCounts {
+	return {
+		rev: TERRAIN_COUNTS_REV,
+		watered: terrain.filter((tt) => tt.type === 'watered').length,
+		// Pre-seeded starting water (the wetland's channels) is not the player's
+		// work and does not count toward health — only water they shaped does.
+		openWater: terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length,
+		water: analyzeWater(terrain),
+	};
+}
+
+const isShape = (w: any): boolean =>
+	!!w && Number.isFinite(w.tiles) && Number.isFinite(w.lake) && Number.isFinite(w.river);
+
+/**
+ * The stored terrain numbers, when this code can stand behind them — otherwise
+ * null, and the caller scans.
+ *
+ * Absent and zero are different answers here, exactly as they are for
+ * `nextMaturityAt`: a row that has never had these written (every save from
+ * before the field, and every row an admin tool or a repair pass reset) has no
+ * `terrainCounts` at all, and must be rescanned rather than read as an empty
+ * biome. A stale count here is not a slow game, it is a wrong one — it would
+ * hold an animal back from a habitat that is actually there.
+ */
+function usableTerrainCounts(prior: any, opts: any): { counts: TerrainCounts; playerWater: WaterShape } | null {
+	if (opts.terrain) return null; // the caller already read the rows — use those
+	const c = prior?.terrainCounts;
+	const pw = prior?.playerWater;
+	if (!c || c.rev !== TERRAIN_COUNTS_REV) return null;
+	if (!Number.isFinite(c.watered) || !Number.isFinite(c.openWater) || !isShape(c.water) || !isShape(pw)) return null;
+	// Every tile this request changed has to be described, or the fold has
+	// nothing to apply and would quietly carry the pre-action numbers forward. A
+	// caller that adds a delta and forgets the change beside it takes the scan.
+	const changed = (opts.addTerrain?.length || 0) + (opts.removeTerrainIds?.length || 0);
+	const described: TerrainChange[] = opts.terrainChanges || [];
+	if (changed !== described.length) return null;
+	// Open water is the one thing a tally cannot follow. `lake` and `river` are
+	// connectivity across the whole area, not counts — one new tile can join two
+	// ponds into a lake — so any change that makes or drains water takes the scan.
+	if (described.some((ch) => ch.from === 'water' || ch.to === 'water')) return null;
+	return { counts: c, playerWater: pw };
+}
+
+/** Apply a request's own terrain changes to the numbers it read from the row. */
+function foldTerrainCounts(c: TerrainCounts, changes: TerrainChange[]): TerrainCounts {
+	if (!changes.length) return c;
+	let watered = c.watered;
+	for (const ch of changes) {
+		if (ch.from === 'watered') watered--;
+		if (ch.to === 'watered') watered++;
+	}
+	return { ...c, watered: Math.max(0, watered) };
+}
+
 /** The live weather/season/day-phase context an animal's `conditions` are tested against. */
 interface WxContext {
 	type: string;
@@ -750,6 +840,25 @@ export async function recalcBiome(
 		 * mechanism this function already relies on for placements.
 		 */
 		terrain?: any[];
+		/**
+		 * What this request did to the area's tiles, one entry per row in
+		 * `addTerrain` / `removeTerrainIds` (see TerrainChange).
+		 *
+		 * Passing these is what lets the terrain numbers come off the biome row
+		 * instead of out of a fresh scan of the area. A caller that changes terrain
+		 * without describing the change still gets the right answer — it just pays
+		 * for the scan, which is what every caller paid before.
+		 */
+		terrainChanges?: TerrainChange[];
+		/**
+		 * Ignore the stored terrain numbers and re-derive them from the rows.
+		 *
+		 * For the paths that write terrain WITHOUT describing what they wrote: the
+		 * save repair that un-floods a gate, the admin tools that wipe or reseed an
+		 * area, the welcome-back beat that is the one moment a save gets looked at
+		 * end to end. Rare, and none of them is on a per-action path.
+		 */
+		fresh?: boolean;
 	} = {},
 ) {
 	const t = db();
@@ -772,35 +881,50 @@ export async function recalcBiome(
 	}
 	const counts = placementCounts(placements, d);
 
-	// terraformed ground: each watered bed adds +1 health (capped) — tending the
-	// soil itself matters, not just the objects on it
-	let terrain = opts.terrain ?? (await byArea(t.TerrainTile, wid, biomeId));
-	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
-	for (const at of opts.addTerrain || []) {
-		if (at.area !== biomeId) continue;
-		// replace stale same-id rows so type changes (tilled -> watered -> water)
-		// count immediately within the request that made them
-		terrain = terrain.filter((tt) => tt.id !== at.id);
-		terrain.push(at);
+	// Terraformed ground. Read the biome's own row first: what the recalc wants
+	// from an area's tiles is four numbers, they are already on the row, and they
+	// only move when the player shapes something. An action that touched no tile
+	// at all — placing an object, removing one, a heartbeat noticing a tree
+	// finish — was scanning every tile in the area to arrive back at them.
+	//
+	// The row is read here rather than at the bottom where it used to be; it is
+	// the same row the patch below writes, request-cached either way.
+	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
+	const stored = opts.fresh ? null : usableTerrainCounts(prior, opts);
+	let terrainCounts: TerrainCounts;
+	// The player-shaped water, kept on the row because the achievement sweep needs
+	// exactly this and had no way to get it without re-scanning the biome's
+	// terrain on every action anywhere in the world (see the water() note in
+	// achievements.ts).
+	let playerWater: WaterShape;
+	if (stored) {
+		terrainCounts = foldTerrainCounts(stored.counts, opts.terrainChanges || []);
+		// Only open water moves `playerWater`, and a change that touches water
+		// never reaches here — usableTerrainCounts sends it to the scan.
+		playerWater = stored.playerWater;
+	} else {
+		let terrain = opts.terrain ?? (await byArea(t.TerrainTile, wid, biomeId));
+		if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
+		for (const at of opts.addTerrain || []) {
+			if (at.area !== biomeId) continue;
+			// replace stale same-id rows so type changes (tilled -> watered -> water)
+			// count immediately within the request that made them
+			terrain = terrain.filter((tt) => tt.id !== at.id);
+			terrain.push(at);
+		}
+		terrainCounts = terrainCountsFrom(terrain);
+		playerWater = analyzeWater(terrain, true);
 	}
 	// Watered beds nudge health only a LITTLE — a few beds, half a point each — so
 	// you can't spam dig+water your way to enough health to pull animals back. Real
 	// recovery comes from placed/planted habitat; a bare bed is just a step toward
 	// planting. (Capped low on purpose.)
-	const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === 'watered').length) * 0.5;
+	const wateredTiles = Math.min(3, terrainCounts.watered) * 0.5;
 	// Pre-seeded starting water (the wetland's channels) doesn't count toward
 	// health — only water the player shapes does — so a biome begins damaged.
-	const openWaterTiles = terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length;
+	const openWaterTiles = terrainCounts.openWater;
 	// rivers and lakes shaped with the watering can feed water-dwelling animals
-	const water = analyzeWater(terrain);
-	// The same analysis with the seeded starting channels excluded — what the
-	// PLAYER shaped. Stored on the row below rather than recomputed, because the
-	// achievement sweep needs exactly this and had no way to get it without
-	// re-scanning the biome's terrain on every action anywhere in the world (see
-	// the water() note in achievements.ts). It is derived from the authoritative
-	// `terrain` list this function is already holding, so persisting it costs
-	// nothing here and removes a whole-area scan from every action there.
-	const playerWater = analyzeWater(terrain, true);
+	const water = terrainCounts.water;
 
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
 	const now = Date.now();
@@ -882,15 +1006,15 @@ export async function recalcBiome(
 	}
 
 	const returnedCount = returnedHere();
-	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
 	const bsId = prior?.id ?? `${wid}:${biomeId}`;
-	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater });
+	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater, terrainCounts });
 	const biomeState = {
 		...(prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health,
 		balance,
 		returnedCount,
 		playerWater,
+		terrainCounts,
 	};
 
 	// Feed the daily task board: positive health gains and newly returned

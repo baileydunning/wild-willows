@@ -172,6 +172,21 @@ export async function findTerrainAt(
 	// terraform does at least one) into a single point read.
 	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
 	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
+	// A MISS is the common case — most of these ask about bare ground — and in a
+	// re-keyed world it is already the whole answer, so the scan below was a few
+	// hundred rows spent re-confirming an absent row on every dig into fresh
+	// ground and every object set down on it.
+	//
+	// What makes that safe is the same fact `byArea` bounds its own scan with: in
+	// a keyed world a tile of this area lives under the `${worldId}:${area}:` run,
+	// and the only id any write path puts there is the position itself. So the
+	// scan can return nothing the point read did not already find. (Nor does it
+	// rescue an undecodable row — a scan drops those; safeGet above is what
+	// salvages one.)
+	//
+	// An unmigrated world still pays for it: its tiles may be under the older
+	// playerId-keyed ids, where the coordinates are all that recognizes them.
+	if (await worldIsKeyed(worldId)) return null;
 	const rows = await byArea(table, worldId, area);
 	return rows.find((r: any) => r.x === x && r.y === y) || null;
 }
@@ -629,7 +644,11 @@ async function recalcRepairedBiomes(worldId: string, playerId: string, d: any, k
 	const newAnimals: any[] = [];
 	const freshBiomeStates: any[] = [];
 	for (const biomeId of open) {
-		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries });
+		// `fresh`: this pass runs BECAUSE something changed underneath the stored
+		// numbers — repairGateTrails deletes player-shaped water, and the water
+		// backfill is here precisely for a row that has never had these written.
+		// Re-derive from the rows rather than fold anything.
+		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries, fresh: true });
 		newAnimals.push(...(r.newAnimals || []));
 		if (r.biomeState) freshBiomeStates.push(r.biomeState);
 	}

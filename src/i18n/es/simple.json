@@ -258,7 +258,10 @@
 			"paintHow": "Pintura. Elige un color y toca el suelo, las paredes, la alfombra o un objeto para cambiarlo.",
 			"brushGroup": "Cuánto terreno cavar",
 			"brushTitle": "Cava {n} por {n} casillas a la vez.",
-			"brushSelected": "Ahora cavas {n} por {n} casillas."
+			"brushSelected": "Ahora cavas {n} por {n} casillas.",
+			"brushShown": "Tamaños visibles.",
+			"brushHidden": "Tamaños ocultos.",
+			"brushToggleHint": "haz clic otra vez para ocultar los tamaños"
 		}
 	},
 	"game": {

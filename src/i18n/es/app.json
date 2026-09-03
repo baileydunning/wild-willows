@@ -252,7 +252,10 @@
 		"brushGroup": "Cuánto terreno moldear",
 		"brushSize": "{n}×{n}",
 		"brushTitle": "Moldea {n}×{n} casillas a la vez ({tiles} de una pasada)",
-		"brushSelected": "Moldeando {n} por {n} casillas a la vez"
+		"brushSelected": "Moldeando {n} por {n} casillas a la vez",
+		"brushShown": "Tamaños de pincel visibles",
+		"brushHidden": "Tamaños de pincel ocultos",
+		"brushToggleHint": "haz clic otra vez para ocultar los tamaños"
 	},
 	"feedPanel": {
 		"title": "Registro de actividad",

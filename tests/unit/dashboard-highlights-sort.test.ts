@@ -65,6 +65,7 @@ const ROWS = [
 		totalActions: 10,
 		biomeSummary: { totalAnimalsReturned: 2, biomesFullyRestored: 1 },
 		achievements: { earned: 1, points: 5 },
+		completion: { overallPct: 12, tracksDone: 1, tracksTotal: 10 },
 		minutesSinceActive: 600,
 	},
 	// Short but dense: leads everything except playtime, and played minutes ago.
@@ -75,6 +76,9 @@ const ROWS = [
 		totalActions: 900,
 		biomeSummary: { totalAnimalsReturned: 40, biomesFullyRestored: 3 },
 		achievements: { earned: 9, points: 90 },
+		// Saves that predate the completion tally carry no block at all, which must
+		// rank as 0 rather than as NaN — the rows below leave it off for that.
+		completion: { overallPct: 61, tracksDone: 4, tracksTotal: 10 },
 		minutesSinceActive: 3,
 	},
 	// Only the older hoursSinceActive field.
@@ -116,6 +120,7 @@ describe('player highlights sort', () => {
 			'achievements',
 			'restored',
 			'menus',
+			'completion',
 		]);
 		for (const o of HL_SORTS) expect(o.label, `${o.key} has no label`).toBeTruthy();
 		expect(DASHBOARD).toContain("const HL_SORT = { key: 'playtime' };");
@@ -127,6 +132,7 @@ describe('player highlights sort', () => {
 		expect(orderBy('actions', ROWS)[0]).toBe('busy');
 		expect(orderBy('achievements', ROWS)[0]).toBe('busy');
 		expect(orderBy('restored', ROWS)[0]).toBe('busy');
+		expect(orderBy('completion', ROWS)[0]).toBe('busy');
 	});
 
 	it('orders recency by smallest gap, across all three source fields', () => {

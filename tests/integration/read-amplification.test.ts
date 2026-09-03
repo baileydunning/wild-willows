@@ -331,8 +331,16 @@ describe('a cached read never outlives the write that invalidates it', () => {
 		await w.post('Terraform', { playerId, area: 'meadow', x: 5, y: 5, action: 'dig' });
 
 		// A scope that leaked past its request would serve the previous action's
-		// terrain here and read nothing at all.
-		expect(w.db.TerrainTile._scanStats().scans).toBeGreaterThan(0);
+		// rows here and read nothing at all.
+		//
+		// The probe is the area's PLACEMENTS — the collision check that asks whether
+		// anything already stands on the square. Terrain used to serve here and no
+		// longer can: a dig that neither widens a brush nor shapes open water reads
+		// the tile under the cursor by id and takes the rest of its terrain numbers
+		// off the biome row, so a correctly scoped second dig reads no tiles at all.
+		// That is the change, not a leak — and the tiles both digs left behind are
+		// still checked below.
+		expect(w.db.Placement._scanStats().scans).toBeGreaterThan(0);
 		const state = await w.get<any>('GameState', playerId);
 		expect(state.terrain.filter((t: any) => t.area === 'meadow')).toHaveLength(2);
 	});
@@ -392,5 +400,96 @@ describe('the water achievement still works, through the two-pass evaluation', (
 		resetScans();
 		await w.post('CollectResource', { playerId, biomeId: 'meadow', nodeId: 'n2', resourceId: 'seeds' });
 		expect(scanned('TerrainTile'), 'terrain is still being read for an achievement already earned').toBe(0);
+	});
+});
+
+describe('an area’s terrain numbers live on its biome row', () => {
+	// What the recalc wants from an area's tiles is four numbers — watered beds,
+	// player-shaped open water, and the two water shapes — and it used to re-derive
+	// them by reading every tile in the area, on every place, plant, dig and beat.
+	// They are kept on the biome row now. The saving is real and so is the risk:
+	// a stale count is not a slow game, it is a wrong one, so both halves are held
+	// here — the reads that stopped happening, and the numbers still being right.
+
+	/** Recount an area's tiles straight from the store. */
+	const recount = (area: string) => {
+		const tiles = [...w.db.TerrainTile._rows.values()].filter((t: any) => t.area === area);
+		return {
+			watered: tiles.filter((t: any) => t.type === 'watered').length,
+			openWater: tiles.filter((t: any) => t.type === 'water' && !t.seeded).length,
+		};
+	};
+	const counts = async (area: string) => (await w.db.BiomeState.get(`${playerId}:${area}`))?.terrainCounts;
+
+	it('a second dig reads no tiles at all', async () => {
+		seedTerrain(100);
+		earnLakemaker();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 5, y: 5, action: 'dig' });
+
+		expect(
+			scanned('TerrainTile'),
+			`a dig scanned ${scanned('TerrainTile')} tiles to shape one square of bare ground`,
+		).toBe(0);
+	});
+
+	it('still reads the area when the change shapes open water', async () => {
+		// lake and river are connectivity across the whole area, not tallies — one
+		// tile can join two ponds — so flooding a bed has to look at the rows.
+		seedTerrain(100);
+		earnLakemaker();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'water' });
+
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'water' }); // watered -> water
+		expect(scanned('TerrainTile')).toBeGreaterThan(0);
+		// the new tile joins the water the seeding scattered here
+		expect((await counts('meadow'))?.openWater).toBe(recount('meadow').openWater);
+	});
+
+	it('the stored numbers still match the rows after a run of actions', async () => {
+		// The check a fingerprint cannot make: a count that has gone stale is still
+		// a number, and everything downstream of it stays self-consistent while
+		// being wrong about the land.
+		earnLakemaker();
+		const p = await w.db.Player.get(playerId);
+		await w.db.Player.patch(playerId, {
+			inventory: { ...p.inventory, water: 50, seeds: 50 },
+			tools: { ...p.tools, shovel: 1, 'watering-can': 1 },
+		});
+		for (let x = 4; x <= 9; x++) await w.post('Terraform', { playerId, area: 'meadow', x, y: 4, action: 'dig' });
+		for (let x = 4; x <= 8; x++) await w.post('Terraform', { playerId, area: 'meadow', x, y: 4, action: 'water' });
+		// two of the beds flood into open water, one is planted into, one is cleared
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'water' });
+		await w.post('Terraform', { playerId, area: 'meadow', x: 5, y: 4, action: 'water' });
+		await w.post('Plant', { playerId, area: 'meadow', x: 6, y: 4, plantId: 'wildflower-patch' });
+		await w.post('Terraform', { playerId, area: 'meadow', x: 7, y: 4, action: 'clear' });
+
+		const stored = await counts('meadow');
+		expect({ watered: stored?.watered, openWater: stored?.openWater }).toEqual(recount('meadow'));
+		// …and the water shape the row carries is the one the tiles describe: two
+		// connected open tiles.
+		expect(stored?.water).toEqual({ tiles: 2, lake: 2, river: 2 });
+	});
+
+	it('a row with nothing stored is recounted rather than read as an empty biome', async () => {
+		// Every save from before the field, and every row an admin tool or a repair
+		// pass reset. Absent and zero are different answers.
+		seedTerrain(100);
+		earnLakemaker();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'dig' });
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'water' });
+		await w.post('Terraform', { playerId, area: 'meadow', x: 4, y: 4, action: 'water' }); // open water
+		const row = await w.db.BiomeState.get(`${playerId}:meadow`);
+		await w.db.BiomeState.put({ ...row, terrainCounts: undefined, playerWater: undefined });
+
+		resetScans();
+		await w.post('Terraform', { playerId, area: 'meadow', x: 6, y: 6, action: 'dig' });
+
+		expect(scanned('TerrainTile'), 'a biome row with no stored counts must be recounted').toBeGreaterThan(0);
+		expect((await counts('meadow'))?.openWater).toBe(recount('meadow').openWater);
 	});
 });

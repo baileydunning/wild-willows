@@ -252,7 +252,10 @@
 		"brushGroup": "How much ground to shape",
 		"brushSize": "{n}×{n}",
 		"brushTitle": "Shape {n}×{n} squares at a time ({tiles} in one pass)",
-		"brushSelected": "Shaping {n} by {n} squares at a time"
+		"brushSelected": "Shaping {n} by {n} squares at a time",
+		"brushShown": "Brush sizes shown",
+		"brushHidden": "Brush sizes hidden",
+		"brushToggleHint": "click again to fold the sizes away"
 	},
 	"feedPanel": {
 		"title": "Activity Feed",

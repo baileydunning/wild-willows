@@ -1003,7 +1003,7 @@ export class DevTools extends PublicEndpoint {
 					await t.TerrainTile.delete(tt.id);
 				}
 				await seedStartingTerrain(playerId, playerId, ar);
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Reseeded starting terrain for ${ar}`);
 				break;
 			}
@@ -1014,7 +1014,7 @@ export class DevTools extends PublicEndpoint {
 					await t.TerrainTile.delete(tt.id);
 					n++;
 				}
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Cleared ${n} terrain tiles in ${ar}`);
 				break;
 			}
@@ -1215,7 +1215,7 @@ export class DevTools extends PublicEndpoint {
 				}
 				await t.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
 				await seedStartingTerrain(playerId, playerId, ar);
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(
 					`Reset ${ar} to its damaged state — removed ${placementsRemoved} object${placementsRemoved === 1 ? '' : 's'} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? '' : 's'} away (chests kept)`,
 				);
@@ -1262,7 +1262,7 @@ export class DevTools extends PublicEndpoint {
 					});
 					added++;
 				}
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Welcomed ${added} animal${added === 1 ? '' : 's'} to ${ar} (${here.length} total)`);
 				break;
 			}
@@ -1294,7 +1294,7 @@ export class DevTools extends PublicEndpoint {
 				// recalcBiome recomputes comfort from the (probably bare) habitat, which
 				// would drop this animal to "rarely seen" and skip drawing it. Run it for
 				// returnedCount/unlocks, then force comfort high so the spawn is visible.
-				await recalcBiome(playerId, playerId, animal.biome, { player });
+				await recalcBiome(playerId, playerId, animal.biome, { player, fresh: true });
 				await t.Discovery.patch(discId, { comfort: 85 });
 				log.push(`Spawned ${animal.name} in ${animal.biome} — comfort 85, biome unlocked`);
 				break;
@@ -1736,7 +1736,7 @@ export class DevTools extends PublicEndpoint {
 						whyReturned: whyReturnedText(animal, d),
 					});
 				}
-				await recalcBiome(wid, playerId, ar, { player });
+				await recalcBiome(wid, playerId, ar, { player, fresh: true });
 				// recalc recomputes comfort/health from the habitat; force the picture-perfect
 				// state so every animal is drawn (comfort high) and the meters read full.
 				const bs = await findBiomeState(t.BiomeState, wid, ar);

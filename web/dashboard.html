@@ -2334,6 +2334,26 @@
 			 * by task id. Labels live here rather than coming down with the payload
 			 * because the roll-up sends ids — a chain goal renamed in the game should
 			 * not silently rename a historical funnel step. */
+			/* The completion tracker's ten tracks (completionTracks in
+			 * src/completion.ts), keyed by track id. Labels live here rather than
+			 * riding down with the payload for the same reason the starter chain's do:
+			 * the roll-up sends ids, and a track relabelled in the game should not
+			 * silently relabel its own history on this page. An id with no label here
+			 * still draws — under its id — so a new track is visible the day it ships
+			 * rather than the day someone remembers this map. */
+			const COMPLETION_TRACK_LABELS = {
+				animals: 'Species returned',
+				areas: 'Areas opened',
+				restored: 'Areas restored',
+				recipes: 'Recipes crafted',
+				habitat: 'Habitat standing',
+				plants: 'Species planted',
+				tools: 'Hand tools maxed',
+				guides: 'Field guides finished',
+				home: 'Home levels built',
+				achievements: 'Achievements earned',
+			};
+
 			const STARTER_LABELS = {
 				'start-seeds': 'Gather 10 seeds',
 				'start-grasshopper': 'Welcome the grasshopper',
@@ -2740,6 +2760,11 @@
 					val: (p) => n(p.biomeSummary && p.biomeSummary.biomesFullyRestored),
 				},
 				{ key: 'menus', label: 'Time in menus', val: (p) => hlMenuSeconds(p) },
+				{
+					key: 'completion',
+					label: 'Completion',
+					val: (p) => n(p.completion && p.completion.overallPct),
+				},
 			];
 			const HL_SORT = { key: 'playtime' };
 
@@ -2917,6 +2942,31 @@
 					].join('')}</div>`,
 				);
 
+				/* The completion tracker, exactly as this caretaker sees it in their own
+				 * Achievements menu — same ten tracks, same headline, computed by the
+				 * same function (src/completion.ts). Absent on a save that last synced
+				 * from a client older than the tally, which the card says out loud
+				 * instead of drawing ten empty bars. */
+				const comp = p.completion || null;
+				const compCard = comp
+					? cardTitled(
+							'Completion',
+							`${n(comp.tracksDone)} of ${n(comp.tracksTotal)} tracks finished`,
+							`<div class="grid kpis">${kpi(`${n(comp.overallPct)}<small>%</small>`, 'Overall')}</div>` +
+								`<div style="margin-top:1rem">${barRows(
+									Object.entries(comp.tracks || {})
+										.map(([id, t]) => [id, n(t && t.pct)])
+										.sort((a, b) => b[1] - a[1]),
+									{
+										cls: 'sky',
+										max: 100,
+										labelMap: COMPLETION_TRACK_LABELS,
+										fmtNum: (v) => `${v}%`,
+									},
+								)}</div>`,
+						)
+					: '';
+
 				const cdid = (k) => n(counts[k]) > 0;
 				const flags = [
 					['Collected a resource', act.collected || cdid('resourcesCollected')],
@@ -3091,6 +3141,7 @@
 					`<div class="msub"><span class="hledi ${edi}">${edi}</span>${mconv}${p.idle ? `<span class="hlidle" title="Over ${n(p.playMinutes)} minutes at ${n(p.actionsPerMinute)} actions/min — counted as a window left open, not play">idle window</span>` : ''}${meta ? `<span>${meta}</span>` : ''}${when ? `<span>${when}</span>` : ''}</div></div></div>` +
 					kpis +
 					`<div class="grid two" style="margin-top:.8rem">${progress}${checklist}</div>` +
+					(compCard ? `<div style="margin-top:.8rem">${compCard}</div>` : '') +
 					`<div style="margin-top:.8rem">${actionsCard}</div>` +
 					// Where the time went, side by side: the world on the left, the
 					// menus on the right. They overlap rather than partition, which is
@@ -5137,6 +5188,89 @@
 							`</div>`,
 					),
 				);
+
+				/* ---- Completion ("perfection") tracking ----
+				 *
+				 * Achievements above say what caretakers DID; this says what is left.
+				 * The headline is the mean of each save's own headline, which is itself
+				 * the mean of that save's ten tracks — every track counts once, so
+				 * finishing the field guides moves it as much as finishing the cookbook
+				 * (see meanCompletion in src/completion.ts).
+				 *
+				 * The two track cards are the point of the section, and they are two
+				 * cards rather than one because they answer different questions and
+				 * disagree in the interesting cases. "How far down each track" is the
+				 * average progress; "how many reach the end" is the finish rate. A
+				 * track high on the first and at the floor on the second is one
+				 * everybody starts and nobody completes — which is the shape of a
+				 * completion goal that is out of reach, and the reason to look here at
+				 * all. Rows arrive coldest-first from the roll-up and are drawn in that
+				 * order.
+				 */
+				const comp = s.completion || {};
+				if (n(comp.players) > 0) {
+					const compTracks = comp.tracks || [];
+					const decades = [
+						'0-9',
+						'10-19',
+						'20-29',
+						'30-39',
+						'40-49',
+						'50-59',
+						'60-69',
+						'70-79',
+						'80-89',
+						'90-99',
+						'100',
+					];
+					out.push(
+						sec(
+							'Completion',
+							'how much of the preserve caretakers have seen',
+							`<div class="grid two">` +
+								cardTitled(
+									'Totals',
+									`${fmt(n(comp.players))} saves reporting`,
+									`<div class="grid three">${[
+										kpi(`${n(comp.avgOverallPct)}<small>%</small>`, 'Avg complete', `median ${n(comp.medianOverallPct)}%`),
+										kpi(`${n(comp.p90OverallPct)}<small>%</small>`, 'Top 10% reach', `best ${n(comp.bestOverallPct)}%`),
+										kpi(
+											`${n(comp.avgTracksDone)}<small>/${n(comp.tracksTotal)}</small>`,
+											'Avg tracks finished',
+											`${fmt(n(comp.fullyComplete))} at 100%`,
+										),
+									].join('')}</div>` +
+										(n(comp.notMeasured) > 0
+											? `<div class="hint" style="color:var(--faint);font-size:.76rem;margin-top:.8rem">${fmt(n(comp.notMeasured))} more saves last synced from a build without the tracker — they are left out of these numbers rather than counted as 0%.</div>`
+											: ''),
+								) +
+								cardTitled(
+									'Completion spread',
+									'% of the preserve seen',
+									histCols(comp.histogram, { order: decades }),
+								) +
+								`</div>` +
+								`<div class="grid two" style="margin-top:.8rem">` +
+								cardTitled(
+									'How far down each track',
+									'average progress · coldest first',
+									barRows(
+										compTracks.map((t) => [t.id, n(t.avgPct)]),
+										{ cls: 'sky', max: 100, labelMap: COMPLETION_TRACK_LABELS, fmtNum: (v) => `${v}%` },
+									),
+								) +
+								cardTitled(
+									'How many reach the end',
+									'saves that finished the track',
+									barRows(
+										compTracks.map((t) => [t.id, n(t.finishedPct)]),
+										{ cls: 'gold', max: 100, labelMap: COMPLETION_TRACK_LABELS, fmtNum: (v) => `${v}%` },
+									),
+								) +
+								`</div>`,
+						),
+					);
+				}
 
 				/* ---- Most-earned achievements ---- */
 				const rec = s.achievements && s.achievements.recentDistribution;

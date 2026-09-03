@@ -108,6 +108,7 @@ import {
 import { bodyOf, rateLimit } from './rate-limit';
 import { awardAchievements, awardWorldAchievements } from './achievements';
 import type { CustomGoal, TaskCtx } from './tasks';
+import type { TerrainChange } from './biome';
 
 // ================================================================ ENDPOINTS
 
@@ -1858,6 +1859,9 @@ export class Plant extends PublicEndpoint {
 		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			removeTerrainIds: [bed.id],
+			// The bed is gone and it was watered (the guard above allows nothing
+			// else), which is one number on the biome row — no rescan of the area.
+			terrainChanges: [{ from: bed.type, to: null }],
 			player: { ...player, inventory },
 			discoveries,
 		});
@@ -2669,16 +2673,15 @@ export class Terraform extends PublicEndpoint {
 			// Match by position, not id: legacy beds carry an old id but must still be
 			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
 			//
-			// Read as a LIST rather than through findTerrainAt, and lend it to the
-			// recalc below. findTerrainAt tries a point read first and falls back to
-			// this same area scan, which is the right trade where the lookup is all
-			// the caller wants — but here the recalc needs the whole area anyway, and
-			// this request writes a tile in between, so the two reads could not share
-			// a cached result. A dig into fresh ground therefore missed the point
-			// read AND scanned the area twice, and the second scan grew with every
-			// tile the player had ever shaped in this biome.
-			const areaTiles = await byArea(t.TerrainTile, wid, area);
-			const existing = areaTiles.find((tt: any) => tt.x === tx && tt.y === ty) || null;
+			// A point read, not a list. This used to read the whole area and pick the
+			// clicked square out of it, because the recalc below wanted the area
+			// anyway and the tile written in between meant the two reads could not
+			// share a cached result — so one dig scanned every tile the player had
+			// ever shaped in this biome, twice. The recalc now takes its terrain
+			// numbers off the biome row (see recalcBiome), so all that is left to ask
+			// is what is on THIS square, which is one row by id — with the same
+			// coordinate fallback behind it for a legacy save.
+			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 
 			// Compare-and-swap on the tile's type.
 			//
@@ -2715,6 +2718,18 @@ export class Terraform extends PublicEndpoint {
 			if (!Number.isFinite(brush) || !offered.includes(brush))
 				throw new GameError(tr('server.err.brushNotAvailable'), 400, 'server.err.brushNotAvailable');
 
+			// The rest of the area's tiles, read only when this action actually needs
+			// them: a brush wider than one square has to know which neighbours are
+			// bare or already tilled, and a change that MAKES or DRAINS open water
+			// re-shapes the lake and river spans the recalc reads — connectivity
+			// across the whole area, not a tally anything can adjust in place (see
+			// usableTerrainCounts). Every other action — every single-square dig, and
+			// every bed taken from tilled to watered — leaves those numbers alone, so
+			// the recalc reads them off the biome row and this scan is not paid at all.
+			const shapesWater =
+				(action === 'water' && existing?.type === 'watered') || (action === 'clear' && existing?.type === 'water');
+			const areaTiles: any[] | null = brush > 1 || shapesWater ? await byArea(t.TerrainTile, wid, area) : null;
+
 			let inventory = player.inventory || {};
 			let tile: any = null;
 			let removedId: string | undefined;
@@ -2723,6 +2738,10 @@ export class Terraform extends PublicEndpoint {
 			// downstream (the recalc's addTerrain, the response, the metrics) folds
 			// these in beside `tile`, so a tier-4 tool still writes exactly one.
 			const alsoTiles: any[] = [];
+			// What this action did to each of those tiles, for the recalc's fold — one
+			// entry per row handed to it, or it re-reads the area rather than trust a
+			// half-described change.
+			const changes: TerrainChange[] = [];
 
 			if (action === 'dig') {
 				const shovelTier = player.tools?.shovel || 0;
@@ -2731,6 +2750,7 @@ export class Terraform extends PublicEndpoint {
 				const stamp = Date.now();
 				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: stamp };
 				await t.TerrainTile.put(tile);
+				changes.push({ from: null, to: 'tilled' });
 
 				// The rest of the chosen brush. Anything already shaped, already built
 				// on, or off the workable grid is skipped, so a wide brush can only ever
@@ -2739,7 +2759,7 @@ export class Terraform extends PublicEndpoint {
 				if (brush > 1) {
 					const bare = (x2: number, y2: number) =>
 						!(x2 === tx && y2 === ty) &&
-						!areaTiles.some((tt: any) => tt.x === x2 && tt.y === y2) &&
+						!(areaTiles || []).some((tt: any) => tt.x === x2 && tt.y === y2) &&
 						!placements.some((pl: any) => pl.x === x2 && pl.y === y2);
 					for (const c of brushTargets(tx, ty, brush, grid, bare)) {
 						const extra = {
@@ -2754,6 +2774,7 @@ export class Terraform extends PublicEndpoint {
 						};
 						await t.TerrainTile.put(extra);
 						alsoTiles.push(extra);
+						changes.push({ from: null, to: 'tilled' });
 					}
 				}
 
@@ -2816,6 +2837,7 @@ export class Terraform extends PublicEndpoint {
 				const stamp = Date.now();
 				tile = { ...existing, type: newType, updatedAt: stamp };
 				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: stamp });
+				changes.push({ from: existing.type, to: newType });
 
 				// The can's tier used to be read only when FILLING it — every upgrade did
 				// nothing for the action the can is named after. Now it decides which
@@ -2826,7 +2848,7 @@ export class Terraform extends PublicEndpoint {
 				if (brush > 1) {
 					const tilledAt = (x2: number, y2: number) =>
 						!(x2 === tx && y2 === ty) &&
-						areaTiles.some((tt: any) => tt.x === x2 && tt.y === y2 && tt.type === 'tilled');
+						(areaTiles || []).some((tt: any) => tt.x === x2 && tt.y === y2 && tt.type === 'tilled');
 					for (const c of brushTargets(tx, ty, brush, grid, tilledAt)) {
 						const held = (inventory.water || 0) + (inventory['clean-water'] || 0);
 						if (held < 1) break; // out of water — the pour simply stops here
@@ -2840,10 +2862,11 @@ export class Terraform extends PublicEndpoint {
 								owed -= take;
 							}
 						}
-						const row = areaTiles.find((tt: any) => tt.x === c.x && tt.y === c.y);
+						const row = (areaTiles || []).find((tt: any) => tt.x === c.x && tt.y === c.y);
 						if (!row) continue;
 						await t.TerrainTile.patch(row.id, { type: 'watered', updatedAt: stamp });
 						alsoTiles.push({ ...row, type: 'watered', updatedAt: stamp });
+						changes.push({ from: row.type, to: 'watered' });
 					}
 				}
 				await patchPlayer(playerId, { inventory });
@@ -2863,6 +2886,7 @@ export class Terraform extends PublicEndpoint {
 				}
 				await t.TerrainTile.delete(existing.id);
 				removedId = existing.id;
+				changes.push({ from: existing.type, to: null });
 			} else {
 				throw new GameError(tr('server.err.badTerraformAction'), 400, 'server.err.badTerraformAction');
 			}
@@ -2875,11 +2899,14 @@ export class Terraform extends PublicEndpoint {
 			const recalc = await recalcBiome(wid, playerId, area, {
 				addTerrain: tiles,
 				removeTerrainIds: removedId ? [removedId] : [],
+				terrainChanges: changes,
 				player: { ...player, inventory },
 				discoveries,
 				// Pre-write, with this action's change folded in above — see the note
-				// on `terrain` in recalcBiome.
-				terrain: areaTiles,
+				// on `terrain` in recalcBiome. Only when this action had to read the
+				// area for its own reasons; otherwise the recalc works from the biome
+				// row and `changes`.
+				...(areaTiles ? { terrain: areaTiles } : {}),
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -2916,7 +2943,10 @@ export class RecalcBiome extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 		const discoveries = await byWorld(db().Discovery, wid);
-		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries });
+		// The explicit recalculation is also the repair hammer — it is what a
+		// support answer says to run — so it re-derives the terrain numbers from the
+		// rows rather than trusting the ones on the biome row.
+		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries, fresh: true });
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalcResult.newAnimals,
 			freshBiomeStates: [recalcResult.biomeState],
@@ -2996,7 +3026,9 @@ export class SyncPlayer extends PublicEndpoint {
 				const hasTerrain = (await byArea(t.TerrainTile, wid, area)).length > 0;
 				if (!hasTerrain) {
 					await seedStartingTerrain(wid, playerId, area);
-					await recalcBiome(wid, playerId, area, { player });
+					// Seeding writes channels and beds without describing them, so this
+					// recalc reads the area rather than the numbers on the row.
+					await recalcBiome(wid, playerId, area, { player, fresh: true });
 				}
 			}
 		}

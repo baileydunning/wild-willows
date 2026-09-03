@@ -127,7 +127,7 @@ type Player @table(database: "wildwillows") { id: ID @primaryKey }
 type PlayerAchievement @table(database: "wildwillows") { id: ID @primaryKey }
 
 # World-owned state (id is `${worldId}:...`; worldId/playerId stored on each row)
-type BiomeState @table(database: "wildwillows") { id: ID @primaryKey }   # worldId, playerId, biomeId, health, balance, returnedCount, unlocked, playerWater ({tiles,lake,river} the player shaped — cached by recalcBiome so the achievement sweep needn't rescan terrain)
+type BiomeState @table(database: "wildwillows") { id: ID @primaryKey }   # worldId, playerId, biomeId, health, balance, returnedCount, unlocked, playerWater ({tiles,lake,river} the player shaped — cached by recalcBiome so the achievement sweep needn't rescan terrain), terrainCounts ({rev,watered,openWater,water} — the same trick for the recalc itself: absent means never computed, so rescan)
 type Chest @table(database: "wildwillows") { id: ID @primaryKey }        # worldId, playerId, area, x, y, size, capacity, contents
 type Placement @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, objectId, area, x, y, placedAt, plantedAt, color
 type Discovery @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, animalId, biomeId, comfort, timesObserved, firstObservedAt, whyReturned
