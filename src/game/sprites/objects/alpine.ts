@@ -1,6 +1,6 @@
 // Graywind Heights.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const ALPINE: SpriteSet = {
@@ -20,18 +20,24 @@ export const ALPINE: SpriteSet = {
 		g.fillStyle(C('#6b8a4a'), 1).fillEllipse(16, 12, 22, 7); // mossy lining
 		g.fillStyle(C('#caa15a'), 1).fillCircle(11, 11, 1.8).fillCircle(16, 12, 1.8).fillCircle(21, 11, 1.8); // eggs
 	}),
-	heather: def(34, 24, (g) => {
+	...pickable('heather', 34, 24, (g, picked) => {
 		g.fillStyle(C('#6f8a5a'), 1).fillEllipse(17, 17, 32, 12);
-		g.fillStyle(C('#a06aa8'), 1);
-		for (const [x, y] of [
+		const bells = [
 			[8, 12],
 			[14, 9],
 			[20, 11],
 			[26, 10],
 			[11, 14],
 			[23, 14],
-		] as const)
-			g.fillCircle(x, y, 2.4);
+		] as const;
+		if (picked) {
+			// the bells stripped off the mat, leaving needled green shoots
+			g.fillStyle(C('#5f7a4a'), 1);
+			for (const [x, y] of bells) g.fillCircle(x, y, 1.2);
+			return;
+		}
+		g.fillStyle(C('#a06aa8'), 1);
+		for (const [x, y] of bells) g.fillCircle(x, y, 2.4);
 		g.fillStyle(C('#c89ad0'), 1).fillCircle(14, 8, 1.2).fillCircle(26, 9, 1.2);
 	}),
 	krummholz: def(34, 36, (g) => {
@@ -41,9 +47,10 @@ export const ALPINE: SpriteSet = {
 		g.fillTriangle(10, 20, 28, 17, 17, 6);
 		g.fillStyle(C('#4f7048'), 1).fillTriangle(12, 14, 26, 12, 19, 4);
 	}),
-	gentian: def(32, 24, (g) => {
+	...pickable('gentian', 32, 24, (g, picked) => {
 		g.fillStyle(C('#5e7a4a'), 1).fillEllipse(16, 19, 28, 10);
-		g.fillStyle(C('#3a6ad0'), 1);
+		// picked, each trumpet is back to a small green bud on the rosette
+		g.fillStyle(C(picked ? '#5f7f42' : '#3a6ad0'), 1);
 		for (const [x, y] of [
 			[10, 11],
 			[18, 9],
@@ -51,7 +58,7 @@ export const ALPINE: SpriteSet = {
 			[14, 15],
 		] as const) {
 			for (const a of [0, 1.26, 2.51, 3.77, 5.03])
-				g.fillEllipse(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6, 2.4, 3.2);
+				g.fillEllipse(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6, picked ? 1.6 : 2.4, picked ? 1.8 : 3.2);
 		}
 	}),
 	cushion: def(30, 18, (g) => {
@@ -575,7 +582,7 @@ export const ALPINE: SpriteSet = {
 		g.fillStyle(C('#b5a68c'), 1).fillEllipse(9, 25, 9, 3).fillEllipse(24, 26, 10, 3);
 	}),
 	// the opposite of the meadow drift's tall loose stems.
-	alpineflowers: def(38, 22, (g) => {
+	...pickable('alpineflowers', 38, 22, (g, picked) => {
 		g.fillStyle(C('#5f6b4a'), 1).fillEllipse(19, 14, 38, 15); // thin high-country soil
 		g.fillStyle(C('#6f8050'), 1).fillEllipse(18, 11, 32, 10); // tight cushion foliage
 		g.fillStyle(C('#7d8f5c'), 1);
@@ -598,6 +605,11 @@ export const ALPINE: SpriteSet = {
 			[30, 13, '#86a8d9'],
 		];
 		blooms.forEach(([x, y, c]) => {
+			if (picked) {
+				// picked over: the cushion with tight buds where the colour was
+				g.fillStyle(C('#6f8050'), 1).fillCircle(x, y, 1.2);
+				return;
+			}
 			g.fillStyle(C(c), 1).fillCircle(x, y, 2.4); // no stems — they hug the ground
 			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 0.9);
 		});

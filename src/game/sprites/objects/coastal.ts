@@ -1,6 +1,6 @@
 // Pelican Shore.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const COASTAL: SpriteSet = {
@@ -107,10 +107,15 @@ export const COASTAL: SpriteSet = {
 		] as const)
 			g.lineBetween(x - 3, y, x + 3, y);
 	}),
-	thrift: def(32, 26, (g) => {
+	...pickable('thrift', 32, 26, (g, picked) => {
 		g.fillStyle(C('#7a9a6a'), 1).fillEllipse(16, 21, 28, 9);
 		g.lineStyle(1.5, C('#5a8a4a'), 1);
 		for (const x of [9, 16, 23]) g.lineBetween(x, 21, x, 9);
+		if (picked) {
+			// the pink heads picked off their wiry stalks
+			g.fillStyle(C('#6f8a4a'), 1).fillCircle(9, 8.6, 1.4).fillCircle(16, 7.6, 1.5).fillCircle(23, 9.4, 1.3);
+			return;
+		}
 		g.fillStyle(C('#e57aa8'), 1).fillCircle(9, 8, 3.2).fillCircle(16, 7, 3.4).fillCircle(23, 9, 3);
 	}),
 	coastalshrub: def(34, 28, (g) => {

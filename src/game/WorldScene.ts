@@ -22,6 +22,7 @@ import {
 	connOf,
 	ensureWaterTile,
 	PATH_SHAPES,
+	PICKED,
 	ensurePathTile,
 	snapshotResourceIcons,
 	snapshotObjectIcons,
@@ -4101,10 +4102,18 @@ export class WorldScene extends Phaser.Scene {
 		// placed item never renders as a blank/black missing-texture square
 		const shapeKey = flat ? ensurePathTile(this, def.shape!, this.pathConn(p)) : `obj-${def.shape || 'kit'}`;
 		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
+		// A plant that has been picked stands stripped until its yield is back:
+		// bare stems, empty seed heads, an emptied bowl. Every harvestable shape
+		// draws a `-picked` texture of itself (sprites/canvas.ts: pickable), so
+		// harvesting is something you can SEE in the world afterwards rather than
+		// only in the glint that stopped.
+		const regrow = this.regrowState(p, def, stillGrowing);
+		const pickedKey = `${objKey}${PICKED}`;
+		const stripped = !!regrow && this.textures.exists(pickedKey);
 		// Paths sit at a fixed low depth, just above terrain: they are underfoot, so
 		// they must never sort in front of the caretaker walking along them the way
 		// a y-sorted object does.
-		const img = own(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(flat ? 1.7 : y));
+		const img = own(this.img(x, y, stillGrowing ? 'sprout' : stripped ? pickedKey : objKey).setDepth(flat ? 1.7 : y));
 		// Recorded on the entry, not scheduled: armGrowthTimer() sets one timer for
 		// the soonest across the whole field, and a surviving entry replays this
 		// without being rebuilt.
@@ -4128,6 +4137,7 @@ export class WorldScene extends Phaser.Scene {
 		// id, so they are decided ONCE, here. The draw ORDER matters — it is what
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
+		let tint = 0xffffff;
 		if (flat || isFixture) {
 			if (rot) img.setRotation(rot);
 		} else {
@@ -4137,8 +4147,14 @@ export class WorldScene extends Phaser.Scene {
 			sizeJitter = 0.9 + vr() * 0.2; // 0.9–1.1 size
 			const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
 			const v = Math.round(255 * shade);
-			img.setTint((v << 16) | (v << 8) | v);
+			tint = (v << 16) | (v << 8) | v;
 		}
+		// paint-tool recolor: a per-item color override wins over the default tint
+		if (p.color) tint = Phaser.Display.Color.HexStringToColor(p.color).color;
+		if (tint !== 0xffffff) img.setTint(tint);
+		// The plant coming back, fading in over the stripped one it is standing on.
+		// Built from the same flip/lean/tint, so the two read as one plant.
+		const regrown = stripped ? this.attachRegrowth(build, objKey, tint, regrow!) : null;
 		// The only thing that keeps changing once the sprite exists. Read from the
 		// clock rather than the age captured at build time, so a survivor's growth
 		// stays smooth across repaints instead of freezing at its build moment.
@@ -4147,16 +4163,69 @@ export class WorldScene extends Phaser.Scene {
 			const growScale = stillGrowing && growMs > 0 ? 1 + (Math.min(liveAge, growMs) / growMs) * 0.6 : 1;
 			const placedAge = Date.now() - (p.placedAt || 0);
 			const matureScale = matMs > 0 && !stillGrowing && p.placedAt ? 0.72 + 0.28 * Math.min(1, placedAge / matMs) : 1;
-			img.setScale(growScale * matureScale * sizeJitter * INV_TEX_SCALE);
+			const scale = growScale * matureScale * sizeJitter * INV_TEX_SCALE;
+			img.setScale(scale);
+			regrown?.setScale(scale);
 		};
 		applyScale();
-		// paint-tool recolor: a per-item color override wins over the default tint
-		if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
 		this.attachCampfireGlow(build);
 		const defName = content('habitatObject', p.objectId, 'name', def.name);
 		this.attachPlacementClick(build, isFixture, defName);
 		this.attachFixtureActions(build, defName);
 		return { key: this.placementKey(p), objs, its, applyScale, growth };
+	}
+
+	/**
+	 * A plant standing stripped while its yield grows back: when it was picked and
+	 * when it will be standing full again — or null while it is standing WITH its
+	 * yield on it, which covers both a plant nobody has picked yet and one whose
+	 * regrow timer has already run out.
+	 *
+	 * A clock, and only a clock. The weather gate on a rain basin decides whether
+	 * you may take the water, not whether the bowl looks full — folding the sky in
+	 * here would empty a full basin on screen the moment a shower passed.
+	 */
+	private regrowState(p: any, def: HabitatObjectDef, stillGrowing: boolean): { from: number; readyAt: number } | null {
+		if (!def.yield || stillGrowing || !p.lastHarvestAt) return null;
+		const readyAt = harvestReadyAt(def, {
+			plantedAt: p.plantedAt,
+			placedAt: p.placedAt,
+			lastHarvestAt: p.lastHarvestAt,
+		});
+		if (readyAt == null || readyAt <= p.lastHarvestAt || Date.now() >= readyAt) return null;
+		return { from: p.lastHarvestAt, readyAt };
+	}
+
+	/**
+	 * The plant coming back: its standing sprite fading in over the stripped one
+	 * across what is left of the regrow window.
+	 *
+	 * One tween, not per-frame work — the yield fills back in in front of you if
+	 * you stand and watch, and someone who walks away and comes back finds it as
+	 * far along as the clock says. The stripped sprite underneath is what makes
+	 * that safe: every picked draw stays inside the standing one's pixels (see
+	 * pickable in sprites/canvas.ts), so the fade covers it completely rather
+	 * than leaving cut stems showing through a plant that is whole again.
+	 */
+	private attachRegrowth(
+		build: PlacementBuild,
+		objKey: string,
+		tint: number,
+		regrow: { from: number; readyAt: number },
+	): Phaser.GameObjects.Image {
+		const { x, y, img, own } = build;
+		const now = Date.now();
+		const back = own(this.img(x, y, objKey).setDepth(img.depth));
+		back.setFlipX(img.flipX).setRotation(img.rotation);
+		if (tint !== 0xffffff) back.setTint(tint);
+		back.setAlpha(Phaser.Math.Clamp((now - regrow.from) / (regrow.readyAt - regrow.from), 0, 1));
+		this.tweens.add({
+			targets: back,
+			alpha: 1,
+			duration: Math.max(1, regrow.readyAt - now),
+			ease: 'Sine.easeIn',
+		});
+		return back;
 	}
 
 	/** A soft golden glint over anything ready to pick, and — when one will become
@@ -4212,8 +4281,12 @@ export class WorldScene extends Phaser.Scene {
 					}),
 					action: () => bridge.emit('harvest-placement', { placementId: p.id }),
 				});
-			} else if (readyAt != null) {
+			} else if (readyAt != null && readyAt > Date.now()) {
 				// Becoming harvestable only adds a glint — no habitat change, so no recalc.
+				// Only ever a FUTURE reading: a rain basin that filled long ago and is
+				// waiting on the sky has a readyAt in the past, and reporting that would
+				// arm a zero-delay timer that repaints the biome again the moment it
+				// fires, forever. The 5s weather poll is what repaints that one.
 				return { at: readyAt + 200, matures: false };
 			}
 		}

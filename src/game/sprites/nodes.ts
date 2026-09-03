@@ -4,7 +4,7 @@
 
 import Phaser from 'phaser';
 import { bridge } from '../bridge';
-import { C, tex } from './canvas';
+import { C, PICKED, tex } from './canvas';
 import type { G } from './canvas';
 
 export function makeNodeTextures(scene: Phaser.Scene) {
@@ -347,8 +347,12 @@ export function makeNodeTextures(scene: Phaser.Scene) {
 
 const iconSnapshotCounts: Record<string, number> = {};
 
-function snapshotIcons(scene: Phaser.Scene, prefix: string): Record<string, string> | null {
-	const keys = scene.textures.getTextureKeys().filter((k) => k.startsWith(prefix));
+function snapshotIcons(
+	scene: Phaser.Scene,
+	prefix: string,
+	keep?: (key: string) => boolean,
+): Record<string, string> | null {
+	const keys = scene.textures.getTextureKeys().filter((k) => k.startsWith(prefix) && (!keep || keep(k)));
 	if (iconSnapshotCounts[prefix] === keys.length) return null;
 	const icons: Record<string, string> = {};
 	for (const key of keys) {
@@ -375,6 +379,8 @@ export function snapshotResourceIcons(scene: Phaser.Scene) {
  * Must run after makeObjectTextures.
  */
 export function snapshotObjectIcons(scene: Phaser.Scene) {
-	const icons = snapshotIcons(scene, 'obj-');
+	// `-picked` variants are the stripped, just-harvested state of a plant: a
+	// world sprite only, never what a planting or crafting menu should offer.
+	const icons = snapshotIcons(scene, 'obj-', (k) => !k.endsWith(PICKED));
 	if (icons) bridge.shared.objectIcons = icons;
 }

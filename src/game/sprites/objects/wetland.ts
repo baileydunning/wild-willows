@@ -1,16 +1,22 @@
 // Rushwater Wetland.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const WETLAND: SpriteSet = {
 	// cattail stand (playtest: the two read as the same plant).
-	reed: def(36, 42, (g) => {
+	...pickable('reed', 36, 42, (g, picked) => {
 		g.fillStyle(C('#6aa884'), 0.6).fillEllipse(18, 36, 34, 10);
 		const cols = ['#7fa05a', '#8fb46a', '#6f9450'];
 		for (let i = 0; i < 8; i++) {
 			const x = 4 + i * 4;
 			const top = 6 + (i % 3) * 5;
+			if (picked) {
+				// cut for reeds: a stubble of stems with pale ends, no plumes
+				g.lineStyle(2, C(cols[i % 3]), 1).lineBetween(x, 38, x, top + 12);
+				g.fillStyle(C('#d8dcc0'), 1).fillEllipse(x, top + 12, 2, 1.4);
+				continue;
+			}
 			g.lineStyle(2, C(cols[i % 3]), 1).lineBetween(x, 38, x, top);
 			// soft feathery green plume (not a hard brown head)
 			g.fillStyle(C('#b7c98a'), 1).fillEllipse(x, top, 3, 6);
@@ -18,7 +24,7 @@ export const WETLAND: SpriteSet = {
 		}
 	}),
 	// couple of thin leaf blades behind — unmistakably different from the reed bed.
-	cattail: def(34, 46, (g) => {
+	...pickable('cattail', 34, 46, (g, picked) => {
 		g.fillStyle(C('#6aa884'), 0.6).fillEllipse(17, 40, 32, 9);
 		// thin green leaf blades fanning out behind the stalks
 		g.lineStyle(1.5, C('#7fa05a'), 1);
@@ -29,6 +35,12 @@ export const WETLAND: SpriteSet = {
 			{ x: 25, top: 14 },
 		];
 		stalks.forEach((s) => {
+			if (picked) {
+				// the seed heads taken; bare stems standing with a cut tip
+				g.lineStyle(2.4, C('#5f8a44'), 1).lineBetween(s.x, 42, s.x, s.top + 5);
+				g.fillStyle(C('#c9b98a'), 1).fillEllipse(s.x, s.top + 5, 2.4, 1.6);
+				return;
+			}
 			// upright green stem
 			g.lineStyle(2.4, C('#5f8a44'), 1).lineBetween(s.x, 42, s.x, s.top + 11);
 			// little tip spike above the head
@@ -57,21 +69,32 @@ export const WETLAND: SpriteSet = {
 		for (const x of [8, 12, 16, 20, 24]) g.lineBetween(x, 30, x + (x - 16) * 0.3, 6 + Math.abs(x - 16));
 		g.fillStyle(C('#b58a4a'), 1).fillCircle(16, 7, 2).fillCircle(11, 12, 1.6).fillCircle(21, 11, 1.6);
 	}),
-	marshflower: def(32, 26, (g) => {
+	...pickable('marshflower', 32, 26, (g, picked) => {
 		g.fillStyle(C('#5a8a4a'), 1).fillEllipse(16, 20, 30, 12);
-		g.fillStyle(C('#e3b93f'), 1);
-		for (const [x, y] of [
+		const heads = [
 			[10, 12],
 			[18, 10],
 			[24, 14],
 			[14, 16],
-		] as const)
-			g.fillCircle(x, y, 3.4);
+		] as const;
+		if (picked) {
+			// picked: tight green buds low in the leaves
+			g.fillStyle(C('#6f9a4a'), 1);
+			for (const [x, y] of heads) g.fillCircle(x, y, 1.5);
+			return;
+		}
+		g.fillStyle(C('#e3b93f'), 1);
+		for (const [x, y] of heads) g.fillCircle(x, y, 3.4);
 		g.fillStyle(C('#f4e08a'), 1).fillCircle(18, 10, 1.4).fillCircle(10, 12, 1.4);
 	}),
-	bulrush: def(28, 40, (g) => {
+	...pickable('bulrush', 28, 40, (g, picked) => {
 		g.lineStyle(2.5, C('#5a8a4a'), 1);
 		for (const x of [8, 14, 20]) g.lineBetween(x, 38, x, 6);
+		if (picked) {
+			// heads cut off for weaving, pale cut ends left on the stems
+			g.fillStyle(C('#cfc9a8'), 1).fillRect(7.2, 14, 2.2, 2).fillRect(13.2, 11, 2.2, 2).fillRect(19.2, 15, 2.2, 2);
+			return;
+		}
 		g.fillStyle(C('#7a5a3a'), 1)
 			.fillRoundedRect(7, 8, 3, 12, 1.5)
 			.fillRoundedRect(13, 5, 3, 12, 1.5)

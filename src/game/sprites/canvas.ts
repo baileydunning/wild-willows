@@ -72,6 +72,28 @@ export type SpriteSet = Record<string, SpriteDef>;
 
 export const def = (w: number, h: number, draw: (g: G) => void): SpriteDef => ({ w, h, draw });
 
+/** Suffix of the picked-variant texture key. */
+export const PICKED = '-picked';
+
+/**
+ * A plant you can harvest without uprooting it: ONE draw, TWO textures.
+ *
+ * `<key>` is the plant standing with its yield on it, `<key>-picked` the same
+ * plant with the yield taken — cut stems, bare seed heads, an emptied bowl.
+ * WorldScene shows the picked texture while the yield regrows and fades the
+ * standing one back in on top of it (see attachRegrowth there), which is the
+ * one constraint on the picked draw: everything it paints must sit INSIDE the
+ * standing sprite's own pixels, or it will still be showing once the plant is
+ * back. Buds go where the blooms were, cut ends inside the stems.
+ *
+ * They share a draw rather than being written twice so the two can't drift:
+ * every edit to the plant lands on both states at once.
+ */
+export const pickable = (key: string, w: number, h: number, draw: (g: G, picked: boolean) => void): SpriteSet => ({
+	[key]: def(w, h, (g) => draw(g, false)),
+	[`${key}${PICKED}`]: def(w, h, (g) => draw(g, true)),
+});
+
 /**
  * Rasterize every sprite in `sets` under one key prefix.
  *

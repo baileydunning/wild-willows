@@ -1,7 +1,7 @@
 // Objects that belong to more than one biome, or to none in particular.
 
 import { bridge } from '../../bridge';
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const SHARED: SpriteSet = {
@@ -124,46 +124,84 @@ export const SHARED: SpriteSet = {
 			.fillCircle(6, 32, 2.4)
 			.fillCircle(30, 32, 2.4);
 	}),
-	poppies: def(34, 30, (g) => {
+	...pickable('poppies', 34, 30, (g, picked) => {
 		['#d9534f', '#e86a5a', '#c9443f'].forEach((c, i) => {
 			const x = 7 + i * 10;
+			const y = 9 + (i % 2) * 4;
 			g.lineStyle(2, C('#5f9e44'), 1).lineBetween(x, 12 + (i % 2) * 4, x, 26);
-			g.fillStyle(C(c), 1).fillCircle(x, 9 + (i % 2) * 4, 4.4);
-			g.fillStyle(0x2e2018, 1).fillCircle(x, 9 + (i % 2) * 4, 1.6);
+			if (picked) {
+				// petals gone, the ribbed seed capsule left standing on the stem
+				g.fillStyle(C('#8aa06a'), 1).fillEllipse(x, y, 4, 4.4);
+				g.fillStyle(C('#6f8a52'), 1).fillEllipse(x, y - 1.4, 3.4, 1.2);
+				return;
+			}
+			g.fillStyle(C(c), 1).fillCircle(x, y, 4.4);
+			g.fillStyle(0x2e2018, 1).fillCircle(x, y, 1.6);
 		});
 	}),
-	lupines: def(32, 34, (g) => {
+	...pickable('lupines', 32, 34, (g, picked) => {
 		['#7d6b9e', '#9d86d9', '#6a5a8e'].forEach((c, i) => {
 			const x = 6 + i * 10;
 			g.lineStyle(2, C('#5f9e44'), 1).lineBetween(x, 14, x, 30);
-			g.fillStyle(C(c), 1);
-			for (let b = 0; b < 5; b++) g.fillCircle(x + (b % 2 === 0 ? -1.6 : 1.6), 6 + b * 2.6 + (i % 2) * 3, 2.2);
+			// picked, the spike is a row of small green pods where the flowers were
+			g.fillStyle(C(picked ? '#7f9a5a' : c), 1);
+			for (let b = 0; b < 5; b++)
+				g.fillCircle(x + (b % 2 === 0 ? -1.6 : 1.6), 6 + b * 2.6 + (i % 2) * 3, picked ? 1.3 : 2.2);
 		});
 	}),
-	willow: def(52, 62, (g) => {
+	...pickable('willow', 52, 62, (g, picked) => {
 		g.fillStyle(C('#7c5a3c'), 1).fillRect(23, 38, 7, 24);
 		g.fillStyle(C('#6b9152'), 1).fillEllipse(26, 22, 42, 30);
 		g.fillStyle(C('#7fa860'), 1).fillEllipse(22, 16, 22, 14);
 		g.lineStyle(2.4, C('#8aba6a'), 1);
 		for (let i = 0; i < 6; i++) {
 			const x = 8 + i * 7.4;
-			g.lineBetween(x, 28, x - 2, 48 + (i % 3) * 4);
+			const drop = 20 + (i % 3) * 4;
+			// cut for branches: every other withe is gone, and the ones left are the
+			// same withe cut short — the SAME line, stopped part way, so the full
+			// sprite covers it exactly when the tree fills back in
+			if (picked && i % 2 === 1) continue;
+			const t = picked ? 0.42 : 1;
+			g.lineBetween(x, 28, x - 2 * t, 28 + drop * t);
 		}
 	}),
-	oak: def(50, 58, (g) => {
+	...pickable('oak', 50, 58, (g, picked) => {
 		g.fillStyle(C('#6e553c'), 1).fillRect(22, 34, 8, 24);
 		g.fillRect(17, 38, 6, 4).fillRect(29, 40, 7, 4);
 		g.fillStyle(C('#4a6b3a'), 1).fillCircle(25, 20, 17).fillCircle(12, 28, 10).fillCircle(38, 28, 10);
 		g.fillStyle(C('#5d8a4a'), 1).fillCircle(20, 14, 8);
-		g.fillStyle(C('#a07a3e'), 1).fillCircle(33, 26, 2).fillCircle(15, 22, 2);
+		if (picked) return; // the acorns have been gathered off it
+		g.fillStyle(C('#a07a3e'), 1)
+			.fillCircle(33, 26, 2.4)
+			.fillCircle(15, 22, 2.4)
+			.fillCircle(20, 30, 2.4)
+			.fillCircle(31, 33, 2.2)
+			.fillCircle(25, 24, 2.4)
+			.fillCircle(12, 27, 2.2)
+			.fillCircle(37, 30, 2.2);
+		g.fillStyle(C('#c49a56'), 1)
+			.fillCircle(33, 24.8, 1)
+			.fillCircle(15, 20.8, 1)
+			.fillCircle(25, 22.8, 1)
+			.fillCircle(20, 28.8, 1);
 	}),
-	pine: def(40, 60, (g) => {
+	...pickable('pine', 40, 60, (g, picked) => {
 		g.fillStyle(C('#6e553c'), 1).fillRect(17, 46, 6, 14);
 		g.fillStyle(C('#3a5a44'), 1);
 		g.fillTriangle(20, 2, 4, 26, 36, 26);
 		g.fillTriangle(20, 14, 2, 42, 38, 42);
 		g.fillTriangle(20, 28, 0, 52, 40, 52);
 		g.fillStyle(C('#4d7257'), 1).fillTriangle(20, 6, 10, 22, 30, 22);
+		if (picked) return; // cones taken off the boughs
+		g.fillStyle(C('#6b4a2e'), 1)
+			.fillEllipse(13, 23, 5, 8)
+			.fillEllipse(27, 24, 4.5, 7)
+			.fillEllipse(27, 38, 5, 8)
+			.fillEllipse(11, 47, 5, 8);
+		g.fillStyle(C('#8a6440'), 1)
+			.fillEllipse(12.2, 21.6, 2, 3)
+			.fillEllipse(26.2, 36.6, 2, 3)
+			.fillEllipse(10.2, 45.6, 2, 3);
 	}),
 	kit: def(30, 26, (g) => {
 		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4); // shadow
@@ -434,10 +472,16 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(0xffffff, 0.9).fillCircle(14, 7, 1.2);
 	}),
 	// Rain Basin — a carved stone bowl brimming with collected rainwater.
-	rainbasin: def(34, 30, (g) => {
+	...pickable('rainbasin', 34, 30, (g, picked) => {
 		g.fillStyle(C('#7d7a72'), 1).fillEllipse(17, 24, 28, 9); // stone base shadow
 		g.fillStyle(C('#9a978d'), 1).fillRoundedRect(4, 12, 26, 12, 5); // bowl body
 		g.fillStyle(C('#84817a'), 1).fillEllipse(17, 12, 26, 9); // rim
+		if (picked) {
+			// emptied: dark damp stone in the bowl, and no sky in it
+			g.fillStyle(C('#6e6b64'), 1).fillEllipse(17, 12, 20, 6);
+			g.fillStyle(C('#5f5c56'), 1).fillEllipse(17, 12.6, 14, 3.4);
+			return;
+		}
 		g.fillStyle(C('#6fa8d6'), 1).fillEllipse(17, 12, 20, 6); // water
 		g.fillStyle(C('#bfe0f4'), 0.8).fillEllipse(13, 11, 7, 2); // sky glint
 		g.lineStyle(1, C('#bfe0f4'), 0.5).strokeEllipse(17, 12, 13, 4); // ripple
@@ -693,7 +737,7 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#150f0a'), 0.85).fillEllipse(15, 16, 7, 5).fillEllipse(27, 17, 6, 4); // gaps to disappear into
 	}),
 	// what set it apart from the plain shrub.
-	berrybush: def(38, 32, (g) => {
+	...pickable('berrybush', 38, 32, (g, picked) => {
 		g.fillStyle(C('#3f6b34'), 1).fillCircle(12, 20, 12).fillCircle(25, 18, 12).fillCircle(19, 12, 10); // the thicket
 		g.fillStyle(C('#4f8440'), 1).fillCircle(11, 15, 8).fillCircle(26, 14, 7);
 		g.lineStyle(1.4, C('#7a5a3a'), 1); // arching canes
@@ -707,8 +751,7 @@ export const SHARED: SpriteSet = {
 			[19, 18],
 		] as [number, number][])
 			g.lineBetween(x, y, x + 1.8, y - 1.8).lineBetween(x, y, x - 1.8, y - 1.6);
-		g.fillStyle(C('#5d3a5f'), 1); // heavy fruit
-		for (const [x, y] of [
+		const fruit: [number, number][] = [
 			[8, 19],
 			[16, 22],
 			[23, 20],
@@ -716,8 +759,15 @@ export const SHARED: SpriteSet = {
 			[13, 11],
 			[26, 9],
 			[20, 15],
-		] as [number, number][])
-			g.fillCircle(x, y, 2.4);
+		];
+		if (picked) {
+			// stripped: hard green nubs on the canes where the fruit hung
+			g.fillStyle(C('#5f7f42'), 1);
+			for (const [x, y] of fruit) g.fillCircle(x, y, 1.2);
+			return;
+		}
+		g.fillStyle(C('#5d3a5f'), 1); // heavy fruit
+		for (const [x, y] of fruit) g.fillCircle(x, y, 2.4);
 		g.fillStyle(C('#7d5680'), 1).fillCircle(7.2, 18.2, 1).fillCircle(22.2, 19.2, 1).fillCircle(25.2, 8.2, 0.9);
 		g.fillStyle(0xfff3c4, 0.9).fillCircle(31, 11, 1.4).fillCircle(15, 7, 1.3); // a few late flowers
 	}),

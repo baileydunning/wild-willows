@@ -5,7 +5,7 @@
 // the modules below, grouped the way the game thinks about it: objects by biome,
 // animals by taxon.
 
-export { TEX_SCALE, INV_TEX_SCALE } from './canvas';
+export { TEX_SCALE, INV_TEX_SCALE, PICKED } from './canvas';
 export type { G, SpriteDef, SpriteSet } from './canvas';
 export { makeBaseTextures } from './base';
 export { CONN_N, CONN_E, CONN_S, CONN_W, connOf, ensureWaterTile } from './tiles';
