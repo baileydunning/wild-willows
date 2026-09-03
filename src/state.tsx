@@ -116,7 +116,7 @@ interface Ctx {
 	loadSoloSlot: (slotId: string) => Promise<void>;
 	logout: () => void;
 	refresh: () => Promise<void>;
-	collect: (biomeId: string, nodeId: string, resourceId: string) => Promise<void>;
+	collect: (biomeId: string, nodeId: string, resourceId: string, alsoNodeIds?: string[]) => Promise<void>;
 	transfer: (chestId: string, resourceId: string, qty: number, dir: 'deposit' | 'withdraw') => Promise<void>;
 	craft: (recipeId: string) => Promise<void>;
 	discard: (kind: 'material' | 'crafted', id: string, qty: number, name?: string) => Promise<void>;
@@ -131,6 +131,9 @@ interface Ctx {
 	rest: () => Promise<void>;
 	paintColor: string;
 	setPaintColor: (c: string) => void;
+	/** How much ground one shaping action covers: 1, 3 or 9 squares across. */
+	brushSize: number;
+	setBrushSize: (n: number) => void;
 	paintHome: (part: 'floor' | 'wall' | 'rug', color: string) => Promise<void>;
 	paintPlacement: (placementId: string, color: string) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
@@ -265,6 +268,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const [feedLog, setFeedLog] = useState<LogEntry[]>([]);
 	const [selectedTool, setSelectedToolState] = useState('basket');
 	const [paintColor, setPaintColor] = useState('#c8a064');
+	// Always starts at a single square. A caretaker who wants to shape more ground
+	// says so; no upgrade turns this up on their behalf.
+	const [brushSize, setBrushSize] = useState(1);
 	const saveTimer = useRef<number | null>(null);
 	const logSeq = useRef(1);
 	// Tracks which recipes were unlocked last time we looked, so we can announce
@@ -1273,9 +1279,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	);
 
 	const collect = useCallback(
-		(biomeId: string, nodeId: string, resourceId: string) =>
+		(biomeId: string, nodeId: string, resourceId: string, alsoNodeIds?: string[]) =>
 			act(
-				() => api.collect(biomeId, nodeId, resourceId),
+				() => api.collect(biomeId, nodeId, resourceId, alsoNodeIds),
 				(r) => {
 					const res = data?.resources.find((x) => x.id === resourceId);
 					const qty = r?.gained?.[resourceId] || 1;
@@ -1287,6 +1293,10 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					}
 					// house perk (Log Cabin): the forager's instinct found one extra
 					if (r?.perkBonus) toast(t('app.toast.perkForage', { name }), 'unlock');
+					// A sweeping basket that outran its own room sent the rest on to a
+					// chest rather than stopping the haul — say so, or the numbers look
+					// like they went missing.
+					if (r?.storedTo) toast(t('app.toast.basketOverflow', { name }), 'info');
 					// the basket is the gathering tool — other tools are for shaping the land
 					bridge.emit('collected', {
 						nodeId,
@@ -1304,7 +1314,9 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	const terraform = useCallback(
 		(area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
 			act(
-				() => api.terraform(area, x, y, action, expect),
+				// Clearing is never brushed — taking nine squares back at once is not
+				// something to do by accident.
+				() => api.terraform(area, x, y, action, expect, action === 'clear' ? 1 : brushSize),
 				(r) => {
 					if (action === 'dig') {
 						if (r?.dug) {
@@ -1337,7 +1349,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 					apply: (r, prev) => applyTerraformResult(r, prev, area, x, y),
 				},
 			),
-		[act, pushLog, toast, data],
+		[act, pushLog, toast, data, brushSize],
 	);
 
 	const plant = useCallback(
@@ -1858,6 +1870,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			rest,
 			paintColor,
 			setPaintColor,
+			brushSize,
+			setBrushSize,
 			paintHome,
 			paintPlacement,
 			observe,
@@ -1922,6 +1936,8 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			rest,
 			paintColor,
 			setPaintColor,
+			brushSize,
+			setBrushSize,
 			paintHome,
 			paintPlacement,
 		],

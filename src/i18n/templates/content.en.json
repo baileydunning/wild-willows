@@ -187,6 +187,11 @@
 				"hint": "Heal one biome enough to open the next trail.",
 				"name": "Open Road"
 			},
+			"perfectly-equipped": {
+				"flavor": "Basket, shovel and can carried as far as they go. The land answers a little faster now.",
+				"hint": "Carry your basket, shovel, and watering can all the way to tier 7.",
+				"name": "Perfectly Equipped"
+			},
 			"recipe-collector": {
 				"flavor": "Seventy-five different things, each built at least once. You've used nearly every tool on the bench.",
 				"hint": "Build a little of almost everything on the bench.",
@@ -5100,6 +5105,18 @@
 					"4": {
 						"effect": "Carry up to 800 materials and gather 4 at a time.",
 						"name": "Naturalist's Pack"
+					},
+					"5": {
+						"effect": "Carry up to 1,100 materials and gather 5 at a time. A full basket sends the overflow to your nearest chest instead of turning you away.",
+						"name": "Relay Pack"
+					},
+					"6": {
+						"effect": "Carry up to 1,500 materials and gather 6 at a time. A stiff frame takes the weight out of stone, clay and sand.",
+						"name": "Frame Pack"
+					},
+					"7": {
+						"effect": "Carry up to 2,000 materials and gather 7 at a time. One pass clears a whole patch of whatever you are gathering.",
+						"name": "Harvest Pack"
 					}
 				}
 			},
@@ -5230,6 +5247,18 @@
 					"4": {
 						"effect": "Shape the toughest ground and gather 4 dug materials at a time.",
 						"name": "Earthshaper's Spade"
+					},
+					"5": {
+						"effect": "Dig 5 at a time. Adds a 3×3 brush to your shovel — pick it when you want it; it stays on one square until you do.",
+						"name": "Broad Spade"
+					},
+					"6": {
+						"effect": "Dig 6 at a time. You can read the ground now — buried material shows where it lies, and digging it up is certain.",
+						"name": "Survey Spade"
+					},
+					"7": {
+						"effect": "Dig 7 at a time. Adds a 9×9 brush, and clearing ground gives back the water and material it soaked up.",
+						"name": "Salvage Spade"
 					}
 				}
 			},
@@ -5252,6 +5281,18 @@
 					"4": {
 						"effect": "Collect 4 water at a time — flood whole channels in a few trips.",
 						"name": "Cloudcatcher Urn"
+					},
+					"5": {
+						"effect": "Collect 5 water at a time. Adds a 3×3 brush, so you can water a bed or a whole patch — your choice, one square by default.",
+						"name": "Long-spout Can"
+					},
+					"6": {
+						"effect": "Collect 6 water at a time, and fill straight from any open water you have shaped.",
+						"name": "Dipping Pail"
+					},
+					"7": {
+						"effect": "Collect 7 water at a time. Adds a 9×9 brush for filling a channel in one pass, as far as your water goes.",
+						"name": "Channel Urn"
 					}
 				}
 			}

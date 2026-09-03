@@ -9,11 +9,20 @@
 import { t as tr } from '../src/i18n/server';
 import { dayPhaseAt, nextPhaseAt, phasesSeen, seasonAt, weatherSnapshot, weatherTypeAt } from './weather';
 
-import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db } from './core';
+import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db, hash32, seededRng } from './core';
 import { safeGet } from './store';
 import { KEY_REV, placementKey } from './keys';
 import { REPAIR_REV, byArea, byWorld, defs, findBiomeState, findInWorld, worldOf } from './worlds';
-import { CAPACITY_BY_BASKET, DEFAULT_HOME, START_INVENTORY, START_TOOLS, homeCarryBonus, homeOf } from './home';
+import {
+	BASKET_FRAME_TIER,
+	BURIED_CACHE_DENSITY,
+	CAPACITY_BY_BASKET,
+	DEFAULT_HOME,
+	START_INVENTORY,
+	START_TOOLS,
+	homeCarryBonus,
+	homeOf,
+} from './home';
 import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, readPlayerRow, sanitizePlayer } from './player';
 import { WEATHER_BIOME_IDS, bumpMetrics, encodeMetrics, freshMetrics, weatherTimeFromPlay } from './metrics';
 import { dailyTasksBlock, goalLimitFor } from './tasks';
@@ -282,8 +291,68 @@ export async function freshSnapshot(created: any) {
 
 export function inventoryCapacity(player: any): number {
 	const tier = player.tools?.basket || 1;
+	// Above the top defined tier, hold the largest basket rather than falling back
+	// to the tier-1 number — a missing table entry used to turn an upgrade into a
+	// silent downgrade to 200.
+	const table = CAPACITY_BY_BASKET[tier] ?? Math.max(...Object.values(CAPACITY_BY_BASKET));
 	// home upgrades add a flat carry bonus on top of the basket tier (functional perk)
-	return (CAPACITY_BY_BASKET[tier] || 200) + homeCarryBonus(player);
+	return table + homeCarryBonus(player);
+}
+
+/**
+ * What one unit of a resource costs against basket capacity.
+ *
+ * Bulk earth and stone carry `weight: 2` in data/resources.json and fill the
+ * basket twice as fast as a handful of seeds — which is what makes what you
+ * carry a decision rather than a number. A basket at BASKET_FRAME_TIER or above
+ * has a stiff enough frame to carry the heavy things as if they were light, so
+ * that upgrade is felt as "I can finally haul rock" rather than as a bigger
+ * integer. Anything without a weight is 1, so existing data needs no migration.
+ */
+export function itemWeight(resourceId: string, d: any, player: any): number {
+	const w = d?.resource?.get(resourceId)?.weight || 1;
+	if (w <= 1) return 1;
+	return (player.tools?.basket || 1) >= BASKET_FRAME_TIER ? 1 : w;
+}
+
+/** How full the basket is, in capacity units rather than in item count. */
+export function carriedWeight(inventory: Record<string, number> | undefined, d: any, player: any): number {
+	let total = 0;
+	for (const [id, qty] of Object.entries(inventory || {})) total += (qty || 0) * itemWeight(id, d, player);
+	return total;
+}
+
+/**
+ * Is there something buried under this tile?
+ *
+ * Deterministic from the world, area and coordinates, so the answer is stable
+ * for everyone in a world and needs no stored rows. Below SHOVEL_SURVEY_TIER
+ * nothing reads this and digging keeps its old DIG_FIND_CHANCE roll; a survey
+ * spade both SHOWS where the caches lie (they ride along in the snapshot) and
+ * makes digging one a certainty, which turns the find from a slot machine into
+ * something you can read off the ground and go get.
+ */
+export function buriedCacheAt(wid: string, biomeId: string, x: number, y: number): boolean {
+	return seededRng(hash32(`cache:${wid}:${biomeId}:${x}:${y}`))() < BURIED_CACHE_DENSITY;
+}
+
+/** Every buried cache in one area, for the snapshot a survey spade earns. */
+export function buriedCachesIn(wid: string, biomeId: string, grid: { cols: number; rows: number }) {
+	const out: { x: number; y: number }[] = [];
+	for (let x = 1; x <= grid.cols - 2; x++)
+		for (let y = 1; y <= grid.rows - 2; y++) if (buriedCacheAt(wid, biomeId, x, y)) out.push({ x, y });
+	return out;
+}
+
+/** How many more units of one resource will fit in the basket right now. */
+export function roomFor(
+	resourceId: string,
+	inventory: Record<string, number> | undefined,
+	d: any,
+	player: any,
+): number {
+	const free = inventoryCapacity(player) - carriedWeight(inventory, d, player);
+	return Math.max(0, Math.floor(free / itemWeight(resourceId, d, player)));
 }
 
 // ----------------------------------------------- biome health & animal logic

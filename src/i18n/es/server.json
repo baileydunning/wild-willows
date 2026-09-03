@@ -139,7 +139,10 @@
 		"snapshotTooLarge": "snapshot demasiado grande",
 		"deviceIdRequired": "se requiere deviceId",
 		"notDemoSave": "Este guardado no se puede eliminar de esta forma.",
-		"saveUnreadable": "Algo salió mal al abrir tu partida y no pudimos recuperarla. Lo sentimos: hemos registrado lo ocurrido para poder solucionarlo. Por favor, empieza una partida nueva."
+		"saveUnreadable": "Algo salió mal al abrir tu partida y no pudimos recuperarla. Lo sentimos: hemos registrado lo ocurrido para poder solucionarlo. Por favor, empieza una partida nueva.",
+		"brushNotAvailable": "Ese tamaño de pincel necesita una herramienta mejor: elige uno más pequeño por ahora",
+		"needDippingPail": "Necesitas un Cubo de Inmersión para llenar desde el agua abierta",
+		"noOpenWaterHere": "Aquí no hay agua abierta de la que llenar"
 	},
 	"starter": {
 		"seeds": "Recoge {count} semillas",

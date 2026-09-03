@@ -139,7 +139,10 @@
 		"snapshotTooLarge": "snapshot too large",
 		"deviceIdRequired": "deviceId required",
 		"notDemoSave": "This save can't be deleted this way.",
-		"saveUnreadable": "Something went wrong opening your save and we couldn’t recover it. We’re sorry — we’ve logged what happened so we can fix it. Please start a new game."
+		"saveUnreadable": "Something went wrong opening your save and we couldn’t recover it. We’re sorry — we’ve logged what happened so we can fix it. Please start a new game.",
+		"brushNotAvailable": "That brush size needs a better tool — pick a smaller one for now",
+		"needDippingPail": "You need a Dipping Pail to fill from open water",
+		"noOpenWaterHere": "There is no open water here to fill from"
 	},
 	"starter": {
 		"seeds": "Gather {count} seeds",

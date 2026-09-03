@@ -52,6 +52,36 @@ export const SPAWN_DEFAULT = { x: 24, y: 11 };
 /** How long a shaped tile ignores a second command (see shouldSwallowRepeat). */
 export const TERRAFORM_REPEAT_MS = 700;
 
+/**
+ * Basket tier at which one gather clears a whole patch, and how many extra spots
+ * the client offers up with the one that was clicked. Mirrors BASKET_SWEEP_TIER
+ * and MAX_SWEEP_NODES on the server, which remains the authority — these only
+ * decide whether it is worth naming the neighbours at all.
+ */
+export const SWEEP_TIER = 7;
+export const SWEEP_REACH = 4;
+
+/**
+ * Brush sizes — how much ground one shaping action covers. A CHOICE, never a
+ * consequence of the tier: a better tool adds sizes to the picker and changes
+ * nothing else, and the default is always 1x1. Mirrors brushSizesFor on the
+ * server, which remains the authority and refuses anything the tier has not
+ * earned.
+ */
+export const BRUSH_SIZES = [1, 3, 9];
+/** Watering-can tier that can fill straight from open water you shaped. */
+export const DIP_TIER = 6;
+export const BRUSH_3X3_TIER = 5;
+export const BRUSH_9X9_TIER = 7;
+
+/** The brush sizes a tool of this tier offers, smallest first. */
+export function brushSizesFor(tier: number): number[] {
+	const out = [1];
+	if (tier >= BRUSH_3X3_TIER) out.push(3);
+	if (tier >= BRUSH_9X9_TIER) out.push(9);
+	return out;
+}
+
 /** Player-chosen zoom: up to two steps out and two steps in from "perfect". */
 export const ZOOM_STEP = 1.25;
 export const USER_ZOOM_MIN = 1 / (ZOOM_STEP * ZOOM_STEP);

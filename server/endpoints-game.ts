@@ -28,9 +28,17 @@ import {
 	worldOf,
 } from './worlds';
 import {
+	BASKET_OVERFLOW_TIER,
+	BASKET_SWEEP_TIER,
+	CAN_DIP_TIER,
 	DIG_FIND_CHANCE,
 	HOME_STYLES,
 	HOME_TRACKS,
+	MAX_BRUSH_TILES,
+	MAX_SWEEP_NODES,
+	SHOVEL_SALVAGE_TIER,
+	SHOVEL_SURVEY_TIER,
+	brushSizesFor,
 	SLEEPABLE_OBJECTS,
 	blocksDoorway,
 	homeOf,
@@ -71,6 +79,8 @@ import {
 	STARTING_TERRAIN,
 	areaGrid,
 	blocksGateTrail,
+	buriedCacheAt,
+	carriedWeight,
 	checkUnlocks,
 	consumeMaterials,
 	createPlayerRecords,
@@ -78,6 +88,7 @@ import {
 	gateGeomOf,
 	getOwnedChest,
 	inventoryCapacity,
+	roomFor,
 	matureMs,
 	recalcBiome,
 	withPendingMaturity,
@@ -1137,10 +1148,10 @@ export class MyWorlds extends PublicEndpoint {
 	}
 }
 
-/** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId} */
+/** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId, alsoNodeIds?} */
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data, this);
+		const { playerId, biomeId, nodeId, resourceId, alsoNodeIds } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -1216,35 +1227,107 @@ export class CollectResource extends PublicEndpoint {
 			if (!nodeId || typeof nodeId !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(nodeId))
 				throw new GameError(tr('server.err.nodeIdRequired'), 400, 'server.err.nodeIdRequired');
 
-			// node regeneration cooldown — shared across the world so two players can't
-			// both drain the same spot
-			const nodeKey = `${wid}:${biomeId}:${nodeId}`;
-			const nodeState = await t.NodeState.get(nodeKey);
 			const now = Date.now();
-			if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1000) {
-				throw new GameError(tr('server.err.regrowing'), 409, 'server.err.regrowing');
+			const basketTier = player.tools?.basket || 1;
+
+			// A dipping pail (CAN_DIP_TIER) fills straight from open water the caretaker
+			// shaped, instead of walking back to a spring — so the wetland restored three
+			// biomes ago quietly becomes infrastructure. The spot IS the tile, addressed
+			// as `dip-<x>-<y>`, and it carries no regrow cooldown and writes no
+			// NodeState: your own pond does not run dry, and it is not a spawn to share.
+			const dip = /^dip-(\d+)-(\d+)$/.exec(nodeId);
+			if (dip) {
+				if (resDef.tool !== 'watering-can')
+					throw new GameError(tr('server.err.nodeIdRequired'), 400, 'server.err.nodeIdRequired');
+				if ((player.tools?.['watering-can'] || 1) < CAN_DIP_TIER)
+					throw new GameError(tr('server.err.needDippingPail'), 403, 'server.err.needDippingPail');
+				const shaped = await byArea(t.TerrainTile, wid, biomeId);
+				const open = shaped.some(
+					(tt: any) => tt.x === Number(dip[1]) && tt.y === Number(dip[2]) && tt.type === 'water',
+				);
+				if (!open) throw new GameError(tr('server.err.noOpenWaterHere'), 400, 'server.err.noOpenWaterHere');
 			}
 
-			// carrying capacity (gathering basket)
-			const capacity = inventoryCapacity(player);
-			const carried = sumValues(player.inventory);
-			if (carried >= capacity) throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+			// Which spots this pass takes. A basket at BASKET_SWEEP_TIER clears a whole
+			// patch in one action, so the client sends the neighbouring same-resource
+			// spots alongside the one that was clicked. Every lower tier takes just the
+			// one, and an extra that is malformed or still regrowing is dropped rather
+			// than failing the gather the player actually asked for.
+			const wanted = [nodeId];
+			if (basketTier >= BASKET_SWEEP_TIER && Array.isArray(alsoNodeIds)) {
+				for (const id of alsoNodeIds) {
+					if (wanted.length >= MAX_SWEEP_NODES) break;
+					if (typeof id === 'string' && /^[A-Za-z0-9_-]{1,32}$/.test(id) && !wanted.includes(id)) wanted.push(id);
+				}
+			}
 
-			// a higher-tier tool gathers more at once (tier 1→1 … tier 4→4)
-			const toolTier = player.tools?.[resDef.tool] || 1;
-			const amount = Math.min(Math.max(1, toolTier), capacity - carried);
+			// node regeneration cooldown — shared across the world so two players can't
+			// both drain the same spot
+			const ready: string[] = [];
+			for (const id of wanted) {
+				if (dip) {
+					ready.push(id); // open water you shaped has no cooldown
+					continue;
+				}
+				const st = await t.NodeState.get(`${wid}:${biomeId}:${id}`);
+				if (st && now - st.harvestedAt < NODE_REGEN_SECONDS * 1000) continue;
+				ready.push(id);
+			}
+			// The clicked spot is the one the player asked for: if THAT is regrowing the
+			// gather is refused exactly as it was before sweeping existed.
+			if (!ready.includes(nodeId)) throw new GameError(tr('server.err.regrowing'), 409, 'server.err.regrowing');
 
+			const inventory = { ...(player.inventory || {}) };
+			// Carrying capacity, counted in weight rather than item count: bulk earth and
+			// stone fill the basket twice as fast as a handful of seeds does. Below
+			// BASKET_OVERFLOW_TIER a full basket still refuses the gather outright.
+			if (roomFor(resourceId, inventory, d, player) <= 0 && basketTier < BASKET_OVERFLOW_TIER)
+				throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+
+			// a higher-tier tool gathers more at once (tier 1→1 … tier 7→7)
+			const toolTier = Math.max(1, player.tools?.[resDef.tool] || 1);
 			// House perk (Log Cabin — forager's instinct): a chance to spot one extra
 			// material on every gather. The chance grows with every home upgrade.
 			const perk = homePerk(player);
-			const perkBonus =
-				perk?.id === 'forage' && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
-			const total = amount + perkBonus;
+			const perkBonus = perk?.id === 'forage' && Math.random() < perk.strength ? 1 : 0;
+			const picked = toolTier * ready.length + perkBonus;
 
-			const inventory = { ...(player.inventory || {}) };
-			inventory[resourceId] = (inventory[resourceId] || 0) + total;
+			const toBasket = Math.min(picked, roomFor(resourceId, inventory, d, player));
+			if (toBasket > 0) inventory[resourceId] = (inventory[resourceId] || 0) + toBasket;
+
+			// What will not fit rides on to your nearest chest in this area instead of
+			// the haul being cut short — never being turned away is the whole of what a
+			// BASKET_OVERFLOW_TIER basket buys.
+			let spare = picked - toBasket;
+			const storedTo: Record<string, number> = {};
+			if (spare > 0 && basketTier >= BASKET_OVERFLOW_TIER) {
+				const px = typeof player.x === 'number' ? player.x : 0;
+				const py = typeof player.y === 'number' ? player.y : 0;
+				const near = (await byWorld(t.Chest, wid))
+					.filter((c: any) => c.area === biomeId)
+					.sort(
+						(a: any, b: any) =>
+							Math.hypot((a.x || 0) - px, (a.y || 0) - py) - Math.hypot((b.x || 0) - px, (b.y || 0) - py),
+					);
+				for (const c of near) {
+					if (spare <= 0) break;
+					const contents = { ...(c.contents || {}) };
+					const put = Math.min(Math.max(0, (c.capacity || 0) - sumValues(contents)), spare);
+					if (put <= 0) continue;
+					contents[resourceId] = (contents[resourceId] || 0) + put;
+					await t.Chest.patch(c.id, { contents });
+					storedTo[c.id] = put;
+					spare -= put;
+				}
+			}
+
+			const total = picked - spare;
+			if (total <= 0) throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+
 			await patchPlayer(playerId, { inventory });
-			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
+			if (!dip)
+				for (const id of ready)
+					await t.NodeState.put({ id: `${wid}:${biomeId}:${id}`, worldId: wid, playerId, harvestedAt: now });
 
 			// `gathered:<id>` is the LIFETIME tally for that resource, next to the
 			// per-day `res:<id>` counter. The starter chain's opening goal reads it so
@@ -1269,6 +1352,11 @@ export class CollectResource extends PublicEndpoint {
 				perkBonus: perkBonus || undefined,
 				inventory,
 				nodeId,
+				// Every spot this pass cleared (just `nodeId` below the sweep tier), and
+				// anything that overflowed into a chest, so the client can patch both
+				// rather than refetching the world.
+				harvested: ready,
+				storedTo: Object.keys(storedTo).length ? storedTo : undefined,
 				harvestedAt: now,
 			};
 		});
@@ -1310,7 +1398,7 @@ export class ChestTransfer extends PublicEndpoint {
 						400,
 						'server.err.notEnoughInChest',
 					);
-				if (sumValues(inventory) + amount > inventoryCapacity(player))
+				if (amount > roomFor(resourceId, inventory, d, player))
 					throw new GameError(tr('server.err.basketFull'), 409, 'server.err.basketFull');
 				contents[resourceId] -= amount;
 				if (contents[resourceId] <= 0) delete contents[resourceId];
@@ -1433,14 +1521,14 @@ export class CraftItem extends PublicEndpoint {
 		const perk = homePerk(player);
 		let refund: Record<string, number> | undefined;
 		if (perk?.id === 'thrift' && Object.keys(recipe.materials || {}).length && Math.random() < perk.strength) {
-			let room = inventoryCapacity(player) - sumValues(inventory);
 			for (const [rid, q] of Object.entries(recipe.materials || {})) {
-				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), Math.max(0, room));
+				// Room is re-read per material because the basket fills as we go and a
+				// heavy material eats capacity faster than a light one.
+				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), roomFor(rid, inventory, d, player));
 				if (back > 0) {
 					refund = refund || {};
 					refund[rid] = back;
 					inventory[rid] = (inventory[rid] || 0) + back;
-					room -= back;
 				}
 			}
 		}
@@ -1858,10 +1946,8 @@ export class HarvestPlacement extends PublicEndpoint {
 			}
 
 			// grant the yield, respecting carrying capacity
-			const capacity = inventoryCapacity(player);
 			const inventory = { ...(player.inventory || {}) };
-			const room = Math.max(0, capacity - sumValues(inventory));
-			const take = Math.min(y.qty || 1, room);
+			const take = Math.min(y.qty || 1, roomFor(y.resourceId, inventory, d, player));
 			if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409, 'server.err.basketFullHarvest');
 			inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
 
@@ -1992,15 +2078,12 @@ export class RemoveObject extends PublicEndpoint {
 			const chestUpdates = new Map<string, Record<string, number>>();
 			if (def?.plantable && placement.plantedAt && Object.keys(def.plantCost || {}).length) {
 				refunded = { ...def.plantCost };
-				const capacity = inventoryCapacity(player);
-				let carried = sumValues(inventory);
 				const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
 				for (const [resId, qty] of Object.entries(refunded!)) {
 					let remaining = qty as number;
-					const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
+					const toBasket = Math.min(remaining, roomFor(resId, inventory, d, player));
 					if (toBasket > 0) {
 						inventory[resId] = (inventory[resId] || 0) + toBasket;
-						carried += toBasket;
 						remaining -= toBasket;
 					}
 					for (const c of chests) {
@@ -2377,16 +2460,13 @@ export class ClaimTask extends PublicEndpoint {
 				throw new GameError(tr('server.err.taskNotFinished'), 409, 'server.err.taskNotFinished');
 
 			// grant the material bundle, respecting carrying capacity
-			const capacity = inventoryCapacity(player);
 			const inventory = { ...(player.inventory || {}) };
-			let room = Math.max(0, capacity - sumValues(inventory));
 			const gained: Record<string, number> = {};
 			for (const [resId, qty] of Object.entries(task.reward || {})) {
-				const take = Math.min(qty as number, room);
+				const take = Math.min(qty as number, roomFor(resId, inventory, d, player));
 				if (take <= 0) continue;
 				inventory[resId] = (inventory[resId] || 0) + take;
 				gained[resId] = take;
-				room -= take;
 			}
 			if (!Object.keys(gained).length)
 				throw new GameError(tr('server.err.basketFullReward'), 409, 'server.err.basketFullReward');
@@ -2503,14 +2583,56 @@ export class SetGoals extends PublicEndpoint {
 }
 
 /**
- * POST /Terraform/ {playerId, area, x, y, action: 'dig'|'water'|'clear'}
+ * POST /Terraform/ {playerId, area, x, y, action: 'dig'|'water'|'clear', size?}
  * Gentle landscape shaping: the shovel prepares a soil bed, the watering can
  * brings it to life (consuming 1 water), and digging again clears it.
  * Watered beds raise biome health directly.
+ *
+ * `size` is the caretaker's chosen brush — 1, 3 or 9 squares across, centered on
+ * the click, defaulting to 1. A tool's tier decides which sizes are OFFERED
+ * (brushSizesFor) and nothing else, so no upgrade ever shapes more ground than
+ * was asked for. Clearing is always a single square: taking nine tiles back at
+ * once is not something to do by accident.
  */
+/**
+ * The squares one shaping action covers: a `size` x `size` block centered on the
+ * tile that was clicked, nearest ring first so a pour that runs out of water
+ * spends it closest to where the caretaker aimed.
+ *
+ * Size comes from the caretaker's own brush setting, never from the tool's tier
+ * — the tier only decides which sizes the picker offers. Size 1 returns exactly
+ * the clicked square, which is what every tool does until someone chooses
+ * otherwise.
+ */
+function brushTargets(
+	tx: number,
+	ty: number,
+	size: number,
+	grid: { cols: number; rows: number },
+	fits: (x: number, y: number) => boolean,
+): { x: number; y: number }[] {
+	const r = Math.floor((Math.max(1, size) - 1) / 2);
+	const out: { x: number; y: number }[] = [];
+	for (let ring = 0; ring <= r; ring++) {
+		for (let dy = -ring; dy <= ring; dy++) {
+			for (let dx = -ring; dx <= ring; dx++) {
+				// only the squares this ring adds, so the walk stays nearest-first
+				if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
+				if (out.length >= MAX_BRUSH_TILES) return out;
+				const x = tx + dx;
+				const y = ty + dy;
+				if (x < 1 || y < 1 || x > grid.cols - 2 || y > grid.rows - 2) continue;
+				if (!fits(x, y)) continue;
+				out.push({ x, y });
+			}
+		}
+	}
+	return out;
+}
+
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, action, expect } = await bodyOf(data, this);
+		const { playerId, area, x, y, action, expect, size } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -2585,27 +2707,75 @@ export class Terraform extends PublicEndpoint {
 				}
 			}
 
+			// The brush the caretaker chose, judged against the tool doing the work.
+			// `clear` is deliberately not brushable.
+			const brushTool = action === 'water' ? 'watering-can' : 'shovel';
+			const offered = brushSizesFor(player.tools?.[brushTool] || 1);
+			const brush = size === undefined || size === null ? 1 : Math.round(Number(size));
+			if (!Number.isFinite(brush) || !offered.includes(brush))
+				throw new GameError(tr('server.err.brushNotAvailable'), 400, 'server.err.brushNotAvailable');
+
 			let inventory = player.inventory || {};
 			let tile: any = null;
 			let removedId: string | undefined;
 			let dug: { resourceId: string; amount: number } | null = null;
+			// Extra tiles a late-tier run/flow shaped in the same pass. Everything
+			// downstream (the recalc's addTerrain, the response, the metrics) folds
+			// these in beside `tile`, so a tier-4 tool still writes exactly one.
+			const alsoTiles: any[] = [];
 
 			if (action === 'dig') {
-				if ((player.tools?.shovel || 0) < 1)
-					throw new GameError(tr('server.err.needShovel'), 400, 'server.err.needShovel');
+				const shovelTier = player.tools?.shovel || 0;
+				if (shovelTier < 1) throw new GameError(tr('server.err.needShovel'), 400, 'server.err.needShovel');
 				if (existing) throw new GameError(tr('server.err.alreadyPrepared'), 400, 'server.err.alreadyPrepared');
-				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
+				const stamp = Date.now();
+				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: stamp };
 				await t.TerrainTile.put(tile);
+
+				// The rest of the chosen brush. Anything already shaped, already built
+				// on, or off the workable grid is skipped, so a wide brush can only ever
+				// ADD ground — it never overwrites work, and at 1x1 this loop does
+				// nothing at all.
+				if (brush > 1) {
+					const bare = (x2: number, y2: number) =>
+						!(x2 === tx && y2 === ty) &&
+						!areaTiles.some((tt: any) => tt.x === x2 && tt.y === y2) &&
+						!placements.some((pl: any) => pl.x === x2 && pl.y === y2);
+					for (const c of brushTargets(tx, ty, brush, grid, bare)) {
+						const extra = {
+							id: `${wid}:${area}:${c.x}:${c.y}`,
+							worldId: wid,
+							playerId,
+							area,
+							x: c.x,
+							y: c.y,
+							type: 'tilled',
+							updatedAt: stamp,
+						};
+						await t.TerrainTile.put(extra);
+						alsoTiles.push(extra);
+					}
+				}
 
 				// Breaking new ground may turn up a buried material. This only happens
 				// when DIGGING a fresh bed — never when clearing/draining one back over.
-				// The shovel's tier sets how much you pull up at once (tier 1→1 … 4→4),
+				// The shovel's tier sets how much you pull up at once (tier 1→1 … 7→7),
 				// so upgrading it actually pays off.
+				//
+				// A survey spade adds to that roll rather than replacing it. Caches sit at
+				// fixed, readable places (buriedCacheAt) that it marks on the ground, so
+				// digging one is a certainty on top of the usual chance — the upgrade can
+				// only ever find you more, and what it really hands over is knowing where
+				// to dig instead of hoping.
 				const pool = biome.digResources || [];
-				if (pool.length && Math.random() < DIG_FIND_CHANCE) {
+				const strikes =
+					(Math.random() < DIG_FIND_CHANCE ? 1 : 0) +
+					(shovelTier >= SHOVEL_SURVEY_TIER
+						? [{ x: tx, y: ty }, ...alsoTiles].filter((c: any) => buriedCacheAt(wid, area, c.x, c.y)).length
+						: 0);
+				if (pool.length && strikes > 0) {
 					const resId = pool[Math.floor(Math.random() * pool.length)];
-					const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
-					const amount = Math.min(player.tools?.shovel || 1, room);
+					const amount = Math.min(Math.max(1, shovelTier) * strikes, roomFor(resId, inventory, d, player));
 					if (amount > 0) {
 						inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
 						await patchPlayer(playerId, { inventory });
@@ -2643,20 +2813,67 @@ export class Terraform extends PublicEndpoint {
 						remaining -= take;
 					}
 				}
+				const stamp = Date.now();
+				tile = { ...existing, type: newType, updatedAt: stamp };
+				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: stamp });
+
+				// The can's tier used to be read only when FILLING it — every upgrade did
+				// nothing for the action the can is named after. Now it decides which
+				// brushes the picker offers, and the caretaker decides which one is on.
+				//
+				// A brush only ever takes tilled beds to watered. It never floods, so the
+				// dry-biome and gate-trail rules above cannot be reached sideways.
+				if (brush > 1) {
+					const tilledAt = (x2: number, y2: number) =>
+						!(x2 === tx && y2 === ty) &&
+						areaTiles.some((tt: any) => tt.x === x2 && tt.y === y2 && tt.type === 'tilled');
+					for (const c of brushTargets(tx, ty, brush, grid, tilledAt)) {
+						const held = (inventory.water || 0) + (inventory['clean-water'] || 0);
+						if (held < 1) break; // out of water — the pour simply stops here
+						inventory = { ...inventory };
+						let owed = 1;
+						for (const key of ['water', 'clean-water']) {
+							const take = Math.min(inventory[key] || 0, owed);
+							if (take > 0) {
+								inventory[key] -= take;
+								if (inventory[key] <= 0) delete inventory[key];
+								owed -= take;
+							}
+						}
+						const row = areaTiles.find((tt: any) => tt.x === c.x && tt.y === c.y);
+						if (!row) continue;
+						await t.TerrainTile.patch(row.id, { type: 'watered', updatedAt: stamp });
+						alsoTiles.push({ ...row, type: 'watered', updatedAt: stamp });
+					}
+				}
 				await patchPlayer(playerId, { inventory });
-				tile = { ...existing, type: newType, updatedAt: Date.now() };
-				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
 			} else if (action === 'clear') {
 				if (!existing) throw new GameError(tr('server.err.nothingToClear'), 400, 'server.err.nothingToClear');
+				// SHOVEL_SALVAGE_TIER gives back what the ground soaked up, so remodelling
+				// a shoreline stops being a punishment. A watered bed took one water; open
+				// water took that plus the pour that flooded it.
+				if ((player.tools?.shovel || 0) >= SHOVEL_SALVAGE_TIER) {
+					const back = existing.type === 'water' ? 2 : existing.type === 'watered' ? 1 : 0;
+					const give = Math.min(back, roomFor('water', inventory, d, player));
+					if (give > 0) {
+						inventory = { ...inventory, water: (inventory.water || 0) + give };
+						await patchPlayer(playerId, { inventory });
+						dug = { resourceId: 'water', amount: give };
+					}
+				}
 				await t.TerrainTile.delete(existing.id);
 				removedId = existing.id;
 			} else {
 				throw new GameError(tr('server.err.badTerraformAction'), 400, 'server.err.badTerraformAction');
 			}
 
+			// Every tile this action shaped, the clicked one first. A tool below the run
+			// tiers shapes exactly one, so this is just `[tile]`.
+			const tiles = tile ? [tile, ...alsoTiles] : alsoTiles;
+
 			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
-				addTerrain: tile ? [tile] : [],
+				addTerrain: tiles,
 				removeTerrainIds: removedId ? [removedId] : [],
 				player: { ...player, inventory },
 				discoveries,
@@ -2671,17 +2888,23 @@ export class Terraform extends PublicEndpoint {
 			// would make that goal's progress run backwards the moment the player
 			// actually used the bed. It's in META_COUNTERS, so it doesn't double-count
 			// against terraformActions in the action totals the dashboard reports.
+			// A run shapes several tiles in one request; count the work, not the click,
+			// so the watering goal and the dashboard's action totals still line up with
+			// what actually happened to the land.
+			const shapedCount = Math.max(1, tiles.length);
 			await bumpMetrics(
 				player,
-				{ terraformActions: 1, ...(action === 'water' ? { bedsWatered: 1 } : {}) },
-				action === 'water' ? { water: 1 } : {},
+				{ terraformActions: shapedCount, ...(action === 'water' ? { bedsWatered: shapedCount } : {}) },
+				action === 'water' ? { water: shapedCount } : {},
 			);
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
 				discoveries,
 			});
-			return { ok: true, tile, removedId, dug, inventory, ...recalc };
+			// `tiles` carries the whole run; `tile` stays for older clients, which read
+			// only the square they clicked (see applyTerraformResult).
+			return { ok: true, tile, tiles, removedId, dug, inventory, ...recalc };
 		});
 	}
 }

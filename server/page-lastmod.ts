@@ -12,7 +12,7 @@ export const pageLastmod: Record<string, string> = {
 	"/teachers": "2026-08-19",
 	"/teachers/science": "2026-08-19",
 	"/teachers/coding": "2026-08-19",
-	"/developers/api": "2026-09-02",
+	"/developers/api": "2026-09-03",
 	"/learn": "2026-08-18",
 	"/learn/web-development": "2026-08-18",
 	"/educator-guide.pdf": "2026-08-10",

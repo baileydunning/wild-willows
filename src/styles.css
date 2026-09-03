@@ -3807,6 +3807,66 @@ kbd {
 .tool-tier.paint-dot {
 	border: 1.5px solid rgba(255, 255, 255, 0.85);
 }
+/* Brush-size picker — rises above the toolbelt when a shaping tool is held and
+   its tier offers more than one size. Shares the paint palette's floating shelf
+   so the two read as the same kind of thing. */
+.brush-sizes {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 132px;
+	z-index: 12;
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	padding: 7px 9px;
+	max-width: 86vw;
+	background: var(--surface-float-97);
+	border: 1.5px solid var(--line);
+	border-radius: 14px;
+	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
+}
+.brush-size {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+	min-width: 46px;
+	padding: 5px 8px 4px;
+	border: 1.5px solid var(--line);
+	border-radius: 10px;
+	background: var(--field);
+	color: var(--ink);
+	font: inherit;
+	font-size: 0.72rem;
+	cursor: pointer;
+}
+.brush-size:hover {
+	border-color: var(--ink);
+}
+.brush-size.on {
+	border-color: var(--ink);
+	box-shadow: 0 0 0 2px var(--gold);
+}
+/* A tiny plan view of what the brush covers: one, nine or eighty-one squares. */
+.brush-grid {
+	display: grid;
+	gap: 1px;
+	width: 22px;
+	height: 22px;
+}
+.brush-grid i {
+	background: var(--ink);
+	opacity: 0.55;
+	border-radius: 1px;
+}
+.brush-size.on .brush-grid i {
+	opacity: 1;
+}
+.brush-label {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
+}
 .tool-slot {
 	position: relative;
 	width: 46px;

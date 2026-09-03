@@ -208,7 +208,56 @@ export function blocksDoorway(
 }
 // Chance that digging a fresh soil bed turns up a buried material (not every dig).
 export const DIG_FIND_CHANCE = 0.75;
-export const CAPACITY_BY_BASKET: Record<number, number> = { 1: 200, 2: 350, 3: 550, 4: 800 };
+export const CAPACITY_BY_BASKET: Record<number, number> = {
+	1: 200,
+	2: 350,
+	3: 550,
+	4: 800,
+	5: 1100,
+	6: 1500,
+	7: 2000,
+};
+
+// The tier at which each late tool ability switches on, kept beside the capacity
+// table so the whole ladder is tunable from one place. Tiers 1-4 are pure
+// scalars (amount gathered/dug per action); 5-7 each add one ability on top.
+export const BASKET_OVERFLOW_TIER = 5; // a full basket spills into your nearest chest
+export const BASKET_FRAME_TIER = 6; // a stiff frame stops heavy material costing double
+export const BASKET_SWEEP_TIER = 7; // one gather takes the whole adjacent cluster
+export const SHOVEL_SURVEY_TIER = 6; // buried material is visible, and finding it is certain
+export const SHOVEL_SALVAGE_TIER = 7; // clearing gives back what the tile absorbed
+export const CAN_DIP_TIER = 6; // fill straight from any open water you shaped
+
+/**
+ * Brush size — how much ground one shaping action covers.
+ *
+ * This is a CHOICE, never a consequence of the tier. A bigger tool adds sizes to
+ * the picker and changes nothing else: at 1x1 a tier-7 spade behaves exactly like
+ * a tier-1 one, and the default is always 1x1. An upgrade that quietly started
+ * shaping nine squares at a time would be taking the land out of the caretaker's
+ * hands, which is the opposite of the point.
+ */
+export const BRUSH_SIZES = [1, 3, 9] as const;
+export const BRUSH_3X3_TIER = 5;
+export const BRUSH_9X9_TIER = 7;
+
+/** The brush sizes a tool of this tier offers, smallest first. */
+export function brushSizesFor(tier: number): number[] {
+	const out = [1];
+	if (tier >= BRUSH_3X3_TIER) out.push(3);
+	if (tier >= BRUSH_9X9_TIER) out.push(9);
+	return out;
+}
+
+// A 9x9 is 81 tiles, and that is the ceiling on purpose: it is one request and
+// one recalc instead of the 81 requests the same work costs by hand, so the
+// widest brush is cheaper than doing it the slow way, not more expensive.
+export const MAX_BRUSH_TILES = 81;
+// How many gather nodes one sweep may clear, the clicked one included.
+export const MAX_SWEEP_NODES = 5;
+// Roughly what share of an area's diggable tiles hide something. Low enough that
+// a surveyed map reads as a handful of marks rather than a field of them.
+export const BURIED_CACHE_DENSITY = 0.06;
 
 // New caretakers start empty-handed — the first task is to gather seeds and
 // fiber for a Grass Patch, so the tutorial's opening loop has real stakes.

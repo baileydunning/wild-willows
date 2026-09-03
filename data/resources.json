@@ -18,7 +18,8 @@
 			"id": "stones",
 			"name": "Stones",
 			"tool": "shovel",
-			"color": "#9a9a98"
+			"color": "#9a9a98",
+			"weight": 2
 		},
 		{
 			"id": "branches",
@@ -42,7 +43,8 @@
 			"id": "clay",
 			"name": "Clay",
 			"tool": "shovel",
-			"color": "#b07a52"
+			"color": "#b07a52",
+			"weight": 2
 		},
 		{
 			"id": "water",
@@ -78,7 +80,8 @@
 			"id": "sand",
 			"name": "Sand",
 			"tool": "shovel",
-			"color": "#dcc890"
+			"color": "#dcc890",
+			"weight": 2
 		},
 		{
 			"id": "shells",
@@ -108,7 +111,8 @@
 			"id": "mud",
 			"name": "Mud",
 			"tool": "shovel",
-			"color": "#7a6a52"
+			"color": "#7a6a52",
+			"weight": 2
 		},
 		{
 			"id": "clean-water",
@@ -162,7 +166,8 @@
 			"id": "snow",
 			"name": "Packed Snow",
 			"tool": "shovel",
-			"color": "#eef4fb"
+			"color": "#eef4fb",
+			"weight": 2
 		},
 		{
 			"id": "juniper-berries",
@@ -174,7 +179,8 @@
 			"id": "obsidian",
 			"name": "Obsidian",
 			"tool": "shovel",
-			"color": "#2e2b38"
+			"color": "#2e2b38",
+			"weight": 2
 		},
 		{
 			"id": "kelp",

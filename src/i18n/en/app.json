@@ -67,7 +67,8 @@
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
 		"goalAffordable": "You can already make that — no need to set it as a goal.",
-		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
+		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board.",
+		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest."
 	},
 	"feed": {
 		"demoNudgeIdle": "The preserve waited quietly while you were away.",
@@ -247,7 +248,11 @@
 		"paintColorAria": "Paint color {color}",
 		"paint": "Paint",
 		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item: select, then click it",
-		"paintHow": "Paint: pick a color, then click the floor, walls, rug, or an item to recolor it."
+		"paintHow": "Paint: pick a color, then click the floor, walls, rug, or an item to recolor it.",
+		"brushGroup": "How much ground to shape",
+		"brushSize": "{n}×{n}",
+		"brushTitle": "Shape {n}×{n} squares at a time ({tiles} in one pass)",
+		"brushSelected": "Shaping {n} by {n} squares at a time"
 	},
 	"feedPanel": {
 		"title": "Activity Feed",

@@ -58,6 +58,51 @@
 						"biome": "wetland",
 						"minHealth": 65
 					}
+				},
+				{
+					"tier": 5,
+					"name": "Relay Pack",
+					"effect": "Carry up to 1,100 materials and gather 5 at a time. A full basket sends the overflow to your nearest chest instead of turning you away.",
+					"shape": "basket5",
+					"materials": {
+						"agave-nectar": 6,
+						"fiber": 10,
+						"sand": 6
+					},
+					"requires": {
+						"biome": "desert",
+						"minHealth": 65
+					}
+				},
+				{
+					"tier": 6,
+					"name": "Frame Pack",
+					"effect": "Carry up to 1,500 materials and gather 6 at a time. A stiff frame takes the weight out of stone, clay and sand.",
+					"shape": "basket6",
+					"materials": {
+						"lichen": 8,
+						"pine-nuts": 6,
+						"quartz-crystal": 2
+					},
+					"requires": {
+						"biome": "alpine",
+						"minHealth": 70
+					}
+				},
+				{
+					"tier": 7,
+					"name": "Harvest Pack",
+					"effect": "Carry up to 2,000 materials and gather 7 at a time. One pass clears a whole patch of whatever you are gathering.",
+					"shape": "basket7",
+					"materials": {
+						"driftwood": 8,
+						"kelp": 8,
+						"pearl": 1
+					},
+					"requires": {
+						"biome": "coastal",
+						"minHealth": 75
+					}
 				}
 			]
 		},
@@ -116,6 +161,51 @@
 					"requires": {
 						"biome": "wetland",
 						"minHealth": 65
+					}
+				},
+				{
+					"tier": 5,
+					"name": "Broad Spade",
+					"effect": "Dig 5 at a time. Adds a 3×3 brush to your shovel — pick it when you want it; it stays on one square until you do.",
+					"shape": "shovel5",
+					"materials": {
+						"clay": 8,
+						"geode": 2,
+						"stones": 12
+					},
+					"requires": {
+						"biome": "desert",
+						"minHealth": 65
+					}
+				},
+				{
+					"tier": 6,
+					"name": "Survey Spade",
+					"effect": "Dig 6 at a time. You can read the ground now — buried material shows where it lies, and digging it up is certain.",
+					"shape": "shovel6",
+					"materials": {
+						"obsidian": 4,
+						"quartz-crystal": 3,
+						"stones": 14
+					},
+					"requires": {
+						"biome": "alpine",
+						"minHealth": 70
+					}
+				},
+				{
+					"tier": 7,
+					"name": "Salvage Spade",
+					"effect": "Dig 7 at a time. Adds a 9×9 brush, and clearing ground gives back the water and material it soaked up.",
+					"shape": "shovel7",
+					"materials": {
+						"driftwood": 6,
+						"sea-glass": 4,
+						"shells": 10
+					},
+					"requires": {
+						"biome": "coastal",
+						"minHealth": 75
 					}
 				}
 			]
@@ -176,6 +266,51 @@
 					"requires": {
 						"biome": "wetland",
 						"minHealth": 65
+					}
+				},
+				{
+					"tier": 5,
+					"name": "Long-spout Can",
+					"effect": "Collect 5 water at a time. Adds a 3×3 brush, so you can water a bed or a whole patch — your choice, one square by default.",
+					"shape": "wateringcan5",
+					"materials": {
+						"agave-nectar": 4,
+						"clay": 10,
+						"sand": 6
+					},
+					"requires": {
+						"biome": "desert",
+						"minHealth": 65
+					}
+				},
+				{
+					"tier": 6,
+					"name": "Dipping Pail",
+					"effect": "Collect 6 water at a time, and fill straight from any open water you have shaped.",
+					"shape": "wateringcan6",
+					"materials": {
+						"clean-water": 8,
+						"quartz-crystal": 3,
+						"snow": 8
+					},
+					"requires": {
+						"biome": "alpine",
+						"minHealth": 70
+					}
+				},
+				{
+					"tier": 7,
+					"name": "Channel Urn",
+					"effect": "Collect 7 water at a time. Adds a 9×9 brush for filling a channel in one pass, as far as your water goes.",
+					"shape": "wateringcan7",
+					"materials": {
+						"clean-water": 10,
+						"kelp": 6,
+						"sea-glass": 6
+					},
+					"requires": {
+						"biome": "coastal",
+						"minHealth": 75
 					}
 				}
 			]

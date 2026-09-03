@@ -67,7 +67,8 @@
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}.",
 		"goalAffordable": "Ya puedes fabricar eso — no hace falta fijarlo como objetivo.",
-		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero."
+		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero.",
+		"basketOverflow": "Tu cesta estaba llena, así que el resto de {name} fue a tu cofre más cercano."
 	},
 	"feed": {
 		"demoNudgeIdle": "La reserva esperó en silencio mientras no estabas.",
@@ -247,7 +248,11 @@
 		"paintColorAria": "Color de pintura {color}",
 		"paint": "Pintar",
 		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto: selecciónalo y luego haz clic en él",
-		"paintHow": "Pintar: elige un color y luego haz clic en el piso, las paredes, la alfombra o un objeto para recolorearlo."
+		"paintHow": "Pintar: elige un color y luego haz clic en el piso, las paredes, la alfombra o un objeto para recolorearlo.",
+		"brushGroup": "Cuánto terreno moldear",
+		"brushSize": "{n}×{n}",
+		"brushTitle": "Moldea {n}×{n} casillas a la vez ({tiles} de una pasada)",
+		"brushSelected": "Moldeando {n} por {n} casillas a la vez"
 	},
 	"feedPanel": {
 		"title": "Registro de actividad",

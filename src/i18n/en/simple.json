@@ -222,7 +222,8 @@
 		"toast": {
 			"rested": "You sleep well and wake at dawn. Every gathering spot has grown back.",
 			"preserveGrew": "Your land kept growing while you were gone.",
-			"perkForage": "Your cabin helped you find an extra {name}!"
+			"perkForage": "Your cabin helped you find an extra {name}!",
+			"basketOverflow": "Your basket was full. The extra {name} went into your chest."
 		},
 		"log": {
 			"rested": "You slept until dawn. A new day starts, and every gathering spot has grown back."
@@ -254,7 +255,10 @@
 				"shovel": "Digs soil beds in the ground near you. Dig a shaped tile again to clear it.",
 				"watering-can": "Water a soil bed so you can plant in it. Water it again to turn it into open water. Link water tiles to make ponds, rivers, and lakes."
 			},
-			"paintHow": "Paint. Pick a color, then click the floor, walls, rug, or an item to change its color."
+			"paintHow": "Paint. Pick a color, then click the floor, walls, rug, or an item to change its color.",
+			"brushGroup": "How much ground to dig",
+			"brushTitle": "Dig {n} by {n} squares at once.",
+			"brushSelected": "Now digging {n} by {n} squares."
 		}
 	},
 	"game": {
@@ -264,6 +268,9 @@
 		"toast": {
 			"stillRegrowing": "Still growing back. Give it a little longer.",
 			"wetlandUnlocked": "Rushwater Wetland is open! Follow the boardwalk east to reach the marsh."
+		},
+		"label": {
+			"dipWater": "Scoop water"
 		}
 	},
 	"server": {
@@ -273,7 +280,10 @@
 			"dbStarting": "The preserve is starting up. Restart Harper if this keeps happening.",
 			"noRoomRefund": "No room for the materials you get back. Make space in your basket or a chest first.",
 			"worldFullClosed": "This preserve is full. It already has its {max} players and is closed.",
-			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed."
+			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed.",
+			"brushNotAvailable": "That size needs a better tool. Pick a smaller one.",
+			"needDippingPail": "You need a Dipping Pail to scoop from water.",
+			"noOpenWaterHere": "There is no water here to scoop."
 		},
 		"task": {
 			"welcomeGrasshopperHint": "Craft a grass patch and place it. Then bring the meadow to 10% health. The grasshopper hops home on its own.",

@@ -141,6 +141,14 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#f3d98a'), 1).fillRect(14, 33, 8, 8).fillRect(44, 33, 8, 8); // warm-lit windows
 		g.fillStyle(C('#6f6a62'), 1).fillRect(47, 8, 8, 16); // chimney
 	});
+	// A survey spade's mark: a small scuff of loose earth over a buried cache.
+	// Deliberately quiet — it should read as a hint on the ground, not a waypoint.
+	tex(scene, 'cache-mark', 30, 30, (g) => {
+		g.fillStyle(C('#c9a45a'), 0.5).fillEllipse(15, 17, 16, 9);
+		g.fillStyle(C('#8a6a48'), 0.85).fillEllipse(15, 16, 9, 5);
+		g.lineStyle(1.6, C('#f0dca6'), 0.9);
+		g.lineBetween(11, 11, 19, 11).lineBetween(15, 8, 15, 14);
+	});
 	tex(scene, 'tilled', 30, 30, (g) => {
 		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(1, 1, 28, 28, 7);
 		g.lineStyle(2.5, C('#6e5238'), 0.9);

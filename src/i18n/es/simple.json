@@ -222,7 +222,8 @@
 		"toast": {
 			"rested": "Duermes bien y despiertas al amanecer. Todos los sitios de recogida crecieron de nuevo.",
 			"preserveGrew": "Tu tierra siguió creciendo mientras no estabas.",
-			"perkForage": "¡Tu cabaña te ayudó a encontrar un {name} extra!"
+			"perkForage": "¡Tu cabaña te ayudó a encontrar un {name} extra!",
+			"basketOverflow": "Tu cesta estaba llena. El resto de {name} fue a tu cofre."
 		},
 		"log": {
 			"rested": "Dormiste hasta el amanecer. Empieza un día nuevo y todos los sitios de recogida crecieron."
@@ -254,7 +255,10 @@
 				"shovel": "Cava bancales en el suelo cerca de ti. Cava otra vez un bancal para quitarlo.",
 				"watering-can": "Riega un bancal para poder plantar. Riégalo otra vez para volverlo agua. Une casillas de agua para hacer charcos, ríos y lagos."
 			},
-			"paintHow": "Pintura. Elige un color y toca el suelo, las paredes, la alfombra o un objeto para cambiarlo."
+			"paintHow": "Pintura. Elige un color y toca el suelo, las paredes, la alfombra o un objeto para cambiarlo.",
+			"brushGroup": "Cuánto terreno cavar",
+			"brushTitle": "Cava {n} por {n} casillas a la vez.",
+			"brushSelected": "Ahora cavas {n} por {n} casillas."
 		}
 	},
 	"game": {
@@ -264,6 +268,9 @@
 		"toast": {
 			"stillRegrowing": "Todavía está creciendo. Dale un poco más de tiempo.",
 			"wetlandUnlocked": "¡El Humedal Aguaviva está abierto! Sigue la pasarela al este para llegar."
+		},
+		"label": {
+			"dipWater": "Sacar agua"
 		}
 	},
 	"server": {
@@ -273,7 +280,10 @@
 			"dbStarting": "La reserva está arrancando. Reinicia Harper si sigue así.",
 			"noRoomRefund": "No hay sitio para los materiales que vuelven. Haz espacio en tu cesta o en un cofre.",
 			"worldFullClosed": "Esta reserva está llena. Ya tiene sus {max} jugadores y está cerrada.",
-			"worldFullJoined": "Esta reserva está llena. Entraron {max} jugadores y está cerrada."
+			"worldFullJoined": "Esta reserva está llena. Entraron {max} jugadores y está cerrada.",
+			"brushNotAvailable": "Ese tamaño necesita una herramienta mejor. Elige uno más pequeño.",
+			"needDippingPail": "Necesitas un Cubo de Inmersión para sacar agua.",
+			"noOpenWaterHere": "Aquí no hay agua para sacar."
 		},
 		"task": {
 			"welcomeGrasshopperHint": "Crea un parche de hierba y ponlo. Luego lleva el prado al 10% de salud. El saltamontes vuelve solo.",

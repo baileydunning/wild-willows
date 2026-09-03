@@ -21,7 +21,8 @@
 		"readJournal": "Leer tu diario de campo",
 		"sleep": "Ir a dormir (renueva los puntos de recolección)",
 		"restMoment": "Descansar un momento",
-		"caretaker": "cuidador"
+		"caretaker": "cuidador",
+		"dipWater": "Llenar desde el agua"
 	},
 	"gate": {
 		"locked": "{name} aún no está abierto.",

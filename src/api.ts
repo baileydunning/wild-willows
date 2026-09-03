@@ -573,8 +573,12 @@ export const api = {
 		session((playerId) =>
 			post<{ ok: boolean; appearance: Appearance }>('/UpdateAppearance/', { playerId, appearance }),
 		),
-	collect: (biomeId: string, nodeId: string, resourceId: string) =>
-		session((playerId) => post<any>('/CollectResource/', { playerId, biomeId, nodeId, resourceId })),
+	// `alsoNodeIds` are the neighbouring same-resource spots a sweeping basket
+	// (BASKET_SWEEP_TIER) clears in the same pass. The server ignores them below
+	// that tier and drops any that are still regrowing, so sending them is always
+	// safe — it never turns a good gather into an error.
+	collect: (biomeId: string, nodeId: string, resourceId: string, alsoNodeIds?: string[]) =>
+		session((playerId) => post<any>('/CollectResource/', { playerId, biomeId, nodeId, resourceId, alsoNodeIds })),
 	chestTransfer: (chestId: string, resourceId: string, qty: number, direction: 'deposit' | 'withdraw') =>
 		session((playerId) => post<any>('/ChestTransfer/', { playerId, chestId, resourceId, qty, direction })),
 	craft: (recipeId: string) => session((playerId) => post<any>('/CraftItem/', { playerId, recipeId })),
@@ -601,8 +605,17 @@ export const api = {
 	// since become something else, so a second click sent while the first is still
 	// in flight can't escalate a bed the player only meant to water into open
 	// water. Leaving it undefined means "don't check".
-	terraform: (area: string, x: number, y: number, action: 'dig' | 'water' | 'clear', expect?: string | null) =>
-		session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action, expect })),
+	// `size` is the caretaker's chosen brush: 1, 3 or 9 squares across, centered on
+	// the click. The server refuses a size the tool's tier has not earned rather
+	// than quietly shrinking it, and omitting it means a single square.
+	terraform: (
+		area: string,
+		x: number,
+		y: number,
+		action: 'dig' | 'water' | 'clear',
+		expect?: string | null,
+		size?: number,
+	) => session((playerId) => post<any>('/Terraform/', { playerId, area, x, y, action, expect, size })),
 	plant: (area: string, x: number, y: number, plantId: string) =>
 		session((playerId) => post<any>('/Plant/', { playerId, area, x, y, plantId })),
 	harvest: (placementId: string) => session((playerId) => post<any>('/HarvestPlacement/', { playerId, placementId })),

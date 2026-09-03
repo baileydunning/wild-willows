@@ -372,7 +372,7 @@ function GameScreen() {
 	// Wire Phaser -> React events.
 	useEffect(() => {
 		const subs = [
-			bridge.on('collect-node', (p: any) => game.collect(p.biomeId, p.nodeId, p.resourceId)),
+			bridge.on('collect-node', (p: any) => game.collect(p.biomeId, p.nodeId, p.resourceId, p.alsoNodeIds)),
 			bridge.on('open-chest', (p: any) => game.openChest(p.chestId)),
 			bridge.on('open-crafting', () => setPanel('crafting')),
 			bridge.on('open-journal', (p: any) => {

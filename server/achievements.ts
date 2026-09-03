@@ -94,7 +94,11 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 	'master-builder': (c) => (c.counts.objectsPlaced || 0) >= 150,
 	'master-gardener': (c) => (c.counts.plantsPlanted || 0) >= 75,
 	landscaper: (c) => (c.counts.terraformActions || 0) >= 150,
+	// Kept at 4 deliberately: it was earned at the top of the old ladder and stays
+	// a mid-game marker now that the ladder runs to 7. `perfectly-equipped` is the
+	// badge for carrying all three the rest of the way.
 	'fully-equipped': (c) => c.tool('basket') >= 4 && c.tool('shovel') >= 4 && c.tool('watering-can') >= 4,
+	'perfectly-equipped': (c) => c.tool('basket') >= 7 && c.tool('shovel') >= 7 && c.tool('watering-can') >= 7,
 	// Every area's guide, written all the way up to its expanded edition. "Every
 	// guide filled in, every animal's secrets unlocked" is what the badge already
 	// promised; before the split it was one ladder for the whole preserve, and now

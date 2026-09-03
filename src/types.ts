@@ -525,6 +525,12 @@ export interface GameState {
 	discoveries: Discovery[];
 	nodeStates: NodeStateRec[];
 	terrain: TerrainTile[];
+	/**
+	 * Squares in the CURRENT area with something buried under them. Sent only to a
+	 * player carrying a survey spade (SHOVEL_SURVEY_TIER); everyone else gets an
+	 * empty list and digs on the usual chance alone.
+	 */
+	buriedCaches?: { x: number; y: number }[];
 	/** Ids of achievements this player has earned. */
 	achievements: string[];
 	/** Persisted activity-feed messages (oldest→newest, last 100 kept per player). */

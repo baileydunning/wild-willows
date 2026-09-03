@@ -56,6 +56,9 @@ import {
 	USER_ZOOM_MIN,
 	USER_ZOOM_MAX,
 	TERRAFORM_REPEAT_MS,
+	SWEEP_TIER,
+	SWEEP_REACH,
+	DIP_TIER,
 	CAMP,
 	CAMP_TENT_FRONT,
 	CAMP_BLOCK,
@@ -235,6 +238,8 @@ export class WorldScene extends Phaser.Scene {
 	// session, so tearing them all down on every dig made each dig cost more than
 	// the last. Keyed "tx,ty"; `it` is the plant-bed interactable for watered soil.
 	private terrain!: Phaser.GameObjects.Group;
+	/** Survey-spade marks over buried caches, rebuilt with the terrain. */
+	private cacheMarks: Phaser.GameObjects.Image[] = [];
 	// `conn` is the neighbour mask the tile's art was built for — see drawTerrain.
 	private terrainSprites = new Map<
 		string,
@@ -2737,6 +2742,27 @@ export class WorldScene extends Phaser.Scene {
 		// refreshDynamic resets this.interactables before calling us, so every
 		// surviving bed has to re-announce itself even when its sprite didn't change.
 		for (const entry of this.terrainSprites.values()) if (entry.it) this.interactables.push(entry.it);
+		this.drawCacheMarks(want);
+	}
+
+	/**
+	 * A survey spade's marks: the squares in this area with something buried under
+	 * them. The server only sends `buriedCaches` to a player carrying one, so an
+	 * empty list here is the normal case and costs a single loop.
+	 *
+	 * Ground that has already been shaped hides its mark — you dug it, so whatever
+	 * was there has been turned up or built over.
+	 */
+	private drawCacheMarks(shaped: Map<string, { x: number; y: number; type: string }>) {
+		for (const img of this.cacheMarks) img.destroy();
+		this.cacheMarks = [];
+		const s = bridge.shared.state;
+		for (const c of s?.buriedCaches || []) {
+			if (shaped.has(`${c.x},${c.y}`)) continue;
+			const img = this.img(c.x, c.y, 'cache-mark').setDepth(1.4).setAlpha(0.85);
+			this.terrain.add(img);
+			this.cacheMarks.push(img);
+		}
 	}
 
 	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one
@@ -2772,6 +2798,27 @@ export class WorldScene extends Phaser.Scene {
 					repeat: -1,
 					ease: 'Sine.easeInOut',
 				});
+			// A Dipping Pail (CAN_DIP_TIER) fills straight from open water the
+			// caretaker shaped, so a restored pond becomes a refill point instead of a
+			// walk back to the spring. Terraform clicks still pass through, or there
+			// would be no way to clear the pond again.
+			if ((bridge.shared.state?.player.tools?.['watering-can'] || 1) >= DIP_TIER) {
+				const dipIt: Interactable = {
+					x,
+					y,
+					label: t('game.label.dipWater'),
+					action: () =>
+						bridge.emit('collect-node', {
+							biomeId: this.area,
+							nodeId: `dip-${tile.x}-${tile.y}`,
+							resourceId: 'water',
+						}),
+				};
+				const dipZone = this.add.zone(x, y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true });
+				this.terrain.add(dipZone);
+				this.registerInteractable(dipIt, dipZone, { terraformPassthrough: true });
+				return { type: tile.type, conn, img, deco, zone: dipZone, it: dipIt };
+			}
 			return { type: tile.type, conn, img, deco };
 		}
 		const img = this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5);
@@ -3457,6 +3504,33 @@ export class WorldScene extends Phaser.Scene {
 		return findFreeTileIn(cx, cy, occupied, taken, this.area, this.dimsOf(this.area));
 	}
 
+	/**
+	 * The spots a sweeping basket clears alongside the one that was clicked: same
+	 * material, within a couple of tiles, ready to gather now.
+	 *
+	 * Only the basket sweeps — the shovel and the watering can gather their own
+	 * materials one spot at a time — and BASKET_SWEEP_TIER on the server is the
+	 * real gate; this just decides which neighbours are worth naming.
+	 */
+	private sweepNeighbours(node: NodeDef): string[] {
+		const s = bridge.shared.state;
+		if (!s) return [];
+		if ((s.player.tools?.basket || 1) < SWEEP_TIER) return [];
+		const res = bridge.shared.data?.resources?.find((r: any) => r.id === node.resourceId);
+		if (res?.tool !== 'basket') return [];
+		const n = node as any;
+		const out: string[] = [];
+		for (const other of this.nodes) {
+			if (out.length >= SWEEP_REACH) break;
+			const o = other as any;
+			if (other.id === node.id || other.resourceId !== node.resourceId) continue;
+			if (Math.abs(o.tx - n.tx) > 2 || Math.abs(o.ty - n.ty) > 2) continue;
+			if (!this.nodeAvailable(other)) continue;
+			out.push(other.id);
+		}
+		return out;
+	}
+
 	private nodeAvailable(node: NodeDef): boolean {
 		const s = bridge.shared.state;
 		if (!s) return true;
@@ -3558,6 +3632,11 @@ export class WorldScene extends Phaser.Scene {
 						biomeId: this.area,
 						nodeId: node.id,
 						resourceId: node.resourceId,
+						// A sweeping basket takes the whole patch: hand the server the
+						// neighbouring spots of the same material that are ready right now.
+						// It ignores them below the sweep tier, so this is safe to always
+						// send.
+						alsoNodeIds: this.sweepNeighbours(node),
 					});
 				else
 					bridge.emit('toast', {

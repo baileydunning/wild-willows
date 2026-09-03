@@ -21,7 +21,8 @@
 		"readJournal": "Read your field journal",
 		"sleep": "Go to sleep (refresh gathering spots)",
 		"restMoment": "Rest a moment",
-		"caretaker": "caretaker"
+		"caretaker": "caretaker",
+		"dipWater": "Fill from the water"
 	},
 	"gate": {
 		"locked": "{name} isn't open yet.",

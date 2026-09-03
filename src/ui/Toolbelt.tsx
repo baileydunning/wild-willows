@@ -5,6 +5,7 @@ import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
 import { TUTORIAL_TOOLBELT_STEP, useTutorialReveal } from './Tutorial';
+import { brushSizesFor } from '../game/worldRules';
 
 // `how` is a catalog key (app.toolbelt.how.*), resolved with t() at render time.
 export const TOOL_META: Array<{ id: string; icon: string; key: string; how: string }> = [
@@ -30,8 +31,12 @@ const PAINT_PALETTE = [
 	'#3a3a2c',
 ];
 
+/** The tools whose work covers ground, and so can carry a brush size. */
+const SHAPING_TOOLS = new Set(['shovel', 'watering-can']);
+
 export function Toolbelt() {
-	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor } = useGame();
+	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor, brushSize, setBrushSize } =
+		useGame();
 	const { t, content } = useI18n();
 	usePrefs(); // reflect custom tool-select keys
 	// The toolbelt stays off screen until the tutorial step that hands it over, so
@@ -48,9 +53,46 @@ export function Toolbelt() {
 	if (!data || !state || !toolbeltRevealed) return null;
 	// the paint tool only exists indoors, and only once the home is built into a house
 	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
+	// The brush picker appears only for the tool in hand, and only once that tool
+	// offers more than one size. Holding a plain shovel, there is nothing to pick
+	// and nothing to explain.
+	const brushes = SHAPING_TOOLS.has(selectedTool) ? brushSizesFor(state.player.tools?.[selectedTool] || 1) : [1];
+	const showBrushes = brushes.length > 1;
+	// Switching to a tool that cannot manage the current size drops back to a
+	// single square rather than silently shaping more ground than the picker shows.
+	const activeBrush = brushes.includes(brushSize) ? brushSize : 1;
 
 	return (
 		<div className="toolbelt-wrap">
+			{showBrushes && (
+				<div className="brush-sizes" role="group" aria-label={t('app.toolbelt.brushGroup')}>
+					{brushes.map((n) => (
+						<button
+							key={n}
+							className={`brush-size ${activeBrush === n ? 'on' : ''}`}
+							aria-pressed={activeBrush === n}
+							title={t('app.toolbelt.brushTitle', { n, tiles: n * n })}
+							onClick={() => {
+								setBrushSize(n);
+								notify(t('app.toolbelt.brushSelected', { n, tiles: n * n }));
+							}}
+						>
+							{/* A plan view of the ground one action covers. Capped at a 3x3 of
+							    marks for the 9x9 so the chip stays a chip. */}
+							<span
+								className="brush-grid"
+								aria-hidden="true"
+								style={{ gridTemplateColumns: `repeat(${Math.min(n, 3)}, 1fr)` }}
+							>
+								{Array.from({ length: Math.min(n, 3) ** 2 }, (_, i) => (
+									<i key={i} />
+								))}
+							</span>
+							<span className="brush-label">{t('app.toolbelt.brushSize', { n })}</span>
+						</button>
+					))}
+				</div>
+			)}
 			{canPaint && selectedTool === 'paint' && (
 				<div className="paint-palette">
 					{PAINT_PALETTE.map((c) => (

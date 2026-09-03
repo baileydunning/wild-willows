@@ -12,7 +12,7 @@ import { isWeatherGatheredResource, weatherSnapshot } from './weather';
 import { FEED_CAP, FIRST_ANIMAL_ID, NODE_REGEN_SECONDS, db, hash32, readFeed, seededRng } from './core';
 import { byPlayer } from './keys';
 import { byArea, byWorld, defs, worldOf } from './worlds';
-import { HOME_STYLES, tentBiomeOf } from './home';
+import { HOME_STYLES, SHOVEL_SURVEY_TIER, tentBiomeOf } from './home';
 import { getPlayer, hasExpandedGuide, hasGuide, sanitizePlayer } from './player';
 import {
 	DAY_MS,
@@ -24,7 +24,7 @@ import {
 	tzMs,
 	weatherTimeFromPlay,
 } from './metrics';
-import { analyzeWater, inventoryCapacity } from './biome';
+import { analyzeWater, areaGrid, buriedCachesIn, inventoryCapacity } from './biome';
 
 // ------------------------------------------------------- snapshot for client
 
@@ -1293,6 +1293,14 @@ export async function snapshot(playerId: string, opts: { worldId?: string } = {}
 		discoveries,
 		nodeStates,
 		terrain,
+		// Where the ground is worth breaking, for a survey spade only. It is derived
+		// (buriedCacheAt is a pure function of world + area + square), so this stores
+		// nothing and costs no read — and it is sent for THE AREA THE PLAYER IS IN,
+		// like nodeStates and terrain above, rather than all six.
+		buriedCaches:
+			(player?.tools?.shovel || 1) >= SHOVEL_SURVEY_TIER && d.biome.get(player?.area)
+				? buriedCachesIn(wid, player.area, areaGrid(d, player.area))
+				: [],
 		// most-recently earned first, so the client can float fresh unlocks to the top
 		achievements: [...achievementRows]
 			.sort((a: any, b: any) => (b.earnedAt || 0) - (a.earnedAt || 0))
