@@ -27,10 +27,12 @@ describe('rest / sleep', () => {
 		expect(after).toBe('dawn'); // woke at first light, not 00:00
 	});
 
-	it('counts a hammock, strung up out in a biome', async () => {
-		// The hammock is `placement: 'both'` and was decor everywhere. It rests you
-		// now, and it does not have to be indoors to do it — an afternoon in the
-		// meadow is the whole idea of the thing.
+	it('does NOT count a hammock — you lie in one, you do not sleep the day away', async () => {
+		// The hammock used to rest you and deliberately does not any more. Rest is
+		// the action that skips the clock to the next dawn, and a hammock strung up
+		// in the meadow is the one piece of furniture you get into to let an
+		// afternoon pass at its own speed. Lying in it is a client-side pose that
+		// draws the animals over (SEATS in WorldScene); the day carries on.
 		const w: World = await freshWorld();
 		const pid = (await w.post('CreatePlayer', { name: 'Lazy', passcode: '1234', appearance })).playerId;
 		await w.db.Placement.put({
@@ -46,9 +48,10 @@ describe('rest / sleep', () => {
 		const p = await w.db.Player.get(pid);
 		await w.db.Player.patch(pid, { metrics: { ...metricsOf(p), playSeconds: 648 } }); // night
 
-		const r = await w.post('Rest', { playerId: pid });
-		expect(r.rested).toBe(true);
-		expect((await w.get('GameState', pid)).weather.dayPhase).toBe('dawn');
+		const before = (await w.get('GameState', pid)).weather.dayPhase;
+		await expect(w.post('Rest', { playerId: pid })).rejects.toThrow();
+		// …and the clock is exactly where it was.
+		expect((await w.get('GameState', pid)).weather.dayPhase).toBe(before);
 	});
 
 	it('still refuses when there is nothing to sleep on', async () => {

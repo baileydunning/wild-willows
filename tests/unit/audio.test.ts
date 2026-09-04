@@ -347,6 +347,113 @@ describe('audio — choosing the gameplay track', () => {
 	});
 });
 
+/* A PIECE MAY ONLY BE HEARD WHERE IT BELONGS.
+ *
+ * Choosing the right track for a place (above) is not the same as making sure a
+ * wrong one cannot sound. A request is made against the area the game believed
+ * it was in when the request was made, and a request can outlive that belief —
+ * a world snapshot fetched before a door and adopted after it, a timer armed in
+ * one room and fired in another. Both used to put the house's music out in the
+ * grass, and the next refresh put the meadow's back: the flip.
+ *
+ * So every request carries the kind of place it was made for, and the gate is
+ * the thing that says no. Note what "no" means here: the request is DROPPED, not
+ * redirected. A stale request must not be able to change the music at all.
+ */
+describe('audio — what may sound where', () => {
+	const playing = () => FakeAudio.instances.filter((a) => !a.paused && a.loop).map((a) => a.src);
+	const isPlaying = (frag: string) => playing().some((src) => src.includes(frag));
+
+	beforeEach(() => {
+		/* Resolve every crossfade in one synchronous tick (same trick as the
+		 * track-position tests above), so `playing()` is what is actually sounding
+		 * rather than what is still on its way out. */
+		window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+			cb((typeof performance !== 'undefined' ? performance.now() : Date.now()) + 10_000);
+			return 0;
+		}) as any;
+		// The gate says so on the console; the suite does not need to hear it.
+		vi.spyOn(console, 'warn').mockImplementation(() => {});
+		primeAndClear();
+	});
+
+	it('reads the kind of place an area is', () => {
+		expect(audio.musicPlaceForArea('meadow')).toBe('outdoors');
+		expect(audio.musicPlaceForArea('coastal')).toBe('outdoors');
+		expect(audio.musicPlaceForArea('home')).toBe('indoors');
+		expect(audio.musicPlaceForArea('tent-wetland')).toBe('indoors');
+		expect(audio.musicPlaceForArea(null)).toBe('menu');
+		expect(audio.musicPlaceForArea(undefined)).toBe('menu');
+	});
+
+	it('refuses the house piece out in the grass, and leaves the meadow playing', () => {
+		audio.setMusicActive(true, 'meadowambient', 'outdoors');
+		expect(isPlaying('willowmeadow/meadowambient.mp3')).toBe(true);
+
+		// A stale request: the house's piece, asked for while standing outdoors.
+		audio.setMusicActive(true, 'home', 'outdoors');
+		expect(isPlaying('HomeMusic.mp3')).toBe(false);
+		expect(isPlaying('willowmeadow/meadowambient.mp3')).toBe(true);
+	});
+
+	it('refuses a biome piece indoors, and leaves the house playing', () => {
+		audio.setMusicActive(true, 'home', 'indoors');
+		expect(isPlaying('HomeMusic.mp3')).toBe(true);
+
+		audio.setMusicActive(true, 'meadowambient', 'indoors');
+		expect(isPlaying('willowmeadow/meadowambient.mp3')).toBe(false);
+		expect(isPlaying('HomeMusic.mp3')).toBe(true);
+
+		// and not by luck of it being the meadow — no biome piece gets in
+		audio.setMusicActive(true, 'wetlands_level1', 'indoors');
+		expect(isPlaying('wetlands/Wetlands_level1.mp3')).toBe(false);
+		expect(isPlaying('HomeMusic.mp3')).toBe(true);
+	});
+
+	it('keeps the menu theme off the preserve and the preserve off the menu', () => {
+		audio.setMusicActive(true, 'wildwillowstheme', 'menu');
+		expect(isPlaying('WildWillows_ThemeIdea.mp3')).toBe(true);
+
+		audio.setMusicActive(true, 'meadowambient', 'menu');
+		expect(isPlaying('willowmeadow/meadowambient.mp3')).toBe(false);
+		expect(isPlaying('WildWillows_ThemeIdea.mp3')).toBe(true);
+
+		audio.setMusicActive(true, 'meadowambient', 'outdoors');
+		audio.setMusicActive(true, 'wildwillowstheme', 'outdoors');
+		expect(isPlaying('WildWillows_ThemeIdea.mp3')).toBe(false);
+	});
+
+	/* The refusal above holds the line by keeping what is already right. With
+	 * nothing right to keep — the very first request of a session is the wrong one
+	 * — silence would be worse than the wrong grass, so the place's own piece
+	 * answers instead. Still never the piece that was asked for. */
+	it('falls back to the place own piece when there is nothing right to keep', () => {
+		audio.setMusicActive(true, 'home', 'outdoors');
+		expect(isPlaying('HomeMusic.mp3')).toBe(false);
+		expect(isPlaying('willowmeadow/meadowambient.mp3')).toBe(true);
+	});
+
+	it('takes a piece at its word when no place is claimed', () => {
+		// The rest of this suite drives tracks directly; that has to keep working.
+		audio.setMusicActive(true, 'home');
+		expect(isPlaying('HomeMusic.mp3')).toBe(true);
+	});
+
+	it('carries no ambience indoors or on the menu, however it is asked', () => {
+		audio.setAmbienceActive(true, 'meadow', 'outdoors');
+		expect(isPlaying('sfx/meadow.mp3')).toBe(true);
+
+		audio.setAmbienceActive(true, 'meadow', 'indoors');
+		expect(isPlaying('sfx/meadow.mp3')).toBe(false);
+
+		audio.setAmbienceActive(true, 'night', 'menu');
+		expect(isPlaying('sfx/night.mp3')).toBe(false);
+
+		audio.setAmbienceActive(true, 'night', 'outdoors');
+		expect(isPlaying('sfx/night.mp3')).toBe(true);
+	});
+});
+
 describe('audio — music & ambience activation', () => {
 	it('starts a looping music track and applies track volume', () => {
 		audio.primeAudio();

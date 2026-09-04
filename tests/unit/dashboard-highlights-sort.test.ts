@@ -228,3 +228,54 @@ describe('superlative badges', () => {
 		});
 	});
 });
+
+// The completion ("perfection") headline on the card itself. The wall can be
+// sorted by it, so it has to be readable without opening a modal — and the one
+// thing that must never happen is a save that predates the tracker being drawn
+// at 0%, which reads as an idle caretaker rather than an unmeasured save.
+describe('completion on the card', () => {
+	/** The card's completion row, lifted out of the render and evaluated. */
+	const CLOSE = '</div>`;';
+	function compRowFor(p: any): string {
+		const start = DASHBOARD.indexOf('const compData = p.completion || null;');
+		expect(start, 'completion row not found in dashboard.html').toBeGreaterThan(-1);
+		const end = DASHBOARD.indexOf(CLOSE, start);
+		expect(end, 'completion row is not terminated as expected').toBeGreaterThan(start);
+		const body = DASHBOARD.slice(start, end + CLOSE.length);
+		const make = new Function('n', 'p', `${body}\nreturn compRow;`) as (nn: typeof n, pp: any) => string;
+		return make(n, p);
+	}
+
+	it('prints the same headline the caretaker reads, with its label', () => {
+		const row = compRowFor({ completion: { overallPct: 61, tracksDone: 4, tracksTotal: 10 } });
+		expect(row).toContain('>Completion<');
+		expect(row).toContain('>61%<');
+		expect(row).toContain('width:61%');
+		expect(row, 'the track count belongs in the tooltip').toContain('4 of 10');
+	});
+
+	it('draws nothing at all for a save that predates the tracker', () => {
+		expect(compRowFor({ playSeconds: 900 })).toBe('');
+		expect(compRowFor({ completion: null })).toBe('');
+	});
+
+	it('still draws a measured zero — that is a fact, not a missing block', () => {
+		const row = compRowFor({ completion: { overallPct: 0, tracksDone: 0, tracksTotal: 10 } });
+		expect(row).toContain('>0%<');
+	});
+
+	it('marks a finished preserve, and never overflows its own track', () => {
+		expect(compRowFor({ completion: { overallPct: 100, tracksDone: 10, tracksTotal: 10 } })).toContain(
+			'hlchain comp done',
+		);
+		const over = compRowFor({ completion: { overallPct: 140, tracksDone: 10, tracksTotal: 10 } });
+		expect(over).toContain('width:100%');
+		expect(over).not.toContain('140');
+	});
+
+	it('shares the bar-row chrome with the starter chain, so the two line up', () => {
+		expect(DASHBOARD).toContain('${chainRow}${compRow}');
+		expect(DASHBOARD).toMatch(/\.hlchain \.lab \{[^}]*min-width:/);
+		expect(DASHBOARD).toContain('.hlchain.comp .fill {');
+	});
+});

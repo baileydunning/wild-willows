@@ -8,7 +8,7 @@ const AUDIO_ASSETS = {
 };
 
 type SfxId = keyof typeof AUDIO_ASSETS.sfx;
-type MusicId = keyof typeof AUDIO_ASSETS.music;
+export type MusicId = keyof typeof AUDIO_ASSETS.music;
 type AmbienceId = keyof typeof AUDIO_ASSETS.ambience;
 
 interface AudioState {
@@ -160,6 +160,78 @@ export function gameplayMusicFor(area: string | undefined | null, biomeHealth: (
 	if (!tiers) return BIOME_MUSIC.meadow[0];
 	const health = biomeHealth(area as string);
 	return health < 50 ? tiers[0] : health < 80 ? tiers[1] : tiers[2];
+}
+
+/* ---------------------------------------------------------------------------
+ * WHAT MAY SOUND WHERE.
+ *
+ * gameplayMusicFor answers "what belongs here". This answers the stricter
+ * question: may this piece be heard AT ALL, given where the caretaker is
+ * standing right now?
+ *
+ * The two are not the same question, because a request for music is always made
+ * against the area the game BELIEVED it was in at the moment the request was
+ * made — and that belief can be out of date by the time the request arrives. A
+ * world snapshot fetched before the caretaker stepped through a door and adopted
+ * after it says they are still outside; a timer armed in one room fires in
+ * another. Both asked for the house's piece out in the grass and got it, because
+ * nothing downstream had any way to know where the request had come from. That
+ * is the flip between the house and the meadow, and it is upstream of every
+ * volume, fade and form below.
+ *
+ * So a request now carries the KIND of place it was made for, and a request
+ * whose piece does not belong to that kind of place is REFUSED. Refused rather
+ * than corrected to a default: the whole failure is a stale request changing the
+ * music, so the gate's job is to make sure it cannot change anything. Whatever
+ * is already sounding is right for where we are far more often than any fallback
+ * would be, and the fallback is reached only when there is nothing right to keep.
+ * ------------------------------------------------------------------------- */
+
+/** The kinds of place there are to be in, as far as music is concerned. */
+export type MusicPlace = 'menu' | 'indoors' | 'outdoors';
+
+const MENU_MUSIC: MusicId = 'wildwillowstheme';
+const INDOOR_MUSIC: MusicId = 'home';
+
+/** Which kind of place an area is. No area at all is the pre-game screens —
+ *  there is no world yet to be anywhere in. */
+export function musicPlaceForArea(area: string | null | undefined): MusicPlace {
+	if (!area) return 'menu';
+	return isIndoorArea(area) ? 'indoors' : 'outdoors';
+}
+
+/** Which kind of place a piece belongs to. Every biome piece is outdoor music;
+ *  the house has the only interior piece, and the theme the only menu one. */
+function musicPlaceOfTrack(track: MusicId): MusicPlace {
+	if (track === MENU_MUSIC) return 'menu';
+	if (track === INDOOR_MUSIC) return 'indoors';
+	return 'outdoors';
+}
+
+/** Only for the case where a request is refused and nothing already sounding
+ *  belongs here either — silence would be worse than the wrong grass. */
+const PLACE_FALLBACK: Record<MusicPlace, MusicId> = {
+	menu: MENU_MUSIC,
+	indoors: INDOOR_MUSIC,
+	outdoors: BIOME_MUSIC.meadow[0],
+};
+
+const warnedPlace = new Set<string>();
+
+function gateMusicToPlace(track: MusicId, place: MusicPlace | undefined): MusicId {
+	// No place claimed: the caller is driving a piece directly and there is
+	// nothing to check it against.
+	if (!place) return track;
+	if (musicPlaceOfTrack(track) === place) return track;
+	const key = `${track}@${place}`;
+	if (!warnedPlace.has(key)) {
+		warnedPlace.add(key);
+		console.warn(`[audio] Refused "${track}": it is not ${place === 'menu' ? 'menu music' : `${place} music`}.`);
+	}
+	// Keep playing, not start playing. A refused request is a no-op whenever the
+	// music is already right for where we are, which is the common case.
+	if (musicPlaceOfTrack(currentMusicId) === place) return currentMusicId;
+	return PLACE_FALLBACK[place];
 }
 
 function clamp01(value: number): number {
@@ -942,15 +1014,21 @@ export function applyAudioPrefs(prefs: AudioPrefs) {
 	syncFirePlayback();
 }
 
-export function setMusicActive(active: boolean, track: MusicId = 'wildwillowstheme') {
+/** `place` is where the caller is asking FOR — see the gate above. Omitting it
+ *  means no claim is being made and the piece is taken at its word. */
+export function setMusicActive(active: boolean, track: MusicId = MENU_MUSIC, place?: MusicPlace) {
+	const allowed = gateMusicToPlace(track, place);
 	wantsMusic = active;
-	currentMusicId = track;
-	noteMusicRequest(track);
+	currentMusicId = allowed;
+	noteMusicRequest(allowed);
 	syncMusicPlayback();
 }
 
-export function setAmbienceActive(active: boolean, track: AmbienceId = 'meadow') {
-	wantsAmbience = active;
+export function setAmbienceActive(active: boolean, track: AmbienceId = 'meadow', place?: MusicPlace) {
+	// Ambience IS the land — birds, wind, rain on the grass. Indoors and on the
+	// menu there is none of it to hear, whatever the caller asked for. Same gate,
+	// simpler shape: there is only one kind of place ambience belongs to.
+	wantsAmbience = active && (place === undefined || place === 'outdoors');
 	currentAmbienceId = track;
 	syncAmbiencePlayback();
 }

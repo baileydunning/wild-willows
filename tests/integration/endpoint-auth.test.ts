@@ -86,6 +86,7 @@ const PUBLIC = [
 	'SetHomeColors',
 	'SetHomeStyle',
 	'SetPlacementColor',
+	'SetPlacementLit',
 	'SyncPlayer',
 	'Terraform',
 	'UpdateAppearance',

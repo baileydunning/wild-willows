@@ -858,6 +858,13 @@
 				font-size: 0.64rem;
 				color: var(--faint);
 				white-space: nowrap;
+				/* Fixed rather than sized to its own text: two of these rows can sit on
+				   one card (the starter chain and completion), and a label column that
+				   shrink-wraps starts the two tracks at different x — which reads as two
+				   unrelated widgets rather than one caretaker measured twice. Wide enough
+				   for the longest label at this size in Quicksand, so nothing pushes its
+				   own track out of line. */
+				min-width: 4.2rem;
 			}
 			.hlchain .track {
 				flex: 1;
@@ -893,6 +900,14 @@
 					var(--accent-soft) 0 5px,
 					transparent 5px 10px
 				);
+			}
+			/* Completion runs on slot 2 — the same hue as the completion bars in the
+			   per-player modal and in the site-wide Completion section, so one measure
+			   keeps one color wherever the page draws it. The hue is a cross-reference
+			   and nothing more: the row still carries its own name and its own number,
+			   which is what makes it legible without color. */
+			.hlchain.comp .fill {
+				background: linear-gradient(90deg, var(--s2-lift), var(--s2));
 			}
 			.hlcard {
 				cursor: pointer;
@@ -4528,6 +4543,29 @@
 										p.starterLegacy ? 'pre-chain' : `${stStep}/${stTotal}`
 									}</span></div>`
 								: '';
+							/* How much of the whole preserve this save has seen: the same
+							 * headline the caretaker reads on their own Completion tab, the
+							 * same one the modal opens with, and the figure the "Completion"
+							 * sort ranks this wall by.
+							 *
+							 * On the card rather than only behind a click for the reason the
+							 * recency pill exists — a wall ordered by a number nobody can see
+							 * reads as arbitrary, and this is the one sort whose value appears
+							 * nowhere in the six stats above.
+							 *
+							 * Drawn only for a save that reports the tally. A snapshot synced
+							 * from a build older than the tracker carries no completion block
+							 * at all, and a bar pinned at 0% would say "this caretaker has done
+							 * nothing" where it means "this save predates the measurement" —
+							 * the same distinction the starter row draws, and the same one the
+							 * site-wide section makes by counting those saves out of its
+							 * denominator instead of scoring them zero. */
+							const compData = p.completion || null;
+							const compPct = compData ? Math.max(0, Math.min(100, n(compData.overallPct))) : null;
+							const compRow =
+								compPct == null
+									? ''
+									: `<div class="hlchain comp${compPct >= 100 ? ' done' : ''}" title="${n(compData.tracksDone)} of ${n(compData.tracksTotal)} completion tracks finished — the headline is the mean of all ${n(compData.tracksTotal)}, so every track counts once"><span class="lab">Completion</span><span class="track"><span class="fill" style="width:${compPct}%"></span></span><span class="num">${compPct}%</span></div>`;
 							return `<div class="hlcard${live ? ' active-now' : ''}" data-pid="${esc(p.playerId || '')}" role="button" tabindex="0" title="${live ? 'Active now · c' : 'C'}lick for full breakdown"${live ? ' aria-label="Active now"' : ''}><div class="hlav">${avatarSVG(p.appearance)}</div><div class="hlbody"><div class="hltop">${liveTag}${sinceTag}${convTag}${tags}<span class="hledi ${edi}">${edi}</span></div><div class="hlstats">${[
 								stat(fmtDur(p.playSeconds), 'played'),
 								stat(fmtShort(n(p.sessions)), n(p.sessions) === 1 ? 'session' : 'sessions'),
@@ -4535,7 +4573,7 @@
 								stat(`${n(p.achievements && p.achievements.earned)}★`, 'achievements'),
 								stat(fmtShort(n(bs.totalAnimalsReturned)), 'animals'),
 								stat(fmt(n(p.unlockedBiomes || bs.biomesUnlocked)), 'biomes'),
-							].join('')}</div>${chainRow}</div></div>`;
+							].join('')}</div>${chainRow}${compRow}</div></div>`;
 						})
 						.join('');
 					/* Sort control. Same pill group as the per-day chart's presets, and like

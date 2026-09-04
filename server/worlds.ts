@@ -24,7 +24,19 @@ import { cached } from './scan-cache';
 import { GUIDE_MAX, LEGACY_JOURNAL_TOOL, getPlayer, guideTool, patchPlayer } from './player';
 import { freshStanding, standingOf } from './metrics';
 import { blocksGateTrail, gateGeomOf, recalcBiome, whyReturnedText } from './biome';
-import { homeRoom, isWallMounted, tentBiomeOf, tentRoom, wallTilesOf } from './home';
+import {
+	canHangAt,
+	homeCozyOpts,
+	homeRoom,
+	isFloorTile,
+	isWallMounted,
+	roomAt,
+	tentBiomeOf,
+	tentRoom,
+	wallTilesOf,
+} from './home';
+import { roomsOf } from '../src/homePlan';
+import { readCoziness, storedCozy } from './cozy';
 import { awardWorldAchievements } from './achievements';
 import type { CustomGoal } from './tasks';
 
@@ -512,56 +524,120 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 }
 
 /**
- * Hang the wall decor that was standing on the floor.
+ * Give a pre-coziness save the reading its room already earns.
  *
- * The framed landscape, the wall clock and the two chandeliers were always
- * pictures of things that hang, and until walls could hold anything they were
- * placed on the floorboards like a chair. Now that `mount: 'wall'` exists they
- * belong on the wall ring — and a save that put one down before this change has
- * it sitting on a floor tile the placement rules no longer allow it on, where it
- * could be picked up but never moved.
- *
- * So each one is moved to the nearest free wall tile of its own interior. If the
- * walls are somehow full it is LEFT where it is rather than deleted: a player's
- * own belongings are never thrown away by a migration, and a piece left standing
- * can still be picked up and re-hung by hand.
- *
- * Interiors only — `mount` means nothing outdoors, and no wall item is placeable
- * out in the preserve anyway.
+ * Idempotent and near-free: a save whose stored score already matches what the
+ * room reads writes nothing, which is every save after the first pass.
  */
-async function rehangWallDecor(worldId: string, playerId: string, d: any): Promise<number> {
+async function backfillCoziness(worldId: string, playerId: string, d: any): Promise<void> {
+	const rows = await byArea(db().Placement, worldId, 'home');
+	const player = await getPlayer(playerId);
+	// Curator's Eye (Furnishings 6) changes how the raw score is computed, so the
+	// backfill has to know about it too — otherwise buying it and then walking in
+	// and out would keep rewriting the same row two different ways.
+	const reading = readCoziness(rows, (id: string) => d.object.get(id), 0, homeCozyOpts(player));
+	if ((player?.homeCozy?.score ?? -1) === reading.score && (player?.homeCozy?.pieces ?? -1) === reading.pieces) return;
+	await patchPlayer(playerId, { homeCozy: storedCozy(reading) });
+}
+
+/**
+ * Put everything in an interior back where the placement rules allow it, after
+ * the room it was arranged in changed shape.
+ *
+ * Two halves, one reason. Buying Space re-lays the whole floor plan: the plan is
+ * centered in the grid, so every wall moves, and from level 3 the interior stops
+ * being one rectangle and becomes rooms with walls between them. Placements keep
+ * the absolute tile they were put on, so after an upgrade:
+ *
+ *  • every picture, wreath and mirror that was HUNG is standing on open floor a
+ *    tile inside the new wall, and
+ *  • a chair that was on the floor can find itself inside a wall or a doorway of
+ *    the new plan — a tile that can be picked up from but never placed on again.
+ *
+ * (There is an older cause for the first one too: the framed landscape, the wall
+ * clock and the two chandeliers were always pictures of things that hang, and a
+ * save that put one down before `mount: 'wall'` existed has it on the floor.)
+ *
+ * Each piece moves the SHORTEST distance to somewhere legal — the nearest free
+ * wall tile for hanging things, the nearest free floor tile for standing ones —
+ * so a room that was arranged still looks arranged: after a Space upgrade
+ * "nearest" is usually the tile directly behind, or directly beside, where it
+ * stood. Anything already somewhere legal is LEFT ALONE and keeps its spot.
+ * If there is nowhere to go the piece stays exactly where it is rather than
+ * being deleted: a player's belongings are never thrown away, and a stranded
+ * item can still be picked up by hand.
+ *
+ * Interiors only — `mount` means nothing outdoors, and out in the preserve there
+ * is no plan to fall foul of.
+ */
+export async function reflowInterior(worldId: string, playerId: string, d: any): Promise<number> {
 	const t = db();
 	const rows = await byWorld(t.Placement, worldId);
 	const interiors = rows.filter((p: any) => p?.area === 'home' || tentBiomeOf(p?.area));
 	if (!interiors.length) return 0;
 	const player = await getPlayer(playerId);
 	const roomFor = (area: string) => (area === 'home' ? homeRoom(player) : tentRoom());
-	// what is standing where, per interior, so two rehangs can't land on one tile
+	// what is standing where, per interior, so two moves can't land on one tile
 	const taken = new Map<string, Set<string>>();
 	for (const p of interiors) {
 		if (!taken.has(p.area)) taken.set(p.area, new Set());
 		taken.get(p.area)!.add(`${p.x},${p.y}`);
 	}
+	// Every floor tile of an interior, worked out once per area rather than once
+	// per stranded item — a level-4 plan is three rooms and this pass runs on a
+	// write path.
+	const floors = new Map<string, { x: number; y: number }[]>();
+	const floorTiles = (area: string) => {
+		let list = floors.get(area);
+		if (!list) {
+			list = [];
+			for (const r of roomsOf(roomFor(area)))
+				for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) list.push({ x, y });
+			floors.set(area, list);
+		}
+		return list;
+	};
 	let moved = 0;
 	for (const p of interiors) {
 		const def = d.object.get(p.objectId);
-		if (!isWallMounted(def)) continue;
 		const room = roomFor(p.area);
+		const hangs = isWallMounted(def);
+		// Already where it belongs — nothing to do, and its tile stays claimed so
+		// nothing else is sent to it. Without this the pass would treat its own
+		// tile as taken, find the "nearest free" one next door and shuffle a
+		// perfectly good wall along by a tile every time it ran.
+		if (hangs ? canHangAt(room, p.x, p.y) : isFloorTile(room, p.x, p.y)) continue;
 		const here = taken.get(p.area)!;
-		const free = wallTilesOf(room).filter((w) => !here.has(`${w.x},${w.y}`));
-		if (!free.length) continue; // walls full — leave it standing rather than lose it
-		// nearest free wall tile to where the player put it, so the room it was
-		// arranged into still looks arranged afterwards
-		free.sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
-		const spot = free[0];
+		// It is leaving this tile, so it cannot be the thing blocking its own move.
 		here.delete(`${p.x},${p.y}`);
+		const free = (hangs ? wallTilesOf(room).filter((w) => canHangAt(room, w.x, w.y)) : floorTiles(p.area)).filter(
+			(w) => !here.has(`${w.x},${w.y}`),
+		);
+		if (!free.length) {
+			here.add(`${p.x},${p.y}`); // nowhere to go — leave it rather than lose it
+			continue;
+		}
+		// nearest free tile to where the player put it, so the room it was
+		// arranged into still looks arranged afterwards
+		let spot = free[0];
+		let best = Infinity;
+		for (const w of free) {
+			const dd = (w.x - p.x) ** 2 + (w.y - p.y) ** 2;
+			if (dd < best) {
+				best = dd;
+				spot = w;
+			}
+		}
 		here.add(`${spot.x},${spot.y}`);
 		await t.Placement.patch(p.id, { x: spot.x, y: spot.y });
 		moved++;
 	}
-	if (moved) console.error(`save repair: re-hung ${moved} wall decor item(s) for world ${worldId}`);
+	if (moved) console.error(`save repair: re-placed ${moved} interior item(s) for world ${worldId}`);
 	return moved;
 }
+
+/** Older name, kept because the whole point of the pass is still the wall decor. */
+export const rehangWallDecor = reflowInterior;
 
 /**
  * One-shot repairs a save needs after upgrading, run from a write path.
@@ -594,9 +670,23 @@ async function rehangWallDecor(worldId: string, playerId: string, d: any): Promi
 // would happily craft shows up locked. Backfilled below.
 // REV 5: wall decor arrived. Four items that were always wall furniture became
 // `mount: 'wall'`, and any already standing on an interior FLOOR is now on a tile
-// the placement rules refuse — pickable but unmovable. rehangWallDecor moves each
+// the placement rules refuse — pickable but unmovable. reflowInterior moves each
 // to the nearest free wall tile.
-export const REPAIR_REV = 5;
+// REV 7: buying Space moved the walls out from under everything hung on them —
+// a Space upgrade (and building the house, which is one) left every picture and
+// wreath lying on the new floor. The two endpoints re-hang for themselves now,
+// but a save that already took an upgrade is sitting in that room right now, and
+// its repair marker says it has nothing left to fix. One more pass hangs them.
+// REV 9: windows stopped moving out from under wall decor. They are fixed by the
+// plan and the Warmth level now, and a tile with one refuses everything else —
+// so a save that hung a picture where a window has since been drawn has it on a
+// tile the placement rules no longer allow. reflowInterior slides it along.
+// REV 8: Space levels 3 and 4 became floor plans — rooms with walls between them
+// — rather than one wider rectangle. A save sitting at either level has its
+// furniture laid out for the old rectangle, and some of those tiles are now
+// wall or doorway. reflowInterior slides each stranded piece to the nearest
+// legal tile; every save runs it once.
+export const REPAIR_REV = 9;
 
 /**
  * Work out a save's standing tallies from its own placements and write them.
@@ -666,7 +756,13 @@ export async function repairSave(
 		await migrateFieldJournal(playerId, d, opts.player);
 		// Purely cosmetic — it moves furniture inside one room and touches no
 		// biome, so it deliberately does NOT join the recalc condition below.
-		await rehangWallDecor(worldId, playerId, d);
+		await reflowInterior(worldId, playerId, d);
+		// Coziness is written by placing and removing (see saveCoziness), so a save
+		// that decorated its house BEFORE coziness existed has a full room and a
+		// reading of nothing — the buff it earned, withheld until it happens to move
+		// a chair. One read of one room puts that right, once. Also does NOT join
+		// the recalc condition: the home interior is not a biome.
+		await backfillCoziness(worldId, playerId, d);
 		// Any of those three changes which animals count as home, and
 		// BiomeState.returnedCount is a stored number that only recalcBiome
 		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a

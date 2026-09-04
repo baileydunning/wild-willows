@@ -33,6 +33,9 @@ export const LAYERS = [
 	'store',
 	'keys',
 	'worlds',
+	// Pure scoring for the home's coziness — no imports at all, and read by both
+	// the server and the HUD, so it sits just above the module that consumes it.
+	'cozy',
 	'home',
 	'player',
 	'metrics',

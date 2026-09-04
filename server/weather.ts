@@ -159,6 +159,15 @@ export function nextDawnAt(t: number): number {
 	return nextPhaseAt(t, 'dawn');
 }
 
+/** Play-time (ms) at which it is next NOON — the middle of the day, progress
+ *  0.5, which is 12:00 on the HUD clock (hour = progress × 24). Strictly after
+ *  `t`, so asking at noon gives you tomorrow's. The well-rested buff runs to
+ *  this: wake at first light and the boost carries you through the morning. */
+export function nextNoonAt(t: number): number {
+	const target = dayStartAt(t) + 0.5 * DAY_MS;
+	return target > t ? target : target + DAY_MS;
+}
+
 export function seasonAt(t: number): string {
 	const day = dayIndexAt(t);
 	const idx = Math.floor(day / DAYS_PER_SEASON) % SEASONS.length;

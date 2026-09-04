@@ -1,5 +1,7 @@
 // Shared frontend types for Wild Willows.
 
+import type { PlanRoom } from './homePlan';
+
 export interface BiomeDef {
 	id: string;
 	name: string;
@@ -202,6 +204,18 @@ export interface HabitatObjectDef {
 	/** Weather types this object's yield can be taken in. A rain basin only gives
 	 * up its water while rain is actually falling; absent means any weather. */
 	harvestWeather?: string[];
+	/** Which comfort this piece brings to a home interior, for the coziness
+	 * reading (server/cozy.ts). Absent is fine — the kind is derived from the
+	 * object's other flags instead. */
+	cozyKind?: string;
+	/** Something that BURNS: a lantern, a lamp, a hearth, a campfire. These are
+	 * the pieces the caretaker can light and put out — the flag is what decides
+	 * whether a placement carries a `lit` state at all, so the toggle and the
+	 * night halo agree about what counts as a light. Deliberately its own field
+	 * rather than `cozyKind === 'light'`: the tide-glass lantern reads as water
+	 * comfort in a room and the glow bowl as a curio, and neither should have to
+	 * be miscategorised indoors to be lightable. */
+	light?: boolean;
 	bridge?: boolean;
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
@@ -301,11 +315,21 @@ export interface HomeStyleDef {
 
 /** A freshly built house has 5 total track levels (space 2 + three tracks at 1). */
 const HOME_BASE_LEVELS = 5;
+/** Mirrors PERK_CEILING in server/home.ts — no perk ever reads as a sure thing. */
+const PERK_CEILING = 0.95;
 
-/** Current strength (0..1) of a style perk given the home's track levels. */
-export function homePerkStrength(perk: HomePerkDef, home: HomeConfig): number {
+/** Strength (0..1) a style perk gets from the four UPGRADE TRACKS alone.
+ *  Coziness adds to this on top of the cap — see homePerkStrength below, and
+ *  server/home.ts for the copy that decides the actual gameplay effect. */
+export function homePerkUpgrades(perk: HomePerkDef, home: HomeConfig): number {
 	const levels = (home.space || 1) + (home.comfort || 1) + (home.decor || 1) + (home.light || 1);
 	return Math.min(perk.cap, perk.base + perk.perLevel * Math.max(0, levels - HOME_BASE_LEVELS));
+}
+
+/** Current total strength (0..1) of a style perk: upgrade tracks plus whatever
+ *  the room's coziness tier adds. `cozyPerk` comes from readCoziness(). */
+export function homePerkStrength(perk: HomePerkDef, home: HomeConfig, cozyPerk = 0): number {
+	return Math.min(PERK_CEILING, homePerkUpgrades(perk, home) + cozyPerk);
 }
 
 /** When a yield-bearing thing is ready to harvest — its maturity the first time,
@@ -342,8 +366,28 @@ export function harvestReadyAt(
 }
 
 export interface HomeTrackLevel {
+	/** Space only: the bounding box of the level's floor plan. */
 	inner?: { w: number; h: number };
+	/** Space only: the rooms that plan is made of, and the doorways between
+	 *  them (see src/homePlan.ts). Absent on the two levels that are still one
+	 *  plain rectangle. */
+	rooms?: PlanRoom[];
+	doors?: { x: number; y: number }[];
+	/** Comfort only: flat carrying-capacity bonus at this level. */
 	carry?: number;
+	/** Furnishings only: multiplier (0..1) on what the room's decor is worth —
+	 *  see server/cozy.ts. This is what makes the top coziness rung reachable. */
+	cozyBoost?: number;
+	/** Warmth only: extra day-fractions the well-rested speed boost runs past
+	 *  noon. A banked hearth is what makes a morning last. */
+	restedHold?: number;
+	/** The named ability this level switches on, if it has one — an id from
+	 *  HOME_ABILITIES (src/homeAbilities.ts). Levels 5-7 of Comfort, Furnishings
+	 *  and Warmth each carry one; Space carries none, because its payoff is the
+	 *  floor plan itself. */
+	ability?: string;
+	/** Space only: what this floor plan is called, for the house menu. */
+	label?: string;
 	materials?: Record<string, number>;
 	requires?: { biome: string; minHealth: number };
 }
@@ -354,6 +398,13 @@ export interface HomeTrackDef {
 	levels: HomeTrackLevel[];
 }
 
+export interface HomePaint {
+	floor?: string;
+	wall?: string;
+	accent?: string;
+	rug?: string;
+}
+
 export interface HomeConfig {
 	style: string;
 	space: number;
@@ -362,8 +413,13 @@ export interface HomeConfig {
 	light: number;
 	/** Once you make your first upgrade, your style direction locks in. */
 	styleLocked?: boolean;
-	/** Custom interior colors painted over the style palette (paint tool). */
-	colors?: { floor?: string; wall?: string; accent?: string; rug?: string };
+	/** Custom interior colors painted over the style palette (paint tool) — the
+	 *  whole-house default, worn by any room that has not been painted itself. */
+	colors?: HomePaint;
+	/** Per-room paint, keyed by the room ids in the Space level's floor plan
+	 *  (see src/homePlan.ts). Beats `colors` for that room; the ids are stable
+	 *  across Space levels, so a room keeps its color through an upgrade. */
+	roomColors?: Record<string, HomePaint>;
 }
 
 export interface AppearanceOptions {
@@ -424,6 +480,23 @@ export interface Player {
 	tutorialMaxStep?: number;
 	/** Home interior config: style direction + four upgrade-track levels. */
 	home?: HomeConfig;
+	/**
+	 * Cached reading of how COZY the home interior is — see server/cozy.ts, which
+	 * is where the scoring lives and which both sides import. The server keeps
+	 * this current on every place/remove so the gather/craft/plant paths can read
+	 * the buff without loading a room's worth of rows.
+	 *
+	 * The HUD does NOT read it. It recomputes from the placements it already has,
+	 * so the meter moves the instant you set something down rather than on the
+	 * next round trip; this field is the server's copy of the same answer.
+	 */
+	homeCozy?: { score: number; pieces: number; types: number; kinds: string[] };
+	/**
+	 * WELL RESTED until this play-time stamp: sleeping in a cozy home leaves you
+	 * walking faster through the morning after (to noon). Unset, or in the past,
+	 * means no boost — as does a home too bare to earn one.
+	 */
+	restedUntil?: number;
 	/**
 	 * What this save has STANDING in the world, per object, plus how many of those
 	 * have been harvested — running totals the server keeps (see bumpStanding in
@@ -538,6 +611,14 @@ export interface Placement {
 	color?: string;
 	/** Quarter-turn rotation in degrees (0/90/180/270), set when placing/moving. */
 	rotation?: number;
+	/** Lights only (`light` on the definition): is it burning right now?
+	 *
+	 * ABSENT MEANS LIT. Every lantern in every save that predates the toggle was
+	 * glowing after dusk, and a flag that defaulted to false would have put out
+	 * every light in the world on the day it shipped. So the stored value is the
+	 * exception — you place a light burning, and `lit: false` is the record that
+	 * somebody chose to snuff it. */
+	lit?: boolean;
 }
 
 export interface Discovery {
@@ -744,4 +825,8 @@ export type PanelId =
 	| 'weather'
 	| 'materials'
 	| 'goals'
+	| 'mirror'
+	| 'stories'
+	/** The Board of Finds hanging in the house — see FindsBoardPanel. */
+	| 'finds'
 	| null;

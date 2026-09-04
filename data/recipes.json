@@ -6732,7 +6732,7 @@
     {
       "id": "wooden-fence",
       "name": "Wooden Fence",
-      "category": "habitat",
+      "category": "structure",
       "unlockBiome": "meadow",
       "unlock": {
         "minHealth": 64,
@@ -7225,6 +7225,25 @@
       "materials": {
         "shells": 6,
         "fiber": 3
+      }
+    },
+    {
+      "id": "home-willowmirror",
+      "name": "Willow-Frame Mirror",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "totalAnimals": 5,
+        "label": "Welcome 5 animals back to the preserve"
+      },
+      "output": {
+        "itemId": "home-willowmirror",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 3,
+        "fiber": 2,
+        "stones": 1
       }
     },
     {

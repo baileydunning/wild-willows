@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { isFloorTile, layoutOf } from '../../src/homePlan';
 import { freshWorld, appearance, type World } from './harness';
 import { readFileSync } from 'node:fs';
 
@@ -262,18 +263,16 @@ describe('DevTools populate-biome (showcase)', () => {
 
 		// well-formed: inside the floor rect, one piece per tile, nothing outdoor-only,
 		// and the doorway plus the ring around it left clear so the exit is walkable
-		const inner = d.homeTracks.space.levels[home.space - 1].inner;
-		const x0 = Math.floor((30 - inner.w) / 2),
-			y0 = Math.floor((20 - inner.h) / 2);
-		const x1 = x0 + inner.w - 1,
-			y1 = y0 + inner.h - 1;
-		const door = { x: Math.round((x0 + x1) / 2), y: y1 };
+		// A maxed house is a floor plan — a great room, a nook and a study — so
+		// "on the floor" is a question for the layout, not for one rectangle.
+		const layout = layoutOf(d.homeTracks.space.levels[home.space - 1], 30, 20);
+		const door = { x: layout.doorX, y: layout.doorY };
 		const seen = new Set<string>();
 		for (const p of pls.filter((p: any) => !objById[p.objectId]?.isChest)) {
 			const key = `${p.x},${p.y}`;
 			expect(seen.has(key), `two pieces on ${key}`).toBe(false);
 			seen.add(key);
-			expect(p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1, `${p.objectId} off the floor`).toBe(true);
+			expect(isFloorTile(layout, p.x, p.y), `${p.objectId} off the floor`).toBe(true);
 			expect(objById[p.objectId]?.placement, `${p.objectId} is outdoor-only`).not.toBe('outdoor');
 			expect(Math.abs(p.x - door.x) <= 1 && Math.abs(p.y - door.y) <= 1, `${p.objectId} in the doorway`).toBe(false);
 		}

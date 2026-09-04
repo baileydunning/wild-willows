@@ -573,7 +573,7 @@ export const api = {
 		session((playerId) =>
 			post<{ ok: boolean; appearance: Appearance }>('/UpdateAppearance/', { playerId, appearance }),
 		),
-	// `alsoNodeIds` are the neighbouring same-resource spots a sweeping basket
+	// `alsoNodeIds` are the neighboring same-resource spots a sweeping basket
 	// (BASKET_SWEEP_TIER) clears in the same pass. The server ignores them below
 	// that tier and drops any that are still regrowing, so sending them is always
 	// safe — it never turns a good gather into an error.
@@ -593,10 +593,14 @@ export const api = {
 	upgradeHome: (track: string) => session((playerId) => post<any>('/UpgradeHome/', { playerId, track })),
 	setHomeStyle: (style: string) => session((playerId) => post<any>('/SetHomeStyle/', { playerId, style })),
 	rest: () => session((playerId) => post<any>('/Rest/', { playerId })),
-	setHomeColors: (colors: { floor?: string; wall?: string; accent?: string; rug?: string }) =>
-		session((playerId) => post<any>('/SetHomeColors/', { playerId, colors })),
+	// `room` is a room id from the current floor plan — paint lands on that room
+	// alone. Left off, it repaints the house default (a one-room home's only case).
+	setHomeColors: (colors: { floor?: string; wall?: string; accent?: string; rug?: string }, room?: string) =>
+		session((playerId) => post<any>('/SetHomeColors/', { playerId, colors, room })),
 	setPlacementColor: (placementId: string, color: string) =>
 		session((playerId) => post<any>('/SetPlacementColor/', { playerId, placementId, color })),
+	setPlacementLit: (placementId: string, lit: boolean) =>
+		session((playerId) => post<any>('/SetPlacementLit/', { playerId, placementId, lit })),
 	observe: (animalId: string) => session((playerId) => post<any>('/ObserveAnimal/', { playerId, animalId })),
 	claimTask: (taskId: string) => session((playerId) => post<any>('/ClaimTask/', { playerId, taskId })),
 	setGoals: (goals: any[]) => session((playerId) => post<any>('/SetGoals/', { playerId, goals })),

@@ -293,6 +293,94 @@ export function AppearanceEditor({ value, onChange }: { value: Appearance; onCha
 }
 
 /**
+ * What a caretaker looks like before anything has been chosen. Shared so the
+ * Settings panel and the mirror can't drift into two different "unset" faces.
+ */
+export const APPEARANCE_DEFAULTS: Appearance = {
+	skin: '#eec39a',
+	hair: '#6e4a33',
+	outfit: '#4a7c59',
+	hat: 'none',
+	hairstyle: 'short',
+	beard: 'none',
+	body: 'slim',
+};
+
+/**
+ * The Driftwood Mirror's panel — the same appearance editor Settings shows,
+ * reached by walking up to a mirror you hung on your wall instead of by opening
+ * a menu.
+ *
+ * It is deliberately ONLY the look. Settings keeps language, accessibility, the
+ * account section and everything else; a mirror that opened the whole settings
+ * menu would be a menu with a picture frame around it. Changing your hair is the
+ * one thing a mirror is actually for.
+ *
+ * Nobody is gated behind the mirror: Settings still edits appearance for players
+ * who have never reached Pelican Shore (where the mirror's recipe unlocks), and
+ * both paths save through the same api.updateAppearance.
+ */
+export function MirrorPanel() {
+	const { state, setPanel, refresh, notify } = useGame();
+	const { t } = useI18n();
+	const [appearance, setAppearance] = useState<Appearance>({
+		...APPEARANCE_DEFAULTS,
+		...(state?.player.appearance || {}),
+	});
+	const [saving, setSaving] = useState(false);
+	const [error, setError] = useState<string | null>(null);
+
+	if (!state) return null;
+
+	const save = async () => {
+		setSaving(true);
+		setError(null);
+		try {
+			const r = await api.updateAppearance(appearance);
+			// The scene redraws the caretaker from this event, so the change shows
+			// on the sprite behind the panel before the refresh lands.
+			bridge.emit('appearance-changed', r.appearance);
+			await refresh();
+			notify(t('app.settings.lookSaved'));
+			setPanel(null);
+		} catch (e: any) {
+			setError(e.message || t('app.settings.errSaveLook'));
+		} finally {
+			setSaving(false);
+		}
+	};
+
+	return (
+		<div className="panel-backdrop" onClick={() => setPanel(null)}>
+			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
+				<div className="panel-head">
+					<h2>
+						<Icon name="user" size={20} /> {t('app.mirror.title')}
+					</h2>
+					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('app.common.close')}>
+						<Icon name="close" />
+					</button>
+				</div>
+				<div className="panel-body settings-body">
+					<p className="muted small">{t('app.mirror.blurb')}</p>
+					<AppearanceEditor value={appearance} onChange={setAppearance} />
+					{error && <p className="form-error">{error}</p>}
+					<div className="form-actions end">
+						<button className="big-btn" onClick={() => setPanel(null)} disabled={saving}>
+							<span>{t('app.mirror.cancel')}</span>
+						</button>
+						<button className="big-btn primary" onClick={save} disabled={saving}>
+							<Icon name="check" />{' '}
+							<span>{saving ? t('app.settings.saving') : t('app.mirror.save')}</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/**
  * Light / Dark / Match system, as a three-way segmented control.
  *
  * A <select> would have matched the other pickers here, but this is the one
@@ -665,16 +753,10 @@ export function KeybindingControls() {
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout, exportDemo } = useGame();
 	const { t, locale } = useI18n();
-	const defaults: Appearance = {
-		skin: '#eec39a',
-		hair: '#6e4a33',
-		outfit: '#4a7c59',
-		hat: 'none',
-		hairstyle: 'short',
-		beard: 'none',
-		body: 'slim',
-	};
-	const [appearance, setAppearance] = useState<Appearance>({ ...defaults, ...(state?.player.appearance || {}) });
+	const [appearance, setAppearance] = useState<Appearance>({
+		...APPEARANCE_DEFAULTS,
+		...(state?.player.appearance || {}),
+	});
 	const [saving, setSaving] = useState(false);
 	const [exporting, setExporting] = useState(false);
 	const [passcode, setPasscode] = useState('');

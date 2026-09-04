@@ -134,8 +134,10 @@ interface Ctx {
 	/** How much ground one shaping action covers: 1, 3 or 9 squares across. */
 	brushSize: number;
 	setBrushSize: (n: number) => void;
-	paintHome: (part: 'floor' | 'wall' | 'rug', color: string) => Promise<void>;
+	paintHome: (part: 'floor' | 'wall' | 'rug', color: string, room?: string) => Promise<void>;
 	paintPlacement: (placementId: string, color: string) => Promise<void>;
+	/** Light one lantern/hearth, or put it out. `lit` is the state to move TO. */
+	setPlacementLit: (placementId: string, lit: boolean) => Promise<void>;
 	observe: (animalId: string) => Promise<void>;
 	claimTask: (taskId: string) => Promise<void>;
 	setGoals: (goals: any[]) => Promise<void>;
@@ -783,8 +785,32 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		bridge.emit('world-dirty');
 	}, []);
 
+	/* WHICH ROOM THE CARETAKER IS IN, AND WHO GETS TO SAY SO.
+	 *
+	 * Stepping through a door is a round trip: tell the server where we are, then
+	 * fetch the world back. Meanwhile the app is fetching that same world for its
+	 * own reasons all the time — the 30s heartbeat, the day-rollover watcher, the
+	 * trailing reconcile after a burst of actions, every non-optimistic action.
+	 *
+	 * A fetch that LEFT before the door and LANDS after it describes the room we
+	 * just walked out of, and adoptState took it at face value: the whole app
+	 * snapped back to the old area — the HUD, the panels, and audibly, the music,
+	 * which crossfaded to the piece for a place we were no longer standing in and
+	 * then back again on the next refresh. That is the house/meadow flip.
+	 *
+	 * This counter retires them. It is bumped the moment the server agrees we have
+	 * moved, and a fetch that started under an older number is dropped on arrival
+	 * rather than adopted. Dropped whole, not patched: a snapshot from before the
+	 * door is stale in its position and its terrain too, not only its area, and
+	 * another one is never more than an action or a beat away.
+	 */
+	const areaEpoch = useRef(0);
+
 	const refresh = useCallback(async () => {
-		adoptState(await api.gameState());
+		const fetchedUnder = areaEpoch.current;
+		const next = await api.gameState();
+		if (fetchedUnder !== areaEpoch.current) return; // a door was used mid-flight
+		adoptState(next);
 	}, [adoptState]);
 
 	/**
@@ -880,7 +906,11 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			if (!last) throw new Error(t('app.error.noPreviousSave'));
 			setPlayerId(last.playerId);
 			try {
-				adoptState(await api.gameState());
+				// Through refresh(), like every other snapshot fetch, so there is exactly
+				// one shape for "adopt the world from the server" and it is the guarded
+				// one (see areaEpoch). Nothing to guard against yet at login — this is
+				// so there is no unguarded version of this line lying around to copy.
+				await refresh();
 				rememberSave(last.playerId, last.name, 'solo');
 				reportSaveResumed(); // funnel: a returning player is not a bounce
 			} catch (e) {
@@ -917,7 +947,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 				throw e;
 			}
 		},
-		[adoptState],
+		[refresh],
 	);
 
 	const logout = useCallback(() => {
@@ -1604,11 +1634,31 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 		[act, toast],
 	);
 	const paintHome = useCallback(
-		(part: 'floor' | 'wall' | 'rug', color: string) => act(() => api.setHomeColors({ [part]: color })),
+		(part: 'floor' | 'wall' | 'rug', color: string, room?: string) =>
+			act(() => api.setHomeColors({ [part]: color }, room)),
 		[act],
 	);
 	const paintPlacement = useCallback(
 		(placementId: string, color: string) => act(() => api.setPlacementColor(placementId, color)),
+		[act],
+	);
+	/**
+	 * Light a lantern or put it out.
+	 *
+	 * Patched in place rather than refetched. The halo it controls is drawn from
+	 * the placement list every frame, so a round trip to the server before the
+	 * flame changes would put a visible beat between the keypress and the light —
+	 * and this is a thing players will stand there toggling. The apply is exact
+	 * (one boolean on one row), so there is nothing for a reconcile to correct.
+	 */
+	const setPlacementLit = useCallback(
+		(placementId: string, lit: boolean) =>
+			act(() => api.setPlacementLit(placementId, lit), undefined, {
+				apply: (r, prev) => ({
+					...prev,
+					placements: prev.placements.map((p) => (p.id === placementId ? { ...p, lit: r?.lit !== false } : p)),
+				}),
+			}),
 		[act],
 	);
 	const rest = useCallback(
@@ -1760,7 +1810,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 	// key on — before the first trip lands. Each extra request re-ran the whole
 	// transition, and the duplicate that arrived AFTER the scene had already moved
 	// asked it to travel from the meadow to the meadow, which the spawn rules read
-	// as "arrived from a neighbouring biome" and answered with the trail gate. So
+	// as "arrived from a neighboring biome" and answered with the trail gate. So
 	// the caretaker stepped out of their house and was yanked across the meadow.
 	//
 	// One transition at a time, and none at all to where we already are.
@@ -1772,9 +1822,19 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			try {
 				setSaveStatus('saving');
 				await api.syncPlayer(state?.player.x ?? 0, state?.player.y ?? 0, area);
+				// The server now agrees the caretaker is here, so everything still in
+				// flight was asked for from the other side of the door. Retire it (see
+				// areaEpoch) BEFORE our own fetch goes out, so ours is the only one that
+				// can land — otherwise a heartbeat that resolves a moment later puts the
+				// old area, and the old area's music, straight back.
+				const arrivedUnder = ++areaEpoch.current;
 				// pull a fresh snapshot so any terrain seeded on first entry (e.g. the
 				// wetland's starting water) is loaded before the scene redraws
-				adoptState(await api.gameState());
+				const arrived = await api.gameState();
+				// Another door can only have opened if this one already finished
+				// (areaChanging below is the one-at-a-time lock), but check anyway: this
+				// is the one adoption that MUST be the newest thing said about the area.
+				if (arrivedUnder === areaEpoch.current) adoptState(arrived);
 				bridge.emit('area-changed', area);
 				markSaved();
 			} catch (e: any) {
@@ -1888,6 +1948,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			setBrushSize,
 			paintHome,
 			paintPlacement,
+			setPlacementLit,
 			observe,
 			claimTask,
 			setGoals,
@@ -1954,6 +2015,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 			setBrushSize,
 			paintHome,
 			paintPlacement,
+			setPlacementLit,
 		],
 	);
 

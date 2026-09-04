@@ -161,6 +161,7 @@
 		"upgrades": "Mejoras",
 		"level": "· nivel {level}/{max}",
 		"maxedOut": "Al máximo.",
+		"roomCount": "{count} habitaciones",
 		"upgrade": "Mejorar",
 		"perkActive": "· ventaja de la casa",
 		"perkName": {
@@ -348,6 +349,31 @@
 			"one": "{correct} de {count} acertados hasta ahora.",
 			"other": "{correct} de {count} acertados hasta ahora."
 		}
+	},
+	"finds": {
+		"title": "Tablero de hallazgos",
+		"empty": "Todavía no hay nada clavado. Restaura algo de hábitat y los animales empezarán a aparecer: cada uno que llegue tendrá su nota en este tablero.",
+		"count": {
+			"one": "{count} de {total} especies ha vuelto.",
+			"other": "{count} de {total} especies han vuelto."
+		},
+		"newest": "Último hallazgo",
+		"earlier": "Hallazgos anteriores",
+		"cameBack": "Volvió el {date}",
+		"openNote": "Leer la nota sobre {name}",
+		"backToBoard": "Volver al tablero",
+		"seen": {
+			"one": "visto una vez",
+			"other": "visto {count} veces"
+		}
+	},
+	"stories": {
+		"title": "Estantería",
+		"intro": "Cuatro textos breves sobre cómo funciona realmente la reserva.",
+		"back": "Volver al estante",
+		"prev": "Página anterior",
+		"next": "Página siguiente",
+		"page": "{n} de {total}"
 	},
 	"achievements": {
 		"title": "Progreso",

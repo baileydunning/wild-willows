@@ -3697,6 +3697,10 @@
 			"home-tideglass": {
 				"description": "Vidrio marino engastado en un farol; la luz sale del color del agua poco profunda.",
 				"name": "Farol de Vidrio Marino"
+			},
+			"home-willowmirror": {
+				"description": "Un espejo redondo en un aro de mimbre de sauce. Lo bastante bueno para verte bien.",
+				"name": "Espejo de Sauce"
 			}
 		},
 		"recipe": {
@@ -4785,6 +4789,9 @@
 			},
 			"home-tideglass": {
 				"name": "Farol de Vidrio Marino"
+			},
+			"home-willowmirror": {
+				"name": "Espejo de Sauce"
 			}
 		},
 		"resource": {

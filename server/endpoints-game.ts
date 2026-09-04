@@ -8,7 +8,14 @@
 
 import { t as tr } from '../src/i18n/server';
 import { buildStamp } from './pages';
-import { gatherResourceIdFor, isWeatherGatheredResource, nextDawnAt, weatherTypeAt } from './weather';
+import {
+	DAY_MS,
+	gatherResourceIdFor,
+	isWeatherGatheredResource,
+	nextDawnAt,
+	nextNoonAt,
+	weatherTypeAt,
+} from './weather';
 // @ts-ignore — Node built-in; this project deliberately has no @types/node
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib';
 
@@ -24,6 +31,7 @@ import {
 	findDiscovery,
 	findInWorld,
 	findTerrainAt,
+	reflowInterior,
 	repairSave,
 	worldOf,
 } from './worlds';
@@ -40,16 +48,24 @@ import {
 	SHOVEL_SURVEY_TIER,
 	brushSizesFor,
 	blocksDoorway,
+	craftCost,
+	homeCozy,
+	homeCozyBoost,
+	homeCozyOpts,
+	homeHas,
 	homeOf,
 	homePerk,
+	homeRestedHold,
 	homeRoom,
-	interiorSurfaceError,
+	homeRooms,
+	interiorSpotFor,
 	canStackOn,
 	isSurface,
 	isSmall,
 	tentBiomeOf,
 	tentRoom,
 } from './home';
+import { readCoziness, storedCozy } from './cozy';
 import {
 	BEARD_STYLES,
 	BODY_TYPES,
@@ -1256,7 +1272,7 @@ export class CollectResource extends PublicEndpoint {
 			}
 
 			// Which spots this pass takes. A basket at BASKET_SWEEP_TIER clears a whole
-			// patch in one action, so the client sends the neighbouring same-resource
+			// patch in one action, so the client sends the neighboring same-resource
 			// spots alongside the one that was clicked. Every lower tier takes just the
 			// one, and an extra that is malformed or still regrowing is dropped rather
 			// than failing the gather the player actually asked for.
@@ -1285,10 +1301,15 @@ export class CollectResource extends PublicEndpoint {
 			if (!ready.includes(nodeId)) throw new GameError(tr('server.err.regrowing'), 409, 'server.err.regrowing');
 
 			const inventory = { ...(player.inventory || {}) };
+			// Whether a full basket spills instead of refusing the gather. A tier-5
+			// basket buys it, and so does a house at Comfort 6 (Standing Order) — the
+			// house version also reaches your OWN chests when there is nothing to put
+			// it in out here, which is the half that makes it worth the alpine trip.
+			const canOverflow = basketTier >= BASKET_OVERFLOW_TIER || homeHas(player, 'homeOverflow');
 			// Carrying capacity, counted in weight rather than item count: bulk earth and
-			// stone fill the basket twice as fast as a handful of seeds does. Below
-			// BASKET_OVERFLOW_TIER a full basket still refuses the gather outright.
-			if (roomFor(resourceId, inventory, d, player) <= 0 && basketTier < BASKET_OVERFLOW_TIER)
+			// stone fill the basket twice as fast as a handful of seeds does. Without
+			// somewhere for the spare to go, a full basket still refuses the gather.
+			if (roomFor(resourceId, inventory, d, player) <= 0 && !canOverflow)
 				throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
 
 			// a higher-tier tool gathers more at once (tier 1→1 … tier 7→7)
@@ -1305,17 +1326,29 @@ export class CollectResource extends PublicEndpoint {
 			// What will not fit rides on to your nearest chest in this area instead of
 			// the haul being cut short — never being turned away is the whole of what a
 			// BASKET_OVERFLOW_TIER basket buys.
+			//
+			// Standing Order (Comfort 6) adds the fallback that makes it unconditional:
+			// when this area has no chest with room in it, the spare goes to the chests
+			// at HOME, wherever you happen to be standing. Chests in the area still come
+			// first — a haul you meant to leave by the pond should stay by the pond —
+			// and home is only ever the place the leftovers end up rather than nowhere.
 			let spare = picked - toBasket;
 			const storedTo: Record<string, number> = {};
-			if (spare > 0 && basketTier >= BASKET_OVERFLOW_TIER) {
+			if (spare > 0 && canOverflow) {
 				const px = typeof player.x === 'number' ? player.x : 0;
 				const py = typeof player.y === 'number' ? player.y : 0;
+				const sendHome = homeHas(player, 'homeOverflow');
 				const near = (await byWorld(t.Chest, wid))
-					.filter((c: any) => c.area === biomeId)
-					.sort(
-						(a: any, b: any) =>
-							Math.hypot((a.x || 0) - px, (a.y || 0) - py) - Math.hypot((b.x || 0) - px, (b.y || 0) - py),
-					);
+					.filter((c: any) => c.area === biomeId || (sendHome && c.area === 'home'))
+					.sort((a: any, b: any) => {
+						// this area's chests before the ones at home, then by how far you
+						// would have walked to reach them
+						const home = (c: any) => (c.area === biomeId ? 0 : 1);
+						return (
+							home(a) - home(b) ||
+							Math.hypot((a.x || 0) - px, (a.y || 0) - py) - Math.hypot((b.x || 0) - px, (b.y || 0) - py)
+						);
+					});
 				for (const c of near) {
 					if (spare <= 0) break;
 					const contents = { ...(c.contents || {}) };
@@ -1520,15 +1553,24 @@ export class CraftItem extends PublicEndpoint {
 			throw new GameError(tr('server.err.craftOnce', { name: recipe.name }), 409, 'server.err.craftOnce');
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
+		// Fine Fittings (Furnishings 5): the house makes its own trim. Anything in
+		// the `home` category — the 92 recipes that only ever go indoors — costs a
+		// quarter less, rounded down and never below one. Deliberately narrow: the
+		// track is about the room, so it discounts the room and nothing else, and a
+		// track that quietly cheapened restoration kits would be a different track.
+		const cost = craftCost(recipe, player);
+		const { usedFrom, inventory } = await consumeMaterials(player, cost, wid);
 
 		// House perk (Stone Hearth — hearthkeeper's thrift): a chance that crafting
 		// hands back half of each material it consumed (rounded down, at least 1).
 		// Refunds land in the basket and never overflow its capacity.
 		const perk = homePerk(player);
 		let refund: Record<string, number> | undefined;
-		if (perk?.id === 'thrift' && Object.keys(recipe.materials || {}).length && Math.random() < perk.strength) {
-			for (const [rid, q] of Object.entries(recipe.materials || {})) {
+		if (perk?.id === 'thrift' && Object.keys(cost).length && Math.random() < perk.strength) {
+			// Half of what was CONSUMED, not half of what the recipe lists — with Fine
+			// Fittings those are different numbers, and handing back more than was
+			// taken would turn a discount into a material printer.
+			for (const [rid, q] of Object.entries(cost)) {
 				// Room is re-read per material because the basket fills as we go and a
 				// heavy material eats capacity faster than a light one.
 				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), roomFor(rid, inventory, d, player));
@@ -1600,6 +1642,34 @@ function isRotatable(def: any): boolean {
 	return ROTATABLE_IDS.has(def.id);
 }
 
+/**
+ * Re-read the home's coziness from its placements and cache it on the save.
+ *
+ * Called on the two paths that can change what is standing in the room —
+ * placing and removing. Moving furniture around inside it cannot change the
+ * score (same pieces, same types, same kinds), so MoveObject deliberately
+ * doesn't pay for this.
+ *
+ * Best-effort by design: a failed write must never be what stops someone from
+ * putting a chair down. The reading is a cache of rows that are already the
+ * truth, so the next place/remove — or repairSave — puts it right.
+ */
+async function saveCoziness(playerId: string, homePlacements: any[], d: any, player?: any): Promise<void> {
+	try {
+		// Stored RAW (no Furnishings multiplier) — that is applied on read, so
+		// buying the upgrade pays off immediately. See storedCozy / cozyOf.
+		//
+		// Curator's Eye is the exception and has to be baked in HERE: it changes
+		// how the raw reading is COMPUTED, not what a multiplier does to it, so a
+		// cache written without it would be a different number from the one the
+		// HUD is showing. The caller hands over the player row it already holds.
+		const reading = readCoziness(homePlacements, (id: string) => d.object.get(id), 0, homeCozyOpts(player));
+		await patchPlayer(playerId, { homeCozy: storedCozy(reading) });
+	} catch (e: any) {
+		console.error(`coziness update for ${playerId} skipped —`, e?.message || e);
+	}
+}
+
 /** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
@@ -1618,8 +1688,8 @@ export class PlaceObject extends PublicEndpoint {
 			if ((player.craftedItems?.[objectId] || 0) <= 0)
 				throw new GameError(tr('server.err.noneCrafted', { name: def.name }), 400, 'server.err.noneCrafted');
 
-			const tx = Math.round(Number(x));
-			const ty = Math.round(Number(y));
+			let tx = Math.round(Number(x));
+			let ty = Math.round(Number(y));
 			const grid = areaGrid(d, area);
 			if (
 				!Number.isFinite(tx) ||
@@ -1632,6 +1702,13 @@ export class PlaceObject extends PublicEndpoint {
 				throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 			}
 
+			// Read this area's run BEFORE the interior checks rather than after them:
+			// where a wall item lands depends on what is already hanging, and it is
+			// the same single read either way (KEY_REV 4 puts the area in the key).
+			const placements = await byArea(t.Placement, wid, area);
+			/** Is this tile spoken for? The only question the wall slide asks. */
+			const occupied = (px: number, py: number) => placements.some((p) => p.x === px && p.y === py);
+
 			const tentBiome = tentBiomeOf(area);
 			if (area === 'home') {
 				// decorating your home interior — indoor or 'both' items, on the floor only
@@ -1642,9 +1719,12 @@ export class PlaceObject extends PublicEndpoint {
 					throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403, 'server.err.needsBiggerHome');
 				}
 				const r = homeRoom(player);
-				// floor items want the floor, wall items want the wall ring
-				const wrongSurface = interiorSurfaceError(def, r, tx, ty);
-				if (wrongSurface) throw new GameError(tr(wrongSurface, { name: def.name }), 400, wrongSurface);
+				// Floor items want the floor; a wall item slides to the nearest free
+				// spot on the wall it was aimed at.
+				const spot = interiorSpotFor(def, r, tx, ty, occupied);
+				if (typeof spot === 'string') throw new GameError(tr(spot, { name: def.name }), 400, spot);
+				tx = spot.x;
+				ty = spot.y;
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else if (tentBiome) {
@@ -1659,8 +1739,10 @@ export class PlaceObject extends PublicEndpoint {
 				if (def.homeMin && def.homeMin > 1)
 					throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403, 'server.err.tentTooSmall');
 				const r = tentRoom();
-				const wrongSurface = interiorSurfaceError(def, r, tx, ty);
-				if (wrongSurface) throw new GameError(tr(wrongSurface, { name: def.name }), 400, wrongSurface);
+				const spot = interiorSpotFor(def, r, tx, ty, occupied);
+				if (typeof spot === 'string') throw new GameError(tr(spot, { name: def.name }), 400, spot);
+				tx = spot.x;
+				ty = spot.y;
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else {
@@ -1691,10 +1773,6 @@ export class PlaceObject extends PublicEndpoint {
 				);
 			}
 
-			// Both questions below are about THIS area only, and under KEY_REV 4 the
-			// area is in the key — so ask for one area's run rather than the world's
-			// and filter five sixths of it away here.
-			const placements = await byArea(t.Placement, wid, area);
 			// One thing per tile, with one exception: a small thing may stand ON a
 			// surface (see canStackOn in server/home.ts).
 			const onTile = placements.filter((p) => p.x === tx && p.y === ty);
@@ -1771,6 +1849,11 @@ export class PlaceObject extends PublicEndpoint {
 
 			// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
 			if (indoors) {
+				// …but the HOME interior's decor is a live buff now (server/cozy.ts), and
+				// the reading is cached on the save so the gather/craft/plant paths can
+				// read it without loading a room's worth of rows on every action. The
+				// area's placements are already in hand, so the new one just joins them.
+				if (area === 'home') await saveCoziness(playerId, [...placements, placement], d, player);
 				await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
 				// Indoor decor is still something standing in the world, and a build
 				// goal for a chair is finished by putting the chair in the house.
@@ -2030,8 +2113,8 @@ export class MoveObject extends PublicEndpoint {
 
 		const dGrid = await defs();
 		const grid = areaGrid(dGrid, placement.area);
-		const tx = Math.round(Number(x));
-		const ty = Math.round(Number(y));
+		let tx = Math.round(Number(x));
+		let ty = Math.round(Number(y));
 		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 		}
@@ -2076,9 +2159,15 @@ export class MoveObject extends PublicEndpoint {
 		const movingTent = tentBiomeOf(placement.area);
 		const movingRoom = placement.area === 'home' ? homeRoom(player) : movingTent ? tentRoom() : null;
 		if (movingRoom) {
-			const wrongSurface = interiorSurfaceError(movingDef, movingRoom, tx, ty);
-			if (wrongSurface)
-				throw new GameError(tr(wrongSurface, { name: movingDef?.name || placement.objectId }), 400, wrongSurface);
+			// A wall item slides to the nearest free spot on the wall, exactly as it
+			// does when first placed — and the tile it is leaving is free for it.
+			const spot = interiorSpotFor(movingDef, movingRoom, tx, ty, (px, py) =>
+				here.some((p) => p.id !== placementId && p.x === px && p.y === py),
+			);
+			if (typeof spot === 'string')
+				throw new GameError(tr(spot, { name: movingDef?.name || placement.objectId }), 400, spot);
+			tx = spot.x;
+			ty = spot.y;
 			if (blocksDoorway(placement.objectId, movingRoom, tx, ty)) {
 				throw new GameError(
 					tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }),
@@ -2202,6 +2291,12 @@ export class RemoveObject extends PublicEndpoint {
 			} else {
 				await patchPlayer(playerId, { craftedItems });
 			}
+
+			// Taking a chair back out of the room lowers its coziness the same way
+			// putting it in raised it — the buff has to be able to go DOWN, or the
+			// tier becomes a high-water mark nobody can lose. Costs one room-sized
+			// read, and only on the path where home decor actually changed.
+			if (placement.area === 'home') await saveCoziness(playerId, await byArea(t.Placement, wid, 'home'), d, player);
 
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
 			const outdoors = placement.area !== 'home' && !tentBiomeOf(placement.area);
@@ -2353,6 +2448,17 @@ export class UpgradeHome extends PublicEndpoint {
 			const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
 			const updated = { ...home, [track]: level + 1 };
 			await patchPlayer(playerId, { home: updated });
+			// A bigger room moves its walls: the interior is centered in the grid, so
+			// every wall steps outward and the tiles a picture, wreath or mirror was
+			// hung on become open floor INSIDE the new room. Absolute tile coords
+			// meant the upgrade laid all the wall decor down on the floorboards, in
+			// spots the placement rules would refuse. Re-hang it on the new walls,
+			// nearest tile first, so the room reads as the one the player arranged.
+			// Space re-lays the whole plan; Warmth re-places the windows, and a window
+			// is a tile nothing may hang on. Both can leave a picture somewhere the
+			// rules no longer allow, so both re-place what they displaced. Comfort and
+			// Furnishings touch neither.
+			if (track === 'space' || track === 'light') await reflowInterior(wid, playerId, await defs());
 			const chests = await byWorld(t.Chest, wid);
 			await awardAchievements(playerId);
 			await bumpMetrics(player, { homeUpgrades: 1 });
@@ -2369,9 +2475,11 @@ export class UpgradeHome extends PublicEndpoint {
 }
 
 // Objects you can sleep in/on to rest and refresh the preserve's gathering spots.
-// The hammock counts wherever it hangs: it is `placement: 'both'`, so it rests you
-// strung between two posts out in a biome as readily as it does indoors.
-const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed', 'hammock'];
+// The hammock is not one of them, and the omission is the point: it is somewhere
+// to LIE — the caretaker settles in, the animals come over, and the afternoon
+// goes on around them — not somewhere to lose the rest of the day. Rest is the
+// action that skips the clock to dawn, and only a bed or a bag does that.
+const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
 
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {
@@ -2403,29 +2511,69 @@ export class Rest extends PublicEndpoint {
 		// light), not raw day-start — the day now begins mid-night, so day-start
 		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
-		const skip = nextDawnAt(nowT) - nowT;
-		await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+		const wakeT = nextDawnAt(nowT);
+		const skip = wakeT - nowT;
+		// WELL RESTED: a night in a home you've actually made comfortable sends you
+		// out the door quicker, and it lasts the whole morning — through to noon of
+		// the day you wake into. A bare room grants nothing (tier 0 is speed 1), so
+		// this is the buff that pays for the chair you put by the fire. Stamped in
+		// PLAY time, like every other clock on the save, so it survives the offset
+		// this very call just moved.
+		// Warmth holds it past noon on top of that — a banked hearth is what makes
+		// a morning last, so the track that used to buy a prettier window now buys
+		// the tail of the buff.
+		const cozy = homeCozy(player);
+		const patch: any = { clockOffsetMs: (player.clockOffsetMs || 0) + skip };
+		if (cozy.speed > 1) patch.restedUntil = nextNoonAt(wakeT) + homeRestedHold(player) * DAY_MS;
+		await patchPlayer(playerId, patch);
 		await bumpMetrics(player, { restsTaken: 1 });
-		return { ok: true, rested: true, refreshed: nodes.length };
+		return {
+			ok: true,
+			rested: true,
+			refreshed: nodes.length,
+			restedUntil: patch.restedUntil ?? null,
+			restedSpeed: cozy.speed,
+			cozyBoost: homeCozyBoost(player),
+		};
 	}
 }
 
 const isHexColor = (c: any) => typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim());
 
-/** POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?}} — recolor the home interior (paint tool, built homes only). */
+/**
+ * POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?,rug?}, room?}
+ * — recolor the home interior (paint tool, built homes only).
+ *
+ * `room` is a room id from the current Space level's floor plan, and painting is
+ * per room: from Space 3 the house has a great room and a nook (and later a
+ * study), and the whole point of a floor plan is that they can be different
+ * colors. Leave `room` off and the color is the HOUSE default, which is what
+ * every room that has never been painted itself wears — so a one-room house
+ * behaves exactly as it always did, and a room painted at Space 3 keeps its
+ * color through the Space 4 upgrade because the plan keeps the room's id.
+ */
 export class SetHomeColors extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, colors } = await bodyOf(data, this);
+		const { playerId, colors, room } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const home = homeOf(player) as any;
 		if (!home.styleLocked)
 			throw new GameError(tr('server.err.buildBeforeRepaint'), 403, 'server.err.buildBeforeRepaint');
-		const next: Record<string, string> = { ...home.colors };
+		// A room id has to name a room of the house the player actually has —
+		// otherwise paint accumulates under keys nothing will ever draw.
+		const roomId = room ? String(room) : '';
+		if (roomId && !homeRooms({ ...player, home }).some((r) => r.id === roomId))
+			throw new GameError(tr('server.err.unknownHomeRoom'), 400, 'server.err.unknownHomeRoom');
+		const before: Record<string, string> = roomId ? { ...home.roomColors?.[roomId] } : { ...home.colors };
+		const next = { ...before };
 		for (const k of ['floor', 'wall', 'accent', 'rug']) {
 			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
 		}
-		await patchPlayer(playerId, { home: { ...home, colors: next } });
+		const updated = roomId
+			? { ...home, roomColors: { ...home.roomColors, [roomId]: next } }
+			: { ...home, colors: next };
+		await patchPlayer(playerId, { home: updated });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
@@ -2445,6 +2593,37 @@ export class SetPlacementColor extends PublicEndpoint {
 		await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
+	}
+}
+
+/**
+ * POST /SetPlacementLit/ {playerId, placementId, lit} — light one lantern, or put it out.
+ *
+ * Only pieces the data marks as a `light` carry the state at all; asking to
+ * light a bookshelf is a bad request rather than a field quietly written onto a
+ * row that nothing will ever read.
+ *
+ * The flag is written as a plain boolean rather than deleted when a light is
+ * relit. Patching a field away is the one thing the two stores disagree about —
+ * the solo LocalDb spreads the patch over the row, so `undefined` would leave
+ * the key present and undefined for the save serializer to encode — and nothing
+ * is gained by it: only lights ever carry `lit`, so this is a couple of dozen
+ * rows in a world of hundreds. Absent still reads as burning (see
+ * Placement.lit), which is what keeps older saves lit.
+ */
+export class SetPlacementLit extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, placementId, lit } = await bodyOf(data, this);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const placement = await findInWorld(t.Placement, worldOf(player), placementId);
+		if (!placement) throw new GameError(tr('server.err.itemNotHere'), 404, 'server.err.itemNotHere');
+		const d = await defs();
+		if (!d.object.get(placement.objectId)?.light)
+			throw new GameError(tr('server.err.notALight'), 400, 'server.err.notALight');
+		const burning = lit !== false;
+		await t.Placement.patch(placementId, { lit: burning });
+		return { ok: true, lit: burning };
 	}
 }
 
@@ -2493,6 +2672,10 @@ export class SetHomeStyle extends PublicEndpoint {
 		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
 		const updated = { ...home, style, styleLocked: true, space: 2 };
 		await patchPlayer(playerId, { home: updated });
+		// Building the house is a Space upgrade too (1 → 2), so the starter room's
+		// walls move out from under anything hung on them — same re-hang as
+		// UpgradeHome, for the same reason.
+		await reflowInterior(wid, playerId, await defs());
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		await bumpMetrics(player, { homesBuilt: 1 });
@@ -3097,6 +3280,12 @@ export class SyncPlayer extends PublicEndpoint {
 			// reveal on the very first sync after upgrading.
 			patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
 		}
+		// Stepping into an interior settles anything the walls have moved out from
+		// under: a picture on a tile that is now a window (or a wall, after a Space
+		// upgrade) slides to the nearest free spot before you see the room. Only on
+		// the step IN — a sync from inside the room you are already standing in has
+		// nothing new to settle, and this reads the world's placements.
+		const enteringInterior = (area === 'home' || !!tentBiomeOf(area)) && player.area !== area;
 		if (area === 'home') {
 			// the home interior is always reachable from your camp — no gates
 			patch.area = 'home';
@@ -3143,6 +3332,8 @@ export class SyncPlayer extends PublicEndpoint {
 			}
 		}
 		await patchPlayer(playerId, patch);
+		// After the patch, so the reflow reads the room the caretaker is now in.
+		if (enteringInterior) await reflowInterior(worldOf(player), playerId, d);
 		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
 		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
 		return { ok: true, player: sanitizePlayer(await safeGet(t.Player, playerId)) };

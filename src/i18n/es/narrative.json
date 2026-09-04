@@ -1,5 +1,5 @@
 {
-	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
+	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts), and the four bookshelf stories (stories.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
 	"kind": {
 		"insect": "El aire sobre {biome} vuelve a zumbar y chasquear: tres clases de insecto han encontrado el camino de regreso.",
 		"bird": "El canto de las aves ha vuelto a {biome}; tres especies ya forrajean y anidan allí.",
@@ -449,6 +449,113 @@
 			"thriving": "Un borde vivo. Las estrellas de mar patrullan la roca, las nutrias flotan mar adentro, y los pelícanos se zambullen en el oleaje donde han regresado los peces.",
 			"restored": "El tramo más salvaje de la reserva, entero: del chorro de la ballena al sifón de la almeja. Dos especies clave hacen el trabajo silencioso que lo mantiene todo en equilibrio.",
 			"coexistence": "Dos especies clave gobiernan esta costa: la estrella de mar evita que los mejillones tomen cada roca, y la nutria come los erizos que de otro modo segarían el kelp."
+		}
+	},
+	"stories": {
+		"_readme": "The four books on the home bookshelf (ui/stories.ts, ui/storyArt.tsx). Each book is four pages you turn one at a time; every page has a title, its text, and the captions under its picture — `figures` must stay the same length as that page's figure list in storyArt.tsx, in the same order. Plain explanation, no whimsy: these are the only place the game says outright what its systems are modelling.",
+		"somewhere": {
+			"title": "Comida, refugio, agua",
+			"byline": "hábitat y nicho",
+			"pages": {
+				"1": {
+					"title": "Tres trabajos",
+					"figures": ["comida", "refugio", "agua", "dónde vivir"],
+					"text": "Un animal no necesita tanto un lugar como un lugar que haga tres trabajos: algo que comer, dónde refugiarse y agua a la que pueda llegar. Si falta uno de los tres, los otros dos sirven de poco."
+				},
+				"2": {
+					"title": "Lo bastante cerca",
+					"figures": ["agua", "campo abierto que cruzar", "no se arriesga"],
+					"text": "La distancia importa tanto como la presencia. La comida tiene que estar lo bastante cerca del refugio como para que un salto corto devuelva al animal bajo cubierto. El agua a la que solo se llega cruzando campo abierto es agua que la mayoría de los animales pequeños no usará."
+				},
+				"3": {
+					"title": "Compartir una pradera",
+					"figures": ["semilla al amanecer", "insectos de noche"],
+					"text": "El lugar es el hábitat. La forma de ganarse la vida en él es el nicho: qué come, a qué horas está activo, de qué se mantiene lejos. Dos especies pueden compartir una misma pradera sin competir, porque una toma semilla al amanecer y la otra caza insectos al anochecer."
+				},
+				"4": {
+					"title": "La pieza que se olvida",
+					"figures": ["solo flores", "añade refugio", "y se queda"],
+					"text": "Por eso plantar solo flores rara vez atrae nada. El refugio es la pieza que más se olvida. Un montón de ramas o un seto no son adorno: para un conejo o un chochín son la diferencia entre pasar de largo y quedarse."
+				}
+			}
+		},
+		"foxlast": {
+			"title": "Por qué los depredadores llegan al final",
+			"byline": "cadenas tróficas y energía",
+			"pages": {
+				"1": {
+					"title": "Sigue a un zorro hacia atrás",
+					"figures": ["sol y hierba", "come la hierba", "come los insectos", "come las aves"],
+					"text": "Sigue a un zorro hacia atrás. Come campañoles y aves que anidan en el suelo. Ellos comen insectos y semilla. Los insectos comen hierba. La hierba funciona con luz del sol. Cuatro escalones, y el zorro depende de todos ellos."
+				},
+				"2": {
+					"title": "Una décima parte en cada escalón",
+					"figures": ["muchísimos", "menos", "aún menos", "uno"],
+					"text": "Solo cerca de una décima parte de la energía de cada escalón sube al siguiente. El resto se gasta en seguir vivo. Esa proporción explica por qué los números se estrechan tan deprisa hacia arriba: una pradera puede mantener muchísimos saltamontes, bastantes gorriones, bastantes menos campañoles y un zorro."
+				},
+				"3": {
+					"title": "Los últimos en llegar, los primeros en irse",
+					"figures": ["la presa escasea", "el zorro se va primero"],
+					"text": "Así que los depredadores son los últimos en llegar y los primeros en irse. Necesitan todos los niveles de debajo llenos antes de poder asentarse, y notan un adelgazamiento en la base antes que nadie."
+				},
+				"4": {
+					"title": "Lo que te dice un zorro",
+					"figures": ["un zorro se asienta", "una pradera que lo sostiene"],
+					"text": "También quiere decir que una pradera sin cazadores no es una pradera en paz, sino incompleta. Cuando un zorro se asienta, lo que eso indica es que los niveles de abajo aguantan peso suficiente para sostenerlo."
+				}
+			}
+		},
+		"whobuild": {
+			"title": "Animales que construyen",
+			"byline": "ingenieros del ecosistema y especies clave",
+			"pages": {
+				"1": {
+					"title": "El castor construye para sí",
+					"figures": ["quiere agua honda", "así que la hace"],
+					"text": "Un castor represa un arroyo porque quiere agua lo bastante honda para nadar y quedar fuera de alcance. No lo hace por nadie más. Pero el estanque que resulta es hábitat que antes no existía."
+				},
+				"2": {
+					"title": "Todo lo que se muda allí",
+					"figures": ["agua quieta", "huevos", "libélulas", "dónde pescar"],
+					"text": "El agua quieta da a las ranas dónde poner huevos y a las larvas de libélula dónde crecer. La orilla somera le da a una garza dónde pescar. Los árboles que se ahogan en pie se ablandan y se vuelven sitios de nidificación para los pájaros carpinteros. La obra de un animal se convierte en vivienda para una docena de especies."
+				},
+				"3": {
+					"title": "Ingenieros y especies clave",
+					"figures": ["una especie clave", "erizos a raya", "kelp en pie"],
+					"text": "A un animal que rehace así el lugar físico se le llama ingeniero del ecosistema. La especie clave es parecida pero distinta: no construye nada y sostiene la red trófica muy por encima de lo que sugiere su número — nutrias marinas que mantienen a los erizos lejos del kelp, lobos que mantienen a los alces lejos de las riberas. Quita una y el sistema entero se reorganiza alrededor del hueco."
+				},
+				"4": {
+					"title": "Por qué el siguiente llega antes",
+					"figures": ["un ingeniero", "una docena de inquilinos"],
+					"text": "Aquí viven unos cuantos de ambos. Cuando uno vuelve, los animales que dependen de lo que hace suelen seguirlo rápido, porque el hábitat que estaban esperando acaba de construirse."
+				}
+			}
+		},
+		"slowgreen": {
+			"title": "Cómo la tierra pelada se vuelve bosque",
+			"byline": "sucesión",
+			"pages": {
+				"1": {
+					"title": "Primero las malas hierbas",
+					"figures": ["tierra pelada", "malas hierbas y pasto"],
+					"text": "La tierra pelada no se convierte en bosque de golpe. Primero llegan las malas hierbas y los pastos, porque son lo único que puede agarrarse allí. Sujetan el suelo, le dan sombra y frenan el agua que se escurre."
+				},
+				"2": {
+					"title": "Lo que necesitan los arbustos",
+					"figures": ["el pasto sujeta el suelo", "hojarasca y sombra", "se establecen los arbustos"],
+					"text": "Ese suelo cambiado es lo que los arbustos necesitan para establecerse. Los arbustos añaden raíces más profundas, hojarasca y más sombra, y solo en la tierra que eso genera sobrevivirán la mayoría de las plántulas de árbol sus primeros años. Cada etapa hace posible la siguiente y luego queda en parte sustituida por ella."
+				},
+				"3": {
+					"title": "Un brote todavía no es hábitat",
+					"figures": ["ya crecido", "entonces sostiene un nido"],
+					"text": "A esa secuencia se le llama sucesión, y va al ritmo de las plantas, no al de nadie más. Un brote todavía no es hábitat. Tiene que crecer del todo antes de dar sombra a algo, alimentar a algo o sostener un nido."
+				},
+				"4": {
+					"title": "Tarde, y luego deprisa",
+					"figures": ["pelada", "pasto", "arbusto", "árbol"],
+					"text": "Vale la pena saberlo durante el tramo en que una zona plantada parece no hacer nada. Las raíces bajan, el agua se retiene más tiempo en el suelo y la semilla se acumula en la tierra. El cambio visible llega tarde, y luego llega deprisa."
+				}
+			}
 		}
 	}
 }

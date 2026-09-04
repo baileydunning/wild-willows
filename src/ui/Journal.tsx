@@ -5,7 +5,7 @@ import { customGoalsUnlocked, guideToolId, hasGuide, hasExpandedGuide } from '..
 import { animalSpriteDataUri } from '../game/sprites';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { Icon } from './icons';
+import { Icon, ObjectIcon } from './icons';
 import { journalNav, type JournalLoc } from './journalNav';
 import { effort } from './journalSort';
 import { placedCount, waterShape } from '../recipes';
@@ -1307,6 +1307,213 @@ export function AnimalCard() {
 							<button className="link" onClick={backToJournal}>
 								{t('panels.journal.backToJournal')}
 							</button>
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/* ============================================================ Board of Finds
+ *
+ * The pin board you hang in the house (`home-findsboard`), opened by walking up
+ * to it and pressing the interact key — see attachFixtureActions in WorldScene.
+ *
+ * It is a VIEW, not a record. Everything on it is derived at render time from
+ * the discoveries already in the snapshot, so hanging the board (or taking it
+ * down, or never crafting one at all) changes nothing about the save: there is
+ * no sighting log, no counter, and nothing new to keep in sync. The journal is
+ * still the reference work — this is the scrapbook version of the same facts,
+ * newest first, which is the one question the journal's alphabetical overview
+ * can't answer: who turned up last?
+ */
+
+/** One find, ordered newest-first: the discovery row and the animal it is about. */
+interface Find {
+	disc: Discovery;
+	animal: AnimalDef;
+}
+
+/** The day an animal first turned up, in the player's own locale. */
+const findDate = (disc: Discovery) => new Date(disc.firstObservedAt).toLocaleDateString();
+
+/** A pinned note. The hero is the same card, drawn larger with its fact. */
+function FindNote({
+	find,
+	where,
+	onOpen,
+	hero = false,
+}: {
+	find: Find;
+	/** The area it came back to, already localized. */
+	where: string;
+	onOpen: () => void;
+	hero?: boolean;
+}) {
+	const { t, content } = useI18n();
+	const { animal, disc } = find;
+	const name = content('animal', animal.id, 'name', animal.name);
+	return (
+		<button
+			className={hero ? 'finds-note finds-hero' : 'finds-note'}
+			onClick={onOpen}
+			title={t('panels.finds.openNote', { name })}
+			aria-label={t('panels.finds.openNote', { name })}
+		>
+			<span className="finds-pin" aria-hidden="true" />
+			<img className={hero ? 'ani-thumb-lg' : 'ani-thumb'} src={animalSpriteDataUri(animal.id, animal.kind)} alt="" />
+			<span className="finds-note-text">
+				<span className="finds-name">{name}</span>
+				<span className="finds-where">
+					<Icon name="leaf" size={10} /> {where}
+				</span>
+				<span className="finds-when">
+					{t('panels.finds.cameBack', { date: findDate(disc) })}
+					{hero && <> · {t('panels.finds.seen', { count: disc.timesObserved })}</>}
+				</span>
+				<span className={`comfort comfort-${comfortLabel(disc.comfort)}`}>{comfortText(disc.comfort)}</span>
+			</span>
+		</button>
+	);
+}
+
+/**
+ * One note taken down off the board and read.
+ *
+ * Deliberately NOT the journal's animal card. The card is the reference work —
+ * role, food web, requirements, sources — and reaching it from here would make
+ * the board a second front door to the journal rather than a thing of its own.
+ * A note holds what a note holds: who it is, where and when they turned up, and
+ * the line you wrote about them. Back goes back to the board, not to a journal
+ * the player never opened.
+ */
+function FindNoteDetail({ find, where, onBack }: { find: Find; where: string; onBack: () => void }) {
+	const { t, content } = useI18n();
+	const { animal, disc } = find;
+	return (
+		<div className="finds-detail">
+			<span className="finds-pin" aria-hidden="true" />
+			<img className="ani-thumb-lg" src={animalSpriteDataUri(animal.id, animal.kind)} alt="" />
+			<h3 className="finds-detail-name">{content('animal', animal.id, 'name', animal.name)}</h3>
+			<p className="finds-where">
+				<Icon name="leaf" size={11} /> {where}
+			</p>
+			<p className="finds-when">
+				{t('panels.finds.cameBack', { date: findDate(disc) })} · {t('panels.finds.seen', { count: disc.timesObserved })}
+			</p>
+			<span className={`comfort comfort-${comfortLabel(disc.comfort)}`}>{comfortText(disc.comfort)}</span>
+			<p className="finds-fieldnote">{content('animal', animal.id, 'fact', animal.fact)}</p>
+			<button className="link" onClick={onBack}>
+				{t('panels.finds.backToBoard')}
+			</button>
+		</div>
+	);
+}
+
+export function FindsBoardPanel() {
+	const { data, state, setPanel } = useGame();
+	const { t, content } = useI18n();
+	// Which note is being read, if any. Panel-local: taking a note down and
+	// pinning it back up is not something the save should hear about.
+	const [openId, setOpenId] = useState<string | null>(null);
+	if (!data || !state) return null;
+
+	const byId = new Map(data.animals.map((a) => [a.id, a]));
+	// Newest first — the whole point of the board. Ties (a batch that arrived on
+	// the same action) fall back to the name so the order is at least stable
+	// across renders rather than however the rows happen to come back.
+	const finds: Find[] = state.discoveries
+		.map((disc) => ({ disc, animal: byId.get(disc.animalId) }))
+		.filter((f): f is Find => !!f.animal)
+		.sort(
+			(x, y) =>
+				y.disc.firstObservedAt - x.disc.firstObservedAt ||
+				content('animal', x.animal.id, 'name', x.animal.name).localeCompare(
+					content('animal', y.animal.id, 'name', y.animal.name),
+				),
+		);
+	const [newest, ...earlier] = finds;
+
+	// One chip per area the player has unlocked, in trail order. An area with
+	// nothing back yet still gets a chip: 0/25 is a place to go, and hiding it
+	// would make the board quietly shrink the preserve.
+	const unlocked = new Set(state.biomeStates.filter((b) => b.unlocked).map((b) => b.biomeId));
+	const tallies = [...data.biomes]
+		.filter((b) => unlocked.has(b.id))
+		.sort((a, b) => a.order - b.order)
+		.map((b) => {
+			const all = data.animals.filter((a) => a.biome === b.id);
+			return {
+				id: b.id,
+				name: content('biome', b.id, 'name', b.name),
+				back: all.filter((a) => finds.some((f) => f.animal.id === a.id)).length,
+				total: all.length,
+			};
+		});
+
+	// Where it came back — the discovery's own area, which is the animal's home
+	// biome in every case the game can produce today, but the row is the record.
+	const areaName = (f: Find) => {
+		const b = data.biomes.find((bb) => bb.id === (f.disc.biomeId || f.animal.biome));
+		return b ? content('biome', b.id, 'name', b.name) : f.animal.biome;
+	};
+
+	const close = () => setPanel(null);
+	const reading = finds.find((f) => f.animal.id === openId) || null;
+
+	return (
+		<div className="panel-backdrop" onClick={close}>
+			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
+				<div className="panel-head">
+					<h2>
+						<ObjectIcon shape="findsboard" size={20} color="#b98f5a" /> {t('panels.finds.title')}
+					</h2>
+					<div className="panel-head-actions">
+						{reading && (
+							<button className="icon-btn" onClick={() => setOpenId(null)} aria-label={t('panels.finds.backToBoard')}>
+								<Icon name="back" />
+							</button>
+						)}
+						<button className="icon-btn" onClick={close} aria-label={t('panels.common.close')}>
+							<Icon name="close" />
+						</button>
+					</div>
+				</div>
+				<div className="panel-body finds-body">
+					{reading ? (
+						<FindNoteDetail find={reading} where={areaName(reading)} onBack={() => setOpenId(null)} />
+					) : !finds.length ? (
+						<p className="muted small overview-empty">
+							<Icon name="pin" size={14} /> {t('panels.finds.empty')}
+						</p>
+					) : (
+						<>
+							<p className="finds-count">
+								{t('panels.finds.count', { count: finds.length, total: data.animals.length })}
+							</p>
+							<div className="finds-tallies">
+								{tallies.map((b) => (
+									<span key={b.id} className="finds-tally">
+										<Icon name="leaf" size={10} /> {b.name}{' '}
+										<b>
+											{b.back}/{b.total}
+										</b>
+									</span>
+								))}
+							</div>
+							<h3>{t('panels.finds.newest')}</h3>
+							<FindNote find={newest} where={areaName(newest)} hero onOpen={() => setOpenId(newest.animal.id)} />
+							{earlier.length > 0 && (
+								<>
+									<h3>{t('panels.finds.earlier')}</h3>
+									<div className="finds-grid">
+										{earlier.map((f) => (
+											<FindNote key={f.animal.id} find={f} where={areaName(f)} onOpen={() => setOpenId(f.animal.id)} />
+										))}
+									</div>
+								</>
+							)}
 						</>
 					)}
 				</div>

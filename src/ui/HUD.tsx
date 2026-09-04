@@ -1,8 +1,11 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
+import type { ReactNode } from 'react';
 import { bridge } from '../game/bridge';
 import { useGame, useGameFeed } from '../state';
 import { useI18n } from '../i18n/react';
 import { homePerkStrength } from '../types';
+import { cozyOptsFor } from '../homeAbilities';
+import { COZY_KINDS, COZY_TIERS, readCoziness, type CozyReading } from '../../server/cozy';
 import {
 	weatherType,
 	seasonStyle,
@@ -18,6 +21,7 @@ import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
 import { TasksWidget } from './TasksWidget';
 import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
+import { liveTime } from '../weather';
 
 export function Meter({
 	label,
@@ -157,6 +161,11 @@ export function HUD() {
 
 	useEffect(() => bridge.on('prompt', (p: string) => setPrompt(p || '')), []);
 
+	// One id→def map for the coziness reading below, rebuilt only when the
+	// definitions themselves change (which is never, in practice). A .find() per
+	// placement per render is what this replaces.
+	const objectDefs = useMemo(() => new Map((data?.habitatObjects || []).map((o) => [o.id, o])), [data?.habitatObjects]);
+
 	if (!data || !state) return null;
 	const area = state.player.area;
 	const biome = data.biomes.find((b) => b.id === area);
@@ -173,14 +182,32 @@ export function HUD() {
 	const home = state.player.home;
 	const homeBuilt = !!home?.styleLocked;
 	const homeName = homeBuilt ? data.homeStyles?.[home!.style]?.name || t('app.hud.yourHome') : t('app.hud.canvasTent');
-	const homeCarry = data.homeTracks?.comfort?.levels?.[(home?.comfort || 1) - 1]?.carry || 0;
-	const homeDecor = state.placements.filter((p) => p.area === 'home').length;
+	const homePlacements = state.placements.filter((p) => p.area === 'home');
+	const homeDecor = homePlacements.length;
+	// How cozy the room actually is, computed HERE from the placements the client
+	// already holds rather than read off the save — so the meter moves on the same
+	// frame you set a chair down, instead of on the next round trip. It is the
+	// same function the server scores the buff with (server/cozy.ts), and it takes
+	// the same Furnishings multiplier, so the two can never disagree about what
+	// the room is worth.
+	const cozyBoost = data.homeTracks?.decor?.levels?.[(home?.decor || 1) - 1]?.cozyBoost || 0;
+	const cozy = readCoziness(
+		homePlacements,
+		(id) => objectDefs.get(id),
+		homeBuilt ? cozyBoost : 0,
+		cozyOptsFor(home, data.homeTracks),
+	);
+	const homeCarry =
+		(data.homeTracks?.comfort?.levels?.[(home?.comfort || 1) - 1]?.carry || 0) + (homeBuilt ? cozy.carry : 0);
 	// The house perk (and its current strength) + every upgrade track level, so
 	// the Your Home card shows all the buffs and upgrades you've earned.
 	const homeStyleDef = homeBuilt ? data.homeStyles?.[home!.style] : undefined;
 	const homePerk = homeStyleDef?.perk;
-	const homePerkStr = homePerk && home ? homePerkStrength(homePerk, home) : 0;
+	const homePerkStr = homePerk && home ? homePerkStrength(homePerk, home, cozy.perk) : 0;
 	const homeTrackDefs: Record<string, any> = data.homeTracks || {};
+	// Well rested: the morning-after speed boost a cozy home buys (server/cozy.ts).
+	const restedLeft = (state.player.restedUntil || 0) - liveTime(state.weather);
+	const restedOn = homeBuilt && restedLeft > 0 && cozy.speed > 1;
 
 	const toggle = (id: any) => setPanel(panel === id ? null : id);
 	// Show each menu's CURRENT key (custom bindings included), matched by panel id.
@@ -220,7 +247,9 @@ export function HUD() {
 	return (
 		<>
 			<div className="hud-left-col">
-				<div className="hud-top-left">
+				{/* Indoors the card carries no goal line, so it stops at its own width
+				    rather than filling the column — see .hud-card-home. */}
+				<div className={`hud-top-left ${isHome || tentBiome ? 'hud-card-home' : ''}`}>
 					{isHome ? (
 						<>
 							<div className="hud-area-name">
@@ -230,25 +259,79 @@ export function HUD() {
 								<Icon name="sparkle" size={13} /> {homeName}
 								{homeCarry > 0 ? t('app.hud.carrySuffix', { count: homeCarry }) : ''}
 							</div>
-							<div className="hud-returned hud-returned-total">
-								<Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}
-							</div>
-							{homeBuilt && homePerk && (
-								<div
-									className="hud-home-perk"
-									title={t(`panels.home.perkBlurb.${homePerk.id}`, { pct: Math.round(homePerkStr * 100) })}
-								>
-									<Icon name="sparkle" size={12} /> {t(`panels.home.perkName.${homePerk.id}`)} ·{' '}
-									{Math.round(homePerkStr * 100)}%
+							{homeBuilt && <CozyMeter cozy={cozy} pieces={homeDecor} />}
+							{!homeBuilt && (
+								<div className="hud-returned hud-returned-total">
+									<Icon name="leaf" size={12} /> {t('app.hud.thingsPlaced', { count: homeDecor })}
+								</div>
+							)}
+							{homeBuilt && (homePerk || restedOn) && (
+								<div className="hud-home-buffs">
+									{homePerk && (
+										<BuffChip
+											icon="sparkle"
+											detail={
+												<>
+													<b>{t(`panels.home.perkName.${homePerk.id}`)}</b>
+													<span>
+														{t(`panels.home.perkBlurb.${homePerk.id}`, { pct: Math.round(homePerkStr * 100) })}
+													</span>
+													<span className="pop-rule">
+														{t('app.hud.perkSplit', {
+															upgrades: Math.round((homePerkStr - cozy.perk) * 100),
+															cozy: Math.round(cozy.perk * 100),
+														})}
+													</span>
+												</>
+											}
+										>
+											{t(`panels.home.perkName.${homePerk.id}`)} <b>{Math.round(homePerkStr * 100)}%</b>
+										</BuffChip>
+									)}
+									{cozy.carry > 0 && (
+										<BuffChip
+											icon="basket"
+											detail={
+												<>
+													<b>{t('app.hud.cozyCarryTitle', { count: cozy.carry })}</b>
+													<span>{t('app.hud.cozyCarryHint')}</span>
+												</>
+											}
+										>
+											<b>+{cozy.carry}</b>
+										</BuffChip>
+									)}
+									{restedOn && (
+										<BuffChip
+											icon="star"
+											tone="hud-buff-rested"
+											detail={
+												<>
+													<b>{t('app.hud.wellRested')}</b>
+													<span>{t('app.hud.restedHint')}</span>
+												</>
+											}
+										>
+											<b>+{Math.round((cozy.speed - 1) * 100)}%</b>
+										</BuffChip>
+									)}
 								</div>
 							)}
 							{homeBuilt && (
 								<div className="hud-home-tracks">
-									{HOME_TRACK_ORDER.filter((k) => homeTrackDefs[k]).map((k) => (
-										<span key={k} className="hud-home-track" title={homeTrackDefs[k].name}>
-											{homeTrackDefs[k].name} {t('app.hud.trackLevel', { level: (home as any)?.[k] || 1 })}
-										</span>
-									))}
+									{HOME_TRACK_ORDER.filter((k) => homeTrackDefs[k]).map((k) => {
+										const lv = (home as any)?.[k] || 1;
+										const max = homeTrackDefs[k].levels?.length || lv;
+										return (
+											<span
+												key={k}
+												className={`hud-home-track ${lv >= max ? 'maxed' : ''}`}
+												title={`${homeTrackDefs[k].name} — ${homeTrackDefs[k].blurb}`}
+											>
+												{homeTrackDefs[k].name} {t('app.hud.trackLevel', { level: lv })}
+											</span>
+										);
+									})}
 								</div>
 							)}
 						</>
@@ -449,6 +532,115 @@ export function HUD() {
 				</div>
 			)}
 		</>
+	);
+}
+
+/**
+ * A buff chip with a hover/focus tooltip that says exactly what it does.
+ *
+ * The chips are deliberately terse — "Green Thumb 37%" is what you want to see
+ * at a glance while playing — so the detail lives one hover away instead of
+ * being crammed onto the card or hidden in a native `title` that takes a second
+ * to appear and can't be styled. Focusable, so it isn't mouse-only.
+ */
+function BuffChip({
+	icon,
+	tone,
+	children,
+	detail,
+}: {
+	icon: string;
+	tone?: string;
+	children: ReactNode;
+	detail: ReactNode;
+}) {
+	// A real <button>, not a tabbable span: the chip exists to reveal the
+	// explanation, which is a disclosure, and a button gets keyboard focus, the
+	// focus ring and screen-reader semantics without any of it being reinvented.
+	return (
+		<button type="button" className={`hud-buff ${tone || ''}`}>
+			<Icon name={icon} size={11} />
+			{children}
+			<span className="hud-buff-pop" role="tooltip">
+				{detail}
+			</span>
+		</button>
+	);
+}
+
+/**
+ * The coziness meter on the Your Home card.
+ *
+ * Decorating used to be worth a line of grey text that counted your furniture
+ * and told you nothing. This is the same fact turned into a thing worth doing:
+ * a bar climbing toward a named rung, with a hover that says what the number is
+ * made of — pieces, distinct things, comforts covered — because range is
+ * eighty-five of the hundred points (server/cozy.ts).
+ *
+ * Colour is one family on purpose. The tiers differ by how much of the bar is
+ * filled and what it's called, not by hue: a meter that turns orange at the top
+ * reads as a warning on a card that is otherwise entirely green, and the room
+ * getting cozier is not a warning.
+ *
+ * The tier-up flash is deliberately not a toast: reaching Snug happens the
+ * instant the lamp lands, and the reward should be on the thing you were
+ * already looking at rather than somewhere else on screen.
+ */
+function CozyMeter({ cozy, pieces }: { cozy: CozyReading; pieces: number }) {
+	const { t } = useI18n();
+	// The bar is the WHOLE road, 0–100, with the rungs notched on it. You should
+	// be able to see that Beloved exists and how far off it is from the moment
+	// you put down your first chair; a bar that resets at every rung hides the
+	// shape of the thing.
+	const pct = Math.max(cozy.score > 0 ? 2 : 0, Math.min(100, cozy.score));
+
+	// Flash when the rung changes. Keyed off the tier we last DREW, so it fires
+	// on the way up and on the way down (taking the room apart should land too),
+	// and never on the first render of a save that was already cozy.
+	const [flash, setFlash] = useState(false);
+	const drawn = useRef<number | null>(null);
+	useEffect(() => {
+		if (drawn.current !== null && drawn.current !== cozy.tier) {
+			setFlash(true);
+			const id = window.setTimeout(() => setFlash(false), 1600);
+			drawn.current = cozy.tier;
+			return () => window.clearTimeout(id);
+		}
+		drawn.current = cozy.tier;
+	}, [cozy.tier]);
+
+	return (
+		<button type="button" className={`hud-cozy tier-${cozy.tierId} ${flash ? 'cozy-flash' : ''}`}>
+			<div className="hud-cozy-head">
+				<b>{t(`app.hud.cozyTier.${cozy.tierId}`)}</b>
+				<span className="hud-cozy-count">{t('app.hud.thingsPlaced', { count: pieces })}</span>
+			</div>
+			<div className="hud-cozy-track">
+				<div className="hud-cozy-fill" style={{ width: `${pct}%` }} />
+				{COZY_TIERS.slice(1).map((tier, i) => (
+					<span
+						key={tier.id}
+						className={`hud-cozy-notch ${i + 1 <= cozy.tier ? 'passed' : ''}`}
+						style={{ left: `${tier.min}%` }}
+						aria-hidden="true"
+					/>
+				))}
+			</div>
+			{/* The same detail the chips get: what this number is, and what it is
+			    made of — pieces, distinct things, comforts covered. */}
+			<span className="hud-buff-pop hud-cozy-pop" role="tooltip">
+				<b>{t('app.hud.cozyScore', { score: cozy.score })}</b>
+				<span>{t('app.hud.cozyHint')}</span>
+				<span className="pop-rule">
+					{t('app.hud.cozyBreakdown', {
+						pieces,
+						types: cozy.types,
+						kinds: cozy.kinds.length,
+						all: COZY_KINDS.length,
+					})}
+				</span>
+			</span>
+		</button>
 	);
 }
 

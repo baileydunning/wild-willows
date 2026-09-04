@@ -396,6 +396,25 @@ export const INDOOR: SpriteSet = {
 		shell(17, '#f0e2d2');
 		shell(25, '#e3c9b4');
 	}),
+	willowmirror: def(30, 30, (g) => {
+		// The meadow's mirror: a round glass in a bent willow-withy hoop, bound at
+		// the top. Deliberately plainer than driftmirror — this is the one you can
+		// make once five animals are back, before the coast is open at all.
+		g.fillStyle(C('#cfe0ee'), 1).fillCircle(15, 15, 9); // glass
+		g.fillStyle(0xffffff, 0.55).fillEllipse(12, 11, 8, 5); // reflection
+		// the hoop: two withies twisted round each other, so it reads as woven
+		for (const [tint, off] of [
+			['#8a6a48', 0],
+			['#a4835c', Math.PI / 12],
+		] as const) {
+			g.fillStyle(C(tint), 1);
+			for (let i = 0; i < 16; i++) {
+				const an = (i / 16) * Math.PI * 2 + off;
+				g.fillCircle(15 + Math.cos(an) * 11.5, 15 + Math.sin(an) * 11.5, 2.1);
+			}
+		}
+		g.fillStyle(C('#6e4a33'), 1).fillRoundedRect(13, 1, 4, 5, 1.5); // the binding
+	}),
 	driftmirror: def(30, 30, (g) => {
 		g.fillStyle(C('#cfe0ee'), 1).fillCircle(15, 15, 9); // glass
 		g.fillStyle(0xffffff, 0.55).fillEllipse(12, 11, 8, 5); // reflection

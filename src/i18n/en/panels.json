@@ -161,6 +161,7 @@
 		"upgrades": "Upgrades",
 		"level": "· level {level}/{max}",
 		"maxedOut": "Maxed out.",
+		"roomCount": "{count} rooms",
 		"upgrade": "Upgrade",
 		"perkActive": "· house perk",
 		"perkName": {
@@ -348,6 +349,32 @@
 			"one": "{correct} of {count} read right so far.",
 			"other": "{correct} of {count} read right so far."
 		}
+	},
+	"finds": {
+		"_readme": "The Board of Finds — the pin board hung in the house. A view over discoveries already in the save; it records nothing of its own.",
+		"title": "Board of Finds",
+		"empty": "Nothing pinned yet. Restore some habitat and the animals will start turning up — every one that does gets a note on this board.",
+		"count": {
+			"one": "{count} of {total} species has found its way back.",
+			"other": "{count} of {total} species have found their way back."
+		},
+		"newest": "Latest find",
+		"earlier": "Earlier finds",
+		"cameBack": "Came back {date}",
+		"openNote": "Read the note on {name}",
+		"backToBoard": "Back to the board",
+		"seen": {
+			"one": "seen once",
+			"other": "seen {count} times"
+		}
+	},
+	"stories": {
+		"title": "Bookshelf",
+		"intro": "Four short pieces on how the preserve actually works.",
+		"back": "Back to the shelf",
+		"prev": "Previous page",
+		"next": "Next page",
+		"page": "{n} of {total}"
 	},
 	"achievements": {
 		"title": "Progress",

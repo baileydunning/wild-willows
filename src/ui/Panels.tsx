@@ -4,6 +4,8 @@ import { useGame } from '../state';
 import type { ChestState, RecipeDef } from '../types';
 import { customGoalsUnlocked, guideBiomeFor } from '../types';
 import { homePerkStrength } from '../types';
+import { COZY_TIERS, readCoziness } from '../../server/cozy';
+import { HOME_ABILITIES, cozyOptsFor, craftCostWith, homeAbilitiesOf, hasHomeAbility } from '../homeAbilities';
 import { recipeUnlocked, recipeSearchScore, upcomingRecipes } from '../recipes';
 import { useGear, setGear, GEAR_IDS, type GearId } from '../gear';
 import { nextHealthMilestone } from '../health';
@@ -24,6 +26,8 @@ import { useI18n } from '../i18n/react';
 import { Meter } from './HUD';
 import { Icon, ObjectIcon, ResourceIcon } from './icons';
 import { BIOME_LORE, loreStage } from './lore';
+import { stories, story, type StoryId } from './stories';
+import { StoryCover, StoryPlate } from './storyArt';
 
 function Panel({
 	title,
@@ -381,10 +385,16 @@ export function CraftingPanel() {
 		return { inInv, inChests, total: inInv + inChests };
 	};
 
+	// What a recipe costs THIS house — Fine Fittings (Furnishings 5) takes a
+	// quarter off anything for indoors. The same function the server charges
+	// with, so the card can never quote a price the craft doesn't honour.
+	const fineFittings = hasHomeAbility(player.home, data.homeTracks, 'fineFittings');
+	const costOf = (r: RecipeDef) => craftCostWith(r, fineFittings);
+
 	const canCraft = (r: RecipeDef) => {
 		if (!player.unlockedBiomes.includes(r.unlockBiome)) return false;
 		if (r.requiresTool && (player.tools?.[r.requiresTool.id] || 1) < r.requiresTool.tier) return false;
-		return Object.entries(r.materials).every(([id, q]) => availability(id).total >= q);
+		return Object.entries(costOf(r)).every(([id, q]) => availability(id).total >= q);
 	};
 
 	const catLabel: Record<string, string> = {
@@ -676,7 +686,7 @@ export function CraftingPanel() {
 										</div>
 										<AreaTags data={data} def={def} />
 										<div className="mats">
-											{Object.entries(r.materials).map(([id, q]) => {
+											{Object.entries(costOf(r)).map(([id, q]) => {
 												const av = availability(id);
 												const enough = av.total >= q;
 												return (
@@ -1254,7 +1264,23 @@ export function HomePanel() {
 
 	// Stage 2 — built: show the chosen style, its live perk, and the four upgrade tracks.
 	const perk = styles[home.style]?.perk;
-	const perkStrength = perk ? homePerkStrength(perk, home) : 0;
+	// Coziness lives on the HUD card, not here — this menu is about the upgrade
+	// TRACKS, and a second copy of the meter in the place you come to spend
+	// materials was just noise. The perk number still has to include what the
+	// room contributes, though, or the two would quote different figures.
+	const cozyBoost = tracks.decor?.levels?.[(home.decor || 1) - 1]?.cozyBoost || 0;
+	const cozy = readCoziness(
+		state.placements.filter((p) => p.area === 'home'),
+		(id: string) => data.habitatObjects.find((o) => o.id === id),
+		cozyBoost,
+		cozyOptsFor(home, tracks),
+	);
+	// Everything the house can already DO, as opposed to everything it is worth.
+	// Shown together under the perk rather than scattered down the tracks,
+	// because by the time there are several of them "what does my house do" is a
+	// question with one answer and the tracks are a shopping list.
+	const abilities = [...homeAbilitiesOf(home, tracks)].map((id) => HOME_ABILITIES[id]);
+	const perkStrength = perk ? homePerkStrength(perk, home, cozy.perk) : 0;
 	return (
 		<Panel title={t('panels.home.title')} icon="home" onClose={() => setPanel(null)} wide>
 			<p className="muted">
@@ -1268,9 +1294,26 @@ export function HomePanel() {
 						<span className="muted small">{t('panels.home.perkActive')}</span>
 						<div className="muted small">
 							{t(`panels.home.perkBlurb.${perk.id}`, { pct: Math.round(perkStrength * 100) })}{' '}
-							{perkStrength < perk.cap ? t('panels.home.perkGrows') : t('panels.home.perkMax')}
+							{/* "Fully strengthened" now means BOTH halves are maxed — the upgrade
+							    tracks and the room — so a maxed-out house with a bare room is
+							    still told, correctly, that it has somewhere to go. */}
+							{perkStrength < perk.cap + COZY_TIERS[COZY_TIERS.length - 1].perk
+								? t('panels.home.perkGrows')
+								: t('panels.home.perkMax')}
 						</div>
 					</div>
+				</div>
+			)}
+			{abilities.length > 0 && (
+				<div className="home-abilities">
+					{abilities.map((a) => (
+						<div className="home-ability" key={a.id}>
+							<Icon name="sparkle" size={12} />
+							<span>
+								<b>{a.name}</b> <span className="muted">{a.blurb}</span>
+							</span>
+						</div>
+					))}
 				</div>
 			)}
 			<h3>{t('panels.home.upgrades')}</h3>
@@ -1281,6 +1324,7 @@ export function HomePanel() {
 				const next = def.levels[level]; // the (level+1)th entry
 				const gateMet = !next?.requires || biomeHealth(next.requires.biome) >= next.requires.minHealth;
 				const canAfford = !next || Object.entries(next.materials || {}).every(([id, q]) => avail(id) >= q);
+				const nextAbility = next?.ability ? HOME_ABILITIES[next.ability as keyof typeof HOME_ABILITIES] : undefined;
 				return (
 					<div className={`recipe ${!next || (gateMet && canAfford) ? '' : 'recipe-off'}`} key={key}>
 						<ObjectIcon shape={TRACK_SHAPE[key]} size={34} />
@@ -1289,6 +1333,28 @@ export function HomePanel() {
 							<div className="muted small">{def.blurb}</div>
 							{next ? (
 								<>
+									{/* What the NEXT level opens — the named ability it switches on, or,
+									    for Space, the floor plan it lays out. This is the whole reason
+									    to keep climbing past level 4, so it goes above the price. */}
+									{nextAbility && (
+										<div className="small home-ability home-ability-next">
+											<Icon name="sparkle" size={12} />
+											<span>
+												<b>{nextAbility.name}</b> <span className="muted">{nextAbility.blurb}</span>
+											</span>
+										</div>
+									)}
+									{!nextAbility && next.label && (
+										<div className="small home-ability home-ability-next">
+											<Icon name="sparkle" size={12} />
+											<span>
+												<b>{next.label}</b>{' '}
+												<span className="muted">
+													{t('panels.home.roomCount', { count: (next.rooms || []).length || 1 })}
+												</span>
+											</span>
+										</div>
+									)}
 									<div className="mats">
 										{Object.entries(next.materials || {}).map(([id, q]) => (
 											<span key={id} className={`mat ${avail(id) >= q ? 'mat-ok' : 'mat-no'}`}>
@@ -1536,6 +1602,110 @@ export function MaterialsPanel() {
 						</>
 					)}
 					<p className="muted small">{t('panels.materials.note')}</p>
+				</>
+			)}
+		</Panel>
+	);
+}
+
+/**
+ * The bookshelf: four short pieces, one per ecology idea the preserve models,
+ * written plainly rather than in character. Opened by walking up to a Bookshelf
+ * indoors and pressing the interact key — there is no menu key for it, because
+ * it is a thing in a place rather than a screen you carry around.
+ *
+ * Shelf first, then one book, one page at a time. `back` returns to the shelf
+ * rather than closing, so putting one down and picking up another costs a single
+ * click, and each book reopens at its first page.
+ *
+ * Paging is on the buttons only, deliberately: the arrow keys are bound to
+ * movement and Phaser captures them at the window, so paging with them would
+ * walk the caretaker across the room behind the panel. Tab and Enter reach the
+ * buttons for anyone not using a mouse.
+ *
+ * The picture at the head of each page is drawn from the world's own sprites,
+ * and the covers on the shelf are sprites too (see ui/storyArt.tsx), so nothing
+ * here is a picture the preserve cannot make.
+ */
+export function StoriesPanel() {
+	const { setPanel } = useGame();
+	const { t } = useI18n();
+	// Which book is open, or null for the shelf itself, and how far into it.
+	const [openId, setOpenId] = useState<StoryId | null>(null);
+	const [page, setPage] = useState(0);
+	// Scroll back to the top on every turn of the page — a long page otherwise
+	// drops you into the middle of the next one.
+	const bodyRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		bodyRef.current?.scrollTo?.({ top: 0 });
+	}, [openId, page]);
+
+	const open = openId ? story(openId) : null;
+	const total = open?.pages.length || 0;
+	const here = open?.pages[page];
+
+	const openBook = (id: StoryId) => {
+		setOpenId(id);
+		setPage(0);
+	};
+
+	return (
+		<Panel
+			title={open ? open.title : t('panels.stories.title')}
+			icon="note"
+			onClose={() => setPanel(null)}
+			bodyRef={bodyRef}
+		>
+			{!open || !here ? (
+				<>
+					<p className="muted">{t('panels.stories.intro')}</p>
+					<div className="story-shelf">
+						{stories().map((s) => (
+							<button key={s.id} className="story-spine" onClick={() => openBook(s.id)}>
+								<StoryCover id={s.id} size={40} />
+								<span className="story-spine-text">
+									<span className="story-spine-title">{s.title}</span>
+									<span className="muted small">{s.byline}</span>
+								</span>
+								<Icon name="forward" size={16} />
+							</button>
+						))}
+					</div>
+				</>
+			) : (
+				<>
+					<div className="story-head">
+						<button className="link story-back" onClick={() => setOpenId(null)}>
+							<Icon name="back" size={14} /> {t('panels.stories.back')}
+						</button>
+						<span className="muted small">{open.byline}</span>
+					</div>
+					<StoryPlate id={open.id} page={page} />
+					<h3 className="story-chapter">{here.title}</h3>
+					<div className="story-text">
+						<p>{here.text}</p>
+					</div>
+					<div className="story-pager">
+						<button
+							className="icon-btn"
+							disabled={page === 0}
+							onClick={() => setPage((n) => Math.max(0, n - 1))}
+							title={t('panels.stories.prev')}
+							aria-label={t('panels.stories.prev')}
+						>
+							<Icon name="back" />
+						</button>
+						<span className="muted small">{t('panels.stories.page', { n: page + 1, total })}</span>
+						<button
+							className="icon-btn"
+							disabled={page >= total - 1}
+							onClick={() => setPage((n) => Math.min(total - 1, n + 1))}
+							title={t('panels.stories.next')}
+							aria-label={t('panels.stories.next')}
+						>
+							<Icon name="forward" />
+						</button>
+					</div>
 				</>
 			)}
 		</Panel>

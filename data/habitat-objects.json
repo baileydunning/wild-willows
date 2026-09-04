@@ -1025,7 +1025,8 @@
       "needs": [],
       "shape": "seaglasslantern",
       "color": "#8fc6c2",
-      "description": "Beach-found glass set into a driftwood frame — it throws soft sea-green light at dusk."
+      "description": "Beach-found glass set into a driftwood frame — it throws soft sea-green light at dusk.",
+      "light": true
     },
     {
       "id": "tide-chime",
@@ -1038,7 +1039,8 @@
       "needs": [],
       "shape": "tidechime",
       "color": "#9bbcc8",
-      "description": "Shells and sea glass strung on driftwood that ring softly in the onshore breeze."
+      "description": "Shells and sea glass strung on driftwood that ring softly in the onshore breeze.",
+      "cozyKind": "curio"
     },
     {
       "id": "pearl-display",
@@ -1086,7 +1088,8 @@
       "color": "#8a6a44",
       "isChest": true,
       "chestCapacity": 120,
-      "description": "A woven-and-wood chest. Holds 120 materials. Anything stored here feeds crafting from anywhere."
+      "description": "A woven-and-wood chest. Holds 120 materials. Anything stored here feeds crafting from anywhere.",
+      "cozyKind": "storage"
     },
     {
       "id": "medium-chest",
@@ -1106,7 +1109,8 @@
       "color": "#6e553c",
       "isChest": true,
       "chestCapacity": 250,
-      "description": "A sturdier chest. Holds 250 materials."
+      "description": "A sturdier chest. Holds 250 materials.",
+      "cozyKind": "storage"
     },
     {
       "id": "field-journal-stand",
@@ -1124,7 +1128,8 @@
       "needs": [],
       "shape": "stand",
       "color": "#9a7448",
-      "description": "A little lectern for your field journal — read it anywhere you place one."
+      "description": "A little lectern for your field journal — read it anywhere you place one.",
+      "cozyKind": "surface"
     },
     {
       "id": "flower-vase",
@@ -1215,7 +1220,8 @@
       "needs": [],
       "shape": "lantern",
       "color": "#caa15a",
-      "description": "A little stone lantern with a warm glow to light the path."
+      "description": "A little stone lantern with a warm glow to light the path.",
+      "light": true
     },
     {
       "id": "wooden-bench",
@@ -2208,7 +2214,8 @@
       "needs": [],
       "shape": "campfire",
       "color": "#d8763a",
-      "description": "A crackling campfire ringed with stones — the heart of camp."
+      "description": "A crackling campfire ringed with stones — the heart of camp.",
+      "light": true
     },
     {
       "id": "string-lights",
@@ -2226,7 +2233,9 @@
       "needs": [],
       "shape": "lanternstring",
       "color": "#f0d27a",
-      "description": "A string of warm little lanterns to hang over your camp."
+      "description": "A string of warm little lanterns to hang over your camp.",
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "pinwheel",
@@ -2244,7 +2253,8 @@
       "needs": [],
       "shape": "pinwheel",
       "color": "#e86a8a",
-      "description": "A bright pinwheel that spins in the breeze."
+      "description": "A bright pinwheel that spins in the breeze.",
+      "cozyKind": "curio"
     },
     {
       "id": "birdhouse",
@@ -2280,7 +2290,8 @@
       "needs": [],
       "shape": "flowercart",
       "color": "#b5707a",
-      "description": "A little wooden cart overflowing with cut flowers."
+      "description": "A little wooden cart overflowing with cut flowers.",
+      "cozyKind": "greenery"
     },
     {
       "id": "hammock",
@@ -2298,7 +2309,8 @@
       "needs": [],
       "shape": "hammock",
       "color": "#c8a86a",
-      "description": "A woven hammock strung between two posts for lazy afternoons."
+      "description": "A woven hammock strung between two posts for lazy afternoons.",
+      "cozyKind": "sleeping"
     },
     {
       "id": "garden-gnome",
@@ -2316,7 +2328,8 @@
       "needs": [],
       "shape": "gnome",
       "color": "#c0392b",
-      "description": "A cheerful little gnome to watch over the garden."
+      "description": "A cheerful little gnome to watch over the garden.",
+      "cozyKind": "curio"
     },
     {
       "id": "wind-chimes",
@@ -2334,7 +2347,8 @@
       "needs": [],
       "shape": "windchime",
       "color": "#9bbcc8",
-      "description": "Driftwood chimes that sing softly when the wind moves through."
+      "description": "Driftwood chimes that sing softly when the wind moves through.",
+      "cozyKind": "curio"
     },
     {
       "id": "sundial",
@@ -2388,7 +2402,8 @@
       "needs": [],
       "shape": "picnic",
       "color": "#7a9a5a",
-      "description": "A checked blanket spread out for a sunny picnic."
+      "description": "A checked blanket spread out for a sunny picnic.",
+      "cozyKind": "seating"
     },
     {
       "id": "flower-pots",
@@ -2406,7 +2421,8 @@
       "needs": [],
       "shape": "potrow",
       "color": "#cf7a52",
-      "description": "A tidy row of terracotta pots brimming with blooms."
+      "description": "A tidy row of terracotta pots brimming with blooms.",
+      "cozyKind": "greenery"
     },
     {
       "id": "insect-hotel",
@@ -2727,7 +2743,9 @@
       "shape": "crystallantern",
       "color": "#d8f0fa",
       "description": "A stone lantern set with a glowing shard of quartz that holds the last of the daylight.",
-      "decorative": true
+      "decorative": true,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "obsidian-totem",
@@ -2761,7 +2779,8 @@
       "color": "#5a4632",
       "isChest": true,
       "chestCapacity": 500,
-      "description": "A big iron-banded storage chest. Holds 500 materials — your main stockpile."
+      "description": "A big iron-banded storage chest. Holds 500 materials — your main stockpile.",
+      "cozyKind": "storage"
     },
     {
       "id": "home-rug",
@@ -2772,7 +2791,8 @@
       "needs": [],
       "shape": "rug",
       "color": "#b5707a",
-      "description": "A soft woven rug to warm the floor of your home."
+      "description": "A soft woven rug to warm the floor of your home.",
+      "cozyKind": "curio"
     },
     {
       "id": "home-table",
@@ -2784,7 +2804,8 @@
       "shape": "table",
       "color": "#8a6a48",
       "description": "A small wooden table with a sprig of flowers.",
-      "surface": true
+      "surface": true,
+      "cozyKind": "surface"
     },
     {
       "id": "home-bed",
@@ -2796,7 +2817,8 @@
       "shape": "bed",
       "color": "#7a9ac0",
       "description": "A comfortable bed for resting between restoration days.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "sleeping"
     },
     {
       "id": "home-bookshelf",
@@ -2809,7 +2831,8 @@
       "color": "#6e4a33",
       "description": "A shelf of field guides and well-thumbed nature books.",
       "surface": true,
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "surface"
     },
     {
       "id": "home-armchair",
@@ -2821,7 +2844,8 @@
       "shape": "armchair",
       "color": "#a86f80",
       "description": "A plush armchair to sink into after a long day's restoring.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "seating"
     },
     {
       "id": "home-fireplace",
@@ -2833,7 +2857,9 @@
       "shape": "fireplace",
       "color": "#8e8e8a",
       "description": "A crackling stone hearth that warms the whole room.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-lamp",
@@ -2844,7 +2870,9 @@
       "needs": [],
       "shape": "lamp",
       "color": "#f3d98a",
-      "description": "A soft floor lamp for cozy evenings indoors."
+      "description": "A soft floor lamp for cozy evenings indoors.",
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-potplant",
@@ -2856,7 +2884,8 @@
       "shape": "potplant",
       "color": "#4f7d3a",
       "description": "A leafy potted plant to bring a little of the meadow inside.",
-      "small": true
+      "small": true,
+      "cozyKind": "greenery"
     },
     {
       "id": "home-painting",
@@ -2879,7 +2908,8 @@
       "needs": [],
       "shape": "sleepingbag",
       "color": "#5b7d9a",
-      "description": "A simple sleeping bag — just the thing for a cozy night in the tent."
+      "description": "A simple sleeping bag — just the thing for a cozy night in the tent.",
+      "cozyKind": "sleeping"
     },
     {
       "id": "home-cushions",
@@ -2890,7 +2920,8 @@
       "needs": [],
       "shape": "cushions",
       "color": "#c98a6a",
-      "description": "A pile of soft floor cushions for lounging."
+      "description": "A pile of soft floor cushions for lounging.",
+      "cozyKind": "seating"
     },
     {
       "id": "home-stool",
@@ -2901,7 +2932,8 @@
       "needs": [],
       "shape": "stool",
       "color": "#a86f80",
-      "description": "A simple cushioned stool."
+      "description": "A simple cushioned stool.",
+      "cozyKind": "seating"
     },
     {
       "id": "home-mushroomshelf",
@@ -2913,7 +2945,8 @@
       "shape": "mushroomshelf",
       "color": "#7a5a3a",
       "description": "A little shelf dotted with woodland mushrooms.",
-      "surface": true
+      "surface": true,
+      "cozyKind": "surface"
     },
     {
       "id": "home-reedmat",
@@ -2924,7 +2957,8 @@
       "needs": [],
       "shape": "reedmat",
       "color": "#b9a06a",
-      "description": "A woven reed mat from the marsh."
+      "description": "A woven reed mat from the marsh.",
+      "cozyKind": "curio"
     },
     {
       "id": "home-cactuspot",
@@ -2936,7 +2970,8 @@
       "shape": "cactuspot",
       "color": "#4f8a4a",
       "description": "A hardy little cactus in a clay pot.",
-      "small": true
+      "small": true,
+      "cozyKind": "greenery"
     },
     {
       "id": "home-driftwoodshelf",
@@ -2948,7 +2983,8 @@
       "shape": "driftwoodshelf",
       "color": "#b6a68c",
       "description": "A shelf of weathered driftwood with beach finds.",
-      "surface": true
+      "surface": true,
+      "cozyKind": "surface"
     },
     {
       "id": "home-wallclock",
@@ -2974,7 +3010,8 @@
       "color": "#8a6a48",
       "description": "A sturdy chest of drawers.",
       "surface": true,
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "storage"
     },
     {
       "id": "home-peltrug",
@@ -2986,7 +3023,8 @@
       "shape": "peltrug",
       "color": "#caa15e",
       "description": "A thick, warm rug for cold mountain nights.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "curio"
     },
     {
       "id": "home-chandelier",
@@ -2998,7 +3036,9 @@
       "shape": "chandelier",
       "color": "#caa15e",
       "description": "A grand candle chandelier — fit for a lodge.",
-      "homeMin": 3
+      "homeMin": 3,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-aquarium",
@@ -3010,7 +3050,8 @@
       "shape": "aquarium",
       "color": "#7fb4d8",
       "description": "A glass tank of darting little fish.",
-      "homeMin": 3
+      "homeMin": 3,
+      "cozyKind": "water"
     },
     {
       "id": "home-telescope",
@@ -3022,7 +3063,8 @@
       "shape": "telescope",
       "color": "#5a6b7a",
       "description": "A brass telescope for the clear mountain sky.",
-      "homeMin": 3
+      "homeMin": 3,
+      "cozyKind": "curio"
     },
     {
       "id": "rain-basin",
@@ -3066,7 +3108,9 @@
       "shape": "dewlantern",
       "color": "#a8d2c0",
       "description": "Decoration. A glass globe of glowing morning dew that throws a soft green light — invented, not habitat.",
-      "decorative": true
+      "decorative": true,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "sunstone-cairn",
@@ -3097,7 +3141,8 @@
       "shape": "frostflowerplanter",
       "color": "#bcd9e8",
       "description": "Decoration. A planter of imaginary pale ice-blooms — a made-up flower, not a plant you could grow.",
-      "decorative": true
+      "decorative": true,
+      "cozyKind": "greenery"
     },
     {
       "id": "stormglass-lantern",
@@ -3112,7 +3157,9 @@
       "needs": [],
       "shape": "stormglasslantern",
       "color": "#5566a3",
-      "description": "A shard of lightning-fused glass that flickers with a cold inner light."
+      "description": "A shard of lightning-fused glass that flickers with a cold inner light.",
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "frostflower-vase",
@@ -3125,7 +3172,8 @@
       "color": "#bcd9e8",
       "description": "A glass vase of ice-blooms for the windowsill — they never wilt.",
       "small": true,
-      "homeMin": 1
+      "homeMin": 1,
+      "cozyKind": "greenery"
     },
     {
       "id": "stormglass-chandelier",
@@ -3137,7 +3185,9 @@
       "shape": "stormglasschandelier",
       "color": "#5566a3",
       "description": "A hanging cluster of lightning-glass shards that scatters cool light across the room.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "boardwalk",
@@ -6357,7 +6407,8 @@
       "shape": "buddhastatue",
       "color": "#c9a86a",
       "decorative": true,
-      "description": "A round little figure sat cross-legged with both arms thrown up and a grin across its whole face. Rubbing the belly is supposed to be lucky, and the clay has gone smooth and shiny in that one spot."
+      "description": "A round little figure sat cross-legged with both arms thrown up and a grin across its whole face. Rubbing the belly is supposed to be lucky, and the clay has gone smooth and shiny in that one spot.",
+      "cozyKind": "curio"
     },
     {
       "id": "lucky-toad",
@@ -6376,7 +6427,8 @@
       "shape": "luckytoad",
       "color": "#9ab35c",
       "decorative": true,
-      "description": "A fat three-legged toad sitting on a little heap of coins with one more held in its mouth. Tradition says it faces into the camp, never out, so the luck comes in with you."
+      "description": "A fat three-legged toad sitting on a little heap of coins with one more held in its mouth. Tradition says it faces into the camp, never out, so the luck comes in with you.",
+      "cozyKind": "curio"
     },
     {
       "id": "rippled-sand-bed",
@@ -6454,7 +6506,8 @@
       "needs": [],
       "shape": "lanternrow",
       "color": "#e8c46a",
-      "description": "Lanterns strung low along a path on a woven cord. Hung at knee height on purpose — high lights wash out the meadow and the moths never settle."
+      "description": "Lanterns strung low along a path on a woven cord. Hung at knee height on purpose — high lights wash out the meadow and the moths never settle.",
+      "light": true
     },
     {
       "id": "forest-reading-bench",
@@ -6699,7 +6752,8 @@
       "shape": "rockingchair",
       "color": "#8a6a48",
       "description": "A slat-backed rocker that creaks in exactly the right way.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "seating"
     },
     {
       "id": "home-divider",
@@ -6711,7 +6765,8 @@
       "shape": "roomdivider",
       "color": "#a8895a",
       "description": "A folding screen of woven willow — a quiet corner wherever you stand it.",
-      "homeMin": 3
+      "homeMin": 3,
+      "cozyKind": "curio"
     },
     {
       "id": "home-mosswall",
@@ -6723,7 +6778,8 @@
       "needs": [],
       "shape": "mosswall",
       "color": "#5c8a45",
-      "description": "A framed panel of living moss and lichen. It smells like the forest floor."
+      "description": "A framed panel of living moss and lichen. It smells like the forest floor.",
+      "cozyKind": "greenery"
     },
     {
       "id": "home-barkrelief",
@@ -6747,7 +6803,8 @@
       "needs": [],
       "shape": "wallfern",
       "color": "#4f7d3a",
-      "description": "A fern on a forged bracket, greening a bare stretch of wall."
+      "description": "A fern on a forged bracket, greening a bare stretch of wall.",
+      "cozyKind": "greenery"
     },
     {
       "id": "home-logtable",
@@ -6760,7 +6817,8 @@
       "color": "#6e4a33",
       "description": "A cross-cut log on three legs — every ring of it still countable.",
       "surface": true,
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "surface"
     },
     {
       "id": "home-toadstool",
@@ -6771,7 +6829,8 @@
       "needs": [],
       "shape": "toadstool",
       "color": "#c05a4a",
-      "description": "A round red-capped seat, low to the floor and faintly ridiculous."
+      "description": "A round red-capped seat, low to the floor and faintly ridiculous.",
+      "cozyKind": "seating"
     },
     {
       "id": "home-reedscreen",
@@ -6783,7 +6842,8 @@
       "needs": [],
       "shape": "reedscreen",
       "color": "#b9a06a",
-      "description": "Marsh reeds bound side by side into a panel that softens the room."
+      "description": "Marsh reeds bound side by side into a panel that softens the room.",
+      "cozyKind": "curio"
     },
     {
       "id": "home-dragonflies",
@@ -6820,7 +6880,8 @@
       "color": "#7fae6a",
       "description": "A glass bowl of marsh plants that keeps its own weather.",
       "small": true,
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "greenery"
     },
     {
       "id": "home-reedlantern",
@@ -6831,7 +6892,9 @@
       "needs": [],
       "shape": "reedlantern",
       "color": "#e3c75f",
-      "description": "A tall lantern shaded in woven reed. It throws a soft basket of light."
+      "description": "A tall lantern shaded in woven reed. It throws a soft basket of light.",
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-sundisk",
@@ -6879,7 +6942,8 @@
       "shape": "clayurn",
       "color": "#b0653a",
       "description": "A tall red urn that keeps water cool through the worst of the afternoon.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "storage"
     },
     {
       "id": "home-windowstar",
@@ -6927,7 +6991,8 @@
       "shape": "firewoodrack",
       "color": "#7a5a3a",
       "description": "A stacked rack of split wood, seasoning where it is warm and dry.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "storage"
     },
     {
       "id": "home-shellgarland",
@@ -6940,6 +7005,18 @@
       "shape": "shellgarland",
       "color": "#e6d3c0",
       "description": "A strung line of beach shells that clicks softly in a draught."
+    },
+    {
+      "id": "home-willowmirror",
+      "name": "Willow-Frame Mirror",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "willowmirror",
+      "color": "#8a6a48",
+      "description": "A round mirror in a bent willow hoop. Good enough to see yourself properly."
     },
     {
       "id": "home-driftmirror",
@@ -6975,7 +7052,8 @@
       "shape": "driftbench",
       "color": "#a89880",
       "description": "A bench built from what the tide left, sanded smooth by the sea already.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "seating"
     },
     {
       "id": "home-tideglass",
@@ -6986,7 +7064,9 @@
       "needs": [],
       "shape": "tideglass",
       "color": "#7fb4d8",
-      "description": "Sea glass set into a lantern; the light comes out the colour of shallow water."
+      "description": "Sea glass set into a lantern; the light comes out the colour of shallow water.",
+      "cozyKind": "water",
+      "light": true
     },
     {
       "id": "home-paperbutterflies",
@@ -7034,7 +7114,9 @@
       "shape": "glowjar",
       "color": "#a8d878",
       "description": "A jar of glowing moss on a little stand — the softest light in the house.",
-      "small": true
+      "small": true,
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-antlerrack",
@@ -7069,7 +7151,9 @@
       "needs": [],
       "shape": "mushroomlamp",
       "color": "#e8a86a",
-      "description": "One enormous cap on a pale stem, lit from underneath. Entirely impractical."
+      "description": "One enormous cap on a pale stem, lit from underneath. Entirely impractical.",
+      "cozyKind": "light",
+      "light": true
     },
     {
       "id": "home-mosspouf",
@@ -7081,7 +7165,8 @@
       "shape": "mosspouf",
       "color": "#5c8a45",
       "description": "A round, squashy floor seat stuffed with dried moss. It sighs when you sit.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "seating"
     },
     {
       "id": "home-frogplaques",
@@ -7117,7 +7202,8 @@
       "shape": "pebblefountain",
       "color": "#7fb4d8",
       "description": "Water slipping over stacked pebbles, indoors, forever. Deeply unnecessary.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "water"
     },
     {
       "id": "home-lilystool",
@@ -7128,7 +7214,8 @@
       "needs": [],
       "shape": "lilystool",
       "color": "#6da84e",
-      "description": "A round green seat with one notch cut out of it, exactly like the real thing."
+      "description": "A round green seat with one notch cut out of it, exactly like the real thing.",
+      "cozyKind": "seating"
     },
     {
       "id": "home-fossilplaque",
@@ -7164,7 +7251,8 @@
       "shape": "sandgarden",
       "color": "#e0c08a",
       "description": "A shallow tray of red sand and three stones. Raking it is the whole point.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "curio"
     },
     {
       "id": "home-sunstonebowl",
@@ -7176,7 +7264,9 @@
       "shape": "sunstonebowl",
       "color": "#f0a84a",
       "description": "A clay bowl of sunstone chips that gives back the afternoon long after dark.",
-      "small": true
+      "small": true,
+      "cozyKind": "curio",
+      "light": true
     },
     {
       "id": "home-snowshoes",
@@ -7212,7 +7302,8 @@
       "shape": "snowglobe",
       "color": "#cfe6f2",
       "description": "The whole ridge under glass, and a blizzard whenever you want one.",
-      "small": true
+      "small": true,
+      "cozyKind": "curio"
     },
     {
       "id": "home-cocoastand",
@@ -7224,7 +7315,8 @@
       "shape": "cocoastand",
       "color": "#a8653a",
       "description": "A little pot on a stand that is somehow always warm. Nobody asks how.",
-      "small": true
+      "small": true,
+      "cozyKind": "surface"
     },
     {
       "id": "home-bottlerack",
@@ -7236,7 +7328,8 @@
       "needs": [],
       "shape": "bottlerack",
       "color": "#7fb4a0",
-      "description": "A rack of corked bottles, each with a note in it you have not sent yet."
+      "description": "A rack of corked bottles, each with a note in it you have not sent yet.",
+      "cozyKind": "storage"
     },
     {
       "id": "home-kelppress",
@@ -7260,7 +7353,8 @@
       "shape": "modelboat",
       "color": "#c3b49a",
       "description": "A small boat on a stand, rigged with real thread. It has never been wet.",
-      "small": true
+      "small": true,
+      "cozyKind": "curio"
     },
     {
       "id": "home-lighthouselamp",
@@ -7272,7 +7366,9 @@
       "shape": "lighthouselamp",
       "color": "#e8544a",
       "description": "A knee-high lighthouse whose beam goes slowly round the room all night.",
-      "homeMin": 2
+      "homeMin": 2,
+      "cozyKind": "light",
+      "light": true
     }
   ]
 }

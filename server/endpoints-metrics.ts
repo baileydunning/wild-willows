@@ -75,6 +75,7 @@ const MENU_PANELS = new Set([
 	'biomes',
 	'achievements',
 	'feed',
+	'stories',
 	'home',
 	'animal',
 	'settings',

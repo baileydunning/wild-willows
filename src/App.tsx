@@ -5,9 +5,12 @@ import {
 	bindGameAudio,
 	gameplayMusicFor,
 	isIndoorArea,
+	musicPlaceForArea,
 	primeAudio,
 	setAmbienceActive,
 	setMusicActive,
+	type MusicId,
+	type MusicPlace,
 } from './audio';
 import { bridge } from './game/bridge';
 import { STORE_ITCH_URL, STORE_MAS_URL } from './demo';
@@ -26,7 +29,7 @@ import { ColorblindFilters } from './ui/ColorblindFilters';
 import { HUD, Toasts } from './ui/HUD';
 import { Confetti } from './ui/Confetti';
 import { MobileControls } from './ui/MobileControls';
-import { SettingsPanel } from './ui/Settings';
+import { MirrorPanel, SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
 import { CoachTips, dismissCoachTip } from './ui/CoachTips';
@@ -125,8 +128,10 @@ const BiomesPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.BiomesPa
 const HomePanel = lazyPanel(() => import('./ui/Panels').then((m) => m.HomePanel));
 const WeatherPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.WeatherPanel));
 const MaterialsPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.MaterialsPanel));
+const StoriesPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.StoriesPanel));
 const JournalPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.JournalPanel));
 const AnimalCard = lazyPanel(() => import('./ui/Journal').then((m) => m.AnimalCard));
+const FindsBoardPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.FindsBoardPanel));
 const AchievementsPanel = lazyPanel(() => import('./ui/Achievements').then((m) => m.AchievementsPanel));
 const GoalsPanel = lazyPanel(() => import('./ui/GoalsPanel').then((m) => m.GoalsPanel));
 const DevPanel = lazyPanel(() => import('./ui/DevPanel').then((m) => m.DevPanel));
@@ -157,8 +162,10 @@ const WARM_PANELS = [
 	HomePanel,
 	WeatherPanel,
 	MaterialsPanel,
+	StoriesPanel,
 	JournalPanel,
 	AnimalCard,
+	FindsBoardPanel,
 	AchievementsPanel,
 	GoalsPanel,
 ];
@@ -221,7 +228,7 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 	const row = (o: (typeof plantables)[number]) => {
 		const canAfford = Object.entries(o.plantCost || {}).every(([id, q]) => avail(id) >= q);
 		/* How many of this plant are STANDING in this area — the Crafting menu's
-		 * "crafted ×n" tag answers the neighbouring question for things you make.
+		 * "crafted ×n" tag answers the neighboring question for things you make.
 		 *
 		 * The two counts are not the same kind of number, and the tooltip says so
 		 * rather than leaving the reader to assume. `craftedEver` is a lifetime
@@ -413,12 +420,23 @@ function GameScreen() {
 				setPanel('journal');
 			}),
 			bridge.on('open-home', () => setPanel('home')),
+			bridge.on('open-mirror', () => setPanel('mirror')),
+			// the pin board on the wall of the house: who has come back so far
+			bridge.on('open-finds', () => setPanel('finds')),
+			bridge.on('open-stories', () => setPanel('stories')),
+			// A waymarker out on the trail opens the same areas panel the menu does.
+			// The panel already opens on the biome you are standing in, which is the
+			// page a sign at your feet should be showing.
+			bridge.on('open-biomes', () => setPanel('biomes')),
+			bridge.on('toggle-light', (p: any) => game.setPlacementLit(p.placementId, p.lit)),
 			bridge.on('rest', () => game.rest()),
 			bridge.on('paint-click', (p: any) => {
+				// `p.room` is the room of the floor plan the brush landed in, so past
+				// Space 2 each room takes its own color.
 				if (p?.placementId) game.paintPlacement(p.placementId, game.paintColor);
-				else if (p?.target === 'wall') game.paintHome('wall', game.paintColor);
-				else if (p?.target === 'rug') game.paintHome('rug', game.paintColor);
-				else game.paintHome('floor', game.paintColor);
+				else if (p?.target === 'wall') game.paintHome('wall', game.paintColor, p.room);
+				else if (p?.target === 'rug') game.paintHome('rug', game.paintColor, p.room);
+				else game.paintHome('floor', game.paintColor, p.room);
 			}),
 			bridge.on('animal-clicked', (p: any) => game.observe(p.animalId)),
 			bridge.on('request-area', (p: any) => game.changeArea(p.area)),
@@ -591,11 +609,14 @@ function GameScreen() {
 				{panel === 'tools' && <ToolsPanel />}
 				{panel === 'biomes' && <BiomesPanel />}
 				{panel === 'journal' && <JournalPanel />}
+				{panel === 'stories' && <StoriesPanel />}
 				{panel === 'achievements' && <AchievementsPanel />}
 				{panel === 'feed' && <FeedPanel />}
 				{panel === 'home' && <HomePanel />}
 				{panel === 'animal' && <AnimalCard />}
 				{panel === 'settings' && <SettingsPanel />}
+				{panel === 'mirror' && <MirrorPanel />}
+				{panel === 'finds' && <FindsBoardPanel />}
 				{panel === 'weather' && <WeatherPanel />}
 				{panel === 'materials' && <MaterialsPanel />}
 				{panel === 'goals' && <GoalsPanel />}
@@ -777,6 +798,17 @@ function Root() {
 	const [audioClock, setAudioClock] = useState(0);
 	const wasOpeningFlowRef = useRef(true);
 	const meadowCueTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+	/* What the lead-in timer below should start WHEN IT FIRES, kept current on
+	 * every pass of the audio effect rather than captured when the timer is armed.
+	 *
+	 * It used to close over the track it was armed with, and five seconds is long
+	 * enough to walk out of the front door: a save resumed in the house armed the
+	 * house's piece, the caretaker stepped into the meadow, the meadow's piece
+	 * started — and then the timer landed and pulled the house back over it. */
+	const pendingMusicRef = useRef<{ track: MusicId; place: MusicPlace }>({
+		track: 'wildwillowstheme',
+		place: 'menu',
+	});
 	/** The day phase this effect last saw, so first light can be noticed as a
 	 *  CHANGE. null until the first pass — see the sunrise cue below. */
 	const lastDayPhaseRef = useRef<string | null>(null);
@@ -856,6 +888,13 @@ function Root() {
 		// and it plays at every biome and every health level — what you hear in
 		// there is the house, not the land outside it. A tent is a smaller house.
 		const gameplayTrack = gameplayMusicFor(area, biomeHealth);
+		/* The kind of place every request below is being made FOR. audio.ts refuses a
+		 * piece that does not belong to it, so a request that outlives the room it was
+		 * made in — a snapshot adopted late, a timer landing after the caretaker moved
+		 * on — can no longer put the house's music out in the grass or the meadow's
+		 * inside the house. */
+		const place: MusicPlace = inOpeningFlow ? 'menu' : musicPlaceForArea(area);
+		pendingMusicRef.current = { track: gameplayTrack, place };
 
 		/* FIRST LIGHT. One birdsong cue on the night -> dawn turn, and only that
 		 * turn: this effect re-runs on every audio clock tick, so "it is dawn" is
@@ -878,29 +917,31 @@ function Root() {
 				meadowCueTimeoutRef.current = null;
 			}
 			wasOpeningFlowRef.current = true;
-			setMusicActive(true, 'wildwillowstheme');
-			setAmbienceActive(false);
+			setMusicActive(true, 'wildwillowstheme', 'menu');
+			setAmbienceActive(false, 'meadow', 'menu');
 			return;
 		}
 
-		setAmbienceActive(outdoors, outdoorAmbienceTrack);
+		setAmbienceActive(outdoors, outdoorAmbienceTrack, place);
 
 		// Transitioning from opening flow into gameplay: stop menu theme now, then
 		// start meadowambient after a short lead-in.
 		if (wasOpeningFlowRef.current) {
 			wasOpeningFlowRef.current = false;
-			setMusicActive(false, 'wildwillowstheme');
-			setMusicActive(false, gameplayTrack);
+			setMusicActive(false, 'wildwillowstheme', 'menu');
+			setMusicActive(false, gameplayTrack, place);
 			if (meadowCueTimeoutRef.current) clearTimeout(meadowCueTimeoutRef.current);
 			meadowCueTimeoutRef.current = setTimeout(() => {
-				setMusicActive(true, gameplayTrack);
+				// Read at fire time, not capture time — see pendingMusicRef.
+				const { track, place: at } = pendingMusicRef.current;
+				setMusicActive(true, track, at);
 				meadowCueTimeoutRef.current = null;
 			}, 5000);
 			return;
 		}
 
 		// Once the transition has happened, keep the gameplay cue active.
-		setMusicActive(true, gameplayTrack);
+		setMusicActive(true, gameplayTrack, place);
 	}, [state, data, audioClock]);
 
 	// the game needs both definitions and a logged-in save before it can render.

@@ -20,6 +20,9 @@ import {
 	doorTileOf,
 	homeOf,
 	homeRoom,
+	isFloorTile,
+	roomAt,
+	roomsOf,
 } from './home';
 import { STARTER_CHEST, isDevSave, patchPlayer, requirePlayer } from './player';
 import { readMetrics, round1, weatherTimeFromPlay } from './metrics';
@@ -1361,12 +1364,15 @@ export class DevTools extends PublicEndpoint {
 					// just beds: a screenshot wants to see the way out, and it keeps the
 					// authoritative blocksDoorway rule satisfied for free.
 					const openFloor = (x: number, y: number) =>
-						x >= r.x0 &&
-						x <= r.x1 &&
-						y >= r.y0 &&
-						y <= r.y1 &&
+						isFloorTile(r, x, y) &&
 						!(Math.abs(x - door.x) <= 1 && Math.abs(y - door.y) <= 1) &&
 						!taken.has(`${x},${y}`);
+					/** Every floor tile of the plan, in reading order — the sweep that
+					 *  guarantees a piece is not silently dropped walks these, because
+					 *  from Space 3 the plan is rooms and not one rectangle. */
+					const allFloor: { x: number; y: number }[] = [];
+					for (const room of roomsOf(r))
+						for (let y = room.y0; y <= room.y1; y++) for (let x = room.x0; x <= room.x1; x++) allFloor.push({ x, y });
 					const rows: any[] = [];
 					const put = (def: any, x: number, y: number): boolean => {
 						if (!openFloor(x, y)) return false;
@@ -1385,8 +1391,12 @@ export class DevTools extends PublicEndpoint {
 						rows.push(row);
 						return true;
 					};
-					/** Tiles touching a wall — where anything hung or shelved belongs. */
-					const againstWall = (x: number, y: number) => x === r.x0 || x === r.x1 || y === r.y0 || y === r.y1;
+					/** Tiles touching a wall of their own room — where anything hung or
+					 *  shelved belongs. Per room, so the nook gets its own edges. */
+					const againstWall = (x: number, y: number) => {
+						const room = roomAt(r, x, y);
+						return !!room && (x === room.x0 || x === room.x1 || y === room.y0 || y === room.y1);
+					};
 					const WALL_HUNG = /painting|wallclock|shelf|chandelier|string-lights|telescope|dresser|bookshelf/;
 					const FLOOR_SPREAD = /rug|reedmat|blanket|cushions|hammock/;
 					const putSomewhere = (def: any): boolean => {
@@ -1399,13 +1409,12 @@ export class DevTools extends PublicEndpoint {
 						// a sweep so a full floor can't silently drop a piece
 						for (const test of wants ? [wants, null] : [null]) {
 							for (let tries = 0; tries < 80; tries++) {
-								const x = ri(r.x0, r.x1),
-									y = ri(r.y0, r.y1);
-								if (test && !test(x, y)) continue;
-								if (put(def, x, y)) return true;
+								const spot = allFloor[ri(0, allFloor.length - 1)];
+								if (test && !test(spot.x, spot.y)) continue;
+								if (put(def, spot.x, spot.y)) return true;
 							}
 						}
-						for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) if (put(def, x, y)) return true;
+						for (const spot of allFloor) if (put(def, spot.x, spot.y)) return true;
 						return false;
 					};
 					const missing: string[] = [];

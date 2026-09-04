@@ -21,6 +21,7 @@ import {
 	START_INVENTORY,
 	START_TOOLS,
 	homeCarryBonus,
+	homeHas,
 	homeOf,
 } from './home';
 import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, readPlayerRow, sanitizePlayer } from './player';
@@ -338,7 +339,12 @@ export function inventoryCapacity(player: any): number {
 export function itemWeight(resourceId: string, d: any, player: any): number {
 	const w = d?.resource?.get(resourceId)?.weight || 1;
 	if (w <= 1) return 1;
-	return (player.tools?.basket || 1) >= BASKET_FRAME_TIER ? 1 : w;
+	// Two ways to earn it, and they are the same trick from opposite ends: a
+	// tier-6 basket has a frame stiff enough, and a house at Comfort 5 has
+	// Packed Well — you have finally worked out how to load the thing. Either
+	// one is enough; owning both is not worth twice as much.
+	if ((player.tools?.basket || 1) >= BASKET_FRAME_TIER) return 1;
+	return homeHas(player, 'lightLoad') ? 1 : w;
 }
 
 /** How full the basket is, in capacity units rather than in item count. */

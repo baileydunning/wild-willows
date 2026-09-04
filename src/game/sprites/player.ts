@@ -197,11 +197,11 @@ export function makePlayerTexture(
 			g.fillStyle(hair, 1).fillEllipse(16, 17.6, 13, 7);
 			g.fillStyle(hair, 1).fillEllipse(13.9, 15.8, 3.8, 1.8).fillEllipse(18.1, 15.8, 3.8, 1.8);
 		}
-		// face
+		// face — eyes only. No blushed cheeks: deliberate, and matched by the SVG
+		// preview in ui/icons (CharacterPreview), which is what the character creator
+		// shows. If one of the two ever grows them back the preview stops telling the
+		// truth about the caretaker you are making.
 		g.fillStyle(0x3b2e25, 1).fillCircle(13, 13, 1.2).fillCircle(19, 13, 1.2);
-		if (a.beard !== 'beard') {
-			g.fillStyle(0xe88888, 0.4).fillCircle(10.6, 15.2, 1.5).fillCircle(21.4, 15.2, 1.5);
-		}
 		// bare-head hair volume — drawn before the hats so a visor, halo or
 		// headphones, which don't cover the crown, still layer on top of it
 		if (

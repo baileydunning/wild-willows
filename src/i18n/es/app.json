@@ -202,6 +202,33 @@
 			"other": "{count} cosas colocadas"
 		},
 		"trackLevel": "Nv{level}",
+		"cozyScore": "Comodidad {score}/100",
+		"perkSplit": "{upgrades}% de las mejoras de la casa, {cozy}% de la decoración.",
+		"cozyCarryTitle": "+{count} de capacidad de carga",
+		"cozyTier": {
+			"bare": "Cuarto vacío",
+			"homey": "Hogareño",
+			"snug": "Cómodo",
+			"cozy": "Acogedor",
+			"beloved": "Hogar querido",
+			"storied": "Hogar con historia"
+		},
+		"cozyKind": {
+			"sleeping": "un lugar para dormir",
+			"seating": "un lugar para sentarse",
+			"surface": "una mesa o estante",
+			"storage": "almacenamiento",
+			"light": "calor o luz",
+			"greenery": "algo que crece",
+			"water": "agua",
+			"art": "algo en las paredes",
+			"curio": "un recuerdo"
+		},
+		"cozyHint": "Qué tan habitado se siente tu hogar. Casi todo es variedad: cuántas cosas distintas has puesto y cuántas comodidades has cubierto. La cantidad apenas cuenta: una habitación llena de copias no suma casi nada. Cada nivel fortalece la ventaja de tu casa, añade capacidad de carga y hace que una noche de sueño te deje caminando más rápido.",
+		"cozyBreakdown": "{pieces} colocadas · {types} distintas · {kinds} de {all} comodidades",
+		"cozyCarryHint": "Capacidad de carga extra por lo acogedor que es tu hogar.",
+		"wellRested": "Bien descansado",
+		"restedHint": "Dormiste en un hogar acogedor — caminas más rápido hasta el mediodía.",
 		"thePreserve": "La reserva",
 		"trailTent": "Tienda de Campaña — {biome}",
 		"health": "Salud",
@@ -248,7 +275,7 @@
 		"titleFormat": "{name} ({key}): {how}",
 		"paintColorAria": "Color de pintura {color}",
 		"paint": "Pintar",
-		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto en cualquier color: selecciónalo y luego haz clic en él",
+		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto en cualquier color: selecciónalo y luego haz clic en él. Cada habitación de la casa toma su propio color.",
 		"paintPick": "Elige cualquier color de pintura",
 		"paintCustom": "Color de pintura personalizado",
 		"brushGroup": "Cuánto terreno moldear",
@@ -527,5 +554,11 @@
 		"nudgeBackToGame": "Volver a la demo",
 		"storeItch": "Consíguelo en itch.io",
 		"storeMas": "Consíguelo en la Mac App Store"
+	},
+	"mirror": {
+		"title": "Mirarte en el espejo",
+		"blurb": "Cambia el aspecto de tu cuidador. Tu nombre no cambia.",
+		"save": "Me gusta",
+		"cancel": "Déjalo"
 	}
 }

@@ -1,8 +1,60 @@
 // Objects that belong to more than one biome, or to none in particular.
 
+import Phaser from 'phaser';
 import { bridge } from '../../bridge';
-import { C, def, pickable } from '../canvas';
-import type { SpriteSet } from '../canvas';
+import { C, def, pickable, tex } from '../canvas';
+import type { G, SpriteSet } from '../canvas';
+
+// ------------------------------------------------------------- the pinwheel
+//
+// The one object drawn in two halves. Everywhere a pinwheel is a PICTURE - the
+// crafting menu, the journal, the placement ghost - it is the whole `pinwheel`
+// sprite below. Out in the world it is the post, plus its blades as their own
+// image sitting on the hub, because that is the only way the blades can turn:
+// spinning a texture that includes the pole would swing the whole pinwheel over
+// like a felled sign. Both halves come from the two draws here, so the picture
+// and the thing standing in the grass cannot drift apart.
+
+/** The pole the blades turn on. Authored in the full sprite's 26x42 box. */
+const pinwheelPost = (g: G) => {
+	g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
+};
+
+/** The blade fan and its hub pin, drawn about (cx, cy) so one draw serves both
+ *  the full sprite (hub at 13,10) and the standalone blades texture (centred). */
+const pinwheelBlades = (g: G, cx: number, cy: number) => {
+	// colour, then the two rim corners - the third corner is always the hub
+	const blades: [string, number, number, number, number][] = [
+		['#e86a8a', 9, -4, 9, 4],
+		['#7fb4d8', 4, -9, -4, -6],
+		['#f4d35e', -9, -4, -9, 4],
+		['#9bd17a', -4, 6, 4, 9],
+	];
+	for (const [c, bx, by, dx, dy] of blades)
+		g.fillStyle(C(c), 1).fillTriangle(cx, cy, cx + bx, cy + by, cx + dx, cy + dy);
+	g.fillStyle(C('#6b5238'), 1).fillCircle(cx, cy, 2);
+};
+
+/** World-only texture keys. Deliberately NOT under the `obj-` prefix the menus
+ *  snapshot for icons - a bare pole is not something to offer in a menu. */
+export const PINWHEEL_POST = 'pinwheel-post';
+export const PINWHEEL_BLADES = 'pinwheel-blades';
+
+/** Logical pixels from the full sprite's centre (13, 21) up to the hub (13, 10)
+ *  the blades turn on. The hub is horizontally centred, so a flip never moves
+ *  it - only the placement's own lean does, and WorldScene rotates this by it. */
+export const PINWHEEL_HUB_DY = -11;
+
+/** Half the blades texture. The square has to hold the fan at every angle it
+ *  turns through, so it is sized off the furthest blade tip (~9.9px) with room. */
+const BLADES_HALF = 12;
+
+/** Rasterize the two world-only halves. Lazy, like the path and run tiles: only
+ *  a world with a pinwheel standing in it ever needs them. */
+export function ensurePinwheelParts(scene: Phaser.Scene): void {
+	tex(scene, PINWHEEL_POST, 26, 42, pinwheelPost);
+	tex(scene, PINWHEEL_BLADES, BLADES_HALF * 2, BLADES_HALF * 2, (g) => pinwheelBlades(g, BLADES_HALF, BLADES_HALF));
+}
 
 export const SHARED: SpriteSet = {
 	patch: def(36, 30, (g) => {
@@ -305,16 +357,11 @@ export const SHARED: SpriteSet = {
 	}),
 	// String lights (and the meadow's lantern row) live in ./lights — they are
 	// drawn edge-aware so a row of them reads as one run.
+	// Post and blades, composed from the same two draws the world spins - see the
+	// pinwheel note at the top of this file.
 	pinwheel: def(26, 42, (g) => {
-		g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
-		const blades: [string, number, number, number, number, number, number][] = [
-			['#e86a8a', 13, 10, 22, 6, 22, 14],
-			['#7fb4d8', 13, 10, 17, 1, 9, 4],
-			['#f4d35e', 13, 10, 4, 6, 4, 14],
-			['#9bd17a', 13, 10, 9, 16, 17, 19],
-		];
-		for (const [c, ax, ay, bx, by, cx, cy] of blades) g.fillStyle(C(c), 1).fillTriangle(ax, ay, bx, by, cx, cy);
-		g.fillStyle(C('#6b5238'), 1).fillCircle(13, 10, 2);
+		pinwheelPost(g);
+		pinwheelBlades(g, 13, 10);
 	}),
 	birdhouse: def(26, 42, (g) => {
 		g.fillStyle(C('#6b5238'), 1).fillRect(11, 22, 4, 20);

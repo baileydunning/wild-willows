@@ -24,11 +24,29 @@ export function canPaintClick(ctx: ClickContext): boolean {
 // ------------------------------------------------------- sleeping furniture
 
 /** The things you can sleep on. Mirrors SLEEPABLE_OBJECTS in
- *  server/resources.ts, which is the authoritative copy. */
-export const SLEEPABLE_OBJECTS: ReadonlySet<string> = new Set(['home-bed', 'home-sleeping-bag', 'hammock']);
+ *  server/resources.ts, which is the authoritative copy.
+ *
+ * The hammock is deliberately NOT one of them. Sleeping skips the clock to the
+ * next dawn, and a hammock slung in the meadow is the one piece of furniture you
+ * lie in for the view — losing the afternoon to it was never what anyone meant
+ * by lying down. It is a seat now (SEATS in WorldScene): you lie in it, the
+ * animals come over, and the day carries on around you. */
+export const SLEEPABLE_OBJECTS: ReadonlySet<string> = new Set(['home-bed', 'home-sleeping-bag']);
 
 export const isSleepable = (objectId: string | null | undefined): boolean =>
 	!!objectId && SLEEPABLE_OBJECTS.has(objectId);
+
+// ------------------------------------------------------------------- lights
+
+/**
+ * Is this light burning?
+ *
+ * ABSENT MEANS LIT. `lit` is only ever written by SetPlacementLit, so every
+ * placement made before the toggle existed — and every one made since that
+ * nobody has touched — has no flag at all, and all of them were glowing. Only an
+ * explicit `false` puts a light out. See Placement.lit in types.ts.
+ */
+export const isLit = (p: { lit?: boolean } | null | undefined): boolean => p?.lit !== false;
 
 /**
  * Whether a bed at (tx, ty) would block the way in and out of an interior.
@@ -200,6 +218,29 @@ export function isOrphanedTween(targets: unknown[] | undefined, isGameObject: (t
 	const judged = targets.filter(isGameObject) as TweenTargetLike[];
 	if (!judged.length) return false; // plain-object targets: not ours to judge
 	return judged.every((t) => !t.scene);
+}
+
+// ------------------------------------------------------------------ pinwheel
+
+const TAU = Math.PI * 2;
+
+/**
+ * How far a pinwheel's blades turn for one nudge, in radians.
+ *
+ * Aimed, not just "add three turns". The wind-down has to land back on `rest` —
+ * the lean the placement was built with, which is what the pole and the blades
+ * agree on — or every nudge would leave the fan sitting a few degrees further
+ * round than the post it is pinned to. So the answer is the forward distance to
+ * the rest pose FIRST, whole turns on top: press once from rest and it is a
+ * clean three turns; press again mid-spin, from wherever the blades happen to
+ * be, and it still finishes standing the way it was built.
+ *
+ * Forward only. A pinwheel that reversed the last few degrees to reach its rest
+ * pose would read as the wind changing rather than as the thing slowing down.
+ */
+export function pinwheelSpin(from: number, rest: number, turns: number): number {
+	const toRest = (((rest - from) % TAU) + TAU) % TAU;
+	return toRest + TAU * turns;
 }
 
 // -------------------------------------------------------- night-light mask

@@ -19,6 +19,10 @@ import { GUIDES } from './guides';
 import { LIGHTS } from './lights';
 import { makePathTextures } from './paths';
 
+// The pinwheel is the one object the world draws in two halves so its blades can
+// turn — see the note at the top of ./shared.
+export { PINWHEEL_POST, PINWHEEL_BLADES, PINWHEEL_HUB_DY, ensurePinwheelParts } from './shared';
+
 /**
  * Every placeable object's sprite in one registry, keyed by shape — the world's
  * textures and the DOM's pictures both come from here, so a menu icon is always

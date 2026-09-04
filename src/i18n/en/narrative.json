@@ -1,5 +1,5 @@
 {
-	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
+	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts), and the four bookshelf stories (stories.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
 	"kind": {
 		"insect": "The air over {biome} hums and ticks again — three kinds of insect have found their way back.",
 		"bird": "Birdsong has returned to {biome}; three species now forage and nest there.",
@@ -449,6 +449,113 @@
 			"thriving": "A living edge. Sea stars patrol the rock, otters raft offshore, and pelicans dive the surf where the fish have returned.",
 			"restored": "The wildest stretch of the preserve, whole — whale-spout to clam-siphon. Two keystones do the quiet work that holds it all in balance.",
 			"coexistence": "Two keystones run this shore: the sea star keeps mussels from taking every rock, and the otter eats the urchins that would otherwise mow down the kelp."
+		}
+	},
+	"stories": {
+		"_readme": "The four books on the home bookshelf (ui/stories.ts, ui/storyArt.tsx). Each book is four pages you turn one at a time; every page has a title, its text, and the captions under its picture — `figures` must stay the same length as that page's figure list in storyArt.tsx, in the same order. Plain explanation, no whimsy: these are the only place the game says outright what its systems are modelling.",
+		"somewhere": {
+			"title": "Food, Cover, Water",
+			"byline": "habitat and niche",
+			"pages": {
+				"1": {
+					"title": "Three jobs",
+					"figures": ["food", "cover", "water", "somewhere to live"],
+					"text": "An animal doesn't need a place so much as it needs a place that does three jobs: something to eat, somewhere to shelter, and water it can reach. Miss any one of the three and the other two don't count for much."
+				},
+				"2": {
+					"title": "Close enough to matter",
+					"figures": ["water", "open ground to cross", "won't risk it"],
+					"text": "Distance matters as much as presence. Food has to be close enough to cover that a short dash gets an animal back under it. Water that can only be reached across open ground is water most small animals won't use."
+				},
+				"3": {
+					"title": "Sharing a meadow",
+					"figures": ["seed at dawn", "insects after dark"],
+					"text": "The place is the habitat. How an animal makes its living in it is the niche — what it eats, when it is active, what it keeps away from. Two species can share one meadow without competing, because one takes seed at dawn and the other hunts insects at dusk."
+				},
+				"4": {
+					"title": "The piece that gets forgotten",
+					"figures": ["flowers alone", "add cover", "and it stays"],
+					"text": "This is why planting flowers alone rarely brings anything in. Cover is the piece most often missing. A brush pile or a hedgerow isn't decoration; for a rabbit or a wren it is the difference between passing through and staying."
+				}
+			}
+		},
+		"foxlast": {
+			"title": "Why Predators Come Last",
+			"byline": "food chains and energy",
+			"pages": {
+				"1": {
+					"title": "Follow a fox backwards",
+					"figures": ["sunlight and grass", "eats the grass", "eats the insects", "eats the birds"],
+					"text": "Follow a fox backwards. It eats voles and ground-nesting birds. They eat insects and seed. The insects eat grass. The grass runs on sunlight. Four steps, and the fox depends on every one of them."
+				},
+				"2": {
+					"title": "A tenth at every step",
+					"figures": ["a great many", "fewer", "fewer still", "one"],
+					"text": "Only about a tenth of the energy at each step carries up to the next. The rest is spent staying alive. That ratio is why the numbers narrow so sharply toward the top: a meadow can support a great many grasshoppers, a good many sparrows, fewer voles, and one fox."
+				},
+				"3": {
+					"title": "Last in, first out",
+					"figures": ["prey thins out", "the fox goes first"],
+					"text": "So predators are the last to arrive and the first to go. They need every level beneath them filled before they can settle, and they feel a thinning at the bottom before anything else does."
+				},
+				"4": {
+					"title": "What a fox tells you",
+					"figures": ["a fox settles", "a meadow that can hold one"],
+					"text": "It also means a meadow with no hunters in it isn't a peaceful meadow, it's an incomplete one. When a fox does settle, what that tells you is that the levels underneath are carrying enough weight to hold it."
+				}
+			}
+		},
+		"whobuild": {
+			"title": "Animals That Build",
+			"byline": "ecosystem engineers and keystone species",
+			"pages": {
+				"1": {
+					"title": "A beaver builds for itself",
+					"figures": ["wants deep water", "so it makes some"],
+					"text": "A beaver dams a creek because it wants water deep enough to swim in and stay out of reach. It isn't doing it for anything else. But the pond it makes is habitat that was not there before."
+				},
+				"2": {
+					"title": "Everything that moves in",
+					"figures": ["still water", "eggs", "dragonflies", "a place to fish"],
+					"text": "Still water gives frogs somewhere to lay eggs and dragonfly larvae somewhere to grow. The shallow edge gives a heron somewhere to fish. Trees that drown standing go soft and become nest sites for woodpeckers. One animal's construction turns into housing for a dozen species."
+				},
+				"3": {
+					"title": "Engineers and keystones",
+					"figures": ["a keystone", "urchins held back", "kelp still standing"],
+					"text": "An animal that reshapes the physical place like this is called an ecosystem engineer. A keystone species is related but different: it builds nothing, and holds the food web together far out of proportion to its numbers — sea otters keeping urchins off the kelp, wolves keeping elk off the riverbanks. Take one out and the whole system reorganises around the gap."
+				},
+				"4": {
+					"title": "Why the next one is quicker",
+					"figures": ["one engineer", "a dozen tenants"],
+					"text": "A few of both live here. When one of them comes back, the animals that depend on what it does tend to follow quickly, because the habitat they were waiting on has just been built for them."
+				}
+			}
+		},
+		"slowgreen": {
+			"title": "How Bare Ground Becomes Forest",
+			"byline": "succession",
+			"pages": {
+				"1": {
+					"title": "Weeds first",
+					"figures": ["bare ground", "weeds and grass"],
+					"text": "Bare ground does not turn into woodland directly. Weeds and grasses arrive first, because they are the only things that can hold on there. They anchor the soil, shade it, and slow the water running off it."
+				},
+				"2": {
+					"title": "What shrubs need",
+					"figures": ["grass holds the soil", "litter and shade", "shrubs establish"],
+					"text": "That changed ground is what shrubs need to establish. Shrubs add deeper roots, leaf litter and more shade, and only in the soil that makes will most tree seedlings survive their first few years. Each stage makes the next one possible and is then partly replaced by it."
+				},
+				"3": {
+					"title": "A seedling isn't habitat",
+					"figures": ["grown in", "then it holds a nest"],
+					"text": "The sequence is called succession, and it runs on the plants' timescale rather than anyone else's. A seedling is not habitat yet. It has to grow in before it shades anything, feeds anything, or holds a nest."
+				},
+				"4": {
+					"title": "Late, then quickly",
+					"figures": ["bare", "grass", "shrub", "tree"],
+					"text": "Which is worth knowing during the stretch where a planted area looks like it is doing nothing. Roots are going down, water is being held in the ground longer, and seed is banking up in the soil. The visible change comes late, and then comes quickly."
+				}
+			}
 		}
 	}
 }

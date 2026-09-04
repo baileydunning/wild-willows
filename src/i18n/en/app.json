@@ -202,6 +202,33 @@
 			"other": "{count} things placed"
 		},
 		"trackLevel": "Lv{level}",
+		"cozyScore": "Coziness {score}/100",
+		"perkSplit": "{upgrades}% from house upgrades, {cozy}% from decorating.",
+		"cozyCarryTitle": "+{count} carrying capacity",
+		"cozyTier": {
+			"bare": "Bare Room",
+			"homey": "Homey",
+			"snug": "Snug",
+			"cozy": "Cozy",
+			"beloved": "Beloved Home",
+			"storied": "Storied Home"
+		},
+		"cozyKind": {
+			"sleeping": "somewhere to sleep",
+			"seating": "somewhere to sit",
+			"surface": "a table or shelf",
+			"storage": "storage",
+			"light": "warmth or light",
+			"greenery": "something growing",
+			"water": "water",
+			"art": "something on the walls",
+			"curio": "a keepsake"
+		},
+		"cozyHint": "How lived-in your home feels. Most of it is range — how many different things you have put out, and how many comforts you have covered. Quantity barely counts: a room of copies scores almost nothing. Each rung strengthens your house perk, adds carrying capacity, and makes a night's sleep leave you walking faster.",
+		"cozyBreakdown": "{pieces} placed · {types} different · {kinds} of {all} comforts",
+		"cozyCarryHint": "Extra carrying capacity from how cozy your home is.",
+		"wellRested": "Well rested",
+		"restedHint": "You slept in a cozy home — you are walking faster until noon.",
 		"thePreserve": "The Preserve",
 		"trailTent": "Trail Tent — {biome}",
 		"health": "Health",
@@ -248,7 +275,7 @@
 		"titleFormat": "{name} ({key}): {how}",
 		"paintColorAria": "Paint color {color}",
 		"paint": "Paint",
-		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item in any color: select, then click it",
+		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item in any color: select, then click it. Each room of the house takes its own color.",
 		"paintPick": "Pick any paint color",
 		"paintCustom": "Custom paint color",
 		"brushGroup": "How much ground to shape",
@@ -527,5 +554,11 @@
 		"nudgeBackToGame": "Back to the demo",
 		"storeItch": "Get it on itch.io",
 		"storeMas": "Get it on the Mac App Store"
+	},
+	"mirror": {
+		"title": "Look in the mirror",
+		"blurb": "Change your caretaker's look. Your name stays the same.",
+		"save": "Looks good",
+		"cancel": "Never mind"
 	}
 }

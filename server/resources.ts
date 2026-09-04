@@ -71,6 +71,7 @@ export {
 	SetHomeColors,
 	SetHomeStyle,
 	SetPlacementColor,
+	SetPlacementLit,
 	SyncPlayer,
 	Terraform,
 	UpdateAppearance,

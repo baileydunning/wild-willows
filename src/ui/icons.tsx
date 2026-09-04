@@ -714,8 +714,9 @@ export function CharacterPreview({ appearance, size = 150 }: { appearance: Appea
 			<circle cx="43.3" cy="39.2" r="0.9" fill="#fff" />
 			<circle cx="58.3" cy="39.2" r="0.9" fill="#fff" />
 			<path d="M46.5 47 Q50 50 53.5 47" stroke="#3b2e25" strokeWidth="1.7" fill="none" strokeLinecap="round" />
-			<circle cx="37" cy="45" r="3.4" fill="#e88" opacity="0.35" />
-			<circle cx="63" cy="45" r="3.4" fill="#e88" opacity="0.35" />
+			{/* No blushed cheeks: eyes, smile, and whatever the player chose. Deliberate,
+			    and matched by the world sprite in game/sprites/player.ts — if one of the
+			    two ever grows them back the preview stops telling the truth. */}
 			{/* beard (always the hair color): a soft, short jaw wrap with the smile kept visible */}
 			{beard === 'beard' && (
 				<g>

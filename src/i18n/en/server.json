@@ -61,6 +61,7 @@
 		"needsBiggerHome": "{name} needs a bigger home — upgrade your home's Space first.",
 		"placeOnFloor": "Place it on the floor inside your home",
 		"hangOnWall": "{name} hangs on a wall — pick one of the walls, not the floor",
+		"wallsFull": "Every wall is full — take something down before hanging {name}.",
 		"clearSurfaceFirst": "Take the {item} off the {name} first",
 		"bedBlocksDoor": "Keep the {name} clear of the doorway — leave yourself room to step in and out",
 		"unknownArea": "Unknown area: {area}",
@@ -102,6 +103,7 @@
 		"invalidColor": "Invalid color",
 		"itemNotHere": "That item is not here",
 		"unknownHomeStyle": "Unknown home style",
+		"unknownHomeRoom": "That is not a room of your home",
 		"homeAlreadyBuilt": "Your home is already built — choose upgrades from here.",
 		"animalNotReturned": "That animal has not returned yet",
 		"taskNotOnBoard": "That task is not on today's board",
@@ -144,7 +146,8 @@
 		"saveUnreadable": "Something went wrong opening your save and we couldn’t recover it. We’re sorry — we’ve logged what happened so we can fix it. Please start a new game.",
 		"brushNotAvailable": "That brush size needs a better tool — pick a smaller one for now",
 		"needDippingPail": "You need a Dipping Pail to fill from open water",
-		"noOpenWaterHere": "There is no open water here to fill from"
+		"noOpenWaterHere": "There is no open water here to fill from",
+		"notALight": "That isn’t something you can light."
 	},
 	"starter": {
 		"seeds": "Gather {count} seeds",
