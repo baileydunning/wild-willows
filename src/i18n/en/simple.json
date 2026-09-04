@@ -255,12 +255,8 @@
 				"shovel": "Digs soil beds in the ground near you. Dig a shaped tile again to clear it.",
 				"watering-can": "Water a soil bed so you can plant in it. Water it again to turn it into open water. Link water tiles to make ponds, rivers, and lakes."
 			},
-			"paintHow": "Paint. Pick a color, then click the floor, walls, rug, or an item to change its color.",
 			"brushGroup": "How much ground to dig",
 			"brushTitle": "Dig {n} by {n} squares at once.",
-			"brushSelected": "Now digging {n} by {n} squares.",
-			"brushShown": "Sizes shown.",
-			"brushHidden": "Sizes hidden.",
 			"brushToggleHint": "click again to hide the sizes"
 		}
 	},

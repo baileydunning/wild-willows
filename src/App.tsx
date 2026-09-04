@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState, type ComponentType } from 'react';
 import { api } from './api';
-import { applyAudioPrefs, bindGameAudio, primeAudio, setAmbienceActive, setMusicActive } from './audio';
+import {
+	applyAudioPrefs,
+	bindGameAudio,
+	gameplayMusicFor,
+	isIndoorArea,
+	primeAudio,
+	setAmbienceActive,
+	setMusicActive,
+} from './audio';
 import { bridge } from './game/bridge';
 import { STORE_ITCH_URL, STORE_MAS_URL } from './demo';
 import { PhaserGame } from './game/PhaserGame';
@@ -11,6 +19,7 @@ import { GameProvider, useGame, useGameFeed } from './state';
 import { useI18n } from './i18n/react';
 import { liveDayPhase, liveWeatherType } from './weather';
 import { harvestReadyAt, harvestWeatherOk } from './types';
+import { placedCount } from './recipes';
 import { isTypingTarget } from './typing';
 import { HelpModal } from './ui/Help';
 import { ColorblindFilters } from './ui/ColorblindFilters';
@@ -211,12 +220,33 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 	const row = (o: (typeof plantables)[number]) => {
 		const canAfford = Object.entries(o.plantCost || {}).every(([id, q]) => avail(id) >= q);
+		/* How many of this plant are STANDING in this area — the Crafting menu's
+		 * "crafted ×n" tag answers the neighbouring question for things you make.
+		 *
+		 * The two counts are not the same kind of number, and the tooltip says so
+		 * rather than leaving the reader to assume. `craftedEver` is a lifetime
+		 * tally that survives spending and dropping the item; nothing keeps a
+		 * lifetime count of plantings per species, and this one goes DOWN when a
+		 * planting is dug up (see bumpStanding — taking something back up is what
+		 * makes these tallies live rather than lifetime). Standing is also the more
+		 * useful answer at a soil bed: what you want to know before sowing another
+		 * foxglove is how many foxgloves are already in this meadow.
+		 *
+		 * Area-scoped because the menu is: it only offers what grows in `bed.area`.
+		 * placedCount prefers the biome row's stored counts and falls back to the
+		 * placements on hand, which are always complete for the area on screen. */
+		const growing = placedCount(state, bed.area, o.id);
 		return (
 			<div className="recipe" key={o.id}>
 				{/* the same sprite that will grow in the world */}
 				<ObjectIcon shape={o.shape} color={o.color} size={34} />
 				<div className="grow">
 					<b>{content('habitatObject', o.id, 'name', o.name)}</b>
+					{growing > 0 && (
+						<span className="planted-tag" title={t('app.plantMenu.plantedTitle', { n: growing })}>
+							{t('app.plantMenu.plantedTag', { n: growing })}
+						</span>
+					)}
 					<div className="muted small">{content('habitatObject', o.id, 'description', o.description || '')}</div>
 					<div className="mats">
 						{Object.entries(o.plantCost || {}).map(([id, q]) => {
@@ -802,60 +832,21 @@ function Root() {
 	// Play the opening theme only on pre-game screens (menu / character creator).
 	useEffect(() => {
 		const inOpeningFlow = !state || !data;
-		const isHome = !!state && !!data && state.player.area === 'home';
-		const outdoors = !!state && !!data && !isHome;
+		// A trail tent is an interior too, and follows home rules here as it does
+		// everywhere else in the game (crafting space, the HUD header).
+		const indoors = !!state && !!data && isIndoorArea(state.player.area);
+		const outdoors = !!state && !!data && !indoors;
 		const worldId = state?.worldId || state?.player?.id || null;
 		const area = state?.player.area;
 		const dayPhase = liveDayPhase(state?.weather);
 		const weatherType = outdoors && area ? liveWeatherType(worldId, area, state?.weather) : 'clear';
 		const outdoorAmbienceTrack: 'meadow' | 'night' | 'rain' =
 			weatherType === 'rain' ? 'rain' : dayPhase === 'night' ? 'night' : 'meadow';
-		const meadowHealth = state?.biomeStates.find((b) => b.biomeId === 'meadow')?.health ?? 0;
-		const forestHealth = state?.biomeStates.find((b) => b.biomeId === 'forest')?.health ?? 0;
-		const wetlandsHealth = state?.biomeStates.find((b) => b.biomeId === 'wetland')?.health ?? 0;
-		const scrublandHealth = state?.biomeStates.find((b) => b.biomeId === 'desert')?.health ?? 0;
-		const alpineHealth = state?.biomeStates.find((b) => b.biomeId === 'alpine')?.health ?? 0;
-		const coastalHealth = state?.biomeStates.find((b) => b.biomeId === 'coastal')?.health ?? 0;
-		const outdoorTrack =
-			state?.player.area === 'forest'
-				? forestHealth < 50
-					? 'hollowforest_level1'
-					: forestHealth < 80
-						? 'hollowforest_level2'
-						: 'hollowforest_level3'
-				: state?.player.area === 'wetland'
-					? wetlandsHealth < 50
-						? 'wetlands_level1'
-						: wetlandsHealth < 80
-							? 'wetlands_level2'
-							: 'wetlands_level3'
-					: state?.player.area === 'desert'
-						? scrublandHealth < 50
-							? 'scrubland_level1'
-							: scrublandHealth < 80
-								? 'scrubland_level2'
-								: 'scrubland_level3'
-						: state?.player.area === 'alpine'
-							? alpineHealth < 50
-								? 'graywind_level1'
-								: alpineHealth < 80
-									? 'graywind_level2'
-									: 'graywind_level3'
-							: state?.player.area === 'coastal'
-								? coastalHealth < 50
-									? 'pelicanbay_level1'
-									: coastalHealth < 80
-										? 'pelicanbay_level2'
-										: 'pelicanbay_level3'
-								: meadowHealth < 50
-									? 'meadowambient'
-									: meadowHealth < 80
-										? 'meadowambient_level2'
-										: 'meadowambient_level3';
+		const biomeHealth = (biomeId: string) => state?.biomeStates.find((b) => b.biomeId === biomeId)?.health ?? 0;
 		// Indoors the biome stops carrying the room. The cabin has its own piece,
 		// and it plays at every biome and every health level — what you hear in
-		// there is the house, not the land outside it.
-		const gameplayTrack = isHome ? 'home' : outdoorTrack;
+		// there is the house, not the land outside it. A tent is a smaller house.
+		const gameplayTrack = gameplayMusicFor(area, biomeHealth);
 
 		/* FIRST LIGHT. One birdsong cue on the night -> dawn turn, and only that
 		 * turn: this effect re-runs on every audio clock tick, so "it is dawn" is

@@ -2984,6 +2984,52 @@ input {
 	padding: 0;
 }
 
+/* The expanded guide's habitat list, as a checklist: every line is something the
+   animal needs, and a ticked box is something you already have out there. It
+   borrows the task-step boxes rather than inventing a second kind of checkbox,
+   so a tick means the same thing here as it does on the task list.
+
+   Unticked lines keep normal ink — this is the entry's main content, not a
+   sub-note, and .tasks-step's muted grey would push the work still to do into
+   the background. */
+.req-checklist {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+.req-checklist .tasks-step {
+	font-size: inherit;
+	color: var(--ink);
+	align-items: flex-start;
+	white-space: normal;
+}
+.req-checklist .tasks-step.done {
+	color: var(--green-2, #6aa253);
+}
+.req-checklist .tasks-step-box {
+	margin-top: 2px;
+}
+/* How far along a countable line is — "now 18%", "2/3". Only printed while the
+   line is still open, so it never competes with a tick. */
+.req-step-tail {
+	color: var(--ink-soft);
+}
+/* When to look, rather than what to gather. */
+.req-when {
+	margin: 5px 0 0;
+	color: var(--ink-soft);
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+}
+.req-when svg {
+	flex-shrink: 0;
+	margin-top: 2px;
+}
+
 /* "Before you look" — the one prediction the expanded guide asks for before it
    prints an animal's habitat checklist. Sits where the checklist will appear,
    so answering it doesn't shift the rest of the entry around. */
@@ -4579,10 +4625,12 @@ kbd {
 	vertical-align: middle;
 }
 
-/* How many you have made of this, beside the recipe's name. Deliberately NOT the
-   gold of the ONCE tag: gold means "there is only ever one of these", and a
-   tally is the opposite kind of fact. */
-.made-tag {
+/* A tally beside a name: how many you have crafted (Crafting), how many are
+   growing here (Plant menu). Deliberately NOT the gold of the ONCE tag: gold
+   means "there is only ever one of these", and a tally is the opposite kind of
+   fact. */
+.crafted-tag,
+.planted-tag {
 	display: inline-block;
 	margin-left: 6px;
 	font-size: calc(10.5px * var(--ui-scale));

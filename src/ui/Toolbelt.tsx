@@ -31,12 +31,26 @@ const PAINT_PALETTE = [
 	'#3a3a2c',
 ];
 
+/* NOTHING HERE RAISES A TOAST, deliberately.
+ *
+ * Every control below answers immediately and visibly: the tool you picked wears
+ * `.on`, the brush picker slides in or out, the swatch you chose is ringed. A
+ * toast saying "Brush sizes hidden" is a card in the corner of the screen
+ * reporting something the player just watched happen — and it lands on top of
+ * the toasts that matter, which are the ones you would MISS otherwise (an animal
+ * came home, an area opened, an action was refused). Four of them lived here and
+ * fired on every tool switch and every brush click.
+ *
+ * Nor is a toast the accessible route: each button carries aria-pressed /
+ * aria-expanded and a `title` that doubles as its description, so the state
+ * change is announced on the control that changed, which is where a screen
+ * reader user is. The toast was a second announcement of the same fact. */
+
 /** The tools whose work covers ground, and so can carry a brush size. */
 const SHAPING_TOOLS = new Set(['shovel', 'watering-can']);
 
 export function Toolbelt() {
-	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor, brushSize, setBrushSize } =
-		useGame();
+	const { data, state, selectedTool, setSelectedTool, paintColor, setPaintColor, brushSize, setBrushSize } = useGame();
 	const { t, content } = useI18n();
 	// The brush picker is an accordion off the tool itself: picking up a shovel
 	// opens it, clicking that same shovel again folds it away. Somebody who always
@@ -78,10 +92,7 @@ export function Toolbelt() {
 							className={`brush-size ${activeBrush === n ? 'on' : ''}`}
 							aria-pressed={activeBrush === n}
 							title={t('app.toolbelt.brushTitle', { n, tiles: n * n })}
-							onClick={() => {
-								setBrushSize(n);
-								notify(t('app.toolbelt.brushSelected', { n, tiles: n * n }));
-							}}
+							onClick={() => setBrushSize(n)}
 						>
 							{/* A plan view of the ground one action covers. Capped at a 3x3 of
 							    marks for the 9x9 so the chip stays a chip. */}
@@ -143,13 +154,10 @@ export function Toolbelt() {
 								// Clicking the tool already in hand folds its brush picker away,
 								// and clicking once more brings it back.
 								if (selected && foldable) {
-									const next = !brushOpen;
-									setBrushOpen(next);
-									notify(t(next ? 'app.toolbelt.brushShown' : 'app.toolbelt.brushHidden'));
+									setBrushOpen(!brushOpen);
 									return;
 								}
 								setSelectedTool(meta.id);
-								notify(t('app.toolbelt.selected', { name: toolName, how }));
 							}}
 						>
 							<Icon name={meta.icon} size={22} />
@@ -174,10 +182,7 @@ export function Toolbelt() {
 						aria-label={t('app.toolbelt.paint')}
 						aria-pressed={selectedTool === 'paint'}
 						aria-keyshortcuts={keyForTool('paint')}
-						onClick={() => {
-							setSelectedTool('paint');
-							notify(t('app.toolbelt.paintHow'));
-						}}
+						onClick={() => setSelectedTool('paint')}
 					>
 						<Icon name="paint" size={22} />
 						<span className="tool-key" aria-hidden="true">

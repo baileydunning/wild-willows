@@ -317,6 +317,20 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 
 	// Prominent, ephemeral notifications (top-right) — the same place errors appear.
 	//
+	// WHAT EARNS ONE. A toast is for something the player would otherwise MISS: an
+	// animal came home, an area opened, an achievement landed, an action was
+	// refused and nothing happened. It is not a receipt for what they just did. If
+	// the click already answers on screen — a control lights up, a panel opens, a
+	// swatch is ringed — the toast is a second copy of a fact they watched arrive,
+	// and it pushes the messages that matter off the top of a shared stack. The
+	// toolbelt is where this went wrong: four toasts, firing on every tool switch
+	// and every brush click (see the note at the top of ui/Toolbelt.tsx).
+	//
+	// Nor is a toast the way to reach a screen reader. State belongs on the control
+	// that changed — aria-pressed, aria-expanded, a `title` that describes it — so
+	// it is announced where the user already is, not as a stray line in the live
+	// region a moment later.
+	//
 	// Repeats of the message already showing extend that one instead of stacking a
 	// second copy. Losing the connection mid-session used to raise a fresh toast —
 	// and a fresh sound — for EVERY action the player took, so a walk across the

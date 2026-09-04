@@ -17,6 +17,7 @@ class FakeAudio {
 	loop = false;
 	paused = true;
 	currentTime = 0;
+	duration = NaN; // jsdom never loads metadata; tests that need a length set one
 	preload = '';
 	play = vi.fn(() => {
 		this.paused = false;
@@ -88,6 +89,21 @@ const primeAndClear = () => {
 	FakeAudio.instances = [];
 };
 const bySrc = (frag: string) => FakeAudio.instances.filter((a) => a.src.includes(frag));
+/** Fire one of an element's own listeners (audio.ts subscribes to 'timeupdate'
+ *  to keep the meadow's AABA form moving; jsdom's Audio never ticks). */
+const fire = (el: FakeAudio, evt: string) => {
+	for (const [name, fn] of el.addEventListener.mock.calls as [string, () => void][]) {
+		if (name === evt) fn();
+	}
+};
+/** Play a section up to the seam audio.ts watches for: a moment mid-piece (which
+ *  re-arms the seam), then the last beat before the section runs out. */
+const playToSeam = (el: FakeAudio) => {
+	el.currentTime = 10;
+	fire(el, 'timeupdate');
+	el.currentTime = el.duration - 0.5;
+	fire(el, 'timeupdate');
+};
 /* The shipping manifest, read once. vitest runs from the repo root, same as the
  * other source-reading suites (see tests/serverSource.ts); import.meta.url is
  * not a file: URL under the jsdom environment this project runs in, so it
@@ -259,6 +275,55 @@ describe('audio — bindGameAudio cleanup', () => {
 	});
 });
 
+/* WHICH PIECE BELONGS TO A PLACE.
+ *
+ * The bug this suite is here to keep fixed: a trail tent's area id is
+ * 'tent-<biome>', it matched none of the biome branches this choice used to be
+ * written as, and so every tent in the preserve played the meadow. */
+describe('audio — choosing the gameplay track', () => {
+	const restored = () => 100;
+	const BIOMES = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
+
+	it('plays the house piece indoors — in the house and in every trail tent', () => {
+		expect(audio.gameplayMusicFor('home', restored)).toBe('home');
+		for (const biome of BIOMES) {
+			expect(audio.gameplayMusicFor(`tent-${biome}`, restored)).toBe('home');
+		}
+	});
+
+	it('gives each biome its own piece', () => {
+		expect(audio.gameplayMusicFor('meadow', restored)).toBe('meadowambient_level3');
+		expect(audio.gameplayMusicFor('forest', restored)).toBe('hollowforest_level3');
+		expect(audio.gameplayMusicFor('wetland', restored)).toBe('wetlands_level3');
+		expect(audio.gameplayMusicFor('desert', restored)).toBe('scrubland_level3');
+		expect(audio.gameplayMusicFor('alpine', restored)).toBe('graywind_level3');
+		expect(audio.gameplayMusicFor('coastal', restored)).toBe('pelicanbay_level3');
+	});
+
+	it('picks the mix off the biome that is playing, at 50 and 80', () => {
+		expect(audio.gameplayMusicFor('alpine', () => 49)).toBe('graywind_level1');
+		expect(audio.gameplayMusicFor('alpine', () => 50)).toBe('graywind_level2');
+		expect(audio.gameplayMusicFor('alpine', () => 79)).toBe('graywind_level2');
+		expect(audio.gameplayMusicFor('alpine', () => 80)).toBe('graywind_level3');
+		// and it reads the health of the biome underfoot, not some other one
+		const onlyForestIsSick = (id: string) => (id === 'forest' ? 10 : 100);
+		expect(audio.gameplayMusicFor('forest', onlyForestIsSick)).toBe('hollowforest_level1');
+		expect(audio.gameplayMusicFor('coastal', onlyForestIsSick)).toBe('pelicanbay_level3');
+	});
+
+	it('falls back to the meadow for an area with no piece of its own', () => {
+		expect(audio.gameplayMusicFor('somewhere-new', restored)).toBe('meadowambient');
+		expect(audio.gameplayMusicFor(undefined, restored)).toBe('meadowambient');
+	});
+
+	it('knows a room from the open air', () => {
+		expect(audio.isIndoorArea('home')).toBe(true);
+		expect(audio.isIndoorArea('tent-alpine')).toBe(true);
+		expect(audio.isIndoorArea('alpine')).toBe(false);
+		expect(audio.isIndoorArea(undefined)).toBe(false);
+	});
+});
+
 describe('audio — music & ambience activation', () => {
 	it('starts a looping music track and applies track volume', () => {
 		audio.primeAudio();
@@ -333,6 +398,128 @@ describe('audio — music & ambience activation', () => {
 
 		audio.applyAudioPrefs({ musicEnabled: true });
 		expect(meadow.currentTime).toBe(17);
+	});
+
+	/* THE MEADOW IS A SONG, NOT A LOOP.
+	 *
+	 * Two passes of the health-level mix (A), one pass of the alt track (B), then
+	 * A again — and around. The game never asks for the bridge: it keeps asking for
+	 * the meadow, and the form decides what is actually sounding.
+	 *
+	 * Same trick as the crossfade test above: rAF is handed a timestamp past the
+	 * end of the fade so each handoff resolves in one synchronous tick. */
+	describe('the meadow plays in AABA', () => {
+		const runFades = () => {
+			window.requestAnimationFrame = ((cb: FrameRequestCallback) => {
+				cb((typeof performance !== 'undefined' ? performance.now() : Date.now()) + 10_000);
+				return 0;
+			}) as any;
+		};
+
+		it('holds A for two passes, hands the third to the bridge, then takes it back', () => {
+			runFades();
+			audio.primeAudio();
+			FakeAudio.instances = [];
+
+			audio.setMusicActive(true, 'meadowambient');
+			const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+			meadow.duration = 138;
+
+			// First A. The seam here only starts the repeat — no bridge yet.
+			playToSeam(meadow);
+			expect(bySrc('meadowambient_alt.mp3')).toHaveLength(0);
+			expect(meadow.paused).toBe(false);
+
+			// Second A. This seam is the one that hands over.
+			playToSeam(meadow);
+			const [alt] = bySrc('meadowambient_alt.mp3');
+			expect(alt).toBeDefined();
+			expect(alt.loop).toBe(true);
+			expect(alt.currentTime).toBe(0); // a section takes its turn from the top
+			expect(alt.play).toHaveBeenCalled();
+			expect(meadow.paused).toBe(true);
+			// data/audio.json trims the alt to sit with the A mixes: 0.8 * 0.6 * 0.29
+			expect(alt.volume).toBeCloseTo(0.1392, 4);
+
+			// One pass of the bridge, and the meadow comes back at its own top.
+			alt.duration = 99;
+			meadow.currentTime = 60;
+			playToSeam(alt);
+			expect(meadow.paused).toBe(false);
+			expect(meadow.currentTime).toBe(0);
+			expect(alt.paused).toBe(true);
+		});
+
+		it('does not let a state change drag the bridge off the air', () => {
+			runFades();
+			audio.primeAudio();
+			FakeAudio.instances = [];
+
+			audio.setMusicActive(true, 'meadowambient');
+			const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+			meadow.duration = 138;
+			playToSeam(meadow);
+			playToSeam(meadow);
+			const [alt] = bySrc('meadowambient_alt.mp3');
+			expect(alt.paused).toBe(false);
+
+			// The game re-asserts the meadow on every state change and on a 15s timer.
+			audio.setMusicActive(true, 'meadowambient');
+			expect(alt.paused).toBe(false);
+			expect(meadow.paused).toBe(true);
+		});
+
+		it('carries the form through a health-level change', () => {
+			runFades();
+			audio.primeAudio();
+			FakeAudio.instances = [];
+
+			audio.setMusicActive(true, 'meadowambient');
+			const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+			meadow.duration = 138;
+			playToSeam(meadow); // first A done
+
+			// The meadow gets healthier: same A section, fuller mix, same song.
+			audio.setMusicActive(true, 'meadowambient_level3');
+			const [level3] = bySrc('meadowambient_level3.mp3');
+			level3.duration = 138;
+			playToSeam(level3); // second A done -> bridge
+			expect(bySrc('meadowambient_alt.mp3')).toHaveLength(1);
+		});
+
+		it('starts the form over after a spell away from the meadow', () => {
+			runFades();
+			audio.primeAudio();
+			FakeAudio.instances = [];
+
+			audio.setMusicActive(true, 'meadowambient');
+			const [meadow] = bySrc('willowmeadow/meadowambient.mp3');
+			meadow.duration = 138;
+			playToSeam(meadow); // one A in
+
+			audio.setMusicActive(true, 'wetlands_level1'); // out to the wetland and back
+			audio.setMusicActive(true, 'meadowambient');
+
+			// Back at the top of the form: one seam is a repeat, not the bridge.
+			playToSeam(meadow);
+			expect(bySrc('meadowambient_alt.mp3')).toHaveLength(0);
+			playToSeam(meadow);
+			expect(bySrc('meadowambient_alt.mp3')).toHaveLength(1);
+		});
+
+		it('leaves tracks with no form looping as they always did', () => {
+			runFades();
+			audio.primeAudio();
+			FakeAudio.instances = [];
+
+			audio.setMusicActive(true, 'wetlands_level1');
+			const [wetland] = bySrc('Wetlands_level1.mp3');
+			wetland.duration = 120;
+			playToSeam(wetland);
+			playToSeam(wetland);
+			expect(wetland.paused).toBe(false);
+			expect(FakeAudio.instances.filter((a) => a.src.includes('willowmeadow'))).toHaveLength(0);
+		});
 	});
 
 	it('starts looping ambience softened below music level', () => {

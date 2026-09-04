@@ -255,12 +255,8 @@
 				"shovel": "Cava bancales en el suelo cerca de ti. Cava otra vez un bancal para quitarlo.",
 				"watering-can": "Riega un bancal para poder plantar. Riégalo otra vez para volverlo agua. Une casillas de agua para hacer charcos, ríos y lagos."
 			},
-			"paintHow": "Pintura. Elige un color y toca el suelo, las paredes, la alfombra o un objeto para cambiarlo.",
 			"brushGroup": "Cuánto terreno cavar",
 			"brushTitle": "Cava {n} por {n} casillas a la vez.",
-			"brushSelected": "Ahora cavas {n} por {n} casillas.",
-			"brushShown": "Tamaños visibles.",
-			"brushHidden": "Tamaños ocultos.",
 			"brushToggleHint": "haz clic otra vez para ocultar los tamaños"
 		}
 	},

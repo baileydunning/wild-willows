@@ -49,6 +49,45 @@ let fadingMusicEl: HTMLAudioElement | null = null;
 let musicFadeRaf: number | null = null;
 const MUSIC_CROSSFADE_MS = 2000;
 const musicEls = new Map<MusicId, HTMLAudioElement>();
+
+/* THE MEADOW IS IN AABA.
+ *
+ * Its piece used to be a loop: one idea, around and around for as long as you
+ * stood in the grass. It now plays as a song — two passes of the A section, a
+ * contrasting bridge, then A again, and the form repeats. The three health-level
+ * mixes are the same A section in different layerings, so they share one bridge
+ * between them.
+ *
+ * This is a layer ON TOP of the track machinery below rather than a second
+ * player: the sections are ordinary music tracks, they hand off with the same
+ * crossfade every other track change uses, and `currentMusicId` stays whatever
+ * the GAME asked for (the health-level mix). Only `loadedMusicId` — what is
+ * actually sounding — moves to the bridge and back.
+ */
+const MUSIC_BRIDGE: Partial<Record<MusicId, MusicId>> = {
+	meadowambient: 'meadowambient_alt',
+	meadowambient_level2: 'meadowambient_alt',
+	meadowambient_level3: 'meadowambient_alt',
+};
+/** One entry per pass through a section. Read it literally: A, A, B, A, repeat. */
+const MUSIC_FORM = ['A', 'A', 'B', 'A'] as const;
+/** Hand off a fade's width before the section runs out, so the next one is up as
+ *  this one lands rather than after the loop has already wrapped into a repeat
+ *  nobody asked for. */
+const SECTION_SEAM_S = MUSIC_CROSSFADE_MS / 1000;
+const sectionTracks = new Set<MusicId>([
+	...(Object.keys(MUSIC_BRIDGE) as MusicId[]),
+	...(Object.values(MUSIC_BRIDGE) as MusicId[]),
+]);
+/** The A track the form is built around, or null when the game is asking for
+ *  music that has no form. */
+let formHome: MusicId | null = null;
+/** Which pass of MUSIC_FORM is sounding right now. */
+let formStep = 0;
+/** Cleared the moment a seam is acted on and set again once the section has
+ *  moved clear of it, so one seam advances the form exactly once — timeupdate
+ *  fires about four times a second and the seam is two seconds wide. */
+let seamArmed = true;
 let wantsAmbience = false;
 let currentAmbienceId: AmbienceId = 'meadow';
 let ambienceEl: HTMLAudioElement | null = null;
@@ -84,6 +123,43 @@ const LEVEL3_AMBIENCE_BOOST = 1.2;
 
 function isLevel3Music(track: MusicId): boolean {
 	return /_level3$/.test(track);
+}
+
+/* WHICH PIECE BELONGS TO A PLACE.
+ *
+ * Pure and exported, so the choice can be tested without standing up the app.
+ * It used to be a ladder of nested ternaries inside an App effect whose final
+ * `else` was the meadow — which meant every area the ladder did not recognise
+ * played the meadow's music, and a trail tent ('tent-<biome>') is exactly such
+ * an area. Six biomes in the ridge tent sounded like the meadow. Here an
+ * unrecognised area is a lookup miss rather than a branch that quietly lands on
+ * a real track.
+ */
+const BIOME_MUSIC: Record<string, readonly [MusicId, MusicId, MusicId]> = {
+	meadow: ['meadowambient', 'meadowambient_level2', 'meadowambient_level3'],
+	forest: ['hollowforest_level1', 'hollowforest_level2', 'hollowforest_level3'],
+	wetland: ['wetlands_level1', 'wetlands_level2', 'wetlands_level3'],
+	desert: ['scrubland_level1', 'scrubland_level2', 'scrubland_level3'],
+	alpine: ['graywind_level1', 'graywind_level2', 'graywind_level3'],
+	coastal: ['pelicanbay_level1', 'pelicanbay_level2', 'pelicanbay_level3'],
+};
+
+/** Inside the house, or inside a trail tent pitched out in a biome. Both are
+ *  rooms: the land outside stops carrying them. */
+export function isIndoorArea(area: string | undefined | null): boolean {
+	return !!area && (area === 'home' || area.startsWith('tent-'));
+}
+
+/** The gameplay track for an area, given a way to read a biome's health.
+ *  Health picks the mix; the area picks the piece. */
+export function gameplayMusicFor(area: string | undefined | null, biomeHealth: (biomeId: string) => number): MusicId {
+	if (isIndoorArea(area)) return 'home';
+	const tiers = area ? BIOME_MUSIC[area] : undefined;
+	// An outdoor area with no music of its own: the meadow is the preserve's
+	// default piece, and silence would be worse than the wrong grass.
+	if (!tiers) return BIOME_MUSIC.meadow[0];
+	const health = biomeHealth(area as string);
+	return health < 50 ? tiers[0] : health < 80 ? tiers[1] : tiers[2];
 }
 
 function clamp01(value: number): number {
@@ -195,6 +271,13 @@ function getMusicElement(track: MusicId): HTMLAudioElement {
 	let el = musicEls.get(track);
 	if (!el) {
 		el = createAudio(AUDIO_ASSETS.music[track], true);
+		/* A section carries its own timekeeping. timeupdate only fires while the
+		 * element is actually playing, so a form that nobody is listening to costs
+		 * nothing — and there is no interval left running over a paused meadow. */
+		if (sectionTracks.has(track)) {
+			const section = el;
+			el.addEventListener('timeupdate', () => advanceMusicForm(section));
+		}
 		musicEls.set(track, el);
 	}
 	return el;
@@ -219,7 +302,7 @@ function stopMusicFade() {
  * Both writes are guarded on the value ACTUALLY changing, and that is the whole
  * point of the function's shape. This loop walks EVERY music track ever built:
  * musicEls is a cache that is never pruned, so a long session accumulates up to
- * all 20 of them, and it runs on EVERY game state change via syncMusicPlayback.
+ * all 21 of them, and it runs on EVERY game state change via syncMusicPlayback.
  * Re-pausing an element that is already paused with its volume already at 0 is
  * pure cost for no observable effect, and `volume` is not a free write — it
  * crosses into the media pipeline. */
@@ -418,19 +501,79 @@ function ensureFireLoopElement(): HTMLAudioElement | null {
 	return fireLoopEl;
 }
 
+/** What should actually be sounding for a given request: the bridge while it has
+ *  the floor, the requested track the rest of the time. */
+function sectionTrackFor(requested: MusicId): MusicId {
+	const bridge = MUSIC_BRIDGE[requested];
+	if (!bridge) return requested;
+	return MUSIC_FORM[formStep] === 'B' ? bridge : requested;
+}
+
+/* Walking out of the meadow ends the song and walking back in starts a new one,
+ * so a request for music outside the form puts it back at the top. The ELEMENTS
+ * still keep their positions either way — it is the form that starts over, not
+ * the audio. A health level changing under the form is not a new song: it is the
+ * same A section in a fuller mix, and the form plays on through it. */
+function noteMusicRequest(requested: MusicId) {
+	if (MUSIC_BRIDGE[requested]) {
+		if (formHome === null) {
+			formStep = 0;
+			seamArmed = true;
+		}
+		formHome = requested;
+		return;
+	}
+	formHome = null;
+	formStep = 0;
+	seamArmed = true;
+}
+
+/** Runs off the playing section's own timeupdate. */
+function advanceMusicForm(el: HTMLAudioElement) {
+	if (el !== musicEl || formHome === null) return;
+	if (!wantsMusic || !state.enabled || !state.musicEnabled) return;
+	const duration = el.duration;
+	if (!Number.isFinite(duration) || duration <= 0) return;
+	if (duration - el.currentTime > SECTION_SEAM_S) {
+		seamArmed = true;
+		return;
+	}
+	if (!seamArmed) return;
+	seamArmed = false;
+
+	const from = MUSIC_FORM[formStep];
+	formStep = (formStep + 1) % MUSIC_FORM.length;
+	const to = MUSIC_FORM[formStep];
+	// A into its own repeat: the element's loop IS the handoff, and a crossfade
+	// from a track to itself would only put a seam in a seamless one.
+	if (to === from) return;
+
+	const next = sectionTrackFor(formHome);
+	const nextEl = getMusicElement(next);
+	/* The one deliberate rewind in this file (see the note over getMusicElement).
+	 * A section takes its turn from the top: the form is a piece being played
+	 * through, not a place being returned to. */
+	nextEl.currentTime = 0;
+	startMusicCrossfade(next, nextEl);
+}
+
 function tryPlayMusic() {
 	if (!wantsMusic || !state.enabled || !unlockedByGesture) return;
-	const next = getMusicElement(currentMusicId);
-	if (loadedMusicId && loadedMusicId !== currentMusicId && musicEl) {
-		startMusicCrossfade(currentMusicId, next);
+	// The form's own handoffs move loadedMusicId to the bridge while currentMusicId
+	// stays on the meadow. Comparing against the raw request here would drag the
+	// bridge back off the air on the next state change.
+	const track = sectionTrackFor(currentMusicId);
+	const next = getMusicElement(track);
+	if (loadedMusicId && loadedMusicId !== track && musicEl) {
+		startMusicCrossfade(track, next);
 		return;
 	}
 	musicEl = next;
-	loadedMusicId = currentMusicId;
+	loadedMusicId = track;
 	// Don't clobber an in-progress crossfade's volume ramp — this runs on a 15s
 	// timer and on every state change, so without the guard the new track jumps
 	// to full mid-fade (an audible lurch on area transitions).
-	if (musicFadeRaf === null) musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
+	if (musicFadeRaf === null) musicEl.volume = effectiveMusicTrackVolume(track);
 	if (musicEl.paused) {
 		void musicEl.play().catch(() => {
 			// Browser autoplay policies can still block until another user gesture.
@@ -598,13 +741,13 @@ function duckMusicFor(holdMs = DUCK_HOLD_MS, target = DUCK_TARGET) {
 			const t = (elapsed - DUCK_RAMP_DOWN_MS - holdMs) / DUCK_RAMP_UP_MS;
 			duckMultiplier = target + clamp01(t) * (1 - target);
 		}
-		if (musicEl) musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
+		if (musicEl) musicEl.volume = effectiveMusicTrackVolume(loadedMusicId ?? currentMusicId);
 		if (ambienceEl) ambienceEl.volume = effectiveAmbienceVolume();
 		if (elapsed < total) {
 			duckRaf = window.requestAnimationFrame(tick);
 		} else {
 			duckMultiplier = 1;
-			if (musicEl) musicEl.volume = effectiveMusicTrackVolume(currentMusicId);
+			if (musicEl) musicEl.volume = effectiveMusicTrackVolume(loadedMusicId ?? currentMusicId);
 			if (ambienceEl) ambienceEl.volume = effectiveAmbienceVolume();
 			duckRaf = null;
 		}
@@ -796,6 +939,7 @@ export function applyAudioPrefs(prefs: AudioPrefs) {
 export function setMusicActive(active: boolean, track: MusicId = 'wildwillowstheme') {
 	wantsMusic = active;
 	currentMusicId = track;
+	noteMusicRequest(track);
 	syncMusicPlayback();
 }
 

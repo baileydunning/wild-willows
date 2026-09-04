@@ -129,6 +129,8 @@
 		"flowers": "Flowers",
 		"trees": "Trees",
 		"plant": "Plant",
+		"plantedTag": "planted ×{n}",
+		"plantedTitle": "{n} of these are growing in this area right now.",
 		"hint": "Planted things sprout right away and grow in over a minute or two."
 	},
 	"goalsIntro": {
@@ -244,17 +246,12 @@
 			"watering-can": "Terraform — water a soil bed to make it plantable; water it again to flood it into open water. Chain water tiles into ponds, rivers, and lakes."
 		},
 		"titleFormat": "{name} ({key}): {how}",
-		"selected": "{name}: {how}",
 		"paintColorAria": "Paint color {color}",
 		"paint": "Paint",
 		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item: select, then click it",
-		"paintHow": "Paint: pick a color, then click the floor, walls, rug, or an item to recolor it.",
 		"brushGroup": "How much ground to shape",
 		"brushSize": "{n}×{n}",
 		"brushTitle": "Shape {n}×{n} squares at a time ({tiles} in one pass)",
-		"brushSelected": "Shaping {n} by {n} squares at a time",
-		"brushShown": "Brush sizes shown",
-		"brushHidden": "Brush sizes hidden",
 		"brushToggleHint": "click again to fold the sizes away"
 	},
 	"feedPanel": {

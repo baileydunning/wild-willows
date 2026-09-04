@@ -129,6 +129,8 @@
 		"flowers": "Flores",
 		"trees": "Árboles",
 		"plant": "Plantar",
+		"plantedTag": "plantados ×{n}",
+		"plantedTitle": "{n} de estos están creciendo en esta área ahora mismo.",
 		"hint": "Lo que plantes brota de inmediato y termina de crecer en un minuto o dos."
 	},
 	"goalsIntro": {
@@ -244,17 +246,12 @@
 			"watering-can": "Terraformar — riega un bancal para poder plantar en él; riégalo de nuevo para inundarlo y convertirlo en agua abierta. Encadena casillas de agua para formar estanques, ríos y lagos."
 		},
 		"titleFormat": "{name} ({key}): {how}",
-		"selected": "{name}: {how}",
 		"paintColorAria": "Color de pintura {color}",
 		"paint": "Pintar",
 		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto: selecciónalo y luego haz clic en él",
-		"paintHow": "Pintar: elige un color y luego haz clic en el piso, las paredes, la alfombra o un objeto para recolorearlo.",
 		"brushGroup": "Cuánto terreno moldear",
 		"brushSize": "{n}×{n}",
 		"brushTitle": "Moldea {n}×{n} casillas a la vez ({tiles} de una pasada)",
-		"brushSelected": "Moldeando {n} por {n} casillas a la vez",
-		"brushShown": "Tamaños de pincel visibles",
-		"brushHidden": "Tamaños de pincel ocultos",
 		"brushToggleHint": "haz clic otra vez para ocultar los tamaños"
 	},
 	"feedPanel": {

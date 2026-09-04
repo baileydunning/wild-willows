@@ -8,6 +8,7 @@ import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { journalNav, type JournalLoc } from './journalNav';
 import { effort } from './journalSort';
+import { placedCount, waterShape } from '../recipes';
 import { guessFor, guessOptions, guessTally, recordGuess, signatureObject, useFieldGuesses } from '../fieldGuess';
 
 /** A habitat object's display name, localized, falling back to its id. */
@@ -279,6 +280,94 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 		);
 	}
 	const tally = guessTally();
+
+	/* THE HABITAT LIST IS A CHECKLIST.
+	 *
+	 * Every line is something this animal needs, so every line can say whether you
+	 * have it yet — and the ones that count say how far along they are. The reads
+	 * go through placedCount/waterShape rather than the snapshot's own rows: the
+	 * journal is usually open somewhere other than the biome being read about, and
+	 * the snapshot only carries the current area's placements and terrain.
+	 *
+	 * Same boxes as the task steps, so a ticked box means the same thing wherever
+	 * the player meets one. */
+	const bs = state?.biomeStates.find((b) => b.biomeId === animal.biome);
+	const health = bs?.health ?? 0;
+	const balance = bs?.balance ?? 0;
+	const water = state ? waterShape(state, animal.biome) : { tiles: 0, lake: 0, river: 0 };
+	const pct = (value: number) => t('panels.journal.reqNowPct', { value: Math.round(value) });
+	const outOf = (have: number, need: number) => t('panels.journal.reqHave', { have, need });
+	const steps: { key: string; text: string; done: boolean; tail?: string }[] = [];
+	if (req.minHealth) {
+		const done = health >= req.minHealth;
+		steps.push({
+			key: 'health',
+			text: t('panels.journal.minHealth', { value: req.minHealth }),
+			done,
+			tail: done ? undefined : pct(health),
+		});
+	}
+	if (req.minBalance) {
+		const done = balance >= req.minBalance;
+		steps.push({
+			key: 'balance',
+			text: t('panels.journal.minBalance', { value: req.minBalance }),
+			done,
+			tail: done ? undefined : pct(balance),
+		});
+	}
+	/* Open water you have to dig. Only the shapes the player can actually
+	   terraform are listed: coastal `ocean`/`deep` are part of the map from
+	   the start, so printing them would read as a chore that isn't one. */
+	if (req.water?.lake) {
+		steps.push({
+			key: 'lake',
+			text: t('panels.journal.waterLake', { tiles: req.water.lake }),
+			done: water.lake >= req.water.lake,
+			tail: water.lake >= req.water.lake ? undefined : outOf(water.lake, req.water.lake),
+		});
+	}
+	if (req.water?.river) {
+		steps.push({
+			key: 'river',
+			text: t('panels.journal.waterRiver', { tiles: req.water.river }),
+			done: water.river >= req.water.river,
+			tail: water.river >= req.water.river ? undefined : outOf(water.river, req.water.river),
+		});
+	}
+	if (req.water?.tiles && !req.water?.lake && !req.water?.river) {
+		steps.push({
+			key: 'water',
+			text: t('panels.journal.waterTiles', { tiles: req.water.tiles }),
+			done: water.tiles >= req.water.tiles,
+			tail: water.tiles >= req.water.tiles ? undefined : outOf(water.tiles, req.water.tiles),
+		});
+	}
+	for (const [id, qty] of Object.entries(req.objects || {})) {
+		const o = data?.habitatObjects.find((oo) => oo.id === id);
+		const have = state ? placedCount(state, animal.biome, id) : 0;
+		const done = have >= qty;
+		steps.push({
+			key: `object-${id}`,
+			text: t('panels.journal.objectReq', { qty, name: o ? content('habitatObject', o.id, 'name', o.name) : id }),
+			done,
+			// One of a thing is a yes-or-no: the box already says it.
+			tail: done || qty <= 1 ? undefined : outOf(have, qty),
+		});
+	}
+	for (const id of req.animals || []) {
+		const a = data?.animals.find((aa) => aa.id === id);
+		steps.push({
+			key: `animal-${id}`,
+			// Don't leak the name of an animal the player hasn't discovered yet —
+			// show its kind instead (e.g. "another bird needs to return first").
+			text:
+				a && !seen.has(id)
+					? t('panels.journal.animalReqUnknown', { kind: content('animal', a.id, 'kind', a.kind) })
+					: t('panels.journal.animalReq', { name: a ? content('animal', a.id, 'name', a.name) : id }),
+			done: seen.has(id),
+		});
+	}
 	return (
 		<div className="small req-details">
 			<div className="muted">{t('panels.journal.hint', { hint })}</div>
@@ -293,49 +382,26 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 					</span>
 				</p>
 			) : null}
-			<ul>
-				{req.minHealth ? <li>{t('panels.journal.minHealth', { value: req.minHealth })}</li> : null}
-				{req.minBalance ? <li>{t('panels.journal.minBalance', { value: req.minBalance })}</li> : null}
-				{/* Open water you have to dig. Only the shapes the player can actually
-				    terraform are listed: coastal `ocean`/`deep` are part of the map from
-				    the start, so printing them would read as a chore that isn't one. */}
-				{req.water?.lake ? <li>{t('panels.journal.waterLake', { tiles: req.water.lake })}</li> : null}
-				{req.water?.river ? <li>{t('panels.journal.waterRiver', { tiles: req.water.river })}</li> : null}
-				{req.water?.tiles && !req.water?.lake && !req.water?.river ? (
-					<li>{t('panels.journal.waterTiles', { tiles: req.water.tiles })}</li>
-				) : null}
-				{Object.entries(req.objects || {}).map(([id, q]) => {
-					const o = data?.habitatObjects.find((oo) => oo.id === id);
-					return (
-						<li key={id}>
-							{t('panels.journal.objectReq', { qty: q, name: o ? content('habitatObject', o.id, 'name', o.name) : id })}
-						</li>
-					);
-				})}
-				{(req.animals || []).map((id) => {
-					const a = data?.animals.find((aa) => aa.id === id);
-					// Don't leak the name of an animal the player hasn't discovered yet —
-					// show its kind instead (e.g. "another bird needs to return first").
-					if (a && !seen.has(id)) {
-						return (
-							<li key={id}>
-								{t('panels.journal.animalReqUnknown', { kind: content('animal', a.id, 'kind', a.kind) })}
-							</li>
-						);
-					}
-					return (
-						<li key={id}>
-							{t('panels.journal.animalReq', { name: a ? content('animal', a.id, 'name', a.name) : id })}
-						</li>
-					);
-				})}
-				{condLine ? (
-					<li>
-						<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} />{' '}
-						{weatherGated ? t('panels.journal.condCheck', { cond: condLine }) : condLine}
+			<ul className="req-checklist">
+				{steps.map((step) => (
+					<li key={step.key} className={`tasks-step ${step.done ? 'done' : ''}`}>
+						<span className="tasks-step-box">{step.done && <Icon name="check" size={10} />}</span>
+						<span>
+							{step.text}
+							{step.tail ? <span className="req-step-tail"> {step.tail}</span> : null}
+						</span>
 					</li>
-				) : null}
+				))}
 			</ul>
+			{/* When to look, rather than what to gather: a weather window is not
+			    something you can have in hand, so it sits under the checklist instead
+			    of pretending to be a box you can tick. */}
+			{condLine ? (
+				<p className="req-when">
+					<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} />{' '}
+					{weatherGated ? t('panels.journal.condCheck', { cond: condLine }) : condLine}
+				</p>
+			) : null}
 		</div>
 	);
 }
