@@ -88,6 +88,19 @@ const primeAndClear = () => {
 	FakeAudio.instances = [];
 };
 const bySrc = (frag: string) => FakeAudio.instances.filter((a) => a.src.includes(frag));
+/* The shipping manifest, read once. vitest runs from the repo root, same as the
+ * other source-reading suites (see tests/serverSource.ts); import.meta.url is
+ * not a file: URL under the jsdom environment this project runs in, so it
+ * cannot be used here. */
+const MANIFEST = JSON.parse(readFileSync(join(resolve(process.cwd()), 'data/audio.json'), 'utf8'));
+/* The element for one manifest id, found by the file the manifest names.
+ *
+ * Worth the indirection for a sound whose FILE is expected to change: the
+ * crackle was pinned to 'FireCrackling.mp3' as a literal, so swapping the asset
+ * in data/audio.json turned a working fade into two failing tests that had
+ * nothing to say about the fade. What is under test is the behaviour attached
+ * to the id, not the name of the file behind it. */
+const sfxEl = (id: string) => bySrc(String(MANIFEST.sfx[id]).split('/').pop() as string)[0];
 const hoverButton = () => {
 	const btn = document.createElement('button');
 	document.body.appendChild(btn);
@@ -480,25 +493,29 @@ describe('audio — the campfire crackle', () => {
 	it('rides the nearness the scene sends, and starts only once', () => {
 		bind();
 		audio.primeAudio();
-		const [fire] = bySrc('FireCrackling.mp3');
+		const fire = sfxEl('fireCrackling');
 		expect(fire, 'the crackle loop should exist once audio is unlocked').toBeDefined();
 		expect(fire.loop).toBe(true);
 		expect(fire.play).not.toHaveBeenCalled(); // nothing burning nearby yet
 
 		bridge.emit('audio-fire', { level: 0.5 });
-		// master 0.8 * sfx 0.75 * gain 0.3 * nearness 0.5
-		expect(fire.volume).toBeCloseTo(0.6 * 0.3 * 0.5, 5);
+		// master 0.8 * sfx 0.75 * the manifest's own gain * nearness 0.5. The gain
+		// is read rather than written down for the same reason the filename is:
+		// sfxGain exists to be tuned, and a number copied into this file turns a
+		// mix adjustment into a failing test about the fade.
+		const gain = MANIFEST.sfxGain.fireCrackling as number;
+		expect(fire.volume).toBeCloseTo(0.6 * gain * 0.5, 5);
 		expect(fire.play).toHaveBeenCalledTimes(1);
 
 		bridge.emit('audio-fire', { level: 1 });
-		expect(fire.volume).toBeCloseTo(0.6 * 0.3, 5);
+		expect(fire.volume).toBeCloseTo(0.6 * gain, 5);
 		expect(fire.play).toHaveBeenCalledTimes(1); // stepping closer is a volume change
 	});
 
 	it('goes quiet when the caretaker walks away', () => {
 		bind();
 		audio.primeAudio();
-		const [fire] = bySrc('FireCrackling.mp3');
+		const fire = sfxEl('fireCrackling');
 		bridge.emit('audio-fire', { level: 1 });
 		expect(fire.paused).toBe(false);
 		bridge.emit('audio-fire', { level: 0 });
@@ -508,11 +525,8 @@ describe('audio — the campfire crackle', () => {
 });
 
 describe('the audio manifest', () => {
-	// vitest runs from the repo root, same as the other source-reading suites
-	// (see tests/serverSource.ts). import.meta.url is not a file: URL under the
-	// jsdom environment this project runs in, so it cannot be used here.
 	const root = resolve(process.cwd());
-	const manifest = JSON.parse(readFileSync(join(root, 'data/audio.json'), 'utf8'));
+	const manifest = MANIFEST;
 
 	/* Nothing else catches a path that points at nothing. The ids are typed off
 	 * this file so the call sites stay honest, but the VALUES are plain strings
