@@ -14,6 +14,11 @@ export const TOOL_META: Array<{ id: string; icon: string; key: string; how: stri
 	{ id: 'watering-can', icon: 'can', key: '3', how: 'app.toolbelt.how.watering-can' },
 ];
 
+// Shortcuts, not the whole range: these fourteen cover the house styles' own
+// woods, plasters and stones, and the eyedropper beside them opens the rest of
+// the spectrum. The server has always stored any hex it is given, so a custom
+// color is the same kind of value as a preset — nothing here is a special case
+// downstream.
 const PAINT_PALETTE = [
 	'#c8a064',
 	'#e6d3a6',
@@ -57,6 +62,9 @@ export function Toolbelt() {
 	// works one square at a time should be able to put the panel down and not have
 	// it in front of the world.
 	const [brushOpen, setBrushOpen] = useState(true);
+	// The most recent eyedropper color, kept so it can sit on the shelf beside the
+	// presets — null until the picker has been used at all.
+	const [customPaint, setCustomPaint] = useState<string | null>(null);
 	usePrefs(); // reflect custom tool-select keys
 	// The toolbelt stays off screen until the tutorial step that hands it over, so
 	// a new caretaker's first minute is a meadow and a card telling them to walk —
@@ -122,6 +130,35 @@ export function Toolbelt() {
 							onClick={() => setPaintColor(c)}
 						/>
 					))}
+					{/* A color mixed at the eyedropper STAYS on the shelf as a fifteenth
+					    swatch after you move off it, so a room painted in a custom green
+					    with oak trim is two clicks back and forth rather than a trip
+					    through the picker each time. It holds the same spot — last, ahead
+					    of the picker — instead of pushing the presets around. */}
+					{customPaint && !PAINT_PALETTE.includes(customPaint) && (
+						<button
+							className={`paint-swatch ${paintColor === customPaint ? 'on' : ''}`}
+							style={{ background: customPaint }}
+							title={customPaint}
+							aria-label={t('app.toolbelt.paintColorAria', { color: customPaint })}
+							onClick={() => setPaintColor(customPaint)}
+						/>
+					)}
+					<label className="swatch-pick paint-pick" title={t('app.toolbelt.paintPick')}>
+						<Icon name="eyedropper" size={13} />
+						<input
+							type="color"
+							value={paintColor}
+							onChange={(e) => {
+								// Fires continuously while the OS picker is dragged; both of these
+								// are local state, and paint is applied by clicking the world, so
+								// nothing is written to the server until the player actually paints.
+								setPaintColor(e.target.value);
+								setCustomPaint(e.target.value);
+							}}
+							aria-label={t('app.toolbelt.paintCustom')}
+						/>
+					</label>
 				</div>
 			)}
 			<div className="toolbelt">

@@ -132,7 +132,12 @@ export function completionTracks(data: CompletionData, state: CompletionState): 
 	const homeTarget = HOME_TRACK_KEYS.reduce((n, tk) => n + homeMax(tk), 0);
 
 	const achievements = data.achievements || [];
-	const earned = new Set(state.achievements || []);
+	// Only badges that still exist count toward the track. A save that earned a
+	// since-retired achievement (full-house, dropped when the set settled at 50)
+	// keeps its id forever, and counting it would show the player 50/50 with a
+	// badge still unlit on the other tab.
+	const defined = new Set(achievements.map((a) => a.id));
+	const earned = new Set((state.achievements || []).filter((id) => defined.has(id)));
 
 	return [
 		{ id: 'animals', group: 'preserve', cur: (state.discoveries || []).length, target: data.animals.length },

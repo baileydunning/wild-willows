@@ -30,7 +30,7 @@ describe('the counts on the page are the counts in the data', () => {
 		['habitatObjects', records('habitat-objects.json').length, 384],
 		['recipes', records('recipes.json').length, 354],
 		['resources', records('resources.json').length, 37],
-		['achievements', records('achievements.json').length, 51],
+		['achievements', records('achievements.json').length, 50],
 		['tools', records('tools.json').length, 9],
 	])('%s: the page says %i and the data has %i', (_key, actual, onPage) => {
 		expect(actual).toBe(onPage);

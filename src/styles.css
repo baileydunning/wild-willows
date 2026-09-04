@@ -3850,6 +3850,14 @@ kbd {
 	border-color: var(--ink);
 	box-shadow: 0 0 0 2px var(--gold);
 }
+/* The eyedropper that opens the rest of the spectrum. Same chip as the character
+   creator's (.swatch-pick), shrunk to sit level with the 22px swatches it shares
+   a shelf with rather than towering over them. */
+.paint-pick {
+	width: 22px;
+	height: 22px;
+	margin-left: 3px;
+}
 .tool-tier.paint-dot {
 	border: 1.5px solid rgba(255, 255, 255, 0.85);
 }

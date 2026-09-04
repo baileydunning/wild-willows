@@ -116,11 +116,6 @@
 				"hint": "Reconstruye el suelo del bosque, capa por capa.",
 				"name": "El Sotobosque Regresa"
 			},
-			"full-house": {
-				"flavor": "Un centenar de tipos de vecino. La reserva ya no se está recuperando: está prosperando.",
-				"hint": "Llena la reserva de vecinos.",
-				"name": "Casa Llena"
-			},
 			"fully-equipped": {
 				"flavor": "Equipo de primera para trabajo de primera. No queda nada en la reserva que no puedas cargar, cavar o regar.",
 				"hint": "Lleva tu cesta, pala y regadera a su punto máximo.",
