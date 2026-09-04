@@ -67,12 +67,14 @@ import {
 } from './player';
 import {
 	bumpMetrics,
+	bumpStanding,
 	encodeMetrics,
 	freshMetrics,
 	metricsView,
 	playerDayKey,
 	readMetrics,
 	sanitizeTzOffset,
+	standingOf,
 	weatherTimeFromPlay,
 } from './metrics';
 import {
@@ -98,6 +100,7 @@ import {
 } from './biome';
 import {
 	MAX_CUSTOM_GOALS,
+	boardPlacements,
 	dailyTasksBlock,
 	goalLimitFor,
 	goalMetric,
@@ -1756,6 +1759,9 @@ export class PlaceObject extends PublicEndpoint {
 			// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
 			if (indoors) {
 				await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
+				// Indoor decor is still something standing in the world, and a build
+				// goal for a chair is finished by putting the chair in the house.
+				await bumpStanding(player, { objectId, placed: 1 });
 				await awardAchievements(playerId);
 				return { ok: true, placement, craftedItems };
 			}
@@ -1769,6 +1775,7 @@ export class PlaceObject extends PublicEndpoint {
 				discoveries,
 			});
 			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
+			await bumpStanding(player, { objectId, placed: 1 });
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -1866,6 +1873,9 @@ export class Plant extends PublicEndpoint {
 			discoveries,
 		});
 		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
+		// A planting is both: it is standing, and it is planted. The grow goals ask
+		// the second question and the build goals the first.
+		await bumpStanding(player, { objectId: plantId, placed: 1, planted: 1 });
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
@@ -1912,7 +1922,11 @@ export class HarvestPlacement extends PublicEndpoint {
 			const wid = worldOf(player);
 			const now = Date.now();
 
-			const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
+			// By id, not by scanning for it: the id carries the world and the area, so
+			// this is a point read with the same legacy fallback behind it that
+			// RemoveObject already uses. Picking one plant used to read every
+			// placement in the preserve to find it.
+			const placement = await findInWorld(t.Placement, wid, placementId);
 			if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404, 'server.err.placementNotFound');
 			const def = d.object.get(placement.objectId);
 			const y = def?.yield;
@@ -1958,6 +1972,13 @@ export class HarvestPlacement extends PublicEndpoint {
 			await patchPlayer(playerId, { inventory });
 			await t.Placement.patch(placementId, { lastHarvestAt: now });
 			await bumpMetrics(player, { resourcesCollected: take });
+			// The starter chain asks whether anything standing has been harvested. It
+			// used to answer by looking for a `lastHarvestAt` among every placement in
+			// the world; the stamp still goes on the placement, this is the tally of
+			// how many carry one. Only the FIRST picking of a plant adds to it —
+			// picking the same bush every morning is one harvested plant, not thirty —
+			// which is what keeps the tally equal to the count it replaced.
+			await bumpStanding(player, { harvested: placement.lastHarvestAt ? 0 : 1 });
 			return {
 				ok: true,
 				placementId,
@@ -1989,8 +2010,7 @@ export class MoveObject extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 
-		const placements = await byWorld(t.Placement, wid);
-		const placement = placements.find((p) => p.id === placementId);
+		const placement = await findInWorld(t.Placement, wid, placementId);
 		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404, 'server.err.placementNotFound');
 		if (placement.objectId === 'workbench')
 			throw new GameError(tr('server.err.workbenchStays'), 400, 'server.err.workbenchStays');
@@ -2002,7 +2022,11 @@ export class MoveObject extends PublicEndpoint {
 		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 		}
-		if (placements.some((p) => p.id !== placementId && p.area === placement.area && p.x === tx && p.y === ty)) {
+		// Is the destination free? That is a question about ONE area — the one the
+		// object is already in, since a move cannot cross areas — so it reads that
+		// area's run rather than every placement in the world.
+		const here = await byArea(t.Placement, wid, placement.area);
+		if (here.some((p) => p.id !== placementId && p.x === tx && p.y === ty)) {
 			throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
 		}
 		const d = await defs();
@@ -2130,6 +2154,17 @@ export class RemoveObject extends PublicEndpoint {
 					})
 				: null;
 			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
+			// Taking something back up is the half that makes these tallies a live
+			// count rather than a lifetime one — which is what the goals they feed
+			// have always been.
+			await bumpStanding(player, {
+				objectId: placement.objectId,
+				placed: -1,
+				planted: typeof placement.plantedAt === 'number' ? -1 : 0,
+				// …and it takes its harvest stamp with it, exactly as it did when this
+				// was a scan for one.
+				harvested: typeof placement.lastHarvestAt === 'number' ? -1 : 0,
+			});
 			await awardWorldAchievements(
 				wid,
 				playerId,
@@ -2285,8 +2320,20 @@ export class Rest extends PublicEndpoint {
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
-		const placements = await byWorld(t.Placement, wid);
-		if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
+		// Is there anywhere to sleep? A bed is a thing standing in the world, and
+		// what is standing is a tally on the player row now — so this asks the tally
+		// and falls back to the scan only for a save that has none yet (see
+		// bumpStanding). Resting used to read every placement in the preserve to
+		// find out whether one of them was a bed.
+		// A tally may let an action through, but it must never be what REFUSES one:
+		// a "no" here turns a player away from their own bed, and the tally is a
+		// summary of the rows rather than the rows themselves. So the yes is free
+		// and the no is checked — which costs the scan only on the path where the
+		// player has nowhere to sleep yet, and none where they do.
+		const standing = standingOf(player);
+		const tallied = standing ? SLEEP_OBJECTS.some((id) => (standing.placed[id] || 0) > 0) : false;
+		const canSleep = tallied || (await byWorld(t.Placement, wid)).some((p) => SLEEP_OBJECTS.includes(p.objectId));
+		if (!canSleep) {
 			throw new GameError(tr('server.err.needBedToRest'), 403, 'server.err.needBedToRest');
 		}
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
@@ -2440,7 +2487,8 @@ export class ClaimTask extends PublicEndpoint {
 			const [discoveries, biomeStates, placements, chests, terrain] = await Promise.all([
 				byWorld(t.Discovery, wid),
 				byWorld(t.BiomeState, wid),
-				byWorld(t.Placement, wid),
+				// Nothing on the board counts placements any more — see boardPlacements.
+				boardPlacements(wid, player),
 				byWorld(t.Chest, wid),
 				byWorld(t.TerrainTile, wid),
 			]);
@@ -2537,7 +2585,9 @@ export class SetGoals extends PublicEndpoint {
 		const [discoveries, biomeStates, placements, chests] = await Promise.all([
 			byWorld(t.Discovery, wid),
 			byWorld(t.BiomeState, wid),
-			byWorld(t.Placement, wid),
+			// A goal's baseline is captured from the same numbers its progress will be
+			// read from — see boardPlacements.
+			boardPlacements(wid, player),
 			byWorld(t.Chest, wid),
 		]);
 		const ctx: TaskCtx = {

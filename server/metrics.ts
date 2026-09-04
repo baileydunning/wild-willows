@@ -148,6 +148,104 @@ export function sessionBucket(seconds: number): string {
  * cannot grow a save's record without bound. Oldest go first. */
 const MAX_ARRIVALS = 300;
 
+// ----------------------------------------- what is standing in the world now
+//
+// Per-object tallies of what the player currently HAS PLACED, kept on the
+// player row and maintained by the four endpoints that can change them:
+// PlaceObject, Plant, RemoveObject and HarvestPlacement.
+//
+// The goal board asked these questions by counting rows: how many of this thing
+// are standing (a build goal), how many of it are planted (a grow goal), how
+// many plants are in the ground and has anything ever been harvested (the
+// starter chain). Six readers, one world-wide `Placement` scan on every state
+// read, to answer what is really a handful of running totals.
+//
+// WHY A MAP ON THE ROW RATHER THAN COUNTERS IN THE METRICS BLOB. The blob's
+// `counts` is uplinked to the dashboard on every sync, and a mature save would
+// add a key per object type twice over to a payload that is meant to describe
+// play, not inventory. `craftedEver` — the same shape, read the same way by the
+// same goals — is the precedent this follows.
+//
+// ABSENT IS NOT ZERO, and the distinction is the whole safety story. A save
+// that has never had these written has no `standing` at all, and every reader
+// falls back to counting rows; `repairSave` fills them in once from the rows
+// themselves, so the tally starts life equal to the count it replaces (seeded
+// camp placements included) rather than at zero. That is also why the bumps
+// below refuse to CREATE the field: a delta applied to a save that was never
+// backfilled would look like a complete tally and read low forever.
+export const STANDING_REV = 1;
+
+export interface Standing {
+	rev: number;
+	/** objectId -> placements of it standing anywhere in the world */
+	placed: Record<string, number>;
+	/** objectId -> those of them that were planted (a placement with `plantedAt`) */
+	planted: Record<string, number>;
+	/**
+	 * How many things standing in the world have ever been harvested — NOT how
+	 * many harvests were taken. That is what the starter chain's check has always
+	 * been (`placements.some(p => p.lastHarvestAt)`), so it is what this counts:
+	 * the first harvest of a placement adds one, taking that placement back up
+	 * subtracts it, and picking the same bush a second time changes nothing.
+	 */
+	harvested: number;
+}
+
+export function freshStanding(
+	placed: Record<string, number> = {},
+	planted: Record<string, number> = {},
+	harvested = 0,
+): Standing {
+	return { rev: STANDING_REV, placed, planted, harvested };
+}
+
+/** The tallies for this save, or null when there are none to trust. */
+export function standingOf(player: any): Standing | null {
+	const s = player?.standing;
+	if (!s || s.rev !== STANDING_REV) return null;
+	if (!s.placed || typeof s.placed !== 'object' || !s.planted || typeof s.planted !== 'object') return null;
+	return s as Standing;
+}
+
+/** Every planted thing standing in the world, across every object type. */
+export function standingPlanted(s: Standing): number {
+	return Object.values(s.planted).reduce((a, n) => a + (n || 0), 0);
+}
+
+/**
+ * Apply one action's change to the tallies.
+ *
+ * Reads the freshest row for the same reason bumpMetrics does — a single
+ * request can write the player row more than once, and this must merge onto
+ * what is there rather than onto the copy the endpoint started with. A save
+ * with no tallies yet is left alone (see the note above).
+ */
+export async function bumpStanding(
+	player: any,
+	delta: { objectId?: string; placed?: number; planted?: number; harvested?: number } = {},
+): Promise<void> {
+	if (!player?.id) return;
+	const live = (await getPlayer(player.id)) || player;
+	const prev = standingOf(live);
+	if (!prev) return; // never backfilled — repairSave owns this save's tallies
+	const next: Standing = {
+		rev: STANDING_REV,
+		placed: { ...prev.placed },
+		planted: { ...prev.planted },
+		harvested: prev.harvested || 0,
+	};
+	const oid = delta.objectId;
+	for (const kind of ['placed', 'planted'] as const) {
+		const d = delta[kind] || 0;
+		if (!d || !oid) continue;
+		const n = (next[kind][oid] || 0) + d;
+		if (n > 0) next[kind][oid] = n;
+		else delete next[kind][oid]; // a type nobody has standing leaves no key behind
+	}
+	if (delta.harvested) next.harvested = Math.max(0, (next.harvested || 0) + delta.harvested);
+	await patchPlayer(player.id, { standing: next });
+}
+
 export async function bumpMetrics(
 	player: any,
 	deltas: Record<string, number> = {},

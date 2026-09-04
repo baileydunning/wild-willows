@@ -21,6 +21,8 @@ import {
 	WEATHER_BIOME_IDS,
 	playerDayKey,
 	readMetrics,
+	standingOf,
+	standingPlanted,
 	tzMs,
 	weatherTimeFromPlay,
 } from './metrics';
@@ -75,7 +77,12 @@ export interface TaskCtx {
 	discoveries: any[];
 	/** every BiomeState row in this world */
 	biomeStates: any[];
-	/** every Placement row in this world (for "plant N" goal progress) */
+	/** Every Placement row in this world — a FALLBACK now, not the source. What is
+	 *  standing, planted and harvested comes off `player.standing` and the biome
+	 *  rows' `objectCounts`; this covers the save that has neither yet, until its
+	 *  next heartbeat fills them in (see bumpStanding / ensureStanding). Anything
+	 *  that narrows this list has to keep that fallback whole — a goal reading a
+	 *  short list reads low, which looks like slow progress rather than a bug. */
 	placements?: any[];
 	/** every Chest row in this world (for "collect N" goal progress) */
 	chests?: any[];
@@ -536,7 +543,7 @@ function attractSteps(animalId: string, ctx: TaskCtx): { text: string; done: boo
 	}
 	const steps: { text: string; done: boolean }[] = [];
 	for (const [oid, need] of Object.entries(a.requirements?.objects || {})) {
-		const have = (ctx.placements || []).filter((p: any) => p.objectId === oid && p.area === a.biome).length;
+		const have = standingInBiome(ctx, a.biome, oid);
 		steps.push({
 			text: tr('server.goal.habitatStep', {
 				have: Math.min(have, need as number),
@@ -638,14 +645,49 @@ function heldAmount(ctx: TaskCtx, resId: string): number {
 	return inv + inChests;
 }
 
-/** How many of a given object are placed in the world right now. */
+/**
+ * How many of an object are standing in ONE biome.
+ *
+ * Read off that biome's own row: `objectCounts` is written by recalcBiome from
+ * the placements it is already holding, so it is exact as of the last time
+ * anything in that area changed — which is the last time this number could have
+ * moved. The fallback counts rows the old way for a biome whose row predates the
+ * field. Absent is not zero: a habitat step reading 0 for a habitat that is
+ * standing there would be a goal the player cannot finish.
+ */
+function standingInBiome(ctx: TaskCtx, biomeId: string, objectId: string): number {
+	const counts = ctx.biomeStates.find((b: any) => b.biomeId === biomeId)?.objectCounts;
+	if (counts && typeof counts === 'object') return counts[objectId] || 0;
+	return (ctx.placements || []).filter((p: any) => p.objectId === objectId && p.area === biomeId).length;
+}
+
+/**
+ * How many of a given object are placed in the world right now.
+ *
+ * From the player's own running tallies (see bumpStanding), which count what is
+ * standing ANYWHERE — the house and a trail tent's interior included, which is
+ * where half the buildable things end up and why this cannot come off the biome
+ * rows. Same fallback rule as above, and the tallies are filled in from the rows
+ * on a save's first heartbeat, so the fallback is one session at most.
+ */
 export function placedCountFor(ctx: TaskCtx, objectId: string): number {
+	const standing = standingOf(ctx.player);
+	if (standing) return standing.placed[objectId] || 0;
 	return (ctx.placements || []).filter((p: any) => p.objectId === objectId).length;
 }
 
 /** How many of a given plantable object have been planted (placement + plantedAt). */
 function plantedCountFor(ctx: TaskCtx, objectId: string): number {
+	const standing = standingOf(ctx.player);
+	if (standing) return standing.planted[objectId] || 0;
 	return (ctx.placements || []).filter((p: any) => p.objectId === objectId && typeof p.plantedAt === 'number').length;
+}
+
+/** Everything planted and still in the ground, across every object type. */
+function plantedTotal(ctx: TaskCtx): number {
+	const standing = standingOf(ctx.player);
+	if (standing) return standingPlanted(standing);
+	return (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
 }
 
 /** The raw, absolute metric a goal tracks (before the baseline is subtracted). */
@@ -657,7 +699,7 @@ export function goalMetric(goal: CustomGoal, ctx: TaskCtx): number {
 		case 'grow':
 			return plantedCountFor(ctx, goal.itemId || '');
 		case 'plant':
-			return (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
+			return plantedTotal(ctx);
 		case 'collect':
 			return heldAmount(ctx, goal.resourceId || '');
 		case 'observe':
@@ -807,8 +849,15 @@ function starterTasks(ctx: TaskCtx): any[] {
 	const counts = (readMetrics(ctx.player)?.counts || {}) as Record<string, number>;
 	const placed = counts.objectsPlaced || 0;
 	const grasshopper = ctx.discoveries.some((x: any) => x.animalId === FIRST_ANIMAL_ID);
-	const planted = (ctx.placements || []).filter((p: any) => typeof p.plantedAt === 'number').length;
-	const harvested = (ctx.placements || []).some((p: any) => typeof p.lastHarvestAt === 'number');
+	const planted = plantedTotal(ctx);
+	// Whether anything has ever been harvested. The tally counts harvests taken;
+	// the fallback looks for the stamp a harvest leaves on the placement, which is
+	// what this asked before. Both answer the same question — has the player done
+	// it — and only the fallback can lose the answer when the plant is dug up.
+	const standing = standingOf(ctx.player);
+	const harvested = standing
+		? standing.harvested > 0
+		: (ctx.placements || []).some((p: any) => typeof p.lastHarvestAt === 'number');
 	// "Bugs" in the way a caretaker means it: the small crawling, flying, creeping
 	// neighbors. The definitions split `kind` into 'insect' (grasshopper, ladybug,
 	// bumblebee) and 'invertebrate' (snail, pillbug, garden spider) for display;
@@ -1214,6 +1263,51 @@ export function dailyTasksBlock(ctx: TaskCtx) {
 	return { dayKey, endsAt: 0, tasks };
 }
 
+/**
+ * The placements a TASK BOARD needs: none, for a save whose standing tallies are
+ * written.
+ *
+ * Every goal that used to count rows reads those tallies now (see
+ * placedCountFor) or the biome row's `objectCounts` (see standingInBiome), so
+ * the board asks for nothing here. The list is the fallback for a save that has
+ * neither yet — and when it IS needed it has to be the whole world, because that
+ * is the question the readers are asking. One session at most: the next
+ * heartbeat fills the tallies in (ensureStanding).
+ */
+export async function boardPlacements(wid: string, player: any): Promise<any[] | undefined> {
+	return standingOf(player) ? undefined : byWorld(db().Placement, wid);
+}
+
+/**
+ * The placements a SNAPSHOT carries: the area on screen, plus the home interior.
+ *
+ * THE AREA THE PLAYER IS STANDING IN, for the same reason as NodeState and
+ * TerrainTile below — the client draws, hashes, collision-tests and patches
+ * `p.area === this.area`, and it refetches the whole snapshot on every area
+ * change, so the round trip this would have needed is one the game already
+ * makes. What made it safe to do at all is that nothing reads this list whole
+ * any more: the goal board, the recipe gates, the tutorial's flags and the
+ * completion tracker all moved onto the tallies and the biome rows first. Doing
+ * it before that would not have errored — those readers would just have quietly
+ * counted the meadow and called it the preserve.
+ *
+ * The home interior rides along wherever the player is standing, because the
+ * Your Home card counts what they have put in it (HUD.tsx) from anywhere. It is
+ * one bounded room, and it is the only cross-area thing the client still reads
+ * from this list rather than from a stored count.
+ *
+ * A save without tallies gets the whole world, exactly as before, because its
+ * readers are still counting rows.
+ */
+async function snapshotPlacements(wid: string, player: any): Promise<any[]> {
+	const t = db();
+	if (!standingOf(player)) return byWorld(t.Placement, wid);
+	const area = player?.area || 'meadow';
+	const here = await byArea(t.Placement, wid, area);
+	if (area === 'home') return here;
+	return [...here, ...(await byArea(t.Placement, wid, 'home'))];
+}
+
 export async function snapshot(playerId: string, opts: { worldId?: string } = {}) {
 	const t = db();
 	const d = await defs();
@@ -1234,7 +1328,9 @@ export async function snapshot(playerId: string, opts: { worldId?: string } = {}
 	const [biomeStates, placements, chests, discoveries, nodeStates, terrain, achievementRows, feedRows] =
 		await Promise.all([
 			byWorld(t.BiomeState, wid),
-			byWorld(t.Placement, wid),
+			// THE AREA THE PLAYER IS STANDING IN (plus the home interior) — see
+			// snapshotPlacements above.
+			snapshotPlacements(wid, player),
 			byWorld(t.Chest, wid),
 			byWorld(t.Discovery, wid),
 			// THE AREA THE PLAYER IS STANDING IN, not all six.

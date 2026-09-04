@@ -48,8 +48,11 @@ export interface CompletionState {
 		craftedEver?: Record<string, number>;
 		unlockedBiomes?: string[];
 		home?: Record<string, unknown>;
+		/** What is standing in the world, per object — see the habitat tracks below. */
+		standing?: { placed?: Record<string, number> };
 	};
 	biomeStates?: Array<{ biomeId: string; health?: number }>;
+	/** Only a fallback — see the note where habitat standing is counted below. */
 	placements?: Array<{ objectId: string }>;
 	discoveries?: Array<unknown>;
 	/** Earned achievement ids. */
@@ -89,18 +92,28 @@ export function completionTracks(data: CompletionData, state: CompletionState): 
 	// since spent, placed or dropped every copy.
 	const recipesCrafted = data.recipes.filter((r) => (craftedEver[r.output.itemId] || 0) > 0).length;
 
-	// Habitat STANDING, not ever-placed: the snapshot carries placements, not a
-	// lifetime tally, so this is honest about being a current count. Seeded
-	// scenery the world placed itself counts too — it is habitat, and it is there.
+	// Habitat STANDING, not ever-placed: this is a current count, honestly, and
+	// seeded scenery the world placed itself counts too — it is habitat, and it is
+	// there.
+	//
+	// From `player.standing`, the running per-object tallies the server keeps, and
+	// only from the placements when a save has none. This is a question about the
+	// whole preserve, and the snapshot carries the area on screen — so counting
+	// its placements would have answered "how many kinds are standing HERE" while
+	// the panel says "of everything there is", and a caretaker walking into the
+	// forest would have watched their completion drop.
 	const placeable = data.habitatObjects.filter((o) => o.placement !== 'none');
 	const placeableIds = new Set(placeable.map((o) => o.id));
-	const standing = new Set((state.placements || []).map((p) => p.objectId).filter((id) => placeableIds.has(id)));
+	const plantable = placeable.filter((o) => o.plantable);
+	const plantableIds = new Set(plantable.map((o) => o.id));
+	const placedIds = state.player?.standing?.placed
+		? Object.keys(state.player.standing.placed)
+		: (state.placements || []).map((p) => p.objectId);
+	const standing = new Set(placedIds.filter((id) => placeableIds.has(id)));
 
 	// Living habitat gets its own line — planting a species is a different act
 	// from crafting a bench, and it is the half of the preserve that grows.
-	const plantable = placeable.filter((o) => o.plantable);
-	const plantableIds = new Set(plantable.map((o) => o.id));
-	const grown = new Set((state.placements || []).map((p) => p.objectId).filter((id) => plantableIds.has(id)));
+	const grown = new Set(placedIds.filter((id) => plantableIds.has(id)));
 
 	const guideDone = areas.filter((b) => (tools[guideToolId(b.id)] || 1) >= 3).length;
 	const handToolsMaxed = HAND_TOOLS.filter((id) => {

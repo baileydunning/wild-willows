@@ -262,8 +262,16 @@ describe('DevTools populate-biome (showcase)', () => {
 	it('dry biomes get no pond (desert cannot flood)', async () => {
 		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'desert' });
-		const s = await w.get('GameState', pid);
-		expect(s.terrain.filter((t: any) => t.area === 'desert' && t.type === 'water').length).toBe(0);
-		expect(s.placements.filter((p: any) => p.area === 'desert').length).toBeGreaterThanOrEqual(20);
+		// Read the ROWS, not the snapshot: this populates the desert while the
+		// player is standing in the meadow, and a snapshot carries the area on
+		// screen (plus the home interior). The terrain half of this assertion had
+		// already gone quietly vacuous when terrain was scoped the same way — it was
+		// filtering another area out of a payload that no longer had it.
+		const desertTiles = [...w.db.TerrainTile._rows.values()].filter(
+			(t: any) => t.area === 'desert' && t.type === 'water',
+		);
+		expect(desertTiles).toHaveLength(0);
+		const desertPlacements = [...w.db.Placement._rows.values()].filter((p: any) => p.area === 'desert');
+		expect(desertPlacements.length).toBeGreaterThanOrEqual(20);
 	});
 });

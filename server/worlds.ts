@@ -22,6 +22,7 @@ import { forceRemove, safeGet, tableName, toArray } from './store';
 import { KEY_REV, WORLD_KEYED, keyedWorlds, migrateWorldKeys, rememberKeyed, scanPrefix, worldIsKeyed } from './keys';
 import { cached } from './scan-cache';
 import { GUIDE_MAX, LEGACY_JOURNAL_TOOL, getPlayer, guideTool, patchPlayer } from './player';
+import { freshStanding, standingOf } from './metrics';
 import { blocksGateTrail, gateGeomOf, recalcBiome, whyReturnedText } from './biome';
 import { awardWorldAchievements } from './achievements';
 import type { CustomGoal } from './tasks';
@@ -539,6 +540,55 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 // in, so a wetland lake is invisible from the meadow and a recipe the server
 // would happily craft shows up locked. Backfilled below.
 export const REPAIR_REV = 4;
+
+/**
+ * Work out a save's standing tallies from its own placements and write them.
+ *
+ * The goal board used to answer "how many of these are standing, how many are
+ * planted, has anything ever been harvested" by scanning every placement in the
+ * world on every state read. Those are running totals on the player row now
+ * (`standing`, see bumpStanding) — but a running total is only usable if it
+ * started from the truth, and for an existing save the truth is in its rows.
+ *
+ * SETS absolute values rather than adding deltas, so running it twice cannot
+ * double anything. That is also what makes it the right repair for the dev tools,
+ * which rewrite placements underneath the tallies rather than through the
+ * endpoints that keep them.
+ *
+ * `harvested` counts placements carrying a harvest stamp rather than harvests
+ * taken: a placement records only its LAST harvest, so the true number is not in
+ * the rows. The reader asks whether it is above zero, and this answers that
+ * exactly.
+ */
+export async function recomputeStanding(worldId: string, playerId: string): Promise<void> {
+	const placed: Record<string, number> = {};
+	const planted: Record<string, number> = {};
+	let harvested = 0;
+	for (const p of await byWorld(db().Placement, worldId)) {
+		if (!p?.objectId) continue;
+		placed[p.objectId] = (placed[p.objectId] || 0) + 1;
+		if (typeof p.plantedAt === 'number') planted[p.objectId] = (planted[p.objectId] || 0) + 1;
+		if (typeof p.lastHarvestAt === 'number') harvested++;
+	}
+	await patchPlayer(playerId, { standing: freshStanding(placed, planted, harvested) });
+}
+
+/**
+ * The one-shot version, for the heartbeat: fill the tallies in if this save has
+ * none, and cost a field read if it has.
+ *
+ * Deliberately NOT part of the repairRev pass. A save can arrive without them
+ * long after that marker is stamped — an import of an older export carries the
+ * marker with it, and a dev tool can wipe the row — and the failure that causes
+ * is silent (goals reading an empty preserve), so the check is a standing one
+ * rather than a one-time migration. Every save that beats once gets them.
+ */
+export async function ensureStanding(worldId: string, playerId: string, player?: any): Promise<boolean> {
+	const row = player ?? (await getPlayer(playerId));
+	if (!row || standingOf(row)) return false;
+	await recomputeStanding(worldId, playerId);
+	return true;
+}
 
 export async function repairSave(
 	worldId: string,

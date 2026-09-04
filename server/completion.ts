@@ -70,11 +70,16 @@ export async function completionMetrics(
 		// once and use the bounded read — the same reason biomeMetrics does, and for
 		// a solo save the world id IS the player id, so this is the cheap route.
 		const wid = worldOf(player);
+		// The habitat tracks count what is STANDING, per object — which the player
+		// row already carries as a running tally (`standing`, see bumpStanding). Read
+		// the placements only for a save that has none: this rides on a metrics read
+		// the client polls, and re-deriving those two numbers meant scanning every
+		// placement in the world to arrive at a map already on the row above.
 		const [biomeStates, placements, discoveries] = await Promise.all([
 			// The metrics read has already scanned BiomeState for biomeMetrics, so it
 			// hands those rows over rather than paying for the same scan twice.
 			opts.biomeStates ?? byWorld(t.BiomeState, wid),
-			byWorld(t.Placement, wid),
+			player.standing?.placed ? [] : byWorld(t.Placement, wid),
 			byWorld(t.Discovery, wid),
 		]);
 		// Species returned is counted from Discovery rows, NOT from the biome rows'

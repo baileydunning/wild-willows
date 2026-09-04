@@ -10,7 +10,7 @@ import { SEASONS, WEATHER_TYPES, nextPhaseAt } from './weather';
 
 import { BASE_HEALTH, GameError, db, hash32, seededRng } from './core';
 import { byPlayer, placementKey } from './keys';
-import { byArea, byWorld, defs, findBiomeState, worldOf } from './worlds';
+import { byArea, byWorld, defs, findBiomeState, recomputeStanding, worldOf } from './worlds';
 import {
 	DEFAULT_HOME,
 	HOME_STYLES,
@@ -23,7 +23,14 @@ import {
 } from './home';
 import { STARTER_CHEST, patchPlayer, requirePlayer, slugId } from './player';
 import { readMetrics, round1, weatherTimeFromPlay } from './metrics';
-import { ALPINE_MTN_ROWS, areaGrid, recalcBiome, seedStartingTerrain, whyReturnedText } from './biome';
+import {
+	ALPINE_MTN_ROWS,
+	areaGrid,
+	nextMaturityFrom,
+	recalcBiome,
+	seedStartingTerrain,
+	whyReturnedText,
+} from './biome';
 import { snapshot } from './tasks';
 import { bodyOf } from './rate-limit';
 import { DashboardEndpoint, PublicEndpoint, nodeBuffer } from './endpoints-game';
@@ -1789,6 +1796,20 @@ export class DevTools extends PublicEndpoint {
 				throw new GameError(tr('server.err.unknownDevAction', { action }), 400, 'server.err.unknownDevAction');
 		}
 
+		// The dev tools rewrite placements directly — wiping an area, reseeding it,
+		// furnishing a house — rather than through the endpoints that keep the goal
+		// board's tallies in step with them. Rather than remember which of a dozen
+		// actions moved a placement, recompute from the rows on the way out: this is
+		// a developer path on one test save, and one scan is cheaper than a tally
+		// that silently disagrees with the world it describes.
+		await recomputeStanding(worldOf(player), playerId);
+		// …and the growth marker beside them, for the same reason: populate plants
+		// things, and every heartbeat trusts this number until the moment it names.
+		// The placement scan is the one recomputeStanding just did — the request
+		// cache serves it — so this costs a write and no reads.
+		await patchPlayer(playerId, {
+			nextMaturityAt: nextMaturityFrom(d, await byWorld(t.Placement, worldOf(player)), Date.now()),
+		});
 		return { ok: true, log, state: await snapshot(playerId) };
 	}
 }

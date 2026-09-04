@@ -11,7 +11,7 @@ import { t as tr } from '../src/i18n/server';
 import { GameError, db } from './core';
 import { RollupCache, allOf, safeGet } from './store';
 import { migrateWorldKeys } from './keys';
-import { byWorld, defs, repairSave, worldOf } from './worlds';
+import { byWorld, defs, ensureStanding, repairSave, worldOf } from './worlds';
 import { patchPlayer, requirePlayer, withPlayerLock } from './player';
 import {
 	DAY_MS,
@@ -254,6 +254,10 @@ export class Heartbeat extends PublicEndpoint {
 		// is a no-op.
 		await migrateWorldKeys(wid, playerId);
 		await repairSave(wid, playerId, d, { player });
+		// And the goal board's tallies, for a save that arrived without them — an
+		// older export imported, a dev tool that rewrote the rows. One field read
+		// when they are there, which is every beat after the first.
+		await ensureStanding(wid, playerId, player);
 		let welcomeBack: any = null;
 		let awarded = false;
 		const newAnimals: any[] = [];

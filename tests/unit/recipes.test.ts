@@ -281,6 +281,40 @@ describe('recipeUnlocked — the wider unlock vocabulary', () => {
 		expect(recipeUnlocked(r, data, makeState({ placements: [pl('meadow', 1), pl('meadow', 2)] }))).toBe(true);
 	});
 
+	it('answers for a biome the player is not standing in', () => {
+		// The snapshot carries the area on screen (plus the home interior), so a
+		// recipe gated on the WETLAND cannot be answered by counting rows once the
+		// player walks back to the meadow. Both gates read the numbers the server
+		// stores per biome — `objectCounts` and `playerWater` — which is what keeps
+		// a recipe that was unlocked in the wetland reading unlocked from anywhere.
+		const wetland = (unlock: any) =>
+			recipe({ id: 'reed-mat', output: { itemId: 'reed-mat', qty: 1 }, unlockBiome: 'wetland', unlock });
+		const away = (over: any) =>
+			makeState(
+				{
+					biomeStates: [{ ...bstate('wetland', 100), ...over }],
+					// standing in the meadow: the wetland's rows are not in the payload
+					placements: [],
+					terrain: [],
+				},
+				{ area: 'meadow', unlockedBiomes: ['meadow', 'wetland'] },
+			);
+
+		const placeGate = wetland({ requiresPlaced: { objectId: 'grass-patch', count: 2 }, label: 'x' });
+		expect(recipeUnlocked(placeGate, data, away({ objectCounts: { 'grass-patch': 1 } }))).toBe(false);
+		expect(recipeUnlocked(placeGate, data, away({ objectCounts: { 'grass-patch': 2 } }))).toBe(true);
+
+		const waterGate = wetland({ requiresWater: { lake: 6 }, label: 'x' });
+		expect(recipeUnlocked(waterGate, data, away({ playerWater: { tiles: 9, lake: 5, river: 3 } }))).toBe(false);
+		const unlocked = away({ playerWater: { tiles: 9, lake: 9, river: 3 } });
+		expect(recipeUnlocked(waterGate, data, unlocked)).toBe(true);
+		// …and it is still unlocked on the next snapshot, which is the walk away.
+		expect(recipeUnlocked(waterGate, data, unlocked)).toBe(true);
+		// The distance readout has to agree with the gate, or "coming up next" tells
+		// the player to go and do something they have already done.
+		expect(unlockDistance(waterGate, data, unlocked)).toBe(0);
+	});
+
 	it('gates on water you have shaped, by pond size as well as tile count', () => {
 		const tile = (x: number, y: number, type: any = 'water', area = 'meadow') => ({
 			id: `t${x}-${y}-${area}`,

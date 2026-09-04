@@ -205,6 +205,11 @@ describe('welcome back (heartbeat time-passed pass)', () => {
 		});
 		const p = await w.db.Player.get(pid);
 		await w.db.Player.patch(pid, {
+			// The willow went into the store directly, so the marker the heartbeat
+			// trusts has to be told about it — this is what PlaceObject and Plant do
+			// through withPendingMaturity. It matured an hour ago (placed 9h back, 8h
+			// to grow), and a marker in the past is what buys the beat its scan.
+			nextMaturityAt: now - H,
 			metrics: {
 				...metricsOf(p),
 				firstSeenAt: now - 20 * H,

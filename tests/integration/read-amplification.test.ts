@@ -493,3 +493,87 @@ describe('an area’s terrain numbers live on its biome row', () => {
 		expect((await counts('meadow'))?.openWater).toBe(recount('meadow').openWater);
 	});
 });
+
+describe('a snapshot carries the area on screen, not the world', () => {
+	// The last of the per-area reads, and the one that had to go last: the goal
+	// board, the recipe gates, the tutorial's flags and the completion tracker all
+	// read this list across areas until they were moved onto stored counts. Doing
+	// this before that would not have errored — they would have quietly counted
+	// the meadow and called it the preserve.
+
+	it('sends one area’s placements, plus the home interior', async () => {
+		seedPlacements(60); // 360 objects, 60 of them in the meadow
+		await w.post('Heartbeat', { playerId }); // fills in the standing tallies
+		w.db.Placement._rows.set(`${playerId}:home:pl_chair`, {
+			id: `${playerId}:home:pl_chair`,
+			worldId: playerId,
+			playerId,
+			objectId: 'wildflower',
+			area: 'home',
+			x: 3,
+			y: 3,
+			placedAt: 1780000000000,
+		});
+
+		const state = await w.get<any>('GameState', playerId);
+		const areas = new Set(state.placements.map((p: any) => p.area));
+		expect([...areas].sort(), 'the payload should be this area and the house').toEqual(['home', 'meadow']);
+		// The house rides along because the Your Home card counts what is in it from
+		// anywhere; every other area's is left where it is.
+		expect(state.placements.some((p: any) => p.area === 'home')).toBe(true);
+	});
+
+	it('costs one area’s rows to build', async () => {
+		seedPlacements(60);
+		await w.post('Heartbeat', { playerId });
+		resetScans();
+		await w.get<any>('GameState', playerId);
+		const rows = scanned('Placement');
+		expect(rows).toBeGreaterThan(0);
+		expect(rows, `snapshot scanned ${rows} placements; the meadow only has ~60`).toBeLessThan(180);
+	});
+
+	it('sends the whole world to a save whose tallies have not been written', async () => {
+		// Absent is not zero. Until `standing` exists, the goal board is still
+		// counting rows, so narrowing the list would make it count low — which reads
+		// as goals lagging rather than as a bug in a read path.
+		seedPlacements(20);
+		const { standing: _gone, ...noTallies } = await w.db.Player.get(playerId);
+		await w.db.Player.put(noTallies);
+
+		const state = await w.get<any>('GameState', playerId);
+		const areas = new Set(state.placements.map((p: any) => p.area));
+		expect(areas.size, 'a save without tallies must still see every area').toBeGreaterThan(1);
+	});
+});
+
+describe('a save born knowing nothing is growing yet', () => {
+	// The heartbeat skips its world-wide placement scan while the soonest maturity
+	// moment is still ahead of it, and `nextMaturityAt` on the player row is that
+	// moment. A save with no marker has to scan to learn there is nothing to find —
+	// which used to be every new save's first beat, on a timer, forever after.
+
+	it('reads no placements on its first beat', async () => {
+		seedPlacements(60); // nothing here grows: `wildflower` has no matureHours
+		resetScans();
+		await w.post('Heartbeat', { playerId });
+		expect(scanned('Placement'), 'a fresh save scanned the world to find out nothing was growing').toBe(0);
+	});
+
+	it('still scans for a save that has no marker, and leaves one behind', async () => {
+		// Absent is not zero, here as everywhere: absent means nobody has looked.
+		seedPlacements(20);
+		const { nextMaturityAt: _unknown, ...older } = await w.db.Player.get(playerId);
+		await w.db.Player.put(older);
+
+		resetScans();
+		await w.post('Heartbeat', { playerId });
+		expect(scanned('Placement')).toBeGreaterThan(0);
+		expect((await w.db.Player.get(playerId)).nextMaturityAt, 'the beat that looked should record what it saw').toBe(0);
+
+		// …and the next beat is free.
+		resetScans();
+		await w.post('Heartbeat', { playerId });
+		expect(scanned('Placement')).toBe(0);
+	});
+});

@@ -24,7 +24,14 @@ import {
 	homeOf,
 } from './home';
 import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, readPlayerRow, sanitizePlayer } from './player';
-import { WEATHER_BIOME_IDS, bumpMetrics, encodeMetrics, freshMetrics, weatherTimeFromPlay } from './metrics';
+import {
+	WEATHER_BIOME_IDS,
+	bumpMetrics,
+	encodeMetrics,
+	freshMetrics,
+	freshStanding,
+	weatherTimeFromPlay,
+} from './metrics';
 import { dailyTasksBlock, goalLimitFor } from './tasks';
 import { earnedAchievementIds } from './achievements';
 
@@ -160,6 +167,28 @@ export async function createPlayerRecords(
 	const d = await defs();
 	const now = Date.now();
 	const { salt, hash } = hashPasscode(passcode);
+
+	// What a brand-new save has standing in the world. Built BEFORE the player
+	// row so the row's tallies can be stamped from this list itself rather than
+	// from a second copy of it that could drift the day another seeded placement
+	// is added here.
+	const wid = playerId; // your own private solo world (world of one)
+	const chestPlacementId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
+	const placements = [
+		{
+			id: chestPlacementId,
+			worldId: wid,
+			playerId,
+			objectId: 'small-chest',
+			area: 'meadow',
+			x: STARTER_CHEST.x,
+			y: STARTER_CHEST.y,
+			placedAt: now,
+		},
+	];
+	const standingPlaced: Record<string, number> = {};
+	for (const p of placements) standingPlaced[p.objectId] = (standingPlaced[p.objectId] || 0) + 1;
+
 	const player = {
 		id: playerId,
 		name,
@@ -205,12 +234,22 @@ export async function createPlayerRecords(
 		// per new save to learn there was no work — and the write budget is what
 		// caps how many people can play at once. Only pre-0.3 saves lack it.
 		repairRev: REPAIR_REV,
+		// Nothing is growing yet, and saying so is what keeps the first heartbeat
+		// from reading every placement in the world to find that out. 0 and absent
+		// are different answers here (see nextMaturityFrom): absent means nobody has
+		// looked, and a save born from here on has — right now, with one camp chest
+		// in the ground and nothing in it that grows.
+		nextMaturityAt: 0,
+		// Born with its standing tallies filled in, for the same reason and at the
+		// same cost as the markers above: the goal board reads these instead of
+		// counting placements, and a save that has none makes the next repair pass
+		// scan every placement in the world to work them out (see bumpStanding).
+		standing: freshStanding(standingPlaced),
 	};
 	await t.Player.put(player);
 
 	// A new player begins in their own private solo world (id === playerId), so
 	// every seeded row is stamped with that worldId from the start.
-	const wid = playerId;
 	const biomeStates = d.biomes.map((b: any) => ({
 		id: `${wid}:${b.id}`,
 		worldId: wid,
@@ -223,19 +262,6 @@ export async function createPlayerRecords(
 	}));
 	for (const bs of biomeStates) await t.BiomeState.put(bs);
 
-	const chestPlacementId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
-	const placements = [
-		{
-			id: chestPlacementId,
-			worldId: wid,
-			playerId,
-			objectId: 'small-chest',
-			area: 'meadow',
-			x: STARTER_CHEST.x,
-			y: STARTER_CHEST.y,
-			placedAt: now,
-		},
-	];
 	for (const p of placements) await t.Placement.put(p);
 
 	const chest = {
@@ -880,6 +906,16 @@ export async function recalcBiome(
 		placements.push(ap);
 	}
 	const counts = placementCounts(placements, d);
+	// The same list tallied WITHOUT that growth gate: what is STANDING in this
+	// area, per object. The goal board's habitat steps show exactly this ("2 of 3
+	// thistle stands") and used to get it by filtering every placement in the
+	// world on every state read. It costs nothing here — this function is holding
+	// the authoritative list either way — and unlike `counts` above it depends on
+	// neither the clock nor the definitions, so it cannot drift out from under a
+	// reader between recalcs. Deliberately NOT the gated count: a step that
+	// un-ticked itself while a seedling grew would be a different game.
+	const objectCounts: Record<string, number> = {};
+	for (const p of placements) objectCounts[p.objectId] = (objectCounts[p.objectId] || 0) + 1;
 
 	// Terraformed ground. Read the biome's own row first: what the recalc wants
 	// from an area's tiles is four numbers, they are already on the row, and they
@@ -1007,7 +1043,7 @@ export async function recalcBiome(
 
 	const returnedCount = returnedHere();
 	const bsId = prior?.id ?? `${wid}:${biomeId}`;
-	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater, terrainCounts });
+	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater, terrainCounts, objectCounts });
 	const biomeState = {
 		...(prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health,
@@ -1015,6 +1051,7 @@ export async function recalcBiome(
 		returnedCount,
 		playerWater,
 		terrainCounts,
+		objectCounts,
 	};
 
 	// Feed the daily task board: positive health gains and newly returned

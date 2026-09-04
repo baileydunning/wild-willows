@@ -415,6 +415,20 @@ export interface Player {
 	tutorialMaxStep?: number;
 	/** Home interior config: style direction + four upgrade-track levels. */
 	home?: HomeConfig;
+	/**
+	 * What this save has STANDING in the world, per object, plus how many of those
+	 * have been harvested — running totals the server keeps (see bumpStanding in
+	 * server/metrics.ts) so nothing has to count placements to answer.
+	 *
+	 * Read it for anything that asks about the whole preserve rather than the area
+	 * on screen: the snapshot carries only the current area's placements (and the
+	 * home interior's), so counting those answers a narrower question than the one
+	 * being asked.
+	 *
+	 * Optional: a save that has never had these written has none, and every reader
+	 * falls back to counting the placements it does have. Absent is not zero.
+	 */
+	standing?: { rev: number; placed: Record<string, number>; planted: Record<string, number>; harvested: number };
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
 	devUnlockAll?: boolean;
 }
@@ -450,6 +464,15 @@ export interface BiomeState {
 	 * existed has no value yet, and every reader falls back to counting tiles.
 	 */
 	playerWater?: { tiles: number; lake: number; river: number };
+	/**
+	 * How many of each object are standing in this area — written by recalcBiome
+	 * from the placements it is already holding. Same reason as `playerWater`: a
+	 * reader asking about a biome the player is not standing in cannot count rows
+	 * the snapshot no longer sends.
+	 *
+	 * Optional, and absent is not zero — see `playerWater`.
+	 */
+	objectCounts?: Record<string, number>;
 }
 
 /**
