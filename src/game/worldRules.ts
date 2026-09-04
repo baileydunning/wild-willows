@@ -248,7 +248,22 @@ export interface PlaceableDef {
 	placement?: string;
 	/** 'wall' hangs on the wall ring instead of standing on the floor. */
 	mount?: string;
+	/** Furniture you put things on — a table, a dresser, a shelf top. */
+	surface?: boolean;
+	/** Small enough to stand on one of those. */
+	small?: boolean;
 	bridge?: boolean;
+}
+
+/**
+ * True if `def` may be set down on a tile already holding `standing`.
+ *
+ * Mirrors canStackOn() in server/home.ts, which is the copy that counts: a small
+ * thing goes onto a surface, and that is the only time two things share a tile.
+ */
+export function canStackOn(def: PlaceableDef | undefined, standing: (PlaceableDef | undefined)[]): boolean {
+	if (!def?.small) return false;
+	return standing.length === 1 && !!standing[0]?.surface;
 }
 
 /**
@@ -278,6 +293,9 @@ export interface PlaceContext {
 	activeDef?: PlaceableDef;
 	/** Id of the placement standing on a tile of THIS area, if any. */
 	occupantIdAt: (tx: number, ty: number) => string | undefined;
+	/** The defs of everything already on a tile — what the tabletop rule reads.
+	 *  Optional so a caller that never places small things need not supply it. */
+	occupantDefsAt?: (tx: number, ty: number) => (PlaceableDef | undefined)[];
 	isWater: (tx: number, ty: number) => boolean;
 }
 
@@ -298,7 +316,10 @@ export function canPlaceAt(
 			if (!isWallTile(r, tx, ty)) return false;
 		} else if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
 		const onTile = ctx.occupantIdAt(tx, ty);
-		if (onTile !== undefined && onTile !== ignoreId) return false;
+		// ...unless what is already there is a surface and this is small enough to
+		// stand on it (canStackOn — the tabletop rule).
+		if (onTile !== undefined && onTile !== ignoreId && !canStackOn(ctx.activeDef, ctx.occupantDefsAt?.(tx, ty) || []))
+			return false;
 		// Items that need a bigger home can't be placed in a small one yet.
 		const homeMin = ctx.activeObjectId ? ctx.activeDef?.homeMin || 0 : 0;
 		if (homeMin > ctx.homeSpace) return false;
@@ -325,7 +346,8 @@ export function canPlaceAt(
 	)
 		return false; // tent + campfire tiles (rows derived from the camp so they track it)
 	const occupant = ctx.occupantIdAt(tx, ty);
-	if (occupant !== undefined && occupant !== ignoreId) return false;
+	if (occupant !== undefined && occupant !== ignoreId && !canStackOn(ctx.activeDef, ctx.occupantDefsAt?.(tx, ty) || []))
+		return false;
 	// note: resource nodes never block building — if you build on a regen spot,
 	// the node relocates itself (see computeNodeLayout)
 	// water tiles only accept bridges (terraform clicks are exempt — the can/shovel work on water)

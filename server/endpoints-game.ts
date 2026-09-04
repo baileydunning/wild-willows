@@ -44,6 +44,9 @@ import {
 	homePerk,
 	homeRoom,
 	interiorSurfaceError,
+	canStackOn,
+	isSurface,
+	isSmall,
 	tentBiomeOf,
 	tentRoom,
 } from './home';
@@ -1692,7 +1695,16 @@ export class PlaceObject extends PublicEndpoint {
 			// area is in the key — so ask for one area's run rather than the world's
 			// and filter five sixths of it away here.
 			const placements = await byArea(t.Placement, wid, area);
-			if (placements.some((p) => p.x === tx && p.y === ty)) {
+			// One thing per tile, with one exception: a small thing may stand ON a
+			// surface (see canStackOn in server/home.ts).
+			const onTile = placements.filter((p) => p.x === tx && p.y === ty);
+			if (
+				onTile.length &&
+				!canStackOn(
+					def,
+					onTile.map((p) => d.object.get(p.objectId)),
+				)
+			) {
 				throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
 			}
 			// Some structures are one-per-biome (e.g. the trail tent — a single shared
@@ -2027,11 +2039,37 @@ export class MoveObject extends PublicEndpoint {
 		// object is already in, since a move cannot cross areas — so it reads that
 		// area's run rather than every placement in the world.
 		const here = await byArea(t.Placement, wid, placement.area);
-		if (here.some((p) => p.id !== placementId && p.x === tx && p.y === ty)) {
-			throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
-		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
+		// Same tabletop exception as PlaceObject: a small thing may be moved ONTO a
+		// surface, and anything else wants an empty tile.
+		const onTile = here.filter((p) => p.id !== placementId && p.x === tx && p.y === ty);
+		if (
+			onTile.length &&
+			!canStackOn(
+				movingDef,
+				onTile.map((p) => d.object.get(p.objectId)),
+			)
+		) {
+			throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
+		}
+		// ...and a surface may not be slid out from under what is standing on it.
+		// Take the thing off first — otherwise it is left hanging in mid-air, which
+		// no rule elsewhere would ever let the player create.
+		if (isSurface(movingDef)) {
+			const carrying = here.find(
+				(p) => p.id !== placementId && p.x === placement.x && p.y === placement.y && isSmall(d.object.get(p.objectId)),
+			);
+			if (carrying)
+				throw new GameError(
+					tr('server.err.clearSurfaceFirst', {
+						name: movingDef?.name || placement.objectId,
+						item: d.object.get(carrying.objectId)?.name || carrying.objectId,
+					}),
+					409,
+					'server.err.clearSurfaceFirst',
+				);
+		}
 		// Indoors, the same surface and doorway rules as PlaceObject — otherwise a
 		// painting could simply be MOVED onto the floorboards, and a bed into the
 		// spot it isn't allowed to be placed in.
@@ -2105,6 +2143,23 @@ export class RemoveObject extends PublicEndpoint {
 			// overflowing the basket (which used to wedge every later withdraw/gather).
 			const d = await defs();
 			const def = d.object.get(placement.objectId);
+			// A table with a vase on it can't be picked up out from under it — the
+			// same reason it can't be moved. Clear the top first.
+			if (isSurface(def)) {
+				const carrying = (await byArea(t.Placement, wid, placement.area)).find(
+					(p) =>
+						p.id !== placementId && p.x === placement.x && p.y === placement.y && isSmall(d.object.get(p.objectId)),
+				);
+				if (carrying)
+					throw new GameError(
+						tr('server.err.clearSurfaceFirst', {
+							name: def?.name || placement.objectId,
+							item: d.object.get(carrying.objectId)?.name || carrying.objectId,
+						}),
+						409,
+						'server.err.clearSurfaceFirst',
+					);
+			}
 			let refunded: Record<string, number> | null = null;
 			const craftedItems = { ...(player.craftedItems || {}) };
 			const inventory = { ...(player.inventory || {}) };

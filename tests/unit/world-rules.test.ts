@@ -8,6 +8,7 @@ import {
 	nearGate,
 	findFreeTile,
 	canPlaceAt,
+	canStackOn,
 	isWallTile,
 	withinReach,
 	terraformTool,
@@ -284,6 +285,55 @@ describe('canPlaceAt — wall decor', () => {
 		expect(canPlaceAt(room.x0, room.y0 - 1, hanging({ activeDef: { mount: 'wall', homeMin: 3 }, homeSpace: 1 }))).toBe(
 			false,
 		);
+	});
+});
+
+// --------------------------------------------------------------- tabletops
+// A tile holds one thing, except that a small ornament may stand on a surface.
+// The ghost has to agree with the server about that or the player clicks a table
+// and gets a refusal.
+
+describe('canStackOn', () => {
+	const table = { surface: true };
+	const vase = { small: true };
+
+	it('puts a small thing on a surface', () => {
+		expect(canStackOn(vase, [table])).toBe(true);
+	});
+
+	it('refuses everything else', () => {
+		expect(canStackOn({}, [table])).toBe(false); // not small
+		expect(canStackOn(vase, [{}])).toBe(false); // not a surface
+		expect(canStackOn(table, [vase])).toBe(false); // no sliding a table under a vase
+		expect(canStackOn(vase, [])).toBe(false); // nothing to stand on
+		expect(canStackOn(vase, [table, vase])).toBe(false); // one ornament per top
+	});
+});
+
+describe('canPlaceAt — tabletops', () => {
+	const onTable = (over: Partial<PlaceContext> = {}) =>
+		indoorCtx({
+			activeObjectId: 'home-potplant',
+			activeDef: { placement: 'indoor', small: true },
+			occupantIdAt: () => 'pl-table',
+			occupantDefsAt: () => [{ surface: true }],
+			...over,
+		});
+
+	it('reads green over an occupied tile when the occupant is a table', () => {
+		expect(canPlaceAt(6, 6, onTable())).toBe(true);
+	});
+
+	it('reads red when the occupant is not a surface', () => {
+		expect(canPlaceAt(6, 6, onTable({ occupantDefsAt: () => [{}] }))).toBe(false);
+	});
+
+	it('reads red for something too big to stand on a table', () => {
+		expect(canPlaceAt(6, 6, onTable({ activeDef: { placement: 'indoor' } }))).toBe(false);
+	});
+
+	it('reads red once the table already has something on it', () => {
+		expect(canPlaceAt(6, 6, onTable({ occupantDefsAt: () => [{ surface: true }, { small: true }] }))).toBe(false);
 	});
 });
 

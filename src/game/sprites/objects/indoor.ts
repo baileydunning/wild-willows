@@ -424,13 +424,14 @@ export const INDOOR: SpriteSet = {
 	}),
 
 	// ---- floor decor ----
-	rockingchair: def(32, 34, (g) => {
-		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(8, 6, 16, 16, 3); // back
-		g.fillStyle(C('#6e4a33'), 1).fillRect(11, 9, 2, 11).fillRect(15, 9, 2, 11).fillRect(19, 9, 2, 11); // slats
-		g.fillStyle(C('#a86f80'), 1).fillRoundedRect(7, 21, 18, 6, 2); // seat cushion
-		g.fillStyle(C('#6e4a33'), 1).fillRect(9, 26, 2, 5).fillRect(21, 26, 2, 5); // legs
-		g.lineStyle(2, C('#5a3f28'), 1).lineBetween(5, 30, 27, 30); // rockers
-		g.lineStyle(2, C('#5a3f28'), 1).lineBetween(5, 30, 7, 27).lineBetween(27, 30, 25, 27);
+	rockingchair: def(36, 36, (g) => {
+		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(7, 3, 22, 21, 3); // tall back, wide enough to see past a sitter
+		g.fillStyle(C('#6e4a33'), 1).fillRect(11, 6, 2.4, 15).fillRect(17, 6, 2.4, 15).fillRect(23, 6, 2.4, 15); // slats
+		g.fillStyle(C('#6e4a33'), 1).fillRoundedRect(3, 12, 4, 13, 2).fillRoundedRect(29, 12, 4, 13, 2); // arms
+		g.fillStyle(C('#a86f80'), 1).fillRoundedRect(6, 22, 24, 6, 2); // seat cushion
+		g.fillStyle(C('#6e4a33'), 1).fillRect(8, 27, 2.4, 5).fillRect(25, 27, 2.4, 5); // legs
+		g.lineStyle(2.4, C('#5a3f28'), 1).lineBetween(3, 33, 33, 33); // rocker
+		g.lineStyle(2.2, C('#5a3f28'), 1).lineBetween(3, 33, 5, 29).lineBetween(33, 33, 31, 29);
 	}),
 	roomdivider: def(40, 36, (g) => {
 		const panel = (x: number, lean: number) => {
@@ -452,11 +453,16 @@ export const INDOOR: SpriteSet = {
 		g.strokeCircle(16, 11, 2);
 		g.fillStyle(C('#6e4a33'), 1).fillRect(8, 16, 3, 9).fillRect(21, 16, 3, 9).fillRect(15, 17, 3, 8); // three legs
 	}),
-	toadstool: def(26, 26, (g) => {
-		g.fillStyle(C('#efe7d6'), 1).fillRoundedRect(10, 14, 6, 10, 2); // stalk
-		g.fillStyle(C('#c05a4a'), 1).fillEllipse(13, 12, 22, 13); // cap
-		g.fillStyle(C('#efe7d6'), 1).fillCircle(8, 10, 2).fillCircle(17, 9, 2.4).fillCircle(13, 14, 1.8); // spots
-		g.fillStyle(C('#a8483a'), 0.5).fillEllipse(13, 16, 20, 4);
+	toadstool: def(34, 30, (g) => {
+		g.fillStyle(C('#efe7d6'), 1).fillRoundedRect(14, 16, 7, 12, 2); // stalk
+		g.fillStyle(C('#c05a4a'), 1).fillEllipse(17, 13, 32, 15); // cap — wider than a caretaker on purpose
+		g.fillStyle(C('#d86a56'), 1).fillEllipse(17, 11, 26, 11);
+		g.fillStyle(C('#efe7d6'), 1)
+			.fillCircle(9, 12, 2.8)
+			.fillCircle(23, 9, 3.2)
+			.fillCircle(17, 15, 2.2)
+			.fillCircle(27, 14, 2);
+		g.fillStyle(C('#a8483a'), 0.5).fillEllipse(17, 18, 28, 4); // gills in shadow under the rim
 	}),
 	marshterrarium: def(30, 30, (g) => {
 		g.fillStyle(C('#6e4a33'), 1).fillRect(6, 25, 18, 3); // stand
@@ -544,26 +550,65 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#e3c75f'), 1).fillCircle(14, 18, 1.2); // brass knob
 		g.fillStyle(C('#f3ecd6'), 0.85).fillEllipse(11, 12, 5, 4); // a tiny fanlight
 	}),
-	antlerrack: def(34, 26, (g) => {
-		g.fillStyle(C('#7a5a3a'), 1).fillRoundedRect(3, 15, 28, 6, 2); // mounting board
-		g.fillStyle(C('#5a3f28'), 1).fillCircle(6, 18, 1).fillCircle(28, 18, 1); // screws
-		g.lineStyle(2.6, C('#c3a878'), 1).lineBetween(17, 16, 9, 5); // the shed antler, sweeping up
-		g.lineStyle(2.2, C('#c3a878'), 1);
-		g.lineBetween(14, 12, 12, 4).lineBetween(12, 10, 8, 3).lineBetween(15, 14, 19, 7).lineBetween(19, 7, 22, 4);
-		g.fillStyle(C('#d8c096'), 1).fillCircle(17, 16, 2.6); // the burr where it was shed
-	}),
-	birdflock: def(34, 28, (g) => {
-		const bird = (x: number, y: number, sz: number, c: string) => {
-			g.fillStyle(C(c), 1).fillEllipse(x, y, 9 * sz, 4 * sz); // body
-			g.fillStyle(C(c), 1).fillTriangle(x + 3 * sz, y, x + 8 * sz, y - 2 * sz, x + 7 * sz, y + 2 * sz); // tail
-			g.fillStyle(C('#a8845a'), 1).fillTriangle(x - 1 * sz, y - 1 * sz, x + 3 * sz, y - 5 * sz, x + 4 * sz, y); // wing
-			g.fillStyle(C('#5a3f28'), 1).fillCircle(x - 4 * sz, y - 1 * sz, 1.1 * sz);
+	antlerrack: def(34, 30, (g) => {
+		g.fillStyle(C('#6e4a33'), 1).fillRoundedRect(2, 20, 30, 6, 2); // mounting board
+		g.fillStyle(C('#5a3f28'), 1).fillCircle(5, 23, 0.9).fillCircle(29, 23, 0.9); // screws
+		// one shed antler, main beam sweeping up and back with four tines off it —
+		// tapering, because a beam of even width read as a branch nailed to a plank
+		const beam: [number, number][] = [
+			[17, 20],
+			[15, 15],
+			[12, 11],
+			[8, 8],
+			[5, 6],
+		];
+		for (let i = 0; i < beam.length - 1; i++) {
+			g.lineStyle(4 - i * 0.6, C('#c3a878'), 1);
+			g.lineBetween(beam[i][0], beam[i][1], beam[i + 1][0], beam[i + 1][1]);
+		}
+		const tine = (x: number, y: number, tx: number, ty: number, w: number) => {
+			g.lineStyle(w, C('#c3a878'), 1).lineBetween(x, y, tx, ty);
+			g.fillStyle(C('#d8c096'), 1).fillCircle(tx, ty, w / 2); // rounded point
 		};
-		bird(8, 24, 0.8, '#7a5a3a');
-		bird(17, 20, 0.95, '#8a6a44');
-		bird(11, 14, 0.75, '#6e4a33');
-		bird(22, 11, 0.85, '#7a5a3a');
-		bird(15, 5, 0.65, '#8a6a44');
+		tine(15, 15, 20, 8, 2.6);
+		tine(12, 11, 15, 3, 2.3);
+		tine(8, 8, 9, 2, 2);
+		tine(5, 6, 2, 2, 1.8);
+		g.fillStyle(C('#d8c096'), 1).fillCircle(17, 20, 3); // the burr it was shed at
+		g.fillStyle(C('#b09070'), 1).fillCircle(17, 20, 1.4);
+		g.fillStyle(C('#8a5a6a'), 1).fillEllipse(24, 24, 9, 7); // a hat already on it
+		g.fillStyle(C('#a86f80'), 1).fillEllipse(24, 22, 6, 5);
+	}),
+	birdflock: def(34, 30, (g) => {
+		// five carved birds climbing to the corner, seen from the side: the beak and
+		// the swept-back wing are what make them birds rather than fish
+		const bird = (x: number, y: number, sz: number, c: string) => {
+			g.fillStyle(C(c), 1).fillEllipse(x, y, 9 * sz, 4.6 * sz); // body
+			g.fillStyle(C(c), 1).fillTriangle(x + 3.6 * sz, y, x + 9 * sz, y - 3 * sz, x + 8 * sz, y + 2 * sz); // tail
+			g.fillStyle(C(c), 1).fillCircle(x - 4.2 * sz, y - 1.6 * sz, 2.4 * sz); // head, set forward
+			g.fillStyle(C('#e3a14a'), 1).fillTriangle(
+				x - 6 * sz,
+				y - 2.2 * sz,
+				x - 10 * sz,
+				y - 1.4 * sz,
+				x - 6 * sz,
+				y - 0.6 * sz,
+			); // beak
+			g.fillStyle(C('#a8845a'), 1).fillTriangle(
+				x - 1 * sz,
+				y - 1.4 * sz,
+				x + 4 * sz,
+				y - 6.5 * sz,
+				x + 5 * sz,
+				y + 0.5 * sz,
+			); // swept wing
+			g.fillStyle(C('#2c2418'), 1).fillCircle(x - 4.6 * sz, y - 2.2 * sz, 0.7 * sz); // eye
+		};
+		bird(11, 26, 0.8, '#7a5a3a');
+		bird(21, 21, 0.95, '#8a6a44');
+		bird(13, 15, 0.75, '#6e4a33');
+		bird(24, 11, 0.85, '#7a5a3a');
+		bird(15, 5, 0.62, '#8a6a44');
 	}),
 	frogplaques: def(32, 30, (g) => {
 		const frog = (x: number, y: number, sz: number) => {
@@ -611,20 +656,28 @@ export const INDOOR: SpriteSet = {
 			g.lineBetween(15 + Math.cos(an) * 4, 15 + Math.sin(an) * 4, 15 + Math.cos(an) * 9, 15 + Math.sin(an) * 9);
 		}
 	}),
-	cactusribs: def(28, 34, (g) => {
-		g.fillStyle(C('#8a7a60'), 1).fillRoundedRect(9, 29, 10, 3, 1); // the mount
-		g.fillStyle(C('#c8a878'), 1);
-		const rib = (x: number, top: number, bow: number) => {
-			for (let i = 0; i < 12; i++) {
-				const t = i / 11;
-				g.fillCircle(x + Math.sin(t * Math.PI) * bow, top + t * (29 - top), 1.5);
+	cactusribs: def(30, 34, (g) => {
+		g.fillStyle(C('#7a6a52'), 1).fillRoundedRect(9, 29, 12, 3, 1); // the mount
+		// the woody skeleton left when a saguaro goes: long ribs bowing apart, still
+		// laced together, with the arm-stubs that give it away as a cactus
+		const rib = (x0: number, bow: number, top: number) => {
+			g.lineStyle(2.6, C('#c8a878'), 1);
+			let px = x0 + Math.sin(0) * bow;
+			for (let i = 1; i <= 14; i++) {
+				const t = i / 14;
+				const nx = x0 + Math.sin(t * Math.PI) * bow;
+				g.lineBetween(px, top + ((i - 1) / 14) * (29 - top), nx, top + t * (29 - top));
+				px = nx;
 			}
 		};
-		rib(8, 6, 2.2);
-		rib(14, 3, 0);
-		rib(20, 6, -2.2);
-		g.lineStyle(1, C('#a8895a'), 0.9); // the lattice that held them together
-		g.lineBetween(8, 14, 20, 14).lineBetween(8, 22, 20, 22);
+		rib(9, 3.4, 8);
+		rib(15, 0, 4);
+		rib(21, -3.4, 8);
+		g.lineStyle(2.2, C('#b89868'), 1); // the two arm-stubs
+		g.lineBetween(12, 15, 6, 11).lineBetween(18, 18, 24, 14);
+		g.lineStyle(0.9, C('#a8895a'), 0.85); // lacing
+		g.lineBetween(9, 16, 21, 16).lineBetween(10, 24, 20, 24);
+		g.fillStyle(C('#d8c096'), 1).fillCircle(15, 4, 1.6); // the crown tip
 	}),
 	snowshoes: def(34, 32, (g) => {
 		const shoe = (flip: number) => {

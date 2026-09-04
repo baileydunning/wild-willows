@@ -2783,7 +2783,8 @@
       "needs": [],
       "shape": "table",
       "color": "#8a6a48",
-      "description": "A small wooden table with a sprig of flowers."
+      "description": "A small wooden table with a sprig of flowers.",
+      "surface": true
     },
     {
       "id": "home-bed",
@@ -2807,6 +2808,7 @@
       "shape": "bookshelf",
       "color": "#6e4a33",
       "description": "A shelf of field guides and well-thumbed nature books.",
+      "surface": true,
       "homeMin": 2
     },
     {
@@ -2853,7 +2855,8 @@
       "needs": [],
       "shape": "potplant",
       "color": "#4f7d3a",
-      "description": "A leafy potted plant to bring a little of the meadow inside."
+      "description": "A leafy potted plant to bring a little of the meadow inside.",
+      "small": true
     },
     {
       "id": "home-painting",
@@ -2909,7 +2912,8 @@
       "needs": [],
       "shape": "mushroomshelf",
       "color": "#7a5a3a",
-      "description": "A little shelf dotted with woodland mushrooms."
+      "description": "A little shelf dotted with woodland mushrooms.",
+      "surface": true
     },
     {
       "id": "home-reedmat",
@@ -2931,7 +2935,8 @@
       "needs": [],
       "shape": "cactuspot",
       "color": "#4f8a4a",
-      "description": "A hardy little cactus in a clay pot."
+      "description": "A hardy little cactus in a clay pot.",
+      "small": true
     },
     {
       "id": "home-driftwoodshelf",
@@ -2942,7 +2947,8 @@
       "needs": [],
       "shape": "driftwoodshelf",
       "color": "#b6a68c",
-      "description": "A shelf of weathered driftwood with beach finds."
+      "description": "A shelf of weathered driftwood with beach finds.",
+      "surface": true
     },
     {
       "id": "home-wallclock",
@@ -2967,6 +2973,7 @@
       "shape": "dresser",
       "color": "#8a6a48",
       "description": "A sturdy chest of drawers.",
+      "surface": true,
       "homeMin": 2
     },
     {
@@ -3117,6 +3124,7 @@
       "shape": "frostflowervase",
       "color": "#bcd9e8",
       "description": "A glass vase of ice-blooms for the windowsill — they never wilt.",
+      "small": true,
       "homeMin": 1
     },
     {
@@ -6751,6 +6759,7 @@
       "shape": "logtable",
       "color": "#6e4a33",
       "description": "A cross-cut log on three legs — every ring of it still countable.",
+      "surface": true,
       "homeMin": 2
     },
     {
@@ -6810,6 +6819,7 @@
       "shape": "marshterrarium",
       "color": "#7fae6a",
       "description": "A glass bowl of marsh plants that keeps its own weather.",
+      "small": true,
       "homeMin": 2
     },
     {
@@ -6957,7 +6967,7 @@
     },
     {
       "id": "home-driftbench",
-      "name": "Driftwood Bench",
+      "name": "Beachcomber's Bench",
       "placement": "indoor",
       "biomes": [],
       "healthValue": 0,
@@ -7023,7 +7033,8 @@
       "needs": [],
       "shape": "glowjar",
       "color": "#a8d878",
-      "description": "A jar of glowing moss on a little stand — the softest light in the house."
+      "description": "A jar of glowing moss on a little stand — the softest light in the house.",
+      "small": true
     },
     {
       "id": "home-antlerrack",
@@ -7164,7 +7175,8 @@
       "needs": [],
       "shape": "sunstonebowl",
       "color": "#f0a84a",
-      "description": "A clay bowl of sunstone chips that gives back the afternoon long after dark."
+      "description": "A clay bowl of sunstone chips that gives back the afternoon long after dark.",
+      "small": true
     },
     {
       "id": "home-snowshoes",
@@ -7199,7 +7211,8 @@
       "needs": [],
       "shape": "snowglobe",
       "color": "#cfe6f2",
-      "description": "The whole ridge under glass, and a blizzard whenever you want one."
+      "description": "The whole ridge under glass, and a blizzard whenever you want one.",
+      "small": true
     },
     {
       "id": "home-cocoastand",
@@ -7210,7 +7223,8 @@
       "needs": [],
       "shape": "cocoastand",
       "color": "#a8653a",
-      "description": "A little pot on a stand that is somehow always warm. Nobody asks how."
+      "description": "A little pot on a stand that is somehow always warm. Nobody asks how.",
+      "small": true
     },
     {
       "id": "home-bottlerack",
@@ -7245,7 +7259,8 @@
       "needs": [],
       "shape": "modelboat",
       "color": "#c3b49a",
-      "description": "A small boat on a stand, rigged with real thread. It has never been wet."
+      "description": "A small boat on a stand, rigged with real thread. It has never been wet.",
+      "small": true
     },
     {
       "id": "home-lighthouselamp",

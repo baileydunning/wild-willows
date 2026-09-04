@@ -61,6 +61,7 @@
 		"needsBiggerHome": "{name} needs a bigger home — upgrade your home's Space first.",
 		"placeOnFloor": "Place it on the floor inside your home",
 		"hangOnWall": "{name} hangs on a wall — pick one of the walls, not the floor",
+		"clearSurfaceFirst": "Take the {item} off the {name} first",
 		"bedBlocksDoor": "Keep the {name} clear of the doorway — leave yourself room to step in and out",
 		"unknownArea": "Unknown area: {area}",
 		"indoorOnly": "{name} cannot be placed out in the preserve",

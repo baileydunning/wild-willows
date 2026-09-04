@@ -191,6 +191,42 @@ export function doorTileOf(room: { x0: number; y0: number; x1: number; y1: numbe
 	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
 }
 
+// --------------------------------------------------------------- tabletops
+// Most of what you put down needs a tile to itself. A few things are FURNITURE
+// YOU PUT THINGS ON — a table, a dresser, the top of a bookshelf — and a few
+// others are small enough to stand on one: a vase, a snow globe, a model boat.
+// Those two facts are `surface: true` and `small: true` in the object data, and
+// together they buy exactly one exception to the one-thing-per-tile rule: a
+// small thing may share a tile with a surface, and nothing else may share with
+// anything.
+//
+// Deliberately no deeper than that. Two items per tile is a tabletop; three is a
+// stack, and a stack is a physics problem — which of them is the player clicking
+// on, which one comes off first, what happens when the bottom one is picked up.
+// One-on-one keeps every one of those questions answerable.
+
+export const isSurface = (def: any): boolean => !!def?.surface;
+export const isSmall = (def: any): boolean => !!def?.small;
+
+/**
+ * True if `def` may be set down on a tile where `standing` is already placed.
+ *
+ * Only ever ONE direction: a small thing goes onto a surface. The reverse —
+ * sliding a table under a vase already sitting on the floor — is refused, because
+ * the tile it would be sharing is not a tabletop, it is the floor, and allowing it
+ * means "a tile can hold two things" is no longer a rule anyone can predict.
+ */
+export function canStackOn(def: any, standing: any[]): boolean {
+	if (!isSmall(def)) return false;
+	return standing.length === 1 && isSurface(standing[0]);
+}
+
+/** The thing standing ON `placement`, if `placement` is a surface with something on it. */
+export function itemOnSurface(def: any, sharing: { def: any; placement: any }[]): any | null {
+	if (!isSurface(def)) return null;
+	return sharing.find((o) => isSmall(o.def))?.placement || null;
+}
+
 // ------------------------------------------------------------ hanging space
 // Some decor belongs on a wall and nowhere else — a framed landscape standing on
 // the floorboards looked like something you had forgotten to hang. So an object

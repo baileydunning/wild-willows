@@ -295,7 +295,7 @@ export class WorldScene extends Phaser.Scene {
 	private objectDefSrc: unknown = null;
 	private objectDefLocale = '';
 	// `area:x,y` -> the placement standing on that tile (see placementAt).
-	private placementByTile: Map<string, Placement> | null = null;
+	private placementByTile: Map<string, Placement[]> | null = null;
 	private placementByTileSrc: unknown = null;
 	// The interior room, which is a pure function of the area + the home config.
 	private roomCache: RoomSpec | null = null;
@@ -1142,7 +1142,9 @@ export class WorldScene extends Phaser.Scene {
 					moving: !!this.movingPlacementId,
 				})
 			) {
-				const hit = (bridge.shared.state?.placements || []).find((p) => p.area === 'home' && p.x === tx && p.y === ty);
+				// placementsAt puts whatever is ON TOP first, so painting a tile with a
+				// vase standing on a table recolours the vase — the thing you can see.
+				const hit = this.placementsAt(tx, ty)[0];
 				if (hit) {
 					bridge.emit('paint-click', { placementId: hit.id });
 					return;
@@ -3933,7 +3935,41 @@ export class WorldScene extends Phaser.Scene {
 		overlookbench: { dy: -11 },
 		stool: { dy: -11 },
 		armchair: { dy: -7 },
+		// every other seat in the game, indoors and out. Each dy is the seating
+		// surface's own height in its sprite, measured the same way as the four
+		// above: the seat's centre line, less half the sprite, less the ~7px from
+		// the seated caretaker's origin down to their lap.
+		cushions: { dy: -12 },
+		cushion: { dy: -9 },
+		picnic: { dy: -6 },
+		lowtidebench: { dy: -10 },
+		rockingchair: { dy: -6 },
+		toadstool: { dy: -13 },
+		lilystool: { dy: -12 },
+		mosspouf: { dy: -12 },
+		driftbench: { dy: -12 },
 	};
+
+	/**
+	 * How far the top of each surface sits above its tile's centre — where a small
+	 * thing standing on it is drawn. Same idea as SEATS, and the same reason it
+	 * lives with the art rather than in the data: `surface: true` is the RULE (the
+	 * server enforces it), and this is only the look.
+	 */
+	private static readonly SURFACE_LIFT: Record<string, number> = {
+		table: 13,
+		logtable: 12,
+		dresser: 15,
+		bookshelf: 19,
+		mushroomshelf: 8,
+		driftwoodshelf: 9,
+	};
+
+	/** The surface this placement is standing ON, if it is standing on one. */
+	private surfaceUnder(p: { id: string; objectId: string; x: number; y: number }): Placement | undefined {
+		if (!this.objectDef(p.objectId)?.small) return undefined;
+		return this.placementsAt(p.x, p.y).find((o) => o.id !== p.id && this.objectDef(o.objectId)?.surface);
+	}
 
 	/** The caretaker's sprite in one pose or the other, from the saved look. */
 	private playerTexture(pose: 'stand' | 'sit') {
@@ -4226,6 +4262,7 @@ export class WorldScene extends Phaser.Scene {
 			ready,
 			this.pathConn(p), // 0 for anything that isn't a path
 			this.runConn(p), // …and for anything that isn't a run of lights
+			this.surfaceUnder(p)?.objectId || '', // what it is standing on, if anything
 		].join('|');
 	}
 
@@ -4277,8 +4314,12 @@ export class WorldScene extends Phaser.Scene {
 		// nudge toward the room: back wall down a little, side walls inward
 		const wallDX = room ? (p.x < room.x0 ? 5 : p.x > room.x1 ? -5 : 0) : 0;
 		const wallDY = room && p.y < room.y0 ? 3 : 0;
+		// standing on a table rather than on the floor: lifted onto the top, and
+		// sorted in front of the thing carrying it rather than by its own row
+		const carriedBy = this.surfaceUnder(p);
+		const lift = carriedBy ? (WorldScene.SURFACE_LIFT[this.objectDef(carriedBy.objectId)?.shape || ''] ?? 12) : 0;
 		const x = p.x * TILE + 16 + wallDX;
-		const y = p.y * TILE + 16 + wallDY;
+		const y = p.y * TILE + 16 + wallDY - lift;
 		const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
 		// freshly planted things start as a sprout and grow in
 		const growMs = (def.growSeconds || 0) * 1000;
@@ -4312,7 +4353,11 @@ export class WorldScene extends Phaser.Scene {
 		// Paths sit at a fixed low depth, just above terrain: they are underfoot, so
 		// they must never sort in front of the caretaker walking along them the way
 		// a y-sorted object does.
-		const img = own(this.img(x, y, stillGrowing ? 'sprout' : stripped ? pickedKey : objKey).setDepth(flat ? 1.7 : y));
+		const img = own(
+			this.img(x, y, stillGrowing ? 'sprout' : stripped ? pickedKey : objKey).setDepth(
+				flat ? 1.7 : carriedBy ? p.y * TILE + 16 + 4 : y,
+			),
+		);
 		// A hung item is part of the wall: it draws over the wall ring and its trim
 		// (depths 0.1–0.14) but stays behind anyone standing in front of it, which
 		// the y-sort already gives us — the caretaker's own row is always the higher
@@ -4342,7 +4387,7 @@ export class WorldScene extends Phaser.Scene {
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
 		let tint = 0xffffff;
-		if (flat || run || isFixture || wall) {
+		if (flat || run || isFixture || wall || carriedBy) {
 			if (rot) img.setRotation(rot);
 		} else {
 			const vr = mulberry32(hashStr(p.id));
@@ -5231,17 +5276,39 @@ export class WorldScene extends Phaser.Scene {
 	 * whole answer — the server never stacks two placements on the same tile.
 	 */
 	private placementAt(tx: number, ty: number): Placement | undefined {
+		return this.placementsAt(tx, ty)[0];
+	}
+
+	/**
+	 * Everything standing on a tile, topmost first.
+	 *
+	 * A tile used to hold at most one thing, and this was a Map to a single
+	 * placement. The tabletop rule (canStackOn) allows exactly one exception — a
+	 * small item on a surface — so the bucket is a list now, ordered so the thing
+	 * ON TOP comes first: that is what a click on the tile means, and what
+	 * placementAt()'s callers (paths, runs of lights) were already reading as
+	 * "the placement here".
+	 */
+	private placementsAt(tx: number, ty: number): Placement[] {
 		const placements = bridge.shared.state?.placements;
 		if (!this.placementByTile || this.placementByTileSrc !== placements) {
-			const map = new Map<string, Placement>();
+			const map = new Map<string, Placement[]>();
 			for (const p of placements || []) {
 				const key = `${p.area}:${p.x},${p.y}`;
-				if (!map.has(key)) map.set(key, p); // first wins, matching the old .some() scan order
+				const bucket = map.get(key);
+				if (bucket) bucket.push(p);
+				else map.set(key, [p]);
+			}
+			for (const bucket of map.values()) {
+				if (bucket.length > 1)
+					bucket.sort(
+						(a, b) => (this.objectDef(b.objectId)?.small ? 1 : 0) - (this.objectDef(a.objectId)?.small ? 1 : 0),
+					);
 			}
 			this.placementByTile = map;
 			this.placementByTileSrc = placements;
 		}
-		return this.placementByTile.get(`${this.area}:${tx},${ty}`);
+		return this.placementByTile.get(`${this.area}:${tx},${ty}`) || [];
 	}
 
 	/**
@@ -5311,6 +5378,8 @@ export class WorldScene extends Phaser.Scene {
 			activeObjectId: null,
 			activeDef: undefined,
 			occupantIdAt: (tx: number, ty: number) => this.placementAt(tx, ty)?.id,
+			occupantDefsAt: (tx: number, ty: number) =>
+				this.placementsAt(tx, ty).map((pl) => this.objectDef(pl.objectId) as any),
 			isWater: (tx: number, ty: number) => this.waterTiles.has(`${tx},${ty}`),
 		});
 		const activeId = this.activeObjectId();

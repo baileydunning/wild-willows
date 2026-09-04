@@ -3692,7 +3692,7 @@
 			},
 			"home-driftbench": {
 				"description": "Un banco hecho con lo que dejó la marea, ya lijado por el mar.",
-				"name": "Banco de Madera de Deriva"
+				"name": "Banco del Recolector"
 			},
 			"home-tideglass": {
 				"description": "Vidrio marino engastado en un farol; la luz sale del color del agua poco profunda.",
@@ -4781,7 +4781,7 @@
 				"name": "Red Anudada"
 			},
 			"home-driftbench": {
-				"name": "Banco de Madera de Deriva"
+				"name": "Banco del Recolector"
 			},
 			"home-tideglass": {
 				"name": "Farol de Vidrio Marino"

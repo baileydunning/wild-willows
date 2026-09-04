@@ -1,4 +1,6 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
 import { makeWorld, appearance, type Db } from './harness';
 import objectsData from '../../data/habitat-objects.json';
 import recipesData from '../../data/recipes.json';
@@ -191,5 +193,116 @@ describe('the Cozy Bed comes with the house', () => {
 		await post('SetHomeStyle', { playerId: pid, style: 'cabin' });
 		const made = await post('CraftItem', { playerId: pid, recipeId: 'home-bed' });
 		expect(made.ok).toBe(true);
+	});
+});
+
+describe('putting small things on tables', () => {
+	// One thing per tile, with exactly one exception: a small ornament may stand
+	// on a surface. Two is a tabletop; three would be a stack, and a stack raises
+	// questions ("which one am I clicking?") that nothing here could answer.
+	const objs = objectsData.records as any[];
+	const surfaces = objs.filter((o) => o.surface);
+	const smalls = objs.filter((o) => o.small);
+
+	beforeEach(async () => {
+		await holder.db.Player.patch(pid, {
+			craftedItems: {
+				'home-table': 3,
+				'home-potplant': 3,
+				'home-snowglobe': 3,
+				'home-armchair': 3,
+				'home-bookshelf': 2,
+			},
+		});
+	});
+
+	it('has surfaces and small things to put on them', () => {
+		expect(surfaces.length).toBeGreaterThan(0);
+		expect(smalls.length).toBeGreaterThan(0);
+		// nothing is both — a table you could stand on a table is the stack this
+		// rule exists to avoid
+		expect(objs.filter((o) => o.surface && o.small)).toEqual([]);
+	});
+
+	it('stands a house plant on a table', async () => {
+		await place('home-table', HOME.x0 + 2, HOME.y0 + 2);
+		const res = await place('home-potplant', HOME.x0 + 2, HOME.y0 + 2);
+		expect(res.ok).toBe(true);
+	});
+
+	it('will not put a second ornament on the same table', async () => {
+		await place('home-table', HOME.x0 + 2, HOME.y0 + 2);
+		await place('home-potplant', HOME.x0 + 2, HOME.y0 + 2);
+		await expect(place('home-snowglobe', HOME.x0 + 2, HOME.y0 + 2)).rejects.toThrow(/taken|occupied/i);
+	});
+
+	it('will not stand an armchair on a table', async () => {
+		await place('home-table', HOME.x0 + 2, HOME.y0 + 2);
+		await expect(place('home-armchair', HOME.x0 + 2, HOME.y0 + 2)).rejects.toThrow(/taken|occupied/i);
+	});
+
+	it('will not slide a table under a plant already on the floor', async () => {
+		// the reverse direction is refused on purpose: the tile it would share is
+		// the floor, not a tabletop
+		await place('home-potplant', HOME.x0 + 3, HOME.y0 + 2);
+		await expect(place('home-table', HOME.x0 + 3, HOME.y0 + 2)).rejects.toThrow(/taken|occupied/i);
+	});
+
+	it('moves a plant up onto a table, and back off it', async () => {
+		await place('home-table', HOME.x0 + 2, HOME.y0 + 2);
+		const id = idOf(await place('home-potplant', HOME.x0 + 4, HOME.y0 + 2));
+		expect((await move(id, HOME.x0 + 2, HOME.y0 + 2)).ok).toBe(true);
+		expect((await move(id, HOME.x0 + 4, HOME.y0 + 2)).ok).toBe(true);
+	});
+
+	it('will not move the table out from under what is standing on it', async () => {
+		const tableId = idOf(await place('home-table', HOME.x0 + 2, HOME.y0 + 2));
+		await place('home-potplant', HOME.x0 + 2, HOME.y0 + 2);
+		await expect(move(tableId, HOME.x0 + 5, HOME.y0 + 3)).rejects.toThrow(/take the/i);
+	});
+
+	it('will not pick the table up out from under it either', async () => {
+		const tableId = idOf(await place('home-table', HOME.x0 + 2, HOME.y0 + 2));
+		await place('home-potplant', HOME.x0 + 2, HOME.y0 + 2);
+		await expect(post('RemoveObject', { playerId: pid, placementId: tableId })).rejects.toThrow(/take the/i);
+	});
+
+	it('lets the table go once the top is clear', async () => {
+		const tableId = idOf(await place('home-table', HOME.x0 + 2, HOME.y0 + 2));
+		const plantId = idOf(await place('home-potplant', HOME.x0 + 2, HOME.y0 + 2));
+		await post('RemoveObject', { playerId: pid, placementId: plantId });
+		expect((await post('RemoveObject', { playerId: pid, placementId: tableId })).ok).toBe(true);
+	});
+});
+
+describe('every seat can actually be sat on', () => {
+	// The seat table lives in WorldScene (it is a question of sprite geometry, not
+	// of data), so this reads the source: a chair the player cannot sit in is the
+	// bug, and it is invisible from anywhere else.
+	const scene = readFileSync(resolve(process.cwd(), 'src/game/WorldScene.ts'), 'utf8');
+	const seatShapes = new Set(
+		[
+			...scene
+				.slice(scene.indexOf('SEATS: Record<'))
+				.slice(0, 1400)
+				.matchAll(/^\t\t(\w+): \{ dy:/gm),
+		].map((m) => m[1]),
+	);
+	const SEATY = /\bchair\b|\bstool\b|\bbench\b|cushion|pouf|blanket/i;
+
+	it('found the seat table at all', () => {
+		expect(seatShapes.size).toBeGreaterThan(4);
+	});
+
+	it('covers everything that reads as somewhere to sit', () => {
+		const unsittable = (objectsData.records as any[])
+			.filter((o) => SEATY.test(o.name) && !seatShapes.has(o.shape))
+			.map((o) => `${o.name} (${o.shape})`);
+		expect(unsittable, `seats with nowhere to sit: ${unsittable.join(', ')}`).toEqual([]);
+	});
+
+	it('every seat shape belongs to something real', () => {
+		const shapes = new Set((objectsData.records as any[]).map((o) => o.shape));
+		for (const s of seatShapes) expect(shapes.has(s), `${s} is not any object's shape`).toBe(true);
 	});
 });

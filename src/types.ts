@@ -210,6 +210,11 @@ export interface HabitatObjectDef {
 	 * the wall ring (back run or a side wall) and can go nowhere else — see
 	 * isWallTile() in game/worldRules.ts and server/home.ts. */
 	mount?: 'wall';
+	/** Furniture you put things on: a table, a dresser, the top of a shelf. The
+	 * one thing that may share its tile is a `small` item — see canStackOn(). */
+	surface?: boolean;
+	/** Small enough to stand on a `surface` rather than needing a tile of its own. */
+	small?: boolean;
 	/** Whether this object can be rotated when placing/moving (paths, fences,
 	 * bridges, directional furniture). Computed server-side, sent in GameData. */
 	rotatable?: boolean;
