@@ -4221,10 +4221,10 @@ export class WorldScene extends Phaser.Scene {
 	 *
 	 * Keyed by SHAPE, so the chimes and the tide chime share a line, and so does
 	 * every future piece drawn with an existing shape. Each entry names its motion
-	 * (see playToy) and the two strings it needs. The keys are held as strings
-	 * rather than written as t('…') calls because the table is data — the i18n
-	 * linter counts them as dynamic and leaves them alone, which is why they are
-	 * spelled out here in full rather than built from the shape.
+	 * (see playToy) and the two strings it needs. The keys are held as data rather
+	 * than as literal translate calls, so the i18n linter counts them as dynamic
+	 * and reports them unused; they are spelled out in full all the same, rather
+	 * than assembled from the shape, so a grep for one still lands here.
 	 */
 	private static readonly TOYS: Record<string, { motion: ToyMotion; label: string; float: string }> = {
 		snowglobe: { motion: 'shake', label: 'game.label.toy.snowglobe', float: 'game.float.toy.snowglobe' },
@@ -5291,13 +5291,17 @@ export class WorldScene extends Phaser.Scene {
 			);
 		} else if (p.objectId === 'pinwheel') {
 			this.attachPinwheel(build);
-		} else if (def.light) {
+		} else if (def.light && !RUN_SHAPES.has(def.shape || '')) {
 			// Strike a match, or put it out.
 			//
+			// Runs are left out, and it is the run that is the reason: string lights
+			// and the meadow's lantern row are placed tile by tile, so a six-tile swag
+			// is six placements and a toggle here would be six presses to darken one
+			// cord — or, if this fired for the whole run, six saves for one keypress.
+			// They keep burning until that is worth doing properly.
+			//
 			// KEY-ONLY, like every other action on a piece of furniture: a click on a
-			// lantern still means move it, turn it or pick it up. The label is live
-			// because the same key does both jobs and the placement it is reading was
-			// captured when this was built — see liveLabel on Interactable.
+			// lantern still means move it, turn it or pick it up.
 			this.registerInteractable(
 				{
 					x,

@@ -13,6 +13,11 @@
       "shelter": "Under logs and loose bark; seals itself into a mucus cocoon and waits out dry spells",
       "preferredHabitat": "Cool, shaded forest floor that stays damp — deep leaf litter, mossy logs and seeps",
       "fact": "Banana slug slime is a numbing agent — one lick and most animals spit the slug straight back out, tongue tingling.",
+      "fieldSign": "A drying silver ribbon of slime across a log or trail marks its route. Look also for rasped feeding scars on mushrooms and leaf edges, scraped by a radula bearing up to 27,000 microscopic teeth.",
+      "fieldSignSource": {
+        "name": "National Park Service, Olympic",
+        "url": "https://home.nps.gov/olym/learn/nature/slugs.htm"
+      },
       "role": "The banana slug is the forest floor's shredder. Fungi and bacteria do the fine chemistry; the slug does the chewing, grinding fallen leaves into wet crumbs that rot far faster and turning a whole autumn of leaves into soft duff. It grazes mushrooms too, and spores ride safely through its gut, so every silver trail plants fungi somewhere new. Gartersnakes and raccoons are two of the very few animals willing to put up with the slime.",
       "eats": [],
       "eatsOther": [
@@ -57,6 +62,11 @@
       "shelter": "Tree cavity dens in winter and leaf-and-twig dreys built high in the canopy in summer",
       "preferredHabitat": "Mature deciduous or mixed forest rich in oaks and hickories",
       "fact": "A squirrel buries thousands of nuts a year and forgets a good share of them. The forgotten ones grow into trees, so most squirrels accidentally plant a forest in a lifetime.",
+      "fieldSign": "Once the leaves drop, look 15 to 50 feet up for a ball of leaves and twigs pressed against the trunk or a main branch. Gray squirrels also gnaw cavity entrances open to about the size of a baseball.",
+      "fieldSignSource": {
+        "name": "Washington Dept. of Fish and Wildlife",
+        "url": "https://wdfw.wa.gov/species-habitats/living/species-facts/tree-squirrels"
+      },
       "role": "The gray squirrel is a seed eater who keeps failing at his own plan, and the woods are better for it: acorns buried and never dug up again are how oaks climb hills and fill gaps. Its droppings scatter fungal spores, its leafy summer dreys get taken over by great horned owls, and being the commonest mid-sized animal in the forest it is on the menu of nearly every predator here.",
       "eats": [],
       "eatsOther": [
@@ -111,6 +121,11 @@
       "shelter": "Underground burrows up to 10 m long with a nest chamber and a seed-storage larder",
       "preferredHabitat": "Mature deciduous forest with logs, stumps and diggable soil",
       "fact": "A chipmunk can cram so many acorns into its cheek pouches that its head looks twice as wide, then unload them into an underground pantry holding more than a litre of seeds. It wakes up all winter to snack — chipmunks never truly hibernate.",
+      "fieldSign": "The burrow entrance is a clean hole about two inches across with no mound of dirt beside it; the chipmunk carries the soil away. A repeated chipping alarm can run half an hour.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Tamias_striatus/"
+      },
       "role": "The chipmunk is a hoarder and a digger. Every seed it carries off and never eats is a seed planted somewhere new, and spores from the fungi it digs up travel with it. Its tunnels loosen and air the soil. Small, common and awake in daylight, it is the prey base almost every predator here is waiting on — which is why so many of them cannot come back until it does.",
       "eats": [],
       "eatsOther": [
@@ -159,6 +174,11 @@
       "shelter": "Rock dens and hollow logs, reused season after season; also rests high in tree canopies",
       "preferredHabitat": "Mixed and coniferous forest with thick-barked trees, especially hemlock, and rock or log dens below",
       "fact": "A porcupine cannot throw its quills — they simply stick to whatever bumps them. The barbed tips are coated in a natural antibiotic, so a porcupine that falls out of a tree and lands on itself usually heals up fine.",
+      "fieldSign": "Droppings accumulate in and around den entrances in hollow trees, stumps, and rocky crevices. Overhead, look for bark stripped from trunks and large branches, with nipped twigs and bark flakes littering the ground below.",
+      "fieldSignSource": {
+        "name": "SUNY ESF Adirondack Ecological Center",
+        "url": "https://www.esf.edu/aec/adks/mammals/porcupine.php"
+      },
       "role": "Porcupines improve the forest by damaging it. Stripping bark kills limbs and whole trees, and those dying trees become the snags, loose bark slabs and cavities that woodpeckers, bats and denning mammals move into — one animal's dinner is another animal's house. They eat the same nuts as squirrels and elk, and they are the entire reason a fisher would bother living here.",
       "eats": [],
       "eatsOther": [
@@ -207,6 +227,11 @@
       "shelter": "Excavates its own cavity in a small dead stub, usually in wood already softened by fungus; roosts in cavities year-round",
       "preferredHabitat": "Open deciduous and mixed woodland with small dead stubs and dead limbs on living trees",
       "fact": "A downy woodpecker weighs about as much as four sheets of paper — light enough to hang off a dead weed stem and drill into it, which no bigger woodpecker can manage.",
+      "fieldSign": "The nest hole is a round opening 1 to 1.5 inches across, cut into the underside of a leaning dead stub about 7 inches thick. Listen for a rapid, even drum roll and a two-second descending whinny.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Downy_Woodpecker/lifehistory"
+      },
       "role": "The downy cuts the small holes. It can only chisel wood that fungi have already softened, so it waits on the decomposers — and the nuthatches and chickadees, which cannot cut a hole at all, wait on it. It works bark crevices and dead twigs for beetle grubs and ants that heavier woodpeckers can't reach, and its eggs feed climbing snakes.",
       "eats": [
         {
@@ -261,6 +286,11 @@
       "shelter": "Natural cavities and old woodpecker holes in mature hardwoods; cannot excavate its own",
       "preferredHabitat": "Mature deciduous and mixed forest with large oaks and hickories",
       "fact": "A nuthatch walks down tree trunks head-first, which lets it spot insects tucked in bark that every upward-climbing bird walks straight past.",
+      "fieldSign": "Check bark crevices on rough trunks for large nuts and seeds jammed in tight and hammered open, the habit that named the bird. A nasal, insistent yammering usually gives away its position.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/White-breasted_Nuthatch/lifehistory"
+      },
       "role": "The nuthatch reads the bark upside down, taking beetles, insect eggs and spiders from angles other birds never see. In autumn it wedges acorns and seeds into bark cracks to hammer open later, shifting seed around the woods. It cannot cut a hole of its own, so it moves into last year's downy woodpecker hole — no woodpecker, no nuthatch.",
       "eats": [
         {
@@ -316,6 +346,11 @@
       "shelter": "Under logs, bark and damp leaf litter; lays its eggs in a cavity inside rotting wood and stays coiled around them",
       "preferredHabitat": "Cool, damp deciduous forest floor with abundant rotting wood — and no pond required anywhere in its life",
       "fact": "Add up all the red-backed salamanders in a patch of forest and they can outweigh every bird in it. They have no lungs at all — the whole animal breathes through its skin.",
+      "fieldSign": "Turn a rotting log and you may find a female coiled around a cluster of three to fourteen eggs. Some adults carry a stub, or a regrown tail paler than the original.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Plethodon_cinereus/"
+      },
       "role": "This salamander is the bridge between the leaf litter and everything above it: it eats the mites, springtails and small worms that shred fallen leaves, and its own huge numbers feed snakes, birds and small mammals. It also breaks the rule everyone learns about amphibians — no pond, no tadpole, the entire life cycle inside one rotting log. Skin-breathing means it dries out fast, so the ground has to stay damp.",
       "eats": [],
       "eatsOther": [
@@ -362,6 +397,11 @@
       "shelter": "Hollow tree dens preferred; also rock crevices, burrows and buildings",
       "preferredHabitat": "Moist forest beside water shallow enough to wade and feel around in",
       "fact": "A raccoon sees with its hands. Its front paws carry four to five times more touch nerves than most mammals', and it will stare off in the opposite direction while its fingers read a stream bed.",
+      "fieldSign": "The hind print runs 3.25 to 4.5 inches long and resembles a small child's bare footprint; the front print is about 3 inches and hand-like. All four show five toes and claws.",
+      "fieldSignSource": {
+        "name": "University of Missouri Extension",
+        "url": "https://extension.missouri.edu/publications/g9453"
+      },
       "role": "The raccoon carries the stream into the woods: it feels out crayfish and insects in the shallows and unloads that energy up the bank, dropping fruit seeds as it goes. It is also this forest's great nest robber — the same crowd of cavities that lets wood ducks and flying squirrels move in hands a raccoon a list of doors to try.",
       "eats": [
         "banana-slug",
@@ -440,6 +480,11 @@
       "shelter": "Winter dens under upturned root masses, in hollow trees and rock cavities, or dug into a bank",
       "preferredHabitat": "Dense forest with a thick understory and reliable berry and acorn crops",
       "fact": "Black bear cubs are born in the middle of hibernation, blind and smaller than a soup can, and their mother barely wakes up for it.",
+      "fieldSign": "Rub trees look mangled, with clumps of coarse hair caught in the bark along the trails bears mark. Their scat often holds whole seeds, berry skins, grass, or hair from the last meal.",
+      "fieldSignSource": {
+        "name": "National Park Service, Glacier Bay",
+        "url": "https://www.nps.gov/glba/learn/nature/bear-sign.htm"
+      },
       "role": "A black bear ties the whole forest together in one animal: berries, acorns, grubs torn out of rotting logs, an elk calf in spring. It carries berry seeds for miles before dropping them, and every log it rips apart rots faster afterwards. A bear's year is really an acorn year — when the mast crop fails bears wander enormous distances, and a forest with no oaks cannot keep them. Nothing here hunts a grown bear.",
       "eats": [
         "chipmunk",
@@ -506,6 +551,11 @@
       "shelter": "Hollow logs, rock crevices and old earth dens; it will also curl up on a branch well off the ground",
       "preferredHabitat": "Brushy woodland edges and old clearings growing back, with tangled climbable cover",
       "fact": "It is the only dog in the world that climbs trees. A gray fox hooks its curved claws into the bark, shins up the trunk like a cat, and naps ten metres up where nothing that hunts it can follow.",
+      "fieldSign": "Dens turn up in hollow trunks, rock crevices, and hollow logs, lined with shredded bark and leaves, and sometimes 30 feet up in a hollow limb, since this is the one canid that climbs trees.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Urocyon_cinereoargenteus/"
+      },
       "role": "The forest's climbing fox. It works the brushy edges for mice, rabbits and ground-nesting birds, then goes straight up a trunk after squirrels, nests and grapes. By late summer it is eating so much fruit that its droppings are half seeds, which plants the next generation of berry tangles all along the edge. Bobcats kill it when they catch it in the open and great horned owls take its kits, so it keeps a climbable tree within a sprint at all times.",
       "eats": [
         "chipmunk",
@@ -574,6 +624,11 @@
       "shelter": "Hollow trunks, rot pockets and stump cavities; the eggs go into a warm heap of rotting wood chips",
       "preferredHabitat": "Old woods and woodland edges with big rough-barked trees to climb and rodents underneath them",
       "fact": "A ratsnake can climb straight up a bare tree trunk with nothing to hold onto. It wedges the edges of its belly scales into the ridges in the bark and walks up the side of the tree, then robs the nest at the top.",
+      "fieldSign": "Shed skins three to five feet long turn up in barns, hollow trees, and brush piles. A cornered ratsnake freezes in a kinked posture, vibrates its tail against dry leaves, and releases foul musk.",
+      "fieldSignSource": {
+        "name": "UGA Savannah River Ecology Lab",
+        "url": "https://srelherp.uga.edu/snakes/rat-snake/"
+      },
       "role": "The forest's rodent brake, and the only hunter here that works in three dimensions. On the ground it takes mice, voles and chipmunks by the dozen; up in the canopy it raids old woodpecker holes and songbird nests, which is why every bird in earshot mobs it. It kills by wrapping and squeezing, not venom, and when it is startled it freezes into a stiff kinked shape that looks exactly like a fallen branch. She never sits on her eggs — she buries them in rotting wood and lets the heat of the rot do the incubating. Foxes, fishers and great horned owls eat it.",
       "eats": [
         "chipmunk",
@@ -643,6 +698,11 @@
       "shelter": "Dens under rock ledges, in hollow logs and in dense thickets; a female moves her kittens if disturbed",
       "preferredHabitat": "Forest with a dense understory, brushy edges and broken rocky ground",
       "fact": "A bobcat can bring down prey eight times its own weight, then bury the leftovers under leaves or snow and come back the next night.",
+      "fieldSign": "Front tracks run 1.5 to 2.25 inches long and show four round toes with no claw marks, since the claws stay retracted. A walking bobcat sets each hind foot in the front track.",
+      "fieldSignSource": {
+        "name": "National Park Service, Mount Rainier",
+        "url": "https://www.nps.gov/mora/planyourvisit/upload/Carnivore-Tracks-12-20-21_508.pdf"
+      },
       "role": "With no wolves or cougars in these woods, the bobcat is the top hunter on the ground and nothing hunts a grown one. It takes everything from chipmunks up to raccoons, foxes and even fishers, and it kills by ambush — creeping close through cover, then one short rush. Strip the understory and the bobcat leaves, however much prey is still standing around: it has nothing left to hide behind.",
       "eats": [
         "tree-squirrel",
@@ -707,6 +767,11 @@
       "shelter": "Never builds a nest: takes over an old hawk, crow or squirrel nest, or a broken snag top or ledge",
       "preferredHabitat": "Mature forest broken by open ground, with big trees holding other animals' abandoned nests",
       "fact": "Great horned owls are one of the only animals that regularly kill and eat skunks. The spray does not appear to bother them in the slightest.",
+      "fieldSign": "Under a favored roost, look for gray cylindrical pellets packed with bone, fur, and feathers, and for whitewash streaking the trunk below. The hoot is three to six deep notes, heard from late summer through winter.",
+      "fieldSignSource": {
+        "name": "New York State DEC",
+        "url": "https://dec.ny.gov/nature/animals-fish-plants/great-horned-owl"
+      },
       "role": "The great horned owl runs the night shift and eats a longer list of animals than any other bird of prey here — squirrels, bats, snakes, ducks, even porcupines — and adults have nothing above them. It builds nothing at all: it starts nesting in midwinter by claiming an old squirrel drey or hawk nest somebody else made last spring, which is why the squirrels have to come back before the owl can.",
       "eats": [
         "tree-squirrel",
@@ -773,6 +838,11 @@
       "shelter": "Shelters down in grass and low vegetation; lays eggs in firm bare soil",
       "preferredHabitat": "Sunny grasslands and meadows rich in grasses and forbs",
       "fact": "A grasshopper's ears are on its belly — a pair of eardrums on the first segment of the abdomen, nowhere near its head.",
+      "fieldSign": "Grasshoppers leave egg pods in the soil: curved capsules about an inch long and an eighth of an inch wide, the top half dried froth, set among grass roots with the eggs three-quarters of an inch down.",
+      "fieldSignSource": {
+        "name": "USDA Agricultural Research Service",
+        "url": "https://www.ars.usda.gov/plains-area/sidney-mt/northern-plains-agricultural-research-laboratory/pest-management-research/pmru-docs/grasshoppers-their-biology-identification-and-management/id-tools-apps/fact-sheets/melanoplinae-subfamily/fs-migratory/"
+      },
       "role": "Grasshoppers turn grass into food for everything else. Almost every meat-eater in this meadow takes them at some point — birds, snakes, foxes, spiders, mantises, even a screech owl — so a good grasshopper summer is a good summer for the whole food web.",
       "eats": [],
       "eatsOther": [
@@ -821,6 +891,11 @@
       "shelter": "Shallow burrows and woven grass nests linked by clipped surface runways",
       "preferredHabitat": "Dense grassy prairie and meadow with thick ground cover left standing",
       "fact": "Prairie voles pair up and stay together, and both parents raise the pups — which is why scientists who study bonding and loyalty end up studying this small brown rodent.",
+      "fieldSign": "Prairie voles wear runways through the grass, above ground and below, with tunnel entrance holes opening along them. Where they have fed, stems are clipped close to the ground and left in small piles beside the runway.",
+      "fieldSignSource": {
+        "name": "Missouri Dept. of Conservation",
+        "url": "https://mdc.mo.gov/discover-nature/field-guide/voles-meadow-mice"
+      },
       "role": "The vole is the meadow's engine of small furry food. It mows narrow highways through the grass, breeds fast, and feeds hawks, owls, foxes, coyotes, snakes and badgers. The burrows it abandons get taken over by bumble bee queens and garter snakes, so it builds homes as well as filling stomachs.",
       "eats": [],
       "eatsOther": [
@@ -869,6 +944,11 @@
       "shelter": "Roosts in trees and shrubs; overwinters clustered in dense groves far to the south",
       "preferredHabitat": "Open meadows and roadsides with milkweed to breed on and nectar flowers to refuel on",
       "fact": "No single monarch flies the whole round trip. The butterflies that head south in autumn are the great-grandchildren of the ones that came north in spring, and they find the same groves anyway.",
+      "fieldSign": "First and second instar caterpillars chew in a circle, leaving a characteristic arc-shaped hole in a milkweed leaf. The egg that started it is pinhead-sized, ridged lengthwise, and laid singly under a leaf near the plant's top.",
+      "fieldSignSource": {
+        "name": "Monarch Joint Venture",
+        "url": "https://monarchjointventure.org/monarch-biology/life-cycle"
+      },
       "role": "Monarch caterpillars eat milkweed and store its poison in their own bodies, so a bird that tries one usually spits it out and remembers the orange for the rest of its life. It doesn't save them from everything — mantises, spiders, wasps and ants take eggs and caterpillars by the thousand, and only a few in every hundred ever grow wings.",
       "eats": [],
       "eatsOther": [
@@ -913,6 +993,11 @@
       "shelter": "Nests in abandoned rodent burrows, grass tussocks and ground cavities",
       "preferredHabitat": "Flower-rich meadows with something in bloom from spring to frost",
       "fact": "Some flowers refuse to let go of their pollen unless they are shaken. A bumblebee grabs on and buzzes its flight muscles until the pollen falls out — tomatoes and blueberries depend on it.",
+      "fieldSign": "Bumble bees nest in cavities they did not dig, usually an old rodent burrow or the base of a bunch grass. Entrance tunnels can run several feet, and the sign is light traffic at a small hole.",
+      "fieldSignSource": {
+        "name": "Xerces Society",
+        "url": "https://xerces.org/bumblebeenests"
+      },
       "role": "Big, furry and warm enough to fly on cold grey mornings when other bees are still grounded, the bumblebee is the meadow's heavy-duty pollinator. A whole colony starts with one queen in spring hunting for an old vole hole to move into, so nest holes matter every bit as much as flowers. Orb weavers and crab spiders take her at the flowers, and badgers dig entire nests out of the ground.",
       "eats": [],
       "eatsOther": [
@@ -957,6 +1042,11 @@
       "shelter": "Rests in shallow grass 'forms'; bolts into brush piles and old burrows",
       "preferredHabitat": "Meadows and field edges with brushy cover close enough to run to",
       "fact": "A cottontail doesn't dig a burrow. It presses a shallow bowl into the grass called a form and sits so still in it that you can walk straight past.",
+      "fieldSign": "Rabbit browse ends in a clean knifelike slant, as if cut at 45 degrees, with no toothmarks, and it stays within about 2.5 feet of the ground or the top of the snow. Round droppings lie nearby.",
+      "fieldSignSource": {
+        "name": "Penn State Extension",
+        "url": "https://extension.psu.edu/cottontail-rabbits"
+      },
       "role": "Cottontails eat grass and clover all summer and switch to twigs and bark in winter, and they breed fast enough to keep up with everything that hunts them — fox, coyote, badger, hawk and owl all count on them. Their droppings feed the soil life underfoot, which is a polite way of saying rabbits fertilise the meadow they eat.",
       "eats": [],
       "eatsOther": [
@@ -1006,6 +1096,11 @@
       "shelter": "Beds down in brushy cover or tall grass; no permanent den",
       "preferredHabitat": "Open meadows and shrubby edges with browse and daily water",
       "fact": "A bounding mule deer lands on all four hooves at once like a pogo stick, and puffs out scent from a gland on its hind leg as it goes — a warning the other deer can smell.",
+      "fieldSign": "Deer have no upper incisors, so browsed twig ends look torn and ragged where a rabbit's would be cleanly clipped. Browsing seldom reaches higher than 4 feet. Beds show as flattened vegetation 3 to 4 feet long.",
+      "fieldSignSource": {
+        "name": "Washington Dept. of Fish and Wildlife",
+        "url": "https://wdfw.wa.gov/species-habitats/living/species-facts/deer"
+      },
       "role": "The mule deer is a browser rather than a grazer: it works on shrub twigs, buds and broad-leaved plants instead of cropping turf, so it shapes the edges of the meadow rather than the middle. Its browsing and droppings move nutrients around. Coyotes take fawns; a healthy adult is more than most hunters here want to take on.",
       "eats": [],
       "eatsOther": [
@@ -1057,6 +1152,11 @@
       "shelter": "Overwinters packed into leaf litter in big huddles; shelters on foliage in summer",
       "preferredHabitat": "Meadows with aphid-bearing plants, especially milkweed",
       "fact": "One ladybug can put away around 5,000 aphids in a lifetime. Pinch it and it bleeds bitter yellow blood out of its knees, which is why most birds spit it straight back out.",
+      "fieldSign": "Convergent lady beetles lay oblong yellow eggs about a twenty-fifth of an inch long, standing on end in clusters of 10 to 30 on leaves and green stems near aphids. The orange pupa is glued to the leaf.",
+      "fieldSignSource": {
+        "name": "UC Integrated Pest Management",
+        "url": "https://ipm.ucanr.edu/natural-enemies/convergent-lady-beetle/"
+      },
       "role": "Larva and adult both hunt aphids, so a ladybug's whole life runs on an aphid supply — in this meadow, the yellow oleander aphids crowding the milkweed stems. Its bright shell is a warning label and it works on most birds. Mantises and orb weavers are not most birds.",
       "eats": [],
       "eatsOther": [
@@ -1100,6 +1200,11 @@
       "shelter": "Big multi-entrance burrow systems dug into deep open ground",
       "preferredHabitat": "Open grassy meadow and slopes with a stone wall or bank to keep watch from",
       "fact": "Facing a rattlesnake, this squirrel kicks sand and waves its tail — and pumps hot blood into the tail first, so the snake's heat-sensing pits see a far bigger animal than is really standing there.",
+      "fieldSign": "Burrow openings are about 4 inches across, sometimes wider where they are old. The tunnels behind them run 5 to 30 feet and usually stay within 2 to 3 feet of the surface.",
+      "fieldSignSource": {
+        "name": "UC Integrated Pest Management",
+        "url": "https://ipm.ucanr.edu/home-and-landscape/ground-squirrel/pest-notes/"
+      },
       "role": "A digger and a generalist. It eats seeds, greens, fungi and insects, turns over soil every time it excavates, and the tunnels it abandons become homes for bumble bee queens, garter snakes and foxes. Its colonies are what pull badgers, hawks and coyotes into a meadow in the first place.",
       "eats": [
         "grasshopper"
@@ -1152,6 +1257,11 @@
       "shelter": "A domed grass nest woven on the ground, usually with a covered runway leading in",
       "preferredHabitat": "Wide native grassland with song perches and no shrubs moving in",
       "fact": "A meadowlark weaves a roof over its nest and a covered tunnel leading in, so from above there is nothing to see at all — just grass.",
+      "fieldSign": "The nest sits on the ground in a dip or a cow footprint, seven to eight inches across, with a woven grass dome over it and short runways worn out through the surrounding grass.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Western_Meadowlark/lifehistory"
+      },
       "role": "A grassland bird through and through. It eats grasshoppers, crickets and beetles by the hundred all summer and switches to seed in winter, and it needs real open space — as shrubs and trees creep in, meadowlarks quietly vanish. A plump bird that nests on the ground is a favourite of hawks, foxes, badgers and coyotes.",
       "eats": [
         "grasshopper",
@@ -1213,6 +1323,11 @@
       "shelter": "Shelters under stone walls and logs; winters below the frost line in a communal den",
       "preferredHabitat": "Moist meadow and grassland near sunny stones and water",
       "fact": "Garter snakes spend the whole winter piled together by the dozen in one frost-free hole underground, and come pouring back out of it in a knot in spring.",
+      "fieldSign": "Look under boards, flat rocks, and other objects lying in the grass. A gartersnake handled there smears a foul-smelling musk from glands at the base of its tail, and the smell stays on your hands.",
+      "fieldSignSource": {
+        "name": "Missouri Dept. of Conservation",
+        "url": "https://mdc.mo.gov/discover-nature/field-guide/eastern-gartersnake-red-sided-gartersnake"
+      },
       "role": "The meadow's damp-grass hunter — earthworms, pillbugs, frogs, insects and young voles, always within reach of water. It is harmless to people, though a bite can itch. Where it can survive the winter is what decides where it can live at all, so one deep frost-free den matters more than anything else you can build for it.",
       "eats": [
         "grasshopper",
@@ -1271,6 +1386,11 @@
       "shelter": "Enlarges a burrow another animal dug into a natal den; also uses brush and hollows",
       "preferredHabitat": "Meadows, field edges and hedgerows across open country",
       "fact": "A fox listening for a vole under deep grass or snow lines itself up facing magnetic north before it leaps — and the trick only seems to help when it cannot see the prey at all.",
+      "fieldSign": "A red fox walks in a nearly single line, hind feet landing in the front tracks. Each print is about two inches long, and the ridges between the pads leave an X shape in the negative space.",
+      "fieldSignSource": {
+        "name": "National Park Service, Mount Rainier",
+        "url": "https://www.nps.gov/mora/planyourvisit/upload/Carnivore-Tracks-12-20-21_508.pdf"
+      },
       "role": "A stalk-and-pounce generalist that keeps rodent and rabbit numbers down and fills the gaps with insects, berries and whatever it finds already dead. It rarely digs a den from scratch — it widens an old ground squirrel or badger burrow instead. Great horned owls take its kits, and now that coyotes are back, foxes have to give ground.",
       "eats": [
         "cottontail-rabbit",
@@ -1331,6 +1451,11 @@
       "shelter": "A bulky stick nest in the crown of a tall tree or on a cliff ledge",
       "preferredHabitat": "Open country seen from above: grassland, fields and meadows",
       "fact": "That screaming eagle cry in every film is a red-tailed hawk. Actual bald eagles sound like squeaky gulls, so the movies quietly swapped them.",
+      "fieldSign": "The giveaway is the voice: a hoarse, screaming kee-eeeee-arr held two to three seconds and usually delivered while the bird soars. Courting birds add a shrill chwirk, repeated several times.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Red-tailed_Hawk/sounds"
+      },
       "role": "The daylight hunter over this meadow, either circling on broad flat wings or sitting on a pole staring at the grass. It is heavy and powerful and built for taking prey off the ground — voles, ground squirrels, rabbits, snakes — not for chasing birds through the air. The huge stick nest it builds gets inherited by a great horned owl the very next winter.",
       "eats": [
         "cottontail-rabbit",
@@ -1392,6 +1517,11 @@
       "shelter": "Reed roots, submerged plant beds, and the shaded underside of sunken wood.",
       "preferredHabitat": "Connected, clean, weedy pools.",
       "fact": "The male minnow scrubs the underside of a sunken slab spotless using a spongy pad on his own back, then guards the eggs the females glue to that ceiling — fanning them day and night until they hatch.",
+      "fieldSign": "From May through September a male clears a nest under a submerged log or rock, and the eggs go on the ceiling in a single layer. He stays to fan them and scrub each one with a spongy pad on his back.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Pimephales_promelas/"
+      },
       "role": "The little silver engine of the marsh. Minnow schools graze algae and plankton and then get eaten by nearly everything with a bill, a beak or a claw — and they give baby mussels a free ride to new water on their gills.",
       "eats": [
         "freshwater-shrimp",
@@ -1459,6 +1589,11 @@
       "shelter": "Stick-and-mud lodges with underwater entrances",
       "preferredHabitat": "Slow channels with mud banks and woody plants to fell",
       "fact": "A beaver's front teeth never stop growing and are orange because they are reinforced with iron — living chisels that gnawing keeps sharp. Its lips shut behind those teeth, so it can carry and cut branches underwater without swallowing the pond.",
+      "fieldSign": "Wood chips and cut stumps along the shoreline mark a feeding area. The lodge is a dome five to six feet tall and twenty to thirty feet wide, with two or more entrances underwater.",
+      "fieldSignSource": {
+        "name": "New York State DEC",
+        "url": "https://dec.ny.gov/nature/animals-fish-plants/beaver"
+      },
       "role": "The marsh's engineer, and the turning point of the whole restoration. Fell a few willows, dam a channel, and suddenly there is deep permanent water with drowned trees standing in it — the pond the otter, the merganser, the kingfisher, the heron and the eagle all move in on afterwards.",
       "eats": [],
       "eatsOther": [
@@ -1504,6 +1639,11 @@
       "shelter": "Dome lodges woven from cattail and reed, and burrows dug into banks",
       "preferredHabitat": "Reedy shallows with abundant cattails",
       "fact": "A muskrat can stay under for a quarter of an hour on one breath, and in midwinter it dives beneath the ice to dig up frozen-in cattail roots and eat them down there in the dark.",
+      "fieldSign": "Piles of clipped cattail on a hollow mud hut standing about a foot above the water mark a muskrat's feeding rounds. Its scat is dark, curved, and cylindrical, about half an inch long, left on logs and shorelines.",
+      "fieldSignSource": {
+        "name": "Washington Dept. of Fish and Wildlife",
+        "url": "https://wdfw.wa.gov/sites/default/files/publications/00622/wdfw00622.pdf"
+      },
       "role": "The cattail harvester. It clips reeds into lodges and feeding lanes that ducks and herons then hunt along, it feeds the mink, the otter and the eagle, and the bank burrows it abandons are the only homes mink ever move into.",
       "eats": [
         "freshwater-mussel"
@@ -1555,6 +1695,11 @@
       "shelter": "Ground nests hidden in dense sedge and grass tussocks near water",
       "preferredHabitat": "Calm, plant-rich shallows with tussock cover on the bank",
       "fact": "Mallards sleep with one eye open and half the brain awake. On a raft of sleeping ducks it is the ones on the outside doing the watching — and they swap places so everyone gets a proper nap.",
+      "fieldSign": "Only the hen quacks, giving a series of 2 to 10 quacks that begins loud and trails off softer. The drake never quacks; he answers with a quieter, rasping call of one or two notes.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Mallard/sounds"
+      },
       "role": "The tail-up dabbler of the shallows, tipping forward to reach seeds and leaves it can't dive for. Hens switch to insects and snails while they are laying, and ducklings eat almost nothing else at first, so a mallard family needs a bug-rich marsh, not just a weedy one.",
       "eats": [],
       "eatsOther": [
@@ -1608,6 +1753,11 @@
       "shelter": "Muddy pond bottoms; hauls out onto logs to bask",
       "preferredHabitat": "Still water with basking logs",
       "fact": "A painted turtle spends the entire winter under the ice without taking a breath. It absorbs what oxygen it can through its back end, and when that runs short it dissolves minerals out of its own shell to stay alive until spring.",
+      "fieldSign": "In May and June the female digs a flask-shaped hole in bare sandy ground well back from water and lays 5 to 8 white elliptical eggs. Torn shell scattered around an open pit means a raccoon or fox found it first.",
+      "fieldSignSource": {
+        "name": "Massachusetts Division of Fisheries and Wildlife",
+        "url": "https://www.mass.gov/info-details/learn-about-painted-turtles"
+      },
       "role": "The marsh's sunbather. A cold turtle cannot digest a thing, so a log in the sun is a feeding requirement rather than a luxury — and as painted turtles grow they flip from hunting insects to grazing plants.",
       "eats": [],
       "eatsOther": [
@@ -1664,6 +1814,11 @@
       "shelter": "Cup nests wound around several upright stems standing in water",
       "preferredHabitat": "Dense cattail and reed stands with water underneath",
       "fact": "A male red-wing can switch his scarlet shoulder patches on and off. Flared wide they start fights; tucked away under the black feathers they let him slip through a rival's territory completely unnoticed.",
+      "fieldSign": "The nest is a cup 4 to 7 inches across, lashed with stringy plant fiber to several upright cattail stems just above the water and plastered inside with mud. One counted nest used 142 cattail leaves.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Red-winged_Blackbird/lifehistory"
+      },
       "role": "The loudest bird in the marsh and the first one back in spring. It hunts insects all summer and switches to seeds for the rest of the year, and it winds its nest around standing stems with water underneath — a moat the mink will not cross.",
       "eats": [
         "dragonfly",
@@ -1724,6 +1879,11 @@
       "shelter": "Large ground mounds of piled marsh plants standing in shallow water",
       "preferredHabitat": "Broad, quiet, restored marshland",
       "fact": "Cranes dance to choose a partner — leaping, bowing and flinging sticks in the air — and once they pair up they usually stay together for life. Their bugling carries more than two kilometres because the windpipe is coiled up inside the breastbone like a trumpet.",
+      "fieldSign": "The rattling bugle carries up to 2.5 miles, each call lasting a couple of seconds and usually strung together. Flocks often call from so high overhead that you hear them without ever seeing them.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Sandhill_Crane/sounds"
+      },
       "role": "The tallest bird on the marsh and the last one to arrive. Cranes probe the mud for tubers and snap up frogs, crayfish and insects, and they will only settle where the water is wide, quiet and genuinely healthy.",
       "eats": [
         "chorus-frog",
@@ -1782,6 +1942,11 @@
       "shelter": "Damp litter and loose bark under fallen wood in winter; wet vegetation in summer",
       "preferredHabitat": "Shallow pools ringed with reeds and wet meadow",
       "fact": "A chorus frog freezes solid every winter. Ice fills the spaces around its organs, its heart stops for weeks — and in spring it thaws out and starts singing as though nothing happened. The call sounds exactly like running your thumb along a comb.",
+      "fieldSign": "From March into May, males give a vibrating crrreeeek that rises at the end and lasts about a second, the sound of a fingernail run along a pocket comb. Eggs come in clusters of 15 to 190 stuck to submerged stems.",
+      "fieldSignSource": {
+        "name": "Missouri Dept. of Conservation",
+        "url": "https://mdc.mo.gov/discover-nature/field-guide/boreal-chorus-frog"
+      },
       "role": "Small enough to sit on a coin and loud enough to hear right across the marsh. It mops up tiny insects all summer and then feeds herons, mink, otters and cranes — the most-eaten voice in the wetland.",
       "eats": [],
       "eatsOther": [
@@ -1840,6 +2005,11 @@
       "shelter": "Damp burrows in soft ground near fishless breeding pools",
       "preferredHabitat": "Fishless seasonal pools with soft banks",
       "fact": "Tiger salamanders spend most of their lives alone underground, then walk back on the first warm rainy night of spring to the exact pool they hatched in — and if that pool starts drying too fast, some larvae grow oversized heads and start eating their own brothers and sisters.",
+      "fieldSign": "After spring rains, search the pond bottom for loose jelly masses of up to 100 eggs fastened to sunken twigs, grass stems, and decayed leaves. The clumps are flimsier than a spotted salamander's firm globes.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Ambystoma_tigrinum/"
+      },
       "role": "A fat, blotched, black-and-gold hunter that only breeds where fish cannot live. Its larvae race to grow legs before the pool dries, which is a bet they can only win in water no minnow could survive.",
       "eats": [
         "freshwater-shrimp",
@@ -1898,6 +2068,11 @@
       "shelter": "Emergent reed stems for the adults; the nymphs live in the water below",
       "preferredHabitat": "Clean open water with emergent stems to climb out on",
       "fact": "Dragonflies catch about 95 out of every 100 things they chase — a better strike rate than a lion, a shark or a falcon. They also see the world in something close to slow motion, which is why swatting one never works.",
+      "fieldSign": "The cast nymphal skin is the find: a hollow husk one and a half to two inches long, split down the back and still gripping a plant stem above the waterline.",
+      "fieldSignSource": {
+        "name": "Animal Diversity Web",
+        "url": "https://animaldiversity.org/accounts/Anax_junius/"
+      },
       "role": "A hunter with two completely different lives. The nymph spends a year underwater firing out a hinged, grabbing lower lip at tadpoles and fish fry; then it climbs a reed stem, splits its own back open and flies away to hunt mosquitoes over the marsh.",
       "eats": [
         {
@@ -1973,6 +2148,11 @@
       "shelter": "Bank burrows, usually taken over from muskrats rather than dug",
       "preferredHabitat": "Brushy banks beside busy water",
       "fact": "A mink will chase a fish thirty metres underwater, and it hunts on land, in the water and up trees. What it almost never does is dig — it simply moves into a burrow a muskrat made and does not ask.",
+      "fieldSign": "Look along muddy banks for five-toed tracks 1 to 2 inches long, set in loping clusters 10 to 24 inches apart. Mink musk is rank enough that many rate it worse than a skunk's.",
+      "fieldSignSource": {
+        "name": "Missouri Dept. of Conservation",
+        "url": "https://mdc.mo.gov/discover-nature/field-guide/american-mink"
+      },
       "role": "A small brown fury with an enormous menu: fish, frogs, crayfish, muskrats, eggs, ducklings, whatever is slowest that day. Its home is always second-hand, so no muskrats usually means no mink no matter how much prey there is.",
       "eats": [
         "minnow",
@@ -2041,6 +2221,11 @@
       "shelter": "Colonial stick nests built high in tall trees and snags near water",
       "preferredHabitat": "Still shallows for slow, patient hunting, with tall nest trees within reach",
       "fact": "A heron's neck has one specially kinked bone in it that works like a loaded spring — the strike is over faster than you can blink, and the fish is caught crosswise in the bill rather than speared.",
+      "fieldSign": "A flushed heron announces itself with clucking go-go-gos building into a harsh frawnk squawk that can run twenty seconds. At the nest, pairs clapper, snapping their bill tips together.",
+      "fieldSignSource": {
+        "name": "Cornell Lab, All About Birds",
+        "url": "https://www.allaboutbirds.org/guide/Great_Blue_Heron/sounds"
+      },
       "role": "The tall grey statue of the shallows. It hunts alone but flatly refuses to nest alone, packing dozens of stick nests into one stand of tall trees — and it spends a good part of its life being chased and robbed of its catch by eagles.",
       "eats": [
         "minnow",
@@ -2094,6 +2279,11 @@
       "shelter": "Bank dens with underwater entrances — usually a beaver's old lodge or burrow",
       "preferredHabitat": "Clean, connected water rich in fish and slow prey",
       "fact": "An otter has around 350,000 hairs packed into every square centimetre of its fur — more than most animals have on their entire body. It is the air trapped in all that fur, not fat, that keeps an otter warm in freezing water.",
+      "fieldSign": "Otters keep latrines on raised banks: flattened vegetation, vegetation raked into small piles, and scat full of fish scales and crayfish parts. In snow their trail alternates slide and footprints in a dot-dash line.",
+      "fieldSignSource": {
+        "name": "Minnesota Dept. of Natural Resources",
+        "url": "https://files.dnr.state.mn.us/recreation/hunting/trapping/avoidotters.pdf"
+      },
       "role": "The best swimmer in the marsh and the top hunter under the surface. Otters need a lot of clean connected water and a den they did not dig themselves, so an otter here means the beaver came back first — and it means the eagles finally have someone worth robbing.",
       "eats": [
         "minnow",

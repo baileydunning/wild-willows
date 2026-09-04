@@ -100,40 +100,6 @@ jobs:
       - name: Add the report to the run summary
         run: cat readability.md >> "$GITHUB_STEP_SUMMARY"
 
-      # One comment per PR, rewritten in place on every push, so the thread keeps
-      # a single current score instead of a stack of stale ones. The marker is
-      # how it finds its own comment again.
-      #
-      # Skipped for PRs from forks: their GITHUB_TOKEN is read-only no matter
-      # what `permissions` says, and the API call would 403. The step summary
-      # above still carries the report in that case.
-      - name: Comment the readability score on the PR
-        if: github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            const MARKER = '<!-- wild-willows:readability -->';
-            const body = `${MARKER}\n${fs.readFileSync('readability.md', 'utf8')}`;
-            const { owner, repo } = context.repo;
-            const issue_number = context.issue.number;
-
-            const comments = await github.paginate(github.rest.issues.listComments, {
-              owner,
-              repo,
-              issue_number,
-              per_page: 100,
-            });
-            const existing = comments.find((c) => c.body?.includes(MARKER));
-
-            if (existing) {
-              await github.rest.issues.updateComment({ owner, repo, comment_id: existing.id, body });
-              core.info(`Updated comment ${existing.id}`);
-            } else {
-              await github.rest.issues.createComment({ owner, repo, issue_number, body });
-              core.info('Posted a new readability comment');
-            }
-
       # Reporting only, by design: a readability number is a prompt to look, not
       # a spec to enforce, and a wording change that trips a threshold is usually
       # fine. To make drift block a merge instead — the overlay scoring no easier

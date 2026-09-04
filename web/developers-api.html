@@ -236,6 +236,8 @@ Barn Owl</pre>
         <tr><td><code>shelter</code></td><td class="tight">string</td><td>Where it nests, dens or hides, in a sentence.</td></tr>
         <tr><td><code>preferredHabitat</code></td><td class="tight">string</td><td>The conditions it wants, in a sentence.</td></tr>
         <tr><td><code>fact</code></td><td class="tight">string</td><td>One true, checkable thing about the species. Good for a card, a quiz or a fact-of-the-day.</td></tr>
+        <tr><td><code>fieldSign</code></td><td class="tight">string</td><td>What the species leaves behind, or the sound that gives it away &mdash; tracks, scat, pellets, nests, cocoons, chewed stems, calls. Written to overlap with nothing else on this record.</td></tr>
+        <tr><td><code>fieldSignSource</code></td><td class="tight">object</td><td><code>{ name, url }</code> for the <code>fieldSign</code> line alone. Kept out of <code>sources</code>, which backs the ecology.</td></tr>
         <tr><td><code>role</code></td><td class="tight">string</td><td>A paragraph on what it does in its ecosystem and who depends on it.</td></tr>
         <tr><td><code>eats</code></td><td class="tight">string[]</td><td>Ids of other animals in the dataset. Empty for a herbivore.</td></tr>
         <tr><td><code>eatsOther</code></td><td class="tight">string[]</td><td>Food that is not an animal in the dataset: <code>["grasses", "leaves and forbs", "sedges"]</code>.</td></tr>
@@ -490,7 +492,7 @@ if (res.status === 429) {
       <b>May change without warning</b>
       <ul>
         <li>Species being added or changed. Treat 150 as a floor rather than a constant.</li>
-        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
+        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code>, <code>fieldSign</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
         <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
         <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
       </ul>

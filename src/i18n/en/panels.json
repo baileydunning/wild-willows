@@ -359,10 +359,10 @@
 			"other": "{count} of {total} species have found their way back."
 		},
 		"newest": "Latest find",
-		"earlier": "Earlier finds",
 		"cameBack": "Came back {date}",
 		"openNote": "Read the note on {name}",
 		"backToBoard": "Back to the board",
+		"signTitle": "What to look for",
 		"seen": {
 			"one": "seen once",
 			"other": "seen {count} times"

@@ -46,6 +46,16 @@ export interface AnimalDef {
 	diet: string;
 	shelter: string;
 	fact: string;
+	/**
+	 * What this species LEAVES BEHIND, or the sound that gives it away — tracks,
+	 * scat, pellets, nests, cocoons, chewed stems, calls. Written for the Board of
+	 * Finds, and deliberately about none of the things the journal already
+	 * covers (diet, shelter, habitat, role, food web, `fact`).
+	 */
+	fieldSign?: string;
+	/** Where the `fieldSign` line was checked. Not shown in the journal's source
+	 *  list — the board cites its own note. */
+	fieldSignSource?: AnimalSource;
 	rarity: string;
 	featured?: boolean;
 	preferredHabitat: string;

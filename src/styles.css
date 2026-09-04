@@ -3840,172 +3840,262 @@ input {
 }
 
 /* ---- Board of Finds: the pin board hung in the house ----
-   Cards, not rows: the board is a scrapbook of who has come back, newest first,
-   and every note is a button that opens that animal's card. Colours all come
-   from the theme variables, so the dark theme is already handled. */
+   Cards pinned to a board, not rows in a table. The board ground is a shade
+   DARKER than the panel (--paper-2 under --cream cards) — on the panel's own
+   colour the cards vanished into it and the whole thing read as a list with too
+   much air. Everything here comes from the theme variables, so dark mode and the
+   contrast modes are already handled. */
 .finds-body {
 	display: flex;
 	flex-direction: column;
-	gap: 10px;
+	gap: 11px;
+}
+.finds-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
 }
 .finds-count {
 	margin: 0;
+	font-size: calc(13.5px * var(--ui-scale));
 	font-weight: 700;
 }
 .finds-tallies {
 	display: flex;
 	flex-wrap: wrap;
-	gap: 6px;
+	gap: 5px;
 }
 .finds-tally {
-	display: inline-flex;
-	align-items: center;
-	gap: 4px;
 	background: var(--tint-leaf);
-	border: 1.5px solid var(--line);
 	border-radius: 999px;
-	padding: 2px 10px;
-	font-size: calc(11.5px * var(--ui-scale));
+	padding: 2px 9px;
+	font-size: calc(11px * var(--ui-scale));
 	color: var(--ink-soft);
-}
-.finds-tally svg {
-	color: var(--green);
 }
 .finds-tally b {
 	color: var(--ink);
 }
+/* the board itself */
+.finds-board {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	background: var(--paper-2);
+	border: 1.5px solid var(--line);
+	border-radius: 14px;
+	padding: 10px;
+}
 .finds-grid {
 	display: grid;
-	grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-	gap: 9px;
+	grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+	gap: 8px;
 }
 .finds-note {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 5px;
+	gap: 3px;
 	text-align: center;
+	color: var(--ink);
 	background: var(--cream);
 	border: 1.5px solid var(--line);
-	border-radius: 4px 4px 12px 12px;
-	padding: 17px 8px 11px;
+	border-radius: 4px 4px 10px 10px;
+	padding: 14px 7px 8px;
 	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(43, 51, 33, 0.09);
 	transition:
 		border-color 0.12s,
-		background 0.12s,
+		box-shadow 0.12s,
 		transform 0.06s;
 }
 .finds-note:hover {
 	border-color: var(--green);
-	background: var(--paper-2);
+	box-shadow: 0 3px 8px rgba(43, 51, 33, 0.14);
 	transform: translateY(-1px);
 }
-/* the tack holding the note to the board */
+/* the tack holding the card to the board */
 .finds-pin {
 	position: absolute;
-	top: 6px;
+	top: 5px;
 	left: 50%;
 	transform: translateX(-50%);
 	width: 9px;
 	height: 9px;
 	border-radius: 50%;
-	background: var(--rose);
-	box-shadow: 0 1px 2px rgba(43, 51, 33, 0.35);
+	background: radial-gradient(circle at 33% 30%, #e79aa2, var(--rose) 62%);
+	box-shadow: 0 1px 2px rgba(43, 51, 33, 0.4);
 }
-.finds-note .ani-thumb {
-	width: 52px;
-	height: 52px;
-	object-fit: contain;
-}
-.finds-note-text {
-	display: flex;
-	flex-direction: column;
-	align-items: center;
-	gap: 3px;
-}
-.finds-name {
-	font-weight: 700;
-	font-size: calc(13px * var(--ui-scale));
-	line-height: 1.2;
-}
-.finds-where {
-	display: inline-flex;
-	align-items: center;
-	gap: 3px;
-	font-size: calc(11px * var(--ui-scale));
-	color: var(--ink-soft);
-}
-.finds-where svg {
-	color: var(--green);
-}
-.finds-when {
-	font-size: calc(11px * var(--ui-scale));
-	color: var(--ink-soft);
-}
-/* the newest arrival, pinned up bigger with its field note */
-.finds-hero {
-	flex-direction: row;
-	align-items: center;
-	gap: 13px;
-	text-align: left;
-	padding: 14px 15px 14px 17px;
-	background: linear-gradient(var(--cream-lift), var(--cream));
-	border-color: var(--panel-edge);
-}
-.finds-hero .finds-pin {
-	top: 8px;
-	left: 8px;
-	transform: none;
-}
-.finds-hero .ani-thumb-lg {
-	width: 78px;
-	height: 78px;
+.finds-thumb {
+	width: 58px;
+	height: 58px;
 	object-fit: contain;
 	flex: none;
 }
+/* Stretches so the badge row lands on the same line on every card in a row —
+   a two-line species name must not push its own footer out of alignment. */
+.finds-note-text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	min-width: 0;
+}
+.finds-name {
+	font-weight: 700;
+	font-size: calc(12.5px * var(--ui-scale));
+	line-height: 1.2;
+}
+.finds-where {
+	font-weight: 400;
+	font-size: calc(10.5px * var(--ui-scale));
+	color: var(--ink-soft);
+	line-height: 1.3;
+}
+.finds-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 4px 7px;
+	margin-top: auto;
+	padding-top: 6px;
+}
+.finds-note .comfort {
+	margin-left: 0;
+	font-size: calc(10px * var(--ui-scale));
+	padding: 1px 7px;
+}
+.finds-date {
+	font-weight: 400;
+	font-size: calc(10px * var(--ui-scale));
+	color: var(--stamp-ink);
+}
+/* the newest arrival: the same card laid out wide, with the opening of its field
+   sign, so the headline slot carries something to read instead of empty cream */
+.finds-hero {
+	flex-direction: row;
+	align-items: center;
+	gap: 14px;
+	text-align: left;
+	padding: 12px 16px 12px 14px;
+	background: linear-gradient(var(--cream-lift), var(--cream));
+	border-color: var(--panel-edge);
+	border-radius: 4px 4px 12px 12px;
+}
+.finds-hero .finds-pin {
+	top: 7px;
+	left: 11px;
+	transform: none;
+}
+.finds-hero .finds-thumb {
+	width: 84px;
+	height: 84px;
+}
 .finds-hero .finds-note-text {
 	align-items: flex-start;
+	gap: 1px;
 }
-.finds-hero .comfort {
-	margin-left: 0;
+.finds-hero .finds-name {
+	font-size: calc(16px * var(--ui-scale));
 }
-/* one note taken down off the board and read — the board's own detail view */
+.finds-hero .finds-where {
+	font-size: calc(12px * var(--ui-scale));
+}
+.finds-hero .finds-foot {
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	margin-top: 6px;
+	padding-top: 0;
+}
+.finds-hero .finds-date {
+	font-size: calc(11px * var(--ui-scale));
+}
+/* the little "latest find" label, in place of a section heading */
+.finds-tag {
+	font-size: calc(9.5px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--gold);
+}
+.finds-teaser {
+	display: -webkit-box;
+	font-weight: 400;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	margin-top: 5px;
+	max-width: 62ch;
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1.45;
+	color: var(--ink-soft);
+}
+
+/* one note taken down off the board and read */
 .finds-detail {
 	position: relative;
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 7px;
+	gap: 5px;
 	text-align: center;
 	background: linear-gradient(var(--cream-lift), var(--cream));
 	border: 1.5px solid var(--panel-edge);
 	border-radius: 4px 4px 14px 14px;
 	padding: 22px 20px 16px;
 }
-.finds-detail .ani-thumb-lg {
+.finds-thumb-lg {
 	width: 104px;
 	height: 104px;
-	object-fit: contain;
 }
 /* beats `.panel-body h3`, which is the uppercase section-heading style */
 .finds-detail .finds-detail-name {
 	display: block;
-	margin: 0;
+	margin: 2px 0 0;
 	font-size: calc(17px * var(--ui-scale));
 	color: var(--ink);
 	text-transform: none;
 	letter-spacing: normal;
 }
-.finds-detail p {
+.finds-detail-meta {
 	margin: 0;
+	font-size: calc(11.5px * var(--ui-scale));
+	color: var(--ink-soft);
 }
-.finds-detail .finds-fieldnote {
-	margin: 7px 0 3px;
-	max-width: 46ch;
-	font-style: italic;
+.finds-detail .comfort {
+	margin-left: 0;
+}
+/* the field sign — what you would actually find of them out there */
+.finds-fieldnote {
+	align-self: stretch;
+	max-width: 54ch;
+	margin: 12px auto 2px;
+	text-align: left;
+	background: var(--tint-gold);
+	border-left: 3px solid var(--gold);
+	border-radius: 4px 10px 10px 4px;
+	padding: 11px 14px 12px;
+}
+.finds-fieldnote h4 {
+	margin: 0 0 5px;
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+.finds-fieldnote p {
+	margin: 0;
+	font-size: calc(13.5px * var(--ui-scale));
 	line-height: 1.55;
-	color: var(--ink);
+}
+.finds-source {
+	display: inline-block;
+	margin-top: 8px;
+	font-size: calc(10.5px * var(--ui-scale));
+	color: var(--ink-soft);
 }
 
 /* ---- richer info card ---- */

@@ -358,10 +358,10 @@
 			"other": "{count} de {total} especies han vuelto."
 		},
 		"newest": "Último hallazgo",
-		"earlier": "Hallazgos anteriores",
 		"cameBack": "Volvió el {date}",
 		"openNote": "Leer la nota sobre {name}",
 		"backToBoard": "Volver al tablero",
+		"signTitle": "Qué buscar",
 		"seen": {
 			"one": "visto una vez",
 			"other": "visto {count} veces"
