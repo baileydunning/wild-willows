@@ -303,16 +303,8 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
 		g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
 	}),
-	lanternstring: def(50, 30, (g) => {
-		g.lineStyle(1.5, C('#6b5238'), 1).lineBetween(2, 4, 48, 4);
-		const cols = ['#e8954f', '#e3c75f', '#d77bb1', '#7fb4d8', '#9bd17a'];
-		cols.forEach((c, i) => {
-			const x = 6 + i * 9.5;
-			g.lineStyle(1, C('#6b5238'), 1).lineBetween(x, 4, x, 9);
-			g.fillStyle(C(c), 1).fillRoundedRect(x - 3, 9, 6, 9, 3);
-			g.fillStyle(0xffffff, 0.4).fillCircle(x - 1, 12, 1.2);
-		});
-	}),
+	// String lights (and the meadow's lantern row) live in ./lights — they are
+	// drawn edge-aware so a row of them reads as one run.
 	pinwheel: def(26, 42, (g) => {
 		g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
 		const blades: [string, number, number, number, number, number, number][] = [

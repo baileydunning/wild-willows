@@ -3,12 +3,14 @@ import { useGame } from '../state';
 import type { AchievementDef } from '../types';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
+import { AchievementGlyph } from './achievementArt';
 import { CompletionView, completionGroups, overallCompletion } from './Completion';
 
 /**
  * The Achievements menu (K). Its own panel — a running scoreboard for the whole
- * preserve. A shared star badge frames each achievement's own unique glyph:
- * gold when earned, hollow when still locked. Earned ones float to the top of
+ * preserve. Each achievement shows the preserve's own art — the same sprite the
+ * world draws (see achievementArt) — in a round badge: in colour with a gold
+ * star sealed to it when earned, drained to grey while still locked. Earned ones float to the top of
  * the list (most-recently unlocked first, since the snapshot is earned-ordered).
  */
 /** The menu's two halves: the achievement list, and the completion tracker. */
@@ -287,11 +289,13 @@ export function AchievementsPanel() {
 									const earned = earnedSet.has(a.id);
 									return (
 										<div key={a.id} className={`ach-card ${earned ? 'earned' : 'locked'}`}>
+											{/* The picture leads; the star is the little gold seal an earned
+											    one gets, rather than a frame competing with the art inside it. */}
 											<div className="ach-badge">
-												<Icon name="star" size={44} className="ach-star" />
 												<span className="ach-glyph">
-													<Icon name={a.icon} size={20} />
+													<AchievementGlyph icon={a.icon} size={38} />
 												</span>
+												{earned && <Icon name="star" size={15} className="ach-star" />}
 											</div>
 											<div className="grow">
 												<div className="ach-name">

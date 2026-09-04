@@ -24,6 +24,9 @@ import {
 	PATH_SHAPES,
 	PICKED,
 	ensurePathTile,
+	RUN_SHAPES,
+	LIT_SHAPES,
+	ensureRunTile,
 	snapshotResourceIcons,
 	snapshotObjectIcons,
 	INV_TEX_SCALE,
@@ -425,6 +428,13 @@ export class WorldScene extends Phaser.Scene {
 	// lampGlow is the headlamp's warm additive halo (works on any renderer);
 	// campfires already carry their own halo from drawPlacements.
 	private lampGlow?: Phaser.GameObjects.Image;
+	// Every lantern, string light and lantern row standing in this area carries a
+	// small warm halo built with its placement (attachLightGlow). They are held
+	// here so the night can turn them up and down together, and so the light mask
+	// can stamp them without walking the placement list: the placement owns each
+	// one, so a rebuilt or removed light takes its halo with it and this list is
+	// pruned of the dead on the next update.
+	private lampGlows: Phaser.GameObjects.Image[] = [];
 	private lightMaskRT?: Phaser.GameObjects.RenderTexture;
 	private lightBrush?: Phaser.GameObjects.Image;
 	private lightBitmapMask?: Phaser.Display.Masks.BitmapMask;
@@ -678,6 +688,7 @@ export class WorldScene extends Phaser.Scene {
 		this.skyOverlay = undefined;
 		this.skyTween = undefined;
 		this.lampGlow = undefined;
+		this.lampGlows = [];
 		this.lightMaskRT = undefined;
 		this.lightBrush = undefined;
 		this.lightBitmapMask = undefined;
@@ -2184,6 +2195,16 @@ export class WorldScene extends Phaser.Scene {
 	// throws a wider ring of light
 	private static readonly LAMP_MASK = TILE * 5;
 	private static readonly FIRE_MASK = TILE * 9;
+	// A hung lantern reaches about a tile and a half, and never clears the dark
+	// the way a fire does — see attachLightGlow.
+	private static readonly LANTERN_MASK = TILE * 3;
+
+	/** Every lantern burning in this area, as its halo (world px). Pruned here of
+	 *  halos whose placement has since been rebuilt or taken down. */
+	private lanternsHere(): Phaser.GameObjects.Image[] {
+		if (this.lampGlows.some((g) => !g.scene)) this.lampGlows = this.lampGlows.filter((g) => g.scene);
+		return this.lampGlows;
+	}
 
 	/** Every burning fire in this area (world px): the meadow base-camp fire plus
 	 *  any placed campfires. These push back the night tint just like the lamp. */
@@ -2220,17 +2241,21 @@ export class WorldScene extends Phaser.Scene {
 	 *  tracks the tint as night eases in and out. */
 	private updateNightLights() {
 		const dark = !this.isIndoors && !!this.lightOverlay?.visible && this.lightState.a > 0.15;
+		// Asked for on both paths, so the list is pruned of halos whose placement
+		// has gone even on days that never get dark enough to light anything.
+		const lanterns = this.lanternsHere();
 		// Bail before touching the fire list. The old order built the list (and an
 		// empty throwaway array on the daylight path) and only then discovered it
 		// had nothing to light — for roughly two thirds of every in-game day.
 		if (!dark) {
 			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
+			for (const g of lanterns) if (g.alpha) g.setAlpha(0);
 			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
 			return;
 		}
 		const hasLamp = this.hasHeadlamp();
 		const fires = this.firesHere();
-		if (!hasLamp && fires.length === 0) {
+		if (!hasLamp && fires.length === 0 && lanterns.length === 0) {
 			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
 			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
 			return;
@@ -2248,6 +2273,9 @@ export class WorldScene extends Phaser.Scene {
 		const glowDepth = y - 4;
 		if (glow.depth !== glowDepth) glow.setDepth(glowDepth);
 		if (glow.visible !== hasLamp) glow.setVisible(hasLamp);
+		// The lanterns' own halos come up with the dark and go down with it.
+		const lanternAlpha = 0.3 * depth;
+		for (let i = 0; i < lanterns.length; i++) lanterns[i].setAlpha(lanternAlpha);
 		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
 		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
 		// screen-sized RenderTexture, restamped each frame at each light's
@@ -2310,6 +2338,10 @@ export class WorldScene extends Phaser.Scene {
 		for (let i = 0; i < fires.length; i++) {
 			const f = fires[i];
 			stamp(f.x, f.y, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
+		}
+		// lanterns: a dull pool each, so a strung path is a line of soft light
+		for (let i = 0; i < lanterns.length; i++) {
+			stamp(lanterns[i].x, lanterns[i].y, WorldScene.LANTERN_MASK, Math.min(0.55, depth * 0.6));
 		}
 		rt.endDraw();
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
@@ -4126,6 +4158,7 @@ export class WorldScene extends Phaser.Scene {
 			growing ? 1 : 0,
 			ready,
 			this.pathConn(p), // 0 for anything that isn't a path
+			this.runConn(p), // …and for anything that isn't a run of lights
 		].join('|');
 	}
 
@@ -4153,6 +4186,10 @@ export class WorldScene extends Phaser.Scene {
 		// that makes a hedgerow look natural and made a walkway look like spilled
 		// pills. See sprites/objects/paths.ts.
 		const flat = PATH_SHAPES.has(def.shape || '');
+		// A run of lights is one line the player drew, so like a path it gets
+		// edge-aware art — and must skip the per-item flip/lean/size jitter below,
+		// which would leave every cord meeting its neighbour at a different height.
+		const run = RUN_SHAPES.has(def.shape || '');
 		const objs: Phaser.GameObjects.GameObject[] = [];
 		const its: Interactable[] = [];
 		let growth: { at: number; matures: boolean } | undefined;
@@ -4180,7 +4217,11 @@ export class WorldScene extends Phaser.Scene {
 		// fall back to the generic kit sprite if this object's shape texture is
 		// missing (e.g. data with a newer shape than the loaded client), so a
 		// placed item never renders as a blank/black missing-texture square
-		const shapeKey = flat ? ensurePathTile(this, def.shape!, this.pathConn(p)) : `obj-${def.shape || 'kit'}`;
+		const shapeKey = flat
+			? ensurePathTile(this, def.shape!, this.pathConn(p))
+			: run
+				? ensureRunTile(this, def.shape!, this.runConn(p))
+				: `obj-${def.shape || 'kit'}`;
 		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
 		// A plant that has been picked stands stripped until its yield is back:
 		// bare stems, empty seed heads, an emptied bowl. Every harvestable shape
@@ -4218,7 +4259,7 @@ export class WorldScene extends Phaser.Scene {
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
 		let tint = 0xffffff;
-		if (flat || isFixture) {
+		if (flat || run || isFixture) {
 			if (rot) img.setRotation(rot);
 		} else {
 			const vr = mulberry32(hashStr(p.id));
@@ -4248,7 +4289,7 @@ export class WorldScene extends Phaser.Scene {
 			regrown?.setScale(scale);
 		};
 		applyScale();
-		this.attachCampfireGlow(build);
+		this.attachPlacementGlow(build);
 		const defName = content('habitatObject', p.objectId, 'name', def.name);
 		this.attachPlacementClick(build, isFixture, defName);
 		this.attachFixtureActions(build, defName);
@@ -4373,8 +4414,11 @@ export class WorldScene extends Phaser.Scene {
 		return undefined;
 	}
 
-	private attachCampfireGlow(build: PlacementBuild) {
+	/** The light a placement gives off: a campfire's fire, a lantern's dull warm
+	 *  pool. Both are additive halos owned by the placement. */
+	private attachPlacementGlow(build: PlacementBuild) {
 		const { p, def, x, y, tall, img, its, own } = build;
+		this.attachLightGlow(build);
 		// placed campfires glow like the base-camp fire: a warm, steady additive
 		// halo (wide wash + bright core — indoors too, cozy in a tent). At night
 		// the light mask also carves the dark away here.
@@ -4395,6 +4439,29 @@ export class WorldScene extends Phaser.Scene {
 			) as Phaser.GameObjects.Image;
 			core.setBlendMode(Phaser.BlendModes.ADD);
 		}
+	}
+
+	/**
+	 * The halo a lantern carries after dark.
+	 *
+	 * Dull on purpose: a lantern is not a campfire. It sits at a fifth of the
+	 * fire's alpha and a third of its reach — enough that a lit path reads as lit
+	 * and you can see your feet under it, not enough to turn night into evening.
+	 * The alpha is 0 until updateNightLights() decides it is actually dark, so the
+	 * lanterns simply look like lanterns all day.
+	 */
+	private attachLightGlow(build: PlacementBuild) {
+		const { def, x, y, own } = build;
+		if (!LIT_SHAPES.has(def.shape || '')) return;
+		const glow = own(
+			this.img(x, y - 2, 'glow')
+				.setTint(0xffca6a)
+				.setDepth(y - 1)
+				.setAlpha(0)
+				.setScale(0.75 * INV_TEX_SCALE),
+		) as Phaser.GameObjects.Image;
+		glow.setBlendMode(Phaser.BlendModes.ADD);
+		this.lampGlows.push(glow);
 	}
 
 	private attachPlacementClick(build: PlacementBuild, isFixture: boolean, defName: string) {
@@ -5091,6 +5158,34 @@ export class WorldScene extends Phaser.Scene {
 		if (!isPath(p.objectId)) return 0;
 		const at = (x: number, y: number) => isPath(this.placementAt(x, y)?.objectId);
 		return connOf(at(p.x, p.y - 1), at(p.x + 1, p.y), at(p.x, p.y + 1), at(p.x - 1, p.y));
+	}
+
+	/**
+	 * How a run of lights joins the ones beside it.
+	 *
+	 * String lights and the meadow lantern row are hung along a line, so unlike a
+	 * path they connect on ONE axis: the run's own. A quarter-turned placement
+	 * runs north–south, and joins its neighbours there — but only to lights of the
+	 * same shape turned the same way, since a low cord and an overhead wire meeting
+	 * end to end is two runs crossing, not one. The mask that comes back is always
+	 * in the sprite's own frame (W = behind me along the run, E = ahead), so one
+	 * set of art covers both directions and the placement's rotation does the rest.
+	 *
+	 * Like pathConn this rides in placementKey(), so hanging one light repaints the
+	 * neighbour it just joined.
+	 */
+	private runConn(p: { objectId: string; x: number; y: number; rotation?: number }): Conn {
+		const shape = this.objectDef(p.objectId)?.shape || '';
+		if (!RUN_SHAPES.has(shape)) return 0;
+		const turned = (((p.rotation || 0) % 180) + 180) % 180 !== 0;
+		const joins = (x: number, y: number) => {
+			const n = this.placementAt(x, y);
+			if (!n || n.objectId !== p.objectId) return false;
+			return (((((n as any).rotation || 0) % 180) + 180) % 180 !== 0) === turned;
+		};
+		return turned
+			? connOf(false, joins(p.x, p.y + 1), false, joins(p.x, p.y - 1))
+			: connOf(false, joins(p.x + 1, p.y), false, joins(p.x - 1, p.y));
 	}
 
 	/**

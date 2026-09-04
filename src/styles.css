@@ -1593,29 +1593,38 @@ input {
 	border-color: rgba(201, 145, 63, 0.55);
 	background: linear-gradient(180deg, rgba(201, 145, 63, 0.1), var(--paper));
 }
-/* "Locked" look WITHOUT opacity on the card — opacity would also fade the
-   requirement tooltip (a child can't be more opaque than its parent). Mute the
-   badge and title instead; the tooltip stays crisp and fully opaque. */
-.ach-card.locked .ach-badge {
-	opacity: 0.7;
-}
-.ach-card.locked .ach-name {
-	color: var(--ink-soft);
-}
+/* The achievement's own picture, in a round badge: a game sprite (see
+   ui/achievementArt), not a line glyph. */
 .ach-badge {
 	position: relative;
 	flex: none;
-	width: 46px;
-	height: 46px;
+	width: 52px;
+	height: 52px;
 	display: grid;
 	place-items: center;
+	border-radius: 50%;
+	background: rgba(132, 130, 110, 0.09);
+	box-shadow: inset 0 0 0 1.5px var(--line);
 }
+.ach-card.earned .ach-badge {
+	background: rgba(201, 145, 63, 0.16);
+	box-shadow: inset 0 0 0 1.5px rgba(201, 145, 63, 0.55);
+}
+/* "Locked" look WITHOUT opacity on the CARD — that would fade the requirement
+   tooltip too (a child can't be more opaque than its parent). Mute the badge and
+   the title instead, and let the picture drain to grey below, so earning one
+   reads as colour arriving. */
+.ach-card.locked .ach-badge {
+	opacity: 0.85;
+}
+/* The gold seal an earned badge gets, tucked on its rim. */
 .ach-badge .ach-star {
-	color: var(--line);
-}
-.ach-card.earned .ach-badge .ach-star {
+	position: absolute;
+	right: -2px;
+	bottom: -1px;
 	color: var(--gold);
-	fill: rgba(201, 145, 63, 0.22);
+	fill: var(--gold);
+	filter: drop-shadow(0 0 1.5px var(--paper)) drop-shadow(0 0 1.5px var(--paper));
 }
 .ach-glyph {
 	position: absolute;
@@ -1626,6 +1635,21 @@ input {
 }
 .ach-card.earned .ach-glyph {
 	color: var(--green-deep);
+}
+/* The badge's picture is a game sprite, not a line glyph: every aspect ratio the
+   world draws, contained in the badge. A hair of shadow lifts a pale sprite
+   (shell, snowbank) off the gold wash behind it. */
+.ach-glyph .ach-art {
+	display: block;
+	max-width: 38px;
+	max-height: 38px;
+	filter: drop-shadow(0 1px 0.5px rgba(58, 46, 32, 0.25));
+}
+.ach-card.locked .ach-glyph .ach-art {
+	filter: grayscale(1) opacity(0.85);
+}
+.ach-card.locked .ach-name {
+	color: var(--ink-soft);
 }
 .ach-name {
 	font-weight: 700;

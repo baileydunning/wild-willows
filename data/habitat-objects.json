@@ -6442,7 +6442,7 @@
       ],
       "healthValue": 0,
       "needs": [],
-      "shape": "lanternstring",
+      "shape": "lanternrow",
       "color": "#e8c46a",
       "description": "Lanterns strung low along a path on a woven cord. Hung at knee height on purpose — high lights wash out the meadow and the moths never settle."
     },

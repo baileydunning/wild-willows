@@ -8,11 +8,14 @@
 export { TEX_SCALE, INV_TEX_SCALE, PICKED } from './canvas';
 export type { G, SpriteDef, SpriteSet } from './canvas';
 export { makeBaseTextures } from './base';
+export { spriteDataUri } from './svg';
 export { CONN_N, CONN_E, CONN_S, CONN_W, connOf, ensureWaterTile } from './tiles';
 export type { Conn } from './tiles';
 export { PATH_SHAPES, ensurePathTile } from './objects/paths';
+export { RUN_SHAPES, LIT_SHAPES, ensureRunTile } from './objects/lights';
 export { makeNodeTextures, snapshotResourceIcons, snapshotObjectIcons } from './nodes';
-export { makeObjectTextures } from './objects';
+export { makeObjectTextures, OBJECT_SPRITES, objectSpriteDataUri } from './objects';
+export { EMBLEMS, emblemSpriteDataUri } from './emblems';
 export { makePlayerTexture } from './player';
 export {
 	ANIMAL_SPRITES,
