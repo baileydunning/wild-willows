@@ -8,7 +8,8 @@
 		"usedInCrafting": "Se usa en fabricación",
 		"placeIn": "Colocar en:",
 		"allAreas": "Todas las áreas",
-		"camp": "Campamento"
+		"camp": "Campamento",
+		"campWall": "Paredes del campamento"
 	},
 	"inventory": {
 		"title": "Cesta de recolección — {carried}/{capacity}",

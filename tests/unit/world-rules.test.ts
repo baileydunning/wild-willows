@@ -8,6 +8,7 @@ import {
 	nearGate,
 	findFreeTile,
 	canPlaceAt,
+	isWallTile,
 	withinReach,
 	terraformTool,
 	terraformActionFor,
@@ -230,6 +231,59 @@ describe('canPlaceAt — indoors', () => {
 		const big = indoorCtx({ activeDef: { homeMin: 3 }, homeSpace: 1 });
 		expect(canPlaceAt(6, 6, big)).toBe(false);
 		expect(canPlaceAt(6, 6, indoorCtx({ activeDef: { homeMin: 3 }, homeSpace: 3 }))).toBe(true);
+	});
+});
+
+// ---------------------------------------------------------------- wall decor
+// A wall item and a floor item want opposite tiles, and the ghost has to say so
+// before the click: the whole point of `mount: 'wall'` is that a framed
+// landscape stops being something you leave leaning on the floorboards.
+
+describe('isWallTile', () => {
+	it('takes the back run and both sides', () => {
+		expect(isWallTile(room, room.x0, room.y0 - 1)).toBe(true); // back wall
+		expect(isWallTile(room, room.x1, room.y0 - 1)).toBe(true);
+		expect(isWallTile(room, room.x0 - 1, room.y0)).toBe(true); // left wall
+		expect(isWallTile(room, room.x1 + 1, room.y1)).toBe(true); // right wall
+	});
+
+	it('refuses the corners, the door wall, the floor and anything outside', () => {
+		// A corner is one tile belonging to two runs and reads as neither.
+		expect(isWallTile(room, room.x0 - 1, room.y0 - 1)).toBe(false);
+		expect(isWallTile(room, room.x1 + 1, room.y1 + 1)).toBe(false);
+		// The door wall is between the camera and the room: anything hung there is
+		// behind the caretaker's own back.
+		expect(isWallTile(room, room.doorX, room.y1 + 1)).toBe(false);
+		expect(isWallTile(room, 6, 6)).toBe(false); // floor
+		expect(isWallTile(room, room.x0 - 2, room.y0)).toBe(false); // past the ring
+	});
+});
+
+describe('canPlaceAt — wall decor', () => {
+	const hanging = (over: Partial<PlaceContext> = {}) =>
+		indoorCtx({ activeObjectId: 'home-painting', activeDef: { placement: 'indoor', mount: 'wall' }, ...over });
+
+	it('hangs on a wall and nowhere else', () => {
+		expect(canPlaceAt(room.x0, room.y0 - 1, hanging())).toBe(true);
+		expect(canPlaceAt(room.x0 - 1, room.y0 + 2, hanging())).toBe(true);
+		expect(canPlaceAt(6, 6, hanging())).toBe(false); // the floor is not for hanging
+		expect(canPlaceAt(room.doorX, room.y1 + 1, hanging())).toBe(false); // nor the door wall
+	});
+
+	it('keeps floor furniture off the walls', () => {
+		const chair = indoorCtx({ activeObjectId: 'home-armchair', activeDef: { placement: 'indoor' } });
+		expect(canPlaceAt(room.x0, room.y0 - 1, chair)).toBe(false);
+		expect(canPlaceAt(6, 6, chair)).toBe(true);
+	});
+
+	it('will not hang two things on one nail', () => {
+		expect(canPlaceAt(room.x0, room.y0 - 1, hanging({ occupantIdAt: () => 'pl1' }))).toBe(false);
+	});
+
+	it('still respects a home-size gate up on the wall', () => {
+		expect(canPlaceAt(room.x0, room.y0 - 1, hanging({ activeDef: { mount: 'wall', homeMin: 3 }, homeSpace: 1 }))).toBe(
+			false,
+		);
 	});
 });
 

@@ -474,10 +474,19 @@ function GameScreen() {
 				if (e.key === 'Escape') (e.target as HTMLElement).blur();
 				return;
 			}
-			// hidden developer panel: Cmd/Ctrl + Shift + Delete (obscure, no username gate).
-			// Macs label Backspace as "delete", so accept both keys.
+			// Hidden developer panel: Cmd/Ctrl + Shift + Delete. Macs label Backspace as
+			// "delete", so accept both keys.
+			//
+			// Only opens on a save the server will actually take dev actions from
+			// (`player.devTools`, set in sanitizePlayer). On any other save the
+			// sequence does nothing at all: the panel used to open for everyone and
+			// then answer every button with a red toast naming the save that WOULD
+			// work, which both wasted the player's time and handed out the one thing
+			// the gate is keeping. Silence is the whole point — no toast here either.
+			// The gate that matters is the server's; this only decides what to show.
 			if ((e.key === 'Delete' || e.key === 'Backspace') && e.shiftKey && (e.metaKey || e.ctrlKey)) {
 				e.preventDefault();
+				if (!game.state?.player?.devTools) return;
 				setDevOpen((v) => !v);
 				return;
 			}

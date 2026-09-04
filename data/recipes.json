@@ -2193,8 +2193,8 @@
       "category": "home",
       "unlockBiome": "meadow",
       "unlock": {
-        "requiresAnimal": "barn-owl",
-        "label": "Welcome the Barn Owl back to Willow Meadow"
+        "homeBuilt": true,
+        "label": "Build yourself a home"
       },
       "output": {
         "itemId": "home-bed",
@@ -5999,7 +5999,8 @@
       "unlockBiome": "meadow",
       "unlock": {
         "homeBuilt": true,
-        "label": "Build yourself a home"
+        "minHealth": 33,
+        "label": "Restore Willow Meadow to 33% health and build yourself a home"
       },
       "output": {
         "itemId": "happy-buddha",
@@ -6782,6 +6783,960 @@
         "clean-water": 1,
         "lichen": 2,
         "moss": 3
+      }
+    },
+    {
+      "id": "home-pressedflowers",
+      "name": "Pressed Flower Frame",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 33,
+        "requiresCrafted": "flower-vase",
+        "label": "Restore Willow Meadow to 33% health and craft Potted Flowers"
+      },
+      "output": {
+        "itemId": "home-pressedflowers",
+        "qty": 1
+      },
+      "materials": {
+        "wildflowers": 4,
+        "branches": 3,
+        "fiber": 2
+      }
+    },
+    {
+      "id": "home-wallhanging",
+      "name": "Woven Wall Hanging",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 30,
+        "label": "Restore Willow Meadow to 30% health"
+      },
+      "output": {
+        "itemId": "home-wallhanging",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 8,
+        "wildflowers": 3
+      }
+    },
+    {
+      "id": "home-strawwreath",
+      "name": "Straw Wreath",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Willow Meadow to 21% health"
+      },
+      "output": {
+        "itemId": "home-strawwreath",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 5,
+        "seeds": 3,
+        "wildflowers": 2
+      }
+    },
+    {
+      "id": "home-rockingchair",
+      "name": "Rocking Chair",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 58,
+        "label": "Restore Willow Meadow to 58% health"
+      },
+      "output": {
+        "itemId": "home-rockingchair",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 9,
+        "fiber": 5
+      }
+    },
+    {
+      "id": "home-divider",
+      "name": "Willow Room Divider",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "requiresHome": {
+          "track": "space",
+          "level": 3
+        },
+        "label": "Raise your home's Space to level 3"
+      },
+      "output": {
+        "itemId": "home-divider",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 12,
+        "fiber": 8
+      }
+    },
+    {
+      "id": "home-mosswall",
+      "name": "Moss Wall Garden",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 22,
+        "label": "Restore Old Hollow Forest to 22% health"
+      },
+      "output": {
+        "itemId": "home-mosswall",
+        "qty": 1
+      },
+      "materials": {
+        "moss": 6,
+        "bark": 3
+      }
+    },
+    {
+      "id": "home-barkrelief",
+      "name": "Carved Bark Relief",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 34,
+        "label": "Restore Old Hollow Forest to 34% health"
+      },
+      "output": {
+        "itemId": "home-barkrelief",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 5,
+        "branches": 3
+      }
+    },
+    {
+      "id": "home-wallfern",
+      "name": "Wall Fern Bracket",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 28,
+        "label": "Restore Old Hollow Forest to 28% health"
+      },
+      "output": {
+        "itemId": "home-wallfern",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 5,
+        "moss": 3,
+        "clay": 2
+      }
+    },
+    {
+      "id": "home-logtable",
+      "name": "Log Side Table",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 19,
+        "label": "Restore Old Hollow Forest to 19% health"
+      },
+      "output": {
+        "itemId": "home-logtable",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 7,
+        "bark": 3
+      }
+    },
+    {
+      "id": "home-toadstool",
+      "name": "Toadstool Stool",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 26,
+        "label": "Restore Old Hollow Forest to 26% health"
+      },
+      "output": {
+        "itemId": "home-toadstool",
+        "qty": 1
+      },
+      "materials": {
+        "mushrooms": 5,
+        "branches": 3
+      }
+    },
+    {
+      "id": "home-reedscreen",
+      "name": "Reed Wall Screen",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 17,
+        "label": "Restore Rushwater Wetland to 17% health"
+      },
+      "output": {
+        "itemId": "home-reedscreen",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 8,
+        "fiber": 3
+      }
+    },
+    {
+      "id": "home-dragonflies",
+      "name": "Dragonfly Wall Flight",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 26,
+        "label": "Restore Rushwater Wetland to 26% health"
+      },
+      "output": {
+        "itemId": "home-dragonflies",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 4,
+        "fiber": 3,
+        "clean-water": 2
+      }
+    },
+    {
+      "id": "home-cattailbundle",
+      "name": "Cattail Bundle",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Rushwater Wetland to 21% health"
+      },
+      "output": {
+        "itemId": "home-cattailbundle",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 6,
+        "mud": 2
+      }
+    },
+    {
+      "id": "home-terrarium",
+      "name": "Marsh Terrarium",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 33,
+        "label": "Restore Rushwater Wetland to 33% health"
+      },
+      "output": {
+        "itemId": "home-terrarium",
+        "qty": 1
+      },
+      "materials": {
+        "clean-water": 4,
+        "clay": 4,
+        "reeds": 3
+      }
+    },
+    {
+      "id": "home-reedlantern",
+      "name": "Reed Floor Lantern",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 31,
+        "label": "Restore Rushwater Wetland to 31% health"
+      },
+      "output": {
+        "itemId": "home-reedlantern",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 5,
+        "clay": 3
+      }
+    },
+    {
+      "id": "home-sundisk",
+      "name": "Sandstone Sun Disk",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 24,
+        "label": "Restore Redstone Scrubland to 24% health"
+      },
+      "output": {
+        "itemId": "home-sundisk",
+        "qty": 1
+      },
+      "materials": {
+        "sand": 6,
+        "clay": 4
+      }
+    },
+    {
+      "id": "home-agavefan",
+      "name": "Woven Agave Fan",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 31,
+        "label": "Restore Redstone Scrubland to 31% health"
+      },
+      "output": {
+        "itemId": "home-agavefan",
+        "qty": 1
+      },
+      "materials": {
+        "agave-nectar": 2,
+        "fiber": 5
+      }
+    },
+    {
+      "id": "home-geodeslice",
+      "name": "Geode Wall Slice",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 38,
+        "label": "Restore Redstone Scrubland to 38% health"
+      },
+      "output": {
+        "itemId": "home-geodeslice",
+        "qty": 1
+      },
+      "materials": {
+        "geode": 2,
+        "stones": 4
+      }
+    },
+    {
+      "id": "home-clayurn",
+      "name": "Clay Water Urn",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 27,
+        "label": "Restore Redstone Scrubland to 27% health"
+      },
+      "output": {
+        "itemId": "home-clayurn",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 6,
+        "sand": 4
+      }
+    },
+    {
+      "id": "home-windowstar",
+      "name": "Snowflake Window Star",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 24,
+        "label": "Restore Graywind Heights to 24% health"
+      },
+      "output": {
+        "itemId": "home-windowstar",
+        "qty": 1
+      },
+      "materials": {
+        "quartz-crystal": 2,
+        "snow": 3
+      }
+    },
+    {
+      "id": "home-lichenwreath",
+      "name": "Lichen Wreath",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 17,
+        "label": "Restore Graywind Heights to 17% health"
+      },
+      "output": {
+        "itemId": "home-lichenwreath",
+        "qty": 1
+      },
+      "materials": {
+        "lichen": 5,
+        "branches": 3
+      }
+    },
+    {
+      "id": "home-summitmap",
+      "name": "Framed Summit Map",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 35,
+        "label": "Restore Graywind Heights to 35% health"
+      },
+      "output": {
+        "itemId": "home-summitmap",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 4,
+        "fiber": 4,
+        "pine-nuts": 2
+      }
+    },
+    {
+      "id": "home-firewoodrack",
+      "name": "Firewood Rack",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 27,
+        "label": "Restore Graywind Heights to 27% health"
+      },
+      "output": {
+        "itemId": "home-firewoodrack",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 10,
+        "stones": 4
+      }
+    },
+    {
+      "id": "home-shellgarland",
+      "name": "Shell Garland",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 15,
+        "label": "Restore Pelican Shore to 15% health"
+      },
+      "output": {
+        "itemId": "home-shellgarland",
+        "qty": 1
+      },
+      "materials": {
+        "shells": 6,
+        "fiber": 3
+      }
+    },
+    {
+      "id": "home-driftmirror",
+      "name": "Driftwood Mirror",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 29,
+        "label": "Restore Pelican Shore to 29% health"
+      },
+      "output": {
+        "itemId": "home-driftmirror",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 5,
+        "sea-glass": 2
+      }
+    },
+    {
+      "id": "home-netdrape",
+      "name": "Knotted Net Drape",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 24,
+        "label": "Restore Pelican Shore to 24% health"
+      },
+      "output": {
+        "itemId": "home-netdrape",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 7,
+        "kelp": 4
+      }
+    },
+    {
+      "id": "home-driftbench",
+      "name": "Driftwood Bench",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 34,
+        "label": "Restore Pelican Shore to 34% health"
+      },
+      "output": {
+        "itemId": "home-driftbench",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 8,
+        "fiber": 3
+      }
+    },
+    {
+      "id": "home-tideglass",
+      "name": "Tide-Glass Lantern",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 41,
+        "label": "Restore Pelican Shore to 41% health"
+      },
+      "output": {
+        "itemId": "home-tideglass",
+        "qty": 1
+      },
+      "materials": {
+        "sea-glass": 3,
+        "driftwood": 3
+      }
+    },
+    {
+      "id": "home-paperbutterflies",
+      "name": "Paper Butterfly Swarm",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 20,
+        "label": "Restore Willow Meadow to 20% health"
+      },
+      "output": {
+        "itemId": "home-paperbutterflies",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 4,
+        "wildflowers": 3
+      }
+    },
+    {
+      "id": "home-findsboard",
+      "name": "Board of Finds",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 26,
+        "label": "Restore Willow Meadow to 26% health"
+      },
+      "output": {
+        "itemId": "home-findsboard",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 3,
+        "fiber": 4,
+        "branches": 2
+      }
+    },
+    {
+      "id": "home-mousedoor",
+      "name": "Tiny Mouse Door",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 23,
+        "label": "Restore Willow Meadow to 23% health"
+      },
+      "output": {
+        "itemId": "home-mousedoor",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 3,
+        "clay": 2
+      }
+    },
+    {
+      "id": "home-glowjar",
+      "name": "Glow-Jar Lantern",
+      "category": "home",
+      "unlockBiome": "meadow",
+      "unlock": {
+        "minHealth": 44,
+        "label": "Restore Willow Meadow to 44% health"
+      },
+      "output": {
+        "itemId": "home-glowjar",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 4,
+        "moss": 3,
+        "dewdrops": 2
+      }
+    },
+    {
+      "id": "home-antlerrack",
+      "name": "Shed Antler Hat Rack",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 33,
+        "label": "Restore Old Hollow Forest to 33% health"
+      },
+      "output": {
+        "itemId": "home-antlerrack",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 6,
+        "bark": 3
+      }
+    },
+    {
+      "id": "home-birdflock",
+      "name": "Carved Bird Flock",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 24,
+        "label": "Restore Old Hollow Forest to 24% health"
+      },
+      "output": {
+        "itemId": "home-birdflock",
+        "qty": 1
+      },
+      "materials": {
+        "bark": 4,
+        "branches": 4
+      }
+    },
+    {
+      "id": "home-mushroomlamp",
+      "name": "Mushroom Lamp",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Old Hollow Forest to 21% health"
+      },
+      "output": {
+        "itemId": "home-mushroomlamp",
+        "qty": 1
+      },
+      "materials": {
+        "mushrooms": 6,
+        "branches": 3
+      }
+    },
+    {
+      "id": "home-mosspouf",
+      "name": "Moss Pouf",
+      "category": "home",
+      "unlockBiome": "forest",
+      "unlock": {
+        "minHealth": 37,
+        "label": "Restore Old Hollow Forest to 37% health"
+      },
+      "output": {
+        "itemId": "home-mosspouf",
+        "qty": 1
+      },
+      "materials": {
+        "moss": 8,
+        "fiber": 5
+      }
+    },
+    {
+      "id": "home-frogplaques",
+      "name": "Frog Chorus Plaques",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 19,
+        "label": "Restore Rushwater Wetland to 19% health"
+      },
+      "output": {
+        "itemId": "home-frogplaques",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 5,
+        "reeds": 3
+      }
+    },
+    {
+      "id": "home-heronprint",
+      "name": "Heron Print",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 28,
+        "label": "Restore Rushwater Wetland to 28% health"
+      },
+      "output": {
+        "itemId": "home-heronprint",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 5,
+        "mud": 3
+      }
+    },
+    {
+      "id": "home-pebblefountain",
+      "name": "Pebble Fountain",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 36,
+        "label": "Restore Rushwater Wetland to 36% health"
+      },
+      "output": {
+        "itemId": "home-pebblefountain",
+        "qty": 1
+      },
+      "materials": {
+        "stones": 8,
+        "clean-water": 4,
+        "clay": 3
+      }
+    },
+    {
+      "id": "home-lilystool",
+      "name": "Lily Pad Stool",
+      "category": "home",
+      "unlockBiome": "wetland",
+      "unlock": {
+        "minHealth": 25,
+        "label": "Restore Rushwater Wetland to 25% health"
+      },
+      "output": {
+        "itemId": "home-lilystool",
+        "qty": 1
+      },
+      "materials": {
+        "reeds": 6,
+        "fiber": 4
+      }
+    },
+    {
+      "id": "home-fossilplaque",
+      "name": "Fossil Plaque",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Redstone Scrubland to 21% health"
+      },
+      "output": {
+        "itemId": "home-fossilplaque",
+        "qty": 1
+      },
+      "materials": {
+        "stones": 6,
+        "sand": 3
+      }
+    },
+    {
+      "id": "home-cactusribs",
+      "name": "Cactus Rib Sculpture",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 30,
+        "label": "Restore Redstone Scrubland to 30% health"
+      },
+      "output": {
+        "itemId": "home-cactusribs",
+        "qty": 1
+      },
+      "materials": {
+        "cactus-fruit": 3,
+        "sand": 4
+      }
+    },
+    {
+      "id": "home-sandgarden",
+      "name": "Raked Sand Garden",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 34,
+        "label": "Restore Redstone Scrubland to 34% health"
+      },
+      "output": {
+        "itemId": "home-sandgarden",
+        "qty": 1
+      },
+      "materials": {
+        "sand": 8,
+        "stones": 4
+      }
+    },
+    {
+      "id": "home-sunstonebowl",
+      "name": "Sunstone Glow Bowl",
+      "category": "home",
+      "unlockBiome": "desert",
+      "unlock": {
+        "minHealth": 44,
+        "label": "Restore Redstone Scrubland to 44% health"
+      },
+      "output": {
+        "itemId": "home-sunstonebowl",
+        "qty": 1
+      },
+      "materials": {
+        "sunstone": 2,
+        "clay": 4
+      }
+    },
+    {
+      "id": "home-snowshoes",
+      "name": "Crossed Snowshoes",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 21,
+        "label": "Restore Graywind Heights to 21% health"
+      },
+      "output": {
+        "itemId": "home-snowshoes",
+        "qty": 1
+      },
+      "materials": {
+        "branches": 5,
+        "fiber": 6
+      }
+    },
+    {
+      "id": "home-starchart",
+      "name": "Star Chart",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 30,
+        "label": "Restore Graywind Heights to 30% health"
+      },
+      "output": {
+        "itemId": "home-starchart",
+        "qty": 1
+      },
+      "materials": {
+        "fiber": 4,
+        "quartz-crystal": 2,
+        "branches": 3
+      }
+    },
+    {
+      "id": "home-snowglobe",
+      "name": "Snow Globe",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 40,
+        "label": "Restore Graywind Heights to 40% health"
+      },
+      "output": {
+        "itemId": "home-snowglobe",
+        "qty": 1
+      },
+      "materials": {
+        "quartz-crystal": 3,
+        "snow": 4,
+        "clean-water": 2
+      }
+    },
+    {
+      "id": "home-cocoastand",
+      "name": "Cocoa Warmer",
+      "category": "home",
+      "unlockBiome": "alpine",
+      "unlock": {
+        "minHealth": 25,
+        "label": "Restore Graywind Heights to 25% health"
+      },
+      "output": {
+        "itemId": "home-cocoastand",
+        "qty": 1
+      },
+      "materials": {
+        "clay": 4,
+        "stones": 3,
+        "juniper-berries": 3
+      }
+    },
+    {
+      "id": "home-bottlerack",
+      "name": "Message Bottle Rack",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 19,
+        "label": "Restore Pelican Shore to 19% health"
+      },
+      "output": {
+        "itemId": "home-bottlerack",
+        "qty": 1
+      },
+      "materials": {
+        "sea-glass": 3,
+        "driftwood": 4
+      }
+    },
+    {
+      "id": "home-kelppress",
+      "name": "Pressed Kelp Frame",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 27,
+        "label": "Restore Pelican Shore to 27% health"
+      },
+      "output": {
+        "itemId": "home-kelppress",
+        "qty": 1
+      },
+      "materials": {
+        "kelp": 5,
+        "driftwood": 3
+      }
+    },
+    {
+      "id": "home-modelboat",
+      "name": "Model Boat",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 32,
+        "label": "Restore Pelican Shore to 32% health"
+      },
+      "output": {
+        "itemId": "home-modelboat",
+        "qty": 1
+      },
+      "materials": {
+        "driftwood": 6,
+        "fiber": 4,
+        "kelp": 2
+      }
+    },
+    {
+      "id": "home-lighthouselamp",
+      "name": "Lighthouse Lamp",
+      "category": "home",
+      "unlockBiome": "coastal",
+      "unlock": {
+        "minHealth": 38,
+        "label": "Restore Pelican Shore to 38% health"
+      },
+      "output": {
+        "itemId": "home-lighthouselamp",
+        "qty": 1
+      },
+      "materials": {
+        "shells": 5,
+        "sea-glass": 3,
+        "clay": 4
       }
     }
   ]

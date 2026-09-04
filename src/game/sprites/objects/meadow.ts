@@ -4,6 +4,39 @@ import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const MEADOW: SpriteSet = {
+	/**
+	 * The overlook bench: a live-edge slab laid across two log rounds, out at the
+	 * far edge of the meadow. Deliberately nothing like the Wooden Bench it used
+	 * to share a sprite with — no plank legs, no slat back, and a blanket left
+	 * folded on it from the last person who sat an hour before dusk.
+	 */
+	overlookbench: def(44, 36, (g) => {
+		g.fillStyle(C('#6f9a4a'), 1).fillEllipse(22, 31, 40, 9); // the grass it stands in
+		g.lineStyle(1.2, C('#d9c25f'), 1); // a few stems gone gold
+		g.lineBetween(5, 31, 3, 24).lineBetween(39, 31, 41, 25).lineBetween(36, 32, 37, 26);
+		const logRound = (x: number) => {
+			g.fillStyle(C('#7a5a34'), 1).fillCircle(x, 24.5, 6.4); // bark
+			g.fillStyle(C('#c19a63'), 1).fillCircle(x, 24, 4.8); // sawn end grain
+			g.lineStyle(1, C('#a3814f'), 0.9).strokeCircle(x, 24, 2.6).strokeCircle(x, 24, 1.1);
+		};
+		logRound(10);
+		logRound(34);
+		g.fillStyle(C('#8a6330'), 1).fillRoundedRect(3, 13.5, 38, 7, 2.5); // the slab, live-edged
+		g.fillStyle(C('#b98a4e'), 1).fillRoundedRect(3.5, 13.8, 37, 4.4, 2);
+		g.fillStyle(C('#c9a56a'), 1).fillRoundedRect(4, 14, 36, 1.8, 1); // the sun along its top edge
+		g.lineStyle(1, C('#8a6330'), 0.5).lineBetween(7, 17.6, 37, 17.6); // grain
+		// a blanket left folded on the near end
+		g.fillStyle(C('#c96f6a'), 1).fillRoundedRect(6, 9.5, 13, 6, 2);
+		g.fillStyle(C('#efe3c8'), 1).fillRect(6, 11.6, 13, 1.3);
+		g.fillStyle(C('#a85a55'), 1).fillRoundedRect(6, 14.6, 13, 2.2, 1); // the fold that hangs over
+		// and a jar of whatever was blooming at the far end
+		g.lineStyle(1, C('#6f9a4a'), 1).lineBetween(31, 12, 30, 7).lineBetween(33, 12, 34, 6.5).lineBetween(32, 12, 32, 6);
+		g.fillStyle(C('#e3c75f'), 1).fillCircle(30, 6.4, 1.8);
+		g.fillStyle(C('#d77bb1'), 1).fillCircle(34, 6, 1.8);
+		g.fillStyle(C('#f2ede0'), 1).fillCircle(32, 5.4, 1.6);
+		g.fillStyle(C('#bcd8e0'), 0.85).fillRoundedRect(28.5, 8.5, 7, 5.5, 1.5); // the jar
+		g.fillStyle(0xffffff, 0.4).fillRect(29.5, 9.5, 1.4, 3.5);
+	}),
 	...pickable('flowers', 36, 32, (g, picked) => {
 		g.fillStyle(C('#6da84e'), 1).fillEllipse(18, 24, 32, 12);
 		const cols = ['#d77bb1', '#e8954f', '#e3c75f', '#c45ad0', '#e86a6a'];

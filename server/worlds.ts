@@ -24,6 +24,7 @@ import { cached } from './scan-cache';
 import { GUIDE_MAX, LEGACY_JOURNAL_TOOL, getPlayer, guideTool, patchPlayer } from './player';
 import { freshStanding, standingOf } from './metrics';
 import { blocksGateTrail, gateGeomOf, recalcBiome, whyReturnedText } from './biome';
+import { homeRoom, isWallMounted, tentBiomeOf, tentRoom, wallTilesOf } from './home';
 import { awardWorldAchievements } from './achievements';
 import type { CustomGoal } from './tasks';
 
@@ -511,6 +512,58 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 }
 
 /**
+ * Hang the wall decor that was standing on the floor.
+ *
+ * The framed landscape, the wall clock and the two chandeliers were always
+ * pictures of things that hang, and until walls could hold anything they were
+ * placed on the floorboards like a chair. Now that `mount: 'wall'` exists they
+ * belong on the wall ring — and a save that put one down before this change has
+ * it sitting on a floor tile the placement rules no longer allow it on, where it
+ * could be picked up but never moved.
+ *
+ * So each one is moved to the nearest free wall tile of its own interior. If the
+ * walls are somehow full it is LEFT where it is rather than deleted: a player's
+ * own belongings are never thrown away by a migration, and a piece left standing
+ * can still be picked up and re-hung by hand.
+ *
+ * Interiors only — `mount` means nothing outdoors, and no wall item is placeable
+ * out in the preserve anyway.
+ */
+async function rehangWallDecor(worldId: string, playerId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.Placement, worldId);
+	const interiors = rows.filter((p: any) => p?.area === 'home' || tentBiomeOf(p?.area));
+	if (!interiors.length) return 0;
+	const player = await getPlayer(playerId);
+	const roomFor = (area: string) => (area === 'home' ? homeRoom(player) : tentRoom());
+	// what is standing where, per interior, so two rehangs can't land on one tile
+	const taken = new Map<string, Set<string>>();
+	for (const p of interiors) {
+		if (!taken.has(p.area)) taken.set(p.area, new Set());
+		taken.get(p.area)!.add(`${p.x},${p.y}`);
+	}
+	let moved = 0;
+	for (const p of interiors) {
+		const def = d.object.get(p.objectId);
+		if (!isWallMounted(def)) continue;
+		const room = roomFor(p.area);
+		const here = taken.get(p.area)!;
+		const free = wallTilesOf(room).filter((w) => !here.has(`${w.x},${w.y}`));
+		if (!free.length) continue; // walls full — leave it standing rather than lose it
+		// nearest free wall tile to where the player put it, so the room it was
+		// arranged into still looks arranged afterwards
+		free.sort((a, b) => Math.hypot(a.x - p.x, a.y - p.y) - Math.hypot(b.x - p.x, b.y - p.y));
+		const spot = free[0];
+		here.delete(`${p.x},${p.y}`);
+		here.add(`${spot.x},${spot.y}`);
+		await t.Placement.patch(p.id, { x: spot.x, y: spot.y });
+		moved++;
+	}
+	if (moved) console.error(`save repair: re-hung ${moved} wall decor item(s) for world ${worldId}`);
+	return moved;
+}
+
+/**
  * One-shot repairs a save needs after upgrading, run from a write path.
  *
  * Bump REPAIR_REV when a new repair is added here; every save then runs the pass
@@ -539,7 +592,11 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 // out of `state.terrain`, which now carries only the area the player is standing
 // in, so a wetland lake is invisible from the meadow and a recipe the server
 // would happily craft shows up locked. Backfilled below.
-export const REPAIR_REV = 4;
+// REV 5: wall decor arrived. Four items that were always wall furniture became
+// `mount: 'wall'`, and any already standing on an interior FLOOR is now on a tile
+// the placement rules refuse — pickable but unmovable. rehangWallDecor moves each
+// to the nearest free wall tile.
+export const REPAIR_REV = 5;
 
 /**
  * Work out a save's standing tallies from its own placements and write them.
@@ -607,6 +664,9 @@ export async function repairSave(
 		const refiled = await reconcileDiscoveryBiomes(worldId, d);
 		const unblocked = await repairGateTrails(worldId, d);
 		await migrateFieldJournal(playerId, d, opts.player);
+		// Purely cosmetic — it moves furniture inside one room and touches no
+		// biome, so it deliberately does NOT join the recalc condition below.
+		await rehangWallDecor(worldId, playerId, d);
 		// Any of those three changes which animals count as home, and
 		// BiomeState.returnedCount is a stored number that only recalcBiome
 		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a

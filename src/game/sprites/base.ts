@@ -12,8 +12,15 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xe9e9e9, 1);
 		for (let i = 0; i < 6; i++) g.fillRect((i * 13) % 30, (i * 7 + 4) % 30, 2, 2);
 	});
+	// Soft contact shadow. One flat ellipse reads as a sticker slid under the
+	// sprite — a hard rim at full strength right where the ground should be
+	// showing through. Stacking six faint ellipses instead gives a blurred
+	// falloff (alphas compound to ~0.22 in the middle, nothing at the rim), so
+	// the sprite looks like it is standing on the ground rather than pasted
+	// over a decal. Same texture size and centre, so every caller's scale and
+	// offset still land where they did.
 	tex(scene, 'shadow', 36, 14, (g) => {
-		g.fillStyle(0x1a2012, 0.22).fillEllipse(18, 7, 34, 11);
+		for (let i = 0; i < 6; i++) g.fillStyle(0x1a2012, 0.042).fillEllipse(18, 7, 34 - i * 5, 11 - i * 1.6);
 	});
 	// ground doodads (scattered by biome health)
 	tex(scene, 'tuft', 14, 12, (g) => {

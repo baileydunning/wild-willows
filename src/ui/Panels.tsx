@@ -108,7 +108,9 @@ function AreaTags({ data, def }: { data: any; def: any }) {
 			{canCamp && (
 				<span className="area-tag">
 					<span className="area-dot" style={{ background: 'var(--gold)' }} />
-					{t('panels.areaTags.camp')}
+					{/* wall decor hangs and cannot stand on the floor — say so on the chip,
+					    or the first attempt to put a wreath down is a refusal */}
+					{t(def.mount === 'wall' ? 'panels.areaTags.campWall' : 'panels.areaTags.camp')}
 				</span>
 			)}
 		</span>

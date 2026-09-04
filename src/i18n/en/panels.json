@@ -8,7 +8,8 @@
 		"usedInCrafting": "Used in crafting",
 		"placeIn": "Place in:",
 		"allAreas": "All areas",
-		"camp": "Camp"
+		"camp": "Camp",
+		"campWall": "Camp walls"
 	},
 	"inventory": {
 		"title": "Gathering Basket — {carried}/{capacity}",

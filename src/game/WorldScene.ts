@@ -76,6 +76,7 @@ import {
 	nearGate as isNearGate,
 	findFreeTile as findFreeTileIn,
 	canPlaceAt as canPlaceOn,
+	isWallTile,
 	withinReach,
 	terraformTool,
 	terraformActionFor as terraformActionOn,
@@ -332,6 +333,9 @@ export class WorldScene extends Phaser.Scene {
 	private placementObjectId: string | null = null;
 	private movingPlacementId: string | null = null;
 	private sleeping = false;
+	// Where the caretaker is sitting, if they are: the seat's own centre, which is
+	// what standing up steps them off. See sitOn().
+	private sitting: { x: number; y: number } | null = null;
 	private ghost: Phaser.GameObjects.Container | null = null;
 	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
@@ -689,6 +693,7 @@ export class WorldScene extends Phaser.Scene {
 		this.skyTween = undefined;
 		this.lampGlow = undefined;
 		this.lampGlows = [];
+		this.sitting = null; // a fresh area starts you on your feet
 		this.lightMaskRT = undefined;
 		this.lightBrush = undefined;
 		this.lightBitmapMask = undefined;
@@ -1062,7 +1067,7 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
 		this.unsubs.push(
 			bridge.on('appearance-changed', (appearance: any) => {
-				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
+				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance, this.sitting ? 'sit' : 'stand'));
 			}),
 		);
 		// The build animation plays on the camp building; its reveal fires world-dirty,
@@ -1636,11 +1641,26 @@ export class WorldScene extends Phaser.Scene {
 			if (r.decor >= 3) this.addDyn(this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.rug), 0.6).setDepth(0.222));
 		}
 
-		// Warmth track: windows along the back wall + a soft hearth glow
+		// Warmth track: windows along the back wall + a soft hearth glow.
+		//
+		// The windows sit ON the back-wall tiles rather than at even fractions of the
+		// wall's width, because that run is now hangable: a painting and a window
+		// competing for the same few pixels looked like a drawing mistake. A tile with
+		// something hung on it simply doesn't get a window — the wall is the player's
+		// to arrange, and the Warmth track fills whatever they leave bare.
 		if (r.light >= 2) {
-			const windows = r.light; // 2 → two windows, 3 → three, 4 → four
-			for (let i = 0; i < windows; i++) {
-				const wxp = fx + fw * ((i + 1) / (windows + 1));
+			const hung = new Set(
+				(bridge.shared.state?.placements || [])
+					.filter((pl) => pl.area === this.area && pl.y === r.y0 - 1)
+					.map((pl) => pl.x),
+			);
+			const span = r.x1 - r.x0 + 1;
+			const cols = new Set<number>();
+			for (let i = 0; i < r.light; i++)
+				cols.add(r.x0 + Math.min(span - 1, Math.round(((i + 1) * span) / (r.light + 1))));
+			for (const col of cols) {
+				if (hung.has(col)) continue;
+				const wxp = col * TILE + 16;
 				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14));
 				this.addDyn(
 					this.add
@@ -3902,6 +3922,53 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+	 * Seats, and how far a caretaker drops from the seat's centre to sit on it —
+	 * enough that their lap lands on the surface and their boots hang in front of
+	 * it. The caretaker has a seated sprite of their own (sprites/player.ts), so
+	 * this is only ever a question of height.
+	 */
+	private static readonly SEATS: Record<string, { dy: number }> = {
+		bench: { dy: -6 },
+		overlookbench: { dy: -11 },
+		stool: { dy: -11 },
+		armchair: { dy: -7 },
+	};
+
+	/** The caretaker's sprite in one pose or the other, from the saved look. */
+	private playerTexture(pose: 'stand' | 'sit') {
+		return makePlayerTexture(this, bridge.shared.state?.player.appearance, pose);
+	}
+
+	/**
+	 * Take a seat. Interacting again gets you up, and so does any step in any
+	 * direction (handleMovement) — sitting is a pause, never a mode you can be
+	 * stuck in, so it needs no way out of its own.
+	 */
+	private sitOn(shape: string, bx: number, by: number) {
+		if (this.sleeping) return;
+		if (this.sitting) return this.standUp();
+		const seat = WorldScene.SEATS[shape];
+		if (!seat) return;
+		this.sitting = { x: bx, y: by };
+		this.setWalkAudio(false);
+		this.player.setTexture(this.playerTexture('sit'));
+		this.player.setPosition(bx, by + seat.dy);
+		this.player.setRotation(0); // the walk waddle settles
+		this.player.setDepth(by + 6); // in front of the seat's back, on top of its seat
+		this.floatText(bx, by - 26, t('game.float.sit'), '#f3ead2');
+	}
+
+	/** Back on your feet, standing just in front of the seat. */
+	private standUp() {
+		const seat = this.sitting;
+		if (!seat) return;
+		this.sitting = null;
+		this.player.setTexture(this.playerTexture('stand'));
+		this.player.setPosition(seat.x, seat.y + 16);
+		this.player.setDepth(this.player.y + 16);
+	}
+
 	/** Climb into the bed/bag, dim the room, snooze ~3s, then refresh the preserve. */
 	private sleepAt(bx: number, by: number) {
 		if (this.sleeping) return;
@@ -4190,6 +4257,12 @@ export class WorldScene extends Phaser.Scene {
 		// edge-aware art — and must skip the per-item flip/lean/size jitter below,
 		// which would leave every cord meeting its neighbour at a different height.
 		const run = RUN_SHAPES.has(def.shape || '');
+		// Hung on a wall rather than standing on the floor. Three things follow from
+		// that and nothing else does: no cast shadow (it isn't on the ground), no
+		// per-item flip/lean/size jitter (a crooked picture reads as a bug, not as
+		// character), and a small nudge off the wall face toward the room so it sits
+		// ON the wall rather than half-buried in the dark ring behind it.
+		const wall = def.mount === 'wall' && this.isIndoors;
 		const objs: Phaser.GameObjects.GameObject[] = [];
 		const its: Interactable[] = [];
 		let growth: { at: number; matures: boolean } | undefined;
@@ -4200,20 +4273,25 @@ export class WorldScene extends Phaser.Scene {
 			objs.push(o);
 			return o;
 		};
-		const x = p.x * TILE + 16;
-		const y = p.y * TILE + 16;
+		const room = wall ? this.roomSpec() : null;
+		// nudge toward the room: back wall down a little, side walls inward
+		const wallDX = room ? (p.x < room.x0 ? 5 : p.x > room.x1 ? -5 : 0) : 0;
+		const wallDY = room && p.y < room.y0 ? 3 : 0;
+		const x = p.x * TILE + 16 + wallDX;
+		const y = p.y * TILE + 16 + wallDY;
 		const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-		if (!flat)
-			own(
-				this.img(x, y + (tall ? 22 : 10), 'shadow')
-					.setDepth(3)
-					.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
-			);
-
 		// freshly planted things start as a sprout and grow in
 		const growMs = (def.growSeconds || 0) * 1000;
 		const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
 		const stillGrowing = growMs > 0 && age < growMs;
+		// A seedling casts nothing. Two leaves of sprout sitting on a grown plant's
+		// shadow read as the plant already being there — and as the sprout scales up
+		// under a shadow that doesn't, as something hovering. The shadow arrives with
+		// the plant, on the rebuild that swaps the sprout for the real sprite.
+		//
+		// Size and offset are left to applyScale() below, which is the one place that
+		// knows how big this item is drawing right now (growth, maturity, jitter).
+		const shadow = flat || wall || stillGrowing ? null : own(this.img(x, y, 'shadow').setDepth(3));
 		// fall back to the generic kit sprite if this object's shape texture is
 		// missing (e.g. data with a newer shape than the loaded client), so a
 		// placed item never renders as a blank/black missing-texture square
@@ -4235,6 +4313,11 @@ export class WorldScene extends Phaser.Scene {
 		// they must never sort in front of the caretaker walking along them the way
 		// a y-sorted object does.
 		const img = own(this.img(x, y, stillGrowing ? 'sprout' : stripped ? pickedKey : objKey).setDepth(flat ? 1.7 : y));
+		// A hung item is part of the wall: it draws over the wall ring and its trim
+		// (depths 0.1–0.14) but stays behind anyone standing in front of it, which
+		// the y-sort already gives us — the caretaker's own row is always the higher
+		// number. The one thing y-sorting can't do is keep a picture off the floor,
+		// so wall items never take part in the jitter below.
 		// Recorded on the entry, not scheduled: armGrowthTimer() sets one timer for
 		// the soonest across the whole field, and a surviving entry replays this
 		// without being rebuilt.
@@ -4259,7 +4342,7 @@ export class WorldScene extends Phaser.Scene {
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
 		let tint = 0xffffff;
-		if (flat || run || isFixture) {
+		if (flat || run || isFixture || wall) {
 			if (rot) img.setRotation(rot);
 		} else {
 			const vr = mulberry32(hashStr(p.id));
@@ -4284,9 +4367,16 @@ export class WorldScene extends Phaser.Scene {
 			const growScale = stillGrowing && growMs > 0 ? 1 + (Math.min(liveAge, growMs) / growMs) * 0.6 : 1;
 			const placedAge = Date.now() - (p.placedAt || 0);
 			const matureScale = matMs > 0 && !stillGrowing && p.placedAt ? 0.72 + 0.28 * Math.min(1, placedAge / matMs) : 1;
-			const scale = growScale * matureScale * sizeJitter * INV_TEX_SCALE;
+			const size = growScale * matureScale * sizeJitter;
+			const scale = size * INV_TEX_SCALE;
 			img.setScale(scale);
 			regrown?.setScale(scale);
+			// The shadow is where the sprite meets the ground, so it tracks the size the
+			// sprite is actually drawing at — and the offset scales with it, because the
+			// sprite grows about its centre: a young plant left on a full-size offset
+			// stands a shadow's width below itself.
+			shadow?.setPosition(x, y + (tall ? 22 : 10) * size);
+			shadow?.setScale((tall ? 1.0 : 1.2) * size * INV_TEX_SCALE, 0.9 * size * INV_TEX_SCALE);
 		};
 		applyScale();
 		this.attachPlacementGlow(build);
@@ -4582,6 +4672,20 @@ export class WorldScene extends Phaser.Scene {
 					y,
 					label: t('game.label.sleep'),
 					action: () => this.sleepAt(x, y),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (WorldScene.SEATS[def.shape || '']) {
+			// Sitting is KEY-ONLY for the same reason sleeping is: a click on a piece
+			// of furniture almost always means move it or pick it up, and that menu
+			// is what a click should still get you.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.sit'),
+					action: () => this.sitOn(def.shape || '', x, y),
 				},
 				img,
 				{ keyOnly: true, collect: its },
@@ -5372,6 +5476,15 @@ export class WorldScene extends Phaser.Scene {
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
 			vx = joy.x;
 			vy = joy.y;
+		}
+		// Sitting ends the moment you ask to go somewhere, and the step you asked
+		// for happens on this same frame — so leaving a bench is just walking.
+		if (this.sitting) {
+			if (vx === 0 && vy === 0) {
+				this.setWalkAudio(false);
+				return;
+			}
+			this.standUp();
 		}
 		if (vx === 0 && vy === 0) {
 			this.setWalkAudio(false);

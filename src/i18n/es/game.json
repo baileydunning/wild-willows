@@ -20,6 +20,7 @@
 		"openCrafting": "Abrir fabricación (E)",
 		"readJournal": "Leer tu diario de campo",
 		"sleep": "Ir a dormir (renueva los puntos de recolección)",
+		"sit": "Sentarse un rato (E)",
 		"restMoment": "Descansar un momento",
 		"caretaker": "cuidador",
 		"dipWater": "Llenar desde el agua"
@@ -66,6 +67,7 @@
 		"cleared": "Despejado",
 		"tapTap": "toc toc",
 		"building": "Construyendo…",
+		"sit": "un minuto de calma",
 		"done": "¡Listo! ✨"
 	},
 	"prompt": {

@@ -21,7 +21,7 @@ import {
 	homeOf,
 	homeRoom,
 } from './home';
-import { STARTER_CHEST, patchPlayer, requirePlayer, slugId } from './player';
+import { STARTER_CHEST, isDevSave, patchPlayer, requirePlayer } from './player';
 import { readMetrics, round1, weatherTimeFromPlay } from './metrics';
 import {
 	ALPINE_MTN_ROWS,
@@ -947,27 +947,6 @@ export function metricsListRow(r: any) {
  * 'populate-biome' (build a fully-restored showcase biome for screenshots/video),
  * 'set-weather' (force weather/season for filming; value {type?,season?} or clear).
  */
-/**
- * The only save DevTools will act on, as a name slug.
- *
- * Restored as a REAL gate. A constant with this name existed here before and was
- * never referenced — the comment beside it said dev tools were restricted to one
- * save while the handler checked nothing, so every action below (including
- * `restart-game`, which deletes a save's entire world, and `populate-biome`,
- * which is ~250 writes in one request) was reachable by anyone who knew a player
- * id. CreatePlayer is public, so "knowing a player id" meant one POST, and
- * workers/play.js proxies DevTools straight from the public site.
- *
- * Matched on the slug of the save's NAME rather than its id, because ids carry a
- * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
- * because slugId normalizes the ways the name gets typed — `bailey_test`,
- * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
- * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
- * not qualify. Several saves can share the name, which is the intended way to
- * have more than one test world.
- */
-const DEV_PLAYER_SLUG = 'bailey-test';
-
 export class DevTools extends PublicEndpoint {
 	static rateTier = 'dev'; // developer tools
 	async post(data: any) {
@@ -975,10 +954,16 @@ export class DevTools extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
-		// The gate. Checked after requirePlayer so an unknown id still reads as 404
-		// rather than telling a caller which ids exist, and BEFORE the switch so no
-		// action can write anything on a save that isn't a test save.
-		if (slugId(String(player?.name || '')) !== DEV_PLAYER_SLUG)
+		// The gate (isDevSave / DEV_PLAYER_SLUG in server/player.ts). Checked after
+		// requirePlayer so an unknown id still reads as 404 rather than telling a
+		// caller which ids exist, and BEFORE the switch so no action can write
+		// anything on a save that isn't a test save.
+		//
+		// The refusal does not say what WOULD qualify. A player who never sees the
+		// panel (the client hides it unless `player.devTools` is set) should not be
+		// handed the name that opens it by the one message that can still reach
+		// them — a scripted caller included.
+		if (!isDevSave(player))
 			throw new GameError(tr('server.err.devToolsRestricted'), 403, 'server.err.devToolsRestricted');
 		const log: string[] = [];
 

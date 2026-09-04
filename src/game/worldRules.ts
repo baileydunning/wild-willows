@@ -246,7 +246,23 @@ export interface RoomRect {
 export interface PlaceableDef {
 	homeMin?: number;
 	placement?: string;
+	/** 'wall' hangs on the wall ring instead of standing on the floor. */
+	mount?: string;
 	bridge?: boolean;
+}
+
+/**
+ * True if (tx, ty) is a hangable wall tile: the back wall run or either side
+ * wall, corners and the door wall excluded.
+ *
+ * Mirrors isWallTile() in server/home.ts, which is the copy that counts — this
+ * one exists so the placement ghost turns green over a wall the server will
+ * accept and red over the corner it won't.
+ */
+export function isWallTile(room: { x0: number; y0: number; x1: number; y1: number }, tx: number, ty: number): boolean {
+	const backWall = ty === room.y0 - 1 && tx >= room.x0 && tx <= room.x1;
+	const sideWall = (tx === room.x0 - 1 || tx === room.x1 + 1) && ty >= room.y0 && ty <= room.y1;
+	return backWall || sideWall;
 }
 
 export interface PlaceContext {
@@ -272,11 +288,15 @@ export function canPlaceAt(
 	forTerraform = false,
 	ignoreId?: string,
 ): boolean {
-	// Indoors: you can only decorate on the floor (inside the walls).
+	// Indoors: floor items go on the floor, wall items go on the wall ring.
 	if (ctx.indoors) {
 		const r = ctx.room;
 		if (!r) return false;
-		if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
+		// A wall item hangs on the back run or a side wall; anything else stands on
+		// the floor inside them. Mirrors interiorSurfaceError() on the server.
+		if (ctx.activeObjectId && ctx.activeDef?.mount === 'wall') {
+			if (!isWallTile(r, tx, ty)) return false;
+		} else if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
 		const onTile = ctx.occupantIdAt(tx, ty);
 		if (onTile !== undefined && onTile !== ignoreId) return false;
 		// Items that need a bigger home can't be placed in a small one yet.

@@ -206,10 +206,20 @@ export function sanitizeAppearance(a: any) {
 	};
 }
 
-/** Never send secrets back to the client. */
+/**
+ * Never send secrets back to the client.
+ *
+ * Also the one place the client is told whether this save may use dev tools.
+ * The client needs to know so the hidden panel simply does not open on a save
+ * that cannot use it — a panel whose every button answers "not this save" is
+ * both useless and a signpost. A boolean is sent rather than the name behind it
+ * (see DEV_PLAYER_SLUG): what unlocks dev tools stays on the server, and the
+ * gate itself is enforced there regardless of what any client believes.
+ */
 export function sanitizePlayer(player: any) {
 	if (!player) return player;
 	const { passcode, passcodeHash, passcodeSalt, ...rest } = player;
+	rest.devTools = isDevSave(player);
 	// metrics/daily are persisted as JSON strings; the client and the offline solo
 	// backend expect them as objects, so decode them on the way out.
 	if (rest.metrics !== undefined) rest.metrics = readMetrics(player);
@@ -268,6 +278,32 @@ export function slugId(name: string): string {
 		.toLowerCase()
 		.replace(/[^a-z0-9]+/g, '-')
 		.replace(/^-+|-+$/g, '');
+}
+
+/**
+ * The only save DevTools will act on, as a name slug.
+ *
+ * A REAL gate: DevTools is a public endpoint (CreatePlayer hands out player ids
+ * to anyone, and workers/play.js proxies DevTools straight from the public
+ * site), so without this, `restart-game` — which deletes a save's entire world —
+ * is one POST away for anyone who knows an id.
+ *
+ * Matched on the slug of the save's NAME rather than its id, because ids carry a
+ * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
+ * because slugId normalizes the ways the name gets typed — `bailey_test`,
+ * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
+ * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
+ * not qualify. Several saves can share the name, which is the intended way to
+ * have more than one test world.
+ *
+ * It lives here, beside slugId, because both the DevTools handler and the player
+ * view the client is sent have to agree on it (see `devTools` in sanitizePlayer).
+ */
+const DEV_PLAYER_SLUG = 'bailey-test';
+
+/** True if this save is a test save, i.e. one DevTools will act on. */
+export function isDevSave(player: any): boolean {
+	return slugId(String(player?.name || '')) === DEV_PLAYER_SLUG;
 }
 
 // Starter base camp: tent + campfire scenery with a storage chest. Crafting

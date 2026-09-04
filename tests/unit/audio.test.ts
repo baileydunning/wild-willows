@@ -213,10 +213,32 @@ describe('audio — toast kind routing', () => {
 		expect(bySrc('cant.ogg')).toHaveLength(1);
 	});
 
-	it('stays silent for non-error kinds — the neutral toast has no asset', () => {
+	it('plays the reward chime for an achievement toast, trimmed to sit under the music', () => {
+		bridge.emit('audio-toast', { kind: 'achievement' });
+		const [el] = bySrc('Reward1.mp3');
+		expect(el).toBeDefined();
+		expect(el.loop).toBe(false);
+		expect(el.play).toHaveBeenCalledTimes(1);
+		// master 0.8 * sfx 0.75 * the manifest's own gain. Read rather than written
+		// down, for the same reason the fire's is: sfxGain exists to be tuned.
+		expect(el.volume).toBeCloseTo(0.6 * (MANIFEST.sfxGain.achievement as number), 5);
+		// and it is the reward, not the refusal
+		expect(bySrc('cant.ogg')).toHaveLength(0);
+	});
+
+	it('does not duck the music to make room for itself', () => {
+		// A badge lands often; the score should not breathe in and out around them.
+		audio.setMusicActive(true, 'meadowambient');
+		const [music] = bySrc('willowmeadow/meadowambient.mp3');
+		const before = music.volume;
+		bridge.emit('audio-toast', { kind: 'achievement' });
+		expect(music.volume).toBe(before);
+	});
+
+	it('stays silent for the remaining kinds — the neutral toast has no asset', () => {
 		bridge.emit('audio-toast', { kind: 'info' });
 		bridge.emit('audio-toast', { kind: 'animal' });
-		bridge.emit('audio-toast', { kind: 'achievement' });
+		bridge.emit('audio-toast', { kind: 'unlock' });
 		bridge.emit('audio-toast', {}); // no kind
 		// There is no sfx/toast file, so the neutral tick was removed rather than
 		// left pointing at a 404 on every toast. Restore both the asset and the
@@ -226,6 +248,7 @@ describe('audio — toast kind routing', () => {
 		// routing these through the error sound. Every info toast would then read
 		// as something going wrong, which is worse than no sound at all.
 		expect(bySrc('cant.ogg')).toHaveLength(0);
+		expect(bySrc('Reward1.mp3')).toHaveLength(0);
 	});
 });
 
@@ -661,6 +684,23 @@ describe('audio — one ceremony at a time', () => {
 		bySrc('BiomeUnlocked.mp3')[0].pause(); // the fanfare finishes
 		bridge.emit('audio-sfx', { id: 'animalReturn' });
 		expect(bySrc('AnimalReturn1.mp3')[0].play).toHaveBeenCalledTimes(1);
+	});
+
+	it('lets the biome unlock talk over an achievement chime, not the other way round', () => {
+		bind();
+		primeAndClear();
+		runFades();
+		bridge.emit('audio-toast', { kind: 'achievement' });
+		const [reward] = bySrc('Reward1.mp3');
+		expect(reward.play).toHaveBeenCalledTimes(1);
+
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' });
+		expect(bySrc('BiomeUnlocked.mp3')[0].play).toHaveBeenCalledTimes(1);
+		expect(reward.paused).toBe(true);
+
+		// and an achievement landing mid-fanfare is dropped rather than queued
+		bridge.emit('audio-toast', { kind: 'achievement' });
+		expect(reward.play).toHaveBeenCalledTimes(1);
 	});
 
 	it("still answers the player's own hands mid-ceremony", () => {

@@ -20,6 +20,7 @@
 		"openCrafting": "Open crafting (E)",
 		"readJournal": "Read your field journal",
 		"sleep": "Go to sleep (refresh gathering spots)",
+		"sit": "Sit for a while (E)",
 		"restMoment": "Rest a moment",
 		"caretaker": "caretaker",
 		"dipWater": "Fill from the water"
@@ -66,6 +67,7 @@
 		"cleared": "Cleared",
 		"tapTap": "tap tap",
 		"building": "Building…",
+		"sit": "a quiet minute",
 		"done": "Done! ✨"
 	},
 	"prompt": {

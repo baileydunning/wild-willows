@@ -206,6 +206,10 @@ export interface HabitatObjectDef {
 	/** Indoor items: minimum home size (Space track level) needed to place — a tent
 	 * fits the basics; a fireplace needs a proper house. */
 	homeMin?: number;
+	/** Where indoors this goes. Absent means the floor; 'wall' means it hangs on
+	 * the wall ring (back run or a side wall) and can go nowhere else — see
+	 * isWallTile() in game/worldRules.ts and server/home.ts. */
+	mount?: 'wall';
 	/** Whether this object can be rotated when placing/moving (paths, fences,
 	 * bridges, directional furniture). Computed server-side, sent in GameData. */
 	rotatable?: boolean;
@@ -431,6 +435,14 @@ export interface Player {
 	standing?: { rev: number; placed: Record<string, number>; planted: Record<string, number>; harvested: number };
 	/** Dev-only: when true, every recipe is craftable regardless of progress gates. */
 	devUnlockAll?: boolean;
+	/**
+	 * Whether this save may use the developer tools, decided by the server and
+	 * sent with the player (sanitizePlayer). Not stored on the save: it is a view
+	 * of the server's gate, so the client can keep the hidden panel shut on a save
+	 * that would only be refused. Never a permission in itself — the server checks
+	 * again on every DevTools call.
+	 */
+	devTools?: boolean;
 }
 
 export interface TerrainTile {

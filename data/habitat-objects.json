@@ -492,7 +492,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -512,7 +512,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -532,7 +532,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -552,7 +552,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -572,7 +572,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -592,7 +592,7 @@
         "alpine",
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -1060,7 +1060,7 @@
       "biomes": [
         "coastal"
       ],
-      "healthValue": 1,
+      "healthValue": 0,
       "needs": [
         "open"
       ],
@@ -2859,6 +2859,7 @@
       "id": "home-painting",
       "name": "Framed Landscape",
       "placement": "indoor",
+      "mount": "wall",
       "biomes": [],
       "healthValue": 0,
       "needs": [],
@@ -2947,6 +2948,7 @@
       "id": "home-wallclock",
       "name": "Wall Clock",
       "placement": "indoor",
+      "mount": "wall",
       "biomes": [],
       "healthValue": 0,
       "needs": [],
@@ -6413,7 +6415,7 @@
       ],
       "healthValue": 0,
       "needs": [],
-      "shape": "bench",
+      "shape": "overlookbench",
       "color": "#a3814f",
       "description": "A second bench, set at the far edge of the meadow facing back the way you came. Best an hour before dusk, when the grass goes gold and the bees are still up."
     },
@@ -6642,6 +6644,620 @@
       "shape": "arch",
       "color": "#8fa2a6",
       "description": "Two storm-cured trunks leaned into an arch above the high-tide line. Twice a day the water comes almost to the feet of it, and twice a day it does not."
+    },
+    {
+      "id": "home-pressedflowers",
+      "name": "Pressed Flower Frame",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "pressedflowers",
+      "color": "#d8a0b4",
+      "description": "Meadow flowers pressed flat behind glass, still holding their colour."
+    },
+    {
+      "id": "home-wallhanging",
+      "name": "Woven Wall Hanging",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "wallhanging",
+      "color": "#c98a6a",
+      "description": "A long woven hanging in meadow colours, warm against a bare wall."
+    },
+    {
+      "id": "home-strawwreath",
+      "name": "Straw Wreath",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "strawwreath",
+      "color": "#d9bc72",
+      "description": "A ring of braided straw and seed heads for the wall by the door."
+    },
+    {
+      "id": "home-rockingchair",
+      "name": "Rocking Chair",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "rockingchair",
+      "color": "#8a6a48",
+      "description": "A slat-backed rocker that creaks in exactly the right way.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-divider",
+      "name": "Willow Room Divider",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "roomdivider",
+      "color": "#a8895a",
+      "description": "A folding screen of woven willow — a quiet corner wherever you stand it.",
+      "homeMin": 3
+    },
+    {
+      "id": "home-mosswall",
+      "name": "Moss Wall Garden",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "mosswall",
+      "color": "#5c8a45",
+      "description": "A framed panel of living moss and lichen. It smells like the forest floor."
+    },
+    {
+      "id": "home-barkrelief",
+      "name": "Carved Bark Relief",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "barkrelief",
+      "color": "#7a5a3a",
+      "description": "A slab of fallen bark carved with the shapes of the woods."
+    },
+    {
+      "id": "home-wallfern",
+      "name": "Wall Fern Bracket",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "wallfern",
+      "color": "#4f7d3a",
+      "description": "A fern on a forged bracket, greening a bare stretch of wall."
+    },
+    {
+      "id": "home-logtable",
+      "name": "Log Side Table",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "logtable",
+      "color": "#6e4a33",
+      "description": "A cross-cut log on three legs — every ring of it still countable.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-toadstool",
+      "name": "Toadstool Stool",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "toadstool",
+      "color": "#c05a4a",
+      "description": "A round red-capped seat, low to the floor and faintly ridiculous."
+    },
+    {
+      "id": "home-reedscreen",
+      "name": "Reed Wall Screen",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "reedscreen",
+      "color": "#b9a06a",
+      "description": "Marsh reeds bound side by side into a panel that softens the room."
+    },
+    {
+      "id": "home-dragonflies",
+      "name": "Dragonfly Wall Flight",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "dragonflies",
+      "color": "#6fb0c4",
+      "description": "Three reed-and-glass dragonflies mounted mid-flight across the wall."
+    },
+    {
+      "id": "home-cattailbundle",
+      "name": "Cattail Bundle",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cattailbundle",
+      "color": "#8a6a48",
+      "description": "A bundle of cattails hung head-down to dry, the way they always are."
+    },
+    {
+      "id": "home-terrarium",
+      "name": "Marsh Terrarium",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "marshterrarium",
+      "color": "#7fae6a",
+      "description": "A glass bowl of marsh plants that keeps its own weather.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-reedlantern",
+      "name": "Reed Floor Lantern",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "reedlantern",
+      "color": "#e3c75f",
+      "description": "A tall lantern shaded in woven reed. It throws a soft basket of light."
+    },
+    {
+      "id": "home-sundisk",
+      "name": "Sandstone Sun Disk",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sundisk",
+      "color": "#d0894a",
+      "description": "A carved sandstone disk with a sunburst rim, warm to the touch."
+    },
+    {
+      "id": "home-agavefan",
+      "name": "Woven Agave Fan",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "agavefan",
+      "color": "#9fae72",
+      "description": "A broad fan of split agave fibre, pinned open against the wall."
+    },
+    {
+      "id": "home-geodeslice",
+      "name": "Geode Wall Slice",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "geodeslice",
+      "color": "#9a7fc0",
+      "description": "A geode cut clean through and mounted, crystals out."
+    },
+    {
+      "id": "home-clayurn",
+      "name": "Clay Water Urn",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "clayurn",
+      "color": "#b0653a",
+      "description": "A tall red urn that keeps water cool through the worst of the afternoon.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-windowstar",
+      "name": "Snowflake Window Star",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "windowstar",
+      "color": "#cfe6f2",
+      "description": "A six-pointed star of split quartz that catches the low winter sun."
+    },
+    {
+      "id": "home-lichenwreath",
+      "name": "Lichen Wreath",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lichenwreath",
+      "color": "#8fa88a",
+      "description": "A wreath of pale ridge lichen on a bent juniper frame."
+    },
+    {
+      "id": "home-summitmap",
+      "name": "Framed Summit Map",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "summitmap",
+      "color": "#c3a878",
+      "description": "A hand-drawn map of the ridgeline, every summit named in your own writing."
+    },
+    {
+      "id": "home-firewoodrack",
+      "name": "Firewood Rack",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "firewoodrack",
+      "color": "#7a5a3a",
+      "description": "A stacked rack of split wood, seasoning where it is warm and dry.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-shellgarland",
+      "name": "Shell Garland",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "shellgarland",
+      "color": "#e6d3c0",
+      "description": "A strung line of beach shells that clicks softly in a draught."
+    },
+    {
+      "id": "home-driftmirror",
+      "name": "Driftwood Mirror",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "driftmirror",
+      "color": "#b6a68c",
+      "description": "A round mirror framed in silvered driftwood and sea glass."
+    },
+    {
+      "id": "home-netdrape",
+      "name": "Knotted Net Drape",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "netdrape",
+      "color": "#a8b49a",
+      "description": "A length of hand-knotted net, hung loose with a few shells still caught in it."
+    },
+    {
+      "id": "home-driftbench",
+      "name": "Driftwood Bench",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "driftbench",
+      "color": "#a89880",
+      "description": "A bench built from what the tide left, sanded smooth by the sea already.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-tideglass",
+      "name": "Tide-Glass Lantern",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "tideglass",
+      "color": "#7fb4d8",
+      "description": "Sea glass set into a lantern; the light comes out the colour of shallow water."
+    },
+    {
+      "id": "home-paperbutterflies",
+      "name": "Paper Butterfly Swarm",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "paperbutterflies",
+      "color": "#e8b0c8",
+      "description": "Cut-paper butterflies climbing one wall in a loose, delighted spiral."
+    },
+    {
+      "id": "home-findsboard",
+      "name": "Board of Finds",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "findsboard",
+      "color": "#b98f5a",
+      "description": "A pin board of feathers, seed pods and notes to yourself. It fills up fast."
+    },
+    {
+      "id": "home-mousedoor",
+      "name": "Tiny Mouse Door",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "mousedoor",
+      "color": "#8a5a3a",
+      "description": "A little arched door at the foot of the wall. Nobody lives there. Probably."
+    },
+    {
+      "id": "home-glowjar",
+      "name": "Glow-Jar Lantern",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "glowjar",
+      "color": "#a8d878",
+      "description": "A jar of glowing moss on a little stand — the softest light in the house."
+    },
+    {
+      "id": "home-antlerrack",
+      "name": "Shed Antler Hat Rack",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "antlerrack",
+      "color": "#c3a878",
+      "description": "A shed antler on a board. Four points, four hats, no questions."
+    },
+    {
+      "id": "home-birdflock",
+      "name": "Carved Bird Flock",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "birdflock",
+      "color": "#7a5a3a",
+      "description": "Five wooden birds fixed to the wall mid-flight, climbing toward the corner."
+    },
+    {
+      "id": "home-mushroomlamp",
+      "name": "Mushroom Lamp",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "mushroomlamp",
+      "color": "#e8a86a",
+      "description": "One enormous cap on a pale stem, lit from underneath. Entirely impractical."
+    },
+    {
+      "id": "home-mosspouf",
+      "name": "Moss Pouf",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "mosspouf",
+      "color": "#5c8a45",
+      "description": "A round, squashy floor seat stuffed with dried moss. It sighs when you sit.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-frogplaques",
+      "name": "Frog Chorus Plaques",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "frogplaques",
+      "color": "#6da84e",
+      "description": "Three clay frogs on the wall, all mid-song, none of them in tune."
+    },
+    {
+      "id": "home-heronprint",
+      "name": "Heron Print",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "heronprint",
+      "color": "#8fa8b8",
+      "description": "A heron inked onto reed paper, standing in the same patient inch of water."
+    },
+    {
+      "id": "home-pebblefountain",
+      "name": "Pebble Fountain",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "pebblefountain",
+      "color": "#7fb4d8",
+      "description": "Water slipping over stacked pebbles, indoors, forever. Deeply unnecessary.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-lilystool",
+      "name": "Lily Pad Stool",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lilystool",
+      "color": "#6da84e",
+      "description": "A round green seat with one notch cut out of it, exactly like the real thing."
+    },
+    {
+      "id": "home-fossilplaque",
+      "name": "Fossil Plaque",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "fossilplaque",
+      "color": "#b8a888",
+      "description": "A coiled shell split out of the rock, older than the canyon it came from."
+    },
+    {
+      "id": "home-cactusribs",
+      "name": "Cactus Rib Sculpture",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cactusribs",
+      "color": "#c8a878",
+      "description": "The woody skeleton of a saguaro, standing out from the wall like a harp."
+    },
+    {
+      "id": "home-sandgarden",
+      "name": "Raked Sand Garden",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sandgarden",
+      "color": "#e0c08a",
+      "description": "A shallow tray of red sand and three stones. Raking it is the whole point.",
+      "homeMin": 2
+    },
+    {
+      "id": "home-sunstonebowl",
+      "name": "Sunstone Glow Bowl",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "sunstonebowl",
+      "color": "#f0a84a",
+      "description": "A clay bowl of sunstone chips that gives back the afternoon long after dark."
+    },
+    {
+      "id": "home-snowshoes",
+      "name": "Crossed Snowshoes",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "snowshoes",
+      "color": "#c3a878",
+      "description": "A worn pair crossed on the wall, still with last winter on them."
+    },
+    {
+      "id": "home-starchart",
+      "name": "Star Chart",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "starchart",
+      "color": "#3f4a6a",
+      "description": "The constellations over the ridge, drawn on dark cloth with quartz for stars."
+    },
+    {
+      "id": "home-snowglobe",
+      "name": "Snow Globe",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "snowglobe",
+      "color": "#cfe6f2",
+      "description": "The whole ridge under glass, and a blizzard whenever you want one."
+    },
+    {
+      "id": "home-cocoastand",
+      "name": "Cocoa Warmer",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "cocoastand",
+      "color": "#a8653a",
+      "description": "A little pot on a stand that is somehow always warm. Nobody asks how."
+    },
+    {
+      "id": "home-bottlerack",
+      "name": "Message Bottle Rack",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "bottlerack",
+      "color": "#7fb4a0",
+      "description": "A rack of corked bottles, each with a note in it you have not sent yet."
+    },
+    {
+      "id": "home-kelppress",
+      "name": "Pressed Kelp Frame",
+      "placement": "indoor",
+      "mount": "wall",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "kelppress",
+      "color": "#6a8a5a",
+      "description": "A frond of kelp pressed and framed like a botanical plate, ruffles and all."
+    },
+    {
+      "id": "home-modelboat",
+      "name": "Model Boat",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "modelboat",
+      "color": "#c3b49a",
+      "description": "A small boat on a stand, rigged with real thread. It has never been wet."
+    },
+    {
+      "id": "home-lighthouselamp",
+      "name": "Lighthouse Lamp",
+      "placement": "indoor",
+      "biomes": [],
+      "healthValue": 0,
+      "needs": [],
+      "shape": "lighthouselamp",
+      "color": "#e8544a",
+      "description": "A knee-high lighthouse whose beam goes slowly round the room all night.",
+      "homeMin": 2
     }
   ]
 }

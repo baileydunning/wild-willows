@@ -44,8 +44,9 @@ async function skipTutorial(page: Page) {
 /** The caretaker name DevTools accepts.
  *
  *  The endpoint is gated to `bailey_test` saves (DEV_PLAYER_SLUG in
- *  server/resources.ts), so any test that reaches late-game state through the
- *  dev panel has to be one. Named rather than bypassed, so these exercise the
+ *  server/player.ts), so any test that reaches late-game state through the
+ *  dev panel has to be one — and the panel itself no longer opens on a save the
+ *  server would refuse, so this name is what makes the shortcut work at all. Named rather than bypassed, so these exercise the
  *  rule that ships. Tests that do not touch the dev panel keep their descriptive
  *  names — those names are part of what they assert. */
 const DEV_SAVE = 'bailey_test';

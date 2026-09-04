@@ -761,6 +761,11 @@ function duckMusicFor(holdMs = DUCK_HOLD_MS, target = DUCK_TARGET) {
  * An area unlocking is the game's biggest moment: deep dip, long hold. An animal
  * returning is a smaller one that can arrive in bursts, so it dips less and for
  * about as long as its own cue takes to say what it came to say.
+ *
+ * The achievement chime is deliberately NOT in here. A badge lands often enough
+ * that dipping the music for each one would leave the score breathing in and out
+ * all session; it is trimmed to sit under the music instead (sfxGain in
+ * data/audio.json) and plays over it without moving anything.
  */
 const SFX_DUCK: Partial<Record<SfxId, { hold: number; target: number }>> = {
 	areaUnlocked: { hold: DUCK_HOLD_MS, target: DUCK_TARGET },
@@ -799,8 +804,9 @@ const lastSfxAt = new Map<SfxId, number>();
  * that might not answer is worse than feedback that overlaps.
  */
 const CUE_PRIORITY: Partial<Record<SfxId, number>> = {
-	areaUnlocked: 4, // a whole biome opening — the largest thing that happens
-	animalReturn: 3, // a species home again
+	areaUnlocked: 5, // a whole biome opening — the largest thing that happens
+	animalReturn: 4, // a species home again
+	achievement: 3, // a badge earned — news about the player rather than the preserve
 	upgrade: 2, // the player's own hands, but a milestone rather than a click
 	sunriseBirds: 1, // atmosphere; it yields to anything with news
 };
@@ -990,15 +996,18 @@ export function bindGameAudio(): () => void {
 		setHummingActive(!!payload?.active);
 	});
 	const offToast = bridge.on('audio-toast', (payload: any) => {
-		// error toasts = a blocked/invalid action ("can't"); everything else
-		// (info, unlock, achievement, animal) uses the neutral toast tick.
+		// error toasts = a blocked/invalid action ("can't"); an achievement toast is
+		// a badge landing, and gets its own reward chime through the cue channel so
+		// it can't pile on top of a bigger ceremony.
 		const kind = String(payload?.kind || '');
 		if (kind === 'error') playSfx('cant');
-		// The neutral toast tick has no asset yet (there is no sfx/toast file), so
-		// non-error toasts are deliberately silent. Every other sfx id reaches
-		// playSfx through the `id in AUDIO_ASSETS.sfx` guard below and no-ops on its
-		// own when an asset is missing; this call site is hard-coded, so it has to
-		// be removed by hand. Restore both together if a toast sound ever lands.
+		else if (kind === 'achievement') playSfx('achievement');
+		// The remaining kinds (info, unlock, animal) share a neutral toast tick that
+		// has no asset yet (there is no sfx/toast file), so they are deliberately
+		// silent. Every other sfx id reaches playSfx through the
+		// `id in AUDIO_ASSETS.sfx` guard below and no-ops on its own when an asset is
+		// missing; these call sites are hard-coded, so a neutral tick has to be wired
+		// here by hand alongside its file if one ever lands.
 	});
 	const offRain = bridge.on('audio-rain', (payload: any) => {
 		setRainActive(!!payload?.active);

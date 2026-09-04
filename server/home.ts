@@ -191,6 +191,58 @@ export function doorTileOf(room: { x0: number; y0: number; x1: number; y1: numbe
 	return { x: Math.round((room.x0 + room.x1) / 2), y: room.y1 };
 }
 
+// ------------------------------------------------------------ hanging space
+// Some decor belongs on a wall and nowhere else — a framed landscape standing on
+// the floorboards looked like something you had forgotten to hang. So an object
+// def may carry `mount: 'wall'`, and those items place onto the WALL RING rather
+// than the floor: the back wall run and the two side walls.
+//
+// Three parts of the ring are deliberately not hangable. The four CORNERS, which
+// are one tile belonging to two runs and read as neither. The BOTTOM wall, which
+// carries the door and sits between the camera and the room — anything hung
+// there is behind the caretaker's own back. What is left is a run the player is
+// always looking at.
+//
+// The client mirrors this in isWallTile()/canPlaceAt (src/game/worldRules.ts) so
+// the placement ghost reads correctly, but this is the copy that counts.
+
+/** True if this object def hangs on a wall rather than standing on the floor. */
+export const isWallMounted = (def: any): boolean => def?.mount === 'wall';
+
+/** True if (tx, ty) is a hangable wall tile of `room` — back or side run, no corners. */
+export function isWallTile(room: { x0: number; y0: number; x1: number; y1: number }, tx: number, ty: number): boolean {
+	const backWall = ty === room.y0 - 1 && tx >= room.x0 && tx <= room.x1;
+	const sideWall = (tx === room.x0 - 1 || tx === room.x1 + 1) && ty >= room.y0 && ty <= room.y1;
+	return backWall || sideWall;
+}
+
+/** Every hangable wall tile of `room`, back run first then the two sides. */
+export function wallTilesOf(room: { x0: number; y0: number; x1: number; y1: number }): { x: number; y: number }[] {
+	const out: { x: number; y: number }[] = [];
+	for (let x = room.x0; x <= room.x1; x++) out.push({ x, y: room.y0 - 1 });
+	for (let y = room.y0; y <= room.y1; y++) {
+		out.push({ x: room.x0 - 1, y });
+		out.push({ x: room.x1 + 1, y });
+	}
+	return out;
+}
+
+/**
+ * The surface an object needs in an interior, checked against the tile it is
+ * being put on. Returns null when the tile is right, or the error code to refuse
+ * with — one place, so PlaceObject and MoveObject cannot drift apart.
+ */
+export function interiorSurfaceError(
+	def: any,
+	room: { x0: number; y0: number; x1: number; y1: number },
+	tx: number,
+	ty: number,
+): 'server.err.hangOnWall' | 'server.err.placeOnFloor' | null {
+	if (isWallMounted(def)) return isWallTile(room, tx, ty) ? null : 'server.err.hangOnWall';
+	const onFloor = tx >= room.x0 && tx <= room.x1 && ty >= room.y0 && ty <= room.y1;
+	return onFloor ? null : 'server.err.placeOnFloor';
+}
+
 /**
  * True if a bed at (tx, ty) would sit on, or in the ring immediately around, the
  * doorway. Chebyshev distance ≤ 1, so the door tile and its eight neighbors are

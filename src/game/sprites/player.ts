@@ -23,6 +23,10 @@ export function makePlayerTexture(
 				body?: string;
 		  }
 		| undefined,
+	/** 'sit' is the same caretaker with their legs folded onto a seat — head,
+	 *  hair, hat and face are drawn identically, so every appearance keeps
+	 *  working without a second copy of any of it. */
+	pose: 'stand' | 'sit' = 'stand',
 ): string {
 	const a = {
 		skin: appearance?.skin || '#eec39a',
@@ -35,10 +39,9 @@ export function makePlayerTexture(
 		body: appearance?.body || 'slim',
 	};
 	const key =
-		`player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}`.replace(
-			/#/g,
-			'',
-		);
+		`player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}${
+			pose === 'sit' ? '-sit' : ''
+		}`.replace(/#/g, '');
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin),
 			hair = C(a.hair),
@@ -102,11 +105,27 @@ export function makePlayerTexture(
 				.fillRoundedRect(21.6, 13, 2.2, 10, 1.1)
 				.fillRoundedRect(24.2, 11.5, 2.2, 12, 1.1);
 		}
-		// body
-		g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
-		g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
-		// boots
-		g.fillStyle(C('#5d4a36'), 1).fillEllipse(12, 33, 6, 4).fillEllipse(20, 33, 6, 4);
+		if (pose === 'sit') {
+			// Seated: the torso settles a little, the legs fold forward into a lap
+			// wider than the body, the hands come to rest on it and the boots hang
+			// below. Everything above the shoulders is drawn exactly as it is when
+			// standing, so hats, hair and faces need no seated versions of their own.
+			g.fillStyle(outfit, 1).fillRoundedRect(16 - bw / 2 - 1, 25.5, bw + 2, 7.5, 3.6); // lap
+			g.fillStyle(outfit, 1).fillEllipse(16, 23, bw, 13); // torso
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 20.6, bw - 6, 6);
+			g.fillStyle(0xffffff, 0.09).fillEllipse(16, 27, bw - 3, 3.2); // light across the knees
+			g.fillStyle(0x000000, 0.12).fillRect(15.4, 26.4, 1.2, 6); // the groove between the knees
+			g.fillStyle(skin, 1)
+				.fillCircle(16 - bw / 2 + 2.4, 28, 2.2)
+				.fillCircle(16 + bw / 2 - 2.4, 28, 2.2); // hands on the lap
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(13, 34.4, 5.6, 3.6).fillEllipse(19, 34.4, 5.6, 3.6); // boots, hanging
+		} else {
+			// body
+			g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
+			// boots
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(12, 33, 6, 4).fillEllipse(20, 33, 6, 4);
+		}
 		// head
 		g.fillStyle(skin, 1).fillCircle(16, 12, 8.4);
 		// hairstyle fringe / volume

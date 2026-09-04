@@ -3585,6 +3585,118 @@
 			"tidewatchers-arch": {
 				"description": "Dos troncos curtidos por el temporal apoyados en arco sobre la línea de pleamar. Dos veces al día el agua le llega casi a los pies, y dos veces al día no.",
 				"name": "Arco del Vigía de Mareas"
+			},
+			"home-pressedflowers": {
+				"description": "Flores del prado prensadas tras el cristal, aún con su color.",
+				"name": "Marco de Flores Prensadas"
+			},
+			"home-wallhanging": {
+				"description": "Un tapiz largo con los colores del prado, cálido contra una pared desnuda.",
+				"name": "Tapiz Tejido"
+			},
+			"home-strawwreath": {
+				"description": "Un aro de paja trenzada y espigas para la pared junto a la puerta.",
+				"name": "Corona de Paja"
+			},
+			"home-rockingchair": {
+				"description": "Una mecedora de respaldo de listones que cruje exactamente como debe.",
+				"name": "Mecedora"
+			},
+			"home-divider": {
+				"description": "Un biombo plegable de mimbre tejido: un rincón tranquilo dondequiera que lo pongas.",
+				"name": "Biombo de Mimbre"
+			},
+			"home-mosswall": {
+				"description": "Un panel enmarcado de musgo y liquen vivos. Huele al suelo del bosque.",
+				"name": "Jardín de Musgo Mural"
+			},
+			"home-barkrelief": {
+				"description": "Una placa de corteza caída tallada con las formas del bosque.",
+				"name": "Relieve de Corteza"
+			},
+			"home-hangingfern": {
+				"description": "Un helecho desbordando una cesta colgante, verde en un rincón vacío.",
+				"name": "Cesta Colgante de Helecho"
+			},
+			"home-logtable": {
+				"description": "Un tronco cortado a lo ancho sobre tres patas, con todos sus anillos aún contables.",
+				"name": "Mesa de Tronco"
+			},
+			"home-toadstool": {
+				"description": "Un asiento redondo de sombrero rojo, bajo y levemente ridículo.",
+				"name": "Taburete Seta"
+			},
+			"home-reedscreen": {
+				"description": "Juncos de la marisma atados uno junto a otro en un panel que suaviza la habitación.",
+				"name": "Panel de Juncos"
+			},
+			"home-dragonflymobile": {
+				"description": "Libélulas de junco y vidrio que giran despacio cada vez que se abre la puerta.",
+				"name": "Móvil de Libélulas"
+			},
+			"home-cattailbundle": {
+				"description": "Un manojo de eneas colgado cabeza abajo para secarse, como siempre se hace.",
+				"name": "Manojo de Eneas"
+			},
+			"home-terrarium": {
+				"description": "Un cuenco de cristal con plantas de marisma que mantiene su propio clima.",
+				"name": "Terrario de Marisma"
+			},
+			"home-reedlantern": {
+				"description": "Un farol alto con pantalla de junco tejido. Lanza una cesta de luz suave.",
+				"name": "Farol de Junco"
+			},
+			"home-sundisk": {
+				"description": "Un disco de arenisca tallado con borde de rayos, cálido al tacto.",
+				"name": "Disco Solar de Arenisca"
+			},
+			"home-agavefan": {
+				"description": "Un abanico ancho de fibra de agave, abierto y sujeto a la pared.",
+				"name": "Abanico de Agave"
+			},
+			"home-geodeslice": {
+				"description": "Una geoda cortada limpiamente y montada, con los cristales hacia fuera.",
+				"name": "Geoda Mural"
+			},
+			"home-clayurn": {
+				"description": "Una tinaja roja y alta que mantiene el agua fresca en lo peor de la tarde.",
+				"name": "Tinaja de Barro"
+			},
+			"home-windowstar": {
+				"description": "Una estrella de seis puntas de cuarzo partido que atrapa el sol bajo del invierno.",
+				"name": "Estrella de Ventana"
+			},
+			"home-lichenwreath": {
+				"description": "Una corona de liquen pálido de la cresta sobre un armazón de enebro.",
+				"name": "Corona de Liquen"
+			},
+			"home-summitmap": {
+				"description": "Un mapa dibujado a mano de la cresta, con cada cumbre nombrada de tu puño y letra.",
+				"name": "Mapa de Cumbres Enmarcado"
+			},
+			"home-firewoodrack": {
+				"description": "Un leñero de madera partida, curándose donde hace calor y está seco.",
+				"name": "Leñero"
+			},
+			"home-shellgarland": {
+				"description": "Una hilera de conchas de playa que repiquetea con la corriente de aire.",
+				"name": "Guirnalda de Conchas"
+			},
+			"home-driftmirror": {
+				"description": "Un espejo redondo enmarcado en madera de deriva plateada y vidrio marino.",
+				"name": "Espejo de Madera de Deriva"
+			},
+			"home-netdrape": {
+				"description": "Un trozo de red anudada a mano, colgado suelto y aún con alguna concha enredada.",
+				"name": "Red Anudada"
+			},
+			"home-driftbench": {
+				"description": "Un banco hecho con lo que dejó la marea, ya lijado por el mar.",
+				"name": "Banco de Madera de Deriva"
+			},
+			"home-tideglass": {
+				"description": "Vidrio marino engastado en un farol; la luz sale del color del agua poco profunda.",
+				"name": "Farol de Vidrio Marino"
 			}
 		},
 		"recipe": {
@@ -4589,6 +4701,90 @@
 			},
 			"tidewatchers-arch": {
 				"name": "Arco del Vigía de Mareas"
+			},
+			"home-pressedflowers": {
+				"name": "Marco de Flores Prensadas"
+			},
+			"home-wallhanging": {
+				"name": "Tapiz Tejido"
+			},
+			"home-strawwreath": {
+				"name": "Corona de Paja"
+			},
+			"home-rockingchair": {
+				"name": "Mecedora"
+			},
+			"home-divider": {
+				"name": "Biombo de Mimbre"
+			},
+			"home-mosswall": {
+				"name": "Jardín de Musgo Mural"
+			},
+			"home-barkrelief": {
+				"name": "Relieve de Corteza"
+			},
+			"home-hangingfern": {
+				"name": "Cesta Colgante de Helecho"
+			},
+			"home-logtable": {
+				"name": "Mesa de Tronco"
+			},
+			"home-toadstool": {
+				"name": "Taburete Seta"
+			},
+			"home-reedscreen": {
+				"name": "Panel de Juncos"
+			},
+			"home-dragonflymobile": {
+				"name": "Móvil de Libélulas"
+			},
+			"home-cattailbundle": {
+				"name": "Manojo de Eneas"
+			},
+			"home-terrarium": {
+				"name": "Terrario de Marisma"
+			},
+			"home-reedlantern": {
+				"name": "Farol de Junco"
+			},
+			"home-sundisk": {
+				"name": "Disco Solar de Arenisca"
+			},
+			"home-agavefan": {
+				"name": "Abanico de Agave"
+			},
+			"home-geodeslice": {
+				"name": "Geoda Mural"
+			},
+			"home-clayurn": {
+				"name": "Tinaja de Barro"
+			},
+			"home-windowstar": {
+				"name": "Estrella de Ventana"
+			},
+			"home-lichenwreath": {
+				"name": "Corona de Liquen"
+			},
+			"home-summitmap": {
+				"name": "Mapa de Cumbres Enmarcado"
+			},
+			"home-firewoodrack": {
+				"name": "Leñero"
+			},
+			"home-shellgarland": {
+				"name": "Guirnalda de Conchas"
+			},
+			"home-driftmirror": {
+				"name": "Espejo de Madera de Deriva"
+			},
+			"home-netdrape": {
+				"name": "Red Anudada"
+			},
+			"home-driftbench": {
+				"name": "Banco de Madera de Deriva"
+			},
+			"home-tideglass": {
+				"name": "Farol de Vidrio Marino"
 			}
 		},
 		"resource": {

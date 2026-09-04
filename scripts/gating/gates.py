@@ -212,8 +212,72 @@ OVERRIDES = {
     'shrub':                       {'minHealth': 34},
     'tree-stump':                  {'minHealth': 16},
     # a housewarming present to yourself — the first thing the meadow offers once
-    # you stop living in the tent
-    'happy-buddha': {'homeBuilt': True},
+    # you stop living in the tent (the bare homeBuilt gate below belongs to the
+    # bed now, so this one carries a health floor to stay distinct)
+    'happy-buddha': {'homeBuilt': True, 'minHealth': 33},
+    # The bed is the housewarming: a house you cannot sleep in is a room, and
+    # waiting on the barn owl for it meant most of a meadow went by first.
+    'home-bed': {'homeBuilt': True},
+    # Camp comforts: hand-authored so the decor set stays spread across the six
+    # areas rather than clumping wherever the quota happened to have room. Every
+    # one is reachable from its own area's recovery alone — nothing here waits on
+    # a tool tier or the food web, because decorating is what you do BETWEEN the
+    # jobs that need those.
+    'home-pressedflowers':  {'minHealth': 33, 'requiresCrafted': 'flower-vase'},
+    'home-wallhanging':     {'minHealth': 30},
+    'home-strawwreath':     {'minHealth': 21},
+    'home-rockingchair':    {'minHealth': 58},
+    'home-divider':         {'requiresHome': {'track': 'space', 'level': 3}},
+    'home-mosswall':        {'minHealth': 22},
+    'home-barkrelief':      {'minHealth': 34},
+    'home-wallfern':         {'minHealth': 28},
+    'home-logtable':        {'minHealth': 19},
+    'home-toadstool':       {'minHealth': 26},
+    'home-reedscreen':      {'minHealth': 17},
+    'home-dragonflies':      {'minHealth': 26},
+    'home-cattailbundle':   {'minHealth': 21},
+    'home-terrarium':       {'minHealth': 33},
+    'home-reedlantern':     {'minHealth': 31},
+    'home-sundisk':         {'minHealth': 24},
+    'home-agavefan':        {'minHealth': 31},
+    'home-geodeslice':      {'minHealth': 38},
+    'home-clayurn':         {'minHealth': 27},
+    'home-windowstar':      {'minHealth': 24},
+    'home-lichenwreath':    {'minHealth': 17},
+    'home-summitmap':       {'minHealth': 35},
+    'home-firewoodrack':    {'minHealth': 27},
+    'home-shellgarland':    {'minHealth': 15},
+    'home-driftmirror':     {'minHealth': 29},
+    'home-netdrape':        {'minHealth': 24},
+    'home-driftbench':      {'minHealth': 34},
+    'home-tideglass':       {'minHealth': 41},
+    # The fun half of the set — the pieces that are there because a house should
+    # have things in it you smile at, not because they are tasteful. Same rule as
+    # above: each one is reachable from its own area's recovery alone.
+    'home-paperbutterflies': {'minHealth': 20},
+    'home-findsboard':       {'minHealth': 26},
+    'home-mousedoor':        {'minHealth': 23},
+    'home-glowjar':          {'minHealth': 44},
+    'home-antlerrack':       {'minHealth': 33},
+    'home-birdflock':        {'minHealth': 24},
+    'home-mushroomlamp':     {'minHealth': 21},
+    'home-mosspouf':         {'minHealth': 37},
+    'home-frogplaques':      {'minHealth': 19},
+    'home-heronprint':       {'minHealth': 28},
+    'home-pebblefountain':   {'minHealth': 36},
+    'home-lilystool':        {'minHealth': 25},
+    'home-fossilplaque':     {'minHealth': 21},
+    'home-cactusribs':       {'minHealth': 30},
+    'home-sandgarden':       {'minHealth': 34},
+    'home-sunstonebowl':     {'minHealth': 44},
+    'home-snowshoes':        {'minHealth': 21},
+    'home-starchart':        {'minHealth': 30},
+    'home-snowglobe':        {'minHealth': 40},
+    'home-cocoastand':       {'minHealth': 25},
+    'home-bottlerack':       {'minHealth': 19},
+    'home-kelppress':        {'minHealth': 27},
+    'home-modelboat':        {'minHealth': 32},
+    'home-lighthouselamp':   {'minHealth': 38},
 }
 
 def article(name):

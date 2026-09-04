@@ -514,7 +514,18 @@ export function maturedBetween(def: any, p: any, a: number, b: number): boolean 
 // never does the real work of restoring the land — it just rewards patience.
 const MATURE_POINTS_CAP = 8;
 
-/** Raw restoration points from everything placed/shaped in a biome. */
+/**
+ * Raw restoration points from everything placed/shaped in a biome.
+ *
+ * A thing is worth points because it is HABITAT — something an animal can live
+ * in, eat from, drink at or shelter under. Everything the caretaker builds for
+ * their own sake is worth zero: benches, lanterns, gazebos, signposts… and
+ * paths and bridges, which exist so boots stay off the new growth rather than
+ * to grow anything. A trail across a bare meadow is not restoration, and a
+ * biome should not be able to walk itself back to health on stepping stones.
+ * (The wetland boardwalks are the exception that proves it: they keep feet out
+ * of the marsh itself, which is why they still carry points.)
+ */
 function computeHealthPoints(d: any, placements: any[], openWaterTiles = 0, now = Date.now()): number {
 	let points = 0;
 	let maturePoints = 0;

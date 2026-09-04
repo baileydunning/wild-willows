@@ -39,11 +39,11 @@ import {
 	SHOVEL_SALVAGE_TIER,
 	SHOVEL_SURVEY_TIER,
 	brushSizesFor,
-	SLEEPABLE_OBJECTS,
 	blocksDoorway,
 	homeOf,
 	homePerk,
 	homeRoom,
+	interiorSurfaceError,
 	tentBiomeOf,
 	tentRoom,
 } from './home';
@@ -1639,8 +1639,9 @@ export class PlaceObject extends PublicEndpoint {
 					throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403, 'server.err.needsBiggerHome');
 				}
 				const r = homeRoom(player);
-				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1)
-					throw new GameError(tr('server.err.placeOnFloor'), 400, 'server.err.placeOnFloor');
+				// floor items want the floor, wall items want the wall ring
+				const wrongSurface = interiorSurfaceError(def, r, tx, ty);
+				if (wrongSurface) throw new GameError(tr(wrongSurface, { name: def.name }), 400, wrongSurface);
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else if (tentBiome) {
@@ -1655,8 +1656,8 @@ export class PlaceObject extends PublicEndpoint {
 				if (def.homeMin && def.homeMin > 1)
 					throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403, 'server.err.tentTooSmall');
 				const r = tentRoom();
-				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1)
-					throw new GameError(tr('server.err.placeOnFloor'), 400, 'server.err.placeOnFloor');
+				const wrongSurface = interiorSurfaceError(def, r, tx, ty);
+				if (wrongSurface) throw new GameError(tr(wrongSurface, { name: def.name }), 400, wrongSurface);
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else {
@@ -2031,12 +2032,16 @@ export class MoveObject extends PublicEndpoint {
 		}
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
-		// Same doorway rule as PlaceObject — otherwise a bed could simply be MOVED
-		// into the spot it isn't allowed to be placed in.
-		if (SLEEPABLE_OBJECTS.has(placement.objectId)) {
-			const tentBiome = tentBiomeOf(placement.area);
-			const room = placement.area === 'home' ? homeRoom(player) : tentBiome ? tentRoom() : null;
-			if (room && blocksDoorway(placement.objectId, room, tx, ty)) {
+		// Indoors, the same surface and doorway rules as PlaceObject — otherwise a
+		// painting could simply be MOVED onto the floorboards, and a bed into the
+		// spot it isn't allowed to be placed in.
+		const movingTent = tentBiomeOf(placement.area);
+		const movingRoom = placement.area === 'home' ? homeRoom(player) : movingTent ? tentRoom() : null;
+		if (movingRoom) {
+			const wrongSurface = interiorSurfaceError(movingDef, movingRoom, tx, ty);
+			if (wrongSurface)
+				throw new GameError(tr(wrongSurface, { name: movingDef?.name || placement.objectId }), 400, wrongSurface);
+			if (blocksDoorway(placement.objectId, movingRoom, tx, ty)) {
 				throw new GameError(
 					tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }),
 					400,

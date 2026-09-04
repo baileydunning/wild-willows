@@ -44,12 +44,32 @@ describe('DevTools is gated to test saves', () => {
 		// which player ids exist.
 		await expect(w.post('DevTools', { playerId: 'nobody-abc123', action: 'grant-resources' })).rejects.toThrow();
 	});
+
+	it('refuses without naming the save that would work', async () => {
+		// The refusal is the last thing that still reaches a player who cannot open
+		// the panel, so it must not hand them the way in. It used to read
+		// "Developer tools only work on a bailey_test save." — an instruction.
+		const pid = (await w.post('CreatePlayer', { name: 'Willow', passcode: '1234', appearance })).playerId;
+		const err = await w.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 1 }).catch((e: any) => e);
+		expect(String(err?.message || err)).not.toMatch(/bailey/i);
+	});
+
+	it('tells the client which saves may open the panel, and no more', async () => {
+		// The client keeps the hidden panel shut unless this is set, so a player on
+		// an ordinary save never sees a refusal at all. It is a view of the gate,
+		// not the gate: the name behind it never leaves the server.
+		const plain = (await w.post('CreatePlayer', { name: 'Willow', passcode: '1234', appearance })).playerId;
+		const dev = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
+		expect((await w.get('GameState', plain)).player.devTools).toBe(false);
+		expect((await w.get('GameState', dev)).player.devTools).toBe(true);
+		expect(JSON.stringify((await w.get('GameState', plain)).player)).not.toMatch(/bailey/i);
+	});
 });
 
 describe('DevTools populate-biome (showcase)', () => {
 	it('builds a fully-restored, well-formed meadow', async () => {
 		// DevTools is gated to bailey_test saves (DEV_PLAYER_SLUG in
-		// server/resources.ts). These fixtures drive DevTools to set up state, so
+		// server/player.ts). These fixtures drive DevTools to set up state, so
 		// they are exactly the saves that gate is for — named accordingly rather
 		// than given a bypass, so the tests exercise the shipped rule.
 		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
