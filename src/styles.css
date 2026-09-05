@@ -7312,6 +7312,15 @@ a.demo-nudge-store.primary:hover {
    A round eyepiece you sweep with the arrow keys, and the card that reads out
    whatever is in the crosshairs. The barrel is drawn in CSS rather than as art
    so the view inside it can be a plain SVG that pans. */
+/* The panel is a FIXED size. Every entry is a different length — a two-line
+   cloud, a constellation with a zodiac date under it — and a panel that resized
+   itself to each one flickered as you swept the sky. So the frame is sized once,
+   for the longest entry there is, and the shorter ones leave space rather than
+   shrinking it. Same reason the chip strip scrolls sideways instead of wrapping
+   onto a second row. */
+.panel.scope-panel {
+	width: 780px;
+}
 .scope-conditions {
 	display: flex;
 	align-items: baseline;
@@ -7327,11 +7336,19 @@ a.demo-nudge-store.primary:hover {
 	align-items: flex-start;
 	gap: 16px;
 	flex-wrap: wrap;
+	/* Sized to the tallest card THIS LANGUAGE has — measured at the column's real
+	   width, across every entry, in both of the shapes a card can actually take
+	   (the "up there now" badge and the "not in today's sky" line never appear
+	   together). No taller: a fixed frame with a lot of empty space under the
+	   text reads as a bug of a different kind. English is the default; Spanish
+	   runs about 8% longer and gets its own height below rather than making
+	   every English card carry the slack. */
+	min-height: 382px;
 }
 .scope-eye {
 	position: relative;
 	flex: none;
-	width: 300px;
+	width: 340px;
 	max-width: 100%;
 	aspect-ratio: 1;
 	border-radius: 50%;
@@ -7405,8 +7422,11 @@ a.demo-nudge-store.primary:hover {
 	border-color: rgba(255, 233, 168, 0.85);
 }
 .scope-read {
-	flex: 1 1 240px;
-	min-width: 200px;
+	flex: 1 1 280px;
+	min-width: 240px;
+	/* the tallest card there is; anything longer scrolls rather than growing */
+	height: 382px;
+	overflow-y: auto;
 }
 .scope-read-head {
 	display: flex;
@@ -7489,11 +7509,20 @@ a.demo-nudge-store.primary:hover {
 .scope-strip {
 	display: flex;
 	align-items: center;
-	flex-wrap: wrap;
+	flex-wrap: nowrap;
 	gap: 6px;
 	margin-top: 12px;
 	padding-top: 10px;
 	border-top: 1px solid var(--line);
+	/* one row, always — it scrolls sideways when the eyepiece holds a crowd */
+	height: 48px;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+.scope-chip,
+.scope-strip-label {
+	flex: none;
+	white-space: nowrap;
 }
 .scope-strip-label {
 	margin-right: 2px;
@@ -7518,4 +7547,40 @@ a.demo-nudge-store.primary:hover {
 }
 .scope-hint {
 	margin: 8px 0 0;
+}
+.scope-empty {
+	/* fills the fixed card rather than collapsing it */
+	height: 100%;
+}
+/* Spanish, measured the same way (src/i18n/index.ts puts the locale on <html>).
+   A language whose prose runs longer gets a taller frame, rather than every
+   other language paying for it. */
+:root[lang='es'] .scope-stage {
+	min-height: 412px;
+}
+:root[lang='es'] .scope-read {
+	height: 412px;
+}
+
+/* On a narrow screen the eyepiece and the card stack, and holding either to a
+   fixed height would make a very tall panel — let them size to their content. */
+/* Once the panel is too narrow to hold the eyepiece and the card side by side
+   they stack, and holding either to a fixed height would make a very tall
+   panel — so below the width where that happens, both size to their content.
+   The breakpoint is above the panel's own width on purpose: the wrap happens
+   as soon as the panel starts shrinking, not at some tidier round number. */
+@media (max-width: 860px) {
+	/* the per-language selectors are listed too: they are more specific than a
+	   bare `.scope-read`, so without them Spanish would keep its fixed height
+	   here and the stacked panel would be taller than the screen */
+	.scope-stage,
+	.scope-read,
+	:root[lang='es'] .scope-stage,
+	:root[lang='es'] .scope-read {
+		min-height: 0;
+		height: auto;
+	}
+	.scope-eye {
+		width: 300px;
+	}
 }

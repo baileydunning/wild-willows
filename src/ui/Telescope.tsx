@@ -227,7 +227,7 @@ export function TelescopePanel() {
 
 	return (
 		<div className="panel-backdrop" onClick={close}>
-			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
+			<div className="panel panel-wide scope-panel" onClick={(e) => e.stopPropagation()}>
 				<div className="panel-head">
 					<h2>
 						<Icon name={mode === 'day' ? 'cloud' : 'star'} size={20} /> {t('panels.telescope.title')}
