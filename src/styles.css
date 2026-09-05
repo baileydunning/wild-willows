@@ -7307,3 +7307,215 @@ a.demo-nudge-store.primary:hover {
 .story-pager .muted {
 	font-variant-numeric: tabular-nums;
 }
+
+/* ---- the Stargazing Telescope (ui/Telescope.tsx) --------------------------
+   A round eyepiece you sweep with the arrow keys, and the card that reads out
+   whatever is in the crosshairs. The barrel is drawn in CSS rather than as art
+   so the view inside it can be a plain SVG that pans. */
+.scope-conditions {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 10px;
+}
+.scope-mode {
+	font-weight: 700;
+}
+.scope-stage {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	flex-wrap: wrap;
+}
+.scope-eye {
+	position: relative;
+	flex: none;
+	width: 300px;
+	max-width: 100%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	overflow: hidden;
+	border: 7px solid #6d5a3c;
+	box-shadow:
+		inset 0 0 0 3px #c9a96b,
+		0 6px 18px rgba(43, 51, 33, 0.35);
+	background: #141d33;
+	cursor: grab;
+	/* the drag pans the sky; the browser must not also scroll the panel */
+	touch-action: none;
+	user-select: none;
+}
+.scope-eye:active {
+	cursor: grabbing;
+}
+.scope-eye.day {
+	background: #8ec2e8;
+}
+.scope-eye svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+/* The darkening at the edge of the field, the way a real eyepiece vignettes. */
+.scope-glass {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(
+		circle at 50% 50%,
+		rgba(10, 14, 24, 0) 54%,
+		rgba(10, 14, 24, 0.5) 86%,
+		rgba(10, 14, 24, 0.8) 100%
+	);
+}
+.scope-cross {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+.scope-cross::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 54px;
+	height: 54px;
+	transform: translate(-50%, -50%);
+	border: 1.5px solid rgba(255, 255, 255, 0.32);
+	border-radius: 50%;
+	transition: border-color 140ms ease;
+}
+.scope-cross::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 128px;
+	height: 128px;
+	transform: translate(-50%, -50%);
+	background:
+		linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)) center / 1.5px 100% no-repeat,
+		linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)) center / 100% 1.5px no-repeat;
+	mask: radial-gradient(circle at 50% 50%, transparent 0 30px, #000 31px);
+	-webkit-mask: radial-gradient(circle at 50% 50%, transparent 0 30px, #000 31px);
+}
+/* Something is in the crosshairs — the reticle warms up rather than shouting. */
+.scope-cross.on::before {
+	border-color: rgba(255, 233, 168, 0.85);
+}
+.scope-read {
+	flex: 1 1 240px;
+	min-width: 200px;
+}
+.scope-read-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+/* Specific enough to beat `.panel-body h3`, which is styled as a section label
+   (uppercase, small, muted) — this is a title, not a section label. */
+.scope-body .scope-name {
+	margin: 0;
+	font-size: calc(17px * var(--ui-scale));
+	color: var(--ink);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.scope-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--tint-leaf-strong);
+	border: 1px solid var(--good-line);
+	color: var(--good-ink);
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+}
+.scope-byline {
+	margin: 3px 0 8px;
+	font-style: italic;
+}
+.scope-text {
+	margin: 0 0 9px;
+	line-height: 1.55;
+}
+/* The one line of "and this is what it tells you", under the paragraph. */
+.scope-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 0 0 7px;
+	padding: 7px 9px;
+	border-radius: 10px;
+	background: var(--tint-gold);
+	border: 1px solid var(--line);
+	font-size: calc(12.5px * var(--ui-scale));
+}
+.scope-note > svg {
+	flex: none;
+	margin-top: 2px;
+	color: var(--gold);
+}
+.scope-where {
+	margin: 0;
+}
+/* "not in today's sky", and the zodiac's own dates — quieter than the note, and
+   only there when they have something to say. */
+.scope-notnow,
+.scope-zodiac {
+	margin: 5px 0 0;
+	font-style: italic;
+}
+.scope-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 140px;
+	text-align: center;
+	color: var(--ink-soft);
+}
+.scope-empty p {
+	margin: 0;
+	max-width: 24ch;
+}
+/* Everything the eyepiece can currently see — a way to reach a thing without
+   hunting for it, and the only way in on a touchscreen. */
+.scope-strip {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 6px;
+	margin-top: 12px;
+	padding-top: 10px;
+	border-top: 1px solid var(--line);
+}
+.scope-strip-label {
+	margin-right: 2px;
+}
+.scope-chip {
+	padding: 3px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	background: var(--cream);
+	color: var(--ink);
+	font-size: calc(12px * var(--ui-scale));
+	cursor: pointer;
+}
+.scope-chip:hover {
+	background: var(--cream-lift);
+	border-color: var(--panel-edge);
+}
+.scope-chip.on {
+	background: var(--tint-leaf-strong);
+	border-color: var(--green-2);
+	font-weight: 700;
+}
+.scope-hint {
+	margin: 8px 0 0;
+}

@@ -144,7 +144,9 @@
 		"rotate": "Girar",
 		"digUp": "Desenterrar (devuelve los materiales)",
 		"pickUp": "Recoger",
-		"harvest": "Cosechar {name}"
+		"harvest": "Cosechar {name}",
+		"lightUp": "Encender",
+		"putOut": "Apagar"
 	},
 	"welcome": {
 		"solo": "Solo",

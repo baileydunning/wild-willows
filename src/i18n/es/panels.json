@@ -807,5 +807,42 @@
 		"weather": "Clima y estaciones: cómo cambian las condiciones por la reserva y moldean la tierra; algunos materiales y animales solo aparecen con el clima adecuado.",
 		"settings": "Ajustes: sonido, accesibilidad, tu personaje y opciones de partida.",
 		"demoNear": "Un animal más y completarás la demo: ¡ya casi estás!"
+	},
+	"telescope": {
+		"_readme": "El Telescopio de Observación (ui/Telescope.tsx). Nubes de día, constelaciones de noche — lo que es cada cosa vive en narrative.sky.*; esto es la interfaz del panel.",
+		"title": "Telescopio",
+		"modeDay": "Observar nubes",
+		"modeNight": "Observar estrellas",
+		"today": "Hoy: {weather}",
+		"tonight": "Esta noche: el cielo de {season}",
+		"overhead": "Ahí arriba ahora",
+		"inView": "A la vista",
+		"emptyView": "Cielo vacío: sigue barriendo.",
+		"aimHint": "No hay nada en la mira. Barre el cielo con las flechas.",
+		"hint": "Las flechas mueven el telescopio, o arrastra la vista. Apunta a algo para leerlo.",
+		"eyepieceLabel": "La vista por el ocular",
+		"allYear": "Gira alrededor del polo todo el año: nunca se pone.",
+		"bestIn": "Se ve mejor en {seasons}.",
+		"levels": {
+			"high": "Nube alta: por encima de los 6.000 m, y hecha solo de hielo.",
+			"mid": "Nube media: entre 2.000 y 6.000 m.",
+			"low": "Nube baja: por debajo de los 2.000 m.",
+			"towering": "Nube de desarrollo: base baja y plana, y una cima que puede subir hasta lo más alto del cielo."
+		},
+		"seasons": {
+			"spring": "primavera",
+			"summer": "verano",
+			"autumn": "otoño",
+			"winter": "invierno"
+		},
+		"cloudedOut": "{weather}: esta noche el cielo está tapado",
+		"optic": "No es una nube: es algo que hace la luz al atravesarla.",
+		"body": "En nuestro propio sistema solar, lo bastante cerca para verse como un disco.",
+		"notToday": "Hoy no está en el cielo: este viene con {weather}.",
+		"notTonight": "Esta noche no está arriba: {when}",
+		"lidOn": "Y esta noche las nubes tapan todo esto.",
+		"seasonsAny": "no sigue calendario; míralo cuando esté arriba.",
+		"or": " o ",
+		"zodiacLine": "Zodiaco: {when}. Las fechas del horóscopo se fijaron hace dos mil años, y el cielo se ha corrido un signo entero desde entonces."
 	}
 }

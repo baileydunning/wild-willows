@@ -557,5 +557,387 @@
 				}
 			}
 		}
+	},
+	"sky": {
+		"_readme": "Lo que muestra el telescopio: el cielo de día (clouds.*, optics.*) y el de noche (figures.*, deep.*, bodies.*, events.*), listados en ui/sky.ts y dibujados en ui/skyArt.tsx. Cada entrada es un nombre, el nombre llano debajo, un párrafo y una línea con lo que te dice. Meteorología real y cielo real, explicados con sencillez y con un dato que merezca la pena recordar.",
+		"clouds": {
+			"cirrus": {
+				"name": "Cirro",
+				"byline": "un rizo de pelo",
+				"text": "Trazos de cristales de hielo a ocho kilómetros de altura, estirados por vientos que nunca llegan al suelo. Los ganchos de las puntas son cristales que caen del trazo hacia aire más lento: por eso los marineros los llamaban colas de yegua.",
+				"note": "Un cirro que espesa desde un lado es un frente que llega: lluvia, casi siempre en un día."
+			},
+			"cirrostratus": {
+				"name": "Cirrostrato",
+				"byline": "un velo de hielo",
+				"text": "Una capa de cristales de hielo tan fina que el sol la atraviesa y todo sigue dando sombra. Lo que la delata es el anillo: cada cristal desvía la luz los mismos 22 grados y dibuja un halo alrededor del sol o de la luna.",
+				"note": "Un halo dice que el velo está ahí, y un velo que espesa acaba en lluvia."
+			},
+			"cirrocumulus": {
+				"name": "Cirrocúmulo",
+				"byline": "el cielo de caballa",
+				"text": "Nube alta de hielo rizada en granos pequeños por aire que rueda sobre sí mismo. Cada grano es una nube entera, solo que tan lejos que parece una escama: de ahí que a un cielo lleno de ellos se le pusiera el nombre del lomo rayado de una caballa.",
+				"note": "Ese cielo rara vez dura una hora: el aire que lo sostiene ya está revuelto."
+			},
+			"altocumulus": {
+				"name": "Altocúmulo",
+				"byline": "rodillos a media altura",
+				"text": "Manchas y rodillos a media altura, cada uno del ancho de tu pulgar con el brazo estirado y con la base sombreada. Esa sombra es lo que los distingue del cirrocúmulo, cuyos granos son mucho menores y nunca están sombreados.",
+				"note": "Altocúmulos en una mañana cálida son la señal clásica de tormentas por la tarde."
+			},
+			"altostratus": {
+				"name": "Altostrato",
+				"byline": "la lámina de vidrio esmerilado",
+				"text": "Una lámina gris que cruza el cielo a media altura. El sol sigue ahí, pero borroso, sin borde, y nada en el suelo da sombra: la diferencia entre mirar por un vidrio esmerilado y por una ventana.",
+				"note": "Llega por delante de la lluvia constante, espesando y bajando con el frente."
+			},
+			"lenticular": {
+				"name": "Lenticular",
+				"byline": "la onda de montaña",
+				"text": "Una lente lisa parada sobre una cresta, a veces apilada en varias como platos. El aire que levanta la montaña sigue subiendo y bajando a sotavento, y la nube se forma en la cresta de cada onda: la forma no se mueve aunque el viento la atraviese a toda velocidad.",
+				"note": "Lisa de ver y violenta de volar, y detrás de unos cuantos avistamientos de platillos volantes."
+			},
+			"stratus": {
+				"name": "Estrato",
+				"byline": "una capa gris baja",
+				"text": "La nube más plana que hay: una capa gris sin rasgos justo encima del suelo, sin nada que suba a través de ella. Se forma cuando toda una capa poco profunda de aire se enfría de golpe hasta su punto de rocío, en vez de hacerlo en columnas.",
+				"note": "La niebla es un estrato apoyado en el suelo: si subes a la nube de un cerro, estás dentro de uno."
+			},
+			"stratocumulus": {
+				"name": "Estratocúmulo",
+				"byline": "una capa baja con grumos",
+				"text": "Una capa baja rota en grumos con huecos de cielo entre ellos: la nube más común de la Tierra y la que hace que un día sea simplemente gris. Señala aire que se remueve lo justo para romper la capa y nunca lo bastante para levantar nada alto.",
+				"note": "Un cielo apagado más que uno mojado: rara vez pasa de una llovizna."
+			},
+			"nimbostratus": {
+				"name": "Nimbostrato",
+				"byline": "la capa de la lluvia",
+				"text": "Una capa gruesa, oscura y sin forma, con lluvia o nieve cayendo de ella sin parar. La base se ve deshilachada porque la propia lluvia la va comiendo desde abajo, y del sol no queda ni rastro.",
+				"note": "Es la nube de un día entero de lluvia, no de un chaparrón que pasa."
+			},
+			"cumulus": {
+				"name": "Cúmulo",
+				"byline": "el montón de buen tiempo",
+				"text": "Base plana, cima de coliflor. Cada uno se apoya en una columna de aire caliente que sube del suelo, y su base plana marca la altura a la que ese aire por fin se enfría lo suficiente para condensar. Mira a lo largo de un cielo así: todas las bases están a la misma altura.",
+				"note": "Las aves planeadoras y los planeadores los usan como señales de la corriente que hay debajo."
+			},
+			"cumulonimbus": {
+				"name": "Cumulonimbo",
+				"byline": "la cabeza de tormenta",
+				"text": "Un cúmulo que creció hasta chocar con la estratosfera y ya no pudo subir más, así que se extendió de lado en un yunque. Dentro, el hielo y el agua suben y bajan lo bastante rápido para separar cargas: de ahí sale el rayo.",
+				"note": "El yunque apunta a sotavento: te dice hacia dónde va la tormenta."
+			}
+		},
+		"optics": {
+			"rainbow": {
+				"name": "Arcoíris",
+				"byline": "luz del sol, doblada y ordenada",
+				"text": "Cada gota de lluvia que tienes delante es un prisma: la luz entra, rebota una vez en el fondo de la gota y sale ordenada por colores. Solo ves las gotas situadas a 42 grados de la sombra de tu propia cabeza, así que el arcoíris siempre está centrado en ti, y no hay dos personas que vean el mismo.",
+				"note": "Busca por fuera el segundo arco, más débil: el mismo truco con un rebote más, y los colores al revés."
+			},
+			"sundogs": {
+				"name": "Parhelios",
+				"byline": "los soles falsos",
+				"text": "Dos manchas brillantes a la altura del sol, una a cada lado, apoyadas en el borde de un halo de 22 grados. Los cristales de hielo planos bajan como hojas y se colocan todos del mismo modo, desviando la luz de lado: un parhelio es la prueba de que hay nube alta de hielo entre tú y el sol.",
+				"note": "Cosa de frío: cuanto más frío el aire, más probable que los cristales tengan la forma justa."
+			},
+			"crepuscular-rays": {
+				"name": "Rayos crepusculares",
+				"byline": "el sol por un hueco",
+				"text": "Haces de luz por una rotura en la nube, dibujados por el polvo y la calima del aire. Parece que se abren desde el sol y no es así: los haces son casi paralelos y la apertura es perspectiva, el mismo efecto que junta las vías del tren a lo lejos.",
+				"note": "En una buena tarde cruzan todo el cielo y vuelven a juntarse en el punto opuesto al sol."
+			},
+			"virga": {
+				"name": "Virga",
+				"byline": "lluvia que nunca llega",
+				"text": "Trazos que cuelgan bajo una nube y se desvanecen a medio camino. Es lluvia o nieve de verdad, evaporándose en aire seco antes de tocar el suelo, y llevándose calor del aire al hacerlo: por eso bajo un chubasco del desierto sopla de golpe una ráfaga fría.",
+				"note": "Una nube con barba, y a menudo la única lluvia que da un día caluroso."
+			}
+		},
+		"figures": {
+			"ursa-major": {
+				"name": "Osa Mayor",
+				"byline": "la Osa Mayor",
+				"text": "Las siete estrellas brillantes del lomo y la cola de la osa forman el Carro. Cinco de las siete van juntas por el espacio como una familia suelta; las dos de los extremos son forasteras de paso, así que la figura se irá torciendo a lo largo de decenas de miles de años.",
+				"note": "Las dos del final del cazo apuntan justo a la Polar: todo el cielo del norte se encuentra desde ahí."
+			},
+			"ursa-minor": {
+				"name": "Osa Menor",
+				"byline": "la Osa Menor",
+				"text": "Un carro más débil colgado de la Polar, que está casi exactamente sobre el eje de la Tierra. Todo el cielo gira alrededor de ese punto, así que la Polar apenas se mueve en toda la noche, y su altura sobre el horizonte es tu latitud, medida sin más instrumento que los ojos.",
+				"note": "Por eso se guiaba por ella cualquiera que cruzara de noche mar abierto o campo abierto en el norte."
+			},
+			"cassiopeia": {
+				"name": "Casiopea",
+				"byline": "la reina sentada",
+				"text": "Cinco estrellas brillantes en forma de W —o de M, según la hora, porque está en una silla que la deja boca abajo media noche—. Los griegos la pusieron ahí por presumir de ser más hermosa que las ninfas del mar.",
+				"note": "Está al otro lado del polo que la Osa Mayor: cuando el Carro está bajo, ella está alta, así que siempre hay una arriba."
+			},
+			"draco": {
+				"name": "Dragón",
+				"byline": "el dragón",
+				"text": "Una fila larga de estrellas débiles que serpentea entre las dos osas y acaba en una cabeza de cuatro estrellas. Su estrella Thuban era la polar cuando se levantaron las pirámides, y se cree que los conductos abiertos en ellas apuntaban hacia ella.",
+				"note": "El eje de la Tierra se bambolea como una peonza al pararse: una vuelta cada 26.000 años, y por eso cambia la estrella polar."
+			},
+			"leo": {
+				"name": "Leo",
+				"byline": "el león",
+				"text": "Un signo de interrogación al revés —la Hoz— forma la cabeza y la melena, con Régulo abajo como el punto, y un triángulo detrás hace los cuartos traseros y la cola. Es una de las pocas figuras que de verdad se parece al animal que le da nombre.",
+				"note": "Régulo está casi exactamente sobre el camino del sol, así que la luna y los planetas le pasan por delante una y otra vez.",
+				"sun": "el sol está en él del 11 de agosto al 15 de septiembre"
+			},
+			"bootes": {
+				"name": "Boyero",
+				"byline": "el boyero",
+				"text": "Una cometa alta de estrellas con Arturo, anaranjada, en la cola: la estrella más brillante de la mitad norte del cielo. Arturo es una estrella vieja que cruza nuestra parte de la galaxia en ángulo con todo lo demás: una visitante, no una vecina.",
+				"note": "Sigue la curva del mango del Carro y llegas derecho a ella."
+			},
+			"cygnus": {
+				"name": "Cisne",
+				"byline": "el cisne",
+				"text": "Una cruz de estrellas brillantes que vuela por la Vía Láctea, llamada Cruz del Norte tanto como Cisne. Deneb, en la cola, parece una estrella brillante corriente y no lo es: está tan lejos que para brillar así tiene que emitir la luz de unos cien mil soles.",
+				"note": "La banda oscura que parte aquí la Vía Láctea es polvo entre las estrellas, no un hueco entre ellas."
+			},
+			"lyra": {
+				"name": "Lira",
+				"byline": "el arpa",
+				"text": "Un pequeño paralelogramo de estrellas con la brillante Vega en una esquina. Vega fue la estrella polar hace doce mil años y volverá a serlo dentro de otros doce mil, y en 1850 fue la primera estrella distinta del sol que se fotografió.",
+				"note": "Vega, Deneb y Altair forman el Triángulo de Verano: tres constelaciones, una sola figura."
+			},
+			"aquila": {
+				"name": "Águila",
+				"byline": "el águila",
+				"text": "Altair con una estrella más débil a cada lado, volando por la Vía Láctea frente al Cisne. Altair gira tan rápido —su día dura unas nueve horas— que está visiblemente achatada, medible más ancha por el ecuador que de polo a polo.",
+				"note": "A dieciséis años luz, es una de las estrellas brillantes más cercanas que tenemos."
+			},
+			"scorpius": {
+				"name": "Escorpio",
+				"byline": "el escorpión",
+				"text": "Una de las pocas figuras que se parece de verdad a su nombre: cabeza, corazón rojo y una cola larga que se curva hasta el aguijón. Antares es una estrella moribunda tan hinchada que, puesta donde el sol, llegaría más allá de la órbita de Marte.",
+				"note": "Antares significa rival de Marte: tienen el mismo tono rojo, y el planeta le pasa al lado cada par de años.",
+				"sun": "el sol está en él del 23 al 29 de noviembre"
+			},
+			"pegasus": {
+				"name": "Pegaso",
+				"byline": "el caballo alado",
+				"text": "El Gran Cuadro: cuatro estrellas que marcan una caja del ancho de tu puño con el brazo estirado, con una línea quebrada saliendo de una esquina para el cuello y la cabeza. El caballo está boca abajo, y solo está su mitad delantera.",
+				"note": "Cuenta las estrellas dentro del cuadro: ninguna es cielo de ciudad, un puñado es extrarradio, una docena es campo de verdad."
+			},
+			"andromeda": {
+				"name": "Andrómeda",
+				"byline": "la princesa encadenada",
+				"text": "Una cadena de estrellas que sale de una esquina del Gran Cuadro. Sobre el centro de la cadena hay una mancha ovalada y débil que no es una estrella: es la galaxia de Andrómeda, cien mil millones de soles tan lejos que el conjunto se ve como una huella de dedo en el cielo.",
+				"note": "A 2,5 millones de años luz es lo más lejano que ve el ojo sin ayuda, y viene hacia nosotros."
+			},
+			"orion": {
+				"name": "Orión",
+				"byline": "el cazador",
+				"text": "Tres estrellas en fila corta forman el cinturón, con Betelgeuse roja en un hombro y Rigel blanquiazul en el pie opuesto. Los colores son reales y significan algo: Betelgeuse es una estrella vieja e hinchada al final de su vida, y Rigel una joven y caliente que quema su combustible con prisa.",
+				"note": "La mancha difusa que cuelga bajo el cinturón es la nebulosa de Orión, donde ahora mismo se están haciendo estrellas."
+			},
+			"taurus": {
+				"name": "Tauro",
+				"byline": "el toro",
+				"text": "Una V de estrellas forma la cara del toro, con Aldebarán anaranjada como el ojo, aunque Aldebarán no pertenece a esa V: está a menos de la mitad de distancia y solo se cruza por delante en la misma línea de visión. Dos cuernos largos salen de arriba.",
+				"note": "El cúmulo de su hombro son las Pléyades: casi todos cuentan seis, unos prismáticos muestran decenas, y hay más de mil.",
+				"sun": "el sol está en él del 14 de mayo al 19 de junio"
+			},
+			"gemini": {
+				"name": "Géminis",
+				"byline": "los gemelos",
+				"text": "Dos filas paralelas de estrellas que acaban, una junto a otra, en Cástor y Pólux: lo más parecido a unos gemelos que da el cielo. Pólux es la más brillante y tira a anaranjada. Cástor parece una estrella y son seis: tres parejas que se orbitan entre sí.",
+				"note": "Los gemelos se apoyan en la Vía Láctea de invierno, sobre el brazo alzado de Orión.",
+				"sun": "el sol está en ellos del 20 de junio al 19 de julio"
+			},
+			"canis-major": {
+				"name": "Can Mayor",
+				"byline": "el perro grande",
+				"text": "El perro de caza de Orión, marcado por Sirio: la estrella más brillante de la noche, sobre todo por ser de las más cercanas y no por nada extraordinario en sí misma. Baja en el horizonte centellea tanto que lanza destellos rojos y verdes.",
+				"note": "Su salida al alba avisaba a Egipto de la crecida del Nilo, y la canícula lleva su nombre."
+			},
+			"aries": {
+				"name": "Aries",
+				"byline": "el carnero",
+				"text": "Tres o cuatro estrellas débiles y poco más, lo que sorprende en un signo tan famoso. La fama es más antigua que su aspecto: hace dos mil años el sol se ponía aquí en el equinoccio de primavera, y eso lo convertía en el principio del año.",
+				"note": "El equinoccio se ha corrido desde entonces hasta Piscis. Las fechas del zodiaco no se movieron con él.",
+				"sun": "el sol está en él del 19 de abril al 13 de mayo"
+			},
+			"cancer": {
+				"name": "Cáncer",
+				"byline": "el cangrejo",
+				"text": "La constelación más débil del zodiaco: una Y invertida de estrellas apagadas que hace falta una noche oscura para encontrar siquiera. Su único tesoro está en el centro, el cúmulo del Pesebre, que a simple vista se ve como una manchita de neblina.",
+				"note": "Esa mancha servía de pronóstico: cuando se perdía de vista, venían aire espeso y lluvia.",
+				"sun": "el sol está en él del 20 de julio al 10 de agosto"
+			},
+			"virgo": {
+				"name": "Virgo",
+				"byline": "la doncella",
+				"text": "La constelación más grande del zodiaco y la segunda de todo el cielo, colgada de Spica, blanquiazul, abajo del todo. En casi todos los relatos lleva una gavilla de trigo, y Spica es la gavilla: el nombre significa espiga.",
+				"note": "En su territorio hay un enjambre de más de mil galaxias, el gran cúmulo más cercano al nuestro.",
+				"sun": "el sol está en ella del 16 de septiembre al 30 de octubre"
+			},
+			"libra": {
+				"name": "Libra",
+				"byline": "la balanza",
+				"text": "El único signo que es un objeto y no una criatura, y antes era parte del escorpión de al lado: sus dos estrellas más brillantes se siguen llamando pinza norte y pinza sur. Roma se las quitó al escorpión y las convirtió en la balanza del equinoccio de otoño.",
+				"note": "La pinza sur es lo más parecido a una estrella verde que puede ver el ojo, aunque casi todo el mundo la ve blanca.",
+				"sun": "el sol está en ella del 31 de octubre al 22 de noviembre"
+			},
+			"ophiuchus": {
+				"name": "Ofiuco",
+				"byline": "el portador de la serpiente",
+				"text": "Una figura grande y sencilla de pie sobre el lomo del escorpión, con una serpiente en las manos, y la decimotercera constelación que el sol cruza de verdad. Los doce signos se fijaron partiendo el año en doce trozos iguales, y a esta no le tocó ninguno.",
+				"note": "El sol tarda más en cruzarla que en cruzar Escorpio.",
+				"sun": "el sol está en él del 30 de noviembre al 17 de diciembre"
+			},
+			"sagittarius": {
+				"name": "Sagitario",
+				"byline": "el arquero",
+				"text": "Todo el mundo ve una tetera: asa, tapa y pitorro. Apunta justo al lado del pitorro y estarás mirando el centro de nuestra propia galaxia, a veintiséis mil años luz y escondido tras tanto polvo que solo lo atraviesan las ondas de radio y el infrarrojo.",
+				"note": "El vapor que sale del pitorro es la nube de estrellas más brillante de la Vía Láctea.",
+				"sun": "el sol está en él del 18 de diciembre al 18 de enero"
+			},
+			"capricornus": {
+				"name": "Capricornio",
+				"byline": "la cabra marina",
+				"text": "Un triángulo ancho y débil, bajo en el sur, y una de las figuras más antiguas que seguimos usando: una cabra con cola de pez, dibujada así en Babilonia hace tres mil años y nunca redibujada.",
+				"note": "El trópico de Capricornio lleva su nombre: allí estaba el sol en el solsticio de invierno hace dos mil años. Ahora está en Sagitario.",
+				"sun": "el sol está en él del 19 de enero al 15 de febrero"
+			},
+			"aquarius": {
+				"name": "Acuario",
+				"byline": "el aguador",
+				"text": "Una jarra de cuatro estrellas con un chorro de estrellas más débiles cayendo hacia el sur, hasta la boca del pez austral. Todo ese cuarto de cielo —Acuario, Piscis, Capricornio, la ballena— se conocía en la Antigüedad simplemente como el Mar.",
+				"note": "Neptuno se encontró aquí en 1846, a menos de un grado de donde decían los cálculos.",
+				"sun": "el sol está en él del 16 de febrero al 11 de marzo"
+			},
+			"pisces": {
+				"name": "Piscis",
+				"byline": "los peces",
+				"text": "Dos peces débiles atados cola con cola por una V larga de estrellas, con el nudo marcado por la única estrella medianamente brillante de la figura. Por débil que sea, aquí está hoy el sol en el equinoccio de primavera: el punto cero desde el que se mide el resto del cielo.",
+				"note": "Ese punto se desplaza un grado cada setenta y dos años, y en unos siglos pasará a Acuario.",
+				"sun": "el sol está en ellos del 12 de marzo al 18 de abril"
+			}
+		},
+		"deep": {
+			"milky-way": {
+				"name": "La Vía Láctea",
+				"byline": "nuestra galaxia, de canto",
+				"text": "No es una nube ni algo a lo lejos: es el disco plano de nuestra propia galaxia visto desde dentro, así que la banda que cruza el cielo es sencillamente la dirección con más estrellas apiladas. Todas las estrellas que puedes distinguir en cualquier parte del cielo le pertenecen.",
+				"note": "La grieta oscura del centro es polvo en medio: nubes frías donde se están haciendo las próximas estrellas."
+			},
+			"andromeda-galaxy": {
+				"name": "La galaxia de Andrómeda",
+				"byline": "M31, otra galaxia entera",
+				"text": "Una mancha ovalada y débil sobre la cadena de Andrómeda, y la única galaxia fuera de la nuestra que la mayoría de la gente llega a ver a simple vista. Un billón de estrellas, tan lejos que la luz que llega esta noche salió antes de que existiera nuestra especie.",
+				"note": "Cae hacia nosotros a 110 kilómetros por segundo: dentro de unos cuatro mil millones de años las dos galaxias se funden."
+			},
+			"orion-nebula": {
+				"name": "La nebulosa de Orión",
+				"byline": "M42, un vivero de estrellas",
+				"text": "La mancha difusa que cuelga del cinturón de Orión es una nube de gas de un par de docenas de años luz con estrellas nuevas encendiéndose dentro. Cuatro de ellas, el Trapecio, iluminan la nube entera desde dentro como una lámpara metida en la niebla.",
+				"note": "Es una buena estampa de lo que fue nuestro sistema solar antes de serlo."
+			},
+			"pleiades": {
+				"name": "Las Pléyades",
+				"byline": "M45, las siete hermanas",
+				"text": "Un nudo apretado de estrellas blanquiazules, nacidas todas juntas hace unos cien millones de años y que siguen viajando en grupo. La bruma que las rodea es una nube de polvo por la que pasan de paso, iluminada como la neblina alrededor de una farola.",
+				"note": "Casi todas las culturas que miraron el cielo pusieron nombre a este cúmulo, y muchas sembraban por él."
+			},
+			"hercules-cluster": {
+				"name": "El cúmulo de Hércules",
+				"byline": "M13, un cúmulo globular",
+				"text": "Una bola de unos cientos de miles de estrellas, tan apretadas en el centro que el cielo desde un planeta de dentro nunca llegaría a oscurecer del todo. Tiene más o menos la edad de la galaxia y la orbita por fuera del disco.",
+				"note": "Con prismáticos, un punto borroso; con telescopio, los bordes se deshacen en estrellas."
+			},
+			"ring-nebula": {
+				"name": "La nebulosa del Anillo",
+				"byline": "M57, el último aliento de una estrella",
+				"text": "Un pequeño aro de humo en la Lira: las capas exteriores de una estrella parecida al sol, expulsadas al espacio e iluminadas desde dentro por el núcleo al rojo blanco que dejó atrás. Se ve un anillo porque estás mirando el borde de una cáscara.",
+				"note": "Así acaba, más o menos, nuestro propio sol, dentro de unos cinco mil millones de años."
+			},
+			"lagoon-nebula": {
+				"name": "La nebulosa de la Laguna",
+				"byline": "M8, gas y vetas oscuras",
+				"text": "Una nube rosa y ancha, baja en la Vía Láctea de verano, cortada por vetas oscuras de polvo. El rosa es hidrógeno brillando bajo el ultravioleta de estrellas jóvenes y calientes que se formaron dentro y ahora se abren camino hacia fuera.",
+				"note": "Lo bastante grande para encontrarla sin telescopio en una noche oscura, y de las pocas nebulosas que muestran color."
+			},
+			"double-cluster": {
+				"name": "El Doble Cúmulo",
+				"byline": "dos enjambres, uno al lado del otro",
+				"text": "Dos cúmulos abiertos de estrellas jóvenes y azules, lo bastante juntos para caber en una misma vista, en la Vía Láctea entre Perseo y Casiopea. Los dos tienen unos trece millones de años: recién nacidos al lado de los cuatro mil quinientos millones del sol.",
+				"note": "De las pocas vistas que se ven mejor con prismáticos que con un telescopio grande."
+			},
+			"beehive": {
+				"name": "El Pesebre",
+				"byline": "M44, un enjambre de estrellas",
+				"text": "Un puñado suelto de estrellas en una zona por lo demás apagada, que los antiguos solo conocían como una neblina. Galileo apuntó allí el primer telescopio y descubrió que la neblina eran cuarenta y tantas estrellas sueltas: una de las primeras cosas que zanjó el instrumento.",
+				"note": "En Roma se leía como pronóstico: si la neblina desaparecía de la vista, venía mal tiempo."
+			},
+			"whirlpool-galaxy": {
+				"name": "La galaxia del Remolino",
+				"byline": "M51, una espiral de frente",
+				"text": "El primer objeto que alguien reconoció como una espiral, dibujado en 1845 con un telescopio de espejo de casi dos metros. Una galaxia compañera pequeña le pasa por detrás y le deforma un brazo, que es justo lo que hace que la espiral se vea tan marcada.",
+				"note": "De frente, así que te enseña la forma de una galaxia como nadie podrá ver nunca la nuestra."
+			}
+		},
+		"bodies": {
+			"moon": {
+				"name": "La Luna",
+				"byline": "la nuestra, de cerca",
+				"text": "Las manchas oscuras son mares de lava antigua, lisos porque se inundaron tarde, cuando lo peor del bombardeo ya había pasado. El terreno pálido y rugoso entre ellos es más viejo, y cada cráter es un impacto que nunca se borró: allí arriba no hay tiempo atmosférico que lo borre.",
+				"note": "Mira a lo largo del terminador, la línea entre luz y sombra: allí las sombras son largas y los cráteres resaltan."
+			},
+			"jupiter": {
+				"name": "Júpiter",
+				"byline": "el planeta más grande",
+				"text": "Un disco con bandas y cuatro puntos de luz alineados al lado: las lunas que Galileo vio cambiar de sitio en 1610, y con las que supimos que no todo gira alrededor de la Tierra. Las bandas son cinturones de nubes que corren en sentidos opuestos.",
+				"note": "La Gran Mancha Roja es una tormenta más ancha que la Tierra, y lleva siglos soplando."
+			},
+			"saturn": {
+				"name": "Saturno",
+				"byline": "el planeta de los anillos",
+				"text": "Los anillos no son sólidos: son miles de millones de trozos de hielo, desde granos hasta piezas del tamaño de una casa, orbitando en una lámina de unos cientos de miles de kilómetros de ancho y solo decenas de metros de grosor.",
+				"note": "Se inclinan con los años: cada quince más o menos se ponen de canto y casi desaparecen."
+			},
+			"mars": {
+				"name": "Marte",
+				"byline": "el planeta rojo",
+				"text": "El color es óxido, literalmente: polvo de óxido de hierro cubriendo toda la superficie. Con telescopio se ve un casquete polar blanco y manchas oscuras que cambian de sitio cuando las tormentas de polvo globales levantan el polvo y lo dejan en otra parte.",
+				"note": "Cada par de años la Tierra lo adelanta, y durante unas semanas parece dar marcha atrás en el cielo."
+			},
+			"venus": {
+				"name": "Venus",
+				"byline": "el lucero de la tarde",
+				"text": "Lo más brillante del cielo después del sol y la luna, y nunca lejos del horizonte: se ve justo después del ocaso o justo antes del alba. Lo que miras no es el planeta sino su capa de nubes, ácido sulfúrico que devuelve tres cuartas partes de la luz que recibe.",
+				"note": "Muestra fases como la luna. Galileo las vio, y aquello acabó con el cielo centrado en la Tierra."
+			}
+		},
+		"events": {
+			"perseids": {
+				"name": "Las Perseidas",
+				"byline": "la lluvia de meteoros de agosto",
+				"text": "Polvo soltado por el cometa Swift-Tuttle, entrando en el aire a 59 kilómetros por segundo y ardiendo a cien kilómetros de altura. Los trazos parecen salir todos de un punto en Perseo por lo mismo que los rayos de sol parecen abrirse: los granos van en paralelo y la perspectiva hace el resto.",
+				"note": "Su máximo cae hacia el 12 de agosto, con hasta un meteoro por minuto en cielo oscuro."
+			},
+			"geminids": {
+				"name": "Las Gemínidas",
+				"byline": "la lluvia de meteoros de diciembre",
+				"text": "La mejor lluvia del año y la rara del grupo: su polvo viene de una roca y no de un cometa, un asteroide llamado Faetón que suelta material cuando pasa cerca del sol. Sus meteoros son más lentos y más brillantes que la mayoría.",
+				"note": "Su máximo cae hacia el 14 de diciembre. Se pasa frío, pero llegan hasta dos por minuto."
+			},
+			"aurora": {
+				"name": "La aurora",
+				"byline": "las luces del norte",
+				"text": "Partículas del sol, encauzadas por el campo magnético de la Tierra y estrellándose contra el aire de arriba. El oxígeno responde en verde a unos ciento sesenta kilómetros y en rojo profundo mucho más arriba; el nitrógeno pone el fleco azul y violeta en la base de la cortina.",
+				"note": "Las cortinas cuelgan de las propias líneas del campo, y por eso se pliegan y ondulan en vez de derivar como una nube."
+			},
+			"satellites": {
+				"name": "Satélites",
+				"byline": "aparatos de otros",
+				"text": "Un punto de luz fijo que cruza el cielo en línea recta, unos minutos de un horizonte a otro, sin centellear nunca. Es luz del sol sobre metal: el satélite sigue a plena luz allí arriba mientras tú ya estás en sombra aquí abajo.",
+				"note": "Si parpadea, es un avión. Si se apaga a mitad de cielo, acaba de entrar en la sombra de la Tierra."
+			}
+		}
 	}
 }

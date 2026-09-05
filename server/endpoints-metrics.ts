@@ -66,6 +66,11 @@ const METRICS_REV = 2;
 // a panel in the code. A fixed set on purpose: the key space of a stored map
 // should never be whatever a client decides to send, and an unknown panel is
 // dropped rather than allowed to open a new column in every dashboard.
+//
+// Being a fixed set is also how it goes wrong: a panel added to PanelId but not
+// here is counted by the client, sent on every beat, and silently discarded, so
+// the dashboard reads it as a menu nobody opens rather than as one nobody
+// measured. When PanelId gains a member, it belongs in this list too.
 const MENU_PANELS = new Set([
 	'inventory',
 	'crafting',
@@ -75,6 +80,8 @@ const MENU_PANELS = new Set([
 	'biomes',
 	'achievements',
 	'feed',
+	// The bookshelf indoors — a panel opened by walking up to a thing rather than
+	// by a menu key, which is exactly why these were easy to leave out.
 	'stories',
 	'home',
 	'animal',
@@ -82,6 +89,10 @@ const MENU_PANELS = new Set([
 	'weather',
 	'materials',
 	'goals',
+	// Likewise: the mirror, the Board of Finds, and the telescope's eyepiece.
+	'mirror',
+	'finds',
+	'telescope',
 	'help',
 ]);
 /** At most this many opens of one menu per beat — a beat covers ~90s, so a

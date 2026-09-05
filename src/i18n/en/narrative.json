@@ -557,5 +557,387 @@
 				}
 			}
 		}
+	},
+	"sky": {
+		"_readme": "What the telescope shows: the daytime sky (clouds.*, optics.*) and the night sky (figures.*, deep.*, bodies.*, events.*), listed in ui/sky.ts and drawn in ui/skyArt.tsx. Each entry is a name, the plain name under it, a paragraph, and one line of what it tells you. Real meteorology and the real sky — plain explanation with a fact worth keeping, no whimsy, same voice as the bookshelf.",
+		"clouds": {
+			"cirrus": {
+				"name": "Cirrus",
+				"byline": "a curl of hair",
+				"text": "Streaks of ice crystals five miles up, drawn out by winds that never reach the ground. The hooks on the ends are crystals falling out of the streak into slower air below — which is why sailors called them mares' tails.",
+				"note": "Cirrus thickening in from one side is a front arriving: rain, usually within a day."
+			},
+			"cirrostratus": {
+				"name": "Cirrostratus",
+				"byline": "a veil of ice",
+				"text": "A sheet of ice crystals so thin that the sun shines straight through it and everything still casts a shadow. What gives it away is the ring: every crystal bends light by the same 22 degrees, drawing a halo around the sun or the moon.",
+				"note": "A halo means the veil is up there — and a veil that thickens brings rain."
+			},
+			"cirrocumulus": {
+				"name": "Cirrocumulus",
+				"byline": "the mackerel sky",
+				"text": "High ice cloud rippled into small grains by air rolling over itself. Each grain is a cloud in its own right, only so far off that it reads as a scale — which is how a sky full of them came to be named after the banded back of a mackerel.",
+				"note": "A mackerel sky rarely lasts an hour: the air holding it is already unsettled."
+			},
+			"altocumulus": {
+				"name": "Altocumulus",
+				"byline": "rolls in the middle sky",
+				"text": "Patches and rolls halfway up the sky, each about the width of your thumb at arm's length and each with a shaded underside. That shading is how you tell them from cirrocumulus, whose grains are far smaller and never shadowed.",
+				"note": "Altocumulus on a warm morning is the classic sign of thunderstorms by late afternoon."
+			},
+			"altostratus": {
+				"name": "Altostratus",
+				"byline": "the frosted-glass sheet",
+				"text": "A grey sheet across the middle of the sky. The sun is still up there, but blurred to a smear with no edge, and nothing on the ground casts a shadow — the difference between looking through frosted glass and through a window.",
+				"note": "It arrives ahead of steady rain, thickening and lowering as the front comes in."
+			},
+			"lenticular": {
+				"name": "Lenticular",
+				"byline": "the standing mountain wave",
+				"text": "A smooth lens of cloud parked over a ridge, sometimes stacked several deep like plates. Air lifted by the mountain goes on rising and sinking downwind, and cloud forms in the crest of each wave — so the shape stands still while the wind pours through it at speed.",
+				"note": "Smooth to look at, violent to fly through — and behind a fair share of flying-saucer reports."
+			},
+			"stratus": {
+				"name": "Stratus",
+				"byline": "a low grey layer",
+				"text": "The flattest cloud there is: a featureless grey layer just above the ground, with nothing rising through it. It forms when a whole shallow layer of air cools to its dew point all at once, instead of in columns.",
+				"note": "Fog is stratus resting on the ground — walk up into a hill's cloud and you are inside one."
+			},
+			"stratocumulus": {
+				"name": "Stratocumulus",
+				"byline": "a lumpy low layer",
+				"text": "A low layer broken into lumps with gaps of sky between them — the most common cloud on Earth, and the one that makes a day simply grey. It marks air stirring just enough to break the layer up, never enough to build anything tall out of it.",
+				"note": "A dull sky rather than a wet one: rarely more than a spot of drizzle."
+			},
+			"nimbostratus": {
+				"name": "Nimbostratus",
+				"byline": "the rain layer",
+				"text": "A thick, dark, shapeless layer with rain or snow falling steadily out of it. The base looks ragged because the falling rain is eating into it from below, and there is no sign of the sun at all.",
+				"note": "The cloud of an all-day rain, not of a downpour that passes."
+			},
+			"cumulus": {
+				"name": "Cumulus",
+				"byline": "the fair-weather heap",
+				"text": "Flat bottom, cauliflower top. Each one sits on a column of warm air rising off the ground, and the flat base marks the height where that air finally cools enough for its water to condense. Look along a sky of them: every base is at the same height.",
+				"note": "Soaring birds and gliders use them as signposts to the lift underneath."
+			},
+			"cumulonimbus": {
+				"name": "Cumulonimbus",
+				"byline": "the thunderhead",
+				"text": "A heap cloud that grew until it hit the stratosphere and could climb no further, so it spread sideways into an anvil. Inside, ice and water are thrown up and down fast enough to separate charge — which is where lightning comes from.",
+				"note": "The anvil points downwind: it tells you which way the storm is going."
+			}
+		},
+		"figures": {
+			"ursa-major": {
+				"name": "Ursa Major",
+				"byline": "the Great Bear",
+				"text": "The seven bright stars of the bear's back and tail make the Plough, or the Big Dipper. Five of the seven are drifting through space together as one loose family; the two on the ends are strangers passing through, so the shape slowly bends out of true over tens of thousands of years.",
+				"note": "The two stars at the end of the bowl point straight at Polaris — the whole northern sky is found from there."
+			},
+			"ursa-minor": {
+				"name": "Ursa Minor",
+				"byline": "the Little Bear",
+				"text": "A fainter dipper hanging off Polaris, which sits almost exactly above the Earth's axis. The whole sky wheels around that one point, so Polaris barely moves all night — and its height above the horizon is your latitude, measured with nothing but your eyes.",
+				"note": "Which is why anyone crossing open country or open water at night in the north steered by it."
+			},
+			"cassiopeia": {
+				"name": "Cassiopeia",
+				"byline": "the seated queen",
+				"text": "Five bright stars in a W — or an M, depending on the hour, because she is on a chair that turns her upside down for half of every night. The Greeks put her there for boasting that she was lovelier than the sea nymphs.",
+				"note": "She sits across the pole from the Great Bear: when the Dipper is low, Cassiopeia is high, so one of them is always up."
+			},
+			"draco": {
+				"name": "Draco",
+				"byline": "the dragon",
+				"text": "A long line of faint stars winding between the two bears and ending in a small four-star head. Its star Thuban was the pole star when the pyramids were built, and the shafts cut through them are thought to have been aimed at it.",
+				"note": "The Earth's axis wobbles like a slowing top — one circle every 26,000 years — so the pole star keeps changing."
+			},
+			"leo": {
+				"name": "Leo",
+				"byline": "the lion",
+				"text": "A backwards question mark — the Sickle — makes the head and mane, with Regulus at the bottom as the full stop, and a triangle behind it makes the haunches and tail. It is one of the few figures that really does look like the animal it is named for.",
+				"note": "Regulus sits almost exactly on the sun's path, so the moon and the planets keep passing in front of it.",
+				"sun": "the sun is really in it 11 August – 15 September"
+			},
+			"bootes": {
+				"name": "Boötes",
+				"byline": "the herdsman",
+				"text": "A tall kite of stars with orange Arcturus at the tail — the brightest star in the northern half of the sky. Arcturus is an old star cutting across our part of the galaxy at an angle to everything else nearby: a visitor rather than a neighbour.",
+				"note": "Follow the curve of the Dipper's handle and you arc straight to it."
+			},
+			"cygnus": {
+				"name": "Cygnus",
+				"byline": "the swan",
+				"text": "A cross of bright stars flying down the Milky Way — called the Northern Cross as often as the Swan. Deneb at the tail looks like an ordinary bright star and is not: it is so far off that to shine this steadily it must be pouring out the light of something like a hundred thousand suns.",
+				"note": "The dark lane splitting the Milky Way here is dust between the stars, not a gap in them."
+			},
+			"lyra": {
+				"name": "Lyra",
+				"byline": "the harp",
+				"text": "A small parallelogram of stars with brilliant Vega at one corner. Vega was the pole star twelve thousand years ago and will be again in another twelve thousand — and in 1850 it became the first star other than the sun ever photographed.",
+				"note": "Vega, Deneb and Altair make the Summer Triangle: three constellations, one shape."
+			},
+			"aquila": {
+				"name": "Aquila",
+				"byline": "the eagle",
+				"text": "Altair with a dimmer star to either side, flying up the Milky Way opposite the Swan. Altair turns so fast — one day takes about nine hours — that it is visibly squashed, measurably wider across the middle than from pole to pole.",
+				"note": "At sixteen light years it is one of the closest bright stars we have."
+			},
+			"scorpius": {
+				"name": "Scorpius",
+				"byline": "the scorpion",
+				"text": "One of the few figures that really looks like its name: a head, a red heart, and a long tail curling up to a sting. Antares is a dying star so swollen that, dropped where the sun is, it would reach out past the orbit of Mars.",
+				"note": "Antares means the rival of Mars — the two are the same shade of red, and the planet passes it every couple of years.",
+				"sun": "the sun is really in it 23 November – 29 November"
+			},
+			"pegasus": {
+				"name": "Pegasus",
+				"byline": "the winged horse",
+				"text": "The Great Square: four stars marking a box about the width of your fist at arm's length, with a bent line off one corner for the neck and head. The horse is upside down, and only the front half of him is there.",
+				"note": "Count the stars inside the Square: none is a city sky, a handful is the suburbs, a dozen is properly dark country."
+			},
+			"andromeda": {
+				"name": "Andromeda",
+				"byline": "the chained princess",
+				"text": "A chain of stars running off one corner of the Great Square. Above the middle of the chain is a faint oval smudge, and it is not a star at all: it is the Andromeda Galaxy, a hundred billion suns so far away that the whole thing reads as a thumbprint on the sky.",
+				"note": "At 2.5 million light years it is the furthest thing the eye can see unaided — and it is heading our way."
+			},
+			"orion": {
+				"name": "Orion",
+				"byline": "the hunter",
+				"text": "Three stars in a short straight row make the belt, with red Betelgeuse at one shoulder and blue-white Rigel at the opposite foot. The colours are real and they mean something: Betelgeuse is a swollen old star near its end, Rigel a hot young one burning through its fuel in a hurry.",
+				"note": "The fuzzy patch hanging below the belt is the Orion Nebula, where new stars are being made right now."
+			},
+			"taurus": {
+				"name": "Taurus",
+				"byline": "the bull",
+				"text": "A V of stars makes the bull's face, with orange Aldebaran as the eye — though Aldebaran does not belong to that V at all. It is less than half as far away and only happens to line up in front of it. Two long horns run off the top.",
+				"note": "The little cluster on his shoulder is the Pleiades: most people count six, binoculars show dozens, and there are over a thousand.",
+				"sun": "the sun is really in it 14 May – 19 June"
+			},
+			"gemini": {
+				"name": "Gemini",
+				"byline": "the twins",
+				"text": "Two parallel lines of stars ending side by side in Castor and Pollux, about as close to twins as the sky gets. Pollux is the brighter and looks faintly orange. Castor looks like one star and is six — three pairs, all orbiting one another.",
+				"note": "The twins stand on the winter Milky Way, up above Orion's raised arm.",
+				"sun": "the sun is really in it 20 June – 19 July"
+			},
+			"canis-major": {
+				"name": "Canis Major",
+				"byline": "the great dog",
+				"text": "Orion's hunting dog, marked by Sirius — the brightest star in the night sky, mostly because it is one of the nearest rather than anything remarkable in itself. Low down it twinkles hard enough to flash red and green, and gets called in as an aircraft most winters.",
+				"note": "Its dawn rising once told Egypt the Nile was about to flood; the dog days of summer are named after it."
+			},
+			"aries": {
+				"name": "Aries",
+				"byline": "the ram",
+				"text": "Three or four faint stars and not much else, which is a surprise for a sign this famous. The fame is older than the look: two thousand years ago the sun stood here at the spring equinox, and that made this the start of the year.",
+				"note": "The equinox has since slid on into Pisces. The zodiac dates never moved with it.",
+				"sun": "the sun is really in it 19 April – 13 May"
+			},
+			"cancer": {
+				"name": "Cancer",
+				"byline": "the crab",
+				"text": "The faintest constellation of the zodiac: an upside-down Y of dim stars that needs a dark night to find at all. Its one treasure sits in the middle of it — the Beehive cluster, which the naked eye reads as a small smudge of haze.",
+				"note": "That smudge was an old weather gauge: when it went out of sight, thick air and rain were coming.",
+				"sun": "the sun is really in it 20 July – 10 August"
+			},
+			"virgo": {
+				"name": "Virgo",
+				"byline": "the maiden",
+				"text": "The largest constellation of the zodiac and the second largest in the whole sky, hung on blue-white Spica at the bottom. In most tellings she carries a sheaf of wheat — and Spica is the sheaf: the name means an ear of grain.",
+				"note": "Her territory holds a swarm of over a thousand galaxies, the nearest big cluster to our own.",
+				"sun": "the sun is really in it 16 September – 30 October"
+			},
+			"libra": {
+				"name": "Libra",
+				"byline": "the scales",
+				"text": "The only sign that is a thing rather than a creature, and it used to be part of the scorpion next door: its two brightest stars are still named the northern and the southern claw. Rome broke them off and made them the balance of the autumn equinox.",
+				"note": "The southern claw is the closest thing to a green star the eye can find, though most people still see white.",
+				"sun": "the sun is really in it 31 October – 22 November"
+			},
+			"ophiuchus": {
+				"name": "Ophiuchus",
+				"byline": "the serpent bearer",
+				"text": "A big plain figure standing on the scorpion's back with a snake in both hands — and the thirteenth constellation the sun actually crosses. The twelve signs were fixed by cutting the year into twelve equal parts, and this one simply did not get a slice.",
+				"note": "The sun spends longer crossing it than it does crossing Scorpius.",
+				"sun": "the sun is really in it 30 November – 17 December"
+			},
+			"sagittarius": {
+				"name": "Sagittarius",
+				"byline": "the archer",
+				"text": "Everyone sees a teapot: handle, lid, spout and all. Aim just off the end of the spout and you are looking straight at the centre of our own galaxy, twenty-six thousand light years away and hidden behind so much dust that only radio and infrared get through.",
+				"note": "The steam rising from the spout is the brightest star cloud in the Milky Way.",
+				"sun": "the sun is really in it 18 December – 18 January"
+			},
+			"capricornus": {
+				"name": "Capricornus",
+				"byline": "the sea goat",
+				"text": "A wide faint triangle low in the south, and one of the oldest figures still in use: a goat with a fish's tail, drawn that way in Babylon three thousand years ago and never redrawn since.",
+				"note": "The Tropic of Capricorn is named for it — the sun stood here at the winter solstice two thousand years ago. It now stands in Sagittarius.",
+				"sun": "the sun is really in it 19 January – 15 February"
+			},
+			"aquarius": {
+				"name": "Aquarius",
+				"byline": "the water carrier",
+				"text": "A jar of four stars with a stream of fainter ones pouring south out of it, into the mouth of the southern fish. This whole quarter of sky — Aquarius, Pisces, Capricornus, the whale — was known to the ancients simply as the Sea.",
+				"note": "Neptune was found here in 1846, within a degree of where the arithmetic said to look.",
+				"sun": "the sun is really in it 16 February – 11 March"
+			},
+			"pisces": {
+				"name": "Pisces",
+				"byline": "the fishes",
+				"text": "Two faint fish tied tail to tail by a long V of stars, the knot marked by the one middling-bright star in the whole figure. Faint as it is, this is where the sun now stands at the spring equinox — the zero point the rest of the sky is measured from.",
+				"note": "That point slides a degree every seventy-two years, and moves on into Aquarius in a few hundred.",
+				"sun": "the sun is really in it 12 March – 18 April"
+			}
+		},
+		"optics": {
+			"rainbow": {
+				"name": "Rainbow",
+				"byline": "sunlight, bent and sorted",
+				"text": "Every raindrop in front of you is a prism: light goes in, bounces once off the back of the drop and comes out sorted by colour. You only see the drops sitting 42 degrees from the shadow of your own head, so a rainbow is always centred on you — and no two people ever see the same one.",
+				"note": "Look outside it for the second, fainter bow: same trick, one extra bounce, colours reversed."
+			},
+			"sundogs": {
+				"name": "Sun Dogs",
+				"byline": "the mock suns",
+				"text": "Two bright patches level with the sun, one either side, sitting on the edge of a 22-degree halo. Flat ice crystals drifting down like falling leaves all settle the same way up and bend the light sideways — so a sun dog is proof of high ice cloud between you and the sun.",
+				"note": "A cold-weather sight: the colder the air, the likelier the crystals are the right shape."
+			},
+			"crepuscular-rays": {
+				"name": "Crepuscular Rays",
+				"byline": "sunbeams through a gap",
+				"text": "Shafts of light through a break in the cloud, picked out by dust and haze in the air. They look like they fan out from the sun and they do not: the beams are very nearly parallel, and the spread is perspective — the same trick that makes railway tracks meet.",
+				"note": "On a good evening they cross the whole sky and appear to meet again at the point opposite the sun."
+			},
+			"virga": {
+				"name": "Virga",
+				"byline": "rain that never lands",
+				"text": "Streaks hanging under a cloud and fading out partway down. It is real rain or snow, evaporating in dry air before it reaches the ground — and taking heat out of the air as it goes, which is what puts a sudden cold gust under a desert shower.",
+				"note": "A cloud with a beard, and often the only rain a hot day ever produces."
+			}
+		},
+		"deep": {
+			"milky-way": {
+				"name": "The Milky Way",
+				"byline": "our own galaxy, edge-on",
+				"text": "Not a cloud, and not something in the distance: it is the flat disc of our own galaxy seen from the inside, so the band across the sky is simply the direction with the most stars stacked along it. Every star you can pick out anywhere in the sky belongs to it.",
+				"note": "The dark rift down the middle is dust in the way — cold clouds where the next stars are being made."
+			},
+			"andromeda-galaxy": {
+				"name": "The Andromeda Galaxy",
+				"byline": "M31, a whole other galaxy",
+				"text": "A faint oval smudge above the chain of Andromeda, and the only galaxy beyond our own that most people ever see with the naked eye. A trillion stars, so far off that the light arriving tonight set out before our species existed.",
+				"note": "It is falling towards us at 110 kilometres a second: in about four billion years the two galaxies merge."
+			},
+			"orion-nebula": {
+				"name": "The Orion Nebula",
+				"byline": "M42, a star nursery",
+				"text": "The fuzzy patch hanging off Orion's belt is a cloud of gas two dozen light years across with new stars switching on inside it. Four of them, the Trapezium, are lighting the whole cloud from within like a lamp inside fog.",
+				"note": "It is a fair picture of what our own solar system looked like before it was one."
+			},
+			"pleiades": {
+				"name": "The Pleiades",
+				"byline": "M45, the seven sisters",
+				"text": "A tight knot of blue-white stars, all born together about a hundred million years ago and still travelling as one group. The haze around them is a dust cloud they happen to be drifting through, lit up the way mist is lit around a streetlamp.",
+				"note": "Almost every culture that watched the sky named this cluster, and many timed their planting by it."
+			},
+			"hercules-cluster": {
+				"name": "The Hercules Cluster",
+				"byline": "M13, a globular cluster",
+				"text": "A ball of a few hundred thousand stars, packed so tightly at its centre that the sky from a planet inside it would never get properly dark. It is about as old as the galaxy and orbits it from outside the disc, like a bee round a plate.",
+				"note": "In binoculars a fuzzy dot; in a telescope the edges break apart into stars."
+			},
+			"ring-nebula": {
+				"name": "The Ring Nebula",
+				"byline": "M57, a star's last breath",
+				"text": "A small smoke ring in Lyra: the outer layers of a dying sun-like star, puffed off into space and lit from inside by the white-hot core it left behind. You see a ring because you are looking through the edge of a shell.",
+				"note": "This is roughly how our own sun ends, in five billion years or so."
+			},
+			"lagoon-nebula": {
+				"name": "The Lagoon Nebula",
+				"byline": "M8, gas and dark lanes",
+				"text": "A wide pink cloud low in the summer Milky Way, cut through by dark lanes of dust. The pink is hydrogen glowing under the ultraviolet of hot young stars that formed inside it and are now eating their way out.",
+				"note": "Big enough to find without a telescope on a dark night, and one of the few nebulae that shows any colour."
+			},
+			"double-cluster": {
+				"name": "The Double Cluster",
+				"byline": "two swarms, side by side",
+				"text": "Two open clusters of young blue stars, close enough together to sit in one view, in the Milky Way between Perseus and Cassiopeia. Both are around thirteen million years old — newborns beside the sun's four and a half billion.",
+				"note": "One of the few sights that genuinely looks better in binoculars than in a big telescope."
+			},
+			"beehive": {
+				"name": "The Beehive",
+				"byline": "M44, a swarm of stars",
+				"text": "A loose scatter of stars in an otherwise dim patch of sky, known to the ancients only as a haze. Galileo turned the first telescope on it and found the haze was forty-odd separate stars — one of the earliest things the instrument settled.",
+				"note": "Rome read it as a forecast: when the haze went out of sight, rough weather was on the way."
+			},
+			"whirlpool-galaxy": {
+				"name": "The Whirlpool Galaxy",
+				"byline": "M51, a spiral face-on",
+				"text": "The first object anyone recognised as a spiral, sketched in 1845 through a telescope with a six-foot mirror. A small companion galaxy is passing behind it and pulling one arm out of shape, which is exactly why the spiral is so sharply drawn.",
+				"note": "Face-on, so it shows you the shape of a galaxy the way nobody can ever see our own."
+			}
+		},
+		"bodies": {
+			"moon": {
+				"name": "The Moon",
+				"byline": "our own, up close",
+				"text": "The dark patches are seas of ancient lava, smooth because they flooded late, after the worst of the bombardment was over. The pale rough ground between them is older, and every crater on it is a hit that never wore away — there is no weather up there to wear it.",
+				"note": "Look along the terminator, the line between lit and dark: the shadows are longest there and the craters stand out."
+			},
+			"jupiter": {
+				"name": "Jupiter",
+				"byline": "the biggest planet",
+				"text": "A striped disc with four points of light strung out beside it — the moons Galileo watched swap places in 1610, which is how we found out that not everything goes around the Earth. The stripes are belts of cloud running in opposite directions.",
+				"note": "The Great Red Spot is a storm wider than the Earth, and it has been blowing for centuries."
+			},
+			"saturn": {
+				"name": "Saturn",
+				"byline": "the ringed planet",
+				"text": "The rings are not solid. They are billions of pieces of ice, from grit to house-sized, orbiting in a sheet a few hundred thousand kilometres across and only tens of metres thick — a sheet of paper the width of a continent.",
+				"note": "They tilt as the years go by: every fifteen years or so they turn edge-on and all but disappear."
+			},
+			"mars": {
+				"name": "Mars",
+				"byline": "the red planet",
+				"text": "The colour is rust, literally — iron oxide dust lying over the whole surface. A telescope will show a white polar cap and darker markings that shift about as global dust storms pick the dust up and put it down somewhere else.",
+				"note": "Every couple of years the Earth overtakes it, and for a few weeks it appears to loop backwards across the sky."
+			},
+			"venus": {
+				"name": "Venus",
+				"byline": "the evening star",
+				"text": "The brightest thing in the sky after the sun and the moon, and never far from the horizon: you get it just after sunset or just before dawn. What you are seeing is not the planet but its cloud deck — sulphuric acid, bouncing back three-quarters of the light that hits it.",
+				"note": "It shows phases like the moon. Galileo saw them, and that was the end of the Earth-centred sky."
+			}
+		},
+		"events": {
+			"perseids": {
+				"name": "The Perseids",
+				"byline": "August's meteor shower",
+				"text": "Dust shed by comet Swift-Tuttle, hitting the air at 59 kilometres a second and burning up sixty miles overhead. The streaks all seem to come from one point in Perseus, for the same reason sunbeams seem to fan: the grains are on parallel paths and perspective does the rest.",
+				"note": "Peaks around the 12th of August, at up to a meteor a minute under a dark sky."
+			},
+			"geminids": {
+				"name": "The Geminids",
+				"byline": "December's meteor shower",
+				"text": "The best shower of the year, and the odd one out: its dust comes from a rock rather than a comet — an asteroid called Phaethon that sheds material when it swings in close to the sun. The meteors are slower and brighter than most.",
+				"note": "Peaks around the 14th of December. Cold work, but up to two a minute."
+			},
+			"aurora": {
+				"name": "The Aurora",
+				"byline": "the northern lights",
+				"text": "Particles from the sun, funnelled down the Earth's magnetic field and hitting the upper air. Oxygen answers in green a hundred miles up and in deep red much higher; nitrogen puts the blue and violet fringe along the bottom of a curtain.",
+				"note": "The curtains hang along the field lines themselves, which is why they fold and ripple instead of drifting like cloud."
+			},
+			"satellites": {
+				"name": "Satellites",
+				"byline": "someone else's hardware",
+				"text": "A steady point of light crossing the sky in a straight line, a few minutes from one horizon to the other, never twinkling. It is sunlight off metal — the satellite is still in daylight up there while you are already in shadow down here.",
+				"note": "If it blinks, it is an aircraft. If it fades out in mid-sky, it just flew into the Earth's shadow."
+			}
+		}
 	}
 }

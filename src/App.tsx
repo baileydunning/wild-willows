@@ -132,6 +132,7 @@ const StoriesPanel = lazyPanel(() => import('./ui/Panels').then((m) => m.Stories
 const JournalPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.JournalPanel));
 const AnimalCard = lazyPanel(() => import('./ui/Journal').then((m) => m.AnimalCard));
 const FindsBoardPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.FindsBoardPanel));
+const TelescopePanel = lazyPanel(() => import('./ui/Telescope').then((m) => m.TelescopePanel));
 const AchievementsPanel = lazyPanel(() => import('./ui/Achievements').then((m) => m.AchievementsPanel));
 const GoalsPanel = lazyPanel(() => import('./ui/GoalsPanel').then((m) => m.GoalsPanel));
 const DevPanel = lazyPanel(() => import('./ui/DevPanel').then((m) => m.DevPanel));
@@ -166,6 +167,7 @@ const WARM_PANELS = [
 	JournalPanel,
 	AnimalCard,
 	FindsBoardPanel,
+	TelescopePanel,
 	AchievementsPanel,
 	GoalsPanel,
 ];
@@ -305,7 +307,7 @@ function PlantMenu({ bed, onClose }: { bed: ClickedBed; onClose: () => void }) {
 
 /** Small action menu when you click one of your placed items. */
 function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () => void }) {
-	const { removePlacement, rotatePlacement, harvest, data, state } = useGame();
+	const { removePlacement, rotatePlacement, harvest, setPlacementLit, data, state } = useGame();
 	const { t, content } = useI18n();
 	const def = data?.habitatObjects.find((o) => o.id === item.objectId);
 	const planted = !!(def?.plantable && item.plantedAt);
@@ -319,6 +321,17 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 	// never dangles a harvest that comes back as an error.
 	const weatherHere = liveWeatherType(state?.worldId, item.area || state?.player?.area || '', state?.weather);
 	const canHarvest = readyAt != null && Date.now() >= readyAt && harvestWeatherOk(def, weatherHere);
+	// Lights: the menu is where you FIND OUT you can light things. Walking up and
+	// reading the prompt works, but a lantern gives no sign that it is waiting to
+	// be lit, and a player who never presses the key next to one would never learn
+	// the toggle exists. Clicking a piece of furniture to see what it does is the
+	// thing everybody tries first, so the answer is in here too. Runs are left out
+	// for the same reason they have no key prompt — see attachFixtureActions.
+	// `lit` is read off the live placement rather than the click payload, so the
+	// button says what it will do even if the menu was opened before the last
+	// toggle landed.
+	const lightable = !!def?.light && def.shape !== 'lanternstring' && def.shape !== 'lanternrow';
+	const burning = state?.placements.find((p) => p.id === item.placementId)?.lit !== false;
 	const yieldName = def?.yield
 		? content(
 				'resource',
@@ -339,6 +352,17 @@ function PlacementMenu({ item, onClose }: { item: ClickedPlacement; onClose: () 
 					}}
 				>
 					<Icon name="basket" size={15} /> {t('app.placementMenu.harvest', { name: yieldName })}
+				</button>
+			)}
+			{lightable && (
+				<button
+					onClick={() => {
+						setPlacementLit(item.placementId, !burning);
+						onClose();
+					}}
+				>
+					<Icon name={burning ? 'moon' : 'sun'} size={15} />{' '}
+					{burning ? t('app.placementMenu.putOut') : t('app.placementMenu.lightUp')}
 				</button>
 			)}
 			<button
@@ -424,6 +448,7 @@ function GameScreen() {
 			// the pin board on the wall of the house: who has come back so far
 			bridge.on('open-finds', () => setPanel('finds')),
 			bridge.on('open-stories', () => setPanel('stories')),
+			bridge.on('open-telescope', () => setPanel('telescope')),
 			// A waymarker out on the trail opens the same areas panel the menu does.
 			// The panel already opens on the biome you are standing in, which is the
 			// page a sign at your feet should be showing.
@@ -617,6 +642,7 @@ function GameScreen() {
 				{panel === 'settings' && <SettingsPanel />}
 				{panel === 'mirror' && <MirrorPanel />}
 				{panel === 'finds' && <FindsBoardPanel />}
+				{panel === 'telescope' && <TelescopePanel />}
 				{panel === 'weather' && <WeatherPanel />}
 				{panel === 'materials' && <MaterialsPanel />}
 				{panel === 'goals' && <GoalsPanel />}

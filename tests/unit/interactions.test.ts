@@ -10,6 +10,7 @@ import {
 	worldToScreen,
 	arrivalKind,
 	pinwheelSpin,
+	isLit,
 } from '../../src/game/interactions';
 
 // The west→east walking order of the preserve, as WorldScene holds it.
@@ -211,6 +212,24 @@ describe('isSleepable', () => {
 		for (const id of ['reed-bed', 'eelgrass-bed', 'oyster-bed', 'workbench', '', null, undefined]) {
 			expect(isSleepable(id as any)).toBe(false);
 		}
+	});
+});
+
+describe('isLit — absent means burning', () => {
+	it('treats a placement with no flag as lit', () => {
+		// The whole compatibility story rides on this. `lit` is written only by
+		// SetPlacementLit, so every lantern placed before the toggle existed — and
+		// every one placed since that nobody has touched — arrives here without the
+		// field, and all of them were glowing.
+		expect(isLit({})).toBe(true);
+		expect(isLit({ lit: undefined })).toBe(true);
+		expect(isLit(null)).toBe(true);
+		expect(isLit(undefined)).toBe(true);
+	});
+
+	it('only an explicit false puts one out', () => {
+		expect(isLit({ lit: false })).toBe(false);
+		expect(isLit({ lit: true })).toBe(true);
 	});
 });
 

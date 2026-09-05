@@ -25,6 +25,7 @@ import {
 	ensureWaterTile,
 	PATH_SHAPES,
 	PICKED,
+	OUT,
 	ensurePathTile,
 	RUN_SHAPES,
 	LIT_SHAPES,
@@ -396,7 +397,10 @@ export class WorldScene extends Phaser.Scene {
 	private sleeping = false;
 	// Where the caretaker is sitting, if they are: the seat's own center, which is
 	// what standing up steps them off. See sitOn().
-	private sitting: { x: number; y: number } | null = null;
+	/** The seat the caretaker is in, and whether it is one they LIE in (a hammock)
+	 *  rather than sit on — which changes the pose, the tilt, and what the animals
+	 *  that come over do once they get here. */
+	private sitting: { x: number; y: number; recline?: boolean } | null = null;
 	// When the caretaker sat down. Sitting still is the one thing in the game
 	// that pays for doing nothing — animals with a reason to be near this seat
 	// work their way over (see the stillness block in worldRules.ts, which
@@ -1174,7 +1178,10 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
 		this.unsubs.push(
 			bridge.on('appearance-changed', (appearance: any) => {
-				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance, this.sitting ? 'sit' : 'stand'));
+				if (this.alive)
+					this.player.setTexture(
+						makePlayerTexture(this, appearance, this.sitting ? (this.sitting.recline ? 'lie' : 'sit') : 'stand'),
+					);
 			}),
 		);
 		// The build animation plays on the camp building; its reveal fires world-dirty,
@@ -4275,7 +4282,7 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	/** The caretaker's sprite in one pose or the other, from the saved look. */
-	private playerTexture(pose: 'stand' | 'sit') {
+	private playerTexture(pose: 'stand' | 'sit' | 'lie') {
 		return makePlayerTexture(this, bridge.shared.state?.player.appearance, pose);
 	}
 
@@ -4289,20 +4296,20 @@ export class WorldScene extends Phaser.Scene {
 		if (this.sitting) return this.standUp();
 		const seat = WorldScene.SEATS[shape];
 		if (!seat) return;
-		this.sitting = { x: bx, y: by };
+		const recline = WorldScene.RECLINERS.has(shape);
+		this.sitting = { x: bx, y: by, recline };
 		this.stillSince = this.time.now;
 		this.armStillness();
 		this.setWalkAudio(false);
-		this.player.setTexture(this.playerTexture('sit'));
+		this.player.setTexture(this.playerTexture(recline ? 'lie' : 'sit'));
 		this.player.setPosition(bx, by + seat.dy);
-		this.player.setRotation(0); // the walk waddle settles
+		// Sitting sets the walk waddle back to level. Lying tips the whole caretaker
+		// over into the sling — the same move sleeping in a bed makes (sleepAt), a
+		// few degrees short of flat so they still read as facing the sky rather than
+		// as a sprite that fell over.
+		this.player.setAngle(recline ? -72 : 0);
 		this.player.setDepth(by + 6); // in front of the seat's back, on top of its seat
-		this.floatText(
-			bx,
-			by - 26,
-			WorldScene.RECLINERS.has(shape) ? t('game.float.lieIn') : t('game.float.sit'),
-			'#f3ead2',
-		);
+		this.floatText(bx, by - 26, recline ? t('game.float.lieIn') : t('game.float.sit'), '#f3ead2');
 	}
 
 	/** Back on your feet, standing just in front of the seat. */
@@ -4312,6 +4319,7 @@ export class WorldScene extends Phaser.Scene {
 		this.sitting = null;
 		this.endStillness();
 		this.player.setTexture(this.playerTexture('stand'));
+		this.player.setAngle(0); // upright again, whichever way they were lying
 		this.player.setPosition(seat.x, seat.y + 16);
 		this.player.setDepth(this.player.y + 16);
 	}
@@ -4419,6 +4427,10 @@ export class WorldScene extends Phaser.Scene {
 		this.idleSince = null;
 		for (const img of this.approaching) {
 			if (!img.active) continue; // cleared by a rebuild; its data manager is gone
+			// Anyone who dozed off beside the hammock wakes up as you get out of it,
+			// here rather than on their next hop: a nap that carried on for three
+			// seconds after you stood up would read as a stuck animation.
+			this.wakeAnimal(img);
 			const home = img.getData('home') as { x: number; y: number } | undefined;
 			if (home) {
 				home.x = img.x;
@@ -4484,6 +4496,91 @@ export class WorldScene extends Phaser.Scene {
 		const still = img.getData('still') as { radius: number } | undefined;
 		if (!seat || !still) return false;
 		return hasArrived(img.x, img.y, seat.x, seat.y, still.radius);
+	}
+
+	/**
+	 * Is this animal asleep beside the hammock right now — and if it has just
+	 * dropped off, or just been disturbed, make it so.
+	 *
+	 * Only lying down does this. Sitting on a bench draws a gathering that stays
+	 * awake and mills about, which is the right picture for a bench; a hammock in
+	 * the afternoon is a different one, and the animals that come over settle all
+	 * the way down with you. It is the payoff for the piece of furniture being
+	 * what it is, in the same spirit as the gathering itself: nothing recorded,
+	 * nothing unlocked, just what happens if you lie there.
+	 *
+	 * Called at the top of every wander leg, so a dozing animal simply never takes
+	 * one — that is what keeps it beside you rather than drifting off mid-nap.
+	 */
+	private dozingNow(img: Phaser.GameObjects.Image): boolean {
+		const settled = !!this.sitting?.recline && this.approaching.has(img) && this.stillArrived(img);
+		if (!settled) {
+			if (img.getData('doze')) this.wakeAnimal(img);
+			return false;
+		}
+		if (!img.getData('doze')) this.startDozing(img);
+		return true;
+	}
+
+	/** Curl up: slow breathing, and the odd `z`. Both are held on the sprite so
+	 *  waking can undo exactly what this did. */
+	private startDozing(img: Phaser.GameObjects.Image) {
+		const baseY = img.scaleY;
+		img.setData('doze', { baseY });
+		if (getPrefs().reduceMotion) return; // still asleep — just not breathing at you
+		const breath = this.tweens.add({
+			targets: img,
+			scaleY: { from: baseY, to: baseY * 1.06 },
+			duration: 1500,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
+		// Sparse on purpose. One `z` every few seconds from a few animals is a
+		// clearing full of sleeping creatures; one a second from each is a cartoon.
+		const zzz = this.time.addEvent({
+			delay: 2600 + Math.random() * 2400,
+			loop: true,
+			callback: () => {
+				// The animal layer is rebuilt out from under these (refreshDynamic), and
+				// a looping timer holding a destroyed sprite would tick for the rest of
+				// the session. It retires itself the first time it finds one gone.
+				if (!img.active) return zzz.remove();
+				if (!img.getData('doze')) return;
+				const z = this.add
+					.text(img.x + 6, img.y - 10, 'z', {
+						fontFamily: 'Quicksand, sans-serif',
+						fontSize: '11px',
+						color: '#dfe9ff',
+						fontStyle: 'bold',
+						resolution: 4, // stays crisp under camera zoom
+					})
+					.setOrigin(0.5)
+					.setDepth(img.depth + 1);
+				this.tweens.add({
+					targets: z,
+					y: z.y - 16,
+					x: z.x + 8,
+					alpha: 0,
+					duration: 1500,
+					ease: 'Sine.easeOut',
+					onComplete: () => z.destroy(),
+				});
+			},
+		});
+		img.setData('doze', { baseY, breath, zzz });
+	}
+
+	/** Undo startDozing, whatever of it actually ran. Safe on an animal that was
+	 *  never asleep, and on one whose sprite is on its way out. */
+	private wakeAnimal(img: Phaser.GameObjects.Image) {
+		const doze = img.getData('doze') as
+			{ baseY: number; breath?: Phaser.Tweens.Tween; zzz?: Phaser.Time.TimerEvent } | undefined;
+		if (!doze) return;
+		img.setData('doze', null);
+		doze.breath?.remove();
+		doze.zzz?.remove();
+		if (img.active) img.setScale(img.scaleX, doze.baseY);
 	}
 
 	/** Climb into the bed/bag, dim the room, snooze ~3s, then refresh the preserve. */
@@ -4829,7 +4926,16 @@ export class WorldScene extends Phaser.Scene {
 			: run
 				? ensureRunTile(this, def.shape!, this.runConn(p))
 				: `obj-${def.shape || 'kit'}`;
-		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
+		let objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
+		// A light that has been put out is drawn as a DIFFERENT SPRITE, not as the
+		// lit one dimmed: the hearth has dark logs and ash where the flame was, the
+		// lighthouse throws no beam, the lantern's pane is grey glass. Every
+		// lightable shape draws an `-out` texture of itself alongside its lit one
+		// (sprites/canvas.ts: lightable), for the same reason `-picked` exists — the
+		// state of a thing should be legible in the thing, from across the room,
+		// rather than only in the halo, which is invisible for two thirds of a day
+		// anyway and never shows indoors.
+		if (def.light && !isLit(p) && this.textures.exists(`${objKey}${OUT}`)) objKey = `${objKey}${OUT}`;
 		// A plant that has been picked stands stripped until its yield is back:
 		// bare stems, empty seed heads, an emptied bowl. Every harvestable shape
 		// draws a `-picked` texture of itself (sprites/canvas.ts: pickable), so
@@ -5256,6 +5362,23 @@ export class WorldScene extends Phaser.Scene {
 					y,
 					label: t('game.label.readFindsBoard'),
 					action: () => bridge.emit('open-finds'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'home-telescope') {
+			// The eyepiece: cloud types while it is light, constellations once it is
+			// dark (ui/Telescope.tsx picks, off the same day clock the HUD reads).
+			//
+			// KEY-ONLY, like the bookshelf and the mirror. A telescope is furniture
+			// you stand up somewhere and then move when the view is wrong, and a
+			// registered click action is exactly what would take that menu away.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.useTelescope'),
+					action: () => bridge.emit('open-telescope'),
 				},
 				img,
 				{ keyOnly: true, collect: its },
@@ -5950,6 +6073,12 @@ export class WorldScene extends Phaser.Scene {
 		img.setData('home', home);
 		const hop = () => {
 			if (!img.active) return;
+			// Asleep beside the hammock: no leg at all. Check back in a while rather
+			// than every frame — a sleeping animal is the cheapest thing on screen.
+			if (this.dozingNow(img)) {
+				this.time.delayedCall(1600 + rng() * 2200, hop);
+				return;
+			}
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
 			let tx: number, ty: number;
 			// An amphibious animal picks a side each time it moves, so it hauls out
@@ -6435,6 +6564,16 @@ export class WorldScene extends Phaser.Scene {
 			vx = joy.x;
 			vy = joy.y;
 		}
+		// A panel is open: the world behind a modal does not walk. Clicks are
+		// already swallowed for exactly this reason (installPointer), and keys were
+		// not — which only became obvious with the telescope, whose own controls
+		// are the arrow keys, but was always true of every panel. Zeroed rather
+		// than returned early so the stop runs through the standing-still path
+		// below: walk audio off, the waddle settles upright, stillness noted.
+		if (bridge.shared.uiBlocking) {
+			vx = 0;
+			vy = 0;
+		}
 		// Sitting ends the moment you ask to go somewhere, and the step you asked
 		// for happens on this same frame — so leaving a bench is just walking.
 		if (this.sitting) {
@@ -6627,8 +6766,15 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
-		// pulsing highlight on whatever you can interact with right now
-		if (focus && getPrefs().interactHint !== false) {
+		// Pulsing highlight on whatever you can interact with right now — but never
+		// while the caretaker is settled. Sitting draws them at the seat's own
+		// position, so the ring the seat put on the ground ends up centred on the
+		// person sitting in it, with the key badge floating over their head: the
+		// game pointing at you to tell you that you are there. The key still works
+		// (that is how you get up again) and the bottom bar still says so; it is
+		// only the ring and badge that go. Sleeping is the same picture for the
+		// same reason.
+		if (focus && !this.sitting && !this.sleeping && getPrefs().interactHint !== false) {
 			if (!this.highlight.visible) {
 				this.highlight.setVisible(true);
 				this.syncRingPulse(); // the pulse only ticks while the ring is on screen

@@ -2395,7 +2395,7 @@
 				"name": "Mesita"
 			},
 			"home-telescope": {
-				"description": "Un telescopio de latón para el despejado cielo de montaña.",
+				"description": "Un telescopio de latón sobre un trípode de madera. Mira por él: tipos de nube de día y constelaciones de noche.",
 				"name": "Telescopio para Estrellas"
 			},
 			"home-wallclock": {
@@ -3412,7 +3412,7 @@
 			},
 			"sedge-tussock-nest": {
 				"name": "Macolla de Pradera",
-				"description": "Un montón denso de juncia a la altura de la rodilla en un bajo húmedo, tan apretado que podrías meter el puño hasta el fondo y no volver a encontrar el hueco."
+				"description": "Un montón denso de juncia a la altura de la rodilla en un bajo húmedo, tan apretado que un topillo puede colarse hasta el centro y la entrada se cierra tras él."
 			},
 			"hidden-grass-nest": {
 				"name": "Nido de Pasto Oculto",

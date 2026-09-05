@@ -3099,7 +3099,7 @@
 				"name": "Little Table"
 			},
 			"home-telescope": {
-				"description": "A brass telescope for the clear mountain sky.",
+				"description": "A brass telescope on a wooden tripod. Look through it for cloud types by day and constellations at night.",
 				"name": "Stargazing Telescope"
 			},
 			"home-wallclock": {
@@ -3531,7 +3531,7 @@
 				"name": "Sedge Tussock"
 			},
 			"sedge-tussock-nest": {
-				"description": "A dense knee-high clump of sedge in a damp low spot, packed so tightly you could push a fist deep inside it and never find the hole again.",
+				"description": "A dense knee-high clump of sedge in a damp low spot, packed so tightly that a vole can slip into the middle of it and the way in closes behind it.",
 				"name": "Meadow Sedge Tussock"
 			},
 			"seed-larder-burrow": {

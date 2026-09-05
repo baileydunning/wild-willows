@@ -144,7 +144,9 @@
 		"rotate": "Rotate",
 		"digUp": "Dig up (returns materials)",
 		"pickUp": "Pick up",
-		"harvest": "Harvest {name}"
+		"harvest": "Harvest {name}",
+		"lightUp": "Light it",
+		"putOut": "Put it out"
 	},
 	"welcome": {
 		"solo": "Solo",

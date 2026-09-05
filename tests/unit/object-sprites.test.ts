@@ -24,6 +24,14 @@ function spriteKeys(): Set<string> {
 		const src = readFileSync(join(OBJECTS, f), 'utf8');
 		for (const m of src.matchAll(/^\t([a-zA-Z0-9]+): def\(/gm)) keys.add(m[1]); // plain sprites
 		for (const m of src.matchAll(/pickable\('([a-zA-Z0-9]+)'/g)) keys.add(m[1]); // plant + picked pair
+		// A light draws itself burning and put out, from one draw — see lightable()
+		// in sprites/canvas.ts. Both keys count: the world reaches for `<shape>-out`
+		// the moment somebody snuffs the thing, and a missing one would silently
+		// fall back to the lit sprite and make the toggle look broken.
+		for (const m of src.matchAll(/lightable\('([a-zA-Z0-9]+)'/g)) {
+			keys.add(m[1]);
+			keys.add(`${m[1]}-out`);
+		}
 	}
 	// Paths are tiles, keyed by material; the runs of lights are keyed by shape.
 	const paths = read('src/game/sprites/objects/paths.ts');
@@ -85,6 +93,22 @@ describe('placeable object sprites', () => {
 			expect(keys.has(shape), `SEATS names '${shape}', which has no sprite`).toBe(true);
 			expect(placed.has(shape), `SEATS names '${shape}', which nothing in the data uses`).toBe(true);
 		}
+	});
+
+	it('draws a put-out sprite for every light the data lets you snuff', () => {
+		// `light: true` in the data is what puts the toggle on a piece (and the
+		// button in the placement menu). If the sprite layer has no `-out` for it,
+		// putting it out changes nothing on screen — which is the exact complaint
+		// that got these sprites written in the first place. The two runs are the
+		// documented exception: they are placed tile by tile and carry no toggle.
+		const keys = spriteKeys();
+		const RUNS = new Set(['lanternstring', 'lanternrow']);
+		const lights = (
+			JSON.parse(read('data/habitat-objects.json')).records as { id: string; shape: string; light?: boolean }[]
+		).filter((o) => o.light && !RUNS.has(o.shape));
+		expect(lights.length, 'nothing in the data is marked as a light').toBeGreaterThan(0);
+		const unsnuffable = lights.filter((o) => !keys.has(`${o.shape}-out`)).map((o) => `${o.id} → '${o.shape}'`);
+		expect(unsnuffable, `lights with no put-out sprite: ${unsnuffable.join(', ')}`).toEqual([]);
 	});
 
 	it('names real shapes in the light sets', () => {

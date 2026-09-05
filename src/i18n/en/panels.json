@@ -808,5 +808,42 @@
 		"weather": "Weather & seasons — how conditions shift across the preserve and shape the land; some materials and animals only appear in the right weather.",
 		"settings": "Settings — sound, accessibility, your character, and save options.",
 		"demoNear": "One more animal and you'll complete the demo — you're nearly there!"
+	},
+	"telescope": {
+		"_readme": "The Stargazing Telescope (ui/Telescope.tsx). Clouds by day, constellations by night — what each one IS lives under narrative.sky.*; these are the panel's own chrome.",
+		"title": "Telescope",
+		"modeDay": "Cloud watching",
+		"modeNight": "Stargazing",
+		"today": "Today: {weather}",
+		"tonight": "Tonight: the {season} sky",
+		"overhead": "Up there now",
+		"inView": "In view",
+		"emptyView": "Empty sky — keep sweeping.",
+		"aimHint": "Nothing in the crosshairs. Sweep the sky with the arrow keys.",
+		"hint": "Arrow keys sweep the telescope — or drag the view. Point at anything to read it.",
+		"eyepieceLabel": "The view through the eyepiece",
+		"allYear": "Circles the pole all year — it never sets.",
+		"bestIn": "Best seen in {seasons}.",
+		"levels": {
+			"high": "High cloud — above 20,000 ft, and made entirely of ice.",
+			"mid": "Middle cloud — 6,500 to 20,000 ft.",
+			"low": "Low cloud — below 6,500 ft.",
+			"towering": "Heap cloud — a low flat base and a head that can climb to the top of the sky."
+		},
+		"seasons": {
+			"spring": "spring",
+			"summer": "summer",
+			"autumn": "autumn",
+			"winter": "winter"
+		},
+		"cloudedOut": "{weather} — the sky has a lid on it tonight",
+		"optic": "Not a cloud: something light does on the way through one.",
+		"body": "In our own solar system — near enough to show a disc.",
+		"notToday": "Not in today's sky — this one comes with {weather}.",
+		"notTonight": "Not up tonight — {when}",
+		"lidOn": "And tonight the cloud is in the way of all of it.",
+		"seasonsAny": "it keeps no calendar; catch it when it is up.",
+		"or": " or ",
+		"zodiacLine": "Zodiac — {when}. The horoscope's dates were fixed two thousand years ago, and the sky has drifted a whole sign since."
 	}
 }

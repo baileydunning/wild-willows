@@ -1,6 +1,6 @@
 // Graywind Heights.
 
-import { C, def, pickable } from '../canvas';
+import { C, def, lightable, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const ALPINE: SpriteSet = {
@@ -179,13 +179,14 @@ export const ALPINE: SpriteSet = {
 			g.fillStyle(C(c), 1).fillTriangle(x, yt, x + 6, yt + 0.6, x + 3, yt + 11);
 		});
 	}),
-	crystallantern: def(24, 34, (g) => {
+	...lightable('crystallantern', 24, 34, (g, lit) => {
 		g.fillStyle(C('#7c7670'), 1).fillRect(6, 28, 12, 5); // stone base
 		g.fillStyle(C('#8e8880'), 1).fillRect(8, 10, 8, 18); // post
 		g.fillStyle(C('#6e685e'), 1).fillRect(5, 6, 14, 5).fillRect(7, 2, 10, 4); // cap
-		g.fillStyle(C('#9fdff0'), 0.55).fillCircle(12, 18, 8); // glow
-		g.fillStyle(C('#d8f0fa'), 1).fillTriangle(8, 22, 16, 22, 12, 12); // quartz shard
-		g.fillStyle(0xffffff, 0.9).fillCircle(12, 15, 1.4);
+		if (lit) g.fillStyle(C('#9fdff0'), 0.55).fillCircle(12, 18, 8); // glow
+		// Dark quartz is grey stone. The shard stays; only its light goes.
+		g.fillStyle(C(lit ? '#d8f0fa' : '#a8b0b4'), 1).fillTriangle(8, 22, 16, 22, 12, 12); // quartz shard
+		if (lit) g.fillStyle(0xffffff, 0.9).fillCircle(12, 15, 1.4);
 	}),
 	obsidiantotem: def(24, 36, (g) => {
 		g.fillStyle(C('#7c7670'), 1).fillEllipse(12, 33, 18, 6); // stone foot

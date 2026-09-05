@@ -1,6 +1,6 @@
 // Pelican Shore.
 
-import { C, def, pickable } from '../canvas';
+import { C, def, lightable, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const COASTAL: SpriteSet = {
@@ -24,14 +24,18 @@ export const COASTAL: SpriteSet = {
 		g.fillEllipse(8, 18, 10, 22).fillEllipse(18, 20, 10, 18).fillEllipse(28, 17, 10, 22);
 		g.fillStyle(C('#8a9a4e'), 1).fillCircle(12, 10, 2.4).fillCircle(24, 12, 2.4);
 	}),
-	seaglasslantern: def(22, 44, (g) => {
+	...lightable('seaglasslantern', 22, 44, (g, lit) => {
 		g.fillStyle(C('#7c5a3c'), 1).fillRect(9, 30, 4, 12); // driftwood post
 		g.fillStyle(C('#b0a088'), 1).fillRoundedRect(4, 8, 14, 22, 3); // weathered frame
-		g.fillStyle(C('#8fc6c2'), 1).fillRoundedRect(6, 11, 5, 7, 1); // sea-glass panes
-		g.fillStyle(C('#a9d8d0'), 1).fillRoundedRect(11, 11, 5, 7, 1);
-		g.fillStyle(C('#bcd8e6'), 1).fillRoundedRect(6, 19, 5, 7, 1);
-		g.fillStyle(C('#9fd0cc'), 1).fillRoundedRect(11, 19, 5, 7, 1);
-		g.fillStyle(0xffffff, 0.55).fillCircle(8, 13, 1.2);
+		// Four panes of beach glass. Lit from behind they are sea-bright; unlit
+		// they are the same four pieces of glass in shadow.
+		const pane = (x: number, y: number, on: string, off: string) =>
+			g.fillStyle(C(lit ? on : off), 1).fillRoundedRect(x, y, 5, 7, 1);
+		pane(6, 11, '#8fc6c2', '#5f7f7d');
+		pane(11, 11, '#a9d8d0', '#6f8c88');
+		pane(6, 19, '#bcd8e6', '#7a8c96');
+		pane(11, 19, '#9fd0cc', '#688884');
+		if (lit) g.fillStyle(0xffffff, 0.55).fillCircle(8, 13, 1.2);
 		g.fillStyle(C('#9a7448'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
 	}),
 	tidechime: def(28, 40, (g) => {

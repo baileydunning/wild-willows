@@ -1652,7 +1652,9 @@ export function StoriesPanel() {
 	return (
 		<Panel
 			title={open ? open.title : t('panels.stories.title')}
-			icon="note"
+			// `note` in this icon set is a MUSICAL note (it labels the sound settings
+			// and the audio credit), not a written one — the bookshelf wants the book.
+			icon="journal"
 			onClose={() => setPanel(null)}
 			bodyRef={bodyRef}
 		>

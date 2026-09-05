@@ -64,6 +64,19 @@ describe('menu dwell', () => {
 		expect(player.menuOpens.journal).toBe(1);
 	});
 
+	it('measures the panels opened by walking up to a thing, not just the menu keys', async () => {
+		// The telescope, the bookshelf and the Board of Finds have no menu key —
+		// they open from the world — and were dropped by the server's allow-list
+		// for exactly that reason, reading as menus nobody ever opened.
+		const { playerId } = await w.post('CreatePlayer', { name: 'Fen', passcode: '1234', appearance });
+		await w.post('Heartbeat', { playerId });
+		await beat(playerId, { panel: 'telescope', panelOpens: { telescope: 1, stories: 2, finds: 1, mirror: 1 } });
+		const { player } = await w.get('Metrics', playerId);
+		expect(player.menuOpens).toEqual({ telescope: 1, stories: 2, finds: 1, mirror: 1 });
+		expect(player.menuSeconds.telescope).toBeGreaterThan(0);
+		expect(player.mostUsedMenu).toBe('telescope');
+	});
+
 	it('drops open counts that are not sane positive numbers', async () => {
 		const { playerId } = await w.post('CreatePlayer', { name: 'Eve', passcode: '1234', appearance });
 		await w.post('Heartbeat', {

@@ -23,10 +23,15 @@ export function makePlayerTexture(
 				body?: string;
 		  }
 		| undefined,
-	/** 'sit' is the same caretaker with their legs folded onto a seat — head,
-	 *  hair, hat and face are drawn identically, so every appearance keeps
-	 *  working without a second copy of any of it. */
-	pose: 'stand' | 'sit' = 'stand',
+	/** 'sit' is the same caretaker with their legs folded onto a seat, and 'lie'
+	 *  the same caretaker stretched out with their hands folded on their chest —
+	 *  head, hair, hat and face are drawn identically in all three, so every
+	 *  appearance keeps working without a second copy of any of it.
+	 *
+	 *  'lie' is drawn upright here and TIPPED OVER in the world (see sitOn), the
+	 *  same trick sleeping in a bed uses: turning the finished sprite is what puts
+	 *  someone on their back, and it costs no second set of hair, hats or faces. */
+	pose: 'stand' | 'sit' | 'lie' = 'stand',
 ): string {
 	const a = {
 		skin: appearance?.skin || '#eec39a',
@@ -40,7 +45,7 @@ export function makePlayerTexture(
 	};
 	const key =
 		`player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}${
-			pose === 'sit' ? '-sit' : ''
+			pose === 'stand' ? '' : `-${pose}`
 		}`.replace(/#/g, '');
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin),
@@ -105,7 +110,18 @@ export function makePlayerTexture(
 				.fillRoundedRect(21.6, 13, 2.2, 10, 1.1)
 				.fillRoundedRect(24.2, 11.5, 2.2, 12, 1.1);
 		}
-		if (pose === 'sit') {
+		if (pose === 'lie') {
+			// Lying down: nothing is folded. The torso runs long, the legs carry
+			// straight on out of it, and the hands come together on the chest — the
+			// silhouette a person makes in a hammock, which is a very different
+			// shape from the compact one they make on a stool.
+			g.fillStyle(outfit, 1).fillEllipse(16, 23, bw - 1, 15); // torso, laid back
+			g.fillStyle(outfit, 1).fillRoundedRect(16 - (bw - 4) / 2, 28, bw - 4, 7, 3.2); // legs, straight out
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 20.5, bw - 7, 6);
+			g.fillStyle(0x000000, 0.1).fillRect(15.5, 28.4, 1, 6); // the line between the legs
+			g.fillStyle(skin, 1).fillCircle(13.6, 25.6, 2.2).fillCircle(18.4, 26.4, 2.2); // hands folded on the chest
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(13.2, 35.2, 5.2, 3.4).fillEllipse(18.8, 35.2, 5.2, 3.4); // boots
+		} else if (pose === 'sit') {
 			// Seated: the torso settles a little, the legs fold forward into a lap
 			// wider than the body, the hands come to rest on it and the boots hang
 			// below. Everything above the shoulders is drawn exactly as it is when

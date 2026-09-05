@@ -839,4 +839,6 @@ export type PanelId =
 	| 'stories'
 	/** The Board of Finds hanging in the house — see FindsBoardPanel. */
 	| 'finds'
+	/** The Stargazing Telescope's eyepiece — see TelescopePanel. */
+	| 'telescope'
 	| null;

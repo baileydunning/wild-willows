@@ -320,7 +320,7 @@ export function composeAnimalDraw(id: string, kind: string): { w: number; h: num
 				h: 26,
 				draw: draw((g) => {
 					g.fillStyle(BODY, 1);
-					g.fillRect(9, 19, 4, 6).fillRect(15, 19, 4, 6).fillRect(25, 20, 4, 5).fillRect(31, 20, 4, 5); // short sturdy legs
+					g.fillRect(9, 17, 4, 8).fillRect(15, 17, 4, 8).fillRect(23.5, 17, 3.6, 8).fillRect(29, 17, 3.6, 8); // short sturdy legs, tucked under the body
 					g.fillEllipse(18, 13, 32, 15); // broad, low, flat-backed body
 					g.fillStyle(0xffffff, 0.14).fillEllipse(16, 9, 25, 7); // grizzled sheen along the back
 					g.fillStyle(BODY, 1);
@@ -335,8 +335,8 @@ export function composeAnimalDraw(id: string, kind: string): { w: number; h: num
 					g.fillCircle(32.2, 13.6, 1.9); // white eye-spot inside the badge
 					g.fillStyle(DK, 1).fillCircle(32.7, 13.6, 0.95); // pupil
 					g.fillStyle(C('#efe7d6'), 1)
-						.fillTriangle(25.5, 25, 27, 25, 26.2, 26.6)
-						.fillTriangle(27.5, 25, 29, 25, 28.2, 26.6); // front claws
+						.fillTriangle(23.7, 24.8, 27, 24.8, 25.3, 26)
+						.fillTriangle(29, 24.8, 32.4, 24.8, 30.7, 26); // long front digging claws
 					g.fillStyle(NOSE, 1).fillCircle(38.5, 13.5, 1.1); // nose
 				}),
 			};

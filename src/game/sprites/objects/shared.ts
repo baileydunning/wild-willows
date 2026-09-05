@@ -2,7 +2,7 @@
 
 import Phaser from 'phaser';
 import { bridge } from '../../bridge';
-import { C, def, pickable, tex } from '../canvas';
+import { C, def, lightable, pickable, tex } from '../canvas';
 import type { G, SpriteSet } from '../canvas';
 
 // ------------------------------------------------------------- the pinwheel
@@ -306,10 +306,10 @@ export const SHARED: SpriteSet = {
 		boot(6, '#8a5a34', '#e3c75f'); // front boot
 	}),
 	// --- decorative structures ---
-	lantern: def(22, 44, (g) => {
+	...lightable('lantern', 22, 44, (g, lit) => {
 		g.fillStyle(C('#6b5238'), 1).fillRect(9, 30, 4, 12); // post
 		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(4, 8, 14, 22, 4); // housing
-		g.fillStyle(C('#ffd680'), 1).fillRoundedRect(7, 12, 8, 14, 2); // warm glass
+		g.fillStyle(C(lit ? '#ffd680' : '#8e8878'), 1).fillRoundedRect(7, 12, 8, 14, 2); // glass, warm or grey
 		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
 	}),
 	bench: def(40, 30, (g) => {
@@ -340,7 +340,7 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#e3c75f'), 1).fillCircle(12, 9, 2).fillCircle(23, 9, 2); // flowers
 	}),
 	// --- decorative camp comforts (purely for fun) ---
-	campfire: def(38, 30, (g) => {
+	...lightable('campfire', 38, 30, (g, lit) => {
 		g.fillStyle(C('#8e8e8a'), 1);
 		for (const [x, y] of [
 			[7, 24],
@@ -351,9 +351,17 @@ export const SHARED: SpriteSet = {
 			[27, 20],
 		] as const)
 			g.fillCircle(x, y, 3.6);
-		g.fillStyle(C('#7a5a3a'), 1).fillRect(10, 19, 18, 4).fillRect(15, 16, 4, 8);
-		g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
-		g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
+		// Burning wood is warm brown; a dead fire is charred, and that reads from
+		// across the meadow where a dimmed flame would not.
+		g.fillStyle(C(lit ? '#7a5a3a' : '#4e4038'), 1)
+			.fillRect(10, 19, 18, 4)
+			.fillRect(15, 16, 4, 8);
+		if (lit) {
+			g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
+			g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
+		} else {
+			g.fillStyle(C('#9a948c'), 0.9).fillEllipse(19, 22, 15, 4); // cold ash
+		}
 	}),
 	// String lights (and the meadow's lantern row) live in ./lights — they are
 	// drawn edge-aware so a row of them reads as one run.
@@ -527,13 +535,14 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#cdecff'), 0.9).fillCircle(21, 6, 1).fillCircle(15, 4, 1); // falling drops
 	}),
 	// Dewlit Lantern — a glass globe of glowing morning dew on a slim post.
-	dewlantern: def(24, 38, (g) => {
+	...lightable('dewlantern', 24, 38, (g, lit) => {
 		g.fillStyle(C('#6e5a3a'), 1).fillRect(11, 20, 2, 16); // post
 		g.fillStyle(C('#5a4a30'), 1).fillEllipse(12, 36, 12, 4); // foot
-		g.fillStyle(C('#a8d2c0'), 0.35).fillCircle(12, 13, 11); // soft glow halo
-		g.fillStyle(C('#cdeee0'), 0.95).fillCircle(12, 13, 7); // dew globe
-		g.fillStyle(C('#7fc4a8'), 0.9).fillCircle(12, 15, 4); // dew pool inside
-		g.fillStyle(0xffffff, 0.9).fillCircle(9, 10, 1.6); // highlight
+		if (lit) g.fillStyle(C('#a8d2c0'), 0.35).fillCircle(12, 13, 11); // soft glow halo
+		g.fillStyle(C(lit ? '#cdeee0' : '#a8b4ae'), 0.95).fillCircle(12, 13, 7); // dew globe
+		g.fillStyle(C(lit ? '#7fc4a8' : '#6e8a80'), 0.9).fillCircle(12, 15, 4); // dew pool inside
+		// The glass still catches the room, dark or not — that is glass, not light.
+		g.fillStyle(0xffffff, lit ? 0.9 : 0.5).fillCircle(9, 10, 1.6); // highlight
 		g.fillStyle(C('#6e5a3a'), 1).fillRect(7, 4, 10, 2); // top cap
 	}),
 	// Sunstone Cairn — a stack of warm, sun-baked stones with an inner glow.
@@ -564,17 +573,20 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(0xffffff, 0.6).fillCircle(9, 6, 1); // frost sparkle
 	}),
 	// Stormglass Lantern — a shard of lightning-fused glass throwing cold light.
-	stormglasslantern: def(26, 38, (g) => {
+	...lightable('stormglasslantern', 26, 38, (g, lit) => {
 		g.fillStyle(C('#3a2f4a'), 1).fillRect(12, 22, 2, 14); // post
 		g.fillStyle(C('#2c2438'), 1).fillEllipse(13, 36, 12, 4); // foot
-		g.fillStyle(C('#7b8fd6'), 0.3).fillCircle(13, 13, 12); // electric halo
-		g.fillStyle(C('#5566a3'), 1).fillTriangle(13, 3, 6, 22, 20, 22); // glass shard
-		g.fillStyle(C('#8fa0e0'), 0.9).fillTriangle(13, 7, 9, 20, 17, 20); // inner glass
-		g.lineStyle(1.5, C('#dfe6ff'), 0.95)
-			.lineBetween(13, 8, 10, 15)
-			.lineBetween(10, 15, 15, 16)
-			.lineBetween(15, 16, 12, 21); // lightning
-		g.fillStyle(0xffffff, 0.8).fillCircle(11, 11, 1.2); // glint
+		if (lit) g.fillStyle(C('#7b8fd6'), 0.3).fillCircle(13, 13, 12); // electric halo
+		g.fillStyle(C(lit ? '#5566a3' : '#3d4670'), 1).fillTriangle(13, 3, 6, 22, 20, 22); // glass shard
+		g.fillStyle(C(lit ? '#8fa0e0' : '#5a6490'), 0.9).fillTriangle(13, 7, 9, 20, 17, 20); // inner glass
+		// The bolt inside is the charge. Discharged, the shard is plain dark glass.
+		if (lit) {
+			g.lineStyle(1.5, C('#dfe6ff'), 0.95)
+				.lineBetween(13, 8, 10, 15)
+				.lineBetween(10, 15, 15, 16)
+				.lineBetween(15, 16, 12, 21); // lightning
+			g.fillStyle(0xffffff, 0.8).fillCircle(11, 11, 1.2); // glint
+		}
 	}),
 	// untidy, deliberately nothing like the tight woven cup of `nest`.
 	oldsticknest: def(36, 28, (g) => {

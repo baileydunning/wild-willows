@@ -2551,19 +2551,19 @@
       "id": "home-telescope",
       "name": "Stargazing Telescope",
       "category": "home",
-      "unlockBiome": "alpine",
+      "unlockBiome": "meadow",
       "unlock": {
-        "minHealth": 31,
-        "requiresAchievement": "alpine-treeline",
-        "label": "Restore Graywind Heights to 31% health and earn the “Above the Treeline” achievement"
+        "minHealth": 10,
+        "label": "Restore Willow Meadow to 10% health"
       },
       "output": {
         "itemId": "home-telescope",
         "qty": 1
       },
       "materials": {
-        "quartz-crystal": 2,
-        "branches": 4
+        "branches": 5,
+        "fiber": 3,
+        "stones": 2
       }
     },
     {

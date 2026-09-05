@@ -94,6 +94,28 @@ export const pickable = (key: string, w: number, h: number, draw: (g: G, picked:
 	[`${key}${PICKED}`]: def(w, h, (g) => draw(g, true)),
 });
 
+/** Suffix of the put-out variant's texture key. */
+export const OUT = '-out';
+
+/**
+ * A light you can put out: ONE draw, TWO textures.
+ *
+ * `<key>` is the thing burning and `<key>-out` the same thing cold. The draw
+ * gets a `lit` flag and is expected to BUILD A DIFFERENT PICTURE with it, not
+ * merely to skip a highlight: the flame goes and dark logs are left in the
+ * grate, the warm pane goes grey, the halo is not drawn at all. That is the
+ * whole point of doing it here rather than tinting the sprite in the world —
+ * a dimmed flame is still a flame, and a fire that is out has no flame in it.
+ *
+ * Everything OUTSIDE the flame — the stone surround, the post, the frame — is
+ * drawn by the same commands in both states, so the two can never drift into
+ * different objects; only the burning part is written twice.
+ */
+export const lightable = (key: string, w: number, h: number, draw: (g: G, lit: boolean) => void): SpriteSet => ({
+	[key]: def(w, h, (g) => draw(g, true)),
+	[`${key}${OUT}`]: def(w, h, (g) => draw(g, false)),
+});
+
 /**
  * Rasterize every sprite in `sets` under one key prefix.
  *

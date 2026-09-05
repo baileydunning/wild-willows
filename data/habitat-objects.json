@@ -3056,14 +3056,20 @@
     {
       "id": "home-telescope",
       "name": "Stargazing Telescope",
-      "placement": "indoor",
-      "biomes": [],
+      "placement": "both",
+      "biomes": [
+        "meadow",
+        "forest",
+        "wetland",
+        "desert",
+        "alpine",
+        "coastal"
+      ],
       "healthValue": 0,
       "needs": [],
       "shape": "telescope",
       "color": "#5a6b7a",
-      "description": "A brass telescope for the clear mountain sky.",
-      "homeMin": 3,
+      "description": "A brass telescope on a wooden tripod. Look through it for cloud types by day and constellations at night.",
       "cozyKind": "curio"
     },
     {
@@ -6020,7 +6026,7 @@
       ],
       "shape": "sedgetussock",
       "color": "#7f8f4a",
-      "description": "A dense knee-high clump of sedge in a damp low spot, packed so tightly you could push a fist deep inside it and never find the hole again.",
+      "description": "A dense knee-high clump of sedge in a damp low spot, packed so tightly that a vole can slip into the middle of it and the way in closes behind it.",
       "matureHours": 3,
       "matureBonus": 1
     },

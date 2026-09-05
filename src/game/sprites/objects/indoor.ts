@@ -1,6 +1,6 @@
 // Furniture and decor for an interior — the home or a trail tent.
 
-import { C, def } from '../canvas';
+import { C, def, lightable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const INDOOR: SpriteSet = {
@@ -37,15 +37,26 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#a86f80'), 1).fillRoundedRect(8, 16, 18, 10, 4); // cushion
 		g.fillStyle(C('#8a5a6a'), 1).fillRoundedRect(4, 14, 5, 12, 3).fillRoundedRect(25, 14, 5, 12, 3); // arms
 	}),
-	fireplace: def(38, 36, (g) => {
+	...lightable('fireplace', 38, 36, (g, lit) => {
 		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(4, 6, 30, 28, 3); // stone surround
 		g.fillStyle(C('#3a2a22'), 1).fillRoundedRect(11, 16, 16, 16, 2); // firebox
-		g.fillStyle(C('#e8954f'), 1).fillTriangle(15, 32, 19, 20, 23, 32); // flame
-		g.fillStyle(C('#f3d24a'), 1).fillTriangle(17, 32, 19, 25, 21, 32);
+		if (lit) {
+			g.fillStyle(C('#e8954f'), 1).fillTriangle(15, 32, 19, 20, 23, 32); // flame
+			g.fillStyle(C('#f3d24a'), 1).fillTriangle(17, 32, 19, 25, 21, 32);
+		} else {
+			// Cold: laid but not lit. Two split logs on a bed of ash and nothing at
+			// all above them, because a hearth that is out has no flame in it — see
+			// lightable() in canvas.ts on why this is a different picture rather
+			// than the same one dimmed.
+			g.fillStyle(C('#6b6560'), 1).fillEllipse(19, 30, 14, 4); // ash bed
+			g.fillStyle(C('#4a3628'), 1).fillRoundedRect(13, 26, 12, 3, 1.5);
+			g.fillStyle(C('#5a4232'), 1).fillRoundedRect(15, 23, 9, 3, 1.5);
+		}
 		g.fillStyle(C('#6e4a33'), 1).fillRect(3, 12, 32, 3); // mantel
 	}),
-	lamp: def(26, 38, (g) => {
-		g.fillStyle(C('#f3d98a'), 0.9).fillEllipse(13, 9, 20, 12); // shade
+	...lightable('lamp', 26, 38, (g, lit) => {
+		// The shade is the whole tell: warm and glowing, or a dull cloth cone.
+		g.fillStyle(C(lit ? '#f3d98a' : '#b0a68e'), lit ? 0.9 : 1).fillEllipse(13, 9, 20, 12); // shade
 		g.fillStyle(C('#6e4a33'), 1).fillRect(12, 12, 2, 22); // pole
 		g.fillStyle(C('#5a3f28'), 1).fillEllipse(13, 35, 14, 5); // base
 	}),
@@ -111,13 +122,15 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#caa15e'), 1).fillEllipse(20, 6, 10, 8); // head
 		g.fillStyle(C('#efe7d6'), 1).fillEllipse(20, 16, 18, 9);
 	}),
-	chandelier: def(32, 30, (g) => {
+	...lightable('chandelier', 32, 30, (g, lit) => {
 		g.lineStyle(2, C('#5a3f2a'), 1).lineBetween(16, 0, 16, 8);
 		g.fillStyle(C('#caa15e'), 1).fillRoundedRect(4, 8, 24, 4, 2);
 		['8', '16', '24'].forEach((sx) => {
 			const x = +sx;
 			g.fillStyle(C('#5a3f2a'), 1).fillRect(x - 1, 11, 2, 6);
-			g.fillStyle(C('#f3d24a'), 1).fillCircle(x, 19, 2.4);
+			// Lit: three flames. Out: three pale wax stubs, smaller and cold.
+			if (lit) g.fillStyle(C('#f3d24a'), 1).fillCircle(x, 19, 2.4);
+			else g.fillStyle(C('#e6e0cc'), 1).fillCircle(x, 18.5, 1.5);
 		});
 	}),
 	aquarium: def(34, 28, (g) => {
@@ -158,19 +171,20 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(0xffffff, 0.6).fillCircle(9, 3, 0.9); // frost sparkle
 	}),
 	// Stormglass Chandelier — hanging cluster of lightning-glass shards.
-	stormglasschandelier: def(36, 30, (g) => {
+	...lightable('stormglasschandelier', 36, 30, (g, lit) => {
 		g.fillStyle(C('#3a2f4a'), 1).fillRect(17, 0, 2, 6); // chain
 		g.fillStyle(C('#2c2438'), 1).fillRoundedRect(7, 5, 22, 3, 1); // crossbar
-		g.fillStyle(C('#7b8fd6'), 0.25).fillEllipse(18, 16, 30, 18); // cool glow
+		if (lit) g.fillStyle(C('#7b8fd6'), 0.25).fillEllipse(18, 16, 30, 18); // cool glow
 		const shard = (x: number) => {
-			g.fillStyle(C('#5566a3'), 1).fillTriangle(x, 8, x - 3, 22, x + 3, 22);
-			g.fillStyle(C('#8fa0e0'), 0.9).fillTriangle(x, 11, x - 1.5, 21, x + 1.5, 21);
-			g.fillStyle(0xffffff, 0.8).fillCircle(x - 1, 12, 0.9);
+			// Charged, the glass carries its own light; dead, it is plain dark glass.
+			g.fillStyle(C(lit ? '#5566a3' : '#3d4670'), 1).fillTriangle(x, 8, x - 3, 22, x + 3, 22);
+			g.fillStyle(C(lit ? '#8fa0e0' : '#5a6490'), 0.9).fillTriangle(x, 11, x - 1.5, 21, x + 1.5, 21);
+			if (lit) g.fillStyle(0xffffff, 0.8).fillCircle(x - 1, 12, 0.9);
 		};
 		shard(9);
 		shard(18);
 		shard(27);
-		g.lineStyle(1, C('#dfe6ff'), 0.7).lineBetween(9, 22, 18, 26).lineBetween(18, 26, 27, 22); // light arc
+		if (lit) g.lineStyle(1, C('#dfe6ff'), 0.7).lineBetween(9, 22, 18, 26).lineBetween(18, 26, 27, 22); // light arc
 	}),
 	// ---- wall-mounted decor (mount: 'wall' — these hang, they never stand) ----
 	// Drawn flat and shallow on purpose: no legs, no base, no cast shadow of their
@@ -492,14 +506,15 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#8fb8cc'), 0.5).fillEllipse(15, 21, 10, 3); // a little standing water
 		g.fillStyle(0xffffff, 0.5).fillEllipse(11, 10, 6, 4); // glass highlight
 	}),
-	reedlantern: def(26, 36, (g) => {
+	...lightable('reedlantern', 26, 36, (g, lit) => {
 		g.fillStyle(C('#8a6a48'), 1).fillEllipse(13, 33, 14, 5); // base
 		g.fillStyle(C('#6e4a33'), 1).fillRect(12, 18, 2, 14); // stem
-		g.fillStyle(C('#e3c75f'), 0.9).fillRoundedRect(5, 4, 16, 15, 3); // woven shade, lit
+		g.fillStyle(C(lit ? '#e3c75f' : '#b8a884'), 0.9).fillRoundedRect(5, 4, 16, 15, 3); // woven shade
 		g.lineStyle(1, C('#b9a06a'), 1);
 		for (let i = 0; i < 5; i++) g.lineBetween(6 + i * 3.5, 4, 6 + i * 3.5, 19);
 		g.lineBetween(5, 11, 21, 11);
-		g.fillStyle(C('#fff0b8'), 0.55).fillEllipse(13, 12, 12, 10); // glow through the weave
+		// Out, the weave is just weave — nothing coming through it.
+		if (lit) g.fillStyle(C('#fff0b8'), 0.55).fillEllipse(13, 12, 12, 10); // glow through the weave
 	}),
 	clayurn: def(28, 34, (g) => {
 		g.fillStyle(C('#b0653a'), 1).fillEllipse(14, 21, 20, 22); // belly
@@ -525,13 +540,15 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#8a7a60'), 1).fillRoundedRect(7, 14, 5, 9, 1).fillRoundedRect(26, 14, 5, 9, 1); // stone-ish legs
 		g.fillStyle(C('#7fb4a0'), 1).fillCircle(19, 7, 1.6); // a chip of sea glass set in the seat
 	}),
-	tideglass: def(26, 34, (g) => {
+	...lightable('tideglass', 26, 34, (g, lit) => {
 		g.fillStyle(C('#8a7a60'), 1).fillEllipse(13, 31, 14, 5); // driftwood foot
 		g.fillStyle(C('#a89880'), 1).fillRect(11, 24, 4, 7);
-		g.fillStyle(C('#7fb4d8'), 0.8).fillRoundedRect(5, 5, 16, 19, 4); // glass body
-		g.fillStyle(C('#a8d8e8'), 0.7).fillRoundedRect(7, 8, 5, 13, 2);
-		g.fillStyle(C('#7fb4a0'), 0.8).fillRoundedRect(14, 11, 5, 9, 2);
-		g.fillStyle(C('#fff0b8'), 0.65).fillEllipse(13, 15, 10, 12); // the light inside
+		// The sea glass is still sea glass with the lamp out — it just stops being
+		// a lantern and goes back to being a pretty thing on a stand.
+		g.fillStyle(C(lit ? '#7fb4d8' : '#6b8fa8'), 0.8).fillRoundedRect(5, 5, 16, 19, 4); // glass body
+		g.fillStyle(C(lit ? '#a8d8e8' : '#8aa8b4'), 0.7).fillRoundedRect(7, 8, 5, 13, 2);
+		g.fillStyle(C(lit ? '#7fb4a0' : '#6b8f80'), 0.8).fillRoundedRect(14, 11, 5, 9, 2);
+		if (lit) g.fillStyle(C('#fff0b8'), 0.65).fillEllipse(13, 15, 10, 12); // the light inside
 		g.fillStyle(C('#8a7a60'), 1).fillRect(11, 1, 4, 5); // hanging loop
 	}),
 	// ---- the fun half: wall ----
@@ -757,23 +774,24 @@ export const INDOOR: SpriteSet = {
 		g.lineStyle(0.5, C('#3f5a34'), 0.7).lineBetween(14, 8, 14, 28);
 	}),
 	// ---- the fun half: floor ----
-	glowjar: def(26, 34, (g) => {
+	...lightable('glowjar', 26, 34, (g, lit) => {
 		g.fillStyle(C('#6e4a33'), 1).fillRoundedRect(7, 27, 12, 5, 2); // little stand
-		g.fillStyle(C('#a8d878'), 0.35).fillCircle(13, 16, 12); // the glow itself
+		if (lit) g.fillStyle(C('#a8d878'), 0.35).fillCircle(13, 16, 12); // the glow itself
 		g.fillStyle(C('#cfe6f2'), 0.45).fillRoundedRect(5, 6, 16, 21, 5); // jar
-		g.fillStyle(C('#8ac850'), 0.9).fillEllipse(13, 21, 12, 9); // moss inside
-		g.fillStyle(C('#c8f088'), 0.95).fillEllipse(11, 19, 6, 4);
+		// Dormant: the moss is still in there, just not shining.
+		g.fillStyle(C(lit ? '#8ac850' : '#5a7a3c'), 0.9).fillEllipse(13, 21, 12, 9); // moss inside
+		g.fillStyle(C(lit ? '#c8f088' : '#7a9450'), 0.95).fillEllipse(11, 19, 6, 4);
 		g.fillStyle(C('#8a7a60'), 1).fillRoundedRect(8, 4, 10, 3, 1); // lid
 		g.fillStyle(0xffffff, 0.45).fillEllipse(9, 12, 3.5, 8); // glass highlight
 	}),
-	mushroomlamp: def(32, 34, (g) => {
-		g.fillStyle(C('#e8a86a'), 0.3).fillEllipse(16, 22, 28, 14); // the light it throws
+	...lightable('mushroomlamp', 32, 34, (g, lit) => {
+		if (lit) g.fillStyle(C('#e8a86a'), 0.3).fillEllipse(16, 22, 28, 14); // the light it throws
 		g.fillStyle(C('#efe7d6'), 1).fillRoundedRect(13, 16, 6, 15, 2); // stem
 		g.fillStyle(C('#d8ddc8'), 1).fillEllipse(16, 18, 12, 4); // the skirt
 		g.fillStyle(C('#c05a4a'), 1).fillEllipse(16, 12, 26, 16); // cap
 		g.fillStyle(C('#e8785a'), 1).fillEllipse(16, 10, 20, 11);
 		g.fillStyle(C('#efe7d6'), 1).fillCircle(9, 10, 2.4).fillCircle(21, 8, 2.8).fillCircle(16, 14, 2);
-		g.fillStyle(C('#f0c890'), 0.8).fillEllipse(16, 19, 16, 4); // lit from underneath
+		if (lit) g.fillStyle(C('#f0c890'), 0.8).fillEllipse(16, 19, 16, 4); // lit from underneath
 		g.fillStyle(C('#8a7a60'), 1).fillEllipse(16, 31, 14, 4); // base
 	}),
 	mosspouf: def(34, 26, (g) => {
@@ -818,13 +836,18 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#6a6558'), 1).fillEllipse(26, 18, 4, 2.8);
 		g.fillStyle(C('#a8845a'), 1).fillRect(4, 19, 26, 1.5); // the rake, left across it
 	}),
-	sunstonebowl: def(28, 24, (g) => {
-		g.fillStyle(C('#f0a84a'), 0.3).fillEllipse(14, 12, 26, 20); // the warmth coming off it
+	...lightable('sunstonebowl', 28, 24, (g, lit) => {
+		if (lit) g.fillStyle(C('#f0a84a'), 0.3).fillEllipse(14, 12, 26, 20); // the warmth coming off it
 		g.fillStyle(C('#a8653a'), 1).fillEllipse(14, 18, 22, 10); // clay bowl
 		g.fillStyle(C('#8a4a28'), 1).fillEllipse(14, 14, 22, 8);
-		g.fillStyle(C('#f0a84a'), 1).fillEllipse(14, 14, 17, 5.5); // the chips inside
-		g.fillStyle(C('#ffd88a'), 1).fillCircle(10, 13, 2).fillCircle(15, 14, 2.4).fillCircle(19, 13, 1.7);
-		g.fillStyle(0xffffff, 0.7).fillCircle(15, 13, 1);
+		// Spent, the chips are ordinary warm stones — the colour is still theirs,
+		// it just stops being a light source.
+		g.fillStyle(C(lit ? '#f0a84a' : '#a8763a'), 1).fillEllipse(14, 14, 17, 5.5); // the chips inside
+		g.fillStyle(C(lit ? '#ffd88a' : '#c9a06a'), 1)
+			.fillCircle(10, 13, 2)
+			.fillCircle(15, 14, 2.4)
+			.fillCircle(19, 13, 1.7);
+		if (lit) g.fillStyle(0xffffff, 0.7).fillCircle(15, 13, 1);
 	}),
 	snowglobe: def(28, 32, (g) => {
 		g.fillStyle(C('#5a3f28'), 1).fillRoundedRect(6, 24, 16, 6, 2); // plinth
@@ -868,15 +891,19 @@ export const INDOOR: SpriteSet = {
 		g.lineStyle(0.5, C('#8a7a60'), 1).lineBetween(17, 4, 27, 19).lineBetween(17, 4, 6, 19); // real thread
 		g.fillStyle(C('#c04a5a'), 1).fillTriangle(17, 3, 17, 6, 22, 4.5); // pennant
 	}),
-	lighthouselamp: def(26, 36, (g) => {
+	...lightable('lighthouselamp', 26, 36, (g, lit) => {
 		g.fillStyle(C('#8a857a'), 1).fillEllipse(13, 33, 20, 6); // rock base
 		g.fillStyle(C('#efe7d6'), 1).fillTriangle(7, 32, 19, 32, 16, 8).fillTriangle(7, 32, 10, 8, 16, 8); // tower
 		g.fillStyle(C('#e8544a'), 1).fillTriangle(8.4, 26, 17.6, 26, 17, 21).fillTriangle(8.4, 26, 9, 21, 17, 21); // red band
 		g.fillStyle(C('#e8544a'), 1).fillRect(9.6, 12, 6.8, 3);
 		g.fillStyle(C('#5a5048'), 1).fillRoundedRect(8, 7, 10, 2, 1); // gallery
-		g.fillStyle(C('#fff0b8'), 1).fillRoundedRect(9.5, 2.5, 7, 5, 2); // the lamp room
+		g.fillStyle(C(lit ? '#fff0b8' : '#cfc9b4'), 1).fillRoundedRect(9.5, 2.5, 7, 5, 2); // the lamp room
 		g.fillStyle(C('#5a5048'), 1).fillRoundedRect(9.5, 1, 7, 2, 1); // cap
-		g.fillStyle(C('#fff0b8'), 0.42).fillTriangle(13, 5, 26, 0, 26, 11); // the beam, going round
-		g.fillStyle(C('#fff0b8'), 0.18).fillTriangle(13, 5, 0, 1, 0, 10);
+		// Dark, there is no beam at all — a lighthouse with the light off is a
+		// tower, and that is exactly what it should look like from across the room.
+		if (lit) {
+			g.fillStyle(C('#fff0b8'), 0.42).fillTriangle(13, 5, 26, 0, 26, 11); // the beam, going round
+			g.fillStyle(C('#fff0b8'), 0.18).fillTriangle(13, 5, 0, 1, 0, 10);
+		}
 	}),
 };
