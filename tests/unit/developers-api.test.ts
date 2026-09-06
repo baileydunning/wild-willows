@@ -27,8 +27,8 @@ describe('the counts on the page are the counts in the data', () => {
 	it.each([
 		['animals', ANIMALS.length, 150],
 		['biomes', BIOMES.length, 6],
-		['habitatObjects', records('habitat-objects.json').length, 437],
-		['recipes', records('recipes.json').length, 407],
+		['habitatObjects', records('habitat-objects.json').length, 438],
+		['recipes', records('recipes.json').length, 408],
 		['resources', records('resources.json').length, 37],
 		['achievements', records('achievements.json').length, 50],
 		['tools', records('tools.json').length, 9],

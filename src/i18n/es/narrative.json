@@ -459,22 +459,38 @@
 			"pages": {
 				"1": {
 					"title": "Tres trabajos",
-					"figures": ["comida", "refugio", "agua", "dónde vivir"],
+					"figures": [
+						"comida",
+						"refugio",
+						"agua",
+						"dónde vivir"
+					],
 					"text": "Un animal no necesita tanto un lugar como un lugar que haga tres trabajos: algo que comer, dónde refugiarse y agua a la que pueda llegar. Si falta uno de los tres, los otros dos sirven de poco."
 				},
 				"2": {
 					"title": "Lo bastante cerca",
-					"figures": ["agua", "campo abierto que cruzar", "no se arriesga"],
+					"figures": [
+						"agua",
+						"campo abierto que cruzar",
+						"no se arriesga"
+					],
 					"text": "La distancia importa tanto como la presencia. La comida tiene que estar lo bastante cerca del refugio como para que un salto corto devuelva al animal bajo cubierto. El agua a la que solo se llega cruzando campo abierto es agua que la mayoría de los animales pequeños no usará."
 				},
 				"3": {
 					"title": "Compartir una pradera",
-					"figures": ["semilla al amanecer", "insectos de noche"],
+					"figures": [
+						"semilla al amanecer",
+						"insectos de noche"
+					],
 					"text": "El lugar es el hábitat. La forma de ganarse la vida en él es el nicho: qué come, a qué horas está activo, de qué se mantiene lejos. Dos especies pueden compartir una misma pradera sin competir, porque una toma semilla al amanecer y la otra caza insectos al anochecer."
 				},
 				"4": {
 					"title": "La pieza que se olvida",
-					"figures": ["solo flores", "añade refugio", "y se queda"],
+					"figures": [
+						"solo flores",
+						"añade refugio",
+						"y se queda"
+					],
 					"text": "Por eso plantar solo flores rara vez atrae nada. El refugio es la pieza que más se olvida. Un montón de ramas o un seto no son adorno: para un conejo o un chochín son la diferencia entre pasar de largo y quedarse."
 				}
 			}
@@ -485,22 +501,38 @@
 			"pages": {
 				"1": {
 					"title": "Sigue a un zorro hacia atrás",
-					"figures": ["sol y hierba", "come la hierba", "come los insectos", "come las aves"],
+					"figures": [
+						"sol y hierba",
+						"come la hierba",
+						"come los insectos",
+						"come las aves"
+					],
 					"text": "Sigue a un zorro hacia atrás. Come campañoles y aves que anidan en el suelo. Ellos comen insectos y semilla. Los insectos comen hierba. La hierba funciona con luz del sol. Cuatro escalones, y el zorro depende de todos ellos."
 				},
 				"2": {
 					"title": "Una décima parte en cada escalón",
-					"figures": ["muchísimos", "menos", "aún menos", "uno"],
+					"figures": [
+						"muchísimos",
+						"menos",
+						"aún menos",
+						"uno"
+					],
 					"text": "Solo cerca de una décima parte de la energía de cada escalón sube al siguiente. El resto se gasta en seguir vivo. Esa proporción explica por qué los números se estrechan tan deprisa hacia arriba: una pradera puede mantener muchísimos saltamontes, bastantes gorriones, bastantes menos campañoles y un zorro."
 				},
 				"3": {
 					"title": "Los últimos en llegar, los primeros en irse",
-					"figures": ["la presa escasea", "el zorro se va primero"],
+					"figures": [
+						"la presa escasea",
+						"el zorro se va primero"
+					],
 					"text": "Así que los depredadores son los últimos en llegar y los primeros en irse. Necesitan todos los niveles de debajo llenos antes de poder asentarse, y notan un adelgazamiento en la base antes que nadie."
 				},
 				"4": {
 					"title": "Lo que te dice un zorro",
-					"figures": ["un zorro se asienta", "una pradera que lo sostiene"],
+					"figures": [
+						"un zorro se asienta",
+						"una pradera que lo sostiene"
+					],
 					"text": "También quiere decir que una pradera sin cazadores no es una pradera en paz, sino incompleta. Cuando un zorro se asienta, lo que eso indica es que los niveles de abajo aguantan peso suficiente para sostenerlo."
 				}
 			}
@@ -511,22 +543,37 @@
 			"pages": {
 				"1": {
 					"title": "El castor construye para sí",
-					"figures": ["quiere agua honda", "así que la hace"],
+					"figures": [
+						"quiere agua honda",
+						"así que la hace"
+					],
 					"text": "Un castor represa un arroyo porque quiere agua lo bastante honda para nadar y quedar fuera de alcance. No lo hace por nadie más. Pero el estanque que resulta es hábitat que antes no existía."
 				},
 				"2": {
 					"title": "Todo lo que se muda allí",
-					"figures": ["agua quieta", "huevos", "libélulas", "dónde pescar"],
+					"figures": [
+						"agua quieta",
+						"huevos",
+						"libélulas",
+						"dónde pescar"
+					],
 					"text": "El agua quieta da a las ranas dónde poner huevos y a las larvas de libélula dónde crecer. La orilla somera le da a una garza dónde pescar. Los árboles que se ahogan en pie se ablandan y se vuelven sitios de nidificación para los pájaros carpinteros. La obra de un animal se convierte en vivienda para una docena de especies."
 				},
 				"3": {
 					"title": "Ingenieros y especies clave",
-					"figures": ["una especie clave", "erizos a raya", "kelp en pie"],
+					"figures": [
+						"una especie clave",
+						"erizos a raya",
+						"kelp en pie"
+					],
 					"text": "A un animal que rehace así el lugar físico se le llama ingeniero del ecosistema. La especie clave es parecida pero distinta: no construye nada y sostiene la red trófica muy por encima de lo que sugiere su número — nutrias marinas que mantienen a los erizos lejos del kelp, lobos que mantienen a los alces lejos de las riberas. Quita una y el sistema entero se reorganiza alrededor del hueco."
 				},
 				"4": {
 					"title": "Por qué el siguiente llega antes",
-					"figures": ["un ingeniero", "una docena de inquilinos"],
+					"figures": [
+						"un ingeniero",
+						"una docena de inquilinos"
+					],
 					"text": "Aquí viven unos cuantos de ambos. Cuando uno vuelve, los animales que dependen de lo que hace suelen seguirlo rápido, porque el hábitat que estaban esperando acaba de construirse."
 				}
 			}
@@ -537,22 +584,37 @@
 			"pages": {
 				"1": {
 					"title": "Primero las malas hierbas",
-					"figures": ["tierra pelada", "malas hierbas y pasto"],
+					"figures": [
+						"tierra pelada",
+						"malas hierbas y pasto"
+					],
 					"text": "La tierra pelada no se convierte en bosque de golpe. Primero llegan las malas hierbas y los pastos, porque son lo único que puede agarrarse allí. Sujetan el suelo, le dan sombra y frenan el agua que se escurre."
 				},
 				"2": {
 					"title": "Lo que necesitan los arbustos",
-					"figures": ["el pasto sujeta el suelo", "hojarasca y sombra", "se establecen los arbustos"],
+					"figures": [
+						"el pasto sujeta el suelo",
+						"hojarasca y sombra",
+						"se establecen los arbustos"
+					],
 					"text": "Ese suelo cambiado es lo que los arbustos necesitan para establecerse. Los arbustos añaden raíces más profundas, hojarasca y más sombra, y solo en la tierra que eso genera sobrevivirán la mayoría de las plántulas de árbol sus primeros años. Cada etapa hace posible la siguiente y luego queda en parte sustituida por ella."
 				},
 				"3": {
 					"title": "Un brote todavía no es hábitat",
-					"figures": ["ya crecido", "entonces sostiene un nido"],
+					"figures": [
+						"ya crecido",
+						"entonces sostiene un nido"
+					],
 					"text": "A esa secuencia se le llama sucesión, y va al ritmo de las plantas, no al de nadie más. Un brote todavía no es hábitat. Tiene que crecer del todo antes de dar sombra a algo, alimentar a algo o sostener un nido."
 				},
 				"4": {
 					"title": "Tarde, y luego deprisa",
-					"figures": ["pelada", "pasto", "arbusto", "árbol"],
+					"figures": [
+						"pelada",
+						"pasto",
+						"arbusto",
+						"árbol"
+					],
 					"text": "Vale la pena saberlo durante el tramo en que una zona plantada parece no hacer nada. Las raíces bajan, el agua se retiene más tiempo en el suelo y la semilla se acumula en la tierra. El cambio visible llega tarde, y luego llega deprisa."
 				}
 			}
@@ -882,6 +944,12 @@
 			}
 		},
 		"bodies": {
+			"sun": {
+				"name": "El Sol",
+				"byline": "la estrella más cercana",
+				"text": "Una estrella corriente, lo bastante cerca para verse como un disco y no como un punto. La luz que te llega salió de él hace ocho minutos, después de tardar decenas de miles de años en salir del núcleo. Las motas oscuras que aparecen y desaparecen en su cara son manchas solares, zonas más frías y casi todas más anchas que la Tierra.",
+				"note": "Nunca apuntes un telescopio hacia él sin un filtro solar de verdad: un instante mirando por uno basta para dejarte ciego."
+			},
 			"moon": {
 				"name": "La Luna",
 				"byline": "la nuestra, de cerca",
@@ -939,5 +1007,941 @@
 				"note": "Si parpadea, es un avión. Si se apaga a mitad de cielo, acaba de entrar en la sombra de la Tierra."
 			}
 		}
+	},
+	"tarot": {
+		"majors": {
+			"fool": {
+				"name": "El Loco",
+				"byline": "el primer paso",
+				"keywords": "Comienzos, inocencia, un salto dado con fe",
+				"upright": "Tienes algo nuevo delante y no ves adónde lleva. Eso no es motivo para esperar. Empieza antes de sentirte preparado y deja que el resto se aclare por el camino.",
+				"reversed": "Lanzarte sin mirar, o esperar tanto que la ocasión pasa. Solo tú sabes cuál de las dos estás haciendo.",
+				"phraseUpright": "un primer paso dado antes de que el plan esté listo",
+				"phraseReversed": "un salto sin mirar, o un momento esperado de más"
+			},
+			"magician": {
+				"name": "El Mago",
+				"byline": "todo está ya sobre la mesa",
+				"keywords": "Voluntad, enfoque, ingenio, hacerlo real",
+				"upright": "Ya tienes lo que esto necesita: la destreza, las herramientas, el tiempo, la gente. No hace falta que llegue nada más. Elige una cosa y ponlo todo en ella.",
+				"reversed": "Esfuerzo tan repartido que nada se mueve. O hablar de ello en lugar de hacerlo.",
+				"phraseUpright": "todo lo que necesitas ya al alcance de la mano",
+				"phraseReversed": "el esfuerzo tan repartido que nada se mueve"
+			},
+			"high-priestess": {
+				"name": "La Suma Sacerdotisa",
+				"byline": "lo que ya sabes y no has dicho",
+				"keywords": "Intuición, paciencia, lo no dicho, saber interior",
+				"upright": "Una parte de ti ya sabe la respuesta. Deja de preguntar a los demás hasta que hayas escuchado a esa parte. Siéntate en silencio con lo que aún no has dicho en voz alta.",
+				"reversed": "Dejar que otras voces ahoguen la tuya. O saber algo y guardártelo cuando hace falta decirlo.",
+				"phraseUpright": "una respuesta que ya tienes y no has dicho",
+				"phraseReversed": "tu propia señal ahogada por otras voces"
+			},
+			"empress": {
+				"name": "La Emperatriz",
+				"byline": "todo creciendo a la vez",
+				"keywords": "Abundancia, cuidado, creatividad, el cuerpo, la tierra",
+				"upright": "Algo en tu vida está creciendo bien. Aliméntalo, hazle sitio y permítete disfrutarlo. Este es un momento de cuidar y no de empujar.",
+				"reversed": "Dar tanto que no queda nada para ti. O sujetar tan fuerte que lo que cultivas no puede respirar.",
+				"phraseUpright": "algo que crece bien y pide que lo alimenten",
+				"phraseReversed": "cuidado dado hasta que no queda nada para ti"
+			},
+			"emperor": {
+				"name": "El Emperador",
+				"byline": "la forma que alguien impone",
+				"keywords": "Estructura, autoridad, límites, disciplina",
+				"upright": "Aquí la estructura ayuda. Decide los límites, dilos con claridad y sostenlos. Por dentro puede sentirse rígido, y es lo que mantiene firme todo lo demás.",
+				"reversed": "Una norma sostenida mucho después de dejar de ayudar. O ninguna estructura, y el desasosiego que eso trae.",
+				"phraseUpright": "límites puestos con claridad y sostenidos de verdad",
+				"phraseReversed": "una norma que sobrevive a su utilidad, o ninguna norma"
+			},
+			"hierophant": {
+				"name": "El Hierofante",
+				"byline": "lo que resolvieron los que vinieron antes",
+				"keywords": "Tradición, enseñanza, creencia compartida, pertenencia",
+				"upright": "Alguien ha hecho esto antes que tú. Aprende cómo se hace normalmente antes de cambiarlo. Hay un refugio real en un método que ya funciona.",
+				"reversed": "Seguir una norma que nadie sabe explicar. O el momento en que decides dejar de seguirla.",
+				"phraseUpright": "una manera de hacer las cosas que ya funciona",
+				"phraseReversed": "una norma que nadie sabe explicar"
+			},
+			"lovers": {
+				"name": "Los Enamorados",
+				"byline": "una elección hecha con todo tu ser",
+				"keywords": "Unión, valores, alineación, una decisión real",
+				"upright": "Dos cosas tiran de ti y solo puedes elegir una. Esto va de tus valores, no solo de lo que sientes. Elige la que podrías sostener en un día difícil.",
+				"reversed": "Una elección hecha para contentar a otro. O querer dos cosas y negarte a decidir.",
+				"phraseUpright": "una elección que tiene que encajar con tus valores",
+				"phraseReversed": "una decisión tomada para contentar a otro"
+			},
+			"chariot": {
+				"name": "El Carro",
+				"byline": "dos tirones, un camino",
+				"keywords": "Voluntad, impulso, control, avance",
+				"upright": "Dos fuerzas tiran en direcciones distintas y tú sostienes las dos. No tienen que ponerse de acuerdo. Elige una dirección y avanza, y deja que tu voluntad haga el trabajo.",
+				"reversed": "Empujar con fuerza en la dirección equivocada. O dejar que lo que más tira lleve el timón.",
+				"phraseUpright": "dos tirones sostenidos juntos y apuntados a un sitio",
+				"phraseReversed": "fuerza dirigida a lo que no era"
+			},
+			"strength": {
+				"name": "La Fuerza",
+				"byline": "la mano suave sobre la mandíbula",
+				"keywords": "Valor, paciencia, dulzura, dominio de uno mismo",
+				"upright": "Puedes estar cerca de lo que te da miedo o rabia sin huir y sin pelear. Encuéntralo con suavidad. Es más difícil que la fuerza y funciona mejor.",
+				"reversed": "Fuerza donde tocaba paciencia, o paciencia donde tocaba un límite. A veces es la duda vaciándote el temple sin ruido.",
+				"phraseUpright": "acercarte con suavidad a lo que te asusta en vez de por la fuerza",
+				"phraseReversed": "fuerza donde tocaba paciencia, o al revés"
+			},
+			"hermit": {
+				"name": "El Ermitaño",
+				"byline": "una lámpara llevada lejos de todos",
+				"keywords": "Soledad, reflexión, búsqueda, luz interior",
+				"upright": "Da un paso atrás y quédate a solas con esto un tiempo. Las respuestas que no se oyen en el ruido suelen llegar en el silencio. Luego trae lo que encuentres de vuelta a la gente.",
+				"reversed": "Aislarte más de lo que ayuda. O rechazar un buen consejo porque prefieres resolverlo solo.",
+				"phraseUpright": "apartarte lo bastante para oírte a ti mismo",
+				"phraseReversed": "una soledad que ha pasado el punto en que ayuda"
+			},
+			"wheel": {
+				"name": "La Rueda de la Fortuna",
+				"byline": "la vuelta que nadie sostiene",
+				"keywords": "Ciclos, suerte, cambio, puntos de giro",
+				"upright": "Algo está cambiando y no lo elegiste tú. La buena suerte y la mala se mueven las dos. Recuerda que es una rueda, y que aquí no se queda nada.",
+				"reversed": "Aferrarte a un tiempo que ya pasó. O esperar a que las cosas cambien en vez de ir a por ellas.",
+				"phraseUpright": "un cambio que no elegiste, ya girando",
+				"phraseReversed": "aferrarte a un tiempo que ya pasó"
+			},
+			"justice": {
+				"name": "La Justicia",
+				"byline": "la balanza no mira quién la sostiene",
+				"keywords": "Equidad, verdad, consecuencia, responsabilidad",
+				"upright": "Mira con honestidad lo que hiciste y lo que vino después. No lo que querías decir: lo que pasó. Asumirlo es lo que despeja el camino.",
+				"reversed": "Pesarlo de forma injusta, en cualquier dirección. Cargar con una culpa que no es tuya, o rechazar la parte que sí.",
+				"phraseUpright": "un peso honesto de lo que hiciste y lo que vino después",
+				"phraseReversed": "una balanza inclinada, hacia un lado o hacia el otro"
+			},
+			"hanged-man": {
+				"name": "El Colgado",
+				"byline": "quieto, a propósito",
+				"keywords": "Pausa, entrega, otro ángulo, soltar",
+				"upright": "Deja de empujar durante un tiempo. Visto desde otro ángulo esto se convierte en otro problema. La respuesta suele llegar cuando dejas de exigirla.",
+				"reversed": "Esperar y llamarlo pensar. O renunciar a algo que nadie te pidió que dejaras.",
+				"phraseUpright": "una pausa deliberada que cambia la vista",
+				"phraseReversed": "esperar disfrazado de pensar"
+			},
+			"death": {
+				"name": "La Muerte",
+				"byline": "la puerta de un solo sentido",
+				"keywords": "Finales, transformación, soltar, lo que viene después",
+				"upright": "Algo ha terminado, y sostenerlo te está costando. Déjalo acabar. Lo que termina despeja el terreno para lo que venga después.",
+				"reversed": "Negarte a que algo esté terminado. Quedarse de más suele costar más que marcharse.",
+				"phraseUpright": "un final que despeja el terreno",
+				"phraseReversed": "negarte a que algo esté terminado"
+			},
+			"temperance": {
+				"name": "La Templanza",
+				"byline": "vertiendo con cuidado entre dos copas",
+				"keywords": "Equilibrio, moderación, mezcla, paciencia",
+				"upright": "Busca el equilibrio en lugar del extremo. Un poco de esto, un poco de aquello, ajustado sobre la marcha. Despacio y con constancia es todo el método.",
+				"reversed": "Demasiado de una cosa. O un término medio tan prudente que en realidad no se elige nada.",
+				"phraseUpright": "el equilibrio encontrado mezclando en vez de eligiendo",
+				"phraseReversed": "demasiado de una sola cosa"
+			},
+			"devil": {
+				"name": "El Diablo",
+				"byline": "la cadena está floja",
+				"keywords": "Apego, compulsión, sombra, lo que te tiene",
+				"upright": "Algo te tiene agarrado. Un hábito, un miedo, la necesidad de aprobación, cualquier cosa a la que vuelves una y otra vez. Míralo de frente. Eres más libre de lo que parece.",
+				"reversed": "Empezar a soltarte. O decidir que te gusta el agarre y llamarlo elección.",
+				"phraseUpright": "algo a lo que vuelves una y otra vez",
+				"phraseReversed": "el principio de soltarte, o una cadena que ya llamas elección"
+			},
+			"tower": {
+				"name": "La Torre",
+				"byline": "mal construida, y ya no construida",
+				"keywords": "Cambio súbito, derrumbe, revelación, verdad",
+				"upright": "Algo se viene abajo de golpe, y cae porque no estaba bien construido. Es un golpe y es honesto. Lo que queda es un suelo del que puedes fiarte.",
+				"reversed": "Sostener algo que tiene que caer. O quedarte entre los escombros, todavía aquí.",
+				"phraseUpright": "el derrumbe repentino de algo mal construido",
+				"phraseReversed": "apuntalar lo que tiene que caer"
+			},
+			"star": {
+				"name": "La Estrella",
+				"byline": "después de lo peor, agua limpia",
+				"keywords": "Esperanza, renovación, calma, fe recobrada",
+				"upright": "Lo más duro ya pasó. Nada está arreglado todavía, pero vuelves a poder tener esperanza. Descansa, cuídate y deja que la gente ayude.",
+				"reversed": "Esperanza que parece fuera de tu alcance. O estar demasiado cansado para aceptar la ayuda que te ofrecen.",
+				"phraseUpright": "una esperanza tranquila que llega tras lo más duro",
+				"phraseReversed": "una esperanza que desde aquí parece inalcanzable"
+			},
+			"moon": {
+				"name": "La Luna",
+				"byline": "el camino de noche",
+				"keywords": "Ilusión, intuición, miedo, lo que no se ve claro",
+				"upright": "Ahora mismo las cosas no son del todo lo que parecen. Tu instinto es bueno y tu vista no es clara. No fuerces la certeza. Ve despacio y deja que se aclare.",
+				"reversed": "La confusión levantándose, o un miedo al que por fin puedes poner nombre. A veces es una historia que te contaste tantas veces que dejaste de comprobarla.",
+				"phraseUpright": "un tramo en el que nada es del todo lo que parece",
+				"phraseReversed": "la confusión levantándose, o una historia que nunca comprobaste"
+			},
+			"sun": {
+				"name": "El Sol",
+				"byline": "luz del día, sin más",
+				"keywords": "Alegría, claridad, vitalidad, nada oculto",
+				"upright": "Las cosas están claras y están bien. Calor, honestidad, que te vean como eres. Aquí no hay nada que resolver, así que permítete disfrutarlo.",
+				"reversed": "Cosas buenas atenuadas, no perdidas. Alegría aplazada, o sostenida a distancia por si se va.",
+				"phraseUpright": "un calor sencillo sin nada escondido dentro",
+				"phraseReversed": "cosas buenas atenuadas y no perdidas"
+			},
+			"judgment": {
+				"name": "El Juicio",
+				"byline": "la llamada a mirarlo todo",
+				"keywords": "Balance, despertar, perdón, una llamada",
+				"upright": "Mira atrás con honestidad. No para castigarte, para entender. Perdona lo que puedas y responde a la llamada que llevas aplazando.",
+				"reversed": "Juzgarte con dureza y no cambiar nada. O oír la llamada y hacer como que no.",
+				"phraseUpright": "una mirada atrás honesta, y una llamada que responder",
+				"phraseReversed": "una autocrítica dura que no cambia nada"
+			},
+			"world": {
+				"name": "El Mundo",
+				"byline": "la vuelta entera",
+				"keywords": "Culminación, plenitud, llegada, un ciclo cerrado",
+				"upright": "Algo está de verdad completo. Deja que esté terminado y siéntelo entero. Después, cuando estés listo, empieza lo siguiente.",
+				"reversed": "Casi hecho. O falta el último paso, o no puedes dejar que acabe porque no sabes qué viene.",
+				"phraseUpright": "algo de verdad completo",
+				"phraseReversed": "el último paso sin dar"
+			}
+		},
+		"minors": {
+			"wands-ace": {
+				"name": "As de Bastos",
+				"byline": "la chispa",
+				"keywords": "Inspiración, energía en bruto, un comienzo con calor",
+				"upright": "Una chispa nueva de energía, o una idea que merece seguirse. Es real pero todavía no tiene forma. Actúa pronto, mientras siga viva.",
+				"reversed": "La chispa no prende. Un arranque en falso, o energía que aún no tiene adónde ir.",
+				"phraseUpright": "una chispa con energía real y todavía sin forma",
+				"phraseReversed": "una chispa que no prende"
+			},
+			"wands-two": {
+				"name": "Dos de Bastos",
+				"byline": "el mundo en una mano",
+				"keywords": "Planificación, previsión, la primera decisión de verdad",
+				"upright": "Has demostrado que funciona. Ahora decide hasta dónde quieres llevarlo. La elección que hagas ahora marca el tamaño de lo que viene.",
+				"reversed": "Planificar sin moverse. O elegir la versión pequeña por miedo.",
+				"phraseUpright": "el momento de decidir hasta dónde llevarlo",
+				"phraseReversed": "una planificación que nunca llega a moverse"
+			},
+			"wands-three": {
+				"name": "Tres de Bastos",
+				"byline": "mirando los barcos",
+				"keywords": "Expansión, previsión recompensada, saber esperar",
+				"upright": "El trabajo ya no está en tus manos y avanza. Tu parte está hecha por ahora. Espera bien, y cuenta con que vuelva más de lo que pusiste.",
+				"reversed": "Más lento de lo que esperabas, o más pequeño. Impaciencia con algo que tarda lo que tarda.",
+				"phraseUpright": "un trabajo que ya salió de tus manos y avanza",
+				"phraseReversed": "algo más lento o más pequeño de lo que esperabas"
+			},
+			"wands-four": {
+				"name": "Cuatro de Bastos",
+				"byline": "el umbral iluminado",
+				"keywords": "Celebración, regreso, alegría estable",
+				"upright": "Algo ha cuajado y merece una parada. Márcalo, con gente si puedes. Los hitos que no se marcan dejan de parecer hitos.",
+				"reversed": "Pasar por alto algo que merecía marcarse. O una casa o una base que todavía no está firme.",
+				"phraseUpright": "algo que ha cuajado y merece una parada",
+				"phraseReversed": "un hito que se pasa por alto sin marcar"
+			},
+			"wands-five": {
+				"name": "Cinco de Bastos",
+				"byline": "todos hablando a la vez",
+				"keywords": "Roce, competencia, desacuerdo desordenado",
+				"upright": "Todos quieren lo mismo y nadie está equivocado. Es lioso más que grave. Aquí hay energía real en cuanto apunte a algún sitio.",
+				"reversed": "El desacuerdo se acaba, o se traga para mantener la paz. Ninguna de las dos cosas es resolverlo.",
+				"phraseUpright": "todo el mundo queriendo lo mismo a la vez",
+				"phraseReversed": "un desacuerdo tragado en lugar de resuelto"
+			},
+			"wands-six": {
+				"name": "Seis de Bastos",
+				"byline": "la vuelta a caballo",
+				"keywords": "Victoria, reconocimiento, mérito merecido",
+				"upright": "Se reconoce tu esfuerzo. Acéptalo sin más, sin quitarle importancia. Disfrútalo, y recuerda que un buen momento no es toda la historia.",
+				"reversed": "Trabajo que no ve nadie. O necesitar el elogio más de lo que necesitabas el trabajo.",
+				"phraseUpright": "un esfuerzo que por fin se ve",
+				"phraseReversed": "trabajo que nadie nota, o elogio necesitado de más"
+			},
+			"wands-seven": {
+				"name": "Siete de Bastos",
+				"byline": "sosteniendo la altura",
+				"keywords": "Perseverancia, defensa, mantener la posición",
+				"upright": "Estás defendiendo algo en lo que crees y tu posición es sólida. Sigue. El peligro es cansarte de tener que explicarte.",
+				"reversed": "Agotado, o a la defensiva sin que nadie ataque. A veces, rendirse justo antes de que cambie.",
+				"phraseUpright": "una posición que merece defenderse y se puede defender",
+				"phraseReversed": "estar agotado, o en guardia contra nada"
+			},
+			"wands-eight": {
+				"name": "Ocho de Bastos",
+				"byline": "todo a la vez",
+				"keywords": "Velocidad, noticias, impulso",
+				"upright": "Las cosas se aceleran. Llegan noticias y lo que estaba atascado se mueve. Sigue el ritmo, y no cuentes con que dure.",
+				"reversed": "Retrasos, o demasiado a la vez para que nada aterrice bien.",
+				"phraseUpright": "todo acelerándose a la vez",
+				"phraseReversed": "retrasos, o demasiado aterrizando al mismo tiempo"
+			},
+			"wands-nine": {
+				"name": "Nueve de Bastos",
+				"byline": "una más",
+				"keywords": "Resistencia, cautela, casi llegar",
+				"upright": "Estás cansado y sigues en pie. Te queda más de lo que crees, y estás más cerca del final de lo que parece.",
+				"reversed": "En guardia aunque no haya amenaza. O rechazar ayuda justo al final.",
+				"phraseUpright": "estar cansado y seguir en pie",
+				"phraseReversed": "una guardia mantenida mucho después de irse la amenaza"
+			},
+			"wands-ten": {
+				"name": "Diez de Bastos",
+				"byline": "el haz entero",
+				"keywords": "Carga, exceso de compromisos, llevar demasiado",
+				"upright": "Cargas demasiado, y parte de eso no es tuyo. Déjalo en el suelo y separa lo que de verdad aceptaste llevar.",
+				"reversed": "Algo por fin soltado. O un peso a punto de ser demasiado.",
+				"phraseUpright": "cargar con más de lo que en realidad es tuyo",
+				"phraseReversed": "un peso soltado, o a punto de partirte"
+			},
+			"wands-page": {
+				"name": "Sota de Bastos",
+				"byline": "el entusiasmo nuevo",
+				"keywords": "Curiosidad, una chispa de noticia, fuego de principiante",
+				"upright": "Alguien está entusiasmado con algo nuevo y todavía no sabe lo suficiente para tener cuidado. Justo por eso lo va a intentar.",
+				"reversed": "Entusiasmo que se apaga rápido. Empezar muchas cosas y no terminar ninguna.",
+				"phraseUpright": "un entusiasmo que aún no ha frenado el saber más",
+				"phraseReversed": "unas ganas que se apagan antes del fin de semana"
+			},
+			"wands-knight": {
+				"name": "Caballero de Bastos",
+				"byline": "salido al galope",
+				"keywords": "Audacia, aventura, impulso",
+				"upright": "Audaz, encantador y listo para marcharse. Estupendo empezando cosas y casi nunca presente al final. Vete, pero sabiendo eso de ti.",
+				"reversed": "Lanzarse a algo y pagarlo. O energía inquieta sin dónde ponerla.",
+				"phraseUpright": "un movimiento audaz con la bolsa ya hecha",
+				"phraseReversed": "lanzarte y pagarlo"
+			},
+			"wands-queen": {
+				"name": "Reina de Bastos",
+				"byline": "cálida y segura",
+				"keywords": "Confianza, calidez, magnetismo",
+				"upright": "Cálida y segura de sí misma sin necesidad de demostrarlo. Generosa con el ánimo. La gente se siente más firme a su lado.",
+				"reversed": "Confianza vuelta quebradiza. Necesitar atención, o quedarse sin fe en una misma en silencio.",
+				"phraseUpright": "una calidez que no necesita demostrarse",
+				"phraseReversed": "una confianza vuelta quebradiza"
+			},
+			"wands-king": {
+				"name": "Rey de Bastos",
+				"byline": "la mirada larga, ardiendo",
+				"keywords": "Visión, liderazgo, mando audaz",
+				"upright": "Ve adónde puede llegar esto y sabe llevarse a la gente con él. Visión, temple y experiencia para saber qué merece empezarse.",
+				"reversed": "Mucho hablar y ningún rumbo. Impaciente con cualquiera más lento que él.",
+				"phraseUpright": "visión más el temple de actuar",
+				"phraseReversed": "mucho hablar sin ningún rumbo debajo"
+			},
+			"cups-ace": {
+				"name": "As de Copas",
+				"byline": "la copa llenándose",
+				"keywords": "Sentimiento nuevo, amor ofrecido, corazón abierto",
+				"upright": "Se te está ofreciendo algo, y va de sentir más que de lo práctico. Amor, amistad, o un sentimiento que vuelve. Déjalo entrar.",
+				"reversed": "Sentimiento contenido. O algo ofrecido en un momento en que no puedes recibirlo.",
+				"phraseUpright": "una oferta de sentimiento esperando que la dejes entrar",
+				"phraseReversed": "sentimiento contenido, u ofrecido en mal momento"
+			},
+			"cups-two": {
+				"name": "Dos de Copas",
+				"byline": "un pacto entre dos",
+				"keywords": "Sociedad, estima mutua, conexión",
+				"upright": "Dos personas se encuentran de verdad. Lo que ofrece una resulta ser lo que a la otra le faltaba. Esto es conexión, no solo atracción.",
+				"reversed": "Una persona cargando sola con ello. Una ruptura, o un arreglo todavía al alcance.",
+				"phraseUpright": "dos personas encontrándose de verdad",
+				"phraseReversed": "una sola persona cargando con todo"
+			},
+			"cups-three": {
+				"name": "Tres de Copas",
+				"byline": "alzadas juntas",
+				"keywords": "Amistad, celebración, comunidad",
+				"upright": "Buena compañía y alegría compartida. Amigos, una celebración, gente que se alegra de que estés. Di que sí.",
+				"reversed": "Tensión en un grupo. Alguien dejado fuera, o celebrar para no mirar algo.",
+				"phraseUpright": "la alegría de la buena compañía",
+				"phraseReversed": "un grupo con alguien dejado fuera en silencio"
+			},
+			"cups-four": {
+				"name": "Cuatro de Copas",
+				"byline": "la copa ofrecida sin ver",
+				"keywords": "Apatía, contemplación, una oferta pasada por alto",
+				"upright": "Tienes cosas buenas delante y ahora mismo ninguna te interesa. El desinterés es real. Y también lo que aún no has visto.",
+				"reversed": "El interés que vuelve. O un retraimiento que ya dura lo bastante para ser el problema.",
+				"phraseUpright": "cosas buenas delante y ningún interés en ellas",
+				"phraseReversed": "el interés que vuelve, o un enfurruñamiento que dura de más"
+			},
+			"cups-five": {
+				"name": "Cinco de Copas",
+				"byline": "lo que sigue en pie",
+				"keywords": "Duelo, pérdida, arrepentimiento",
+				"upright": "Se perdió algo y era importante. Haz el duelo como toca. Cuando puedas, fíjate en que no todo se fue con ello.",
+				"reversed": "El duelo aflojando. O una pérdida llevada tanto tiempo que se ha vuelto quien eres.",
+				"phraseUpright": "una pérdida que importaba y todavía se siente",
+				"phraseReversed": "el duelo aflojando, o el duelo vuelto identidad"
+			},
+			"cups-six": {
+				"name": "Seis de Copas",
+				"byline": "las flores de antes",
+				"keywords": "Nostalgia, inocencia, bondad recordada",
+				"upright": "Una vuelta a algo tierno. Un recuerdo, una amistad vieja, una bondad. Está bien visitarlo, siempre que vuelvas.",
+				"reversed": "Vivir en el pasado. O negarte a que algo bueno esté terminado.",
+				"phraseUpright": "una vuelta suave a algo más antiguo",
+				"phraseReversed": "vivir en un pasado que no fue así"
+			},
+			"cups-seven": {
+				"name": "Siete de Copas",
+				"byline": "siete copas en la niebla",
+				"keywords": "Opciones, fantasía, demasiadas posibilidades",
+				"upright": "Muchas opciones, todas atractivas, ninguna real todavía. Soñar está bien. Elegir es lo que hace que una ocurra.",
+				"reversed": "Ver con claridad cuál quieres. O volver a elegir el sueño en lugar de decidir.",
+				"phraseUpright": "muchos futuros, todos todavía imaginarios",
+				"phraseReversed": "el sueño elegido en lugar de la decisión"
+			},
+			"cups-eight": {
+				"name": "Ocho de Copas",
+				"byline": "irse a la luz de la luna",
+				"keywords": "Partida, búsqueda, dejar lo que no basta",
+				"upright": "Aquí nada está mal, y no es suficiente. Dejar algo bueno porque no es lo tuyo es la despedida más difícil.",
+				"reversed": "Quedarse por culpa. O marcharse sin decir nunca por qué.",
+				"phraseUpright": "dejar algo bueno porque no basta",
+				"phraseReversed": "quedarte en un sitio por culpa"
+			},
+			"cups-nine": {
+				"name": "Nueve de Copas",
+				"byline": "el deseo",
+				"keywords": "Contento, satisfacción, un deseo cumplido",
+				"upright": "Conseguiste lo que querías y está bien. Permítete disfrutarlo antes de ponerte a buscar lo siguiente.",
+				"reversed": "Conseguirlo y sentirte vacío. O mover la meta cada vez que llegas.",
+				"phraseUpright": "conseguir justo lo que querías",
+				"phraseReversed": "conseguirlo y no sentir nada"
+			},
+			"cups-ten": {
+				"name": "Diez de Copas",
+				"byline": "el cielo entero",
+				"keywords": "Armonía, pertenencia, felicidad duradera",
+				"upright": "No un buen día, sino una buena vida. Gente que encaja, y un contento que construiste en vez de encontrarlo. Párate a notarlo.",
+				"reversed": "Tensión bajo una superficie feliz. O medir tu vida contra la foto que otro tiene de la suya.",
+				"phraseUpright": "un contento construido y no encontrado",
+				"phraseReversed": "tensión bajo una superficie feliz"
+			},
+			"cups-page": {
+				"name": "Sota de Copas",
+				"byline": "un pez en la copa",
+				"keywords": "Ternura, imaginación, un mensaje suave",
+				"upright": "Llega algo suave e inesperado. Un mensaje, una oferta, una idea. Tómatelo en serio aunque parezca pequeño.",
+				"reversed": "Un sentimiento que no consigues sacar. O una imaginación muy por delante de la realidad.",
+				"phraseUpright": "una oferta pequeña, blanda e inesperada",
+				"phraseReversed": "un sentimiento que no consigue salir"
+			},
+			"cups-knight": {
+				"name": "Caballero de Copas",
+				"byline": "el corazón por delante",
+				"keywords": "Romance, idealismo, seguir lo que se siente",
+				"upright": "Seguir al corazón, con sinceridad y poca practicidad. Cálido y romántico, con los detalles para más adelante.",
+				"reversed": "Tratar un sentimiento como si fuera un plan. Una promesa que no sobrevive a la vida real.",
+				"phraseUpright": "el corazón yendo más rápido que el plan",
+				"phraseReversed": "una promesa que no sobrevive a un calendario"
+			},
+			"cups-queen": {
+				"name": "Reina de Copas",
+				"byline": "el agua quieta",
+				"keywords": "Compasión, intuición, hondura emocional",
+				"upright": "Alguien que entiende los sentimientos con claridad, los suyos y los de los demás. Firme, amable y difícil de escandalizar.",
+				"reversed": "Desbordada por lo que sienten los demás. O cuidar de todos menos de sí misma.",
+				"phraseUpright": "alguien que lee los sentimientos con precisión",
+				"phraseReversed": "estar desbordado por lo que sienten los demás"
+			},
+			"cups-king": {
+				"name": "Rey de Copas",
+				"byline": "calma sobre agua honda",
+				"keywords": "Equilibrio emocional, sabiduría, temple",
+				"upright": "Sentir hondo y mantenerse firme. No esconder la emoción, sino elegir qué hacer con ella.",
+				"reversed": "Apagado y llamándolo calma. O calma por fuera y revuelto por dentro.",
+				"phraseUpright": "un sentimiento hondo sostenido con firmeza",
+				"phraseReversed": "estar apagado y llamarlo calma"
+			},
+			"swords-ace": {
+				"name": "As de Espadas",
+				"byline": "el corte limpio",
+				"keywords": "Claridad, verdad, un pensamiento que abre paso",
+				"upright": "Un pensamiento claro atraviesa la confusión. Ya puedes nombrarlo. Dilo sin rodeos, aunque incomode.",
+				"reversed": "Pensar en círculos. O la verdad usada para hacer daño en vez de para ayudar.",
+				"phraseUpright": "un pensamiento claro atravesando la niebla",
+				"phraseReversed": "un pensar que da vueltas y vueltas"
+			},
+			"swords-two": {
+				"name": "Dos de Espadas",
+				"byline": "con los ojos vendados junto al agua",
+				"keywords": "Punto muerto, evasión, una decisión rechazada",
+				"upright": "Dos opciones y ninguna decisión. Dices que necesitas más información. Casi toda está ya aquí.",
+				"reversed": "La decisión por fin tomada. O evitarla hasta que se decide sola.",
+				"phraseUpright": "una decisión evitada en lugar de sopesada",
+				"phraseReversed": "la venda cayendo por fin"
+			},
+			"swords-three": {
+				"name": "Tres de Espadas",
+				"byline": "la verdad desnuda",
+				"keywords": "Desamor, claridad dolorosa, pena",
+				"upright": "Dolió, y era verdad. Algo se dijo o se supo y entró hondo. El dolor limpio cura; una mentira cómoda no.",
+				"reversed": "El daño empezando a curar. O repasarlo tantas veces que nunca pueda.",
+				"phraseUpright": "una verdad que dolió al entrar",
+				"phraseReversed": "un daño repasado tantas veces que no puede cerrar"
+			},
+			"swords-four": {
+				"name": "Cuatro de Espadas",
+				"byline": "el hueco silencioso",
+				"keywords": "Descanso, recuperación, quietud deliberada",
+				"upright": "Para y descansa. Esto es reparación, no derrota. No puedes con lo que viene desde donde estás ahora.",
+				"reversed": "Descanso negado, o muy tardío. O descansar tanto que se ha vuelto evitar.",
+				"phraseUpright": "un descanso tomado como reparación y no como derrota",
+				"phraseReversed": "descanso negado, o esconderse llamado descanso"
+			},
+			"swords-five": {
+				"name": "Cinco de Espadas",
+				"byline": "el campo después",
+				"keywords": "Victoria hueca, coste, ganar mal",
+				"upright": "Ganaste y costó más de lo que valía. Pregúntate por qué peleabas de verdad, y si tener razón valía esto.",
+				"reversed": "Hacer las paces, o negarse. Soltarlo, o seguir agarrado mucho después del final.",
+				"phraseUpright": "una victoria que costó más de lo que valía",
+				"phraseReversed": "un rencor guardado mucho después del final"
+			},
+			"swords-six": {
+				"name": "Seis de Espadas",
+				"byline": "la travesía",
+				"keywords": "Tránsito, hacia aguas más calmas",
+				"upright": "Pasar de algo duro a algo más tranquilo. No es un triunfo, es el alivio de alejarse de lo que dolía.",
+				"reversed": "Atascado entre las dos cosas. O llevarte el problema contigo.",
+				"phraseUpright": "el paso del agua brava a otra más tranquila",
+				"phraseReversed": "el problema llevado contigo hasta la calma"
+			},
+			"swords-seven": {
+				"name": "Siete de Espadas",
+				"byline": "la salida discreta",
+				"keywords": "Estrategia, astucia, actuar solo",
+				"upright": "Rodear el problema en vez de atravesarlo. A veces es ingenio y a veces no es honesto. Tú sabes cuál es esta vez.",
+				"reversed": "Que te descubran, o reconocerlo. A veces es una historia que te cuentas a ti mismo.",
+				"phraseUpright": "rodear el problema en vez de atravesarlo",
+				"phraseReversed": "el atajo descubierto, o reconocido"
+			},
+			"swords-eight": {
+				"name": "Ocho de Espadas",
+				"byline": "las cuerdas flojas",
+				"keywords": "Restricción, sentirse atrapado, límites propios",
+				"upright": "Te sientes atrapado, y casi todo lo que te sujeta es lo que crees sobre tus opciones. Mira otra vez. Hay más sitio del que parece.",
+				"reversed": "Soltándote. O creerte más la trampa cuanto más tiempo pasas dentro.",
+				"phraseUpright": "una trampa hecha sobre todo de lo que crees",
+				"phraseReversed": "las cuerdas aflojándose"
+			},
+			"swords-nine": {
+				"name": "Nueve de Espadas",
+				"byline": "la madrugada",
+				"keywords": "Ansiedad, angustia, la mente de noche",
+				"upright": "La preocupación en su punto más alto, casi siempre de noche y casi siempre sobre lo que no ha pasado. Poco de eso sobrevive a la mañana.",
+				"reversed": "Lo peor pasando. O decirle por fin el miedo en voz alta a alguien.",
+				"phraseUpright": "la preocupación en su punto más alto, a oscuras",
+				"phraseReversed": "un miedo por fin dicho en voz alta"
+			},
+			"swords-ten": {
+				"name": "Diez de Espadas",
+				"byline": "el fondo",
+				"keywords": "Un final, tocar fondo, lo peor ya hecho",
+				"upright": "Se acabó, y acabó mal. El único consuelo es la dirección: esto es el fondo, y la luz ya viene.",
+				"reversed": "Volver a levantarse. O alargar un final que nadie quiere nombrar.",
+				"phraseUpright": "un final que salió lo peor posible",
+				"phraseReversed": "volver a levantarse, o no querer nombrar el final"
+			},
+			"swords-page": {
+				"name": "Sota de Espadas",
+				"byline": "los ojos abiertos",
+				"keywords": "Curiosidad, vigilancia, ideas nuevas",
+				"upright": "Curiosa, atenta, haciendo la pregunta que nadie más hace. Todavía no es sabia, pero mira de verdad.",
+				"reversed": "Mirar convertido en sospecha. O confundir los nervios con lucidez.",
+				"phraseUpright": "la pregunta que nadie más va a hacer",
+				"phraseReversed": "una atención que se ha agriado en sospecha"
+			},
+			"swords-knight": {
+				"name": "Caballero de Espadas",
+				"byline": "de frente",
+				"keywords": "Empuje, prisa, acción contundente",
+				"upright": "Rápido, directo y seguro. Excelente en una crisis y agotador el resto del tiempo, porque actúa antes de pensar.",
+				"reversed": "Velocidad sin puntería. Franqueza que deja destrozos detrás.",
+				"phraseUpright": "actuar primero y pensar por el camino",
+				"phraseReversed": "velocidad sin nada a lo que apuntar"
+			},
+			"swords-queen": {
+				"name": "Reina de Espadas",
+				"byline": "de mirada clara",
+				"keywords": "Honestidad, independencia, juicio claro",
+				"upright": "Te dice la verdad porque te respeta. Clara y no fría, y tan honesta consigo misma como contigo.",
+				"reversed": "Honestidad usada para mantener lejos a la gente. Claridad sin nada de calor.",
+				"phraseUpright": "la verdad dicha sin rodeos, por respeto",
+				"phraseReversed": "claridad sin nada de calor dentro"
+			},
+			"swords-king": {
+				"name": "Rey de Espadas",
+				"byline": "la palabra pesada",
+				"keywords": "Autoridad, ética, verdad decidida",
+				"upright": "Un juicio sólido en el que puedes confiar. Justo, preciso y dispuesto a decir lo difícil en el momento adecuado.",
+				"reversed": "Normas usadas contra la gente. Tener razón tratado como más importante que ser amable.",
+				"phraseUpright": "un juicio del que se puede uno fiar",
+				"phraseReversed": "normas vueltas contra la gente"
+			},
+			"pentacles-ace": {
+				"name": "As de Oros",
+				"byline": "la semilla en la mano",
+				"keywords": "Oportunidad, un comienzo sólido, prosperidad",
+				"upright": "Una oportunidad real, de las prácticas. Trabajo, dinero, un sitio, un comienzo. Merece tomarse en serio y actuar.",
+				"reversed": "Una oportunidad que se deja pasar. O un plan sin nada sólido debajo.",
+				"phraseUpright": "una oportunidad práctica con suelo firme debajo",
+				"phraseReversed": "una oportunidad dejada donde estaba"
+			},
+			"pentacles-two": {
+				"name": "Dos de Oros",
+				"byline": "mantener las dos en el aire",
+				"keywords": "Malabares, adaptabilidad, equilibrio en movimiento",
+				"upright": "Equilibrar dos exigencias, y de momento consiguiéndolo. La destreza es real y la tensión también. Pregúntate cuánto puede durar esto.",
+				"reversed": "Que se te caiga una. O descuidar algo en silencio para sostener lo demás.",
+				"phraseUpright": "dos exigencias en equilibrio, de momento",
+				"phraseReversed": "una de las dos soltada en silencio"
+			},
+			"pentacles-three": {
+				"name": "Tres de Oros",
+				"byline": "tres ante el muro",
+				"keywords": "Colaboración, oficio, destreza reconocida",
+				"upright": "Buen trabajo con gente que hace bien su parte. Que te valoren por lo que sabes hacer, y hacerlo juntos.",
+				"reversed": "Trabajar solo cuando no deberías. O un esfuerzo que nadie reconoce.",
+				"phraseUpright": "buen trabajo hecho con gente que sabe hacerlo",
+				"phraseReversed": "trabajar solo cuando no deberías"
+			},
+			"pentacles-four": {
+				"name": "Cuatro de Oros",
+				"byline": "bien agarrado",
+				"keywords": "Seguridad, retener, control",
+				"upright": "Sujetar lo que tienes. Sensato, y conviene mirarlo: lo que te da seguridad también puede dejarte atascado.",
+				"reversed": "Aflojar el puño. O dejar que el miedo a perderlo decida todo.",
+				"phraseUpright": "sujetar con fuerza lo que tienes",
+				"phraseReversed": "el puño aflojando, o el miedo dirigiéndolo todo"
+			},
+			"pentacles-five": {
+				"name": "Cinco de Oros",
+				"byline": "pasando bajo la ventana encendida",
+				"keywords": "Penuria, exclusión, ayuda que no se ve",
+				"upright": "Un tramo duro. Dinero, salud, o sentirte fuera. La ayuda está más cerca de lo que parece, y pedirla es lo más difícil.",
+				"reversed": "Las cosas girando. O salir de esto solo cuando no hacía falta.",
+				"phraseUpright": "un tramo duro con la ayuda más cerca de lo que parece",
+				"phraseReversed": "salir de esto solo cuando no hacía falta"
+			},
+			"pentacles-six": {
+				"name": "Seis de Oros",
+				"byline": "la mano abierta",
+				"keywords": "Generosidad, dar y recibir, equidad",
+				"upright": "Dar y recibir. Fíjate en qué lado estás ahora mismo, y en si el intercambio es de verdad justo.",
+				"reversed": "Ayuda con condiciones. O no ser capaz de aceptar ninguna.",
+				"phraseUpright": "algo que pasa entre el tener y el necesitar",
+				"phraseReversed": "ayuda con condiciones puestas"
+			},
+			"pentacles-seven": {
+				"name": "Siete de Oros",
+				"byline": "apoyado en la cerca",
+				"keywords": "Paciencia, evaluación, la mirada larga",
+				"upright": "Has hecho el trabajo y ahora esperas a que crezca. Pregúntate con honestidad si merece seguir a este ritmo.",
+				"reversed": "Impaciencia, o esfuerzo en el sitio equivocado. Desenterrarlo para verle la raíz.",
+				"phraseUpright": "la pausa honesta a mitad del crecimiento",
+				"phraseReversed": "desenterrarlo para comprobar la raíz"
+			},
+			"pentacles-eight": {
+				"name": "Ocho de Oros",
+				"byline": "lo mismo, mejor",
+				"keywords": "Diligencia, aprendizaje, oficio",
+				"upright": "Práctica. Lo mismo otra vez, un poco mejor cada vez. No tiene glamour y es como se vuelve bueno cualquiera.",
+				"reversed": "Cumplir el trámite. O perfeccionar algo que ya no importa.",
+				"phraseUpright": "lo mismo otra vez, un poco mejor",
+				"phraseReversed": "cumplir el trámite"
+			},
+			"pentacles-nine": {
+				"name": "Nueve de Oros",
+				"byline": "el jardín que hiciste",
+				"keywords": "Autosuficiencia, comodidad ganada, independencia",
+				"upright": "Una comodidad que construiste tú, disfrutada en tus términos. No es suerte, es una racha larga de buenas decisiones.",
+				"reversed": "Comodidad que deja fuera a la gente. O una seguridad que se apoya en otro.",
+				"phraseUpright": "una comodidad que construiste y puedes disfrutar a tu manera",
+				"phraseReversed": "una comodidad que deja fuera a todos"
+			},
+			"pentacles-ten": {
+				"name": "Diez de Oros",
+				"byline": "la casa entera",
+				"keywords": "Legado, familia, cimientos duraderos",
+				"upright": "Algo hecho para durar más allá de ti. Familia, una base estable, raíces. Lo que queda cuando el esfuerzo para.",
+				"reversed": "Un legado que pesa como una carga. O cambiar el largo plazo por el corto.",
+				"phraseUpright": "algo construido para durar más que tú",
+				"phraseReversed": "un legado que llega como carga"
+			},
+			"pentacles-page": {
+				"name": "Sota de Oros",
+				"byline": "el primer estudio de verdad",
+				"keywords": "Aprendizaje, aplicación, un comienzo práctico",
+				"upright": "Aprender algo como es debido, sin prisa. Poco vistoso, y lo más probable que siga ahí más adelante.",
+				"reversed": "Estudiar y no empezar nunca. O tener demasiada prisa para la parte aburrida.",
+				"phraseUpright": "aprenderlo como es debido, sin prisa",
+				"phraseReversed": "un estudio que nunca llega a empezar"
+			},
+			"pentacles-knight": {
+				"name": "Caballero de Oros",
+				"byline": "un surco cada vez",
+				"keywords": "Fiabilidad, método, trabajo constante",
+				"upright": "Lento, minucioso, fiable. Poco emocionante, y llega. Despacio es una estrategia, no un defecto.",
+				"reversed": "Atascado en la rutina. O tan prudente que no se mueve nada.",
+				"phraseUpright": "lento, minucioso y seguro de llegar",
+				"phraseReversed": "ser tan prudente que nada se mueve"
+			},
+			"pentacles-queen": {
+				"name": "Reina de Oros",
+				"byline": "la mano cálida y práctica",
+				"keywords": "Cuidado, recursos, atención con los pies en la tierra",
+				"upright": "Cuidado demostrado en cosas prácticas. Asegurarse de que la gente coma, esté abrigada y atendida, sin necesitar las gracias.",
+				"reversed": "Cuidar de todos menos de ti. O el trabajo y la casa tirando el uno del otro.",
+				"phraseUpright": "cuidado demostrado en cosas prácticas y cálidas",
+				"phraseReversed": "todos atendidos menos tú"
+			},
+			"pentacles-king": {
+				"name": "Rey de Oros",
+				"byline": "el terreno asentado",
+				"keywords": "Dominio, seguridad, abundancia responsable",
+				"upright": "Lo construyó y sabe conservarlo. Un éxito firme, usado también para los demás.",
+				"reversed": "Poseído por lo que posee. O control ejercido con dinero.",
+				"phraseUpright": "un éxito firme gastado también en los demás",
+				"phraseReversed": "estar poseído por lo que posees"
+			}
+		},
+		"elements": {
+			"fire": "Fuego",
+			"water": "Agua",
+			"air": "Aire",
+			"earth": "Tierra"
+		},
+		"suits": {
+			"wands": {
+				"name": "Bastos",
+				"keywords": "Acción, empuje, creatividad, ambición, crecimiento",
+				"text": "Fuego. Los Bastos son lo que quieres lo bastante como para empezarlo: proyectos, pasiones, el temple de comenzar y la energía de seguir. Cuando salen en cantidad, la pregunta va del empuje: en qué te estás volcando, y si es aquello que querías.",
+				"gloss": "Fuego. Lo que quieres lo bastante como para empezarlo: empuje, trabajo, el temple de comenzar."
+			},
+			"cups": {
+				"name": "Copas",
+				"keywords": "Emoción, relaciones, intuición, amor, sanación",
+				"text": "Agua. Las Copas son el clima de dentro y la gente que hay en él: amor, amistad, duelo, todo el asunto de sentir y de estar unido a otros. Una tirada llena de Copas pregunta por el fondo del asunto y no por su mecánica.",
+				"gloss": "Agua. Lo que sientes y por quién lo sientes: amor, amistad, duelo."
+			},
+			"swords": {
+				"name": "Espadas",
+				"keywords": "Pensamiento, verdad, conflicto, claridad, decisión",
+				"text": "Aire. Las Espadas son la mente trabajando: razonar, discutir, decidir, y el daño que pueden hacer las tres cosas. El palo tiene fama de duro y se la ha ganado, pero una espada corta la confusión igual de bien que cualquier otra cosa.",
+				"gloss": "Aire. La mente trabajando: verdad, decisiones, conflicto y el daño que puede hacer pensar."
+			},
+			"pentacles": {
+				"name": "Oros",
+				"keywords": "Trabajo, dinero, el cuerpo, la casa, lo que dura",
+				"text": "Tierra. Los Oros son el mundo sólido: un empleo, una casa, un presupuesto, tu salud, el trabajo lento de construir algo que se quede en pie. El palo menos vistoso y aquel del que van de verdad casi todas las lecturas.",
+				"gloss": "Tierra. El mundo sólido: trabajo, dinero, el cuerpo, la casa, lo que dura."
+			}
+		},
+		"numbers": {
+			"n1": {
+				"name": "Uno, el As",
+				"text": "La semilla en tierra fértil: todo el potencial y todavía nada de crecimiento. Comienzos, oportunidad, un arranque nuevo, y la incertidumbre que siempre viene con uno.",
+				"gloss": "Los Ases son la semilla. Todo el potencial y nada crecido todavía."
+			},
+			"n2": {
+				"name": "Dos",
+				"text": "La bifurcación del camino. Equilibrio, sociedad, una elección entre dos opciones reales, o un punto muerto cuando no se elige ninguna.",
+				"gloss": "Los Doses son la bifurcación. Equilibrio, o una elección entre dos opciones reales."
+			},
+			"n3": {
+				"name": "Tres",
+				"text": "Los primeros pasos de un baile. La chispa inicial se expande: crecimiento, colaboración, algo tomando una forma que ya se ve. Estirado de más, se dispersa.",
+				"gloss": "Los Treses son el primer crecimiento. La chispa toma una forma que ya se ve."
+			},
+			"n4": {
+				"name": "Cuatro",
+				"text": "Los cimientos de una casa. Estabilidad, estructura, orden, suelo sobre el que construir, y, sostenido demasiado, estancamiento y rigidez.",
+				"gloss": "Los Cuatros son los cimientos. Estables, estructurados y fáciles de convertir en atasco."
+			},
+			"n5": {
+				"name": "Cinco",
+				"text": "La tormenta que sacude el árbol. Cambio forzado desde fuera, conflicto, pérdida, y la adaptación que sale de ahí. La carta más incómoda de cada palo.",
+				"gloss": "Los Cincos son la tormenta. Algo forzado desde fuera, y la adaptación que viene después."
+			},
+			"n6": {
+				"name": "Seis",
+				"text": "La calma de después. Armonía restaurada, recuperación, ayuda dada y recibida, el avance fluyendo otra vez, o una comodidad en la que te has dormido.",
+				"gloss": "Los Seises son la calma de después. Recuperación, ayuda dada y recibida, movimiento otra vez."
+			},
+			"n7": {
+				"name": "Siete",
+				"text": "El sendero de la montaña, a mitad. Evaluación, perseverancia, estrategia, mirar atrás lo andado y adelante lo que queda.",
+				"gloss": "Los Sietes son el sendero de la montaña a mitad de subida. Evaluación, paciencia, estrategia."
+			},
+			"n8": {
+				"name": "Ocho",
+				"text": "El motor de una máquina bien engrasada. Dominio, movimiento, determinación, la destreza volviéndose fuerza, y, si no se vigila, exceso de trabajo.",
+				"gloss": "Los Ochos son el motor. Dominio e impulso, y el riesgo permanente de pasarse trabajando."
+			},
+			"n9": {
+				"name": "Nueve",
+				"text": "El fruto en la vid, casi maduro. Casi llegando: los frutos del trabajo duro, la resistencia y la tensión particular del último tramo.",
+				"gloss": "Los Nueves son el fruto casi maduro. Casi llegando, y la tensión del último tramo."
+			},
+			"n10": {
+				"name": "Diez",
+				"text": "El capítulo que se cierra. Culminación, final del ciclo, y en la misma carta la puerta que abre al siguiente.",
+				"gloss": "Los Dieces son el capítulo que se cierra. Culminación, y la puerta que abre a la siguiente."
+			}
+		},
+		"court": {
+			"page": {
+				"name": "Sota",
+				"text": "La criatura: curiosa, abierta, al principio mismo de aprender este elemento. Las Sotas traen noticias y comienzos, y su inexperiencia es justo el punto: todavía se dejan sorprender.",
+				"gloss": "Las Sotas son la aprendiz. Nuevas en este elemento, curiosas, todavía dispuestas a sorprenderse."
+			},
+			"knight": {
+				"name": "Caballero",
+				"text": "El adolescente: todo persecución e impulso, lanzándose con más temple que juicio. Los Caballeros ponen las cosas en marcha, y la advertencia en todos ellos es contra la prisa.",
+				"gloss": "Los Caballeros son la persecución. Todo impulso, y más temple que juicio."
+			},
+			"queen": {
+				"name": "Reina",
+				"text": "La que lo entiende desde dentro. Las Reinas sostienen su elemento en vez de perseguirlo: maduras, perceptivas, y a quienes acudes cuando necesitas que te entiendan de verdad.",
+				"gloss": "Las Reinas sostienen el elemento desde dentro. Maduras, perceptivas, y sin perseguirlo."
+			},
+			"king": {
+				"name": "Rey",
+				"text": "El que puede sostenerlo firme para los demás. Dominio y responsabilidad: autoridad ganada y no reclamada, y el riesgo en todo Rey es que se endurezca en control.",
+				"gloss": "Los Reyes lo sostienen firme para los demás. Dominio, responsabilidad y el riesgo del control."
+			}
+		},
+		"spreads": {
+			"past-present-future": {
+				"name": "Pasado, Presente, Futuro",
+				"blurb": "Las tres conocidas: de dónde viene esto, cómo está, y adónde va si nada cambia."
+			},
+			"situation-obstacle-advice": {
+				"name": "Situación, Obstáculo, Consejo",
+				"blurb": "Las tres cartas más prácticas que hay: qué pasa de verdad, qué se interpone y qué ayudaría."
+			},
+			"mind-body-spirit": {
+				"name": "Mente, Cuerpo, Espíritu",
+				"blurb": "Tres vistas de cómo estás y no de qué hacer: buena para mirar cómo andas."
+			}
+		},
+		"seats": {
+			"past": {
+				"name": "Pasado",
+				"blurb": "De dónde salió esto, y de qué sigue estando hecho.",
+				"frame": "Lo que preparó esto: {card}."
+			},
+			"present": {
+				"name": "Presente",
+				"blurb": "Cómo está la situación ahora mismo, de verdad.",
+				"frame": "Donde estás ahora: {card}."
+			},
+			"future": {
+				"name": "Futuro",
+				"blurb": "Adónde va esto por el rumbo actual, que no es un destino fijo.",
+				"frame": "Hacia dónde va esto: {card}."
+			},
+			"situation": {
+				"name": "Situación",
+				"blurb": "El fondo del asunto, como es de verdad y no como se está contando.",
+				"frame": "Lo que pasa de verdad: {card}."
+			},
+			"obstacle": {
+				"name": "Obstáculo",
+				"blurb": "Lo que se interpone, incluido lo que tú estés poniendo.",
+				"frame": "Lo que se interpone: {card}."
+			},
+			"advice": {
+				"name": "Consejo",
+				"blurb": "Lo que ayudaría de verdad, hecho a propósito.",
+				"frame": "Lo que ayudaría: {card}."
+			},
+			"mind": {
+				"name": "Mente",
+				"blurb": "Lo que estás pensando, y cómo está dando forma a lo demás.",
+				"frame": "En tu cabeza: {card}."
+			},
+			"body": {
+				"name": "Cuerpo",
+				"blurb": "Lo que dicen tu cuerpo y tu vida diaria sobre esto.",
+				"frame": "En tu cuerpo y tus días: {card}."
+			},
+			"spirit": {
+				"name": "Espíritu",
+				"blurb": "Lo que importa por debajo: la parte que no va de lo práctico.",
+				"frame": "Por debajo de todo: {card}."
+			}
+		},
+		"guide": {
+			"what-it-is": {
+				"title": "Qué es una baraja de tarot",
+				"p1": "Una baraja de tarot son setenta y ocho imágenes de cosas que le pasan a la gente. Comienzos, pérdidas, el momento en que te das cuenta de que llevas tiempo evitando una decisión, ese cansancio concreto de cargar demasiado: cada carta es una de esas, dibujada para que puedas mirarla desde fuera.",
+				"p2": "Es una herramienta para pensar, no una fuente de información. Las cartas no saben nada de ti y no van a decirte qué pasa después. Lo que hacen es ponerte delante una idea concreta en un momento en que tu cabeza da vueltas, y preguntarte qué tiene que ver con lo tuyo. Lo útil es tu respuesta, no la carta.",
+				"p3": "Por eso mismo una lectura merece hacerse despacio. Cualquiera puede buscar lo que significa una carta; toda la destreza está en notar qué significa aquí mismo: en esta pregunta, en esta posición, junto a esa otra carta."
+			},
+			"anatomy": {
+				"title": "Anatomía de una baraja",
+				"p1": "Setenta y ocho cartas, en dos grupos. Veintidós Arcanos Mayores llevan los grandes giros, los que nombrarías si contaras tu vida en diez frases. Cincuenta y seis Arcanos Menores llevan todo lo demás: la semana, la discusión, el trabajo, la amistad.",
+				"p2": "Los Menores se reparten en cuatro palos de catorce. Cada palo va del As al Diez y añade cuatro figuras, Sota, Caballero, Reina y Rey, que se leen como personas, o como partes de ti, más que como sucesos.",
+				"p3": "Así que toda carta Menor es un palo y un número: qué parte de la vida toca, y por dónde va. El Seis de Copas es la sexta etapa del palo emocional, y cuando sabes qué hacen los seises y de qué van las Copas, ya tienes casi todo el sentido antes de consultarlo."
+			},
+			"how-to-read": {
+				"title": "Cómo leer",
+				"p1": "Empieza por una pregunta, y que sea de verdad. No «qué me depara el futuro», que no tiene respuesta ni utilidad. Más bien «qué no estoy viendo de este trabajo» o «qué me ayudaría a ser mejor amiga suya ahora mismo». Una pregunta con forma le da a las cartas algo sobre lo que hablar.",
+				"p2": "Luego elige una tirada. Cada puesto de una tirada hace su propia pregunta, y de ahí viene casi todo el sentido: la misma carta en el puesto de «obstáculo» y en el de «consejo» dice dos cosas del todo distintas. Lee primero el puesto, luego la carta, y luego los dos juntos.",
+				"p3": "Mira la tirada entera antes de ir carta por carta. ¿Son casi todo Arcanos Mayores, lo que diría que el asunto es más grande que la semana en que está pasando? ¿Casi todo un mismo palo? ¿Casi todo números bajos, que son comienzos, o altos, que son finales? El patrón suele ser lo más claro de la tirada.",
+				"p4": "Y después permítete no estar de acuerdo. Una carta que cae mal sigue siendo útil: averiguar exactamente por qué no encaja suele decirte qué sí. La baraja es un estímulo, y quien lee eres tú."
+			},
+			"intention": {
+				"title": "Poner una intención",
+				"p1": "Antes de barajar, párate un momento y decide a qué has venido. ¿Qué quieres entender, y estás dispuesto a oír algo que no tenías previsto? Un minuto de eso antes hace más por una lectura que cualquier cantidad de técnica después.",
+				"p2": "Estrecha la pregunta hasta que apunte a algún sitio. «En qué puedo centrarme para que esta amistad vaya mejor» le gana a «¿va a funcionar esta amistad?»: sobre la primera puedes actuar, y la segunda solo le pide a las cartas una promesa que no pueden cumplir.",
+				"p3": "Sostenla mientras barajas y suéltala mientras lees. Llegar a una tirada decidido a ver una respuesta concreta es la manera más segura de obtenerla, y la lectura menos útil que hay."
+			},
+			"spreads": {
+				"title": "Elegir una tirada",
+				"p1": "Todas las tiradas de aquí son tres cartas en fila. Lo que cambia es la pregunta que hace cada puesto, y esa es la parte que merece aprenderse: una carta significa una cosa en el puesto llamado obstáculo y otra bien distinta en el llamado consejo. Lee primero el puesto, luego la carta, y luego los dos juntos.",
+				"p2": "Pasado, Presente, Futuro es la conocida, y sirve para todo lo que tiene una historia detrás: cómo llegó esto aquí, cómo está ahora y adónde va si nada cambia. Situación, Obstáculo, Consejo es la más práctica de las tres, y a la que acudir cuando estás atascado y no solo con curiosidad.",
+				"p3": "Mente, Cuerpo, Espíritu es la rara, porque no pregunta en absoluto qué hacer. Pregunta cómo estás, en tres sitios a la vez. Eso la convierte en la tirada indicada para un día en que la respuesta honesta a qué hacer es que todavía no lo sabes."
+			},
+			"reversals": {
+				"title": "Las invertidas",
+				"p1": "Una carta invertida es la que sale del revés. Es una práctica opcional, y hay muchos lectores que no la usan. Hace la lectura a la vez más difícil y más precisa.",
+				"p2": "Invertida no significa sin más lo contrario. Más bien suele querer decir que la energía de la carta está bloqueada, retrasada, vuelta hacia dentro o pasada de vueltas: La Estrella invertida no es tanto desesperación como esperanza que no logras alcanzar, y El Diablo invertido es a menudo el principio de soltarse y no una trampa mayor.",
+				"p3": "Si empiezas con la baraja, déjalas fuera un tiempo. Aprende primero qué dice cada carta del derecho; las lecturas de sombra tienen mucho más sentido cuando sabes de qué son sombra."
+			},
+			"majors": {
+				"title": "Los Arcanos Mayores",
+				"p1": "Veintidós cartas, numeradas del cero al veintiuno, que cuentan una sola historia: el Viaje del Loco. El Loco sale del borde sin saber nada, se encuentra con todas las figuras y fuerzas que hay, y llega al Mundo: entero, y listo para empezar otra vez.",
+				"p2": "Leídos en orden son una vida. El Mago y la Suma Sacerdotisa son lo que puedes hacer y lo que ya sabes; el Emperador y el Hierofante son las estructuras que heredas; la Torre es el derrumbe que tiene que ocurrir; la Estrella es la calma de después.",
+				"p3": "En una tirada, un Arcano Mayor sube la apuesta. Dice que esto no va en realidad de la semana: va de un giro en el que estás metido, lo hubieras notado o no."
+			},
+			"suits": {
+				"title": "Los cuatro palos",
+				"p1": "Los Arcanos Menores se dividen en cuatro palos, uno por elemento, y entre todos cubren casi toda una vida corriente: lo que te empuja, lo que sientes, lo que piensas y lo que construyes.",
+				"p2": "Los palos también se hablan entre sí. Bastos y Copas suelen tirar en direcciones opuestas, pasión contra sentimiento, mientras que Oros y Copas se llevan bien, lo que se lee como vida emocional sobre suelo firme. Una tirada cargada de un palo te está diciendo dónde está de verdad tu atención."
+			},
+			"numbers": {
+				"title": "Los números",
+				"p1": "Toda carta Menor es una etapa además de un palo. Los números funcionan igual en los cuatro: los Ases son semillas y los Dieces son finales, y todo lo de en medio es un paso de ese camino.",
+				"p2": "Así que una tirada llena de números bajos es un comienzo, diga lo que diga lo demás, y una llena de nueves y dieces es algo que termina. Lee los números antes que las cartas y media tirada se explica sola."
+			},
+			"court": {
+				"title": "Las figuras",
+				"p1": "Cuatro rangos en cada palo, y se leen como personas más que como sucesos: alguien de tu vida, o una parte de ti, acercándose al territorio de ese palo de una manera concreta.",
+				"p2": "También forman una secuencia de ir creciendo en ese elemento: la Sota lo está aprendiendo, el Caballero se lanza a por ello, la Reina lo entiende desde dentro, y el Rey puede sostenerlo firme para los demás."
+			}
+		},
+		"majorGloss": "Veintidós cartas para los giros que nombrarías si contaras tu vida en diez frases. Cuando cae una, la lectura no va de tu semana. Va de algo en mitad de lo cual estás, lo hubieras notado o no."
 	}
 }

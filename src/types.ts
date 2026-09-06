@@ -841,4 +841,6 @@ export type PanelId =
 	| 'finds'
 	/** The Stargazing Telescope's eyepiece — see TelescopePanel. */
 	| 'telescope'
+	/** The tarot deck on the table — see TarotPanel. */
+	| 'tarot'
 	| null;

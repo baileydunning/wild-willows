@@ -309,18 +309,21 @@ export function TelescopePanel() {
 									<p className="scope-note">
 										<Icon name="sparkle" size={13} /> {shown.note}
 									</p>
-									<p className="muted small scope-where">{whereLine(t, shown, seasonName)}</p>
-									{skyDef('night', shown.id)?.zodiac && (
-										<p className="muted small scope-zodiac">
-											{t('panels.telescope.zodiacLine', { when: tr(`narrative.sky.figures.${shown.id}.sun`) })}
-										</p>
-									)}
-									{!shown.overhead && (
+									{/* ONE line about when, not two: "not up tonight" already carries the
+									    seasons the where-line would have repeated. */}
+									{shown.overhead ? (
+										<p className="muted small scope-where">{whereLine(t, shown, seasonName)}</p>
+									) : (
 										<p className="muted small scope-notnow">
 											{shown.mode === 'day'
 												? t('panels.telescope.notToday', { weather: weatherList(shown.id) })
 												: t('panels.telescope.notTonight', { when: whenLine(t, shown) })}
 											{cloudedOut && ` ${t('panels.telescope.lidOn')}`}
+										</p>
+									)}
+									{skyDef('night', shown.id)?.zodiac && (
+										<p className="muted small scope-zodiac">
+											{t('panels.telescope.zodiacLine', { when: tr(`narrative.sky.figures.${shown.id}.sun`) })}
 										</p>
 									)}
 								</>

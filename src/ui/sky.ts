@@ -114,6 +114,11 @@ export const DAY_SKY: SkyDef[] = [
 	{ id: 'crepuscular-rays', kind: 'optic', weather: ['cloudy', 'storm'], seasons: ALL },
 	// Rain that evaporates before it lands wants hot dry air under the cloud.
 	{ id: 'virga', kind: 'optic', weather: ['heat', 'clear'], seasons: ['spring', 'summer'] },
+	// The two things in the daytime sky that are not weather at all. The sun is
+	// hidden by rain, storm and fog and is a ghost on those days; the moon is up
+	// in daylight for about half of every month and most people never look.
+	{ id: 'sun', kind: 'body', weather: ['clear', 'cloudy', 'heat', 'snow'], seasons: ALL },
+	{ id: 'moon', kind: 'body', weather: ['clear', 'cloudy', 'heat'], seasons: ALL },
 ];
 
 /** The night sky: sixteen constellations, ten things that are not stars at all,
@@ -231,7 +236,7 @@ export function subject(mode: SkyMode, id: string, overhead = false): SkySubject
  *  swatch of blue. */
 export const FIELDS: Record<SkyMode, { w: number; h: number; sky: number; horizon: number; rows: number }> = {
 	// Day: 7 columns of 320 (a cloud is 275 wide), four altitude bands.
-	day: { w: 2240, h: 1700, sky: 1500, horizon: 200, rows: 4 },
+	day: { w: 2240, h: 2000, sky: 1800, horizon: 200, rows: 4 },
 	// Night: 8 columns of 320, five rows of sky above the treeline.
 	night: { w: 3200, h: 1620, sky: 1400, horizon: 220, rows: 5 },
 };
@@ -270,20 +275,32 @@ export interface Placed extends SkySubject {
  * laid out in bands rather than on the night side's plain grid.
  */
 const DAY_BAND: Record<string, number> = {
-	high: 0.18,
-	mid: 0.41,
-	towering: 0.63,
-	low: 0.84,
+	high: 430,
+	mid: 940,
+	towering: 1280,
+	low: 1620,
 };
-/** The optical effects are not clouds and have their own heights: a rainbow
- *  stands on the ground, sun dogs ride the high ice, rays fall from mid-level
- *  gaps, and virga hangs below a shower that never lands. */
+/** The optical effects are not clouds and have their own heights: sun dogs ride
+ *  the high ice beside the sun, rays fall from mid-level gaps, virga hangs below
+ *  a shower that never lands, and a rainbow stands on the ground. */
 const OPTIC_BAND: Record<string, number> = {
-	rainbow: 0.95,
-	sundogs: 0.3,
-	'crepuscular-rays': 0.52,
-	virga: 0.74,
+	sundogs: 770,
+	'crepuscular-rays': 1110,
+	virga: 1450,
+	rainbow: 1760,
 };
+/** And the two bodies: the sun near the top of the travel, the moon below it. */
+const BODY_BAND: Record<string, number> = {
+	sun: 260,
+	moon: 600,
+};
+
+/** Where one daytime thing hangs, in field units from the top of the sky. */
+function dayBandFor(d: SkyDef): number {
+	if (d.kind === 'optic') return OPTIC_BAND[d.id] ?? 940;
+	if (d.kind === 'body') return BODY_BAND[d.id] ?? 260;
+	return DAY_BAND[d.level || 'mid'] ?? 940;
+}
 
 /** What is genuinely up right now: this season's night sky, or this weather's
  *  clouds. An overcast night has nothing overhead at all — which is true, and
@@ -343,11 +360,11 @@ export function skyField(mode: SkyMode, opts: { weather?: string; season?: strin
 		let y: number;
 		let key: string;
 		if (mode === 'day') {
-			const band = d.kind === 'optic' ? (OPTIC_BAND[d.id] ?? 0.5) : (DAY_BAND[d.level || 'mid'] ?? 0.5);
-			y = band * f.sky;
-			// Clouds of the same TYPE of height share a lane; the optics each keep
-			// their own, so a rainbow never has to queue behind a stratus deck.
-			key = d.kind === 'optic' ? d.id : d.level || 'mid';
+			y = dayBandFor(d);
+			// Clouds of the same TYPE of height share a lane; the optics and the two
+			// bodies each keep their own, so a rainbow never has to queue behind a
+			// stratus deck and the sun is always where the sun is.
+			key = d.kind === 'cloud' ? d.level || 'mid' : d.id;
 		} else {
 			// Rows are inset from both ends of the sky band: the top one clears the
 			// zenith and the bottom one clears the treeline, so nothing tall — an

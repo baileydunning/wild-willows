@@ -836,15 +836,12 @@ interface Palette {
 	 *  early at dawn and dusk, when the warm band reaches most of the way up. */
 	fade?: number;
 	lowAt?: number;
-	/** Where the sun hangs, as fractions of the field — omitted when the weather
-	 *  has it hidden. */
-	sun?: [number, number];
 }
 
 /** One palette per weather type, plus the two half-lit hours. Picked by eye
  *  against the game's own sky tints (weather.json's dayPhaseStyle). */
 const PALETTES: Record<string, Palette> = {
-	clear: { top: '#1f63b8', low: '#9ed3f2', glow: '#ffeec2', ridge: '#7fa2b0', near: '#3c6140', sun: [0.86, 0.14] },
+	clear: { top: '#1f63b8', low: '#9ed3f2', glow: '#ffeec2', ridge: '#7fa2b0', near: '#3c6140' },
 	cloudy: {
 		top: '#5c7089',
 		low: '#aab7c6',
@@ -898,7 +895,6 @@ const PALETTES: Record<string, Palette> = {
 		near: '#59683c',
 		haze: '#f0e2b4',
 		hazeAt: 0.14,
-		sun: [0.86, 0.12],
 	},
 	dawn: {
 		top: '#374a8c',
@@ -908,7 +904,6 @@ const PALETTES: Record<string, Palette> = {
 		near: '#2c3f35',
 		fade: 0.1,
 		lowAt: 0.55,
-		sun: [0.86, 0.86],
 	},
 	dusk: {
 		top: '#2c3c74',
@@ -918,7 +913,6 @@ const PALETTES: Record<string, Palette> = {
 		near: '#28382f',
 		fade: 0.1,
 		lowAt: 0.55,
-		sun: [0.86, 0.88],
 	},
 	night: { top: '#060c1e', low: '#152037', glow: '#7f95c6', ridge: '#141f30', near: '#0d1715' },
 };
@@ -1217,13 +1211,6 @@ export function SkyScene({ mode, pal, ox, biome }: { mode: SkyMode; pal: Palette
 				fill={pal.glow}
 				opacity={mode === 'night' ? 0.1 : 0.2}
 			/>
-			{pal.sun && (
-				<g>
-					<circle cx={f.w * pal.sun[0]} cy={f.sky * pal.sun[1]} r={104} fill={pal.glow} opacity={0.18} />
-					<circle cx={f.w * pal.sun[0]} cy={f.sky * pal.sun[1]} r={58} fill={pal.glow} opacity={0.3} />
-					<circle cx={f.w * pal.sun[0]} cy={f.sky * pal.sun[1]} r={26} fill="#fff6d8" />
-				</g>
-			)}
 			{mode === 'day' &&
 				BIRDS.map(([fx, fy, sc], i) => (
 					<path
@@ -1487,6 +1474,33 @@ export function DeepArt({ id, hot }: { id: string; hot: boolean }) {
 export function BodyArt({ id, hot }: { id: string; hot: boolean }) {
 	const halo = hot ? 0.35 : 0.22;
 	switch (id) {
+		case 'sun':
+			return (
+				<g>
+					<circle cx={85} cy={85} r={80} fill="#ffeeb0" opacity={halo * 0.5} />
+					<circle cx={85} cy={85} r={56} fill="#fff0bc" opacity={0.5} />
+					{/* glare, as a few soft streamers rather than a wheel of spokes */}
+					{[8, 62, 128, 196, 264, 322].map((a, i) => {
+						const r = (a * Math.PI) / 180;
+						const near = 38;
+						const far = near + (i % 2 ? 22 : 34);
+						return (
+							<path
+								key={i}
+								d={`M${85 + Math.cos(r) * near} ${85 + Math.sin(r) * near} L${85 + Math.cos(r) * far} ${85 + Math.sin(r) * far}`}
+								stroke="#fff3c8"
+								strokeWidth={i % 2 ? 4 : 7}
+								strokeLinecap="round"
+								opacity={0.22}
+							/>
+						);
+					})}
+					<circle cx={85} cy={85} r={34} fill="#fff8dc" />
+					{/* sunspots — each one about the size of the Earth */}
+					<ellipse cx={74} cy={78} rx={5} ry={3.4} fill="#e8b862" opacity={0.75} />
+					<ellipse cx={95} cy={94} rx={3.6} ry={2.6} fill="#e8b862" opacity={0.6} />
+				</g>
+			);
 		case 'moon':
 			return (
 				<g>

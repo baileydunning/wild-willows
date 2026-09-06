@@ -945,4 +945,3 @@ describe('a restarted scene inherits no stale draw signature', () => {
 		}
 	});
 });
-

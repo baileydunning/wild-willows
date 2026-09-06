@@ -3701,6 +3701,10 @@
 			"home-willowmirror": {
 				"description": "Un espejo redondo en un aro de mimbre de sauce. Lo bastante bueno para verte bien.",
 				"name": "Espejo de Sauce"
+			},
+			"home-tarotdeck": {
+				"description": "Setenta y ocho cartas sobre corteza prensada, en un estuche tejido de mimbre. Ponlo en una mesa y lee sobre él, o siéntate a una tirada.",
+				"name": "Baraja de Tarot"
 			}
 		},
 		"recipe": {
@@ -4792,6 +4796,9 @@
 			},
 			"home-willowmirror": {
 				"name": "Espejo de Sauce"
+			},
+			"home-tarotdeck": {
+				"name": "Baraja de Tarot"
 			}
 		},
 		"resource": {

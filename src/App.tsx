@@ -133,6 +133,7 @@ const JournalPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.Journa
 const AnimalCard = lazyPanel(() => import('./ui/Journal').then((m) => m.AnimalCard));
 const FindsBoardPanel = lazyPanel(() => import('./ui/Journal').then((m) => m.FindsBoardPanel));
 const TelescopePanel = lazyPanel(() => import('./ui/Telescope').then((m) => m.TelescopePanel));
+const TarotPanel = lazyPanel(() => import('./ui/Tarot').then((m) => m.TarotPanel));
 const AchievementsPanel = lazyPanel(() => import('./ui/Achievements').then((m) => m.AchievementsPanel));
 const GoalsPanel = lazyPanel(() => import('./ui/GoalsPanel').then((m) => m.GoalsPanel));
 const DevPanel = lazyPanel(() => import('./ui/DevPanel').then((m) => m.DevPanel));
@@ -168,6 +169,7 @@ const WARM_PANELS = [
 	AnimalCard,
 	FindsBoardPanel,
 	TelescopePanel,
+	TarotPanel,
 	AchievementsPanel,
 	GoalsPanel,
 ];
@@ -449,6 +451,7 @@ function GameScreen() {
 			bridge.on('open-finds', () => setPanel('finds')),
 			bridge.on('open-stories', () => setPanel('stories')),
 			bridge.on('open-telescope', () => setPanel('telescope')),
+			bridge.on('open-tarot', () => setPanel('tarot')),
 			// A waymarker out on the trail opens the same areas panel the menu does.
 			// The panel already opens on the biome you are standing in, which is the
 			// page a sign at your feet should be showing.
@@ -643,6 +646,7 @@ function GameScreen() {
 				{panel === 'mirror' && <MirrorPanel />}
 				{panel === 'finds' && <FindsBoardPanel />}
 				{panel === 'telescope' && <TelescopePanel />}
+				{panel === 'tarot' && <TarotPanel />}
 				{panel === 'weather' && <WeatherPanel />}
 				{panel === 'materials' && <MaterialsPanel />}
 				{panel === 'goals' && <GoalsPanel />}

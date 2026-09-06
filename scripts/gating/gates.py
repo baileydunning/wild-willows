@@ -163,6 +163,14 @@ OVERRIDES = {
     'medium-chest': {'minHealth': 15, 'requiresCrafted': 'small-chest'},
     'large-chest':  {'minHealth': 25, 'requiresCrafted': 'medium-chest'},
     'hiking-boots': {'animalsReturned': 8},
+    # The tarot deck is the eight-animal gate too — a deck of cards is a thing
+    # you want once there is somebody to sit around a table with, and the eighth
+    # animal back is when the meadow stops feeling empty. The health floor is
+    # only there to keep the two gates distinct (validate.py rejects two recipes
+    # in one area sharing a requirement, and hiking-boots holds the bare one):
+    # the eighth meadow animal, the song sparrow, needs 16% itself, so this adds
+    # no real wait and the label does not mention it.
+    'home-tarotdeck': {'animalsReturned': 8, 'minHealth': 16},
     'binoculars':   {'minHealth': 20, 'requiresTool': {'id': 'journal-meadow', 'tier': 2}},
     # the headlamp turns up the first time the sun goes down — the moment you
     # actually want one — and stays on the list from then on.

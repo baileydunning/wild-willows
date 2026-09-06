@@ -46,7 +46,7 @@ const BIOMES: string[] = (biomes as any).records.filter((b: any) => b.explorable
 
 describe('the catalog', () => {
 	it('holds a whole daytime sky and a whole night one, each id once', () => {
-		expect(DAY_SKY.length).toBe(15); // eleven cloud types + four optical effects
+		expect(DAY_SKY.length).toBe(17); // 11 cloud types + 4 optical effects + the sun and the moon
 		expect(NIGHT_SKY.length).toBe(44); // 25 figures + 10 deep sky + 5 bodies + 4 events
 		// The whole zodiac, plus the thirteenth the horoscopes leave out.
 		expect(ZODIAC).toHaveLength(13);
@@ -107,6 +107,18 @@ describe('what is actually up there', () => {
 					expect(up.size, `nothing overhead on a ${season} ${wx} day`).toBeGreaterThan(0);
 				}
 			}
+		}
+	});
+
+	it('has the sun and the daytime moon in it, and hides the sun in the wet', () => {
+		// Everything that comes into sight has to be a thing you can aim at and
+		// read — the brightest of them most of all.
+		expect(DAY_SKY.map((d) => d.id)).toContain('sun');
+		expect(DAY_SKY.map((d) => d.id)).toContain('moon');
+		expect([...overheadNow('day', { weather: 'clear', season: 'summer' })]).toContain('sun');
+		// …and on a day with a lid on it, the sun is up there but not in sight.
+		for (const wx of ['rain', 'storm', 'fog']) {
+			expect([...overheadNow('day', { weather: wx, season: 'summer' })], wx).not.toContain('sun');
 		}
 	});
 

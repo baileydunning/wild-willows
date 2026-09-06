@@ -5383,6 +5383,23 @@ export class WorldScene extends Phaser.Scene {
 				img,
 				{ keyOnly: true, collect: its },
 			);
+		} else if (p.objectId === 'home-tarotdeck') {
+			// The deck on the table: the guide to what tarot is, and a reading you
+			// lay out yourself (ui/Tarot.tsx). Nothing about it is saved.
+			//
+			// KEY-ONLY, like the telescope and the bookshelf. A deck is a small thing
+			// you set down somewhere and then move when the light is wrong, and a
+			// registered click action is exactly what would take that menu away.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readTarot'),
+					action: () => bridge.emit('open-tarot'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
 		} else if (isSleepable(p.objectId)) {
 			// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
 			// placement menu below (move / rotate / pick up), which is what you

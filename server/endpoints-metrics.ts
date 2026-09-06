@@ -93,6 +93,7 @@ const MENU_PANELS = new Set([
 	'mirror',
 	'finds',
 	'telescope',
+	'tarot',
 	'help',
 ]);
 /** At most this many opens of one menu per beat — a beat covers ~90s, so a

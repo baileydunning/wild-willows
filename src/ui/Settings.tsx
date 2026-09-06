@@ -370,8 +370,7 @@ export function MirrorPanel() {
 							<span>{t('app.mirror.cancel')}</span>
 						</button>
 						<button className="big-btn primary" onClick={save} disabled={saving}>
-							<Icon name="check" />{' '}
-							<span>{saving ? t('app.settings.saving') : t('app.mirror.save')}</span>
+							<Icon name="check" /> <span>{saving ? t('app.settings.saving') : t('app.mirror.save')}</span>
 						</button>
 					</div>
 				</div>

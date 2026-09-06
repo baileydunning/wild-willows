@@ -145,6 +145,22 @@ export const INDOOR: SpriteSet = {
 		g.fillStyle(C('#5a6b7a'), 1).fillRoundedRect(10, 6, 16, 6, 3); // barrel (tilted-ish)
 		g.fillStyle(C('#cfe0ee'), 1).fillCircle(25, 9, 2.5); // lens
 	}),
+	// Tarot Deck — a woven case, the stack half-fanned out of it, and one card
+	// lying face up beside them so it reads as a deck in use rather than a box.
+	tarotdeck: def(30, 26, (g) => {
+		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(2, 17, 26, 7, 2); // willow case
+		g.fillStyle(C('#a4855c'), 1).fillRect(4, 19, 22, 1.5); // weave
+		g.fillStyle(C('#d8c9a4'), 1).fillRoundedRect(4, 7, 10, 13, 1.5); // the stack, fanned
+		g.fillStyle(C('#e8dcbc'), 1).fillRoundedRect(6, 5, 10, 13, 1.5);
+		g.fillStyle(C('#f4ead2'), 1).fillRoundedRect(8, 3, 10, 13, 1.5);
+		g.lineStyle(1, C('#c9b184'), 1).strokeRoundedRect(8, 3, 10, 13, 1.5);
+		g.fillStyle(C('#4d6b52'), 1).fillRoundedRect(10, 5, 6, 9, 1); // a card back, willow green
+		g.fillStyle(C('#c9913f'), 1).fillCircle(13, 9.5, 1.6);
+		g.fillStyle(C('#f4ead2'), 1).fillRoundedRect(18, 8, 9, 12, 1.5); // one turned face up
+		g.lineStyle(1, C('#c9b184'), 1).strokeRoundedRect(18, 8, 9, 12, 1.5);
+		g.fillStyle(C('#c9913f'), 1).fillTriangle(22.5, 10, 20.5, 15, 24.5, 15); // the star on its face
+		g.fillStyle(C('#c9913f'), 1).fillTriangle(22.5, 18, 20.5, 13, 24.5, 13);
+	}),
 	driftwoodshelf: def(34, 26, (g) => {
 		g.fillStyle(C('#b6a68c'), 1).fillRoundedRect(3, 10, 28, 4, 2); // weathered plank
 		g.fillStyle(C('#8a7a60'), 1).fillRect(6, 14, 2, 8).fillRect(25, 14, 2, 8);

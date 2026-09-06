@@ -50,7 +50,8 @@
 			"snowglobe": "Shake the snow globe (E)",
 			"tidechime": "Set the tide chime ringing (E)",
 			"windchime": "Set the chimes ringing (E)"
-		}
+		},
+		"readTarot": "Read the tarot cards"
 	},
 	"gate": {
 		"locked": "{name} isn't open yet.",

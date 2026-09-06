@@ -12,6 +12,7 @@ import { dayPhaseAt, nextPhaseAt, phasesSeen, seasonAt, weatherSnapshot, weather
 import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db, hash32, seededRng } from './core';
 import { safeGet } from './store';
 import { KEY_REV, placementKey } from './keys';
+import { EMPTY_COZY, storedCozy } from './cozy';
 import { REPAIR_REV, byArea, byWorld, defs, findBiomeState, findInWorld, worldOf } from './worlds';
 import {
 	BASKET_FRAME_TIER,
@@ -246,6 +247,15 @@ export async function createPlayerRecords(
 		// counting placements, and a save that has none makes the next repair pass
 		// scan every placement in the world to work them out (see bumpStanding).
 		standing: freshStanding(standingPlaced),
+		// And born with the reading its empty camp already earns — zero. Same rule
+		// as every marker above: a save that arrives WITHOUT this makes the next
+		// repair pass read the whole home interior to learn there is nothing in it,
+		// and then spend a Player write saying so (backfillCoziness in worlds.ts,
+		// which LoginPlayer forces on every login). Absent and zero are different
+		// answers here too — absent means nobody has looked — so a save born now
+		// says so itself, and the backfill goes back to being what it is for: a
+		// house decorated before coziness existed.
+		homeCozy: storedCozy(EMPTY_COZY),
 	};
 	await t.Player.put(player);
 

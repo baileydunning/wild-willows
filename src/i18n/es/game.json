@@ -50,7 +50,8 @@
 			"snowglobe": "Agitar la bola de nieve (E)",
 			"tidechime": "Hacer sonar el carillón de mar (E)",
 			"windchime": "Hacer sonar el carillón (E)"
-		}
+		},
+		"readTarot": "Leer las cartas del tarot"
 	},
 	"gate": {
 		"locked": "{name} aún no está abierto.",
