@@ -86,6 +86,7 @@ const PUBLIC = [
 	'SetHomeColors',
 	'SetHomeStyle',
 	'SetPlacementColor',
+	'SetPlacementLit',
 	'SyncPlayer',
 	'Terraform',
 	'UpdateAppearance',
@@ -95,7 +96,7 @@ const PUBLIC = [
 
 	// --- DevTools is reachable without credentials, but it is no longer OPEN: it
 	// refuses any save whose name is not `bailey_test` (DEV_PLAYER_SLUG in
-	// server/resources.ts). It sits in this list because this suite classifies
+	// server/player.ts). It sits in this list because this suite classifies
 	// endpoints by which side of the AUTH boundary they are on, and DevTools is
 	// still on the public side — the gate is a check inside the handler, not a
 	// Harper permission. The gate itself is covered in dev-populate.test.ts.

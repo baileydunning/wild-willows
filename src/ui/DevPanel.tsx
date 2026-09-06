@@ -8,9 +8,10 @@ import { clearBrowserSaves } from '../solo/saves';
 import { WEATHER_TYPES, SEASONS, weatherType, seasonStyle } from '../weather';
 
 /**
- * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Delete,
- * available to any save. Calls the server DevTools endpoint, then refreshes
- * state. Never surfaced in normal play.
+ * Hidden developer panel for testing — opened with Cmd/Ctrl + Shift + Delete on a
+ * save the server will take dev actions from (`player.devTools`); on any other
+ * save the sequence does nothing and this never mounts. Calls the server DevTools
+ * endpoint, then refreshes state. Never surfaced in normal play.
  */
 export function DevPanel({ onClose }: { onClose: () => void }) {
 	const { data, state, refresh, notify, changeArea } = useGame();

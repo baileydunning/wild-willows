@@ -8,7 +8,14 @@
 
 import { t as tr } from '../src/i18n/server';
 import { buildStamp } from './pages';
-import { gatherResourceIdFor, isWeatherGatheredResource, nextDawnAt, weatherTypeAt } from './weather';
+import {
+	DAY_MS,
+	gatherResourceIdFor,
+	isWeatherGatheredResource,
+	nextDawnAt,
+	nextNoonAt,
+	weatherTypeAt,
+} from './weather';
 // @ts-ignore — Node built-in; this project deliberately has no @types/node
 import { brotliCompressSync, constants as zlibConstants, gzipSync } from 'node:zlib';
 
@@ -24,21 +31,41 @@ import {
 	findDiscovery,
 	findInWorld,
 	findTerrainAt,
+	reflowInterior,
 	repairSave,
 	worldOf,
 } from './worlds';
 import {
+	BASKET_OVERFLOW_TIER,
+	BASKET_SWEEP_TIER,
+	CAN_DIP_TIER,
 	DIG_FIND_CHANCE,
 	HOME_STYLES,
 	HOME_TRACKS,
-	SLEEPABLE_OBJECTS,
+	MAX_BRUSH_TILES,
+	MAX_SWEEP_NODES,
+	SHOVEL_SALVAGE_TIER,
+	SHOVEL_SURVEY_TIER,
+	brushSizesFor,
 	blocksDoorway,
+	craftCost,
+	homeCozy,
+	homeCozyBoost,
+	homeCozyOpts,
+	homeHas,
 	homeOf,
 	homePerk,
+	homeRestedHold,
 	homeRoom,
+	homeRooms,
+	interiorSpotFor,
+	canStackOn,
+	isSurface,
+	isSmall,
 	tentBiomeOf,
 	tentRoom,
 } from './home';
+import { readCoziness, storedCozy } from './cozy';
 import {
 	BEARD_STYLES,
 	BODY_TYPES,
@@ -59,18 +86,22 @@ import {
 } from './player';
 import {
 	bumpMetrics,
+	bumpStanding,
 	encodeMetrics,
 	freshMetrics,
 	metricsView,
 	playerDayKey,
 	readMetrics,
 	sanitizeTzOffset,
+	standingOf,
 	weatherTimeFromPlay,
 } from './metrics';
 import {
 	STARTING_TERRAIN,
 	areaGrid,
 	blocksGateTrail,
+	buriedCacheAt,
+	carriedWeight,
 	checkUnlocks,
 	consumeMaterials,
 	createPlayerRecords,
@@ -78,6 +109,7 @@ import {
 	gateGeomOf,
 	getOwnedChest,
 	inventoryCapacity,
+	roomFor,
 	matureMs,
 	recalcBiome,
 	withPendingMaturity,
@@ -87,6 +119,7 @@ import {
 } from './biome';
 import {
 	MAX_CUSTOM_GOALS,
+	boardPlacements,
 	dailyTasksBlock,
 	goalLimitFor,
 	goalMetric,
@@ -97,6 +130,7 @@ import {
 import { bodyOf, rateLimit } from './rate-limit';
 import { awardAchievements, awardWorldAchievements } from './achievements';
 import type { CustomGoal, TaskCtx } from './tasks';
+import type { TerrainChange } from './biome';
 
 // ================================================================ ENDPOINTS
 
@@ -1137,10 +1171,10 @@ export class MyWorlds extends PublicEndpoint {
 	}
 }
 
-/** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId} */
+/** POST /CollectResource/ {playerId, biomeId, nodeId, resourceId, alsoNodeIds?} */
 export class CollectResource extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, biomeId, nodeId, resourceId } = await bodyOf(data, this);
+		const { playerId, biomeId, nodeId, resourceId, alsoNodeIds } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -1216,35 +1250,124 @@ export class CollectResource extends PublicEndpoint {
 			if (!nodeId || typeof nodeId !== 'string' || !/^[A-Za-z0-9_-]{1,32}$/.test(nodeId))
 				throw new GameError(tr('server.err.nodeIdRequired'), 400, 'server.err.nodeIdRequired');
 
-			// node regeneration cooldown — shared across the world so two players can't
-			// both drain the same spot
-			const nodeKey = `${wid}:${biomeId}:${nodeId}`;
-			const nodeState = await t.NodeState.get(nodeKey);
 			const now = Date.now();
-			if (nodeState && now - nodeState.harvestedAt < NODE_REGEN_SECONDS * 1000) {
-				throw new GameError(tr('server.err.regrowing'), 409, 'server.err.regrowing');
+			const basketTier = player.tools?.basket || 1;
+
+			// A dipping pail (CAN_DIP_TIER) fills straight from open water the caretaker
+			// shaped, instead of walking back to a spring — so the wetland restored three
+			// biomes ago quietly becomes infrastructure. The spot IS the tile, addressed
+			// as `dip-<x>-<y>`, and it carries no regrow cooldown and writes no
+			// NodeState: your own pond does not run dry, and it is not a spawn to share.
+			const dip = /^dip-(\d+)-(\d+)$/.exec(nodeId);
+			if (dip) {
+				if (resDef.tool !== 'watering-can')
+					throw new GameError(tr('server.err.nodeIdRequired'), 400, 'server.err.nodeIdRequired');
+				if ((player.tools?.['watering-can'] || 1) < CAN_DIP_TIER)
+					throw new GameError(tr('server.err.needDippingPail'), 403, 'server.err.needDippingPail');
+				const shaped = await byArea(t.TerrainTile, wid, biomeId);
+				const open = shaped.some(
+					(tt: any) => tt.x === Number(dip[1]) && tt.y === Number(dip[2]) && tt.type === 'water',
+				);
+				if (!open) throw new GameError(tr('server.err.noOpenWaterHere'), 400, 'server.err.noOpenWaterHere');
 			}
 
-			// carrying capacity (gathering basket)
-			const capacity = inventoryCapacity(player);
-			const carried = sumValues(player.inventory);
-			if (carried >= capacity) throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+			// Which spots this pass takes. A basket at BASKET_SWEEP_TIER clears a whole
+			// patch in one action, so the client sends the neighboring same-resource
+			// spots alongside the one that was clicked. Every lower tier takes just the
+			// one, and an extra that is malformed or still regrowing is dropped rather
+			// than failing the gather the player actually asked for.
+			const wanted = [nodeId];
+			if (basketTier >= BASKET_SWEEP_TIER && Array.isArray(alsoNodeIds)) {
+				for (const id of alsoNodeIds) {
+					if (wanted.length >= MAX_SWEEP_NODES) break;
+					if (typeof id === 'string' && /^[A-Za-z0-9_-]{1,32}$/.test(id) && !wanted.includes(id)) wanted.push(id);
+				}
+			}
 
-			// a higher-tier tool gathers more at once (tier 1→1 … tier 4→4)
-			const toolTier = player.tools?.[resDef.tool] || 1;
-			const amount = Math.min(Math.max(1, toolTier), capacity - carried);
+			// node regeneration cooldown — shared across the world so two players can't
+			// both drain the same spot
+			const ready: string[] = [];
+			for (const id of wanted) {
+				if (dip) {
+					ready.push(id); // open water you shaped has no cooldown
+					continue;
+				}
+				const st = await t.NodeState.get(`${wid}:${biomeId}:${id}`);
+				if (st && now - st.harvestedAt < NODE_REGEN_SECONDS * 1000) continue;
+				ready.push(id);
+			}
+			// The clicked spot is the one the player asked for: if THAT is regrowing the
+			// gather is refused exactly as it was before sweeping existed.
+			if (!ready.includes(nodeId)) throw new GameError(tr('server.err.regrowing'), 409, 'server.err.regrowing');
 
+			const inventory = { ...(player.inventory || {}) };
+			// Whether a full basket spills instead of refusing the gather. A tier-5
+			// basket buys it, and so does a house at Comfort 6 (Standing Order) — the
+			// house version also reaches your OWN chests when there is nothing to put
+			// it in out here, which is the half that makes it worth the alpine trip.
+			const canOverflow = basketTier >= BASKET_OVERFLOW_TIER || homeHas(player, 'homeOverflow');
+			// Carrying capacity, counted in weight rather than item count: bulk earth and
+			// stone fill the basket twice as fast as a handful of seeds does. Without
+			// somewhere for the spare to go, a full basket still refuses the gather.
+			if (roomFor(resourceId, inventory, d, player) <= 0 && !canOverflow)
+				throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+
+			// a higher-tier tool gathers more at once (tier 1→1 … tier 7→7)
+			const toolTier = Math.max(1, player.tools?.[resDef.tool] || 1);
 			// House perk (Log Cabin — forager's instinct): a chance to spot one extra
 			// material on every gather. The chance grows with every home upgrade.
 			const perk = homePerk(player);
-			const perkBonus =
-				perk?.id === 'forage' && capacity - carried - amount > 0 && Math.random() < perk.strength ? 1 : 0;
-			const total = amount + perkBonus;
+			const perkBonus = perk?.id === 'forage' && Math.random() < perk.strength ? 1 : 0;
+			const picked = toolTier * ready.length + perkBonus;
 
-			const inventory = { ...(player.inventory || {}) };
-			inventory[resourceId] = (inventory[resourceId] || 0) + total;
+			const toBasket = Math.min(picked, roomFor(resourceId, inventory, d, player));
+			if (toBasket > 0) inventory[resourceId] = (inventory[resourceId] || 0) + toBasket;
+
+			// What will not fit rides on to your nearest chest in this area instead of
+			// the haul being cut short — never being turned away is the whole of what a
+			// BASKET_OVERFLOW_TIER basket buys.
+			//
+			// Standing Order (Comfort 6) adds the fallback that makes it unconditional:
+			// when this area has no chest with room in it, the spare goes to the chests
+			// at HOME, wherever you happen to be standing. Chests in the area still come
+			// first — a haul you meant to leave by the pond should stay by the pond —
+			// and home is only ever the place the leftovers end up rather than nowhere.
+			let spare = picked - toBasket;
+			const storedTo: Record<string, number> = {};
+			if (spare > 0 && canOverflow) {
+				const px = typeof player.x === 'number' ? player.x : 0;
+				const py = typeof player.y === 'number' ? player.y : 0;
+				const sendHome = homeHas(player, 'homeOverflow');
+				const near = (await byWorld(t.Chest, wid))
+					.filter((c: any) => c.area === biomeId || (sendHome && c.area === 'home'))
+					.sort((a: any, b: any) => {
+						// this area's chests before the ones at home, then by how far you
+						// would have walked to reach them
+						const home = (c: any) => (c.area === biomeId ? 0 : 1);
+						return (
+							home(a) - home(b) ||
+							Math.hypot((a.x || 0) - px, (a.y || 0) - py) - Math.hypot((b.x || 0) - px, (b.y || 0) - py)
+						);
+					});
+				for (const c of near) {
+					if (spare <= 0) break;
+					const contents = { ...(c.contents || {}) };
+					const put = Math.min(Math.max(0, (c.capacity || 0) - sumValues(contents)), spare);
+					if (put <= 0) continue;
+					contents[resourceId] = (contents[resourceId] || 0) + put;
+					await t.Chest.patch(c.id, { contents });
+					storedTo[c.id] = put;
+					spare -= put;
+				}
+			}
+
+			const total = picked - spare;
+			if (total <= 0) throw new GameError(tr('server.err.basketFullStore'), 409, 'server.err.basketFullStore');
+
 			await patchPlayer(playerId, { inventory });
-			await t.NodeState.put({ id: nodeKey, worldId: wid, playerId, harvestedAt: now });
+			if (!dip)
+				for (const id of ready)
+					await t.NodeState.put({ id: `${wid}:${biomeId}:${id}`, worldId: wid, playerId, harvestedAt: now });
 
 			// `gathered:<id>` is the LIFETIME tally for that resource, next to the
 			// per-day `res:<id>` counter. The starter chain's opening goal reads it so
@@ -1269,6 +1392,11 @@ export class CollectResource extends PublicEndpoint {
 				perkBonus: perkBonus || undefined,
 				inventory,
 				nodeId,
+				// Every spot this pass cleared (just `nodeId` below the sweep tier), and
+				// anything that overflowed into a chest, so the client can patch both
+				// rather than refetching the world.
+				harvested: ready,
+				storedTo: Object.keys(storedTo).length ? storedTo : undefined,
 				harvestedAt: now,
 			};
 		});
@@ -1310,7 +1438,7 @@ export class ChestTransfer extends PublicEndpoint {
 						400,
 						'server.err.notEnoughInChest',
 					);
-				if (sumValues(inventory) + amount > inventoryCapacity(player))
+				if (amount > roomFor(resourceId, inventory, d, player))
 					throw new GameError(tr('server.err.basketFull'), 409, 'server.err.basketFull');
 				contents[resourceId] -= amount;
 				if (contents[resourceId] <= 0) delete contents[resourceId];
@@ -1425,22 +1553,31 @@ export class CraftItem extends PublicEndpoint {
 			throw new GameError(tr('server.err.craftOnce', { name: recipe.name }), 409, 'server.err.craftOnce');
 		}
 
-		const { usedFrom, inventory } = await consumeMaterials(player, recipe.materials || {}, wid);
+		// Fine Fittings (Furnishings 5): the house makes its own trim. Anything in
+		// the `home` category — the 92 recipes that only ever go indoors — costs a
+		// quarter less, rounded down and never below one. Deliberately narrow: the
+		// track is about the room, so it discounts the room and nothing else, and a
+		// track that quietly cheapened restoration kits would be a different track.
+		const cost = craftCost(recipe, player);
+		const { usedFrom, inventory } = await consumeMaterials(player, cost, wid);
 
 		// House perk (Stone Hearth — hearthkeeper's thrift): a chance that crafting
 		// hands back half of each material it consumed (rounded down, at least 1).
 		// Refunds land in the basket and never overflow its capacity.
 		const perk = homePerk(player);
 		let refund: Record<string, number> | undefined;
-		if (perk?.id === 'thrift' && Object.keys(recipe.materials || {}).length && Math.random() < perk.strength) {
-			let room = inventoryCapacity(player) - sumValues(inventory);
-			for (const [rid, q] of Object.entries(recipe.materials || {})) {
-				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), Math.max(0, room));
+		if (perk?.id === 'thrift' && Object.keys(cost).length && Math.random() < perk.strength) {
+			// Half of what was CONSUMED, not half of what the recipe lists — with Fine
+			// Fittings those are different numbers, and handing back more than was
+			// taken would turn a discount into a material printer.
+			for (const [rid, q] of Object.entries(cost)) {
+				// Room is re-read per material because the basket fills as we go and a
+				// heavy material eats capacity faster than a light one.
+				const back = Math.min(Math.max(1, Math.floor((q as number) / 2)), roomFor(rid, inventory, d, player));
 				if (back > 0) {
 					refund = refund || {};
 					refund[rid] = back;
 					inventory[rid] = (inventory[rid] || 0) + back;
-					room -= back;
 				}
 			}
 		}
@@ -1505,6 +1642,34 @@ function isRotatable(def: any): boolean {
 	return ROTATABLE_IDS.has(def.id);
 }
 
+/**
+ * Re-read the home's coziness from its placements and cache it on the save.
+ *
+ * Called on the two paths that can change what is standing in the room —
+ * placing and removing. Moving furniture around inside it cannot change the
+ * score (same pieces, same types, same kinds), so MoveObject deliberately
+ * doesn't pay for this.
+ *
+ * Best-effort by design: a failed write must never be what stops someone from
+ * putting a chair down. The reading is a cache of rows that are already the
+ * truth, so the next place/remove — or repairSave — puts it right.
+ */
+async function saveCoziness(playerId: string, homePlacements: any[], d: any, player?: any): Promise<void> {
+	try {
+		// Stored RAW (no Furnishings multiplier) — that is applied on read, so
+		// buying the upgrade pays off immediately. See storedCozy / cozyOf.
+		//
+		// Curator's Eye is the exception and has to be baked in HERE: it changes
+		// how the raw reading is COMPUTED, not what a multiplier does to it, so a
+		// cache written without it would be a different number from the one the
+		// HUD is showing. The caller hands over the player row it already holds.
+		const reading = readCoziness(homePlacements, (id: string) => d.object.get(id), 0, homeCozyOpts(player));
+		await patchPlayer(playerId, { homeCozy: storedCozy(reading) });
+	} catch (e: any) {
+		console.error(`coziness update for ${playerId} skipped —`, e?.message || e);
+	}
+}
+
 /** POST /PlaceObject/ {playerId, objectId, area, x, y, rotation?} — area is a biome id or 'home'. */
 export class PlaceObject extends PublicEndpoint {
 	async post(data: any) {
@@ -1523,8 +1688,8 @@ export class PlaceObject extends PublicEndpoint {
 			if ((player.craftedItems?.[objectId] || 0) <= 0)
 				throw new GameError(tr('server.err.noneCrafted', { name: def.name }), 400, 'server.err.noneCrafted');
 
-			const tx = Math.round(Number(x));
-			const ty = Math.round(Number(y));
+			let tx = Math.round(Number(x));
+			let ty = Math.round(Number(y));
 			const grid = areaGrid(d, area);
 			if (
 				!Number.isFinite(tx) ||
@@ -1537,6 +1702,13 @@ export class PlaceObject extends PublicEndpoint {
 				throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 			}
 
+			// Read this area's run BEFORE the interior checks rather than after them:
+			// where a wall item lands depends on what is already hanging, and it is
+			// the same single read either way (KEY_REV 4 puts the area in the key).
+			const placements = await byArea(t.Placement, wid, area);
+			/** Is this tile spoken for? The only question the wall slide asks. */
+			const occupied = (px: number, py: number) => placements.some((p) => p.x === px && p.y === py);
+
 			const tentBiome = tentBiomeOf(area);
 			if (area === 'home') {
 				// decorating your home interior — indoor or 'both' items, on the floor only
@@ -1547,8 +1719,12 @@ export class PlaceObject extends PublicEndpoint {
 					throw new GameError(tr('server.err.needsBiggerHome', { name: def.name }), 403, 'server.err.needsBiggerHome');
 				}
 				const r = homeRoom(player);
-				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1)
-					throw new GameError(tr('server.err.placeOnFloor'), 400, 'server.err.placeOnFloor');
+				// Floor items want the floor; a wall item slides to the nearest free
+				// spot on the wall it was aimed at.
+				const spot = interiorSpotFor(def, r, tx, ty, occupied);
+				if (typeof spot === 'string') throw new GameError(tr(spot, { name: def.name }), 400, spot);
+				tx = spot.x;
+				ty = spot.y;
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else if (tentBiome) {
@@ -1563,8 +1739,10 @@ export class PlaceObject extends PublicEndpoint {
 				if (def.homeMin && def.homeMin > 1)
 					throw new GameError(tr('server.err.tentTooSmall', { name: def.name }), 403, 'server.err.tentTooSmall');
 				const r = tentRoom();
-				if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1)
-					throw new GameError(tr('server.err.placeOnFloor'), 400, 'server.err.placeOnFloor');
+				const spot = interiorSpotFor(def, r, tx, ty, occupied);
+				if (typeof spot === 'string') throw new GameError(tr(spot, { name: def.name }), 400, spot);
+				tx = spot.x;
+				ty = spot.y;
 				if (blocksDoorway(objectId, r, tx, ty))
 					throw new GameError(tr('server.err.bedBlocksDoor', { name: def.name }), 400, 'server.err.bedBlocksDoor');
 			} else {
@@ -1595,11 +1773,16 @@ export class PlaceObject extends PublicEndpoint {
 				);
 			}
 
-			// Both questions below are about THIS area only, and under KEY_REV 4 the
-			// area is in the key — so ask for one area's run rather than the world's
-			// and filter five sixths of it away here.
-			const placements = await byArea(t.Placement, wid, area);
-			if (placements.some((p) => p.x === tx && p.y === ty)) {
+			// One thing per tile, with one exception: a small thing may stand ON a
+			// surface (see canStackOn in server/home.ts).
+			const onTile = placements.filter((p) => p.x === tx && p.y === ty);
+			if (
+				onTile.length &&
+				!canStackOn(
+					def,
+					onTile.map((p) => d.object.get(p.objectId)),
+				)
+			) {
 				throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
 			}
 			// Some structures are one-per-biome (e.g. the trail tent — a single shared
@@ -1666,7 +1849,15 @@ export class PlaceObject extends PublicEndpoint {
 
 			// Indoor decor (home or a tent interior) doesn't affect any biome — skip the recalc.
 			if (indoors) {
+				// …but the HOME interior's decor is a live buff now (server/cozy.ts), and
+				// the reading is cached on the save so the gather/craft/plant paths can
+				// read it without loading a room's worth of rows on every action. The
+				// area's placements are already in hand, so the new one just joins them.
+				if (area === 'home') await saveCoziness(playerId, [...placements, placement], d, player);
 				await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 });
+				// Indoor decor is still something standing in the world, and a build
+				// goal for a chair is finished by putting the chair in the house.
+				await bumpStanding(player, { objectId, placed: 1 });
 				await awardAchievements(playerId);
 				return { ok: true, placement, craftedItems };
 			}
@@ -1680,6 +1871,7 @@ export class PlaceObject extends PublicEndpoint {
 				discoveries,
 			});
 			await bumpMetrics(player, { objectsPlaced: 1 }, { place: 1 }); // recalcBiome counts any animal that returned
+			await bumpStanding(player, { objectId, placed: 1 });
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
@@ -1770,10 +1962,16 @@ export class Plant extends PublicEndpoint {
 		const recalc = await recalcBiome(wid, playerId, area, {
 			addPlacements: [placement],
 			removeTerrainIds: [bed.id],
+			// The bed is gone and it was watered (the guard above allows nothing
+			// else), which is one number on the biome row — no rescan of the area.
+			terrainChanges: [{ from: bed.type, to: null }],
 			player: { ...player, inventory },
 			discoveries,
 		});
 		await bumpMetrics(player, { plantsPlanted: 1 }, { plant: 1 }); // recalcBiome counts any animal that returned
+		// A planting is both: it is standing, and it is planted. The grow goals ask
+		// the second question and the build goals the first.
+		await bumpStanding(player, { objectId: plantId, placed: 1, planted: 1 });
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalc.newAnimals,
 			freshBiomeStates: [recalc.biomeState],
@@ -1820,7 +2018,11 @@ export class HarvestPlacement extends PublicEndpoint {
 			const wid = worldOf(player);
 			const now = Date.now();
 
-			const placement = (await byWorld(t.Placement, wid)).find((p) => p.id === placementId);
+			// By id, not by scanning for it: the id carries the world and the area, so
+			// this is a point read with the same legacy fallback behind it that
+			// RemoveObject already uses. Picking one plant used to read every
+			// placement in the preserve to find it.
+			const placement = await findInWorld(t.Placement, wid, placementId);
 			if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404, 'server.err.placementNotFound');
 			const def = d.object.get(placement.objectId);
 			const y = def?.yield;
@@ -1858,16 +2060,21 @@ export class HarvestPlacement extends PublicEndpoint {
 			}
 
 			// grant the yield, respecting carrying capacity
-			const capacity = inventoryCapacity(player);
 			const inventory = { ...(player.inventory || {}) };
-			const room = Math.max(0, capacity - sumValues(inventory));
-			const take = Math.min(y.qty || 1, room);
+			const take = Math.min(y.qty || 1, roomFor(y.resourceId, inventory, d, player));
 			if (take <= 0) throw new GameError(tr('server.err.basketFullHarvest'), 409, 'server.err.basketFullHarvest');
 			inventory[y.resourceId] = (inventory[y.resourceId] || 0) + take;
 
 			await patchPlayer(playerId, { inventory });
 			await t.Placement.patch(placementId, { lastHarvestAt: now });
 			await bumpMetrics(player, { resourcesCollected: take });
+			// The starter chain asks whether anything standing has been harvested. It
+			// used to answer by looking for a `lastHarvestAt` among every placement in
+			// the world; the stamp still goes on the placement, this is the tally of
+			// how many carry one. Only the FIRST picking of a plant adds to it —
+			// picking the same bush every morning is one harvested plant, not thirty —
+			// which is what keeps the tally equal to the count it replaced.
+			await bumpStanding(player, { harvested: placement.lastHarvestAt ? 0 : 1 });
 			return {
 				ok: true,
 				placementId,
@@ -1899,36 +2106,84 @@ export class MoveObject extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 
-		const placements = await byWorld(t.Placement, wid);
-		const placement = placements.find((p) => p.id === placementId);
+		const placement = await findInWorld(t.Placement, wid, placementId);
 		if (!placement) throw new GameError(tr('server.err.placementNotFound'), 404, 'server.err.placementNotFound');
 		if (placement.objectId === 'workbench')
 			throw new GameError(tr('server.err.workbenchStays'), 400, 'server.err.workbenchStays');
 
 		const dGrid = await defs();
 		const grid = areaGrid(dGrid, placement.area);
-		const tx = Math.round(Number(x));
-		const ty = Math.round(Number(y));
+		let tx = Math.round(Number(x));
+		let ty = Math.round(Number(y));
 		if (!Number.isFinite(tx) || !Number.isFinite(ty) || tx < 1 || ty < 1 || tx > grid.cols - 2 || ty > grid.rows - 2) {
 			throw new GameError(tr('server.err.outOfReach'), 400, 'server.err.outOfReach');
 		}
-		if (placements.some((p) => p.id !== placementId && p.area === placement.area && p.x === tx && p.y === ty)) {
-			throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
-		}
+		// Is the destination free? That is a question about ONE area — the one the
+		// object is already in, since a move cannot cross areas — so it reads that
+		// area's run rather than every placement in the world.
+		const here = await byArea(t.Placement, wid, placement.area);
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
-		// Same doorway rule as PlaceObject — otherwise a bed could simply be MOVED
-		// into the spot it isn't allowed to be placed in.
-		if (SLEEPABLE_OBJECTS.has(placement.objectId)) {
-			const tentBiome = tentBiomeOf(placement.area);
-			const room = placement.area === 'home' ? homeRoom(player) : tentBiome ? tentRoom() : null;
-			if (room && blocksDoorway(placement.objectId, room, tx, ty)) {
+		// Indoors, the same surface and doorway rules as PlaceObject — otherwise a
+		// painting could simply be MOVED onto the floorboards, and a bed into the
+		// spot it isn't allowed to be placed in.
+		//
+		// This runs BEFORE the destination tile is checked for occupancy, in the order
+		// PlaceObject does it, and the order is the whole behavior: a wall item aimed
+		// at a tile something is already hanging on SLIDES along the wall to the
+		// nearest free one. Asking "is that tile taken?" about the tile the player
+		// pointed at refuses the move outright — so hanging a second picture there
+		// worked while MOVING one there did not. The question only means anything
+		// about the tile the interior rules resolved.
+		const movingTent = tentBiomeOf(placement.area);
+		const movingRoom = placement.area === 'home' ? homeRoom(player) : movingTent ? tentRoom() : null;
+		if (movingRoom) {
+			// A wall item slides to the nearest free spot on the wall, exactly as it
+			// does when first placed — and the tile it is leaving is free for it.
+			const spot = interiorSpotFor(movingDef, movingRoom, tx, ty, (px, py) =>
+				here.some((p) => p.id !== placementId && p.x === px && p.y === py),
+			);
+			if (typeof spot === 'string')
+				throw new GameError(tr(spot, { name: movingDef?.name || placement.objectId }), 400, spot);
+			tx = spot.x;
+			ty = spot.y;
+			if (blocksDoorway(placement.objectId, movingRoom, tx, ty)) {
 				throw new GameError(
 					tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }),
 					400,
 					'server.err.bedBlocksDoor',
 				);
 			}
+		}
+		// Same tabletop exception as PlaceObject: a small thing may be moved ONTO a
+		// surface, and anything else wants an empty tile. Asked of (tx, ty) as the
+		// interior rules resolved it above, not as the player aimed it.
+		const onTile = here.filter((p) => p.id !== placementId && p.x === tx && p.y === ty);
+		if (
+			onTile.length &&
+			!canStackOn(
+				movingDef,
+				onTile.map((p) => d.object.get(p.objectId)),
+			)
+		) {
+			throw new GameError(tr('server.err.spotTaken'), 409, 'server.err.spotTaken');
+		}
+		// ...and a surface may not be slid out from under what is standing on it.
+		// Take the thing off first — otherwise it is left hanging in mid-air, which
+		// no rule elsewhere would ever let the player create.
+		if (isSurface(movingDef)) {
+			const carrying = here.find(
+				(p) => p.id !== placementId && p.x === placement.x && p.y === placement.y && isSmall(d.object.get(p.objectId)),
+			);
+			if (carrying)
+				throw new GameError(
+					tr('server.err.clearSurfaceFirst', {
+						name: movingDef?.name || placement.objectId,
+						item: d.object.get(carrying.objectId)?.name || carrying.objectId,
+					}),
+					409,
+					'server.err.clearSurfaceFirst',
+				);
 		}
 		const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
 		if (tileHere) {
@@ -1986,21 +2241,35 @@ export class RemoveObject extends PublicEndpoint {
 			// overflowing the basket (which used to wedge every later withdraw/gather).
 			const d = await defs();
 			const def = d.object.get(placement.objectId);
+			// A table with a vase on it can't be picked up out from under it — the
+			// same reason it can't be moved. Clear the top first.
+			if (isSurface(def)) {
+				const carrying = (await byArea(t.Placement, wid, placement.area)).find(
+					(p) =>
+						p.id !== placementId && p.x === placement.x && p.y === placement.y && isSmall(d.object.get(p.objectId)),
+				);
+				if (carrying)
+					throw new GameError(
+						tr('server.err.clearSurfaceFirst', {
+							name: def?.name || placement.objectId,
+							item: d.object.get(carrying.objectId)?.name || carrying.objectId,
+						}),
+						409,
+						'server.err.clearSurfaceFirst',
+					);
+			}
 			let refunded: Record<string, number> | null = null;
 			const craftedItems = { ...(player.craftedItems || {}) };
 			const inventory = { ...(player.inventory || {}) };
 			const chestUpdates = new Map<string, Record<string, number>>();
 			if (def?.plantable && placement.plantedAt && Object.keys(def.plantCost || {}).length) {
 				refunded = { ...def.plantCost };
-				const capacity = inventoryCapacity(player);
-				let carried = sumValues(inventory);
 				const chests = (await byWorld(t.Chest, wid)).filter((c) => c.id !== placementId);
 				for (const [resId, qty] of Object.entries(refunded!)) {
 					let remaining = qty as number;
-					const toBasket = Math.min(remaining, Math.max(0, capacity - carried));
+					const toBasket = Math.min(remaining, roomFor(resId, inventory, d, player));
 					if (toBasket > 0) {
 						inventory[resId] = (inventory[resId] || 0) + toBasket;
-						carried += toBasket;
 						remaining -= toBasket;
 					}
 					for (const c of chests) {
@@ -2032,6 +2301,12 @@ export class RemoveObject extends PublicEndpoint {
 				await patchPlayer(playerId, { craftedItems });
 			}
 
+			// Taking a chair back out of the room lowers its coziness the same way
+			// putting it in raised it — the buff has to be able to go DOWN, or the
+			// tier becomes a high-water mark nobody can lose. Costs one room-sized
+			// read, and only on the path where home decor actually changed.
+			if (placement.area === 'home') await saveCoziness(playerId, await byArea(t.Placement, wid, 'home'), d, player);
+
 			// interiors (home / tent) aren't biomes — skip recalc for their decor
 			const outdoors = placement.area !== 'home' && !tentBiomeOf(placement.area);
 			const discoveries = outdoors ? await byWorld(t.Discovery, wid) : undefined;
@@ -2043,6 +2318,17 @@ export class RemoveObject extends PublicEndpoint {
 					})
 				: null;
 			await bumpMetrics(player, { objectsRemoved: 1 }); // recalcBiome counts any animal that returned
+			// Taking something back up is the half that makes these tallies a live
+			// count rather than a lifetime one — which is what the goals they feed
+			// have always been.
+			await bumpStanding(player, {
+				objectId: placement.objectId,
+				placed: -1,
+				planted: typeof placement.plantedAt === 'number' ? -1 : 0,
+				// …and it takes its harvest stamp with it, exactly as it did when this
+				// was a scan for one.
+				harvested: typeof placement.lastHarvestAt === 'number' ? -1 : 0,
+			});
 			await awardWorldAchievements(
 				wid,
 				playerId,
@@ -2171,6 +2457,34 @@ export class UpgradeHome extends PublicEndpoint {
 			const { usedFrom, inventory } = await consumeMaterials(player, next.materials || {}, wid);
 			const updated = { ...home, [track]: level + 1 };
 			await patchPlayer(playerId, { home: updated });
+			// A bigger room moves its walls: the interior is centered in the grid, so
+			// every wall steps outward and the tiles a picture, wreath or mirror was
+			// hung on become open floor INSIDE the new room. Absolute tile coords
+			// meant the upgrade laid all the wall decor down on the floorboards, in
+			// spots the placement rules would refuse. Re-hang it on the new walls,
+			// nearest tile first, so the room reads as the one the player arranged.
+			// Space re-lays the whole plan; Warmth re-places the windows, and a window
+			// is a tile nothing may hang on. Both can leave a picture somewhere the
+			// rules no longer allow, so both re-place what they displaced. Comfort and
+			// Furnishings touch neither.
+			if (track === 'space' || track === 'light') await reflowInterior(wid, playerId, await defs());
+			// Furnishings is the track that can change the READING itself. Its multiplier
+			// is applied on the way out (cozyOf), so those levels pay off the moment they
+			// are bought — but Curator's Eye is not a multiplier: it changes how the RAW
+			// score is COMPUTED, and the raw is the number the save caches. Left alone,
+			// the HUD (which recomputes from the placements it holds) would climb at once
+			// while carry, perk and rested speed went on quoting the pre-Curator number
+			// until the player happened to move a chair. Same ability, two answers. So
+			// the cache is rewritten HERE, against the upgraded home, on the levels where
+			// what the room is worth actually changes shape.
+			const optsBefore = homeCozyOpts(player);
+			const optsAfter = homeCozyOpts({ ...player, home: updated });
+			if (optsBefore.curator !== optsAfter.curator || optsBefore.showcase !== optsAfter.showcase) {
+				await saveCoziness(playerId, await byArea(t.Placement, wid, 'home'), await defs(), {
+					...player,
+					home: updated,
+				});
+			}
 			const chests = await byWorld(t.Chest, wid);
 			await awardAchievements(playerId);
 			await bumpMetrics(player, { homeUpgrades: 1 });
@@ -2187,9 +2501,11 @@ export class UpgradeHome extends PublicEndpoint {
 }
 
 // Objects you can sleep in/on to rest and refresh the preserve's gathering spots.
-// The hammock counts wherever it hangs: it is `placement: 'both'`, so it rests you
-// strung between two posts out in a biome as readily as it does indoors.
-const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed', 'hammock'];
+// The hammock is not one of them, and the omission is the point: it is somewhere
+// to LIE — the caretaker settles in, the animals come over, and the afternoon
+// goes on around them — not somewhere to lose the rest of the day. Rest is the
+// action that skips the clock to dawn, and only a bed or a bag does that.
+const SLEEP_OBJECTS = ['home-sleeping-bag', 'home-bed'];
 
 /** POST /Rest/ {playerId} — sleep in your bed/bag to refresh every gathering spot. */
 export class Rest extends PublicEndpoint {
@@ -2198,8 +2514,20 @@ export class Rest extends PublicEndpoint {
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
-		const placements = await byWorld(t.Placement, wid);
-		if (!placements.some((p) => SLEEP_OBJECTS.includes(p.objectId))) {
+		// Is there anywhere to sleep? A bed is a thing standing in the world, and
+		// what is standing is a tally on the player row now — so this asks the tally
+		// and falls back to the scan only for a save that has none yet (see
+		// bumpStanding). Resting used to read every placement in the preserve to
+		// find out whether one of them was a bed.
+		// A tally may let an action through, but it must never be what REFUSES one:
+		// a "no" here turns a player away from their own bed, and the tally is a
+		// summary of the rows rather than the rows themselves. So the yes is free
+		// and the no is checked — which costs the scan only on the path where the
+		// player has nowhere to sleep yet, and none where they do.
+		const standing = standingOf(player);
+		const tallied = standing ? SLEEP_OBJECTS.some((id) => (standing.placed[id] || 0) > 0) : false;
+		const canSleep = tallied || (await byWorld(t.Placement, wid)).some((p) => SLEEP_OBJECTS.includes(p.objectId));
+		if (!canSleep) {
 			throw new GameError(tr('server.err.needBedToRest'), 403, 'server.err.needBedToRest');
 		}
 		// refresh all resources: clear node cooldowns so every gathering spot is ready
@@ -2209,29 +2537,69 @@ export class Rest extends PublicEndpoint {
 		// light), not raw day-start — the day now begins mid-night, so day-start
 		// would wake you at 00:00 in the dark.
 		const nowT = weatherTimeFromPlay(player);
-		const skip = nextDawnAt(nowT) - nowT;
-		await patchPlayer(playerId, { clockOffsetMs: (player.clockOffsetMs || 0) + skip });
+		const wakeT = nextDawnAt(nowT);
+		const skip = wakeT - nowT;
+		// WELL RESTED: a night in a home you've actually made comfortable sends you
+		// out the door quicker, and it lasts the whole morning — through to noon of
+		// the day you wake into. A bare room grants nothing (tier 0 is speed 1), so
+		// this is the buff that pays for the chair you put by the fire. Stamped in
+		// PLAY time, like every other clock on the save, so it survives the offset
+		// this very call just moved.
+		// Warmth holds it past noon on top of that — a banked hearth is what makes
+		// a morning last, so the track that used to buy a prettier window now buys
+		// the tail of the buff.
+		const cozy = homeCozy(player);
+		const patch: any = { clockOffsetMs: (player.clockOffsetMs || 0) + skip };
+		if (cozy.speed > 1) patch.restedUntil = nextNoonAt(wakeT) + homeRestedHold(player) * DAY_MS;
+		await patchPlayer(playerId, patch);
 		await bumpMetrics(player, { restsTaken: 1 });
-		return { ok: true, rested: true, refreshed: nodes.length };
+		return {
+			ok: true,
+			rested: true,
+			refreshed: nodes.length,
+			restedUntil: patch.restedUntil ?? null,
+			restedSpeed: cozy.speed,
+			cozyBoost: homeCozyBoost(player),
+		};
 	}
 }
 
 const isHexColor = (c: any) => typeof c === 'string' && /^#([0-9a-fA-F]{3}|[0-9a-fA-F]{6})$/.test(c.trim());
 
-/** POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?}} — recolor the home interior (paint tool, built homes only). */
+/**
+ * POST /SetHomeColors/ {playerId, colors:{floor?,wall?,accent?,rug?}, room?}
+ * — recolor the home interior (paint tool, built homes only).
+ *
+ * `room` is a room id from the current Space level's floor plan, and painting is
+ * per room: from Space 3 the house has a great room and a nook (and later a
+ * study), and the whole point of a floor plan is that they can be different
+ * colors. Leave `room` off and the color is the HOUSE default, which is what
+ * every room that has never been painted itself wears — so a one-room house
+ * behaves exactly as it always did, and a room painted at Space 3 keeps its
+ * color through the Space 4 upgrade because the plan keeps the room's id.
+ */
 export class SetHomeColors extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, colors } = await bodyOf(data, this);
+		const { playerId, colors, room } = await bodyOf(data, this);
 		const t = db();
 		const { player } = await requirePlayer(playerId);
 		const home = homeOf(player) as any;
 		if (!home.styleLocked)
 			throw new GameError(tr('server.err.buildBeforeRepaint'), 403, 'server.err.buildBeforeRepaint');
-		const next: Record<string, string> = { ...home.colors };
+		// A room id has to name a room of the house the player actually has —
+		// otherwise paint accumulates under keys nothing will ever draw.
+		const roomId = room ? String(room) : '';
+		if (roomId && !homeRooms({ ...player, home }).some((r) => r.id === roomId))
+			throw new GameError(tr('server.err.unknownHomeRoom'), 400, 'server.err.unknownHomeRoom');
+		const before: Record<string, string> = roomId ? { ...home.roomColors?.[roomId] } : { ...home.colors };
+		const next = { ...before };
 		for (const k of ['floor', 'wall', 'accent', 'rug']) {
 			if (colors?.[k] && isHexColor(colors[k])) next[k] = String(colors[k]).trim().toLowerCase();
 		}
-		await patchPlayer(playerId, { home: { ...home, colors: next } });
+		const updated = roomId
+			? { ...home, roomColors: { ...home.roomColors, [roomId]: next } }
+			: { ...home, colors: next };
+		await patchPlayer(playerId, { home: updated });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
 	}
@@ -2251,6 +2619,37 @@ export class SetPlacementColor extends PublicEndpoint {
 		await t.Placement.patch(placementId, { color: String(color).trim().toLowerCase() });
 		await bumpMetrics(player, { recolors: 1 });
 		return { ok: true };
+	}
+}
+
+/**
+ * POST /SetPlacementLit/ {playerId, placementId, lit} — light one lantern, or put it out.
+ *
+ * Only pieces the data marks as a `light` carry the state at all; asking to
+ * light a bookshelf is a bad request rather than a field quietly written onto a
+ * row that nothing will ever read.
+ *
+ * The flag is written as a plain boolean rather than deleted when a light is
+ * relit. Patching a field away is the one thing the two stores disagree about —
+ * the solo LocalDb spreads the patch over the row, so `undefined` would leave
+ * the key present and undefined for the save serializer to encode — and nothing
+ * is gained by it: only lights ever carry `lit`, so this is a couple of dozen
+ * rows in a world of hundreds. Absent still reads as burning (see
+ * Placement.lit), which is what keeps older saves lit.
+ */
+export class SetPlacementLit extends PublicEndpoint {
+	async post(data: any) {
+		const { playerId, placementId, lit } = await bodyOf(data, this);
+		const t = db();
+		const { player } = await requirePlayer(playerId);
+		const placement = await findInWorld(t.Placement, worldOf(player), placementId);
+		if (!placement) throw new GameError(tr('server.err.itemNotHere'), 404, 'server.err.itemNotHere');
+		const d = await defs();
+		if (!d.object.get(placement.objectId)?.light)
+			throw new GameError(tr('server.err.notALight'), 400, 'server.err.notALight');
+		const burning = lit !== false;
+		await t.Placement.patch(placementId, { lit: burning });
+		return { ok: true, lit: burning };
 	}
 }
 
@@ -2299,6 +2698,10 @@ export class SetHomeStyle extends PublicEndpoint {
 		const { usedFrom, inventory } = await consumeMaterials(player, styleDef.materials || {}, wid);
 		const updated = { ...home, style, styleLocked: true, space: 2 };
 		await patchPlayer(playerId, { home: updated });
+		// Building the house is a Space upgrade too (1 → 2), so the starter room's
+		// walls move out from under anything hung on them — same re-hang as
+		// UpgradeHome, for the same reason.
+		await reflowInterior(wid, playerId, await defs());
 		const chests = await byWorld(t.Chest, wid);
 		await awardAchievements(playerId);
 		await bumpMetrics(player, { homesBuilt: 1 });
@@ -2353,7 +2756,8 @@ export class ClaimTask extends PublicEndpoint {
 			const [discoveries, biomeStates, placements, chests, terrain] = await Promise.all([
 				byWorld(t.Discovery, wid),
 				byWorld(t.BiomeState, wid),
-				byWorld(t.Placement, wid),
+				// Nothing on the board counts placements any more — see boardPlacements.
+				boardPlacements(wid, player),
 				byWorld(t.Chest, wid),
 				byWorld(t.TerrainTile, wid),
 			]);
@@ -2377,16 +2781,13 @@ export class ClaimTask extends PublicEndpoint {
 				throw new GameError(tr('server.err.taskNotFinished'), 409, 'server.err.taskNotFinished');
 
 			// grant the material bundle, respecting carrying capacity
-			const capacity = inventoryCapacity(player);
 			const inventory = { ...(player.inventory || {}) };
-			let room = Math.max(0, capacity - sumValues(inventory));
 			const gained: Record<string, number> = {};
 			for (const [resId, qty] of Object.entries(task.reward || {})) {
-				const take = Math.min(qty as number, room);
+				const take = Math.min(qty as number, roomFor(resId, inventory, d, player));
 				if (take <= 0) continue;
 				inventory[resId] = (inventory[resId] || 0) + take;
 				gained[resId] = take;
-				room -= take;
 			}
 			if (!Object.keys(gained).length)
 				throw new GameError(tr('server.err.basketFullReward'), 409, 'server.err.basketFullReward');
@@ -2453,7 +2854,9 @@ export class SetGoals extends PublicEndpoint {
 		const [discoveries, biomeStates, placements, chests] = await Promise.all([
 			byWorld(t.Discovery, wid),
 			byWorld(t.BiomeState, wid),
-			byWorld(t.Placement, wid),
+			// A goal's baseline is captured from the same numbers its progress will be
+			// read from — see boardPlacements.
+			boardPlacements(wid, player),
 			byWorld(t.Chest, wid),
 		]);
 		const ctx: TaskCtx = {
@@ -2503,14 +2906,56 @@ export class SetGoals extends PublicEndpoint {
 }
 
 /**
- * POST /Terraform/ {playerId, area, x, y, action: 'dig'|'water'|'clear'}
+ * POST /Terraform/ {playerId, area, x, y, action: 'dig'|'water'|'clear', size?}
  * Gentle landscape shaping: the shovel prepares a soil bed, the watering can
  * brings it to life (consuming 1 water), and digging again clears it.
  * Watered beds raise biome health directly.
+ *
+ * `size` is the caretaker's chosen brush — 1, 3 or 9 squares across, centered on
+ * the click, defaulting to 1. A tool's tier decides which sizes are OFFERED
+ * (brushSizesFor) and nothing else, so no upgrade ever shapes more ground than
+ * was asked for. Clearing is always a single square: taking nine tiles back at
+ * once is not something to do by accident.
  */
+/**
+ * The squares one shaping action covers: a `size` x `size` block centered on the
+ * tile that was clicked, nearest ring first so a pour that runs out of water
+ * spends it closest to where the caretaker aimed.
+ *
+ * Size comes from the caretaker's own brush setting, never from the tool's tier
+ * — the tier only decides which sizes the picker offers. Size 1 returns exactly
+ * the clicked square, which is what every tool does until someone chooses
+ * otherwise.
+ */
+function brushTargets(
+	tx: number,
+	ty: number,
+	size: number,
+	grid: { cols: number; rows: number },
+	fits: (x: number, y: number) => boolean,
+): { x: number; y: number }[] {
+	const r = Math.floor((Math.max(1, size) - 1) / 2);
+	const out: { x: number; y: number }[] = [];
+	for (let ring = 0; ring <= r; ring++) {
+		for (let dy = -ring; dy <= ring; dy++) {
+			for (let dx = -ring; dx <= ring; dx++) {
+				// only the squares this ring adds, so the walk stays nearest-first
+				if (Math.max(Math.abs(dx), Math.abs(dy)) !== ring) continue;
+				if (out.length >= MAX_BRUSH_TILES) return out;
+				const x = tx + dx;
+				const y = ty + dy;
+				if (x < 1 || y < 1 || x > grid.cols - 2 || y > grid.rows - 2) continue;
+				if (!fits(x, y)) continue;
+				out.push({ x, y });
+			}
+		}
+	}
+	return out;
+}
+
 export class Terraform extends PublicEndpoint {
 	async post(data: any) {
-		const { playerId, area, x, y, action, expect } = await bodyOf(data, this);
+		const { playerId, area, x, y, action, expect, size } = await bodyOf(data, this);
 		return withPlayerLock(playerId, async () => {
 			const t = db();
 			const d = await defs();
@@ -2547,16 +2992,15 @@ export class Terraform extends PublicEndpoint {
 			// Match by position, not id: legacy beds carry an old id but must still be
 			// recognized here (see findTerrainAt). A freshly dug bed uses `tileId`.
 			//
-			// Read as a LIST rather than through findTerrainAt, and lend it to the
-			// recalc below. findTerrainAt tries a point read first and falls back to
-			// this same area scan, which is the right trade where the lookup is all
-			// the caller wants — but here the recalc needs the whole area anyway, and
-			// this request writes a tile in between, so the two reads could not share
-			// a cached result. A dig into fresh ground therefore missed the point
-			// read AND scanned the area twice, and the second scan grew with every
-			// tile the player had ever shaped in this biome.
-			const areaTiles = await byArea(t.TerrainTile, wid, area);
-			const existing = areaTiles.find((tt: any) => tt.x === tx && tt.y === ty) || null;
+			// A point read, not a list. This used to read the whole area and pick the
+			// clicked square out of it, because the recalc below wanted the area
+			// anyway and the tile written in between meant the two reads could not
+			// share a cached result — so one dig scanned every tile the player had
+			// ever shaped in this biome, twice. The recalc now takes its terrain
+			// numbers off the biome row (see recalcBiome), so all that is left to ask
+			// is what is on THIS square, which is one row by id — with the same
+			// coordinate fallback behind it for a legacy save.
+			const existing = await findTerrainAt(t.TerrainTile, wid, area, tx, ty);
 
 			// Compare-and-swap on the tile's type.
 			//
@@ -2585,27 +3029,93 @@ export class Terraform extends PublicEndpoint {
 				}
 			}
 
+			// The brush the caretaker chose, judged against the tool doing the work.
+			// `clear` is deliberately not brushable.
+			const brushTool = action === 'water' ? 'watering-can' : 'shovel';
+			const offered = brushSizesFor(player.tools?.[brushTool] || 1);
+			const brush = size === undefined || size === null ? 1 : Math.round(Number(size));
+			if (!Number.isFinite(brush) || !offered.includes(brush))
+				throw new GameError(tr('server.err.brushNotAvailable'), 400, 'server.err.brushNotAvailable');
+
+			// The rest of the area's tiles, read only when this action actually needs
+			// them: a brush wider than one square has to know which neighbours are
+			// bare or already tilled, and a change that MAKES or DRAINS open water
+			// re-shapes the lake and river spans the recalc reads — connectivity
+			// across the whole area, not a tally anything can adjust in place (see
+			// usableTerrainCounts). Every other action — every single-square dig, and
+			// every bed taken from tilled to watered — leaves those numbers alone, so
+			// the recalc reads them off the biome row and this scan is not paid at all.
+			const shapesWater =
+				(action === 'water' && existing?.type === 'watered') || (action === 'clear' && existing?.type === 'water');
+			const areaTiles: any[] | null = brush > 1 || shapesWater ? await byArea(t.TerrainTile, wid, area) : null;
+
 			let inventory = player.inventory || {};
 			let tile: any = null;
 			let removedId: string | undefined;
 			let dug: { resourceId: string; amount: number } | null = null;
+			// Extra tiles a late-tier run/flow shaped in the same pass. Everything
+			// downstream (the recalc's addTerrain, the response, the metrics) folds
+			// these in beside `tile`, so a tier-4 tool still writes exactly one.
+			const alsoTiles: any[] = [];
+			// What this action did to each of those tiles, for the recalc's fold — one
+			// entry per row handed to it, or it re-reads the area rather than trust a
+			// half-described change.
+			const changes: TerrainChange[] = [];
 
 			if (action === 'dig') {
-				if ((player.tools?.shovel || 0) < 1)
-					throw new GameError(tr('server.err.needShovel'), 400, 'server.err.needShovel');
+				const shovelTier = player.tools?.shovel || 0;
+				if (shovelTier < 1) throw new GameError(tr('server.err.needShovel'), 400, 'server.err.needShovel');
 				if (existing) throw new GameError(tr('server.err.alreadyPrepared'), 400, 'server.err.alreadyPrepared');
-				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: Date.now() };
+				const stamp = Date.now();
+				tile = { id: tileId, worldId: wid, playerId, area, x: tx, y: ty, type: 'tilled', updatedAt: stamp };
 				await t.TerrainTile.put(tile);
+				changes.push({ from: null, to: 'tilled' });
+
+				// The rest of the chosen brush. Anything already shaped, already built
+				// on, or off the workable grid is skipped, so a wide brush can only ever
+				// ADD ground — it never overwrites work, and at 1x1 this loop does
+				// nothing at all.
+				if (brush > 1) {
+					const bare = (x2: number, y2: number) =>
+						!(x2 === tx && y2 === ty) &&
+						!(areaTiles || []).some((tt: any) => tt.x === x2 && tt.y === y2) &&
+						!placements.some((pl: any) => pl.x === x2 && pl.y === y2);
+					for (const c of brushTargets(tx, ty, brush, grid, bare)) {
+						const extra = {
+							id: `${wid}:${area}:${c.x}:${c.y}`,
+							worldId: wid,
+							playerId,
+							area,
+							x: c.x,
+							y: c.y,
+							type: 'tilled',
+							updatedAt: stamp,
+						};
+						await t.TerrainTile.put(extra);
+						alsoTiles.push(extra);
+						changes.push({ from: null, to: 'tilled' });
+					}
+				}
 
 				// Breaking new ground may turn up a buried material. This only happens
 				// when DIGGING a fresh bed — never when clearing/draining one back over.
-				// The shovel's tier sets how much you pull up at once (tier 1→1 … 4→4),
+				// The shovel's tier sets how much you pull up at once (tier 1→1 … 7→7),
 				// so upgrading it actually pays off.
+				//
+				// A survey spade adds to that roll rather than replacing it. Caches sit at
+				// fixed, readable places (buriedCacheAt) that it marks on the ground, so
+				// digging one is a certainty on top of the usual chance — the upgrade can
+				// only ever find you more, and what it really hands over is knowing where
+				// to dig instead of hoping.
 				const pool = biome.digResources || [];
-				if (pool.length && Math.random() < DIG_FIND_CHANCE) {
+				const strikes =
+					(Math.random() < DIG_FIND_CHANCE ? 1 : 0) +
+					(shovelTier >= SHOVEL_SURVEY_TIER
+						? [{ x: tx, y: ty }, ...alsoTiles].filter((c: any) => buriedCacheAt(wid, area, c.x, c.y)).length
+						: 0);
+				if (pool.length && strikes > 0) {
 					const resId = pool[Math.floor(Math.random() * pool.length)];
-					const room = Math.max(0, inventoryCapacity(player) - sumValues(inventory));
-					const amount = Math.min(player.tools?.shovel || 1, room);
+					const amount = Math.min(Math.max(1, shovelTier) * strikes, roomFor(resId, inventory, d, player));
 					if (amount > 0) {
 						inventory = { ...inventory, [resId]: (inventory[resId] || 0) + amount };
 						await patchPlayer(playerId, { inventory });
@@ -2643,26 +3153,79 @@ export class Terraform extends PublicEndpoint {
 						remaining -= take;
 					}
 				}
+				const stamp = Date.now();
+				tile = { ...existing, type: newType, updatedAt: stamp };
+				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: stamp });
+				changes.push({ from: existing.type, to: newType });
+
+				// The can's tier used to be read only when FILLING it — every upgrade did
+				// nothing for the action the can is named after. Now it decides which
+				// brushes the picker offers, and the caretaker decides which one is on.
+				//
+				// A brush only ever takes tilled beds to watered. It never floods, so the
+				// dry-biome and gate-trail rules above cannot be reached sideways.
+				if (brush > 1) {
+					const tilledAt = (x2: number, y2: number) =>
+						!(x2 === tx && y2 === ty) &&
+						(areaTiles || []).some((tt: any) => tt.x === x2 && tt.y === y2 && tt.type === 'tilled');
+					for (const c of brushTargets(tx, ty, brush, grid, tilledAt)) {
+						const held = (inventory.water || 0) + (inventory['clean-water'] || 0);
+						if (held < 1) break; // out of water — the pour simply stops here
+						inventory = { ...inventory };
+						let owed = 1;
+						for (const key of ['water', 'clean-water']) {
+							const take = Math.min(inventory[key] || 0, owed);
+							if (take > 0) {
+								inventory[key] -= take;
+								if (inventory[key] <= 0) delete inventory[key];
+								owed -= take;
+							}
+						}
+						const row = (areaTiles || []).find((tt: any) => tt.x === c.x && tt.y === c.y);
+						if (!row) continue;
+						await t.TerrainTile.patch(row.id, { type: 'watered', updatedAt: stamp });
+						alsoTiles.push({ ...row, type: 'watered', updatedAt: stamp });
+						changes.push({ from: row.type, to: 'watered' });
+					}
+				}
 				await patchPlayer(playerId, { inventory });
-				tile = { ...existing, type: newType, updatedAt: Date.now() };
-				await t.TerrainTile.patch(existing.id, { type: newType, updatedAt: Date.now() });
 			} else if (action === 'clear') {
 				if (!existing) throw new GameError(tr('server.err.nothingToClear'), 400, 'server.err.nothingToClear');
+				// SHOVEL_SALVAGE_TIER gives back what the ground soaked up, so remodelling
+				// a shoreline stops being a punishment. A watered bed took one water; open
+				// water took that plus the pour that flooded it.
+				if ((player.tools?.shovel || 0) >= SHOVEL_SALVAGE_TIER) {
+					const back = existing.type === 'water' ? 2 : existing.type === 'watered' ? 1 : 0;
+					const give = Math.min(back, roomFor('water', inventory, d, player));
+					if (give > 0) {
+						inventory = { ...inventory, water: (inventory.water || 0) + give };
+						await patchPlayer(playerId, { inventory });
+						dug = { resourceId: 'water', amount: give };
+					}
+				}
 				await t.TerrainTile.delete(existing.id);
 				removedId = existing.id;
+				changes.push({ from: existing.type, to: null });
 			} else {
 				throw new GameError(tr('server.err.badTerraformAction'), 400, 'server.err.badTerraformAction');
 			}
 
+			// Every tile this action shaped, the clicked one first. A tool below the run
+			// tiers shapes exactly one, so this is just `[tile]`.
+			const tiles = tile ? [tile, ...alsoTiles] : alsoTiles;
+
 			const discoveries = await byWorld(t.Discovery, wid);
 			const recalc = await recalcBiome(wid, playerId, area, {
-				addTerrain: tile ? [tile] : [],
+				addTerrain: tiles,
 				removeTerrainIds: removedId ? [removedId] : [],
+				terrainChanges: changes,
 				player: { ...player, inventory },
 				discoveries,
 				// Pre-write, with this action's change folded in above — see the note
-				// on `terrain` in recalcBiome.
-				terrain: areaTiles,
+				// on `terrain` in recalcBiome. Only when this action had to read the
+				// area for its own reasons; otherwise the recalc works from the biome
+				// row and `changes`.
+				...(areaTiles ? { terrain: areaTiles } : {}),
 			});
 			// recalcBiome counts any animal that returned
 			// `bedsWatered` is a lifetime tally for the starter chain's watering goal.
@@ -2671,17 +3234,23 @@ export class Terraform extends PublicEndpoint {
 			// would make that goal's progress run backwards the moment the player
 			// actually used the bed. It's in META_COUNTERS, so it doesn't double-count
 			// against terraformActions in the action totals the dashboard reports.
+			// A run shapes several tiles in one request; count the work, not the click,
+			// so the watering goal and the dashboard's action totals still line up with
+			// what actually happened to the land.
+			const shapedCount = Math.max(1, tiles.length);
 			await bumpMetrics(
 				player,
-				{ terraformActions: 1, ...(action === 'water' ? { bedsWatered: 1 } : {}) },
-				action === 'water' ? { water: 1 } : {},
+				{ terraformActions: shapedCount, ...(action === 'water' ? { bedsWatered: shapedCount } : {}) },
+				action === 'water' ? { water: shapedCount } : {},
 			);
 			await awardWorldAchievements(wid, playerId, {
 				addDiscoveries: recalc.newAnimals,
 				freshBiomeStates: [recalc.biomeState],
 				discoveries,
 			});
-			return { ok: true, tile, removedId, dug, inventory, ...recalc };
+			// `tiles` carries the whole run; `tile` stays for older clients, which read
+			// only the square they clicked (see applyTerraformResult).
+			return { ok: true, tile, tiles, removedId, dug, inventory, ...recalc };
 		});
 	}
 }
@@ -2693,7 +3262,10 @@ export class RecalcBiome extends PublicEndpoint {
 		const { player } = await requirePlayer(playerId);
 		const wid = worldOf(player);
 		const discoveries = await byWorld(db().Discovery, wid);
-		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries });
+		// The explicit recalculation is also the repair hammer — it is what a
+		// support answer says to run — so it re-derives the terrain numbers from the
+		// rows rather than trusting the ones on the biome row.
+		const recalcResult = await recalcBiome(wid, playerId, biomeId, { discoveries, fresh: true });
 		await awardWorldAchievements(wid, playerId, {
 			addDiscoveries: recalcResult.newAnimals,
 			freshBiomeStates: [recalcResult.biomeState],
@@ -2734,6 +3306,12 @@ export class SyncPlayer extends PublicEndpoint {
 			// reveal on the very first sync after upgrading.
 			patch.tutorialMaxStep = Math.max(player.tutorialMaxStep ?? 0, player.tutorialStep ?? 0, tutorialStep);
 		}
+		// Stepping into an interior settles anything the walls have moved out from
+		// under: a picture on a tile that is now a window (or a wall, after a Space
+		// upgrade) slides to the nearest free spot before you see the room. Only on
+		// the step IN — a sync from inside the room you are already standing in has
+		// nothing new to settle, and this reads the world's placements.
+		const enteringInterior = (area === 'home' || !!tentBiomeOf(area)) && player.area !== area;
 		if (area === 'home') {
 			// the home interior is always reachable from your camp — no gates
 			patch.area = 'home';
@@ -2773,11 +3351,15 @@ export class SyncPlayer extends PublicEndpoint {
 				const hasTerrain = (await byArea(t.TerrainTile, wid, area)).length > 0;
 				if (!hasTerrain) {
 					await seedStartingTerrain(wid, playerId, area);
-					await recalcBiome(wid, playerId, area, { player });
+					// Seeding writes channels and beds without describing them, so this
+					// recalc reads the area rather than the numbers on the row.
+					await recalcBiome(wid, playerId, area, { player, fresh: true });
 				}
 			}
 		}
 		await patchPlayer(playerId, patch);
+		// After the patch, so the reflow reads the room the caretaker is now in.
+		if (enteringInterior) await reflowInterior(worldOf(player), playerId, d);
 		// the tutorial finishing (and reaching the grasshopper step) can earn First Friend
 		if (patch.tutorialStep !== undefined) await awardAchievements(playerId);
 		return { ok: true, player: sanitizePlayer(await safeGet(t.Player, playerId)) };

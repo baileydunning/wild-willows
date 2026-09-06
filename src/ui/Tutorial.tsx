@@ -46,9 +46,22 @@ interface Flags {
 // Did the player craft a Grass Patch specifically? (the tutorial's first goal)
 const hasGrassPatch = (state: any) =>
 	(state?.player?.craftedEver?.['grass-patch'] || state?.player?.craftedItems?.['grass-patch'] || 0) > 0;
-const grassPlaced = (state: any) => state?.placements?.some((p: any) => p.objectId === 'grass-patch');
+// …and put one down, and planted anything at all. Both ask about the whole
+// preserve, so both read the server's running tallies (`player.standing`) rather
+// than the snapshot's placements, which carry only the area on screen. In
+// practice the tutorial never leaves the meadow — but "in practice" is what
+// these two were relying on before, and the tallies make them right by
+// construction. Falling back to the placements keeps a save that has no tallies
+// yet exactly where it was.
+const grassPlaced = (state: any) =>
+	state?.player?.standing
+		? (state.player.standing.placed?.['grass-patch'] || 0) > 0
+		: state?.placements?.some((p: any) => p.objectId === 'grass-patch');
 const hasWateredBed = (state: any) => state?.terrain?.some((t: any) => t.type === 'watered' || t.type === 'water');
-const hasPlanted = (state: any) => state?.placements?.some((p: any) => typeof p.plantedAt === 'number');
+const hasPlanted = (state: any) =>
+	state?.player?.standing
+		? Object.keys(state.player.standing.planted || {}).length > 0
+		: state?.placements?.some((p: any) => typeof p.plantedAt === 'number');
 const openWaterTiles = (state: any) => state?.terrain?.filter((t: any) => t.type === 'water').length || 0;
 const upgradedAnyTool = (state: any) =>
 	Object.values(state?.player?.tools || {}).some((tier: any) => (tier as number) > 1);

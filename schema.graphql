@@ -120,14 +120,16 @@ type Achievement @table(database: "wildwillows") {
 
 # Player        : name, passcodeSalt, passcodeHash, appearance, createdAt, area, x, y,
 #                 worldId (active world; solo === player id), inventory, craftedItems,
-#                 craftedEver, tools, unlockedBiomes, visitedBiomes, tutorialStep, home, metrics
+#                 craftedEver, tools, unlockedBiomes, visitedBiomes, tutorialStep, home, metrics,
+#                 standing ({rev,placed,planted,harvested} — what is standing in the world, so the
+#                 goal board needn't count placements; absent means never computed, so count them)
 type Player @table(database: "wildwillows") { id: ID @primaryKey }
 
 # PlayerAchievement : `${playerId}:${achievementId}` · playerId, achievementId, biome, earnedAt
 type PlayerAchievement @table(database: "wildwillows") { id: ID @primaryKey }
 
 # World-owned state (id is `${worldId}:...`; worldId/playerId stored on each row)
-type BiomeState @table(database: "wildwillows") { id: ID @primaryKey }   # worldId, playerId, biomeId, health, balance, returnedCount, unlocked, playerWater ({tiles,lake,river} the player shaped — cached by recalcBiome so the achievement sweep needn't rescan terrain)
+type BiomeState @table(database: "wildwillows") { id: ID @primaryKey }   # worldId, playerId, biomeId, health, balance, returnedCount, unlocked, playerWater ({tiles,lake,river} the player shaped — cached by recalcBiome so the achievement sweep needn't rescan terrain), terrainCounts ({rev,watered,openWater,water} — the same trick for the recalc itself: absent means never computed, so rescan), objectCounts (objectId -> how many are standing in this area, written from the list recalcBiome already holds)
 type Chest @table(database: "wildwillows") { id: ID @primaryKey }        # worldId, playerId, area, x, y, size, capacity, contents
 type Placement @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, objectId, area, x, y, placedAt, plantedAt, color
 type Discovery @table(database: "wildwillows") { id: ID @primaryKey }    # worldId, playerId, animalId, biomeId, comfort, timesObserved, firstObservedAt, whyReturned

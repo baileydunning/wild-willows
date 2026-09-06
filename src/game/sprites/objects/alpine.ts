@@ -1,6 +1,6 @@
 // Graywind Heights.
 
-import { C, def } from '../canvas';
+import { C, def, lightable, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const ALPINE: SpriteSet = {
@@ -20,18 +20,24 @@ export const ALPINE: SpriteSet = {
 		g.fillStyle(C('#6b8a4a'), 1).fillEllipse(16, 12, 22, 7); // mossy lining
 		g.fillStyle(C('#caa15a'), 1).fillCircle(11, 11, 1.8).fillCircle(16, 12, 1.8).fillCircle(21, 11, 1.8); // eggs
 	}),
-	heather: def(34, 24, (g) => {
+	...pickable('heather', 34, 24, (g, picked) => {
 		g.fillStyle(C('#6f8a5a'), 1).fillEllipse(17, 17, 32, 12);
-		g.fillStyle(C('#a06aa8'), 1);
-		for (const [x, y] of [
+		const bells = [
 			[8, 12],
 			[14, 9],
 			[20, 11],
 			[26, 10],
 			[11, 14],
 			[23, 14],
-		] as const)
-			g.fillCircle(x, y, 2.4);
+		] as const;
+		if (picked) {
+			// the bells stripped off the mat, leaving needled green shoots
+			g.fillStyle(C('#5f7a4a'), 1);
+			for (const [x, y] of bells) g.fillCircle(x, y, 1.2);
+			return;
+		}
+		g.fillStyle(C('#a06aa8'), 1);
+		for (const [x, y] of bells) g.fillCircle(x, y, 2.4);
 		g.fillStyle(C('#c89ad0'), 1).fillCircle(14, 8, 1.2).fillCircle(26, 9, 1.2);
 	}),
 	krummholz: def(34, 36, (g) => {
@@ -41,9 +47,10 @@ export const ALPINE: SpriteSet = {
 		g.fillTriangle(10, 20, 28, 17, 17, 6);
 		g.fillStyle(C('#4f7048'), 1).fillTriangle(12, 14, 26, 12, 19, 4);
 	}),
-	gentian: def(32, 24, (g) => {
+	...pickable('gentian', 32, 24, (g, picked) => {
 		g.fillStyle(C('#5e7a4a'), 1).fillEllipse(16, 19, 28, 10);
-		g.fillStyle(C('#3a6ad0'), 1);
+		// picked, each trumpet is back to a small green bud on the rosette
+		g.fillStyle(C(picked ? '#5f7f42' : '#3a6ad0'), 1);
 		for (const [x, y] of [
 			[10, 11],
 			[18, 9],
@@ -51,7 +58,7 @@ export const ALPINE: SpriteSet = {
 			[14, 15],
 		] as const) {
 			for (const a of [0, 1.26, 2.51, 3.77, 5.03])
-				g.fillEllipse(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6, 2.4, 3.2);
+				g.fillEllipse(x + Math.cos(a) * 2.6, y + Math.sin(a) * 2.6, picked ? 1.6 : 2.4, picked ? 1.8 : 3.2);
 		}
 	}),
 	cushion: def(30, 18, (g) => {
@@ -172,13 +179,14 @@ export const ALPINE: SpriteSet = {
 			g.fillStyle(C(c), 1).fillTriangle(x, yt, x + 6, yt + 0.6, x + 3, yt + 11);
 		});
 	}),
-	crystallantern: def(24, 34, (g) => {
+	...lightable('crystallantern', 24, 34, (g, lit) => {
 		g.fillStyle(C('#7c7670'), 1).fillRect(6, 28, 12, 5); // stone base
 		g.fillStyle(C('#8e8880'), 1).fillRect(8, 10, 8, 18); // post
 		g.fillStyle(C('#6e685e'), 1).fillRect(5, 6, 14, 5).fillRect(7, 2, 10, 4); // cap
-		g.fillStyle(C('#9fdff0'), 0.55).fillCircle(12, 18, 8); // glow
-		g.fillStyle(C('#d8f0fa'), 1).fillTriangle(8, 22, 16, 22, 12, 12); // quartz shard
-		g.fillStyle(0xffffff, 0.9).fillCircle(12, 15, 1.4);
+		if (lit) g.fillStyle(C('#9fdff0'), 0.55).fillCircle(12, 18, 8); // glow
+		// Dark quartz is grey stone. The shard stays; only its light goes.
+		g.fillStyle(C(lit ? '#d8f0fa' : '#a8b0b4'), 1).fillTriangle(8, 22, 16, 22, 12, 12); // quartz shard
+		if (lit) g.fillStyle(0xffffff, 0.9).fillCircle(12, 15, 1.4);
 	}),
 	obsidiantotem: def(24, 36, (g) => {
 		g.fillStyle(C('#7c7670'), 1).fillEllipse(12, 33, 18, 6); // stone foot
@@ -575,7 +583,7 @@ export const ALPINE: SpriteSet = {
 		g.fillStyle(C('#b5a68c'), 1).fillEllipse(9, 25, 9, 3).fillEllipse(24, 26, 10, 3);
 	}),
 	// the opposite of the meadow drift's tall loose stems.
-	alpineflowers: def(38, 22, (g) => {
+	...pickable('alpineflowers', 38, 22, (g, picked) => {
 		g.fillStyle(C('#5f6b4a'), 1).fillEllipse(19, 14, 38, 15); // thin high-country soil
 		g.fillStyle(C('#6f8050'), 1).fillEllipse(18, 11, 32, 10); // tight cushion foliage
 		g.fillStyle(C('#7d8f5c'), 1);
@@ -598,6 +606,11 @@ export const ALPINE: SpriteSet = {
 			[30, 13, '#86a8d9'],
 		];
 		blooms.forEach(([x, y, c]) => {
+			if (picked) {
+				// picked over: the cushion with tight buds where the colour was
+				g.fillStyle(C('#6f8050'), 1).fillCircle(x, y, 1.2);
+				return;
+			}
 			g.fillStyle(C(c), 1).fillCircle(x, y, 2.4); // no stems — they hug the ground
 			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 0.9);
 		});

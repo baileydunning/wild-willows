@@ -9,6 +9,8 @@ import {
 	screenSpaceOverlayTransform,
 	worldToScreen,
 	arrivalKind,
+	pinwheelSpin,
+	isLit,
 } from '../../src/game/interactions';
 
 // The west→east walking order of the preserve, as WorldScene holds it.
@@ -198,9 +200,11 @@ describe('isSleepable', () => {
 	it('recognises the things you can sleep on', () => {
 		expect(isSleepable('home-bed')).toBe(true);
 		expect(isSleepable('home-sleeping-bag')).toBe(true);
-		// The hammock joined them: it is `placement: 'both'`, so it rests you
-		// indoors or strung between two posts out in a biome.
-		expect(isSleepable('hammock')).toBe(true);
+		// The hammock is NOT one of them, and used to be. Sleeping skips the clock
+		// to the next dawn; lying in a hammock is the one piece of furniture you
+		// get into precisely to let an afternoon go by at its own speed. It is a
+		// seat now (SEATS in WorldScene) — you lie in it and the animals come over.
+		expect(isSleepable('hammock')).toBe(false);
 	});
 
 	it('rejects lookalikes and non-furniture', () => {
@@ -208,6 +212,24 @@ describe('isSleepable', () => {
 		for (const id of ['reed-bed', 'eelgrass-bed', 'oyster-bed', 'workbench', '', null, undefined]) {
 			expect(isSleepable(id as any)).toBe(false);
 		}
+	});
+});
+
+describe('isLit — absent means burning', () => {
+	it('treats a placement with no flag as lit', () => {
+		// The whole compatibility story rides on this. `lit` is written only by
+		// SetPlacementLit, so every lantern placed before the toggle existed — and
+		// every one placed since that nobody has touched — arrives here without the
+		// field, and all of them were glowing.
+		expect(isLit({})).toBe(true);
+		expect(isLit({ lit: undefined })).toBe(true);
+		expect(isLit(null)).toBe(true);
+		expect(isLit(undefined)).toBe(true);
+	});
+
+	it('only an explicit false puts one out', () => {
+		expect(isLit({ lit: false })).toBe(false);
+		expect(isLit({ lit: true })).toBe(true);
 	});
 });
 
@@ -340,5 +362,42 @@ describe('screenSpaceOverlayTransform — the campfire halo drift', () => {
 		// Not merely wrong — wrong by a DIFFERENT amount each step, i.e. drift.
 		expect(new Set(errs.map((e) => Math.round(e))).size).toBe(errs.length);
 		expect(Math.abs(errs[2] - errs[0])).toBeGreaterThan(100);
+	});
+});
+
+describe('pinwheelSpin', () => {
+	const TAU = Math.PI * 2;
+	/** Where the blades end up, wrapped back into a single turn. */
+	const lands = (from: number, rest: number, turns = 3) => {
+		const end = from + pinwheelSpin(from, rest, turns);
+		return ((end % TAU) + TAU) % TAU;
+	};
+	const wrap = (a: number) => ((a % TAU) + TAU) % TAU;
+
+	it('is a clean number of turns when it starts from rest', () => {
+		expect(pinwheelSpin(0, 0, 3)).toBeCloseTo(TAU * 3, 10);
+		// a placement with a lean: the lean is the rest pose, not an offset to undo
+		expect(pinwheelSpin(0.06, 0.06, 3)).toBeCloseTo(TAU * 3, 10);
+	});
+
+	it('THE BUG: a nudge mid-spin still winds down on the pole', () => {
+		// Blades are a separate image pinned to the post. Adding a flat three turns
+		// to wherever the last spin had got to left the fan resting a few degrees
+		// round from the pole it is supposed to be pinned to — and every impatient
+		// second press walked it further out, until the pinwheel sat visibly askew.
+		const rest = 0.06;
+		for (const caught of [0.9, 2.4, 4.7, 6.0]) {
+			expect(lands(caught, rest)).toBeCloseTo(wrap(rest), 10);
+		}
+	});
+
+	it('always turns forwards, never back a few degrees to reach rest', () => {
+		// Reversing to land on the rest pose would read as the wind changing rather
+		// than as the pinwheel slowing down.
+		for (const caught of [0.1, 1.0, 3.3, 5.9]) {
+			expect(pinwheelSpin(caught, 0.06, 3)).toBeGreaterThan(0);
+			// and never so far that it overshoots the turns it was asked for
+			expect(pinwheelSpin(caught, 0.06, 3)).toBeLessThan(TAU * 4);
+		}
 	});
 });

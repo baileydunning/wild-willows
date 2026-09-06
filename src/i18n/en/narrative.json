@@ -1,5 +1,5 @@
 {
-	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
+	"_readme": "Narrative text: activity-feed beats, per-biome line pools, biome lore stages (narrative.ts, lore.ts), and the four bookshelf stories (stories.ts). Line pools are JSON arrays. Keys are referenced as narrative.<key>.",
 	"kind": {
 		"insect": "The air over {biome} hums and ticks again — three kinds of insect have found their way back.",
 		"bird": "Birdsong has returned to {biome}; three species now forage and nest there.",
@@ -450,5 +450,1499 @@
 			"restored": "The wildest stretch of the preserve, whole — whale-spout to clam-siphon. Two keystones do the quiet work that holds it all in balance.",
 			"coexistence": "Two keystones run this shore: the sea star keeps mussels from taking every rock, and the otter eats the urchins that would otherwise mow down the kelp."
 		}
+	},
+	"stories": {
+		"_readme": "The four books on the home bookshelf (ui/stories.ts, ui/storyArt.tsx). Each book is four pages you turn one at a time; every page has a title, its text, and the captions under its picture — `figures` must stay the same length as that page's figure list in storyArt.tsx, in the same order. Plain explanation, no whimsy: these are the only place the game says outright what its systems are modelling.",
+		"somewhere": {
+			"title": "Food, Cover, Water",
+			"byline": "habitat and niche",
+			"pages": {
+				"1": {
+					"title": "Three jobs",
+					"figures": [
+						"food",
+						"cover",
+						"water",
+						"somewhere to live"
+					],
+					"text": "An animal doesn't need a place so much as it needs a place that does three jobs: something to eat, somewhere to shelter, and water it can reach. Miss any one of the three and the other two don't count for much."
+				},
+				"2": {
+					"title": "Close enough to matter",
+					"figures": [
+						"water",
+						"open ground to cross",
+						"won't risk it"
+					],
+					"text": "Distance matters as much as presence. Food has to be close enough to cover that a short dash gets an animal back under it. Water that can only be reached across open ground is water most small animals won't use."
+				},
+				"3": {
+					"title": "Sharing a meadow",
+					"figures": [
+						"seed at dawn",
+						"insects after dark"
+					],
+					"text": "The place is the habitat. How an animal makes its living in it is the niche — what it eats, when it is active, what it keeps away from. Two species can share one meadow without competing, because one takes seed at dawn and the other hunts insects at dusk."
+				},
+				"4": {
+					"title": "The piece that gets forgotten",
+					"figures": [
+						"flowers alone",
+						"add cover",
+						"and it stays"
+					],
+					"text": "This is why planting flowers alone rarely brings anything in. Cover is the piece most often missing. A brush pile or a hedgerow isn't decoration; for a rabbit or a wren it is the difference between passing through and staying."
+				}
+			}
+		},
+		"foxlast": {
+			"title": "Why Predators Come Last",
+			"byline": "food chains and energy",
+			"pages": {
+				"1": {
+					"title": "Follow a fox backwards",
+					"figures": [
+						"sunlight and grass",
+						"eats the grass",
+						"eats the insects",
+						"eats the birds"
+					],
+					"text": "Follow a fox backwards. It eats voles and ground-nesting birds. They eat insects and seed. The insects eat grass. The grass runs on sunlight. Four steps, and the fox depends on every one of them."
+				},
+				"2": {
+					"title": "A tenth at every step",
+					"figures": [
+						"a great many",
+						"fewer",
+						"fewer still",
+						"one"
+					],
+					"text": "Only about a tenth of the energy at each step carries up to the next. The rest is spent staying alive. That ratio is why the numbers narrow so sharply toward the top: a meadow can support a great many grasshoppers, a good many sparrows, fewer voles, and one fox."
+				},
+				"3": {
+					"title": "Last in, first out",
+					"figures": [
+						"prey thins out",
+						"the fox goes first"
+					],
+					"text": "So predators are the last to arrive and the first to go. They need every level beneath them filled before they can settle, and they feel a thinning at the bottom before anything else does."
+				},
+				"4": {
+					"title": "What a fox tells you",
+					"figures": [
+						"a fox settles",
+						"a meadow that can hold one"
+					],
+					"text": "It also means a meadow with no hunters in it isn't a peaceful meadow, it's an incomplete one. When a fox does settle, what that tells you is that the levels underneath are carrying enough weight to hold it."
+				}
+			}
+		},
+		"whobuild": {
+			"title": "Animals That Build",
+			"byline": "ecosystem engineers and keystone species",
+			"pages": {
+				"1": {
+					"title": "A beaver builds for itself",
+					"figures": [
+						"wants deep water",
+						"so it makes some"
+					],
+					"text": "A beaver dams a creek because it wants water deep enough to swim in and stay out of reach. It isn't doing it for anything else. But the pond it makes is habitat that was not there before."
+				},
+				"2": {
+					"title": "Everything that moves in",
+					"figures": [
+						"still water",
+						"eggs",
+						"dragonflies",
+						"a place to fish"
+					],
+					"text": "Still water gives frogs somewhere to lay eggs and dragonfly larvae somewhere to grow. The shallow edge gives a heron somewhere to fish. Trees that drown standing go soft and become nest sites for woodpeckers. One animal's construction turns into housing for a dozen species."
+				},
+				"3": {
+					"title": "Engineers and keystones",
+					"figures": [
+						"a keystone",
+						"urchins held back",
+						"kelp still standing"
+					],
+					"text": "An animal that reshapes the physical place like this is called an ecosystem engineer. A keystone species is related but different: it builds nothing, and holds the food web together far out of proportion to its numbers — sea otters keeping urchins off the kelp, wolves keeping elk off the riverbanks. Take one out and the whole system reorganises around the gap."
+				},
+				"4": {
+					"title": "Why the next one is quicker",
+					"figures": [
+						"one engineer",
+						"a dozen tenants"
+					],
+					"text": "A few of both live here. When one of them comes back, the animals that depend on what it does tend to follow quickly, because the habitat they were waiting on has just been built for them."
+				}
+			}
+		},
+		"slowgreen": {
+			"title": "How Bare Ground Becomes Forest",
+			"byline": "succession",
+			"pages": {
+				"1": {
+					"title": "Weeds first",
+					"figures": [
+						"bare ground",
+						"weeds and grass"
+					],
+					"text": "Bare ground does not turn into woodland directly. Weeds and grasses arrive first, because they are the only things that can hold on there. They anchor the soil, shade it, and slow the water running off it."
+				},
+				"2": {
+					"title": "What shrubs need",
+					"figures": [
+						"grass holds the soil",
+						"litter and shade",
+						"shrubs establish"
+					],
+					"text": "That changed ground is what shrubs need to establish. Shrubs add deeper roots, leaf litter and more shade, and only in the soil that makes will most tree seedlings survive their first few years. Each stage makes the next one possible and is then partly replaced by it."
+				},
+				"3": {
+					"title": "A seedling isn't habitat",
+					"figures": [
+						"grown in",
+						"then it holds a nest"
+					],
+					"text": "The sequence is called succession, and it runs on the plants' timescale rather than anyone else's. A seedling is not habitat yet. It has to grow in before it shades anything, feeds anything, or holds a nest."
+				},
+				"4": {
+					"title": "Late, then quickly",
+					"figures": [
+						"bare",
+						"grass",
+						"shrub",
+						"tree"
+					],
+					"text": "Which is worth knowing during the stretch where a planted area looks like it is doing nothing. Roots are going down, water is being held in the ground longer, and seed is banking up in the soil. The visible change comes late, and then comes quickly."
+				}
+			}
+		}
+	},
+	"sky": {
+		"_readme": "What the telescope shows: the daytime sky (clouds.*, optics.*) and the night sky (figures.*, deep.*, bodies.*, events.*), listed in ui/sky.ts and drawn in ui/skyArt.tsx. Each entry is a name, the plain name under it, a paragraph, and one line of what it tells you. Real meteorology and the real sky — plain explanation with a fact worth keeping, no whimsy, same voice as the bookshelf.",
+		"clouds": {
+			"cirrus": {
+				"name": "Cirrus",
+				"byline": "a curl of hair",
+				"text": "Streaks of ice crystals five miles up, drawn out by winds that never reach the ground. The hooks on the ends are crystals falling out of the streak into slower air below — which is why sailors called them mares' tails.",
+				"note": "Cirrus thickening in from one side is a front arriving: rain, usually within a day."
+			},
+			"cirrostratus": {
+				"name": "Cirrostratus",
+				"byline": "a veil of ice",
+				"text": "A sheet of ice crystals so thin that the sun shines straight through it and everything still casts a shadow. What gives it away is the ring: every crystal bends light by the same 22 degrees, drawing a halo around the sun or the moon.",
+				"note": "A halo means the veil is up there — and a veil that thickens brings rain."
+			},
+			"cirrocumulus": {
+				"name": "Cirrocumulus",
+				"byline": "the mackerel sky",
+				"text": "High ice cloud rippled into small grains by air rolling over itself. Each grain is a cloud in its own right, only so far off that it reads as a scale — which is how a sky full of them came to be named after the banded back of a mackerel.",
+				"note": "A mackerel sky rarely lasts an hour: the air holding it is already unsettled."
+			},
+			"altocumulus": {
+				"name": "Altocumulus",
+				"byline": "rolls in the middle sky",
+				"text": "Patches and rolls halfway up the sky, each about the width of your thumb at arm's length and each with a shaded underside. That shading is how you tell them from cirrocumulus, whose grains are far smaller and never shadowed.",
+				"note": "Altocumulus on a warm morning is the classic sign of thunderstorms by late afternoon."
+			},
+			"altostratus": {
+				"name": "Altostratus",
+				"byline": "the frosted-glass sheet",
+				"text": "A grey sheet across the middle of the sky. The sun is still up there, but blurred to a smear with no edge, and nothing on the ground casts a shadow — the difference between looking through frosted glass and through a window.",
+				"note": "It arrives ahead of steady rain, thickening and lowering as the front comes in."
+			},
+			"lenticular": {
+				"name": "Lenticular",
+				"byline": "the standing mountain wave",
+				"text": "A smooth lens of cloud parked over a ridge, sometimes stacked several deep like plates. Air lifted by the mountain goes on rising and sinking downwind, and cloud forms in the crest of each wave — so the shape stands still while the wind pours through it at speed.",
+				"note": "Smooth to look at, violent to fly through — and behind a fair share of flying-saucer reports."
+			},
+			"stratus": {
+				"name": "Stratus",
+				"byline": "a low grey layer",
+				"text": "The flattest cloud there is: a featureless grey layer just above the ground, with nothing rising through it. It forms when a whole shallow layer of air cools to its dew point all at once, instead of in columns.",
+				"note": "Fog is stratus resting on the ground — walk up into a hill's cloud and you are inside one."
+			},
+			"stratocumulus": {
+				"name": "Stratocumulus",
+				"byline": "a lumpy low layer",
+				"text": "A low layer broken into lumps with gaps of sky between them — the most common cloud on Earth, and the one that makes a day simply grey. It marks air stirring just enough to break the layer up, never enough to build anything tall out of it.",
+				"note": "A dull sky rather than a wet one: rarely more than a spot of drizzle."
+			},
+			"nimbostratus": {
+				"name": "Nimbostratus",
+				"byline": "the rain layer",
+				"text": "A thick, dark, shapeless layer with rain or snow falling steadily out of it. The base looks ragged because the falling rain is eating into it from below, and there is no sign of the sun at all.",
+				"note": "The cloud of an all-day rain, not of a downpour that passes."
+			},
+			"cumulus": {
+				"name": "Cumulus",
+				"byline": "the fair-weather heap",
+				"text": "Flat bottom, cauliflower top. Each one sits on a column of warm air rising off the ground, and the flat base marks the height where that air finally cools enough for its water to condense. Look along a sky of them: every base is at the same height.",
+				"note": "Soaring birds and gliders use them as signposts to the lift underneath."
+			},
+			"cumulonimbus": {
+				"name": "Cumulonimbus",
+				"byline": "the thunderhead",
+				"text": "A heap cloud that grew until it hit the stratosphere and could climb no further, so it spread sideways into an anvil. Inside, ice and water are thrown up and down fast enough to separate charge — which is where lightning comes from.",
+				"note": "The anvil points downwind: it tells you which way the storm is going."
+			}
+		},
+		"figures": {
+			"ursa-major": {
+				"name": "Ursa Major",
+				"byline": "the Great Bear",
+				"text": "The seven bright stars of the bear's back and tail make the Plough, or the Big Dipper. Five of the seven are drifting through space together as one loose family; the two on the ends are strangers passing through, so the shape slowly bends out of true over tens of thousands of years.",
+				"note": "The two stars at the end of the bowl point straight at Polaris — the whole northern sky is found from there."
+			},
+			"ursa-minor": {
+				"name": "Ursa Minor",
+				"byline": "the Little Bear",
+				"text": "A fainter dipper hanging off Polaris, which sits almost exactly above the Earth's axis. The whole sky wheels around that one point, so Polaris barely moves all night — and its height above the horizon is your latitude, measured with nothing but your eyes.",
+				"note": "Which is why anyone crossing open country or open water at night in the north steered by it."
+			},
+			"cassiopeia": {
+				"name": "Cassiopeia",
+				"byline": "the seated queen",
+				"text": "Five bright stars in a W — or an M, depending on the hour, because she is on a chair that turns her upside down for half of every night. The Greeks put her there for boasting that she was lovelier than the sea nymphs.",
+				"note": "She sits across the pole from the Great Bear: when the Dipper is low, Cassiopeia is high, so one of them is always up."
+			},
+			"draco": {
+				"name": "Draco",
+				"byline": "the dragon",
+				"text": "A long line of faint stars winding between the two bears and ending in a small four-star head. Its star Thuban was the pole star when the pyramids were built, and the shafts cut through them are thought to have been aimed at it.",
+				"note": "The Earth's axis wobbles like a slowing top — one circle every 26,000 years — so the pole star keeps changing."
+			},
+			"leo": {
+				"name": "Leo",
+				"byline": "the lion",
+				"text": "A backwards question mark — the Sickle — makes the head and mane, with Regulus at the bottom as the full stop, and a triangle behind it makes the haunches and tail. It is one of the few figures that really does look like the animal it is named for.",
+				"note": "Regulus sits almost exactly on the sun's path, so the moon and the planets keep passing in front of it.",
+				"sun": "the sun is really in it 11 August – 15 September"
+			},
+			"bootes": {
+				"name": "Boötes",
+				"byline": "the herdsman",
+				"text": "A tall kite of stars with orange Arcturus at the tail — the brightest star in the northern half of the sky. Arcturus is an old star cutting across our part of the galaxy at an angle to everything else nearby: a visitor rather than a neighbour.",
+				"note": "Follow the curve of the Dipper's handle and you arc straight to it."
+			},
+			"cygnus": {
+				"name": "Cygnus",
+				"byline": "the swan",
+				"text": "A cross of bright stars flying down the Milky Way — called the Northern Cross as often as the Swan. Deneb at the tail looks like an ordinary bright star and is not: it is so far off that to shine this steadily it must be pouring out the light of something like a hundred thousand suns.",
+				"note": "The dark lane splitting the Milky Way here is dust between the stars, not a gap in them."
+			},
+			"lyra": {
+				"name": "Lyra",
+				"byline": "the harp",
+				"text": "A small parallelogram of stars with brilliant Vega at one corner. Vega was the pole star twelve thousand years ago and will be again in another twelve thousand — and in 1850 it became the first star other than the sun ever photographed.",
+				"note": "Vega, Deneb and Altair make the Summer Triangle: three constellations, one shape."
+			},
+			"aquila": {
+				"name": "Aquila",
+				"byline": "the eagle",
+				"text": "Altair with a dimmer star to either side, flying up the Milky Way opposite the Swan. Altair turns so fast — one day takes about nine hours — that it is visibly squashed, measurably wider across the middle than from pole to pole.",
+				"note": "At sixteen light years it is one of the closest bright stars we have."
+			},
+			"scorpius": {
+				"name": "Scorpius",
+				"byline": "the scorpion",
+				"text": "One of the few figures that really looks like its name: a head, a red heart, and a long tail curling up to a sting. Antares is a dying star so swollen that, dropped where the sun is, it would reach out past the orbit of Mars.",
+				"note": "Antares means the rival of Mars — the two are the same shade of red, and the planet passes it every couple of years.",
+				"sun": "the sun is really in it 23 November – 29 November"
+			},
+			"pegasus": {
+				"name": "Pegasus",
+				"byline": "the winged horse",
+				"text": "The Great Square: four stars marking a box about the width of your fist at arm's length, with a bent line off one corner for the neck and head. The horse is upside down, and only the front half of him is there.",
+				"note": "Count the stars inside the Square: none is a city sky, a handful is the suburbs, a dozen is properly dark country."
+			},
+			"andromeda": {
+				"name": "Andromeda",
+				"byline": "the chained princess",
+				"text": "A chain of stars running off one corner of the Great Square. Above the middle of the chain is a faint oval smudge, and it is not a star at all: it is the Andromeda Galaxy, a hundred billion suns so far away that the whole thing reads as a thumbprint on the sky.",
+				"note": "At 2.5 million light years it is the furthest thing the eye can see unaided — and it is heading our way."
+			},
+			"orion": {
+				"name": "Orion",
+				"byline": "the hunter",
+				"text": "Three stars in a short straight row make the belt, with red Betelgeuse at one shoulder and blue-white Rigel at the opposite foot. The colours are real and they mean something: Betelgeuse is a swollen old star near its end, Rigel a hot young one burning through its fuel in a hurry.",
+				"note": "The fuzzy patch hanging below the belt is the Orion Nebula, where new stars are being made right now."
+			},
+			"taurus": {
+				"name": "Taurus",
+				"byline": "the bull",
+				"text": "A V of stars makes the bull's face, with orange Aldebaran as the eye — though Aldebaran does not belong to that V at all. It is less than half as far away and only happens to line up in front of it. Two long horns run off the top.",
+				"note": "The little cluster on his shoulder is the Pleiades: most people count six, binoculars show dozens, and there are over a thousand.",
+				"sun": "the sun is really in it 14 May – 19 June"
+			},
+			"gemini": {
+				"name": "Gemini",
+				"byline": "the twins",
+				"text": "Two parallel lines of stars ending side by side in Castor and Pollux, about as close to twins as the sky gets. Pollux is the brighter and looks faintly orange. Castor looks like one star and is six — three pairs, all orbiting one another.",
+				"note": "The twins stand on the winter Milky Way, up above Orion's raised arm.",
+				"sun": "the sun is really in it 20 June – 19 July"
+			},
+			"canis-major": {
+				"name": "Canis Major",
+				"byline": "the great dog",
+				"text": "Orion's hunting dog, marked by Sirius — the brightest star in the night sky, mostly because it is one of the nearest rather than anything remarkable in itself. Low down it twinkles hard enough to flash red and green, and gets called in as an aircraft most winters.",
+				"note": "Its dawn rising once told Egypt the Nile was about to flood; the dog days of summer are named after it."
+			},
+			"aries": {
+				"name": "Aries",
+				"byline": "the ram",
+				"text": "Three or four faint stars and not much else, which is a surprise for a sign this famous. The fame is older than the look: two thousand years ago the sun stood here at the spring equinox, and that made this the start of the year.",
+				"note": "The equinox has since slid on into Pisces. The zodiac dates never moved with it.",
+				"sun": "the sun is really in it 19 April – 13 May"
+			},
+			"cancer": {
+				"name": "Cancer",
+				"byline": "the crab",
+				"text": "The faintest constellation of the zodiac: an upside-down Y of dim stars that needs a dark night to find at all. Its one treasure sits in the middle of it — the Beehive cluster, which the naked eye reads as a small smudge of haze.",
+				"note": "That smudge was an old weather gauge: when it went out of sight, thick air and rain were coming.",
+				"sun": "the sun is really in it 20 July – 10 August"
+			},
+			"virgo": {
+				"name": "Virgo",
+				"byline": "the maiden",
+				"text": "The largest constellation of the zodiac and the second largest in the whole sky, hung on blue-white Spica at the bottom. In most tellings she carries a sheaf of wheat — and Spica is the sheaf: the name means an ear of grain.",
+				"note": "Her territory holds a swarm of over a thousand galaxies, the nearest big cluster to our own.",
+				"sun": "the sun is really in it 16 September – 30 October"
+			},
+			"libra": {
+				"name": "Libra",
+				"byline": "the scales",
+				"text": "The only sign that is a thing rather than a creature, and it used to be part of the scorpion next door: its two brightest stars are still named the northern and the southern claw. Rome broke them off and made them the balance of the autumn equinox.",
+				"note": "The southern claw is the closest thing to a green star the eye can find, though most people still see white.",
+				"sun": "the sun is really in it 31 October – 22 November"
+			},
+			"ophiuchus": {
+				"name": "Ophiuchus",
+				"byline": "the serpent bearer",
+				"text": "A big plain figure standing on the scorpion's back with a snake in both hands — and the thirteenth constellation the sun actually crosses. The twelve signs were fixed by cutting the year into twelve equal parts, and this one simply did not get a slice.",
+				"note": "The sun spends longer crossing it than it does crossing Scorpius.",
+				"sun": "the sun is really in it 30 November – 17 December"
+			},
+			"sagittarius": {
+				"name": "Sagittarius",
+				"byline": "the archer",
+				"text": "Everyone sees a teapot: handle, lid, spout and all. Aim just off the end of the spout and you are looking straight at the centre of our own galaxy, twenty-six thousand light years away and hidden behind so much dust that only radio and infrared get through.",
+				"note": "The steam rising from the spout is the brightest star cloud in the Milky Way.",
+				"sun": "the sun is really in it 18 December – 18 January"
+			},
+			"capricornus": {
+				"name": "Capricornus",
+				"byline": "the sea goat",
+				"text": "A wide faint triangle low in the south, and one of the oldest figures still in use: a goat with a fish's tail, drawn that way in Babylon three thousand years ago and never redrawn since.",
+				"note": "The Tropic of Capricorn is named for it — the sun stood here at the winter solstice two thousand years ago. It now stands in Sagittarius.",
+				"sun": "the sun is really in it 19 January – 15 February"
+			},
+			"aquarius": {
+				"name": "Aquarius",
+				"byline": "the water carrier",
+				"text": "A jar of four stars with a stream of fainter ones pouring south out of it, into the mouth of the southern fish. This whole quarter of sky — Aquarius, Pisces, Capricornus, the whale — was known to the ancients simply as the Sea.",
+				"note": "Neptune was found here in 1846, within a degree of where the arithmetic said to look.",
+				"sun": "the sun is really in it 16 February – 11 March"
+			},
+			"pisces": {
+				"name": "Pisces",
+				"byline": "the fishes",
+				"text": "Two faint fish tied tail to tail by a long V of stars, the knot marked by the one middling-bright star in the whole figure. Faint as it is, this is where the sun now stands at the spring equinox — the zero point the rest of the sky is measured from.",
+				"note": "That point slides a degree every seventy-two years, and moves on into Aquarius in a few hundred.",
+				"sun": "the sun is really in it 12 March – 18 April"
+			}
+		},
+		"optics": {
+			"rainbow": {
+				"name": "Rainbow",
+				"byline": "sunlight, bent and sorted",
+				"text": "Every raindrop in front of you is a prism: light goes in, bounces once off the back of the drop and comes out sorted by colour. You only see the drops sitting 42 degrees from the shadow of your own head, so a rainbow is always centred on you — and no two people ever see the same one.",
+				"note": "Look outside it for the second, fainter bow: same trick, one extra bounce, colours reversed."
+			},
+			"sundogs": {
+				"name": "Sun Dogs",
+				"byline": "the mock suns",
+				"text": "Two bright patches level with the sun, one either side, sitting on the edge of a 22-degree halo. Flat ice crystals drifting down like falling leaves all settle the same way up and bend the light sideways — so a sun dog is proof of high ice cloud between you and the sun.",
+				"note": "A cold-weather sight: the colder the air, the likelier the crystals are the right shape."
+			},
+			"crepuscular-rays": {
+				"name": "Crepuscular Rays",
+				"byline": "sunbeams through a gap",
+				"text": "Shafts of light through a break in the cloud, picked out by dust and haze in the air. They look like they fan out from the sun and they do not: the beams are very nearly parallel, and the spread is perspective — the same trick that makes railway tracks meet.",
+				"note": "On a good evening they cross the whole sky and appear to meet again at the point opposite the sun."
+			},
+			"virga": {
+				"name": "Virga",
+				"byline": "rain that never lands",
+				"text": "Streaks hanging under a cloud and fading out partway down. It is real rain or snow, evaporating in dry air before it reaches the ground — and taking heat out of the air as it goes, which is what puts a sudden cold gust under a desert shower.",
+				"note": "A cloud with a beard, and often the only rain a hot day ever produces."
+			}
+		},
+		"deep": {
+			"milky-way": {
+				"name": "The Milky Way",
+				"byline": "our own galaxy, edge-on",
+				"text": "Not a cloud, and not something in the distance: it is the flat disc of our own galaxy seen from the inside, so the band across the sky is simply the direction with the most stars stacked along it. Every star you can pick out anywhere in the sky belongs to it.",
+				"note": "The dark rift down the middle is dust in the way — cold clouds where the next stars are being made."
+			},
+			"andromeda-galaxy": {
+				"name": "The Andromeda Galaxy",
+				"byline": "M31, a whole other galaxy",
+				"text": "A faint oval smudge above the chain of Andromeda, and the only galaxy beyond our own that most people ever see with the naked eye. A trillion stars, so far off that the light arriving tonight set out before our species existed.",
+				"note": "It is falling towards us at 110 kilometres a second: in about four billion years the two galaxies merge."
+			},
+			"orion-nebula": {
+				"name": "The Orion Nebula",
+				"byline": "M42, a star nursery",
+				"text": "The fuzzy patch hanging off Orion's belt is a cloud of gas two dozen light years across with new stars switching on inside it. Four of them, the Trapezium, are lighting the whole cloud from within like a lamp inside fog.",
+				"note": "It is a fair picture of what our own solar system looked like before it was one."
+			},
+			"pleiades": {
+				"name": "The Pleiades",
+				"byline": "M45, the seven sisters",
+				"text": "A tight knot of blue-white stars, all born together about a hundred million years ago and still travelling as one group. The haze around them is a dust cloud they happen to be drifting through, lit up the way mist is lit around a streetlamp.",
+				"note": "Almost every culture that watched the sky named this cluster, and many timed their planting by it."
+			},
+			"hercules-cluster": {
+				"name": "The Hercules Cluster",
+				"byline": "M13, a globular cluster",
+				"text": "A ball of a few hundred thousand stars, packed so tightly at its centre that the sky from a planet inside it would never get properly dark. It is about as old as the galaxy and orbits it from outside the disc, like a bee round a plate.",
+				"note": "In binoculars a fuzzy dot; in a telescope the edges break apart into stars."
+			},
+			"ring-nebula": {
+				"name": "The Ring Nebula",
+				"byline": "M57, a star's last breath",
+				"text": "A small smoke ring in Lyra: the outer layers of a dying sun-like star, puffed off into space and lit from inside by the white-hot core it left behind. You see a ring because you are looking through the edge of a shell.",
+				"note": "This is roughly how our own sun ends, in five billion years or so."
+			},
+			"lagoon-nebula": {
+				"name": "The Lagoon Nebula",
+				"byline": "M8, gas and dark lanes",
+				"text": "A wide pink cloud low in the summer Milky Way, cut through by dark lanes of dust. The pink is hydrogen glowing under the ultraviolet of hot young stars that formed inside it and are now eating their way out.",
+				"note": "Big enough to find without a telescope on a dark night, and one of the few nebulae that shows any colour."
+			},
+			"double-cluster": {
+				"name": "The Double Cluster",
+				"byline": "two swarms, side by side",
+				"text": "Two open clusters of young blue stars, close enough together to sit in one view, in the Milky Way between Perseus and Cassiopeia. Both are around thirteen million years old — newborns beside the sun's four and a half billion.",
+				"note": "One of the few sights that genuinely looks better in binoculars than in a big telescope."
+			},
+			"beehive": {
+				"name": "The Beehive",
+				"byline": "M44, a swarm of stars",
+				"text": "A loose scatter of stars in an otherwise dim patch of sky, known to the ancients only as a haze. Galileo turned the first telescope on it and found the haze was forty-odd separate stars — one of the earliest things the instrument settled.",
+				"note": "Rome read it as a forecast: when the haze went out of sight, rough weather was on the way."
+			},
+			"whirlpool-galaxy": {
+				"name": "The Whirlpool Galaxy",
+				"byline": "M51, a spiral face-on",
+				"text": "The first object anyone recognised as a spiral, sketched in 1845 through a telescope with a six-foot mirror. A small companion galaxy is passing behind it and pulling one arm out of shape, which is exactly why the spiral is so sharply drawn.",
+				"note": "Face-on, so it shows you the shape of a galaxy the way nobody can ever see our own."
+			}
+		},
+		"bodies": {
+			"sun": {
+				"name": "The Sun",
+				"byline": "the nearest star",
+				"text": "An ordinary star, close enough to be a disc rather than a point. The light landing on you left it eight minutes ago, after working its way out from the core for tens of thousands of years. The dark specks that come and go on its face are sunspots — cooler patches, most of them wider than the Earth.",
+				"note": "Never point a telescope at it without a proper solar filter: a moment's look through one is enough to blind you."
+			},
+			"moon": {
+				"name": "The Moon",
+				"byline": "our own, up close",
+				"text": "The dark patches are seas of ancient lava, smooth because they flooded late, after the worst of the bombardment was over. The pale rough ground between them is older, and every crater on it is a hit that never wore away — there is no weather up there to wear it.",
+				"note": "Look along the terminator, the line between lit and dark: the shadows are longest there and the craters stand out."
+			},
+			"jupiter": {
+				"name": "Jupiter",
+				"byline": "the biggest planet",
+				"text": "A striped disc with four points of light strung out beside it — the moons Galileo watched swap places in 1610, which is how we found out that not everything goes around the Earth. The stripes are belts of cloud running in opposite directions.",
+				"note": "The Great Red Spot is a storm wider than the Earth, and it has been blowing for centuries."
+			},
+			"saturn": {
+				"name": "Saturn",
+				"byline": "the ringed planet",
+				"text": "The rings are not solid. They are billions of pieces of ice, from grit to house-sized, orbiting in a sheet a few hundred thousand kilometres across and only tens of metres thick — a sheet of paper the width of a continent.",
+				"note": "They tilt as the years go by: every fifteen years or so they turn edge-on and all but disappear."
+			},
+			"mars": {
+				"name": "Mars",
+				"byline": "the red planet",
+				"text": "The colour is rust, literally — iron oxide dust lying over the whole surface. A telescope will show a white polar cap and darker markings that shift about as global dust storms pick the dust up and put it down somewhere else.",
+				"note": "Every couple of years the Earth overtakes it, and for a few weeks it appears to loop backwards across the sky."
+			},
+			"venus": {
+				"name": "Venus",
+				"byline": "the evening star",
+				"text": "The brightest thing in the sky after the sun and the moon, and never far from the horizon: you get it just after sunset or just before dawn. What you are seeing is not the planet but its cloud deck — sulphuric acid, bouncing back three-quarters of the light that hits it.",
+				"note": "It shows phases like the moon. Galileo saw them, and that was the end of the Earth-centred sky."
+			}
+		},
+		"events": {
+			"perseids": {
+				"name": "The Perseids",
+				"byline": "August's meteor shower",
+				"text": "Dust shed by comet Swift-Tuttle, hitting the air at 59 kilometres a second and burning up sixty miles overhead. The streaks all seem to come from one point in Perseus, for the same reason sunbeams seem to fan: the grains are on parallel paths and perspective does the rest.",
+				"note": "Peaks around the 12th of August, at up to a meteor a minute under a dark sky."
+			},
+			"geminids": {
+				"name": "The Geminids",
+				"byline": "December's meteor shower",
+				"text": "The best shower of the year, and the odd one out: its dust comes from a rock rather than a comet — an asteroid called Phaethon that sheds material when it swings in close to the sun. The meteors are slower and brighter than most.",
+				"note": "Peaks around the 14th of December. Cold work, but up to two a minute."
+			},
+			"aurora": {
+				"name": "The Aurora",
+				"byline": "the northern lights",
+				"text": "Particles from the sun, funnelled down the Earth's magnetic field and hitting the upper air. Oxygen answers in green a hundred miles up and in deep red much higher; nitrogen puts the blue and violet fringe along the bottom of a curtain.",
+				"note": "The curtains hang along the field lines themselves, which is why they fold and ripple instead of drifting like cloud."
+			},
+			"satellites": {
+				"name": "Satellites",
+				"byline": "someone else's hardware",
+				"text": "A steady point of light crossing the sky in a straight line, a few minutes from one horizon to the other, never twinkling. It is sunlight off metal — the satellite is still in daylight up there while you are already in shadow down here.",
+				"note": "If it blinks, it is an aircraft. If it fades out in mid-sky, it just flew into the Earth's shadow."
+			}
+		}
+	},
+	"tarot": {
+		"_readme": "The tarot deck (ui/arcana.ts, drawn in ui/arcanaArt.tsx, shown in ui/Tarot.tsx). A whole 78-card deck: 22 majors in journey order, then 56 minors by suit. Each card has a name, a one-line byline, a few keywords, and the two readings it really has — upright and reversed. `guide` is the illustrated primer, `spreads` and `seats` are the layouts and what each position asks. Keys are the card ids in src/ui/arcana.ts.",
+		"majors": {
+			"fool": {
+				"name": "The Fool",
+				"byline": "the first step",
+				"keywords": "Beginnings, innocence, a leap taken on faith",
+				"upright": "Something new is in front of you and you cannot see where it leads. That is not a reason to wait. Begin before you feel ready, and let the rest become clear as you go.",
+				"reversed": "Rushing in without looking, or waiting so long that the chance passes. Only you know which one you are doing.",
+				"phraseUpright": "a first step taken before the plan is ready",
+				"phraseReversed": "a leap without looking, or a moment waited out too long"
+			},
+			"magician": {
+				"name": "The Magician",
+				"byline": "everything is already on the table",
+				"keywords": "Will, focus, resourcefulness, making it real",
+				"upright": "You already have what this needs: the skill, the tools, the time, the people. Nothing else has to arrive first. Pick one thing and put everything into it.",
+				"reversed": "Effort spread so thin that nothing moves. Or talking about it instead of doing it.",
+				"phraseUpright": "everything you need already being within reach",
+				"phraseReversed": "effort spread so thin that nothing moves"
+			},
+			"high-priestess": {
+				"name": "The High Priestess",
+				"byline": "what you already know and have not said",
+				"keywords": "Intuition, patience, the unspoken, inner knowing",
+				"upright": "Part of you already knows the answer. Stop asking other people until you have listened to that part. Sit quietly with what you have not said out loud yet.",
+				"reversed": "Letting other voices drown out your own. Or knowing something and keeping it to yourself when it needs saying.",
+				"phraseUpright": "an answer you already hold and have not said",
+				"phraseReversed": "your own signal drowned out by other voices"
+			},
+			"empress": {
+				"name": "The Empress",
+				"byline": "everything growing at once",
+				"keywords": "Abundance, nurture, creativity, the body, the earth",
+				"upright": "Something in your life is growing well. Feed it, make room for it, and let yourself enjoy it. This is a time to nurture rather than to push.",
+				"reversed": "Giving so much that nothing is left for you. Or holding on so tightly that what you are growing cannot breathe.",
+				"phraseUpright": "something growing well and asking to be fed",
+				"phraseReversed": "care given until there is none left for you"
+			},
+			"emperor": {
+				"name": "The Emperor",
+				"byline": "the shape someone insists on",
+				"keywords": "Structure, authority, boundaries, discipline",
+				"upright": "Structure helps here. Decide the limits, say them clearly, and keep to them. It can feel rigid from the inside, and it is what makes everything else steady.",
+				"reversed": "A rule kept long after it stopped helping. Or no structure at all, and the unease that comes with that.",
+				"phraseUpright": "limits set clearly and actually kept",
+				"phraseReversed": "a rule outliving its usefulness, or no rules at all"
+			},
+			"hierophant": {
+				"name": "The Hierophant",
+				"byline": "what the people before you worked out",
+				"keywords": "Tradition, teaching, shared belief, belonging",
+				"upright": "Someone has done this before you. Learn the way it is usually done before you change it. There is real shelter in a method that already works.",
+				"reversed": "Following a rule that nobody can explain. Or the moment you decide to stop following it.",
+				"phraseUpright": "a way of doing things that already works",
+				"phraseReversed": "a rule that nobody can explain any more"
+			},
+			"lovers": {
+				"name": "The Lovers",
+				"byline": "a choice made with all of you",
+				"keywords": "Union, values, alignment, a real decision",
+				"upright": "Two things pull at you and you can only choose one. This is about your values, not only your feelings. Choose the one you could stand behind on a hard day.",
+				"reversed": "A choice made to please someone else. Or wanting two things and refusing to pick between them.",
+				"phraseUpright": "a choice that has to match your values",
+				"phraseReversed": "a decision made to please somebody else"
+			},
+			"chariot": {
+				"name": "The Chariot",
+				"byline": "two pulls, one road",
+				"keywords": "Willpower, momentum, control, forward drive",
+				"upright": "Two forces are pulling in different directions and you are holding both. They do not have to agree. Choose a direction and go, and let your will do the work.",
+				"reversed": "Pushing hard at the wrong thing. Or letting whatever feels strongest take the wheel.",
+				"phraseUpright": "two pulls held together and pointed one way",
+				"phraseReversed": "force aimed at the wrong thing"
+			},
+			"strength": {
+				"name": "Strength",
+				"byline": "the soft hand on the jaw",
+				"keywords": "Courage, patience, gentleness, self-mastery",
+				"upright": "You can be near what frightens or angers you without running from it and without fighting it. Meet it gently. That is harder than force, and it works better.",
+				"reversed": "Force where patience was needed, or patience where a limit was needed. Sometimes it is doubt quietly draining your nerve.",
+				"phraseUpright": "meeting what frightens you gently instead of by force",
+				"phraseReversed": "force where patience was needed, or the reverse"
+			},
+			"hermit": {
+				"name": "The Hermit",
+				"byline": "a lamp carried away from everyone",
+				"keywords": "Solitude, reflection, searching, inner light",
+				"upright": "Step back and be alone with this for a while. Answers you cannot hear in the noise tend to arrive in the quiet. Then bring what you find back to people.",
+				"reversed": "Cutting yourself off for longer than helps. Or refusing good advice because you would rather work it out alone.",
+				"phraseUpright": "stepping back far enough to hear yourself",
+				"phraseReversed": "solitude gone past the point where it helps"
+			},
+			"wheel": {
+				"name": "Wheel of Fortune",
+				"byline": "the turn nobody is holding",
+				"keywords": "Cycles, luck, change, turning points",
+				"upright": "Something is changing that you did not choose. Good luck and bad luck both keep moving. Remember that it is a wheel, and this is not where things stay.",
+				"reversed": "Holding on to a time that has passed. Or waiting for things to change instead of reaching for them.",
+				"phraseUpright": "a change you did not choose, already turning",
+				"phraseReversed": "holding on to a time that has passed"
+			},
+			"justice": {
+				"name": "Justice",
+				"byline": "the scales do not care who is holding them",
+				"keywords": "Fairness, truth, consequence, accountability",
+				"upright": "Look honestly at what you did and what followed. Not what you meant, what actually happened. Owning it is what makes the way forward clear.",
+				"reversed": "Weighing it unfairly, in either direction. Taking blame that is not yours, or refusing the part that is.",
+				"phraseUpright": "an honest weighing of what you did and what followed",
+				"phraseReversed": "a scale tipped, in one direction or the other"
+			},
+			"hanged-man": {
+				"name": "The Hanged Man",
+				"byline": "still, on purpose",
+				"keywords": "Pause, surrender, a new angle, letting go",
+				"upright": "Stop pushing for a while. Seen from another angle this becomes a different problem. The answer often arrives once you stop demanding it.",
+				"reversed": "Waiting and calling it thinking. Or giving something up that nobody asked you to give up.",
+				"phraseUpright": "a deliberate pause that changes the view",
+				"phraseReversed": "waiting dressed up as thinking"
+			},
+			"death": {
+				"name": "Death",
+				"byline": "the door with only one direction",
+				"keywords": "Endings, transformation, release, what comes after",
+				"upright": "Something has ended, and holding on to it is costing you. Let it finish. What ends clears the ground for whatever comes next.",
+				"reversed": "Refusing to let something be over. Staying too long usually costs more than leaving would have.",
+				"phraseUpright": "an ending that clears the ground",
+				"phraseReversed": "refusing to let something be over"
+			},
+			"temperance": {
+				"name": "Temperance",
+				"byline": "pouring carefully between two cups",
+				"keywords": "Balance, moderation, blending, patience",
+				"upright": "Look for the balance rather than the extreme. A little of this, a little of that, adjusted as you go. Slow and steady is the whole method here.",
+				"reversed": "Too much of one thing. Or a middle so careful that nothing is really chosen at all.",
+				"phraseUpright": "balance found by mixing rather than choosing",
+				"phraseReversed": "too much of one thing"
+			},
+			"devil": {
+				"name": "The Devil",
+				"byline": "the chain is loose",
+				"keywords": "Attachment, compulsion, shadow, what has you",
+				"upright": "Something has a hold on you. A habit, a fear, a need for approval, anything you keep going back to. Look at it plainly. You are freer than it feels.",
+				"reversed": "Beginning to break free. Or deciding you like the hold and calling it a choice.",
+				"phraseUpright": "something you keep going back to",
+				"phraseReversed": "the start of breaking free, or a chain you now call a choice"
+			},
+			"tower": {
+				"name": "The Tower",
+				"byline": "built wrong, and now not built",
+				"keywords": "Sudden change, collapse, revelation, truth",
+				"upright": "Something falls apart suddenly, and it falls because it was not built well. It is a shock and it is honest. What is left is ground you can trust.",
+				"reversed": "Holding up something that needs to come down. Or standing in the aftermath, still here.",
+				"phraseUpright": "the sudden collapse of something badly built",
+				"phraseReversed": "propping up what needs to fall"
+			},
+			"star": {
+				"name": "The Star",
+				"byline": "after the worst of it, clean water",
+				"keywords": "Hope, renewal, calm, faith restored",
+				"upright": "The hardest part has passed. Nothing is fixed yet, but you can hope again. Rest, take care of yourself, and let people help.",
+				"reversed": "Hope that feels out of reach. Or being too tired to accept the help you are offered.",
+				"phraseUpright": "quiet hope arriving after the hardest part",
+				"phraseReversed": "hope that feels out of reach from here"
+			},
+			"moon": {
+				"name": "The Moon",
+				"byline": "the road at night",
+				"keywords": "Illusion, intuition, fear, the unclear",
+				"upright": "Things are not quite what they seem right now. Your instincts are good and your view is unclear. Do not force certainty. Move slowly and let it come clear.",
+				"reversed": "Confusion lifting, or a fear you can finally name. Sometimes it is a story you told yourself so often you stopped checking it.",
+				"phraseUpright": "a stretch where nothing is quite what it seems",
+				"phraseReversed": "confusion lifting, or a story you never checked"
+			},
+			"sun": {
+				"name": "The Sun",
+				"byline": "plain daylight",
+				"keywords": "Joy, clarity, vitality, nothing hidden",
+				"upright": "Things are clear and good. Warmth, honesty, being seen as you are. There is nothing here to solve, so let yourself enjoy it.",
+				"reversed": "Good things dimmed rather than gone. Joy delayed, or held at a distance in case it leaves.",
+				"phraseUpright": "plain warmth with nothing hidden in it",
+				"phraseReversed": "good things dimmed rather than gone"
+			},
+			"judgment": {
+				"name": "Judgment",
+				"byline": "the call to look at all of it",
+				"keywords": "Reckoning, awakening, forgiveness, a summons",
+				"upright": "Look back at all of it honestly. Not to punish yourself, to understand. Forgive what you can, and answer the call you have been putting off.",
+				"reversed": "Judging yourself harshly and changing nothing. Or hearing the call and ignoring it.",
+				"phraseUpright": "an honest look back, and a call to answer",
+				"phraseReversed": "harsh self-judgment that changes nothing"
+			},
+			"world": {
+				"name": "The World",
+				"byline": "all the way round",
+				"keywords": "Completion, wholeness, arrival, a cycle closed",
+				"upright": "Something is genuinely complete. Let it be finished and take in the whole of it. Then, when you are ready, begin the next thing.",
+				"reversed": "Almost done. Either the last step is left undone, or you cannot let it end because you do not know what follows.",
+				"phraseUpright": "something genuinely complete",
+				"phraseReversed": "the last step left undone"
+			}
+		},
+		"minors": {
+			"wands-ace": {
+				"name": "Ace of Wands",
+				"byline": "the spark",
+				"keywords": "Inspiration, raw energy, a beginning with heat in it",
+				"upright": "A new spark of energy, or an idea worth following. It is real but it has no shape yet. Act on it soon, while it is still alive.",
+				"reversed": "The spark does not catch. A false start, or energy with nowhere to go yet.",
+				"phraseUpright": "a spark with real energy and no shape yet",
+				"phraseReversed": "a spark that does not catch"
+			},
+			"wands-two": {
+				"name": "Two of Wands",
+				"byline": "the world in one hand",
+				"keywords": "Planning, foresight, the first real decision",
+				"upright": "You have proved that it works. Now decide how far you want to take it. The choice you make now sets the size of what follows.",
+				"reversed": "Planning without moving. Or choosing the smaller version out of fear.",
+				"phraseUpright": "the moment you decide how far to take it",
+				"phraseReversed": "planning that never becomes moving"
+			},
+			"wands-three": {
+				"name": "Three of Wands",
+				"byline": "watching the ships",
+				"keywords": "Expansion, foresight rewarded, waiting well",
+				"upright": "The work is out of your hands and moving. Your part is done for the moment. Wait well, and expect more back than you put in.",
+				"reversed": "Slower than you hoped, or smaller. Impatience with something that takes the time it takes.",
+				"phraseUpright": "work already out of your hands and moving",
+				"phraseReversed": "something slower or smaller than you hoped"
+			},
+			"wands-four": {
+				"name": "Four of Wands",
+				"byline": "the lit doorway",
+				"keywords": "Celebration, homecoming, stable joy",
+				"upright": "Something has come together and it is worth stopping for. Mark it, with people if you can. Milestones you do not mark stop feeling like milestones.",
+				"reversed": "Passing over something that deserved marking. Or a home or a base that is not steady yet.",
+				"phraseUpright": "something come together, worth stopping for",
+				"phraseReversed": "a milestone passed over unmarked"
+			},
+			"wands-five": {
+				"name": "Five of Wands",
+				"byline": "everyone talking at once",
+				"keywords": "Friction, competition, scrappy disagreement",
+				"upright": "Everyone wants the same thing and nobody is wrong. It is messy rather than serious. There is real energy here once it is pointed somewhere.",
+				"reversed": "The disagreement ends, or gets swallowed to keep the peace. Neither of those is the same as resolved.",
+				"phraseUpright": "everyone wanting the same thing at once",
+				"phraseReversed": "a disagreement swallowed rather than settled"
+			},
+			"wands-six": {
+				"name": "Six of Wands",
+				"byline": "the ride back",
+				"keywords": "Victory, recognition, deserved credit",
+				"upright": "Your effort is recognized. Accept it plainly, without shrugging it off. Enjoy it, and remember that one good moment is not the whole story.",
+				"reversed": "Work that goes unseen. Or needing the praise more than you needed the work.",
+				"phraseUpright": "effort that is finally being seen",
+				"phraseReversed": "work nobody notices, or praise needed too much"
+			},
+			"wands-seven": {
+				"name": "Seven of Wands",
+				"byline": "holding the high ground",
+				"keywords": "Perseverance, defense, standing your ground",
+				"upright": "You are defending something you believe in, and your position is sound. Keep going. The danger is tiring of having to explain yourself.",
+				"reversed": "Worn down, or defensive when nobody is attacking. Sometimes giving up just before it turns.",
+				"phraseUpright": "a position worth defending, and defensible",
+				"phraseReversed": "being worn down, or braced against nothing"
+			},
+			"wands-eight": {
+				"name": "Eight of Wands",
+				"byline": "everything at once",
+				"keywords": "Speed, news, momentum",
+				"upright": "Things speed up. News arrives, and what was stuck starts moving. Keep up with it, and do not expect this pace to last.",
+				"reversed": "Delays, or too much happening at once for anything to land properly.",
+				"phraseUpright": "everything speeding up at once",
+				"phraseReversed": "delays, or too much landing at the same time"
+			},
+			"wands-nine": {
+				"name": "Nine of Wands",
+				"byline": "one more",
+				"keywords": "Resilience, wariness, nearly there",
+				"upright": "You are tired and still standing. You have more left than you think, and you are closer to the end of this than it feels.",
+				"reversed": "Guarded even when there is no threat. Or refusing help right at the end.",
+				"phraseUpright": "being tired and still standing",
+				"phraseReversed": "a guard kept up long after the threat has gone"
+			},
+			"wands-ten": {
+				"name": "Ten of Wands",
+				"byline": "the whole bundle",
+				"keywords": "Burden, overcommitment, carrying too much",
+				"upright": "You are carrying too much, and some of it is not yours. Put it down and sort out what you actually agreed to carry.",
+				"reversed": "Something finally set down. Or a weight about to become too much.",
+				"phraseUpright": "carrying more than is actually yours",
+				"phraseReversed": "a weight set down, or about to break you"
+			},
+			"wands-page": {
+				"name": "Page of Wands",
+				"byline": "the fresh enthusiasm",
+				"keywords": "Curiosity, a spark of news, beginner's fire",
+				"upright": "Someone is excited about something new and does not know enough yet to be cautious. That is exactly why they will try it.",
+				"reversed": "Excitement that fades quickly. Starting many things and finishing none of them.",
+				"phraseUpright": "excitement not yet slowed by knowing better",
+				"phraseReversed": "enthusiasm that fades by the end of the week"
+			},
+			"wands-knight": {
+				"name": "Knight of Wands",
+				"byline": "off at a gallop",
+				"keywords": "Boldness, adventure, impulse",
+				"upright": "Bold, charming, and ready to leave. Great at starting things and rarely there at the end. Go, but know that about yourself.",
+				"reversed": "Rushing into something at a cost. Or restless energy with nowhere to put it.",
+				"phraseUpright": "bold movement with the bag already packed",
+				"phraseReversed": "rushing in at a cost"
+			},
+			"wands-queen": {
+				"name": "Queen of Wands",
+				"byline": "warm and certain",
+				"keywords": "Confidence, warmth, magnetism",
+				"upright": "Warm and sure of herself without needing to prove it. Generous with encouragement. People feel steadier around her.",
+				"reversed": "Confidence that has turned brittle. Needing attention, or quietly running out of self-belief.",
+				"phraseUpright": "warmth that does not need to prove itself",
+				"phraseReversed": "confidence turned brittle"
+			},
+			"wands-king": {
+				"name": "King of Wands",
+				"byline": "the long view, on fire",
+				"keywords": "Vision, leadership, bold command",
+				"upright": "He can see where this could go, and he can bring people with him. Vision, nerve, and the experience to know what is worth starting.",
+				"reversed": "Big talk and no direction. Impatient with anyone slower than he is.",
+				"phraseUpright": "vision plus the nerve to act on it",
+				"phraseReversed": "big talk with no direction under it"
+			},
+			"cups-ace": {
+				"name": "Ace of Cups",
+				"byline": "the cup filling",
+				"keywords": "New feeling, love offered, an open heart",
+				"upright": "Something is being offered to you, and it is about feeling rather than practicality. Love, friendship, or a feeling coming back. Let it in.",
+				"reversed": "Feeling held back. Or something offered at a time when you cannot receive it.",
+				"phraseUpright": "an offer of feeling, waiting to be let in",
+				"phraseReversed": "feeling held back, or offered at the wrong moment"
+			},
+			"cups-two": {
+				"name": "Two of Cups",
+				"byline": "a pact between two",
+				"keywords": "Partnership, mutual regard, connection",
+				"upright": "Two people meet each other properly. What one offers turns out to be what the other needed. This is connection, not just attraction.",
+				"reversed": "One person carrying it alone. A break, or a repair that is still within reach.",
+				"phraseUpright": "two people actually meeting each other",
+				"phraseReversed": "one person carrying the whole thing"
+			},
+			"cups-three": {
+				"name": "Three of Cups",
+				"byline": "raised together",
+				"keywords": "Friendship, celebration, community",
+				"upright": "Good company and shared happiness. Friends, a celebration, people who are glad you are there. Say yes to it.",
+				"reversed": "Strain in a group. Someone left out, or celebrating to avoid something.",
+				"phraseUpright": "the gladness of good company",
+				"phraseReversed": "a group with somebody quietly left out"
+			},
+			"cups-four": {
+				"name": "Four of Cups",
+				"byline": "the offered cup unseen",
+				"keywords": "Apathy, contemplation, a missed offer",
+				"upright": "You have good things in front of you and none of them interest you right now. The dullness is real. So is what you have not noticed yet.",
+				"reversed": "Interest coming back. Or a withdrawal that has lasted long enough to become the problem.",
+				"phraseUpright": "good things in front of you and no interest in them",
+				"phraseReversed": "interest returning, or a sulk gone on too long"
+			},
+			"cups-five": {
+				"name": "Five of Cups",
+				"byline": "what is still standing",
+				"keywords": "Grief, loss, regret",
+				"upright": "Something was lost and it mattered. Grieve it properly. When you are ready, notice that not everything went with it.",
+				"reversed": "The grief easing. Or a loss carried so long that it has become who you are.",
+				"phraseUpright": "a loss that mattered, still being felt",
+				"phraseReversed": "grief easing, or grief turned into an identity"
+			},
+			"cups-six": {
+				"name": "Six of Cups",
+				"byline": "the flowers from before",
+				"keywords": "Nostalgia, innocence, kindness remembered",
+				"upright": "A return to something gentle. A memory, an old friendship, a kindness. Good to visit, as long as you come back.",
+				"reversed": "Living in the past. Or refusing to let a good thing be over.",
+				"phraseUpright": "a gentle return to something older",
+				"phraseReversed": "living in a past that was not like that"
+			},
+			"cups-seven": {
+				"name": "Seven of Cups",
+				"byline": "seven cups in the fog",
+				"keywords": "Choices, fantasy, too many options",
+				"upright": "Many options, all of them appealing, none of them real yet. Dreaming is fine. Choosing is what makes one of them happen.",
+				"reversed": "Seeing clearly which one you want. Or choosing the daydream over the decision again.",
+				"phraseUpright": "many futures, all of them still imaginary",
+				"phraseReversed": "the daydream chosen over the decision"
+			},
+			"cups-eight": {
+				"name": "Eight of Cups",
+				"byline": "walking away by moonlight",
+				"keywords": "Departure, seeking, leaving what is not enough",
+				"upright": "Nothing here is wrong, and it is not enough. Leaving something good because it is not right is the hardest kind of leaving.",
+				"reversed": "Staying out of guilt. Or leaving without ever saying why.",
+				"phraseUpright": "leaving something good because it is not enough",
+				"phraseReversed": "staying somewhere out of guilt"
+			},
+			"cups-nine": {
+				"name": "Nine of Cups",
+				"byline": "the wish",
+				"keywords": "Contentment, satisfaction, a wish granted",
+				"upright": "You got what you wanted and it is good. Let yourself enjoy it before you start looking for the next thing.",
+				"reversed": "Getting it and feeling empty. Or moving the goal every time you reach it.",
+				"phraseUpright": "getting the thing you actually wanted",
+				"phraseReversed": "getting it and feeling nothing"
+			},
+			"cups-ten": {
+				"name": "Ten of Cups",
+				"byline": "the whole sky",
+				"keywords": "Harmony, belonging, lasting happiness",
+				"upright": "Not a good day but a good life. People who fit, and contentment you built rather than found. Take a moment to notice it.",
+				"reversed": "Strain under a happy surface. Or measuring your life against somebody else's picture of one.",
+				"phraseUpright": "contentment that was built rather than found",
+				"phraseReversed": "strain under a happy surface"
+			},
+			"cups-page": {
+				"name": "Page of Cups",
+				"byline": "a fish in the cup",
+				"keywords": "Tenderness, imagination, a gentle message",
+				"upright": "Something gentle and unexpected arrives. A message, an offer, an idea. Take it seriously even though it seems small.",
+				"reversed": "A feeling you cannot get out. Or imagination running well ahead of reality.",
+				"phraseUpright": "a small, soft, unexpected offer",
+				"phraseReversed": "a feeling that will not come out"
+			},
+			"cups-knight": {
+				"name": "Knight of Cups",
+				"byline": "the heart out front",
+				"keywords": "Romance, idealism, following feeling",
+				"upright": "Following the heart, sincerely and a little impractically. Warm and romantic, with the details to be worked out later.",
+				"reversed": "Feeling treated as a plan. A promise that will not survive real life.",
+				"phraseUpright": "the heart moving faster than the plan",
+				"phraseReversed": "a promise that will not survive a calendar"
+			},
+			"cups-queen": {
+				"name": "Queen of Cups",
+				"byline": "the still water",
+				"keywords": "Compassion, intuition, emotional depth",
+				"upright": "Someone who understands feelings clearly, her own and other people's. Steady, kind, and hard to shock.",
+				"reversed": "Overwhelmed by other people's feelings. Or caring for everyone except herself.",
+				"phraseUpright": "someone who reads feeling accurately",
+				"phraseReversed": "being swamped by everybody else's feelings"
+			},
+			"cups-king": {
+				"name": "King of Cups",
+				"byline": "calm on deep water",
+				"keywords": "Emotional balance, wisdom, steadiness",
+				"upright": "Feeling deeply and staying steady. Not hiding emotion, but choosing what to do with it.",
+				"reversed": "Shut down and calling it calm. Or calm on the outside and churning underneath.",
+				"phraseUpright": "deep feeling held steady",
+				"phraseReversed": "being shut down and calling it calm"
+			},
+			"swords-ace": {
+				"name": "Ace of Swords",
+				"byline": "the clean cut",
+				"keywords": "Clarity, truth, a breakthrough thought",
+				"upright": "A clear thought cuts through the confusion. You can name it now. Say it plainly, even though it is uncomfortable.",
+				"reversed": "Thinking that goes round and round. Or the truth used to hurt rather than to help.",
+				"phraseUpright": "one clear thought cutting through the fog",
+				"phraseReversed": "thinking that goes round and round"
+			},
+			"swords-two": {
+				"name": "Two of Swords",
+				"byline": "blindfolded at the water",
+				"keywords": "Stalemate, avoidance, a decision refused",
+				"upright": "Two options and no decision. You say you need more information. Most of it is already here.",
+				"reversed": "The decision finally made. Or avoiding it until it decides itself.",
+				"phraseUpright": "a decision avoided rather than weighed",
+				"phraseReversed": "the blindfold coming off at last"
+			},
+			"swords-three": {
+				"name": "Three of Swords",
+				"byline": "the plain truth",
+				"keywords": "Heartbreak, painful clarity, grief",
+				"upright": "It hurt, and it was true. Something was said or found out and it went deep. Clean pain heals; a comfortable lie does not.",
+				"reversed": "The hurt beginning to heal. Or going over it so often that it never can.",
+				"phraseUpright": "a truth that hurt going in",
+				"phraseReversed": "a hurt gone over so often it cannot close"
+			},
+			"swords-four": {
+				"name": "Four of Swords",
+				"byline": "the quiet hollow",
+				"keywords": "Rest, recovery, deliberate stillness",
+				"upright": "Stop and rest. This is repair, not defeat. You cannot handle what is next from where you are now.",
+				"reversed": "Rest refused, or long overdue. Or resting so long that it has become avoiding.",
+				"phraseUpright": "rest taken as repair rather than defeat",
+				"phraseReversed": "rest refused, or hiding called rest"
+			},
+			"swords-five": {
+				"name": "Five of Swords",
+				"byline": "the field afterward",
+				"keywords": "Hollow victory, cost, conflict won badly",
+				"upright": "You won and it cost more than it was worth. Ask what you were really fighting for, and whether being right was worth this.",
+				"reversed": "Making peace, or refusing to. Letting it go, or holding on long after it ended.",
+				"phraseUpright": "a win that cost more than it was worth",
+				"phraseReversed": "a grudge held long after it ended"
+			},
+			"swords-six": {
+				"name": "Six of Swords",
+				"byline": "the crossing",
+				"keywords": "Transition, moving toward calmer water",
+				"upright": "Moving from something hard toward something calmer. Not triumphant, just the relief of getting away from what hurt.",
+				"reversed": "Stuck between the two. Or taking the trouble along with you.",
+				"phraseUpright": "the move from rough water to calmer",
+				"phraseReversed": "the trouble carried along into the calm"
+			},
+			"swords-seven": {
+				"name": "Seven of Swords",
+				"byline": "the quiet exit",
+				"keywords": "Strategy, cunning, acting alone",
+				"upright": "Getting around the problem rather than through it. Sometimes that is clever and sometimes it is not honest. You know which this is.",
+				"reversed": "Found out, or owning up. Sometimes it is a story you are telling yourself.",
+				"phraseUpright": "going around the problem instead of through it",
+				"phraseReversed": "the workaround found out, or owned up to"
+			},
+			"swords-eight": {
+				"name": "Eight of Swords",
+				"byline": "the loose ropes",
+				"keywords": "Restriction, feeling trapped, self-imposed limits",
+				"upright": "You feel trapped, and most of what holds you is what you believe about your options. Look again. There is more room than it seems.",
+				"reversed": "Working free. Or believing the trap more the longer you stay in it.",
+				"phraseUpright": "a trap made mostly of what you believe",
+				"phraseReversed": "the ropes working loose"
+			},
+			"swords-nine": {
+				"name": "Nine of Swords",
+				"byline": "the small hours",
+				"keywords": "Anxiety, dread, the night mind",
+				"upright": "Worry at its loudest, usually at night, usually about what has not happened. Very little of it survives the morning.",
+				"reversed": "The worst of it passing. Or saying the fear out loud to someone at last.",
+				"phraseUpright": "worry at its loudest, in the dark",
+				"phraseReversed": "a fear finally said out loud"
+			},
+			"swords-ten": {
+				"name": "Ten of Swords",
+				"byline": "the bottom",
+				"keywords": "An ending, rock bottom, the worst of it done",
+				"upright": "It is over, and it ended badly. The only comfort is direction: this is the bottom, and the light is already coming.",
+				"reversed": "Getting back up. Or dragging out an ending that nobody will name.",
+				"phraseUpright": "an ending that went as badly as it could",
+				"phraseReversed": "getting back up, or refusing to name the end"
+			},
+			"swords-page": {
+				"name": "Page of Swords",
+				"byline": "eyes open",
+				"keywords": "Curiosity, vigilance, new ideas",
+				"upright": "Curious, watchful, asking the question nobody else will. Not wise yet, but paying real attention.",
+				"reversed": "Watching turned into suspicion. Or mistaking nerves for insight.",
+				"phraseUpright": "the question nobody else will ask",
+				"phraseReversed": "watching that has curdled into suspicion"
+			},
+			"swords-knight": {
+				"name": "Knight of Swords",
+				"byline": "straight at it",
+				"keywords": "Drive, haste, forceful action",
+				"upright": "Fast, direct, and certain. Excellent in a crisis and hard work the rest of the time, because acting comes before thinking.",
+				"reversed": "Speed with no aim. Bluntness that leaves damage behind it.",
+				"phraseUpright": "acting first and thinking on the way",
+				"phraseReversed": "speed with nothing to aim at"
+			},
+			"swords-queen": {
+				"name": "Queen of Swords",
+				"byline": "clear-eyed",
+				"keywords": "Honesty, independence, clear judgment",
+				"upright": "She tells you the truth because she respects you. Clear rather than cold, and just as honest about herself.",
+				"reversed": "Honesty used to keep people at a distance. Clarity with no warmth in it.",
+				"phraseUpright": "the truth told plainly, out of respect",
+				"phraseReversed": "clarity with no warmth left in it"
+			},
+			"swords-king": {
+				"name": "King of Swords",
+				"byline": "the weighed word",
+				"keywords": "Authority, ethics, decisive truth",
+				"upright": "Sound judgment you can rely on. Fair, precise, and willing to say the difficult thing at the right moment.",
+				"reversed": "Rules used against people. Being right treated as more important than being kind.",
+				"phraseUpright": "judgment that can be relied on",
+				"phraseReversed": "rules turned against people"
+			},
+			"pentacles-ace": {
+				"name": "Ace of Pentacles",
+				"byline": "the seed in the hand",
+				"keywords": "Opportunity, a solid beginning, prosperity",
+				"upright": "A real opportunity, the practical kind. Work, money, a place, a beginning. It is worth taking seriously and acting on.",
+				"reversed": "An opportunity left alone. Or a plan with nothing solid underneath it.",
+				"phraseUpright": "a practical opportunity with real ground under it",
+				"phraseReversed": "an opportunity left where it lay"
+			},
+			"pentacles-two": {
+				"name": "Two of Pentacles",
+				"byline": "keeping both up",
+				"keywords": "Juggling, adaptability, balance in motion",
+				"upright": "Balancing two demands, and managing it for now. The skill is real and so is the strain. Ask how long this can go on.",
+				"reversed": "Dropping one of them. Or quietly neglecting something to keep the rest going.",
+				"phraseUpright": "two demands balanced, for now",
+				"phraseReversed": "one of the two quietly dropped"
+			},
+			"pentacles-three": {
+				"name": "Three of Pentacles",
+				"byline": "three at the wall",
+				"keywords": "Collaboration, craft, skill recognized",
+				"upright": "Good work with people who are good at their part. Being valued for what you can do, and doing it together.",
+				"reversed": "Working alone when you should not be. Or effort that nobody recognizes.",
+				"phraseUpright": "good work done with people who are good at it",
+				"phraseReversed": "working alone when you should not be"
+			},
+			"pentacles-four": {
+				"name": "Four of Pentacles",
+				"byline": "held close",
+				"keywords": "Security, holding on, control",
+				"upright": "Holding on to what you have. Sensible, and worth watching: what keeps you safe can also keep you stuck.",
+				"reversed": "Loosening your grip. Or letting the fear of losing it decide everything.",
+				"phraseUpright": "holding tightly to what you have",
+				"phraseReversed": "the grip loosening, or fear running the show"
+			},
+			"pentacles-five": {
+				"name": "Five of Pentacles",
+				"byline": "past the lit window",
+				"keywords": "Hardship, exclusion, help unseen",
+				"upright": "A hard stretch. Money, health, or feeling shut out. Help is closer than it feels, and asking is the hardest part.",
+				"reversed": "Things turning. Or getting through it alone when you did not have to.",
+				"phraseUpright": "a hard stretch with help closer than it feels",
+				"phraseReversed": "getting through it alone when you did not have to"
+			},
+			"pentacles-six": {
+				"name": "Six of Pentacles",
+				"byline": "the open hand",
+				"keywords": "Generosity, giving and receiving, fairness",
+				"upright": "Giving and receiving. Notice which side you are on right now, and whether the exchange is really fair.",
+				"reversed": "Help with conditions attached. Or being unable to accept any.",
+				"phraseUpright": "something passing between having and needing",
+				"phraseReversed": "help with conditions attached"
+			},
+			"pentacles-seven": {
+				"name": "Seven of Pentacles",
+				"byline": "leaning on the fence",
+				"keywords": "Patience, assessment, the long view",
+				"upright": "You have done the work and now you wait for it to grow. Ask honestly whether it is worth continuing at this pace.",
+				"reversed": "Impatience, or effort in the wrong place. Digging it up to check the roots.",
+				"phraseUpright": "the honest pause halfway through the growing",
+				"phraseReversed": "digging it up to check the roots"
+			},
+			"pentacles-eight": {
+				"name": "Eight of Pentacles",
+				"byline": "the same thing, better",
+				"keywords": "Diligence, apprenticeship, craft",
+				"upright": "Practice. The same thing again, a little better each time. It is not glamorous and it is how anyone gets good.",
+				"reversed": "Going through the motions. Or perfecting something that no longer matters.",
+				"phraseUpright": "the same thing again, a little better",
+				"phraseReversed": "going through the motions"
+			},
+			"pentacles-nine": {
+				"name": "Nine of Pentacles",
+				"byline": "the garden you made",
+				"keywords": "Self-sufficiency, earned comfort, independence",
+				"upright": "Comfort you built yourself, enjoyed on your own terms. Not luck, just a long run of good decisions.",
+				"reversed": "Comfort that keeps people out. Or security that rests on somebody else.",
+				"phraseUpright": "comfort you built and can enjoy on your own terms",
+				"phraseReversed": "comfort that keeps everyone out"
+			},
+			"pentacles-ten": {
+				"name": "Ten of Pentacles",
+				"byline": "the whole house",
+				"keywords": "Legacy, family, lasting foundation",
+				"upright": "Something built to last beyond you. Family, a stable base, roots. What stays when the effort stops.",
+				"reversed": "A legacy that feels like a burden. Or trading the long term for the short one.",
+				"phraseUpright": "something built to outlast you",
+				"phraseReversed": "a legacy that arrives as a burden"
+			},
+			"pentacles-page": {
+				"name": "Page of Pentacles",
+				"byline": "the first real study",
+				"keywords": "Learning, diligence, a practical start",
+				"upright": "Learning something properly, without rushing. Not flashy, and the most likely to still be at it later.",
+				"reversed": "Studying and never starting. Or too impatient for the dull part.",
+				"phraseUpright": "learning it properly, without rushing",
+				"phraseReversed": "study that never turns into starting"
+			},
+			"pentacles-knight": {
+				"name": "Knight of Pentacles",
+				"byline": "one furrow at a time",
+				"keywords": "Reliability, method, steady work",
+				"upright": "Slow, thorough, reliable. Not exciting, and it arrives. Slow is a strategy, not a fault.",
+				"reversed": "Stuck in the routine. Or so cautious that nothing moves at all.",
+				"phraseUpright": "slow, thorough, and certain to arrive",
+				"phraseReversed": "being so cautious that nothing moves"
+			},
+			"pentacles-queen": {
+				"name": "Queen of Pentacles",
+				"byline": "the warm practical hand",
+				"keywords": "Nurture, resourcefulness, grounded care",
+				"upright": "Care shown in practical ways. Making sure people are fed, warm and looked after, without needing thanks for it.",
+				"reversed": "Looking after everyone but yourself. Or work and home pulling each other apart.",
+				"phraseUpright": "care shown in fed, warm, practical ways",
+				"phraseReversed": "everyone looked after except you"
+			},
+			"pentacles-king": {
+				"name": "King of Pentacles",
+				"byline": "the settled ground",
+				"keywords": "Mastery, security, responsible abundance",
+				"upright": "He built it and he knows how to keep it. Steady success, used for other people as well as himself.",
+				"reversed": "Owned by what he owns. Or control exercised through money.",
+				"phraseUpright": "steady success spent on other people too",
+				"phraseReversed": "being owned by the thing you own"
+			}
+		},
+		"elements": {
+			"fire": "Fire",
+			"water": "Water",
+			"air": "Air",
+			"earth": "Earth"
+		},
+		"suits": {
+			"wands": {
+				"name": "Wands",
+				"keywords": "Action, drive, creativity, ambition, growth",
+				"text": "Fire. Wands are what you want badly enough to start. Projects, passions, the nerve to begin and the energy to keep going. When they turn up in numbers, the question is about drive: what you are pouring yourself into, and whether it is the thing you meant to.",
+				"gloss": "Fire. What you want badly enough to start: drive, work, the nerve to begin."
+			},
+			"cups": {
+				"name": "Cups",
+				"keywords": "Emotion, relationships, intuition, love, healing",
+				"text": "Water. Cups are the inner weather and the people in it: love, friendship, grief, the whole business of feeling and of being connected to others. A spread full of Cups is asking about the heart of the matter rather than the mechanics of it.",
+				"gloss": "Water. What you feel and who you feel it about: love, friendship, grief."
+			},
+			"swords": {
+				"name": "Swords",
+				"keywords": "Thought, truth, conflict, clarity, decision",
+				"text": "Air. Swords are the mind at work: reasoning, arguing, deciding, and the damage all three can do. The suit has a reputation for being harsh, and it earns it, but a sword cuts confusion as readily as anything else.",
+				"gloss": "Air. The mind at work: truth, decisions, conflict, and the damage thinking can do."
+			},
+			"pentacles": {
+				"name": "Pentacles",
+				"keywords": "Work, money, the body, home, what lasts",
+				"text": "Earth. Pentacles are the solid world: a job, a house, a budget, your health, the slow business of building something that stays built. The least glamorous suit, and the one most readings are actually about.",
+				"gloss": "Earth. The solid world: work, money, the body, the home, what lasts."
+			}
+		},
+		"numbers": {
+			"n1": {
+				"name": "One, the Ace",
+				"text": "The seed in fertile soil: all of the potential and none of the growth yet. Beginnings, opportunity, a fresh start, and the uncertainty that always comes with one.",
+				"gloss": "Aces are the seed. All of the potential and nothing grown yet."
+			},
+			"n2": {
+				"name": "Two",
+				"text": "The fork in the road. Balance, partnership, a choice between two real options, or a stalemate when neither gets chosen.",
+				"gloss": "Twos are the fork in the road. Balance, or a choice between two real options."
+			},
+			"n3": {
+				"name": "Three",
+				"text": "The first steps of a dance. The initial spark expands: growth, collaboration, something taking a shape you can see. Overextended, it scatters.",
+				"gloss": "Threes are the first growth. The spark takes a shape you can actually see."
+			},
+			"n4": {
+				"name": "Four",
+				"text": "The foundation of a house. Stability, structure, order, ground to build on. Held too long, it settles into stagnation and rigidity.",
+				"gloss": "Fours are the foundation. Stable, structured, and easy to get stuck in."
+			},
+			"n5": {
+				"name": "Five",
+				"text": "The storm that shakes the tree. Change forced from outside, conflict, loss, and the adaptation that comes out of it. Every suit's most uncomfortable card.",
+				"gloss": "Fives are the storm. Something forced from outside, and the adapting that follows."
+			},
+			"n6": {
+				"name": "Six",
+				"text": "The calm after. Harmony restored, recovery, help given and received, progress flowing again, or a comfort you have gone to sleep in.",
+				"gloss": "Sixes are the calm after. Recovery, help given and received, movement again."
+			},
+			"n7": {
+				"name": "Seven",
+				"text": "The mountain path, partway. Assessment, perseverance, strategy, looking back at how far you have come and forward at what is left.",
+				"gloss": "Sevens are the mountain path partway up. Assessment, patience, strategy."
+			},
+			"n8": {
+				"name": "Eight",
+				"text": "The engine of a well-oiled machine. Mastery, movement, determination, skill turning into power. Left unwatched, it becomes overwork.",
+				"gloss": "Eights are the engine. Mastery and momentum, and the standing risk of overwork."
+			},
+			"n9": {
+				"name": "Nine",
+				"text": "The fruit on the vine, almost ripe. Nearly there: the rewards of hard work, resilience, and the particular strain of the last stretch.",
+				"gloss": "Nines are the fruit almost ripe. Nearly there, and the strain of the last stretch."
+			},
+			"n10": {
+				"name": "Ten",
+				"text": "The closing chapter. Completion, culmination, the end of the cycle, and in the same card the door it opens on the next one.",
+				"gloss": "Tens are the closing chapter. Completion, and the door it opens on the next one."
+			}
+		},
+		"court": {
+			"page": {
+				"name": "Page",
+				"text": "The child: curious, open, at the very start of learning this element. Pages bring news and beginnings, and their inexperience is the point. They are still willing to be surprised.",
+				"gloss": "Pages are the student. New to this element, curious, still willing to be surprised."
+			},
+			"knight": {
+				"name": "Knight",
+				"text": "The teenager: all pursuit and momentum, charging at the thing with more nerve than judgment. Knights get things moving, and the caution in every one of them is against rushing.",
+				"gloss": "Knights are the pursuit. All momentum, and more nerve than judgment."
+			},
+			"queen": {
+				"name": "Queen",
+				"text": "The one who understands it from the inside. Queens hold their element rather than chase it: mature, perceptive, and the ones you go to when you need to be genuinely understood.",
+				"gloss": "Queens hold the element from the inside. Mature, perceptive, and not chasing it."
+			},
+			"king": {
+				"name": "King",
+				"text": "The one who can hold it steady for other people. Mastery and responsibility: authority earned rather than claimed, and the risk in every King is that it hardens into control.",
+				"gloss": "Kings hold it steady for other people. Mastery, responsibility, and the risk of control."
+			}
+		},
+		"spreads": {
+			"past-present-future": {
+				"name": "Past, Present, Future",
+				"blurb": "The familiar three: where this came from, where it stands, and where it is heading if nothing changes."
+			},
+			"situation-obstacle-advice": {
+				"name": "Situation, Obstacle, Advice",
+				"blurb": "The most practical three cards there are: what is really going on, what is in the way, and what would help."
+			},
+			"mind-body-spirit": {
+				"name": "Mind, Body, Spirit",
+				"blurb": "Three views of how you are rather than what to do. Good for a check-in with yourself."
+			}
+		},
+		"seats": {
+			"past": {
+				"name": "Past",
+				"blurb": "What this grew out of, and what it is still made of.",
+				"frame": "What set this up: {card}."
+			},
+			"present": {
+				"name": "Present",
+				"blurb": "Where the situation actually stands right now.",
+				"frame": "Where you are now: {card}."
+			},
+			"future": {
+				"name": "Future",
+				"blurb": "Where this is heading on its current course, which is not a fixed fate.",
+				"frame": "Where this is heading: {card}."
+			},
+			"situation": {
+				"name": "Situation",
+				"blurb": "The heart of it, as it really is rather than as it is being described.",
+				"frame": "What is really going on: {card}."
+			},
+			"obstacle": {
+				"name": "Obstacle",
+				"blurb": "What stands in the way, including anything you are contributing to it.",
+				"frame": "What is in the way: {card}."
+			},
+			"advice": {
+				"name": "Advice",
+				"blurb": "What would actually help, taken up on purpose.",
+				"frame": "What would help: {card}."
+			},
+			"mind": {
+				"name": "Mind",
+				"blurb": "What you are thinking, and how it is shaping the rest.",
+				"frame": "In your head: {card}."
+			},
+			"body": {
+				"name": "Body",
+				"blurb": "What your body and your daily life are saying about this.",
+				"frame": "In your body and your days: {card}."
+			},
+			"spirit": {
+				"name": "Spirit",
+				"blurb": "What matters underneath, the part that is not about the practicalities.",
+				"frame": "Underneath it all: {card}."
+			}
+		},
+		"guide": {
+			"what-it-is": {
+				"title": "What a tarot deck is",
+				"p1": "A tarot deck is seventy-eight pictures of things that happen to people. Beginnings, losses, the moment you realize you have been avoiding a decision, the particular tiredness of carrying too much. Each card is one of those, drawn so you can look at it from outside.",
+				"p2": "It is a tool for reflection, not a source of information. The cards do not know anything about you and they are not going to tell you what happens next. What they do is hand you a specific idea at a moment when your own thinking has gone in circles, and ask you what it has to do with your situation. The useful part is your answer, not the card.",
+				"p3": "That is also why a reading is worth doing slowly. Anyone can look up what a card means; the whole skill is in noticing what it means right here, in this question, in this position, next to that other card."
+			},
+			"anatomy": {
+				"title": "Anatomy of a deck",
+				"p1": "Seventy-eight cards, in two groups. Twenty-two Major Arcana carry the big turns, the ones you would name if you told the story of your life in ten sentences. Fifty-six Minor Arcana carry everything else: the week, the argument, the job, the friendship.",
+				"p2": "The Minors are dealt into four suits of fourteen. Each suit runs Ace through Ten and then adds four court cards, Page, Knight, Queen and King, which read as people, or as parts of yourself, rather than as events.",
+				"p3": "So every Minor card is a suit and a number: what part of life this touches, and how far along it is. Six of Cups is the sixth stage of the emotional suit, and once you know what sixes do and what Cups are about, you have most of the meaning before you ever look it up."
+			},
+			"how-to-read": {
+				"title": "How to read",
+				"p1": "Start with a question, and make it a real one. Not \"what does the future hold,\" which has no answer and no use. Something like \"what am I not seeing about this job\" or \"what would help me be a better friend to her right now.\" A question with a shape gives the cards something to be about.",
+				"p2": "Then choose a spread. Every seat in a spread asks its own question, and that is where most of the meaning comes from: the same card in the \"obstacle\" seat and the \"advice\" seat says two completely different things. Read the seat first, then the card, then both together.",
+				"p3": "Look at the reading as a whole before you go card by card. Are these mostly Major Arcana, which would say the situation is bigger than the week it is happening in? Mostly one suit? Mostly low numbers, which are beginnings, or high ones, which are endings? The pattern is often the clearest thing in the spread.",
+				"p4": "Then let yourself disagree with it. A card that lands wrong is still useful, because working out exactly why it does not fit tends to tell you what does. The deck is a prompt, and you are the one doing the reading."
+			},
+			"intention": {
+				"title": "Setting an intention",
+				"p1": "Before you shuffle, take a moment and decide what you are actually here for. What do you want to understand, and are you willing to hear something you had not planned on? A minute of that beforehand does more for a reading than any amount of technique afterward.",
+				"p2": "Narrow the question until it points somewhere. \"What can I focus on to make this friendship better\" beats \"is this friendship going to work out.\" The first one you can act on, and the second only asks the cards to make a promise they cannot keep.",
+				"p3": "Then hold it while you shuffle, and let it go while you read. Coming to a spread determined to see one particular answer is the surest way to get it, and the least useful reading there is."
+			},
+			"spreads": {
+				"title": "Choosing a spread",
+				"p1": "Every spread here is three cards in a row. What changes is the question each seat asks, and that is the part worth learning: a card means one thing in the seat called obstacle and quite another in the seat called advice. Read the seat first, then the card, then the two together.",
+				"p2": "Past, Present, Future is the familiar one, and it suits anything with a history behind it: how this got here, where it stands now, and where it goes if nothing changes. Situation, Obstacle, Advice is the most practical of the three, and the one to reach for when you are stuck rather than curious.",
+				"p3": "Mind, Body, Spirit is the odd one out, because it does not ask what to do at all. It asks how you are, in three places at once. That makes it the right spread for a day when the honest answer to what to do is that you do not know yet."
+			},
+			"reversals": {
+				"title": "Reversals",
+				"p1": "A reversed card is one dealt upside-down. It is an optional practice, and plenty of readers never use them. It makes a reading harder and more precise at the same time.",
+				"p2": "Reversed does not simply mean the opposite. More often it means the card's energy is blocked, delayed, turned inward, or overdone: the Star reversed is not despair so much as hope you cannot quite reach, and the Devil reversed is often the beginning of getting free rather than a deeper trap.",
+				"p3": "If you are new to the deck, leave them off for a while. Learn what each card says the right way up first; the shadow readings make far more sense once you know what they are the shadow of."
+			},
+			"majors": {
+				"title": "The Major Arcana",
+				"p1": "Twenty-two cards, numbered zero to twenty-one, telling one story: the Fool's Journey. The Fool steps off the edge knowing nothing, meets every figure and force there is, and arrives at the World, whole and ready to begin again.",
+				"p2": "Read in order they are a life. The Magician and the High Priestess are what you can do and what you already know; the Emperor and the Hierophant are the structures you inherit; the Tower is the collapse that has to happen; the Star is the quiet afterward.",
+				"p3": "In a reading, a Major Arcana card raises the stakes. It says this is not really about the week. It is about a turn you are in the middle of, whether or not you had noticed."
+			},
+			"suits": {
+				"title": "The four suits",
+				"p1": "The Minor Arcana divides into four suits, one for each element, and between them they cover most of an ordinary life: what drives you, what you feel, what you think, and what you build.",
+				"p2": "The suits also talk to each other. Wands and Cups often pull against each other, passion against feeling, while Pentacles and Cups sit well together, which reads as emotional life on solid ground. A spread heavy in one suit is telling you where your attention actually is."
+			},
+			"numbers": {
+				"title": "Numbers",
+				"p1": "Every Minor card is a stage as well as a suit. The numbers run the same way in all four: Aces are seeds and Tens are endings, and everything between is a step along that road.",
+				"p2": "So a spread full of low numbers is a beginning, whatever else it says, and one full of nines and tens is something finishing. Read the numbers before you read the cards and half the spread explains itself."
+			},
+			"court": {
+				"title": "The court cards",
+				"p1": "Four ranks in each suit, and they read as people rather than events: someone in your life, or a part of yourself, approaching that suit's territory in a particular way.",
+				"p2": "They also make a sequence of growing up in that element: the Page is learning it, the Knight is charging at it, the Queen understands it from the inside, and the King can hold it steady for other people."
+			}
+		},
+		"majorGloss": "Twenty-two cards for the turns you would name if you told your life in ten sentences. When one lands, the reading is not about your week. It is about something you are in the middle of, whether or not you had noticed."
 	}
 }

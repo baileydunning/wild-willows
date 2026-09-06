@@ -90,7 +90,7 @@ const kinds = {
 	animal: () =>
 		extractRecords(
 			['data/animals-1.json', 'data/animals-2.json'],
-			['name', 'diet', 'shelter', 'preferredHabitat', 'fact', 'role'],
+			['name', 'diet', 'shelter', 'preferredHabitat', 'fact', 'fieldSign', 'role'],
 			(rec, entry) => {
 				const hint = str(rec.requirements?.hint);
 				if (hint) entry.hint = hint;

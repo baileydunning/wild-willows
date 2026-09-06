@@ -222,7 +222,8 @@
 		"toast": {
 			"rested": "You sleep well and wake at dawn. Every gathering spot has grown back.",
 			"preserveGrew": "Your land kept growing while you were gone.",
-			"perkForage": "Your cabin helped you find an extra {name}!"
+			"perkForage": "Your cabin helped you find an extra {name}!",
+			"basketOverflow": "Your basket was full. The extra {name} went into your chest."
 		},
 		"log": {
 			"rested": "You slept until dawn. A new day starts, and every gathering spot has grown back."
@@ -254,7 +255,9 @@
 				"shovel": "Digs soil beds in the ground near you. Dig a shaped tile again to clear it.",
 				"watering-can": "Water a soil bed so you can plant in it. Water it again to turn it into open water. Link water tiles to make ponds, rivers, and lakes."
 			},
-			"paintHow": "Paint. Pick a color, then click the floor, walls, rug, or an item to change its color."
+			"brushGroup": "How much ground to dig",
+			"brushTitle": "Dig {n} by {n} squares at once.",
+			"brushToggleHint": "click again to hide the sizes"
 		}
 	},
 	"game": {
@@ -264,6 +267,9 @@
 		"toast": {
 			"stillRegrowing": "Still growing back. Give it a little longer.",
 			"wetlandUnlocked": "Rushwater Wetland is open! Follow the boardwalk east to reach the marsh."
+		},
+		"label": {
+			"dipWater": "Scoop water"
 		}
 	},
 	"server": {
@@ -273,7 +279,10 @@
 			"dbStarting": "The preserve is starting up. Restart Harper if this keeps happening.",
 			"noRoomRefund": "No room for the materials you get back. Make space in your basket or a chest first.",
 			"worldFullClosed": "This preserve is full. It already has its {max} players and is closed.",
-			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed."
+			"worldFullJoined": "This preserve is full. {max} players have joined and it is closed.",
+			"brushNotAvailable": "That size needs a better tool. Pick a smaller one.",
+			"needDippingPail": "You need a Dipping Pail to scoop from water.",
+			"noOpenWaterHere": "There is no water here to scoop."
 		},
 		"task": {
 			"welcomeGrasshopperHint": "Craft a grass patch and place it. Then bring the meadow to 10% health. The grasshopper hops home on its own.",
@@ -1213,7 +1222,7 @@
 				"unlock": {
 					"label": "Bring Graywind Heights to 80% health with 17 alpine animals back. Welcome 85 animals in all. Craft a Migration Path Marker."
 				},
-				"description": "A worn stretch of coast where the open sea breaks on the east edge. The dunes washed out and the tidepools are empty. Sea glass, kelp, coral, and the odd pearl still wash up.",
+				"description": "A worn stretch of coast where the open sea breaks on the east edge. The dunes washed out and the tidepools are empty. Sea glass, kelp, driftwood, and the odd pearl still wash up.",
 				"restorationGoal": "Hold the dunes in place, bring back tidepools and kelp, and open the shore to coast life again."
 			},
 			"meadow": {
@@ -1314,9 +1323,6 @@
 				"flavor": "Seventy-five different things, each built at least once. You have used almost every tool on the bench.",
 				"hint": "Build a little of almost everything on the bench."
 			},
-			"full-house": {
-				"flavor": "A hundred kinds of neighbor. The preserve is not healing anymore. It is thriving."
-			},
 			"field-notes": {
 				"hint": "Watch your wild neighbors, again and again, all over."
 			},
@@ -1351,9 +1357,6 @@
 			},
 			"coastal-nesting-area": {
 				"description": "A roped-off quiet strip of upper beach for nesting."
-			},
-			"coral-garden": {
-				"description": "Moved coral pieces that grow back into a living reef. Food and shelter for the whole shore."
 			},
 			"sea-glass-lantern": {
 				"description": "Beach glass set in driftwood. It throws soft sea-green light at dusk."
@@ -2343,7 +2346,7 @@
 				"description": "A ring of pale domes pushing up through old turf. Step on a ripe one and it smokes."
 			},
 			"sedge-tussock-nest": {
-				"description": "A thick, knee-high clump of sedge in a damp low spot. It is packed so tight you could push a fist deep inside and never find the hole again."
+				"description": "A thick, knee-high clump of sedge in a damp low spot. It is packed so tight a vole can slip inside and the way in closes behind it."
 			},
 			"hidden-grass-nest": {
 				"description": "A thick tuft of grass left standing in a damp hollow. The middle is pressed down into a deep cup you would walk right past."

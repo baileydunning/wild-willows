@@ -65,6 +65,7 @@ const ROWS = [
 		totalActions: 10,
 		biomeSummary: { totalAnimalsReturned: 2, biomesFullyRestored: 1 },
 		achievements: { earned: 1, points: 5 },
+		completion: { overallPct: 12, tracksDone: 1, tracksTotal: 10 },
 		minutesSinceActive: 600,
 	},
 	// Short but dense: leads everything except playtime, and played minutes ago.
@@ -75,6 +76,9 @@ const ROWS = [
 		totalActions: 900,
 		biomeSummary: { totalAnimalsReturned: 40, biomesFullyRestored: 3 },
 		achievements: { earned: 9, points: 90 },
+		// Saves that predate the completion tally carry no block at all, which must
+		// rank as 0 rather than as NaN — the rows below leave it off for that.
+		completion: { overallPct: 61, tracksDone: 4, tracksTotal: 10 },
 		minutesSinceActive: 3,
 	},
 	// Only the older hoursSinceActive field.
@@ -116,6 +120,7 @@ describe('player highlights sort', () => {
 			'achievements',
 			'restored',
 			'menus',
+			'completion',
 		]);
 		for (const o of HL_SORTS) expect(o.label, `${o.key} has no label`).toBeTruthy();
 		expect(DASHBOARD).toContain("const HL_SORT = { key: 'playtime' };");
@@ -127,6 +132,7 @@ describe('player highlights sort', () => {
 		expect(orderBy('actions', ROWS)[0]).toBe('busy');
 		expect(orderBy('achievements', ROWS)[0]).toBe('busy');
 		expect(orderBy('restored', ROWS)[0]).toBe('busy');
+		expect(orderBy('completion', ROWS)[0]).toBe('busy');
 	});
 
 	it('orders recency by smallest gap, across all three source fields', () => {
@@ -220,5 +226,56 @@ describe('superlative badges', () => {
 		it('treats a save that never reported menu time as zero, not as unknown-first', () => {
 			expect(orderBy('menus', MENU_ROWS).at(-1)).toBe('legacy');
 		});
+	});
+});
+
+// The completion ("perfection") headline on the card itself. The wall can be
+// sorted by it, so it has to be readable without opening a modal — and the one
+// thing that must never happen is a save that predates the tracker being drawn
+// at 0%, which reads as an idle caretaker rather than an unmeasured save.
+describe('completion on the card', () => {
+	/** The card's completion row, lifted out of the render and evaluated. */
+	const CLOSE = '</div>`;';
+	function compRowFor(p: any): string {
+		const start = DASHBOARD.indexOf('const compData = p.completion || null;');
+		expect(start, 'completion row not found in dashboard.html').toBeGreaterThan(-1);
+		const end = DASHBOARD.indexOf(CLOSE, start);
+		expect(end, 'completion row is not terminated as expected').toBeGreaterThan(start);
+		const body = DASHBOARD.slice(start, end + CLOSE.length);
+		const make = new Function('n', 'p', `${body}\nreturn compRow;`) as (nn: typeof n, pp: any) => string;
+		return make(n, p);
+	}
+
+	it('prints the same headline the caretaker reads, with its label', () => {
+		const row = compRowFor({ completion: { overallPct: 61, tracksDone: 4, tracksTotal: 10 } });
+		expect(row).toContain('>Completion<');
+		expect(row).toContain('>61%<');
+		expect(row).toContain('width:61%');
+		expect(row, 'the track count belongs in the tooltip').toContain('4 of 10');
+	});
+
+	it('draws nothing at all for a save that predates the tracker', () => {
+		expect(compRowFor({ playSeconds: 900 })).toBe('');
+		expect(compRowFor({ completion: null })).toBe('');
+	});
+
+	it('still draws a measured zero — that is a fact, not a missing block', () => {
+		const row = compRowFor({ completion: { overallPct: 0, tracksDone: 0, tracksTotal: 10 } });
+		expect(row).toContain('>0%<');
+	});
+
+	it('marks a finished preserve, and never overflows its own track', () => {
+		expect(compRowFor({ completion: { overallPct: 100, tracksDone: 10, tracksTotal: 10 } })).toContain(
+			'hlchain comp done',
+		);
+		const over = compRowFor({ completion: { overallPct: 140, tracksDone: 10, tracksTotal: 10 } });
+		expect(over).toContain('width:100%');
+		expect(over).not.toContain('140');
+	});
+
+	it('shares the bar-row chrome with the starter chain, so the two line up', () => {
+		expect(DASHBOARD).toContain('${chainRow}${compRow}');
+		expect(DASHBOARD).toMatch(/\.hlchain \.lab \{[^}]*min-width:/);
+		expect(DASHBOARD).toContain('.hlchain.comp .fill {');
 	});
 });

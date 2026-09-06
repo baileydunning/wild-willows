@@ -23,6 +23,15 @@ export function makePlayerTexture(
 				body?: string;
 		  }
 		| undefined,
+	/** 'sit' is the same caretaker with their legs folded onto a seat, and 'lie'
+	 *  the same caretaker stretched out with their hands folded on their chest —
+	 *  head, hair, hat and face are drawn identically in all three, so every
+	 *  appearance keeps working without a second copy of any of it.
+	 *
+	 *  'lie' is drawn upright here and TIPPED OVER in the world (see sitOn), the
+	 *  same trick sleeping in a bed uses: turning the finished sprite is what puts
+	 *  someone on their back, and it costs no second set of hair, hats or faces. */
+	pose: 'stand' | 'sit' | 'lie' = 'stand',
 ): string {
 	const a = {
 		skin: appearance?.skin || '#eec39a',
@@ -35,10 +44,9 @@ export function makePlayerTexture(
 		body: appearance?.body || 'slim',
 	};
 	const key =
-		`player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}`.replace(
-			/#/g,
-			'',
-		);
+		`player-${a.skin}-${a.hair}-${a.outfit}-${a.hat}-${a.hatColor || 'classic'}-${a.hairstyle}-${a.beard}-${a.body}${
+			pose === 'stand' ? '' : `-${pose}`
+		}`.replace(/#/g, '');
 	tex(scene, key, 32, 36, (g) => {
 		const skin = C(a.skin),
 			hair = C(a.hair),
@@ -102,11 +110,38 @@ export function makePlayerTexture(
 				.fillRoundedRect(21.6, 13, 2.2, 10, 1.1)
 				.fillRoundedRect(24.2, 11.5, 2.2, 12, 1.1);
 		}
-		// body
-		g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
-		g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
-		// boots
-		g.fillStyle(C('#5d4a36'), 1).fillEllipse(12, 33, 6, 4).fillEllipse(20, 33, 6, 4);
+		if (pose === 'lie') {
+			// Lying down: nothing is folded. The torso runs long, the legs carry
+			// straight on out of it, and the hands come together on the chest — the
+			// silhouette a person makes in a hammock, which is a very different
+			// shape from the compact one they make on a stool.
+			g.fillStyle(outfit, 1).fillEllipse(16, 23, bw - 1, 15); // torso, laid back
+			g.fillStyle(outfit, 1).fillRoundedRect(16 - (bw - 4) / 2, 28, bw - 4, 7, 3.2); // legs, straight out
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 20.5, bw - 7, 6);
+			g.fillStyle(0x000000, 0.1).fillRect(15.5, 28.4, 1, 6); // the line between the legs
+			g.fillStyle(skin, 1).fillCircle(13.6, 25.6, 2.2).fillCircle(18.4, 26.4, 2.2); // hands folded on the chest
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(13.2, 35.2, 5.2, 3.4).fillEllipse(18.8, 35.2, 5.2, 3.4); // boots
+		} else if (pose === 'sit') {
+			// Seated: the torso settles a little, the legs fold forward into a lap
+			// wider than the body, the hands come to rest on it and the boots hang
+			// below. Everything above the shoulders is drawn exactly as it is when
+			// standing, so hats, hair and faces need no seated versions of their own.
+			g.fillStyle(outfit, 1).fillRoundedRect(16 - bw / 2 - 1, 25.5, bw + 2, 7.5, 3.6); // lap
+			g.fillStyle(outfit, 1).fillEllipse(16, 23, bw, 13); // torso
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 20.6, bw - 6, 6);
+			g.fillStyle(0xffffff, 0.09).fillEllipse(16, 27, bw - 3, 3.2); // light across the knees
+			g.fillStyle(0x000000, 0.12).fillRect(15.4, 26.4, 1.2, 6); // the groove between the knees
+			g.fillStyle(skin, 1)
+				.fillCircle(16 - bw / 2 + 2.4, 28, 2.2)
+				.fillCircle(16 + bw / 2 - 2.4, 28, 2.2); // hands on the lap
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(13, 34.4, 5.6, 3.6).fillEllipse(19, 34.4, 5.6, 3.6); // boots, hanging
+		} else {
+			// body
+			g.fillStyle(outfit, 1).fillEllipse(16, 25, bw, 16);
+			g.fillStyle(0xffffff, 0.14).fillEllipse(16, 22, bw - 6, 7);
+			// boots
+			g.fillStyle(C('#5d4a36'), 1).fillEllipse(12, 33, 6, 4).fillEllipse(20, 33, 6, 4);
+		}
 		// head
 		g.fillStyle(skin, 1).fillCircle(16, 12, 8.4);
 		// hairstyle fringe / volume
@@ -178,11 +213,11 @@ export function makePlayerTexture(
 			g.fillStyle(hair, 1).fillEllipse(16, 17.6, 13, 7);
 			g.fillStyle(hair, 1).fillEllipse(13.9, 15.8, 3.8, 1.8).fillEllipse(18.1, 15.8, 3.8, 1.8);
 		}
-		// face
+		// face — eyes only. No blushed cheeks: deliberate, and matched by the SVG
+		// preview in ui/icons (CharacterPreview), which is what the character creator
+		// shows. If one of the two ever grows them back the preview stops telling the
+		// truth about the caretaker you are making.
 		g.fillStyle(0x3b2e25, 1).fillCircle(13, 13, 1.2).fillCircle(19, 13, 1.2);
-		if (a.beard !== 'beard') {
-			g.fillStyle(0xe88888, 0.4).fillCircle(10.6, 15.2, 1.5).fillCircle(21.4, 15.2, 1.5);
-		}
 		// bare-head hair volume — drawn before the hats so a visor, halo or
 		// headphones, which don't cover the crown, still layer on top of it
 		if (

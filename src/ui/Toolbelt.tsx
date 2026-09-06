@@ -5,6 +5,7 @@ import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
 import { TUTORIAL_TOOLBELT_STEP, useTutorialReveal } from './Tutorial';
+import { brushSizesFor } from '../game/worldRules';
 
 // `how` is a catalog key (app.toolbelt.how.*), resolved with t() at render time.
 export const TOOL_META: Array<{ id: string; icon: string; key: string; how: string }> = [
@@ -13,6 +14,11 @@ export const TOOL_META: Array<{ id: string; icon: string; key: string; how: stri
 	{ id: 'watering-can', icon: 'can', key: '3', how: 'app.toolbelt.how.watering-can' },
 ];
 
+// Shortcuts, not the whole range: these fourteen cover the house styles' own
+// woods, plasters and stones, and the eyedropper beside them opens the rest of
+// the spectrum. The server has always stored any hex it is given, so a custom
+// color is the same kind of value as a preset — nothing here is a special case
+// downstream.
 const PAINT_PALETTE = [
 	'#c8a064',
 	'#e6d3a6',
@@ -30,9 +36,35 @@ const PAINT_PALETTE = [
 	'#3a3a2c',
 ];
 
+/* NOTHING HERE RAISES A TOAST, deliberately.
+ *
+ * Every control below answers immediately and visibly: the tool you picked wears
+ * `.on`, the brush picker slides in or out, the swatch you chose is ringed. A
+ * toast saying "Brush sizes hidden" is a card in the corner of the screen
+ * reporting something the player just watched happen — and it lands on top of
+ * the toasts that matter, which are the ones you would MISS otherwise (an animal
+ * came home, an area opened, an action was refused). Four of them lived here and
+ * fired on every tool switch and every brush click.
+ *
+ * Nor is a toast the accessible route: each button carries aria-pressed /
+ * aria-expanded and a `title` that doubles as its description, so the state
+ * change is announced on the control that changed, which is where a screen
+ * reader user is. The toast was a second announcement of the same fact. */
+
+/** The tools whose work covers ground, and so can carry a brush size. */
+const SHAPING_TOOLS = new Set(['shovel', 'watering-can']);
+
 export function Toolbelt() {
-	const { data, state, selectedTool, setSelectedTool, notify, paintColor, setPaintColor } = useGame();
+	const { data, state, selectedTool, setSelectedTool, paintColor, setPaintColor, brushSize, setBrushSize } = useGame();
 	const { t, content } = useI18n();
+	// The brush picker is an accordion off the tool itself: picking up a shovel
+	// opens it, clicking that same shovel again folds it away. Somebody who always
+	// works one square at a time should be able to put the panel down and not have
+	// it in front of the world.
+	const [brushOpen, setBrushOpen] = useState(true);
+	// The most recent eyedropper color, kept so it can sit on the shelf beside the
+	// presets — null until the picker has been used at all.
+	const [customPaint, setCustomPaint] = useState<string | null>(null);
 	usePrefs(); // reflect custom tool-select keys
 	// The toolbelt stays off screen until the tutorial step that hands it over, so
 	// a new caretaker's first minute is a meadow and a card telling them to walk —
@@ -48,9 +80,44 @@ export function Toolbelt() {
 	if (!data || !state || !toolbeltRevealed) return null;
 	// the paint tool only exists indoors, and only once the home is built into a house
 	const canPaint = state.player.area === 'home' && !!state.player.home?.styleLocked;
+	// The brush picker appears only for the tool in hand, and only once that tool
+	// offers more than one size. Holding a plain shovel, there is nothing to pick
+	// and nothing to explain.
+	const brushes = SHAPING_TOOLS.has(selectedTool) ? brushSizesFor(state.player.tools?.[selectedTool] || 1) : [1];
+	const hasBrushes = brushes.length > 1;
+	const showBrushes = hasBrushes && brushOpen;
+	// Switching to a tool that cannot manage the current size drops back to a
+	// single square rather than silently shaping more ground than the picker shows.
+	const activeBrush = brushes.includes(brushSize) ? brushSize : 1;
 
 	return (
 		<div className="toolbelt-wrap">
+			{showBrushes && (
+				<div className="brush-sizes" id="brush-sizes" role="group" aria-label={t('app.toolbelt.brushGroup')}>
+					{brushes.map((n) => (
+						<button
+							key={n}
+							className={`brush-size ${activeBrush === n ? 'on' : ''}`}
+							aria-pressed={activeBrush === n}
+							title={t('app.toolbelt.brushTitle', { n, tiles: n * n })}
+							onClick={() => setBrushSize(n)}
+						>
+							{/* A plan view of the ground one action covers. Capped at a 3x3 of
+							    marks for the 9x9 so the chip stays a chip. */}
+							<span
+								className="brush-grid"
+								aria-hidden="true"
+								style={{ gridTemplateColumns: `repeat(${Math.min(n, 3)}, 1fr)` }}
+							>
+								{Array.from({ length: Math.min(n, 3) ** 2 }, (_, i) => (
+									<i key={i} />
+								))}
+							</span>
+							<span className="brush-label">{t('app.toolbelt.brushSize', { n })}</span>
+						</button>
+					))}
+				</div>
+			)}
 			{canPaint && selectedTool === 'paint' && (
 				<div className="paint-palette">
 					{PAINT_PALETTE.map((c) => (
@@ -63,6 +130,35 @@ export function Toolbelt() {
 							onClick={() => setPaintColor(c)}
 						/>
 					))}
+					{/* A color mixed at the eyedropper STAYS on the shelf as a fifteenth
+					    swatch after you move off it, so a room painted in a custom green
+					    with oak trim is two clicks back and forth rather than a trip
+					    through the picker each time. It holds the same spot — last, ahead
+					    of the picker — instead of pushing the presets around. */}
+					{customPaint && !PAINT_PALETTE.includes(customPaint) && (
+						<button
+							className={`paint-swatch ${paintColor === customPaint ? 'on' : ''}`}
+							style={{ background: customPaint }}
+							title={customPaint}
+							aria-label={t('app.toolbelt.paintColorAria', { color: customPaint })}
+							onClick={() => setPaintColor(customPaint)}
+						/>
+					)}
+					<label className="swatch-pick paint-pick" title={t('app.toolbelt.paintPick')}>
+						<Icon name="eyedropper" size={13} />
+						<input
+							type="color"
+							value={paintColor}
+							onChange={(e) => {
+								// Fires continuously while the OS picker is dragged; both of these
+								// are local state, and paint is applied by clicking the world, so
+								// nothing is written to the server until the player actually paints.
+								setPaintColor(e.target.value);
+								setCustomPaint(e.target.value);
+							}}
+							aria-label={t('app.toolbelt.paintCustom')}
+						/>
+					</label>
 				</div>
 			)}
 			<div className="toolbelt">
@@ -73,19 +169,32 @@ export function Toolbelt() {
 					const selected = selectedTool === meta.id;
 					const toolName = content('tool', meta.id, 'name', tierDef?.name || def?.name || meta.id);
 					const how = t(meta.how);
+					// A tool that carries brush sizes says on hover that clicking it again
+					// folds them away — otherwise the toggle is only found by accident.
+					const foldable = SHAPING_TOOLS.has(meta.id) && brushSizesFor(tier).length > 1;
+					const title = t('app.toolbelt.titleFormat', { name: toolName, key: keyForTool(meta.id), how });
 					return (
 						<button
 							key={meta.id}
 							className={`tool-slot ${selected ? 'on' : ''}`}
 							// `title` doubles as the screen-reader description (what the tool does),
 							// so the name stays short for navigation and the explanation follows.
-							title={t('app.toolbelt.titleFormat', { name: toolName, key: keyForTool(meta.id), how })}
+							title={foldable && selected ? `${title} — ${t('app.toolbelt.brushToggleHint')}` : title}
 							aria-label={toolName}
 							aria-pressed={selected}
 							aria-keyshortcuts={keyForTool(meta.id)}
+							aria-expanded={foldable && selected ? brushOpen : undefined}
+							// Only while the panel is actually on screen — aria-controls pointing
+							// at an id that isn't in the document is worse than none.
+							aria-controls={foldable && selected && showBrushes ? 'brush-sizes' : undefined}
 							onClick={() => {
+								// Clicking the tool already in hand folds its brush picker away,
+								// and clicking once more brings it back.
+								if (selected && foldable) {
+									setBrushOpen(!brushOpen);
+									return;
+								}
 								setSelectedTool(meta.id);
-								notify(t('app.toolbelt.selected', { name: toolName, how }));
 							}}
 						>
 							<Icon name={meta.icon} size={22} />
@@ -110,10 +219,7 @@ export function Toolbelt() {
 						aria-label={t('app.toolbelt.paint')}
 						aria-pressed={selectedTool === 'paint'}
 						aria-keyshortcuts={keyForTool('paint')}
-						onClick={() => {
-							setSelectedTool('paint');
-							notify(t('app.toolbelt.paintHow'));
-						}}
+						onClick={() => setSelectedTool('paint')}
 					>
 						<Icon name="paint" size={22} />
 						<span className="tool-key" aria-hidden="true">

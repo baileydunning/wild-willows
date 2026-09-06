@@ -22,7 +22,21 @@ import { forceRemove, safeGet, tableName, toArray } from './store';
 import { KEY_REV, WORLD_KEYED, keyedWorlds, migrateWorldKeys, rememberKeyed, scanPrefix, worldIsKeyed } from './keys';
 import { cached } from './scan-cache';
 import { GUIDE_MAX, LEGACY_JOURNAL_TOOL, getPlayer, guideTool, patchPlayer } from './player';
+import { freshStanding, standingOf } from './metrics';
 import { blocksGateTrail, gateGeomOf, recalcBiome, whyReturnedText } from './biome';
+import {
+	canHangAt,
+	homeCozyOpts,
+	homeRoom,
+	isFloorTile,
+	isWallMounted,
+	roomAt,
+	tentBiomeOf,
+	tentRoom,
+	wallTilesOf,
+} from './home';
+import { roomsOf } from '../src/homePlan';
+import { readCoziness, storedCozy } from './cozy';
 import { awardWorldAchievements } from './achievements';
 import type { CustomGoal } from './tasks';
 
@@ -172,6 +186,21 @@ export async function findTerrainAt(
 	// terraform does at least one) into a single point read.
 	const direct = await safeGet(table, `${worldId}:${area}:${x}:${y}`);
 	if (direct && (direct.worldId ?? direct.playerId) === worldId) return direct;
+	// A MISS is the common case — most of these ask about bare ground — and in a
+	// re-keyed world it is already the whole answer, so the scan below was a few
+	// hundred rows spent re-confirming an absent row on every dig into fresh
+	// ground and every object set down on it.
+	//
+	// What makes that safe is the same fact `byArea` bounds its own scan with: in
+	// a keyed world a tile of this area lives under the `${worldId}:${area}:` run,
+	// and the only id any write path puts there is the position itself. So the
+	// scan can return nothing the point read did not already find. (Nor does it
+	// rescue an undecodable row — a scan drops those; safeGet above is what
+	// salvages one.)
+	//
+	// An unmigrated world still pays for it: its tiles may be under the older
+	// playerId-keyed ids, where the coordinates are all that recognizes them.
+	if (await worldIsKeyed(worldId)) return null;
 	const rows = await byArea(table, worldId, area);
 	return rows.find((r: any) => r.x === x && r.y === y) || null;
 }
@@ -495,6 +524,122 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 }
 
 /**
+ * Give a pre-coziness save the reading its room already earns.
+ *
+ * Idempotent and near-free: a save whose stored score already matches what the
+ * room reads writes nothing, which is every save after the first pass.
+ */
+async function backfillCoziness(worldId: string, playerId: string, d: any): Promise<void> {
+	const rows = await byArea(db().Placement, worldId, 'home');
+	const player = await getPlayer(playerId);
+	// Curator's Eye (Furnishings 6) changes how the raw score is computed, so the
+	// backfill has to know about it too — otherwise buying it and then walking in
+	// and out would keep rewriting the same row two different ways.
+	const reading = readCoziness(rows, (id: string) => d.object.get(id), 0, homeCozyOpts(player));
+	if ((player?.homeCozy?.score ?? -1) === reading.score && (player?.homeCozy?.pieces ?? -1) === reading.pieces) return;
+	await patchPlayer(playerId, { homeCozy: storedCozy(reading) });
+}
+
+/**
+ * Put everything in an interior back where the placement rules allow it, after
+ * the room it was arranged in changed shape.
+ *
+ * Two halves, one reason. Buying Space re-lays the whole floor plan: the plan is
+ * centered in the grid, so every wall moves, and from level 3 the interior stops
+ * being one rectangle and becomes rooms with walls between them. Placements keep
+ * the absolute tile they were put on, so after an upgrade:
+ *
+ *  • every picture, wreath and mirror that was HUNG is standing on open floor a
+ *    tile inside the new wall, and
+ *  • a chair that was on the floor can find itself inside a wall or a doorway of
+ *    the new plan — a tile that can be picked up from but never placed on again.
+ *
+ * (There is an older cause for the first one too: the framed landscape, the wall
+ * clock and the two chandeliers were always pictures of things that hang, and a
+ * save that put one down before `mount: 'wall'` existed has it on the floor.)
+ *
+ * Each piece moves the SHORTEST distance to somewhere legal — the nearest free
+ * wall tile for hanging things, the nearest free floor tile for standing ones —
+ * so a room that was arranged still looks arranged: after a Space upgrade
+ * "nearest" is usually the tile directly behind, or directly beside, where it
+ * stood. Anything already somewhere legal is LEFT ALONE and keeps its spot.
+ * If there is nowhere to go the piece stays exactly where it is rather than
+ * being deleted: a player's belongings are never thrown away, and a stranded
+ * item can still be picked up by hand.
+ *
+ * Interiors only — `mount` means nothing outdoors, and out in the preserve there
+ * is no plan to fall foul of.
+ */
+export async function reflowInterior(worldId: string, playerId: string, d: any): Promise<number> {
+	const t = db();
+	const rows = await byWorld(t.Placement, worldId);
+	const interiors = rows.filter((p: any) => p?.area === 'home' || tentBiomeOf(p?.area));
+	if (!interiors.length) return 0;
+	const player = await getPlayer(playerId);
+	const roomFor = (area: string) => (area === 'home' ? homeRoom(player) : tentRoom());
+	// what is standing where, per interior, so two moves can't land on one tile
+	const taken = new Map<string, Set<string>>();
+	for (const p of interiors) {
+		if (!taken.has(p.area)) taken.set(p.area, new Set());
+		taken.get(p.area)!.add(`${p.x},${p.y}`);
+	}
+	// Every floor tile of an interior, worked out once per area rather than once
+	// per stranded item — a level-4 plan is three rooms and this pass runs on a
+	// write path.
+	const floors = new Map<string, { x: number; y: number }[]>();
+	const floorTiles = (area: string) => {
+		let list = floors.get(area);
+		if (!list) {
+			list = [];
+			for (const r of roomsOf(roomFor(area)))
+				for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) list.push({ x, y });
+			floors.set(area, list);
+		}
+		return list;
+	};
+	let moved = 0;
+	for (const p of interiors) {
+		const def = d.object.get(p.objectId);
+		const room = roomFor(p.area);
+		const hangs = isWallMounted(def);
+		// Already where it belongs — nothing to do, and its tile stays claimed so
+		// nothing else is sent to it. Without this the pass would treat its own
+		// tile as taken, find the "nearest free" one next door and shuffle a
+		// perfectly good wall along by a tile every time it ran.
+		if (hangs ? canHangAt(room, p.x, p.y) : isFloorTile(room, p.x, p.y)) continue;
+		const here = taken.get(p.area)!;
+		// It is leaving this tile, so it cannot be the thing blocking its own move.
+		here.delete(`${p.x},${p.y}`);
+		const free = (hangs ? wallTilesOf(room).filter((w) => canHangAt(room, w.x, w.y)) : floorTiles(p.area)).filter(
+			(w) => !here.has(`${w.x},${w.y}`),
+		);
+		if (!free.length) {
+			here.add(`${p.x},${p.y}`); // nowhere to go — leave it rather than lose it
+			continue;
+		}
+		// nearest free tile to where the player put it, so the room it was
+		// arranged into still looks arranged afterwards
+		let spot = free[0];
+		let best = Infinity;
+		for (const w of free) {
+			const dd = (w.x - p.x) ** 2 + (w.y - p.y) ** 2;
+			if (dd < best) {
+				best = dd;
+				spot = w;
+			}
+		}
+		here.add(`${spot.x},${spot.y}`);
+		await t.Placement.patch(p.id, { x: spot.x, y: spot.y });
+		moved++;
+	}
+	if (moved) console.error(`save repair: re-placed ${moved} interior item(s) for world ${worldId}`);
+	return moved;
+}
+
+/** Older name, kept because the whole point of the pass is still the wall decor. */
+export const rehangWallDecor = reflowInterior;
+
+/**
  * One-shot repairs a save needs after upgrading, run from a write path.
  *
  * Bump REPAIR_REV when a new repair is added here; every save then runs the pass
@@ -523,7 +668,74 @@ async function repairGateTrails(worldId: string, d: any): Promise<number> {
 // out of `state.terrain`, which now carries only the area the player is standing
 // in, so a wetland lake is invisible from the meadow and a recipe the server
 // would happily craft shows up locked. Backfilled below.
-export const REPAIR_REV = 4;
+// REV 5: wall decor arrived. Four items that were always wall furniture became
+// `mount: 'wall'`, and any already standing on an interior FLOOR is now on a tile
+// the placement rules refuse — pickable but unmovable. reflowInterior moves each
+// to the nearest free wall tile.
+// REV 7: buying Space moved the walls out from under everything hung on them —
+// a Space upgrade (and building the house, which is one) left every picture and
+// wreath lying on the new floor. The two endpoints re-hang for themselves now,
+// but a save that already took an upgrade is sitting in that room right now, and
+// its repair marker says it has nothing left to fix. One more pass hangs them.
+// REV 9: windows stopped moving out from under wall decor. They are fixed by the
+// plan and the Warmth level now, and a tile with one refuses everything else —
+// so a save that hung a picture where a window has since been drawn has it on a
+// tile the placement rules no longer allow. reflowInterior slides it along.
+// REV 8: Space levels 3 and 4 became floor plans — rooms with walls between them
+// — rather than one wider rectangle. A save sitting at either level has its
+// furniture laid out for the old rectangle, and some of those tiles are now
+// wall or doorway. reflowInterior slides each stranded piece to the nearest
+// legal tile; every save runs it once.
+export const REPAIR_REV = 9;
+
+/**
+ * Work out a save's standing tallies from its own placements and write them.
+ *
+ * The goal board used to answer "how many of these are standing, how many are
+ * planted, has anything ever been harvested" by scanning every placement in the
+ * world on every state read. Those are running totals on the player row now
+ * (`standing`, see bumpStanding) — but a running total is only usable if it
+ * started from the truth, and for an existing save the truth is in its rows.
+ *
+ * SETS absolute values rather than adding deltas, so running it twice cannot
+ * double anything. That is also what makes it the right repair for the dev tools,
+ * which rewrite placements underneath the tallies rather than through the
+ * endpoints that keep them.
+ *
+ * `harvested` counts placements carrying a harvest stamp rather than harvests
+ * taken: a placement records only its LAST harvest, so the true number is not in
+ * the rows. The reader asks whether it is above zero, and this answers that
+ * exactly.
+ */
+export async function recomputeStanding(worldId: string, playerId: string): Promise<void> {
+	const placed: Record<string, number> = {};
+	const planted: Record<string, number> = {};
+	let harvested = 0;
+	for (const p of await byWorld(db().Placement, worldId)) {
+		if (!p?.objectId) continue;
+		placed[p.objectId] = (placed[p.objectId] || 0) + 1;
+		if (typeof p.plantedAt === 'number') planted[p.objectId] = (planted[p.objectId] || 0) + 1;
+		if (typeof p.lastHarvestAt === 'number') harvested++;
+	}
+	await patchPlayer(playerId, { standing: freshStanding(placed, planted, harvested) });
+}
+
+/**
+ * The one-shot version, for the heartbeat: fill the tallies in if this save has
+ * none, and cost a field read if it has.
+ *
+ * Deliberately NOT part of the repairRev pass. A save can arrive without them
+ * long after that marker is stamped — an import of an older export carries the
+ * marker with it, and a dev tool can wipe the row — and the failure that causes
+ * is silent (goals reading an empty preserve), so the check is a standing one
+ * rather than a one-time migration. Every save that beats once gets them.
+ */
+export async function ensureStanding(worldId: string, playerId: string, player?: any): Promise<boolean> {
+	const row = player ?? (await getPlayer(playerId));
+	if (!row || standingOf(row)) return false;
+	await recomputeStanding(worldId, playerId);
+	return true;
+}
 
 export async function repairSave(
 	worldId: string,
@@ -542,6 +754,15 @@ export async function repairSave(
 		const refiled = await reconcileDiscoveryBiomes(worldId, d);
 		const unblocked = await repairGateTrails(worldId, d);
 		await migrateFieldJournal(playerId, d, opts.player);
+		// Purely cosmetic — it moves furniture inside one room and touches no
+		// biome, so it deliberately does NOT join the recalc condition below.
+		await reflowInterior(worldId, playerId, d);
+		// Coziness is written by placing and removing (see saveCoziness), so a save
+		// that decorated its house BEFORE coziness existed has a full room and a
+		// reading of nothing — the buff it earned, withheld until it happens to move
+		// a chair. One read of one room puts that right, once. Also does NOT join
+		// the recalc condition: the home interior is not a biome.
+		await backfillCoziness(worldId, playerId, d);
 		// Any of those three changes which animals count as home, and
 		// BiomeState.returnedCount is a stored number that only recalcBiome
 		// recomputes. Left alone the HUD reads "24 of 25 animals returned" for a
@@ -629,7 +850,11 @@ async function recalcRepairedBiomes(worldId: string, playerId: string, d: any, k
 	const newAnimals: any[] = [];
 	const freshBiomeStates: any[] = [];
 	for (const biomeId of open) {
-		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries });
+		// `fresh`: this pass runs BECAUSE something changed underneath the stored
+		// numbers — repairGateTrails deletes player-shaped water, and the water
+		// backfill is here precisely for a row that has never had these written.
+		// Re-derive from the rows rather than fold anything.
+		const r = await recalcBiome(worldId, playerId, biomeId, { discoveries, fresh: true });
 		newAnimals.push(...(r.newAnimals || []));
 		if (r.biomeState) freshBiomeStates.push(r.biomeState);
 	}

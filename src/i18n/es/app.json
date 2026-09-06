@@ -67,7 +67,8 @@
 		"perkForage": "¡El instinto recolector de tu cabaña consiguió un {name} extra!",
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}.",
 		"goalAffordable": "Ya puedes fabricar eso — no hace falta fijarlo como objetivo.",
-		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero."
+		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero.",
+		"basketOverflow": "Tu cesta estaba llena, así que el resto de {name} fue a tu cofre más cercano."
 	},
 	"feed": {
 		"demoNudgeIdle": "La reserva esperó en silencio mientras no estabas.",
@@ -128,6 +129,8 @@
 		"flowers": "Flores",
 		"trees": "Árboles",
 		"plant": "Plantar",
+		"plantedTag": "plantados ×{n}",
+		"plantedTitle": "{n} de estos están creciendo en esta área ahora mismo.",
 		"hint": "Lo que plantes brota de inmediato y termina de crecer en un minuto o dos."
 	},
 	"goalsIntro": {
@@ -141,7 +144,9 @@
 		"rotate": "Girar",
 		"digUp": "Desenterrar (devuelve los materiales)",
 		"pickUp": "Recoger",
-		"harvest": "Cosechar {name}"
+		"harvest": "Cosechar {name}",
+		"lightUp": "Encender",
+		"putOut": "Apagar"
 	},
 	"welcome": {
 		"solo": "Solo",
@@ -199,6 +204,33 @@
 			"other": "{count} cosas colocadas"
 		},
 		"trackLevel": "Nv{level}",
+		"cozyScore": "Comodidad {score}/100",
+		"perkSplit": "{upgrades}% de las mejoras de la casa, {cozy}% de la decoración.",
+		"cozyCarryTitle": "+{count} de capacidad de carga",
+		"cozyTier": {
+			"bare": "Cuarto vacío",
+			"homey": "Hogareño",
+			"snug": "Cómodo",
+			"cozy": "Acogedor",
+			"beloved": "Hogar querido",
+			"storied": "Hogar con historia"
+		},
+		"cozyKind": {
+			"sleeping": "un lugar para dormir",
+			"seating": "un lugar para sentarse",
+			"surface": "una mesa o estante",
+			"storage": "almacenamiento",
+			"light": "calor o luz",
+			"greenery": "algo que crece",
+			"water": "agua",
+			"art": "algo en las paredes",
+			"curio": "un recuerdo"
+		},
+		"cozyHint": "Qué tan habitado se siente tu hogar. Casi todo es variedad: cuántas cosas distintas has puesto y cuántas comodidades has cubierto. La cantidad apenas cuenta: una habitación llena de copias no suma casi nada. Cada nivel fortalece la ventaja de tu casa, añade capacidad de carga y hace que una noche de sueño te deje caminando más rápido.",
+		"cozyBreakdown": "{pieces} colocadas · {types} distintas · {kinds} de {all} comodidades",
+		"cozyCarryHint": "Capacidad de carga extra por lo acogedor que es tu hogar.",
+		"wellRested": "Bien descansado",
+		"restedHint": "Dormiste en un hogar acogedor — caminas más rápido hasta el mediodía.",
 		"thePreserve": "La reserva",
 		"trailTent": "Tienda de Campaña — {biome}",
 		"health": "Salud",
@@ -215,7 +247,7 @@
 		"groupWorld": "Mundo",
 		"groupSystem": "Sistema",
 		"navJournal": "Diario de campo (J)",
-		"navAchievements": "Logros (K)",
+		"navAchievements": "Progreso (K)",
 		"navFeed": "Registro de actividad (F)",
 		"navInventory": "Contenido de la cesta (B)",
 		"navCrafting": "Fabricación (C)",
@@ -243,11 +275,15 @@
 			"watering-can": "Terraformar — riega un bancal para poder plantar en él; riégalo de nuevo para inundarlo y convertirlo en agua abierta. Encadena casillas de agua para formar estanques, ríos y lagos."
 		},
 		"titleFormat": "{name} ({key}): {how}",
-		"selected": "{name}: {how}",
 		"paintColorAria": "Color de pintura {color}",
 		"paint": "Pintar",
-		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto: selecciónalo y luego haz clic en él",
-		"paintHow": "Pintar: elige un color y luego haz clic en el piso, las paredes, la alfombra o un objeto para recolorearlo."
+		"paintTitle": "Pintar (4) — recolorea el piso, las paredes, la alfombra o cualquier objeto en cualquier color: selecciónalo y luego haz clic en él. Cada habitación de la casa toma su propio color.",
+		"paintPick": "Elige cualquier color de pintura",
+		"paintCustom": "Color de pintura personalizado",
+		"brushGroup": "Cuánto terreno moldear",
+		"brushSize": "{n}×{n}",
+		"brushTitle": "Moldea {n}×{n} casillas a la vez ({tiles} de una pasada)",
+		"brushToggleHint": "haz clic otra vez para ocultar los tamaños"
 	},
 	"feedPanel": {
 		"title": "Registro de actividad",
@@ -403,7 +439,7 @@
 				"crafting": "Fabricación",
 				"basket": "Cesta",
 				"journal": "Diario de campo",
-				"achievements": "Logros",
+				"achievements": "Progreso",
 				"feed": "Actividad",
 				"tools": "Herramientas y mejoras",
 				"preserve": "Mapa de la Reserva",
@@ -520,5 +556,11 @@
 		"nudgeBackToGame": "Volver a la demo",
 		"storeItch": "Consíguelo en itch.io",
 		"storeMas": "Consíguelo en la Mac App Store"
+	},
+	"mirror": {
+		"title": "Mirarte en el espejo",
+		"blurb": "Cambia el aspecto de tu cuidador. Tu nombre no cambia.",
+		"save": "Me gusta",
+		"cancel": "Déjalo"
 	}
 }

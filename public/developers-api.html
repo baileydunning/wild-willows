@@ -50,7 +50,7 @@
       "@type": "WebAPI",
       "name": "Wild Willows Open Game Data",
       "url": "https://wildwillows.app/developers/api",
-      "description": "A single public JSON endpoint serving every definition the game Wild Willows is built from: 150 real animal species with diet, shelter, preferred habitat, food-web links and the habitat requirements that decide when each one returns, plus six biomes, 385 habitat items, 355 recipes and 38 gatherable resources.",
+      "description": "A single public JSON endpoint serving every definition the game Wild Willows is built from: 150 real animal species with diet, shelter, preferred habitat, food-web links and the habitat requirements that decide when each one returns, plus six biomes, 436 habitat items, 406 recipes and 37 gatherable resources.",
       "documentation": "https://wildwillows.app/developers/api",
       "termsOfService": "https://wildwillows.app/developers/api#terms",
       "provider": { "@type": "Person", "name": "Bailey Dunning" },
@@ -205,9 +205,9 @@ Barn Owl</pre>
       <tbody>
         <tr><td><code>animals</code></td><td class="num">150</td><td>Every species, 25 per biome. The interesting one, and what the rest of this page is mostly about.</td></tr>
         <tr><td><code>biomes</code></td><td class="num">6</td><td>The six habitat types, with their palettes, their grid size and what can be gathered in each.</td></tr>
-        <tr><td><code>habitatObjects</code></td><td class="num">385</td><td>Everything that can be planted or built, and what each one contributes to habitat.</td></tr>
-        <tr><td><code>recipes</code></td><td class="num">355</td><td>What each item is made from.</td></tr>
-        <tr><td><code>resources</code></td><td class="num">38</td><td>Gatherable materials, and which tool collects them.</td></tr>
+        <tr><td><code>habitatObjects</code></td><td class="num">438</td><td>Everything that can be planted or built, and what each one contributes to habitat.</td></tr>
+        <tr><td><code>recipes</code></td><td class="num">408</td><td>What each item is made from.</td></tr>
+        <tr><td><code>resources</code></td><td class="num">37</td><td>Gatherable materials, and which tool collects them.</td></tr>
         <tr><td><code>achievements</code></td><td class="num">50</td><td>Named goals, their category and their requirement.</td></tr>
         <tr><td><code>tools</code></td><td class="num">9</td><td>The tools and their upgrade tiers.</td></tr>
         <tr><td><code>appearanceOptions</code></td><td class="num">&mdash;</td><td>An object of character-customization lists. Only interesting if you are building something that draws a caretaker.</td></tr>
@@ -236,6 +236,8 @@ Barn Owl</pre>
         <tr><td><code>shelter</code></td><td class="tight">string</td><td>Where it nests, dens or hides, in a sentence.</td></tr>
         <tr><td><code>preferredHabitat</code></td><td class="tight">string</td><td>The conditions it wants, in a sentence.</td></tr>
         <tr><td><code>fact</code></td><td class="tight">string</td><td>One true, checkable thing about the species. Good for a card, a quiz or a fact-of-the-day.</td></tr>
+        <tr><td><code>fieldSign</code></td><td class="tight">string</td><td>What the species leaves behind, or the sound that gives it away &mdash; tracks, scat, pellets, nests, cocoons, chewed stems, calls. Written to overlap with nothing else on this record.</td></tr>
+        <tr><td><code>fieldSignSource</code></td><td class="tight">object</td><td><code>{ name, url }</code> for the <code>fieldSign</code> line alone. Kept out of <code>sources</code>, which backs the ecology.</td></tr>
         <tr><td><code>role</code></td><td class="tight">string</td><td>A paragraph on what it does in its ecosystem and who depends on it.</td></tr>
         <tr><td><code>eats</code></td><td class="tight">string[]</td><td>Ids of other animals in the dataset. Empty for a herbivore.</td></tr>
         <tr><td><code>eatsOther</code></td><td class="tight">string[]</td><td>Food that is not an animal in the dataset: <code>["grasses", "leaves and forbs", "sedges"]</code>.</td></tr>
@@ -490,7 +492,7 @@ if (res.status === 429) {
       <b>May change without warning</b>
       <ul>
         <li>Species being added or changed. Treat 150 as a floor rather than a constant.</li>
-        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
+        <li>Wording of <code>diet</code>, <code>shelter</code>, <code>fact</code>, <code>fieldSign</code> and <code>role</code>, which get corrected as sources are re-checked.</li>
         <li>Balance numbers, including <code>minHealth</code> and item costs.</li>
         <li>Anything under <code>appearanceOptions</code>, <code>recipes</code> or <code>achievements</code> &mdash; those follow the game.</li>
       </ul>

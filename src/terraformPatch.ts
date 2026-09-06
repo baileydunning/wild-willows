@@ -22,11 +22,15 @@ export function applyTerraformResult(r: any, prev: GameState, area: string, x: n
 	// Drop the old row at this position — by id when the server named one, and by
 	// position too, since legacy beds can carry an id that predates the current
 	// scheme (see findTerrainAt on the server).
-	const gone = new Set([r.removedId, r.tile?.id].filter(Boolean));
-	const terrain = (prev.terrain || []).filter(
-		(tt: any) => !gone.has(tt.id) && !(tt.area === area && tt.x === x && tt.y === y),
-	);
-	if (r.tile) terrain.push(r.tile);
+	// A late-tier shovel or can shapes a run of tiles in one action, so the server
+	// reports `tiles` (the clicked one first) alongside the single `tile` older
+	// clients read. Dropping every square the response names — by id and by
+	// position — keeps this correct for a run without costing a refetch.
+	const shaped: any[] = Array.isArray(r.tiles) && r.tiles.length ? r.tiles : r.tile ? [r.tile] : [];
+	const gone = new Set([r.removedId, ...shaped.map((tt: any) => tt.id)].filter(Boolean));
+	const at = new Set([`${area},${x},${y}`, ...shaped.map((tt: any) => `${tt.area},${tt.x},${tt.y}`)]);
+	const terrain = (prev.terrain || []).filter((tt: any) => !gone.has(tt.id) && !at.has(`${tt.area},${tt.x},${tt.y}`));
+	terrain.push(...shaped);
 	const next: GameState = { ...prev, terrain };
 	if (r.inventory) next.player = { ...prev.player, inventory: r.inventory };
 	if (r.biomeState)

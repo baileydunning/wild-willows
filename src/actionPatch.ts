@@ -68,10 +68,16 @@ function withBiomeState(prev: GameState, next: GameState, r: any): GameState {
 export function applyCollectResult(r: any, prev: GameState, area: string): GameState | null {
 	if (broadChange(r)) return null;
 	if (!r.inventory || !r.nodeId || typeof r.harvestedAt !== 'number') return null;
+	// An overflowing basket sent part of the haul on to a chest; chest contents
+	// are not modelled here, so take the authoritative snapshot instead.
+	if (r.storedTo) return null;
 	const wid = (prev as any).worldId || prev.player.id;
-	const id = `${wid}:${area}:${r.nodeId}`;
-	const nodeStates = (prev.nodeStates || []).filter((n) => n.id !== id);
-	nodeStates.push({ id, harvestedAt: r.harvestedAt });
+	// A sweeping basket clears a whole patch, so the server reports every spot it
+	// took in `harvested`; anything older (or any lower tier) reports the one.
+	const cleared: string[] = Array.isArray(r.harvested) && r.harvested.length ? r.harvested : [r.nodeId];
+	const ids = new Set(cleared.map((n: string) => `${wid}:${area}:${n}`));
+	const nodeStates = (prev.nodeStates || []).filter((n) => !ids.has(n.id));
+	for (const id of ids) nodeStates.push({ id, harvestedAt: r.harvestedAt });
 	const next: GameState = {
 		...prev,
 		player: { ...prev.player, inventory: r.inventory },

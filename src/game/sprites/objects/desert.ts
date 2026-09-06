@@ -1,13 +1,18 @@
 // Redstone Scrubland.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const DESERT: SpriteSet = {
-	cactus: def(32, 44, (g) => {
+	...pickable('cactus', 32, 44, (g, picked) => {
 		g.fillStyle(C('#5e8a4a'), 1).fillRoundedRect(12, 6, 9, 36, 4);
 		g.fillRoundedRect(3, 14, 10, 6, 3).fillRoundedRect(2, 10, 6, 12, 3);
-		g.fillStyle(C('#d96a5a'), 1).fillCircle(16, 6, 3);
+		if (picked) {
+			// fruit picked off the crown, pale areole scars left behind
+			g.fillStyle(C('#7fa06a'), 1).fillCircle(16, 7, 1.4).fillCircle(6, 11.5, 1.2);
+			return;
+		}
+		g.fillStyle(C('#d96a5a'), 1).fillCircle(16, 6, 3).fillCircle(6, 11, 2.4);
 	}),
 	brush: def(38, 28, (g) => {
 		g.fillStyle(C('#8a8a4e'), 1).fillCircle(11, 19, 8).fillCircle(25, 18, 9).fillCircle(18, 12, 7);
@@ -28,14 +33,21 @@ export const DESERT: SpriteSet = {
 		g.fillStyle(C('#6f93b0'), 1).fillEllipse(18, 16, 24, 8); // water
 		g.fillStyle(0xffffff, 0.4).fillEllipse(13, 14, 8, 2.5); // glint
 	}),
-	agave: def(34, 30, (g) => {
+	...pickable('agave', 34, 30, (g, picked) => {
 		g.fillStyle(C('#6f8a5a'), 1);
 		for (const ang of [-1.2, -0.6, 0, 0.6, 1.2, 3.14]) {
 			const tx = 17 + Math.sin(ang) * 15;
 			const ty = 22 - Math.cos(ang) * 14;
 			g.fillTriangle(17, 22, tx - 3, ty + 3, tx + 3, ty + 3);
 		}
-		g.fillStyle(C('#8aa86a'), 1).fillCircle(17, 22, 4);
+		if (!picked) {
+			// the flower stalk the nectar is drawn from, standing out of the rosette
+			g.lineStyle(2, C('#8a9a5a'), 1).lineBetween(17, 22, 17, 4);
+			g.fillStyle(C('#e3c75f'), 1).fillCircle(17, 4, 2.4).fillCircle(13, 8, 1.8).fillCircle(21, 9, 1.8);
+		}
+		g.fillStyle(C(picked ? '#7f9a5a' : '#8aa86a'), 1).fillCircle(17, 22, 4);
+		// the stalk cut back flush with the heart of the rosette
+		if (picked) g.fillStyle(C('#a89a6a'), 1).fillEllipse(17, 21, 3.2, 2.2);
 	}),
 	ocotillo: def(30, 46, (g) => {
 		g.lineStyle(2.5, C('#6e5238'), 1);
@@ -43,21 +55,32 @@ export const DESERT: SpriteSet = {
 		g.fillStyle(C('#c44a3a'), 1).fillCircle(9, 6, 2.4).fillCircle(15, 5, 2.4).fillCircle(21, 6, 2.4); // red tips
 		g.fillStyle(C('#5d8a4a'), 0.7).fillEllipse(15, 42, 12, 5);
 	}),
-	pricklypear: def(34, 30, (g) => {
+	...pickable('pricklypear', 34, 30, (g, picked) => {
 		g.fillStyle(C('#5e8a4a'), 1).fillEllipse(13, 20, 14, 18).fillEllipse(22, 13, 12, 14).fillEllipse(24, 24, 10, 11);
 		g.lineStyle(1, C('#3f6e38'), 1).strokeEllipse(13, 20, 14, 18).strokeEllipse(22, 13, 12, 14);
-		g.fillStyle(C('#e8954f'), 1).fillCircle(22, 6, 2.6).fillCircle(28, 9, 2.2);
+		if (picked) {
+			// the tunas twisted off the pad rims
+			g.fillStyle(C('#4f7a3e'), 1).fillCircle(22, 6.5, 1.2).fillCircle(28, 9, 1).fillCircle(13, 12, 1.1);
+			return;
+		}
+		g.fillStyle(C('#e8954f'), 1).fillCircle(22, 6, 2.6).fillCircle(28, 9, 2.2).fillCircle(13, 11.6, 2.2);
 	}),
-	desertbloom: def(32, 24, (g) => {
+	...pickable('desertbloom', 32, 24, (g, picked) => {
 		g.fillStyle(C('#7c8a4e'), 1).fillEllipse(16, 19, 28, 10);
-		g.fillStyle(C('#e88a2f'), 1);
-		for (const [x, y] of [
+		const heads = [
 			[9, 11],
 			[17, 9],
 			[24, 12],
 			[13, 15],
-		] as const)
-			g.fillCircle(x, y, 3);
+		] as const;
+		if (picked) {
+			// picked: grey-green buds still closed in the silver foliage
+			g.fillStyle(C('#8a9a5e'), 1);
+			for (const [x, y] of heads) g.fillCircle(x, y, 1.4);
+			return;
+		}
+		g.fillStyle(C('#e88a2f'), 1);
+		for (const [x, y] of heads) g.fillCircle(x, y, 3);
 		g.fillStyle(C('#f4c75f'), 1).fillCircle(17, 9, 1.3);
 	}),
 	// --- desert exclusive crafts + biome trees ---

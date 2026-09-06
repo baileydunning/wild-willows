@@ -67,7 +67,8 @@
 		"perkForage": "Your cabin's forager's instinct turned up an extra {name}!",
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
 		"goalAffordable": "You can already make that — no need to set it as a goal.",
-		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board."
+		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board.",
+		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest."
 	},
 	"feed": {
 		"demoNudgeIdle": "The preserve waited quietly while you were away.",
@@ -128,6 +129,8 @@
 		"flowers": "Flowers",
 		"trees": "Trees",
 		"plant": "Plant",
+		"plantedTag": "planted ×{n}",
+		"plantedTitle": "{n} of these are growing in this area right now.",
 		"hint": "Planted things sprout right away and grow in over a minute or two."
 	},
 	"goalsIntro": {
@@ -141,7 +144,9 @@
 		"rotate": "Rotate",
 		"digUp": "Dig up (returns materials)",
 		"pickUp": "Pick up",
-		"harvest": "Harvest {name}"
+		"harvest": "Harvest {name}",
+		"lightUp": "Light it",
+		"putOut": "Put it out"
 	},
 	"welcome": {
 		"solo": "Solo",
@@ -199,6 +204,33 @@
 			"other": "{count} things placed"
 		},
 		"trackLevel": "Lv{level}",
+		"cozyScore": "Coziness {score}/100",
+		"perkSplit": "{upgrades}% from house upgrades, {cozy}% from decorating.",
+		"cozyCarryTitle": "+{count} carrying capacity",
+		"cozyTier": {
+			"bare": "Bare Room",
+			"homey": "Homey",
+			"snug": "Snug",
+			"cozy": "Cozy",
+			"beloved": "Beloved Home",
+			"storied": "Storied Home"
+		},
+		"cozyKind": {
+			"sleeping": "somewhere to sleep",
+			"seating": "somewhere to sit",
+			"surface": "a table or shelf",
+			"storage": "storage",
+			"light": "warmth or light",
+			"greenery": "something growing",
+			"water": "water",
+			"art": "something on the walls",
+			"curio": "a keepsake"
+		},
+		"cozyHint": "How lived-in your home feels. Most of it is range — how many different things you have put out, and how many comforts you have covered. Quantity barely counts: a room of copies scores almost nothing. Each rung strengthens your house perk, adds carrying capacity, and makes a night's sleep leave you walking faster.",
+		"cozyBreakdown": "{pieces} placed · {types} different · {kinds} of {all} comforts",
+		"cozyCarryHint": "Extra carrying capacity from how cozy your home is.",
+		"wellRested": "Well rested",
+		"restedHint": "You slept in a cozy home — you are walking faster until noon.",
 		"thePreserve": "The Preserve",
 		"trailTent": "Trail Tent — {biome}",
 		"health": "Health",
@@ -215,7 +247,7 @@
 		"groupWorld": "World",
 		"groupSystem": "System",
 		"navJournal": "Field journal (J)",
-		"navAchievements": "Achievements (K)",
+		"navAchievements": "Progress (K)",
 		"navFeed": "Activity feed (F)",
 		"navInventory": "Basket contents (B)",
 		"navCrafting": "Crafting (C)",
@@ -243,11 +275,15 @@
 			"watering-can": "Terraform — water a soil bed to make it plantable; water it again to flood it into open water. Chain water tiles into ponds, rivers, and lakes."
 		},
 		"titleFormat": "{name} ({key}): {how}",
-		"selected": "{name}: {how}",
 		"paintColorAria": "Paint color {color}",
 		"paint": "Paint",
-		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item: select, then click it",
-		"paintHow": "Paint: pick a color, then click the floor, walls, rug, or an item to recolor it."
+		"paintTitle": "Paint (4) — recolor the floor, walls, rug, or any item in any color: select, then click it. Each room of the house takes its own color.",
+		"paintPick": "Pick any paint color",
+		"paintCustom": "Custom paint color",
+		"brushGroup": "How much ground to shape",
+		"brushSize": "{n}×{n}",
+		"brushTitle": "Shape {n}×{n} squares at a time ({tiles} in one pass)",
+		"brushToggleHint": "click again to fold the sizes away"
 	},
 	"feedPanel": {
 		"title": "Activity Feed",
@@ -403,7 +439,7 @@
 				"crafting": "Crafting",
 				"basket": "Basket",
 				"journal": "Field journal",
-				"achievements": "Achievements",
+				"achievements": "Progress",
 				"feed": "Activity feed",
 				"tools": "Tools & upgrades",
 				"preserve": "Preserve map",
@@ -520,5 +556,11 @@
 		"nudgeBackToGame": "Back to the demo",
 		"storeItch": "Get it on itch.io",
 		"storeMas": "Get it on the Mac App Store"
+	},
+	"mirror": {
+		"title": "Look in the mirror",
+		"blurb": "Change your caretaker's look. Your name stays the same.",
+		"save": "Looks good",
+		"cancel": "Never mind"
 	}
 }

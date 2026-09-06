@@ -1,16 +1,54 @@
 // Willow Meadow: the opening biome's plants, water and structures.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const MEADOW: SpriteSet = {
-	flowers: def(36, 32, (g) => {
+	/**
+	 * The overlook bench: a live-edge slab laid across two log rounds, out at the
+	 * far edge of the meadow. Deliberately nothing like the Wooden Bench it used
+	 * to share a sprite with — no plank legs, no slat back, and a blanket left
+	 * folded on it from the last person who sat an hour before dusk.
+	 */
+	overlookbench: def(44, 36, (g) => {
+		g.fillStyle(C('#6f9a4a'), 1).fillEllipse(22, 31, 40, 9); // the grass it stands in
+		g.lineStyle(1.2, C('#d9c25f'), 1); // a few stems gone gold
+		g.lineBetween(5, 31, 3, 24).lineBetween(39, 31, 41, 25).lineBetween(36, 32, 37, 26);
+		const logRound = (x: number) => {
+			g.fillStyle(C('#7a5a34'), 1).fillCircle(x, 24.5, 6.4); // bark
+			g.fillStyle(C('#c19a63'), 1).fillCircle(x, 24, 4.8); // sawn end grain
+			g.lineStyle(1, C('#a3814f'), 0.9).strokeCircle(x, 24, 2.6).strokeCircle(x, 24, 1.1);
+		};
+		logRound(10);
+		logRound(34);
+		g.fillStyle(C('#8a6330'), 1).fillRoundedRect(3, 13.5, 38, 7, 2.5); // the slab, live-edged
+		g.fillStyle(C('#b98a4e'), 1).fillRoundedRect(3.5, 13.8, 37, 4.4, 2);
+		g.fillStyle(C('#c9a56a'), 1).fillRoundedRect(4, 14, 36, 1.8, 1); // the sun along its top edge
+		g.lineStyle(1, C('#8a6330'), 0.5).lineBetween(7, 17.6, 37, 17.6); // grain
+		// a blanket left folded on the near end
+		g.fillStyle(C('#c96f6a'), 1).fillRoundedRect(6, 9.5, 13, 6, 2);
+		g.fillStyle(C('#efe3c8'), 1).fillRect(6, 11.6, 13, 1.3);
+		g.fillStyle(C('#a85a55'), 1).fillRoundedRect(6, 14.6, 13, 2.2, 1); // the fold that hangs over
+		// and a jar of whatever was blooming at the far end
+		g.lineStyle(1, C('#6f9a4a'), 1).lineBetween(31, 12, 30, 7).lineBetween(33, 12, 34, 6.5).lineBetween(32, 12, 32, 6);
+		g.fillStyle(C('#e3c75f'), 1).fillCircle(30, 6.4, 1.8);
+		g.fillStyle(C('#d77bb1'), 1).fillCircle(34, 6, 1.8);
+		g.fillStyle(C('#f2ede0'), 1).fillCircle(32, 5.4, 1.6);
+		g.fillStyle(C('#bcd8e0'), 0.85).fillRoundedRect(28.5, 8.5, 7, 5.5, 1.5); // the jar
+		g.fillStyle(0xffffff, 0.4).fillRect(29.5, 9.5, 1.4, 3.5);
+	}),
+	...pickable('flowers', 36, 32, (g, picked) => {
 		g.fillStyle(C('#6da84e'), 1).fillEllipse(18, 24, 32, 12);
 		const cols = ['#d77bb1', '#e8954f', '#e3c75f', '#c45ad0', '#e86a6a'];
 		cols.forEach((c, i) => {
 			const x = 6 + i * 6,
 				y = 10 + (i % 2) * 6;
 			g.lineStyle(1, C('#4f8a38'), 1).lineBetween(x, y + 4, x, 22);
+			if (picked) {
+				// picked over: bare stems, with the next bud already coming on
+				g.fillStyle(C('#6f9a4a'), 1).fillCircle(x, y + 1, 1.5);
+				return;
+			}
 			g.fillStyle(C(c), 1).fillCircle(x, y, 3.4);
 			g.fillStyle(0xfff3c4, 1).fillCircle(x, y, 1.2);
 		});
@@ -43,16 +81,21 @@ export const MEADOW: SpriteSet = {
 		g.fillStyle(C('#3b2e25'), 1).fillRect(33.4, 5.8, 1.1, 2.4);
 		g.fillStyle(0xffffff, 0.7).fillEllipse(35.6, 5.4, 2, 1.2);
 	}),
-	sunflowers: def(34, 38, (g) => {
+	...pickable('sunflowers', 34, 38, (g, picked) => {
 		[9, 24].forEach((x, i) => {
 			const y = 8 + i * 4;
 			g.lineStyle(2.6, C('#5f9e44'), 1).lineBetween(x, y + 4, x, 34);
-			g.fillStyle(C('#e3c75f'), 1);
-			for (let p = 0; p < 8; p++) {
-				const a = (p / 8) * Math.PI * 2;
-				g.fillEllipse(x + Math.cos(a) * 5.5, y + Math.sin(a) * 5.5, 5, 3);
+			if (!picked) {
+				g.fillStyle(C('#e3c75f'), 1);
+				for (let p = 0; p < 8; p++) {
+					const a = (p / 8) * Math.PI * 2;
+					g.fillEllipse(x + Math.cos(a) * 5.5, y + Math.sin(a) * 5.5, 5, 3);
+				}
 			}
-			g.fillStyle(C('#7c5a3c'), 1).fillCircle(x, y, 3.4);
+			// the seed head stays on the stalk either way — picked, it is a bare
+			// brown disc with the petals dropped and the seed spiral emptied out
+			g.fillStyle(C(picked ? '#8a6a4a' : '#7c5a3c'), 1).fillCircle(x, y, picked ? 3.2 : 3.4);
+			if (picked) g.fillStyle(C('#6b4f36'), 1).fillCircle(x, y, 1.6);
 		});
 	}),
 	// --- new craftable habitat shelters ---
@@ -78,7 +121,7 @@ export const MEADOW: SpriteSet = {
 		});
 	}),
 	// --- additional plantable vegetation (one distinct sprite each) ---
-	daisies: def(34, 26, (g) => {
+	...pickable('daisies', 34, 26, (g, picked) => {
 		g.fillStyle(C('#6da84e'), 1).fillEllipse(17, 20, 32, 12);
 		for (const [x, y] of [
 			[9, 12],
@@ -87,13 +130,25 @@ export const MEADOW: SpriteSet = {
 			[13, 17],
 			[23, 17],
 		] as const) {
+			if (picked) {
+				// picked: the green button the petals were set around, nothing more
+				g.fillStyle(C('#7fa34e'), 1).fillCircle(x, y, 1.8);
+				continue;
+			}
 			g.fillStyle(0xffffff, 1);
 			for (const a of [0, 1.05, 2.1, 3.14, 4.19, 5.24]) g.fillEllipse(x + Math.cos(a) * 3, y + Math.sin(a) * 3, 3, 3);
 			g.fillStyle(C('#e3c75f'), 1).fillCircle(x, y, 2);
 		}
 	}),
-	foxglove: def(28, 42, (g) => {
+	...pickable('foxglove', 28, 42, (g, picked) => {
 		g.lineStyle(3, C('#4f7d3a'), 1).lineBetween(10, 40, 10, 8).lineBetween(18, 40, 18, 12);
+		if (picked) {
+			// the bells taken off the spike, leaving the green seed capsules
+			g.fillStyle(C('#6f8a4a'), 1);
+			for (let i = 0; i < 5; i++) g.fillEllipse(10, 10 + i * 5, 3.5, 3);
+			for (let i = 0; i < 4; i++) g.fillEllipse(18, 14 + i * 5, 3, 2.6);
+			return;
+		}
 		g.fillStyle(C('#c45ad0'), 1);
 		for (let i = 0; i < 5; i++) g.fillEllipse(10, 10 + i * 5, 7, 5);
 		for (let i = 0; i < 4; i++) g.fillEllipse(18, 14 + i * 5, 6, 4);

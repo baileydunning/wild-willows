@@ -8,7 +8,8 @@
 		"usedInCrafting": "Used in crafting",
 		"placeIn": "Place in:",
 		"allAreas": "All areas",
-		"camp": "Camp"
+		"camp": "Camp",
+		"campWall": "Camp walls"
 	},
 	"inventory": {
 		"title": "Gathering Basket — {carried}/{capacity}",
@@ -86,6 +87,8 @@
 		"nothingToCraft": "Nothing to craft for this area yet — restore it further or pick a different place.",
 		"onceTag": "one-time",
 		"onceTitle": "Can only be crafted once",
+		"craftedTag": "crafted ×{n}",
+		"craftedTitle": "You've crafted {n} of these so far.",
 		"matTitle": "{inBasket} in basket, {inChests} in linked chests",
 		"requiresTool": "Requires an upgraded tool — see Tools panel.",
 		"crafted": "Crafted ✓",
@@ -158,6 +161,7 @@
 		"upgrades": "Upgrades",
 		"level": "· level {level}/{max}",
 		"maxedOut": "Maxed out.",
+		"roomCount": "{count} rooms",
 		"upgrade": "Upgrade",
 		"perkActive": "· house perk",
 		"perkName": {
@@ -268,6 +272,8 @@
 		"waterRiver": "Shape a channel {tiles}+ tiles long",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} already returned",
+		"reqNowPct": "now {value}%",
+		"reqHave": "{have}/{need}",
 		"condCheck": "{cond} — check the weather panel (N)",
 		"openEntry": "Open {name}",
 		"notDiscovered": "Not yet discovered",
@@ -344,9 +350,37 @@
 			"other": "{correct} of {count} read right so far."
 		}
 	},
+	"finds": {
+		"_readme": "The Board of Finds — the pin board hung in the house. A view over discoveries already in the save; it records nothing of its own.",
+		"title": "Board of Finds",
+		"empty": "Nothing pinned yet. Restore some habitat and the animals will start turning up — every one that does gets a note on this board.",
+		"count": {
+			"one": "{count} of {total} species has found its way back.",
+			"other": "{count} of {total} species have found their way back."
+		},
+		"newest": "Latest find",
+		"cameBack": "Came back {date}",
+		"openNote": "Read the note on {name}",
+		"backToBoard": "Back to the board",
+		"signTitle": "What to look for",
+		"seen": {
+			"one": "seen once",
+			"other": "seen {count} times"
+		}
+	},
+	"stories": {
+		"title": "Bookshelf",
+		"intro": "Four short pieces on how the preserve actually works.",
+		"back": "Back to the shelf",
+		"prev": "Previous page",
+		"next": "Next page",
+		"page": "{n} of {total}"
+	},
 	"achievements": {
-		"title": "Achievements",
+		"title": "Progress",
 		"summary": "· {earned}/{total} · {points} pts",
+		"viewAchievements": "Achievements",
+		"viewCompletion": "Completion",
 		"tabAll": "All",
 		"tabPreserve": "Preserve",
 		"reqTitle": "How to earn it",
@@ -380,6 +414,32 @@
 			"journals": "Write up every area's field guide, and the expanded edition of each."
 		},
 		"progress": "Progress: {value}"
+	},
+	"completion": {
+		"headline": "Preserve completion",
+		"headlineTracks": "{done} of {total} tracks finished",
+		"points": "{points} points earned",
+		"areaStats": "{back}/{total} animals · {health}% health",
+		"areaLocked": "Not yet opened",
+		"group": {
+			"preserve": "The preserve",
+			"making": "Making",
+			"kit": "Kit & guides",
+			"honors": "Home & honors",
+			"byArea": "By area"
+		},
+		"row": {
+			"animals": "Animals welcomed",
+			"areas": "Areas opened",
+			"restored": "Areas restored",
+			"recipes": "Recipes crafted",
+			"habitat": "Habitat standing",
+			"plants": "Species planted",
+			"tools": "Tools at top tier",
+			"guides": "Field guides",
+			"home": "Home upgrades",
+			"achievements": "Achievements"
+		}
 	},
 	"tutorial": {
 		"gettingStarted": "Getting started",
@@ -580,7 +640,7 @@
 			"crafting": "Open crafting — works anywhere",
 			"basket": "Open your basket",
 			"journal": "Open the field journal",
-			"achievements": "Open achievements",
+			"achievements": "Open progress",
 			"tasks": "Tuck away / show the goal board",
 			"goals": "Open the goals builder — design your own task list",
 			"feed": "Open the activity feed (last 100 events)",
@@ -748,5 +808,76 @@
 		"weather": "Weather & seasons — how conditions shift across the preserve and shape the land; some materials and animals only appear in the right weather.",
 		"settings": "Settings — sound, accessibility, your character, and save options.",
 		"demoNear": "One more animal and you'll complete the demo — you're nearly there!"
+	},
+	"telescope": {
+		"_readme": "The Stargazing Telescope (ui/Telescope.tsx). Clouds by day, constellations by night — what each one IS lives under narrative.sky.*; these are the panel's own chrome.",
+		"title": "Telescope",
+		"modeDay": "Cloud watching",
+		"modeNight": "Stargazing",
+		"today": "Today: {weather}",
+		"tonight": "Tonight: the {season} sky",
+		"overhead": "Up there now",
+		"inView": "In view",
+		"emptyView": "Empty sky — keep sweeping.",
+		"aimHint": "Nothing in the crosshairs. Sweep the sky with the arrow keys.",
+		"hint": "Arrow keys sweep the telescope — or drag the view. Point at anything to read it.",
+		"eyepieceLabel": "The view through the eyepiece",
+		"allYear": "Circles the pole all year — it never sets.",
+		"bestIn": "Best seen in {seasons}.",
+		"levels": {
+			"high": "High cloud — above 20,000 ft, and made entirely of ice.",
+			"mid": "Middle cloud — 6,500 to 20,000 ft.",
+			"low": "Low cloud — below 6,500 ft.",
+			"towering": "Heap cloud — a low flat base and a head that can climb to the top of the sky."
+		},
+		"seasons": {
+			"spring": "spring",
+			"summer": "summer",
+			"autumn": "autumn",
+			"winter": "winter"
+		},
+		"cloudedOut": "{weather} — the sky has a lid on it tonight",
+		"optic": "Not a cloud: something light does on the way through one.",
+		"body": "In our own solar system — near enough to show a disc.",
+		"notToday": "Not in today's sky — this one comes with {weather}.",
+		"notTonight": "Not up tonight — {when}",
+		"lidOn": "And tonight the cloud is in the way of all of it.",
+		"seasonsAny": "it keeps no calendar; catch it when it is up.",
+		"or": " or ",
+		"zodiacLine": "Zodiac — {when}."
+	},
+	"tarot": {
+		"_readme": "The tarot deck on the table (ui/Tarot.tsx). What each CARD means lives under narrative.tarot.*, with the guide and the spreads; these are the panel's own chrome.",
+		"title": "Tarot",
+		"backToTable": "Back to the table",
+		"lede": "Seventy-eight cards for thinking with. Read about what they are, or shuffle and sit for a spread.",
+		"learnTitle": "What tarot is",
+		"learnBlurb": "How a deck is put together, how a reading works, and what the suits, numbers and courts mean.",
+		"readingTitle": "Sit for a reading",
+		"readingBlurb": "Pick a spread, shuffle, and turn the cards over one at a time.",
+		"disclaimer": "The cards do not know anything. They are a prompt for thinking, and the reading is the one you do.",
+		"guideNav": "Guide pages",
+		"contents": "Contents",
+		"prev": "Previous page",
+		"next": "Next page",
+		"pageOf": "Page {n} of {total}",
+		"chooseSpread": "Spread",
+		"reversals": "Reversals",
+		"reversalsHint": "Let cards land upside-down, with their shadow meaning. Off while you are learning the deck.",
+		"shuffle": "Shuffle and deal",
+		"reshuffle": "Shuffle again",
+		"upright": "Upright",
+		"reversed": "Reversed",
+		"cardLabel": "{seat}: {card}, {way}",
+		"faceDownLabel": "{seat}, face down. Turn it over.",
+		"turnNext": "Turn the {seat} card next.",
+		"allTurned": "All three turned. Hover or focus a card to read it again.",
+		"notYetLabel": "{seat}. Not yet: turn the cards left to right.",
+		"light": "Light",
+		"shadow": "Shadow",
+		"beforeTurn": "Set your question first, something you could act on. Then turn the {seat} card.",
+		"turnHint": "Turn a card to read it here. They go left to right.",
+		"majorLabel": "Major Arcana",
+		"wholeCard": "What that means"
 	}
 }

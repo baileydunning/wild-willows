@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest';
+import { isFloorTile, layoutOf } from '../../src/homePlan';
 import { freshWorld, appearance, type World } from './harness';
 import { readFileSync } from 'node:fs';
 
@@ -44,12 +45,32 @@ describe('DevTools is gated to test saves', () => {
 		// which player ids exist.
 		await expect(w.post('DevTools', { playerId: 'nobody-abc123', action: 'grant-resources' })).rejects.toThrow();
 	});
+
+	it('refuses without naming the save that would work', async () => {
+		// The refusal is the last thing that still reaches a player who cannot open
+		// the panel, so it must not hand them the way in. It used to read
+		// "Developer tools only work on a bailey_test save." — an instruction.
+		const pid = (await w.post('CreatePlayer', { name: 'Willow', passcode: '1234', appearance })).playerId;
+		const err = await w.post('DevTools', { playerId: pid, action: 'grant-resources', amount: 1 }).catch((e: any) => e);
+		expect(String(err?.message || err)).not.toMatch(/bailey/i);
+	});
+
+	it('tells the client which saves may open the panel, and no more', async () => {
+		// The client keeps the hidden panel shut unless this is set, so a player on
+		// an ordinary save never sees a refusal at all. It is a view of the gate,
+		// not the gate: the name behind it never leaves the server.
+		const plain = (await w.post('CreatePlayer', { name: 'Willow', passcode: '1234', appearance })).playerId;
+		const dev = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
+		expect((await w.get('GameState', plain)).player.devTools).toBe(false);
+		expect((await w.get('GameState', dev)).player.devTools).toBe(true);
+		expect(JSON.stringify((await w.get('GameState', plain)).player)).not.toMatch(/bailey/i);
+	});
 });
 
 describe('DevTools populate-biome (showcase)', () => {
 	it('builds a fully-restored, well-formed meadow', async () => {
 		// DevTools is gated to bailey_test saves (DEV_PLAYER_SLUG in
-		// server/resources.ts). These fixtures drive DevTools to set up state, so
+		// server/player.ts). These fixtures drive DevTools to set up state, so
 		// they are exactly the saves that gate is for — named accordingly rather
 		// than given a bypass, so the tests exercise the shipped rule.
 		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
@@ -242,18 +263,16 @@ describe('DevTools populate-biome (showcase)', () => {
 
 		// well-formed: inside the floor rect, one piece per tile, nothing outdoor-only,
 		// and the doorway plus the ring around it left clear so the exit is walkable
-		const inner = d.homeTracks.space.levels[home.space - 1].inner;
-		const x0 = Math.floor((30 - inner.w) / 2),
-			y0 = Math.floor((20 - inner.h) / 2);
-		const x1 = x0 + inner.w - 1,
-			y1 = y0 + inner.h - 1;
-		const door = { x: Math.round((x0 + x1) / 2), y: y1 };
+		// A maxed house is a floor plan — a great room, a nook and a study — so
+		// "on the floor" is a question for the layout, not for one rectangle.
+		const layout = layoutOf(d.homeTracks.space.levels[home.space - 1], 30, 20);
+		const door = { x: layout.doorX, y: layout.doorY };
 		const seen = new Set<string>();
 		for (const p of pls.filter((p: any) => !objById[p.objectId]?.isChest)) {
 			const key = `${p.x},${p.y}`;
 			expect(seen.has(key), `two pieces on ${key}`).toBe(false);
 			seen.add(key);
-			expect(p.x >= x0 && p.x <= x1 && p.y >= y0 && p.y <= y1, `${p.objectId} off the floor`).toBe(true);
+			expect(isFloorTile(layout, p.x, p.y), `${p.objectId} off the floor`).toBe(true);
 			expect(objById[p.objectId]?.placement, `${p.objectId} is outdoor-only`).not.toBe('outdoor');
 			expect(Math.abs(p.x - door.x) <= 1 && Math.abs(p.y - door.y) <= 1, `${p.objectId} in the doorway`).toBe(false);
 		}
@@ -262,8 +281,16 @@ describe('DevTools populate-biome (showcase)', () => {
 	it('dry biomes get no pond (desert cannot flood)', async () => {
 		const pid = (await w.post('CreatePlayer', { name: 'bailey_test', passcode: '1234', appearance })).playerId;
 		await w.post('DevTools', { playerId: pid, action: 'populate-biome', area: 'desert' });
-		const s = await w.get('GameState', pid);
-		expect(s.terrain.filter((t: any) => t.area === 'desert' && t.type === 'water').length).toBe(0);
-		expect(s.placements.filter((p: any) => p.area === 'desert').length).toBeGreaterThanOrEqual(20);
+		// Read the ROWS, not the snapshot: this populates the desert while the
+		// player is standing in the meadow, and a snapshot carries the area on
+		// screen (plus the home interior). The terrain half of this assertion had
+		// already gone quietly vacuous when terrain was scoped the same way — it was
+		// filtering another area out of a payload that no longer had it.
+		const desertTiles = [...w.db.TerrainTile._rows.values()].filter(
+			(t: any) => t.area === 'desert' && t.type === 'water',
+		);
+		expect(desertTiles).toHaveLength(0);
+		const desertPlacements = [...w.db.Placement._rows.values()].filter((p: any) => p.area === 'desert');
+		expect(desertPlacements.length).toBeGreaterThanOrEqual(20);
 	});
 });

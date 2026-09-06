@@ -3,12 +3,14 @@ import { bridge } from './bridge';
 import {
 	canPaintClick,
 	isSleepable,
+	isLit,
 	blocksDoorway,
 	blocksGateTrail,
 	gateEdges,
 	isOrphanedTween,
 	screenSpaceOverlayTransform,
 	arrivalKind,
+	pinwheelSpin,
 } from './interactions';
 import {
 	animalScale,
@@ -19,17 +21,32 @@ import {
 	makeNodeTextures,
 	makeObjectTextures,
 	makePlayerTexture,
+	connOf,
+	ensureWaterTile,
+	PATH_SHAPES,
+	PICKED,
+	OUT,
+	ensurePathTile,
+	RUN_SHAPES,
+	LIT_SHAPES,
+	ensureRunTile,
+	PINWHEEL_POST,
+	PINWHEEL_BLADES,
+	PINWHEEL_HUB_DY,
+	ensurePinwheelParts,
 	snapshotResourceIcons,
 	snapshotObjectIcons,
 	INV_TEX_SCALE,
 	TEX_SCALE,
 } from './sprites';
+import type { Conn } from './sprites';
 import {
 	seasonStyle,
 	weatherType,
 	liveWeatherType,
 	dayPhaseStyle,
 	liveDayProgress,
+	liveTime,
 	phaseAtProgress,
 	gatherResourceFor,
 } from '../weather';
@@ -37,10 +54,22 @@ import { t, content, getLocale, isSimpleText } from '../i18n';
 import { getPrefs, renderScale, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
 import { gearOn, subscribe as subscribeGear } from '../gear';
+import { BRISK_STEP_SPEED, cozyOptsFor, hasHomeAbility } from '../homeAbilities';
 import { isTypingTarget } from '../typing';
 import { scheduleFlush, cancelFlush } from '../perf';
 import { harvestReadyAt, harvestWeatherOk } from '../types';
+import { restedSpeed } from '../../server/cozy';
 import type { BiomeDef, HabitatObjectDef, Placement } from '../types';
+import {
+	type HomeLayout,
+	type PlanDef,
+	isBackWall,
+	isFloorTile,
+	isWalkable,
+	layoutOf,
+	roomAt,
+	wallRoomOf,
+} from '../homePlan';
 import {
 	TILE,
 	OUT_W,
@@ -50,6 +79,9 @@ import {
 	USER_ZOOM_MIN,
 	USER_ZOOM_MAX,
 	TERRAFORM_REPEAT_MS,
+	SWEEP_TIER,
+	SWEEP_REACH,
+	DIP_TIER,
 	CAMP,
 	CAMP_TENT_FRONT,
 	CAMP_BLOCK,
@@ -64,6 +96,7 @@ import {
 	nearGate as isNearGate,
 	findFreeTile as findFreeTileIn,
 	canPlaceAt as canPlaceOn,
+	hangSpotFor,
 	withinReach,
 	terraformTool,
 	terraformActionFor as terraformActionOn,
@@ -79,6 +112,17 @@ import {
 	oceanTarget as pickOceanTarget,
 	fishTarget as pickFishTarget,
 	nextUserZoom,
+	ANIMAL_DRAW_CAP,
+	animalsReady,
+	approachWaitMs,
+	approachMaxFor,
+	approachRadius,
+	approachPoint,
+	approachLeg,
+	hasArrived,
+	EMBER_WATCH_STILL_MS,
+	type HearthAbilities,
+	APPROACH_WATER_REACH,
 } from './worldRules';
 import type { NodeDef, PlaceContext } from './worldRules';
 
@@ -133,6 +177,30 @@ function hashCached(s: string): number {
 	return h;
 }
 
+/**
+ * How a toy answers a nudge. Each is one tween of a plain counter that a sprite
+ * follows and then returns to rest — see playToy.
+ *
+ *   shake   a hard side-to-side rattle that damps out (the snow globe)
+ *   sway    a slow pendulum, twice, dying away (chimes, a boat on its stand)
+ *   flutter a scatter and resettle: a quick lift and a shiver (anything winged)
+ *   knock   one firm tap: down, up, done (a door, a plaque, a gnome's hat)
+ *   ripple  a soft squash that spreads and flattens (water)
+ *   settle  a fade down and back, for something you re-make rather than move
+ */
+type ToyMotion = 'shake' | 'sway' | 'flutter' | 'knock' | 'ripple' | 'settle';
+
+/** A toy sprite's pose at rest — everything a motion is allowed to disturb, so
+ *  every motion can be undone by writing all of it back. */
+interface ToyRest {
+	x: number;
+	y: number;
+	rot: number;
+	sx: number;
+	sy: number;
+	alpha: number;
+}
+
 interface Interactable {
 	x: number;
 	y: number;
@@ -179,22 +247,29 @@ interface PlacementEntry {
 	growth?: { at: number; matures: boolean };
 }
 
-/** The interior rectangle (tile coords) plus its cosmetics — what roomSpec()
- *  hands back for the home or a trail tent. Named only so the memoised copy the
- *  scene holds onto can be typed; see roomSpec(). */
-interface RoomSpec {
-	x0: number;
-	y0: number;
-	x1: number;
-	y1: number;
+/** One room's four paint colors, already resolved down the chain: the room's
+ *  own paint, else the house default, else the style's palette. */
+interface RoomPaint {
+	floor: string;
+	wall: string;
+	accent: string;
+	rug: string;
+}
+
+/** The interior floor plan plus its cosmetics — what roomSpec() hands back for
+ *  the home or a trail tent. The geometry (rooms, doorways, the exit) is the
+ *  layout the server decides from; everything added here is paint. Named only so
+ *  the memoised copy the scene holds onto can be typed; see roomSpec(). */
+interface RoomSpec extends HomeLayout {
+	/** Per room id — every room of the plan has an entry. */
+	paint: Record<string, RoomPaint>;
+	/** The main room's colors, for the few places that just want "the house". */
 	floor: string;
 	wall: string;
 	accent: string;
 	rug: string;
 	decor: number;
 	light: number;
-	doorX: number;
-	doorY: number;
 }
 
 export class WorldScene extends Phaser.Scene {
@@ -203,6 +278,8 @@ export class WorldScene extends Phaser.Scene {
 	private playerShadow!: Phaser.GameObjects.Image;
 	private walkT = 0;
 	private walkAudioActive = false;
+	/** Last fire nearness sent to the mixer (0..1), so we only send changes. */
+	private fireAudioLevel = 0;
 	private keys!: any;
 	private moveKeys: {
 		up: Phaser.Input.Keyboard.Key[];
@@ -218,7 +295,7 @@ export class WorldScene extends Phaser.Scene {
 	// fence recovers alongside it.
 	private healthDeco: Phaser.GameObjects.Image[] = [];
 	// Ground tinting touches every static sprite in the world (~10k in the meadow),
-	// so it is memoised against the only inputs that can change the colour. Reset
+	// so it is memoised against the only inputs that can change the color. Reset
 	// in drawGround(), because a fresh sprite set starts untinted.
 	private tintSig = '';
 	private dynamic!: Phaser.GameObjects.Group;
@@ -227,9 +304,19 @@ export class WorldScene extends Phaser.Scene {
 	// session, so tearing them all down on every dig made each dig cost more than
 	// the last. Keyed "tx,ty"; `it` is the plant-bed interactable for watered soil.
 	private terrain!: Phaser.GameObjects.Group;
+	/** Survey-spade marks over buried caches, rebuilt with the terrain. */
+	private cacheMarks: Phaser.GameObjects.Image[] = [];
+	// `conn` is the neighbour mask the tile's art was built for — see drawTerrain.
 	private terrainSprites = new Map<
 		string,
-		{ type: string; img: Phaser.GameObjects.Image; zone?: Phaser.GameObjects.GameObject; it?: Interactable }
+		{
+			type: string;
+			conn: Conn;
+			img: Phaser.GameObjects.Image;
+			deco?: Phaser.GameObjects.Image;
+			zone?: Phaser.GameObjects.GameObject;
+			it?: Interactable;
+		}
 	>();
 	private animals!: Phaser.GameObjects.Group; // animals live in their own layer so a
 	private animalSig = ''; // routine refresh doesn't reset their wandering
@@ -270,7 +357,7 @@ export class WorldScene extends Phaser.Scene {
 	private objectDefSrc: unknown = null;
 	private objectDefLocale = '';
 	// `area:x,y` -> the placement standing on that tile (see placementAt).
-	private placementByTile: Map<string, Placement> | null = null;
+	private placementByTile: Map<string, Placement[]> | null = null;
 	private placementByTileSrc: unknown = null;
 	// The interior room, which is a pure function of the area + the home config.
 	private roomCache: RoomSpec | null = null;
@@ -303,10 +390,38 @@ export class WorldScene extends Phaser.Scene {
 	private lastFocusY = Infinity;
 	private lastFocusLabel: string | null = null;
 	private lastFocusSource: 'near' | 'hover' | null = null;
+	private hasFocusHistory = false;
 
 	private placementObjectId: string | null = null;
 	private movingPlacementId: string | null = null;
 	private sleeping = false;
+	// Where the caretaker is sitting, if they are: the seat's own center, which is
+	// what standing up steps them off. See sitOn().
+	/** The seat the caretaker is in, and whether it is one they LIE in (a hammock)
+	 *  rather than sit on — which changes the pose, the tilt, and what the animals
+	 *  that come over do once they get here. */
+	private sitting: { x: number; y: number; recline?: boolean } | null = null;
+	// When the caretaker sat down. Sitting still is the one thing in the game
+	// that pays for doing nothing — animals with a reason to be near this seat
+	// work their way over (see the stillness block in worldRules.ts, which
+	// decides which ones and how long they take). Nothing about it is recorded:
+	// the company IS the reward, so there is no counter here to farm.
+	private stillSince: number | null = null;
+	// Where the caretaker was standing when they stopped walking, once they have
+	// been stopped long enough for EMBER_WATCH_STILL_MS to count it — the Warmth
+	// 7 ability, which is a seat you do not have to have brought with you. Null
+	// whenever they are moving, sitting, sleeping or placing something. The
+	// gathering reads `stillAnchor()`, which is this or the seat, so every rule
+	// below stayed exactly one rule.
+	private standingStill: { x: number; y: number } | null = null;
+	/** How long the caretaker has been stood in one place, for the above. */
+	private idleSince: number | null = null;
+	/** Whether Ember Watch was on when they stopped — asked once per stop rather
+	 *  than once per frame. See noteStandingStill(). */
+	private idleWatch = false;
+	/** Animals currently making their way over, capped at approachMaxFor(). */
+	private approaching = new Set<Phaser.GameObjects.Image>();
+
 	private ghost: Phaser.GameObjects.Container | null = null;
 	private placeRotation = 0; // degrees (0/90/180/270) applied to the object being placed/moved
 	private moveAccum = 0;
@@ -376,13 +491,13 @@ export class WorldScene extends Phaser.Scene {
 	private waterTiles = new Set<string>();
 	private waterTileCenters: { x: number; y: number }[] = []; // pixel centers of open-water tiles
 	private bridgeTiles = new Set<string>();
-	// Weather visuals: a camera-locked full-screen weather-colour tint and a
+	// Weather visuals: a camera-locked full-screen weather-color tint and a
 	// world-locked rain/snow particle emitter, swapped when the weather changes.
 	private weatherOverlay?: Phaser.GameObjects.Rectangle;
 	private weatherEmitter?: Phaser.GameObjects.Particles.ParticleEmitter;
-	/** Runs the colour/alpha cross-fade between two weathers. */
+	/** Runs the color/alpha cross-fade between two weathers. */
 	private weatherFade?: Phaser.Tweens.Tween;
-	/** Overlay colour we're currently showing, so a fade can start from it. */
+	/** Overlay color we're currently showing, so a fade can start from it. */
 	private weatherOverlayColor = 0xffffff;
 	private weatherSig = '';
 	// Day/night: a second full-screen tint that eases through dawn → day → dusk →
@@ -392,7 +507,7 @@ export class WorldScene extends Phaser.Scene {
 	private lightState = { r: 255, g: 255, b: 255, a: 0 };
 	private lightPhase = ''; // current day phase the tint is set to (dawn/day/dusk/night)
 	// Warm "sky glow" gradient (dawn/dusk): a top-weighted overlay so a strong
-	// sunset colours the top of the view without washing the whole ground brown.
+	// sunset colors the top of the view without washing the whole ground brown.
 	private skyOverlay?: Phaser.GameObjects.Image;
 	private skyTween?: Phaser.Tweens.Tween;
 	// Night lights: things that genuinely push back the dark. A screen-sized
@@ -403,6 +518,13 @@ export class WorldScene extends Phaser.Scene {
 	// lampGlow is the headlamp's warm additive halo (works on any renderer);
 	// campfires already carry their own halo from drawPlacements.
 	private lampGlow?: Phaser.GameObjects.Image;
+	// Every lantern, string light and lantern row standing in this area carries a
+	// small warm halo built with its placement (attachLightGlow). They are held
+	// here so the night can turn them up and down together, and so the light mask
+	// can stamp them without walking the placement list: the placement owns each
+	// one, so a rebuilt or removed light takes its halo with it and this list is
+	// pruned of the dead on the next update.
+	private lampGlows: Phaser.GameObjects.Image[] = [];
 	private lightMaskRT?: Phaser.GameObjects.RenderTexture;
 	private lightBrush?: Phaser.GameObjects.Image;
 	private lightBitmapMask?: Phaser.Display.Masks.BitmapMask;
@@ -465,56 +587,69 @@ export class WorldScene extends Phaser.Scene {
 
 	/** Trail-tent interior: the starter-tent footprint with canvas-y colors —
 	 *  decor/light pinned to 1 so drawHomeRoom skips the house-only flourishes. */
-	private tentRoom() {
-		const inner = { w: 6, h: 5 };
-		const x0 = Math.floor((OUT_W - inner.w) / 2);
-		const y0 = Math.floor((OUT_H - inner.h) / 2);
-		const x1 = x0 + inner.w - 1,
-			y1 = y0 + inner.h - 1;
-		return {
-			x0,
-			y0,
-			x1,
-			y1,
+	private tentRoom(): RoomSpec {
+		const layout = layoutOf({ inner: { w: 6, h: 5 } }, OUT_W, OUT_H);
+		const paint: RoomPaint = {
 			floor: '#c8b088', // groundcloth
 			wall: '#8a7c5a', // weathered canvas — warm tan, just a whisper of olive
 			accent: '#e3c75f',
 			rug: '#b5707a',
+		};
+		return {
+			...layout,
+			...paint,
+			paint: Object.fromEntries(layout.rooms.map((r) => [r.id, paint])),
 			decor: 1,
 			light: 1,
-			doorX: Math.round((x0 + x1) / 2),
-			doorY: y1,
 		};
 	}
 
-	/** Interior floor rectangle (tile coords) + cosmetics for the current home config. */
-	private homeRoom() {
+	/**
+	 * The current home's floor plan + cosmetics.
+	 *
+	 * The geometry comes from the Space level's plan in the shipped data, laid out
+	 * by the same function the server decides with — so what the ghost says is
+	 * placeable is what the server accepts.
+	 *
+	 * Paint resolves per room, most specific first: what the player painted THIS
+	 * room, else what they painted the house, else the style's own palette. That
+	 * chain is why a house painted before it had rooms comes out all one color,
+	 * and why a nook painted at Space 3 keeps its color at Space 4.
+	 */
+	private homeRoom(): RoomSpec {
 		const home =
 			bridge.shared.state?.player?.home || ({ style: 'cabin', space: 1, comfort: 1, decor: 1, light: 1 } as any);
 		const data = bridge.shared.data;
 		const styles = data?.homeStyles || {};
 		const style = styles[home.style] || styles.cabin || { floor: '#c9a373', wall: '#9c7a52', accent: '#b5707a' };
 		const spaceLevels = data?.homeTracks?.space?.levels || [];
-		const inner = spaceLevels[(home.space || 1) - 1]?.inner || { w: 8, h: 6 };
-		const x0 = Math.floor((OUT_W - inner.w) / 2);
-		const y0 = Math.floor((OUT_H - inner.h) / 2);
-		const x1 = x0 + inner.w - 1,
-			y1 = y0 + inner.h - 1;
-		const colors = home.colors || {};
+		const layout = layoutOf(spaceLevels[(home.space || 1) - 1] as PlanDef, OUT_W, OUT_H, home.light || 1);
+		const house = home.colors || {};
+		const paint: Record<string, RoomPaint> = {};
+		for (const room of layout.rooms) {
+			const own = home.roomColors?.[room.id] || {};
+			const accent = own.accent || house.accent || style.accent;
+			paint[room.id] = {
+				floor: own.floor || house.floor || style.floor,
+				wall: own.wall || house.wall || style.wall,
+				accent,
+				rug: own.rug || house.rug || accent,
+			};
+		}
 		return {
-			x0,
-			y0,
-			x1,
-			y1,
-			floor: colors.floor || style.floor,
-			wall: colors.wall || style.wall,
-			accent: colors.accent || style.accent,
-			rug: colors.rug || colors.accent || style.accent,
+			...layout,
+			...(paint[layout.rooms[0].id] as RoomPaint),
+			paint,
 			decor: home.decor || 1,
 			light: home.light || 1,
-			doorX: Math.round((x0 + x1) / 2),
-			doorY: y1,
 		};
+	}
+
+	/** The paint for the room covering a tile — falling back to the main room's,
+	 *  which is what a wall tile between two rooms and a corner both wear. */
+	private paintAt(r: RoomSpec, tx: number, ty: number): RoomPaint {
+		const room = roomAt(r, tx, ty) || wallRoomOf(r, tx, ty);
+		return (room && r.paint[room.id]) || r.paint[r.rooms[0].id];
 	}
 
 	/**
@@ -656,10 +791,21 @@ export class WorldScene extends Phaser.Scene {
 		this.skyOverlay = undefined;
 		this.skyTween = undefined;
 		this.lampGlow = undefined;
+		this.lampGlows = [];
+		this.sitting = null; // a fresh area starts you on your feet
+		this.endStillness();
 		this.lightMaskRT = undefined;
 		this.lightBrush = undefined;
 		this.lightBitmapMask = undefined;
 		this.dynamicSig = ''; // force a full dynamic rebuild on (re)create
+		// Same, and it is the one that bit: the animal layer is a fresh, EMPTY group
+		// after a restart, but a field initializer only runs at construction, so the
+		// signature describing the cast this instance drew last time survived into
+		// it. Going indoors restarts the scene and returns from refreshDynamic before
+		// the animal block, so animalSig was still the outdoor area's — and stepping
+		// back out computed that identical signature, read "nothing changed", and
+		// skipped the paint. Every animal was gone until the cast itself changed.
+		this.animalSig = '';
 		// Same restart hazard as the overlays above: the float-text ring is holding
 		// Text objects that belonged to the scene this instance just was.
 		this.floatLabels = [];
@@ -830,7 +976,7 @@ export class WorldScene extends Phaser.Scene {
 			//
 			// WEB ONLY. Electron fires this too (minimise, hide), but desktop kept the
 			// 3s window, so there is at most three seconds of walking to rescue and
-			// nothing to compensate for. Skipping it leaves desktop's behaviour on hide
+			// nothing to compensate for. Skipping it leaves desktop's behavior on hide
 			// exactly what it was before this window was ever split.
 			if (!this.isDesktopBuild && this.alive) this.flushPosition();
 		};
@@ -997,7 +1143,10 @@ export class WorldScene extends Phaser.Scene {
 		const ensurePainted = () => {
 			if (!this.alive) return;
 			this.refreshDynamic();
-			if (!bridge.shared.state && tries++ < 40) this.time.delayedCall(75, ensurePainted);
+			// Wait on the definitions too, not just the save: the animal layer needs
+			// both, and they arrive independently.
+			if (!animalsReady(bridge.shared.data, bridge.shared.state) && tries++ < 40)
+				this.time.delayedCall(75, ensurePainted);
 		};
 		ensurePainted();
 	}
@@ -1029,7 +1178,10 @@ export class WorldScene extends Phaser.Scene {
 		this.unsubs.push(bridge.on('enter-move', (p: any) => this.enterMove(p.placementId)));
 		this.unsubs.push(
 			bridge.on('appearance-changed', (appearance: any) => {
-				if (this.alive) this.player.setTexture(makePlayerTexture(this, appearance));
+				if (this.alive)
+					this.player.setTexture(
+						makePlayerTexture(this, appearance, this.sitting ? (this.sitting.recline ? 'lie' : 'sit') : 'stand'),
+					);
 			}),
 		);
 		// The build animation plays on the camp building; its reveal fires world-dirty,
@@ -1104,40 +1256,39 @@ export class WorldScene extends Phaser.Scene {
 					moving: !!this.movingPlacementId,
 				})
 			) {
-				const hit = (bridge.shared.state?.placements || []).find((p) => p.area === 'home' && p.x === tx && p.y === ty);
+				// placementsAt puts whatever is ON TOP first, so painting a tile with a
+				// vase standing on a table recolours the vase — the thing you can see.
+				const hit = this.placementsAt(tx, ty)[0];
 				if (hit) {
 					bridge.emit('paint-click', { placementId: hit.id });
 					return;
 				}
-				const r = this.homeRoom();
-				const inFloor = tx >= r.x0 && tx <= r.x1 && ty >= r.y0 && ty <= r.y1;
+				// Paint is PER ROOM. A house past Space 2 is a great room with a nook
+				// (and later a study) off it, and the point of a floor plan is that
+				// they need not match — so a click carries the room it landed in, and
+				// only that room changes color.
+				const r = this.roomSpec();
 				const inRing = tx >= r.x0 - 1 && tx <= r.x1 + 1 && ty >= r.y0 - 1 && ty <= r.y1 + 1;
-				if (!inFloor && inRing) {
-					bridge.emit('paint-click', { target: 'wall' });
+				const room = roomAt(r, tx, ty);
+				if (!room) {
+					// a wall (or a doorway, which belongs to the room it opens off)
+					if (inRing) bridge.emit('paint-click', { target: 'wall', room: wallRoomOf(r, tx, ty)?.id });
 					return;
 				}
-				if (inFloor) {
-					// rug hit-test mirrors how drawHomeRoom lays the centre rug out
-					const fx = r.x0 * TILE,
-						fy = r.y0 * TILE;
-					const fw = (r.x1 - r.x0 + 1) * TILE,
-						fh = (r.y1 - r.y0 + 1) * TILE;
-					const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
-					const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
-					const cx = fx + fw / 2,
-						cy = fy + fh / 2;
-					const onRug =
-						r.decor >= 2 && Math.abs(pointer.worldX - cx) <= rugW / 2 && Math.abs(pointer.worldY - cy) <= rugH / 2;
-					bridge.emit('paint-click', onRug ? { target: 'rug' } : { target: 'floor' });
-				}
+				// rug hit-test reads the same rectangle drawHomeRoom lays the rug out on
+				const rug = this.rugRect(r, room);
+				const onRug =
+					!!rug && Math.abs(pointer.worldX - rug.cx) <= rug.w / 2 && Math.abs(pointer.worldY - rug.cy) <= rug.h / 2;
+				bridge.emit('paint-click', { target: onRug ? 'rug' : 'floor', room: room.id });
 				return;
 			}
 			if (this.movingPlacementId) {
 				if (this.canPlaceAt(tx, ty, false, this.movingPlacementId)) {
+					const spot = this.placeTarget(tx, ty, this.movingPlacementId);
 					bridge.emit('move-to', {
 						placementId: this.movingPlacementId,
-						x: tx,
-						y: ty,
+						x: spot.x,
+						y: spot.y,
 						rotation: this.placeRotation,
 					});
 					this.exitPlacement();
@@ -1145,13 +1296,15 @@ export class WorldScene extends Phaser.Scene {
 				return;
 			}
 			if (this.placementObjectId) {
-				if (this.canPlaceAt(tx, ty))
+				if (this.canPlaceAt(tx, ty)) {
+					const spot = this.placeTarget(tx, ty);
 					bridge.emit('place-at', {
 						objectId: this.placementObjectId,
-						x: tx,
-						y: ty,
+						x: spot.x,
+						y: spot.y,
 						rotation: this.placeRotation,
 					});
+				}
 				return;
 			}
 			// terraform with shovel / watering can on an empty reachable tile
@@ -1175,6 +1328,7 @@ export class WorldScene extends Phaser.Scene {
 	private shutdown() {
 		this.alive = false;
 		this.setWalkAudio(false);
+		this.setFireAudio(0); // a torn-down scene must not leave a fire burning in the mixer
 		this.unsubs.forEach((u) => u());
 		this.unsubs = [];
 		// Drop queued rebuilds so a torn-down scene can't be repainted next frame.
@@ -1548,77 +1702,155 @@ export class WorldScene extends Phaser.Scene {
 		}
 	}
 
-	/** An interior: a cozy room of floor + walls with a door — the home (sized by
-	 *  tier) or a trail tent (fixed, canvas-walled; see tentRoom). */
+	/**
+	 * An interior: a floor plan of rooms and the walls around them, with a door —
+	 * the home (sized and shaped by its Space level) or a trail tent (fixed,
+	 * canvas-walled; see tentRoom).
+	 *
+	 * Drawn TILE BY TILE rather than as a few big rectangles, because from Space 3
+	 * the interior is no longer one rectangle: it is a great room with a nook (and
+	 * later a study) off it, each with its own paint. So each room lays down its
+	 * own floor, and the wall ring is walked tile by tile — every wall wearing the
+	 * color of the room it faces — with horizontally adjacent tiles of the same
+	 * color merged into one rectangle so the object count stays near what the
+	 * single-room version cost.
+	 */
 	private drawHomeRoom() {
 		const r = this.roomSpec();
 		// dark surround outside the room
 		this.addDyn(this.add.rectangle(0, 0, this.worldW, this.worldH, C('#1c2216')).setOrigin(0, 0).setDepth(0));
-		// wall ring (one tile thick around the floor)
-		const wx = (r.x0 - 1) * TILE,
-			wy = (r.y0 - 1) * TILE;
-		const ww = (r.x1 - r.x0 + 3) * TILE,
-			wh = (r.y1 - r.y0 + 3) * TILE;
-		this.addDyn(this.add.rectangle(wx, wy, ww, wh, C(r.wall)).setOrigin(0, 0).setDepth(0.1));
-		this.addDyn(this.add.rectangle(wx, wy, ww, TILE, 0x000000, 0.18).setOrigin(0, 0).setDepth(0.12)); // back-wall shadow
-		// floor
-		const fx = r.x0 * TILE,
-			fy = r.y0 * TILE;
-		const fw = (r.x1 - r.x0 + 1) * TILE,
-			fh = (r.y1 - r.y0 + 1) * TILE;
-		this.addDyn(this.add.rectangle(fx, fy, fw, fh, C(r.floor)).setOrigin(0, 0).setDepth(0.2));
-		// faint plank grid
-		for (let gx = r.x0; gx <= r.x1 + 1; gx++)
-			this.addDyn(
-				this.add
-					.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06)
-					.setOrigin(0, 0)
-					.setDepth(0.21),
-			);
-		for (let gy = r.y0; gy <= r.y1 + 1; gy++)
-			this.addDyn(
-				this.add
-					.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06)
-					.setOrigin(0, 0)
-					.setDepth(0.21),
-			);
 
-		// Furnishings track: a wall trim line + a centre rug that gets finer per level
-		if (r.decor >= 1) {
-			this.addDyn(
-				this.add
-					.rectangle(wx, wy + TILE - 2, ww, 3, C(r.accent), 0.5)
-					.setOrigin(0, 0)
-					.setDepth(0.13),
-			);
-		}
-		if (r.decor >= 2) {
-			const rugW = Math.min(fw - TILE * 2, TILE * (3 + r.decor));
-			const rugH = Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5));
-			const cx = fx + fw / 2,
-				cy = fy + fh / 2;
-			this.addDyn(this.add.rectangle(cx, cy, rugW, rugH, C(r.rug), 0.8).setDepth(0.22));
-			this.addDyn(this.add.rectangle(cx, cy, rugW - 10, rugH - 10, C(r.floor), 0.35).setDepth(0.221));
-			if (r.decor >= 3) this.addDyn(this.add.rectangle(cx, cy, rugW - 22, rugH - 22, C(r.rug), 0.6).setDepth(0.222));
+		// ---- the wall ring, a tile at a time, in runs of one color
+		// A wall tile is anything in the plan's ring that is not floor and touches
+		// floor — including the corners, which nothing hangs on but which are
+		// certainly wall to look at.
+		const isWall = (x: number, y: number) => {
+			if (isFloorTile(r, x, y)) return false;
+			for (let dy = -1; dy <= 1; dy++)
+				for (let dx = -1; dx <= 1; dx++) if ((dx || dy) && isFloorTile(r, x + dx, y + dy)) return true;
+			return false;
+		};
+		for (let y = r.y0 - 1; y <= r.y1 + 1; y++) {
+			let runX = 0,
+				runLen = 0,
+				runColor = '';
+			const flush = () => {
+				if (runLen)
+					this.addDyn(
+						this.add
+							.rectangle(runX * TILE, y * TILE, runLen * TILE, TILE, C(runColor))
+							.setOrigin(0, 0)
+							.setDepth(0.1),
+					);
+				runLen = 0;
+			};
+			for (let x = r.x0 - 1; x <= r.x1 + 1; x++) {
+				// A doorway is a hole in the wall, not wall: it takes the floor of the
+				// room it opens off, so you can see straight through.
+				const opening = r.openings.has(`${x},${y}`);
+				const color = opening ? '' : isWall(x, y) ? this.paintAt(r, x, y).wall : '';
+				if (color && runLen && color === runColor && x === runX + runLen) runLen++;
+				else {
+					flush();
+					if (color) {
+						runX = x;
+						runLen = 1;
+						runColor = color;
+					}
+				}
+				if (opening) {
+					const p = this.paintAt(r, x, y);
+					this.addDyn(
+						this.add
+							.rectangle(x * TILE, y * TILE, TILE, TILE, C(p.floor))
+							.setOrigin(0, 0)
+							.setDepth(0.1),
+					);
+					// a threshold line, so a doorway reads as a way through rather than
+					// as a hole someone forgot to fill in
+					this.addDyn(
+						this.add
+							.rectangle(x * TILE, y * TILE, TILE, TILE, 0x000000, 0.14)
+							.setOrigin(0, 0)
+							.setDepth(0.105),
+					);
+				}
+			}
+			flush();
 		}
 
-		// Warmth track: windows along the back wall + a soft hearth glow
-		if (r.light >= 2) {
-			const windows = r.light; // 2 → two windows, 3 → three, 4 → four
-			for (let i = 0; i < windows; i++) {
-				const wxp = fx + fw * ((i + 1) / (windows + 1));
-				this.addDyn(this.add.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14));
+		// ---- floors, one room at a time, each in its own color
+		for (const room of r.rooms) {
+			const paint = r.paint[room.id];
+			const fx = room.x0 * TILE,
+				fy = room.y0 * TILE;
+			const fw = (room.x1 - room.x0 + 1) * TILE,
+				fh = (room.y1 - room.y0 + 1) * TILE;
+			this.addDyn(this.add.rectangle(fx, fy, fw, fh, C(paint.floor)).setOrigin(0, 0).setDepth(0.2));
+			// faint plank grid
+			for (let gx = room.x0; gx <= room.x1 + 1; gx++)
 				this.addDyn(
 					this.add
-						.rectangle(wxp, wy + TILE / 2, TILE * 0.7, TILE * 0.6)
-						.setStrokeStyle(2, C('#000000'), 0.25)
-						.setDepth(0.141),
+						.rectangle(gx * TILE, fy, 1, fh, 0x000000, 0.06)
+						.setOrigin(0, 0)
+						.setDepth(0.21),
 				);
+			for (let gy = room.y0; gy <= room.y1 + 1; gy++)
+				this.addDyn(
+					this.add
+						.rectangle(fx, gy * TILE, fw, 1, 0x000000, 0.06)
+						.setOrigin(0, 0)
+						.setDepth(0.21),
+				);
+		}
+
+		// ---- the ceiling edge: every wall tile with floor directly below it gets
+		// the shadow it always had, and (Furnishings) the accent trim line under it.
+		for (let y = r.y0 - 1; y <= r.y1 + 1; y++)
+			for (let x = r.x0 - 1; x <= r.x1 + 1; x++) {
+				if (!isBackWall(r, x, y) || r.openings.has(`${x},${y}`)) continue;
+				this.addDyn(
+					this.add
+						.rectangle(x * TILE, y * TILE, TILE, TILE, 0x000000, 0.18)
+						.setOrigin(0, 0)
+						.setDepth(0.12),
+				);
+				if (r.decor >= 1)
+					this.addDyn(
+						this.add
+							.rectangle(x * TILE, y * TILE + TILE - 2, TILE, 3, C(this.paintAt(r, x, y).accent), 0.5)
+							.setOrigin(0, 0)
+							.setDepth(0.13),
+					);
 			}
+
+		// ---- Furnishings: a center rug per room, finer with the track. Rooms too
+		// small to hold one without touching every wall go without — a rug wall to
+		// wall is a floor, not a rug.
+		if (r.decor >= 2) for (const room of r.rooms) this.drawRoomRug(r, room);
+
+		// ---- Warmth: windows on the walls that look outside + a soft hearth glow.
+		//
+		// Which tiles those are is worked out by windowTilesOf (src/homePlan.ts),
+		// the same function the placement rules read, so a window is drawn exactly
+		// where the ghost turns red. Nothing here consults what the player has hung:
+		// a window is part of the house and stays put, and wall decor goes around it.
+		for (const key of r.windows) {
+			const [wx, wy] = key.split(',').map(Number);
+			const cx = wx * TILE + 16,
+				cy = wy * TILE + TILE / 2;
+			this.addDyn(this.add.rectangle(cx, cy, TILE * 0.7, TILE * 0.6, C('#cfe6f2'), 0.85).setDepth(0.14));
+			this.addDyn(
+				this.add
+					.rectangle(cx, cy, TILE * 0.7, TILE * 0.6)
+					.setStrokeStyle(2, C('#000000'), 0.25)
+					.setDepth(0.141),
+			);
 		}
 		if (r.light >= 3) {
+			const main = r.rooms[0];
 			const glow = this.addDyn(
-				this.img(fx + TILE, fy + fh - TILE, 'glow')
+				this.img((main.x0 + 1) * TILE, main.y1 * TILE, 'glow')
 					.setTint(0xffcf80)
 					.setDepth(0.23)
 					.setScale(1.6 * INV_TEX_SCALE)
@@ -1635,16 +1867,52 @@ export class WorldScene extends Phaser.Scene {
 			});
 		}
 
-		// door on the bottom wall, with a welcome mat just inside it
+		// door on the bottom wall of the main room, with a welcome mat just inside it
 		const dpx = r.doorX * TILE + 16;
-		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3));
-		this.addDyn(this.add.rectangle(dpx, (r.y1 + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31));
+		this.addDyn(
+			this.add.rectangle(dpx, (r.doorY + 1) * TILE + 16, TILE * 0.82, TILE * 1.1, C('#33251a')).setDepth(0.3),
+		);
+		this.addDyn(
+			this.add.rectangle(dpx, (r.doorY + 1) * TILE + 14, TILE * 0.6, TILE * 0.92, C('#5a3f28')).setDepth(0.31),
+		);
 		this.addDyn(
 			this.add
-				.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(r.accent))
+				.rectangle(dpx, r.doorY * TILE + 16, TILE * 0.95, TILE * 0.55, C(this.paintAt(r, r.doorX, r.doorY).accent))
 				.setDepth(0.25)
 				.setAlpha(0.7),
 		);
+	}
+
+	/** The smallest room that still reads as having a rug rather than a second
+	 *  floor: a rug wants a tile of bare boards showing on every side. */
+	private static readonly RUG_MIN = { w: 5, h: 4 };
+
+	/** Where a room's center rug sits, in pixels — null if the room is too small
+	 *  for one. The hit-test in the paint tool reads this too, so clicking a rug
+	 *  and seeing a rug are decided by one function. */
+	private rugRect(r: RoomSpec, room: HomeLayout['rooms'][number]) {
+		if (r.decor < 2) return null;
+		const w = room.x1 - room.x0 + 1,
+			h = room.y1 - room.y0 + 1;
+		if (w < WorldScene.RUG_MIN.w || h < WorldScene.RUG_MIN.h) return null;
+		const fw = w * TILE,
+			fh = h * TILE;
+		return {
+			cx: room.x0 * TILE + fw / 2,
+			cy: room.y0 * TILE + fh / 2,
+			w: Math.min(fw - TILE * 2, TILE * (3 + r.decor)),
+			h: Math.min(fh - TILE * 2, TILE * (2 + r.decor * 0.5)),
+		};
+	}
+
+	private drawRoomRug(r: RoomSpec, room: HomeLayout['rooms'][number]) {
+		const rug = this.rugRect(r, room);
+		if (!rug) return;
+		const paint = r.paint[room.id];
+		this.addDyn(this.add.rectangle(rug.cx, rug.cy, rug.w, rug.h, C(paint.rug), 0.8).setDepth(0.22));
+		this.addDyn(this.add.rectangle(rug.cx, rug.cy, rug.w - 10, rug.h - 10, C(paint.floor), 0.35).setDepth(0.221));
+		if (r.decor >= 3)
+			this.addDyn(this.add.rectangle(rug.cx, rug.cy, rug.w - 22, rug.h - 22, C(paint.rug), 0.6).setDepth(0.222));
 	}
 
 	/** Refresh an interior (home or trail tent): placed decor + the exit door. */
@@ -1787,7 +2055,7 @@ export class WorldScene extends Phaser.Scene {
 		const to = Phaser.Display.Color.HexStringToColor(biome?.palette.healthy || '#8fbf6f');
 		const t = Phaser.Math.Clamp(health / 100, 0, 1);
 		const mix = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, Math.round(t * 100));
-		// Lerp the health colour toward the season's tint so spring greens, autumn
+		// Lerp the health color toward the season's tint so spring greens, autumn
 		// ambers and winter pales read at a glance. Amount is per-season (winter
 		// shifts most). seasonStyle falls back safely if the snapshot is absent.
 		let baseR = mix.r,
@@ -1809,7 +2077,7 @@ export class WorldScene extends Phaser.Scene {
 		}
 		// Surround/edge vegetation withers to a dry brown when the biome is sick and
 		// greens back up as it heals — a multiplicative tint from "dead" toward white
-		// (white = the sprite's own colour) by health.
+		// (white = the sprite's own color) by health.
 		const dead = Phaser.Display.Color.HexStringToColor('#9c8a5a');
 		const dmix = Phaser.Display.Color.Interpolate.ColorWithColor(
 			dead,
@@ -1824,7 +2092,7 @@ export class WorldScene extends Phaser.Scene {
 	// ------------------------------------------------- weather visuals
 
 	/**
-	 * Apply the current weather to the scene: a weather-colour tint plus rain/snow
+	 * Apply the current weather to the scene: a weather-color tint plus rain/snow
 	 * particles (outdoors only). The weather is a deterministic per-block roll that
 	 * turns over every ~10 minutes; this diffs against weatherSig and only rebuilds
 	 * the overlay/particles when the type actually changes. No day/night lighting —
@@ -1859,7 +2127,7 @@ export class WorldScene extends Phaser.Scene {
 		// instant set. Weather TURNING OVER while you stand there is the case that
 		// used to snap — fade it.
 		const fadeMs = entering ? 0 : WEATHER_FADE_MS;
-		// Graphics Quality: Low also lightens the full-screen colour wash itself —
+		// Graphics Quality: Low also lightens the full-screen color wash itself —
 		// it's a cheap alpha-blended rect, not a perf cost, but a thinner particle
 		// field reads oddly under the same heavy tint the full effect was built for,
 		// so scale it down to match.
@@ -1877,13 +2145,13 @@ export class WorldScene extends Phaser.Scene {
 	}
 
 	/**
-	 * Blend the weather overlay from what it's showing now to a new colour/alpha.
+	 * Blend the weather overlay from what it's showing now to a new color/alpha.
 	 *
 	 * Both ends matter. Cloudy→clear is mostly an ALPHA change (the wash lifts),
 	 * while rain→cloudy is mostly a COLOUR change at similar alpha — setting either
 	 * directly is the jump. Phaser can't tween a Rectangle's fillColor, so this
-	 * drives a 0→1 progress value and interpolates the colour itself, which also
-	 * keeps colour and alpha exactly in step.
+	 * drives a 0→1 progress value and interpolates the color itself, which also
+	 * keeps color and alpha exactly in step.
 	 *
 	 * `ms <= 0` sets immediately (walking into a biome, where the weather should
 	 * already be established rather than fading up in front of you).
@@ -1997,7 +2265,7 @@ export class WorldScene extends Phaser.Scene {
 
 	/** Day/night lighting. Each phase (dawn/day/dusk/night — equal quarters of the
 	 *  day) holds a steady tint; when the play-time clock crosses into the next
-	 *  phase, the tint eases over ~15s to that phase's colour and then holds again.
+	 *  phase, the tint eases over ~15s to that phase's color and then holds again.
 	 *  The phase comes from the same clock the HUD shows, so they stay in sync.
 	 *  Outdoors only — the home keeps its own lighting. */
 	private applyDayNight(snap = false) {
@@ -2007,7 +2275,7 @@ export class WorldScene extends Phaser.Scene {
 		// Accessibility: no day/night cycle for reduce-motion OR colorblind mode —
 		// hold a clear, steady daytime look. Reduce-motion avoids the animated fades
 		// (and the abrupt luminance swing a snap would cause); colorblind mode keeps
-		// the palette true instead of shifting every colour under a tint.
+		// the palette true instead of shifting every color under a tint.
 		const prefs = getPrefs();
 		if (prefs.reduceMotion || prefs.colorblindMode !== 'off') {
 			this.lightTween?.stop();
@@ -2113,6 +2381,40 @@ export class WorldScene extends Phaser.Scene {
 		return this.ownsGear('hiking-boots') && gearOn('boots');
 	}
 
+	/** Walking multiplier from the WELL RESTED buff, or 1. Read every frame, so
+	 *  it is deliberately arithmetic on two numbers already in hand — the stamp
+	 *  on the save and the live play clock — and never a lookup or an allocation. */
+	private restedBoost(): number {
+		const st = bridge.shared.state;
+		if (!st?.player?.restedUntil) return 1;
+		// The Furnishings multiplier has to ride along, or the client would walk at
+		// a different speed than the server thinks it granted.
+		const decor = (st.player.home?.decor || 1) - 1;
+		const tracks = bridge.shared.data?.homeTracks;
+		const boost = tracks?.decor?.levels?.[decor]?.cozyBoost || 0;
+		// …and so do the two late Furnishings abilities, for the same reason: the
+		// Storied rung has a speed of its own, and only cozyOptsFor knows about it.
+		return restedSpeed(st.player, liveTime(st.weather), boost, cozyOptsFor(st.player.home, tracks));
+	}
+
+	/**
+	 * Walking multiplier from Second Wind (Comfort 7), or 1.
+	 *
+	 * Read every frame, like restedBoost() — so the answer is cached against the
+	 * only thing that can change it, the Comfort level on the save. A house that
+	 * has not been built has no abilities at all, which is what level 0 means here.
+	 */
+	private briskCache = { level: -1, on: false };
+	private briskStep(): number {
+		const home = bridge.shared.state?.player?.home;
+		const level = home?.styleLocked ? home.comfort || 1 : 0;
+		if (this.briskCache.level !== level) {
+			const on = level > 0 && hasHomeAbility(home, bridge.shared.data?.homeTracks, 'briskStep');
+			this.briskCache = { level, on };
+		}
+		return this.briskCache.on ? BRISK_STEP_SPEED : 1;
+	}
+
 	/** Lazily build the night-light visuals: a shared radial-gradient texture,
 	 *  the lamp's warm additive halo, and (WebGL only) the screen-space
 	 *  RenderTexture whose stamped alpha carves holes in the night tint. */
@@ -2161,6 +2463,16 @@ export class WorldScene extends Phaser.Scene {
 	// throws a wider ring of light
 	private static readonly LAMP_MASK = TILE * 5;
 	private static readonly FIRE_MASK = TILE * 9;
+	// A hung lantern reaches about a tile and a half, and never clears the dark
+	// the way a fire does — see attachLightGlow.
+	private static readonly LANTERN_MASK = TILE * 3;
+
+	/** Every lantern burning in this area, as its halo (world px). Pruned here of
+	 *  halos whose placement has since been rebuilt or taken down. */
+	private lanternsHere(): Phaser.GameObjects.Image[] {
+		if (this.lampGlows.some((g) => !g.scene)) this.lampGlows = this.lampGlows.filter((g) => g.scene);
+		return this.lampGlows;
+	}
 
 	/** Every burning fire in this area (world px): the meadow base-camp fire plus
 	 *  any placed campfires. These push back the night tint just like the lamp. */
@@ -2175,8 +2487,16 @@ export class WorldScene extends Phaser.Scene {
 		}
 		const fires: { x: number; y: number }[] = [];
 		if (this.area === 'meadow') fires.push({ x: CAMP.fire.x * TILE, y: CAMP.fire.y * TILE });
+		// The stone hearth counts as a fire here as well, because this list feeds the
+		// crackle as well as the night lights and a hearth sounds like a fire from
+		// two tiles away. It cannot change the lighting: updateNightLights() bails
+		// before it asks for this list whenever we are indoors.
 		for (const p of placements || []) {
-			if (p.area === this.area && p.objectId === 'campfire') fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
+			if (p.area !== this.area) continue;
+			// Put out is put out: a cold hearth throws no light and makes no sound.
+			if (!isLit(p)) continue;
+			if (p.objectId === 'campfire' || p.objectId === 'home-fireplace')
+				fires.push({ x: p.x * TILE + 16, y: p.y * TILE + 16 });
 		}
 		this.fireCache = fires;
 		this.fireCacheSrc = placements;
@@ -2191,17 +2511,21 @@ export class WorldScene extends Phaser.Scene {
 	 *  tracks the tint as night eases in and out. */
 	private updateNightLights() {
 		const dark = !this.isIndoors && !!this.lightOverlay?.visible && this.lightState.a > 0.15;
+		// Asked for on both paths, so the list is pruned of halos whose placement
+		// has gone even on days that never get dark enough to light anything.
+		const lanterns = this.lanternsHere();
 		// Bail before touching the fire list. The old order built the list (and an
 		// empty throwaway array on the daylight path) and only then discovered it
 		// had nothing to light — for roughly two thirds of every in-game day.
 		if (!dark) {
 			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
+			for (const g of lanterns) if (g.alpha) g.setAlpha(0);
 			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
 			return;
 		}
 		const hasLamp = this.hasHeadlamp();
 		const fires = this.firesHere();
-		if (!hasLamp && fires.length === 0) {
+		if (!hasLamp && fires.length === 0 && lanterns.length === 0) {
 			if (this.lampGlow?.visible) this.lampGlow.setVisible(false);
 			if (this.lightOverlay?.mask) this.lightOverlay.clearMask();
 			return;
@@ -2219,6 +2543,9 @@ export class WorldScene extends Phaser.Scene {
 		const glowDepth = y - 4;
 		if (glow.depth !== glowDepth) glow.setDepth(glowDepth);
 		if (glow.visible !== hasLamp) glow.setVisible(hasLamp);
+		// The lanterns' own halos come up with the dark and go down with it.
+		const lanternAlpha = 0.3 * depth;
+		for (let i = 0; i < lanterns.length; i++) lanterns[i].setAlpha(lanternAlpha);
 		if (!this.lightMaskRT || !this.lightBrush || !this.lightBitmapMask) return; // canvas renderer: halos only
 		// The night tint is screen-space (scrollFactor 0), so the mask is too: a
 		// screen-sized RenderTexture, restamped each frame at each light's
@@ -2282,11 +2609,15 @@ export class WorldScene extends Phaser.Scene {
 			const f = fires[i];
 			stamp(f.x, f.y, WorldScene.FIRE_MASK, Math.min(1, depth * 1.35));
 		}
+		// lanterns: a dull pool each, so a strung path is a line of soft light
+		for (let i = 0; i < lanterns.length; i++) {
+			stamp(lanterns[i].x, lanterns[i].y, WorldScene.LANTERN_MASK, Math.min(0.55, depth * 0.6));
+		}
 		rt.endDraw();
 		if (!this.lightOverlay!.mask) this.lightOverlay!.setMask(this.lightBitmapMask);
 	}
 
-	/** Lazily build the 1-colour rain streak and snow dot textures.
+	/** Lazily build the 1-color rain streak and snow dot textures.
 	 * Supersampled like every other texture (see textures.ts) — the emitter
 	 * configs compensate with INV_TEX_SCALE particle scales. */
 	private ensureWeatherTextures() {
@@ -2308,7 +2639,7 @@ export class WorldScene extends Phaser.Scene {
 	/**
 	 * Swap in (or clear) the falling-weather emitter. Particles are world-locked
 	 * and emitted across the full map width so the fall looks uniform wherever the
-	 * camera is; they sit above the colour tints so they stay crisp.
+	 * camera is; they sit above the color tints so they stay crisp.
 	 */
 	private setWeatherParticles(kind: 'rain' | 'snow' | null, prewarm = false, easeOut = false) {
 		if (this.weatherEmitter) {
@@ -2540,7 +2871,7 @@ export class WorldScene extends Phaser.Scene {
 		if (!this.alive || !this.dynamic || !(this.dynamic as any).scene) return;
 		// Skip the rebuild when nothing the dynamic layer depends on has changed.
 		// Indoors always rebuilds — it's a single cheap room, and the paint tool
-		// repaints walls/rugs/placements live (colour changes aren't in the sig).
+		// repaints walls/rugs/placements live (color changes aren't in the sig).
 		if (!force && !this.isIndoors) {
 			const sig = this.computeDynamicSig();
 			if (sig === this.dynamicSig) return;
@@ -2603,9 +2934,15 @@ export class WorldScene extends Phaser.Scene {
 				.sort()
 				.join(',');
 		if (sig !== this.animalSig) {
-			this.animalSig = sig;
 			this.clearLayer(this.animals);
-			this.drawAnimals();
+			// Only remember a cast we actually painted. The save and the animal
+			// definitions reach the bridge independently, so a repaint can land with
+			// discoveries in hand but no definitions to draw them from; drawAnimals
+			// bails there. Recording the sig anyway latched the layer empty — every
+			// later refresh saw "nothing changed" and skipped, so the animals stayed
+			// missing until something else moved the sig (an arrival, an area change,
+			// a gear toggle). That was the intermittent no-animals bug.
+			if (this.drawAnimals()) this.animalSig = sig;
 		}
 		// drawPlacements() has now reported every upcoming growth event; arm the one
 		// timer that covers the soonest of them.
@@ -2682,45 +3019,119 @@ export class WorldScene extends Phaser.Scene {
 			if (tile.area !== this.area) continue;
 			want.set(`${tile.x},${tile.y}`, tile);
 		}
-		// Gone, or retyped (tilled → watered → water): drop the old sprite.
+		// Open water is drawn edge-aware, so a tile's art depends on its NEIGHBOURS
+		// as well as its own type: flooding one tile beside a pond has to repaint
+		// that pond's bank, or the two stay separate puddles. The mask is part of
+		// what the diff compares for exactly that reason — and it costs nothing,
+		// because a dig can only change the shape of the four tiles around it.
+		const isWater = (x: number, y: number) => want.get(`${x},${y}`)?.type === 'water';
+		const connOfTile = (t: { x: number; y: number; type: string }): Conn =>
+			t.type === 'water'
+				? connOf(isWater(t.x, t.y - 1), isWater(t.x + 1, t.y), isWater(t.x, t.y + 1), isWater(t.x - 1, t.y))
+				: 0;
+		// Gone, retyped (tilled → watered → water), or newly joined to a neighbour.
 		for (const [key, cur] of [...this.terrainSprites]) {
 			const next = want.get(key);
-			if (next && next.type === cur.type) continue;
+			if (next && next.type === cur.type && connOfTile(next) === cur.conn) continue;
 			this.tweens.killTweensOf(cur.img);
 			cur.img.destroy();
 			cur.zone?.destroy();
+			if (cur.deco) {
+				this.tweens.killTweensOf(cur.deco);
+				cur.deco.destroy();
+			}
 			this.terrainSprites.delete(key);
 		}
-		// New, or retyped: build it.
+		// New, retyped, or re-shaped: build it.
 		for (const [key, tile] of want) {
 			if (this.terrainSprites.has(key)) continue;
-			this.terrainSprites.set(key, this.buildTerrainTile(tile));
+			this.terrainSprites.set(key, this.buildTerrainTile(tile, connOfTile(tile)));
 		}
 		// refreshDynamic resets this.interactables before calling us, so every
 		// surviving bed has to re-announce itself even when its sprite didn't change.
 		for (const entry of this.terrainSprites.values()) if (entry.it) this.interactables.push(entry.it);
+		this.drawCacheMarks(want);
 	}
 
-	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one tile. */
-	private buildTerrainTile(tile: { x: number; y: number; type: string }) {
+	/**
+	 * A survey spade's marks: the squares in this area with something buried under
+	 * them. The server only sends `buriedCaches` to a player carrying one, so an
+	 * empty list here is the normal case and costs a single loop.
+	 *
+	 * Ground that has already been shaped hides its mark — you dug it, so whatever
+	 * was there has been turned up or built over.
+	 */
+	private drawCacheMarks(shaped: Map<string, { x: number; y: number; type: string }>) {
+		for (const img of this.cacheMarks) img.destroy();
+		this.cacheMarks = [];
+		const s = bridge.shared.state;
+		for (const c of s?.buriedCaches || []) {
+			if (shaped.has(`${c.x},${c.y}`)) continue;
+			const img = this.img(c.x, c.y, 'cache-mark').setDepth(1.4).setAlpha(0.85);
+			this.terrain.add(img);
+			this.cacheMarks.push(img);
+		}
+	}
+
+	/** Build the sprite (and, for watered soil, the plant-bed hit zone) for one
+	 *  tile. `conn` is which of its neighbours are the same surface. */
+	private buildTerrainTile(tile: { x: number; y: number; type: string }, conn: Conn) {
 		const x = tile.x * TILE + 16;
 		const y = tile.y * TILE + 16;
 		if (tile.type === 'water') {
-			const img = this.img(x, y, 'terrain-water').setDepth(1.6);
+			const img = this.img(x, y, ensureWaterTile(this, conn)).setDepth(1.6);
 			this.terrain.add(img);
-			this.tweens.add({
-				targets: img,
-				alpha: { from: 1, to: 0.86 },
-				duration: 1300 + ((tile.x + tile.y) % 4) * 180,
-				yoyo: true,
-				repeat: -1,
-				ease: 'Sine.easeInOut',
-			});
-			return { type: tile.type, img };
+			// The old surface breathed by fading each tile between alpha 1 and 0.86 on
+			// its own staggered timer. That left every tile of a pond a slightly
+			// different blue at any moment — drawing in the very grid the edge-aware
+			// art exists to hide — so the body is flat and opaque now. The wetness
+			// moved to a ripple sprite per tile instead: same shapes the old single
+			// water tile drew, but the tile's hash picks which of the four, flips it
+			// and nudges it, so the highlight is everywhere and repeats nowhere.
+			// Offsets stay inside ±4 so a ripple can't reach across a bank onto grass.
+			const h = hashStr(`${tile.x},${tile.y}`) >>> 0;
+			const deco = this.img(x + ((h >>> 4) % 9) - 4, y + ((h >>> 8) % 9) - 4, `water-ripple${h % 4}`)
+				.setDepth(1.62)
+				.setFlipX(((h >>> 3) & 1) === 1);
+			this.terrain.add(deco);
+			// Half the tiles drift, the rest hold still: enough movement to read as a
+			// live surface, and still fewer infinite tweens than one per water tile.
+			if (!getPrefs().reduceMotion && h & 1)
+				this.tweens.add({
+					targets: deco,
+					alpha: { from: 0.55, to: 1 },
+					x: deco.x + 2.5,
+					duration: 2400 + (h % 1100),
+					yoyo: true,
+					repeat: -1,
+					ease: 'Sine.easeInOut',
+				});
+			// A Dipping Pail (CAN_DIP_TIER) fills straight from open water the
+			// caretaker shaped, so a restored pond becomes a refill point instead of a
+			// walk back to the spring. Terraform clicks still pass through, or there
+			// would be no way to clear the pond again.
+			if ((bridge.shared.state?.player.tools?.['watering-can'] || 1) >= DIP_TIER) {
+				const dipIt: Interactable = {
+					x,
+					y,
+					label: t('game.label.dipWater'),
+					action: () =>
+						bridge.emit('collect-node', {
+							biomeId: this.area,
+							nodeId: `dip-${tile.x}-${tile.y}`,
+							resourceId: 'water',
+						}),
+				};
+				const dipZone = this.add.zone(x, y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true });
+				this.terrain.add(dipZone);
+				this.registerInteractable(dipIt, dipZone, { terraformPassthrough: true });
+				return { type: tile.type, conn, img, deco, zone: dipZone, it: dipIt };
+			}
+			return { type: tile.type, conn, img, deco };
 		}
 		const img = this.img(x, y, tile.type === 'watered' ? 'watered' : 'tilled').setDepth(1.5);
 		this.terrain.add(img);
-		if (tile.type !== 'watered') return { type: tile.type, img };
+		if (tile.type !== 'watered') return { type: tile.type, conn, img };
 		// watered beds are ready for planting; terraform clicks still reach the
 		// soil here so the can/shovel can flood or clear it (with confirmation)
 		const it: Interactable = {
@@ -2735,7 +3146,7 @@ export class WorldScene extends Phaser.Scene {
 		const zone = this.add.zone(x, y, 64, 64).setOrigin(0.5).setInteractive({ useHandCursor: true });
 		this.terrain.add(zone);
 		this.registerInteractable(it, zone, { terraformPassthrough: true });
-		return { type: tile.type, img, zone, it };
+		return { type: tile.type, conn, img, zone, it };
 	}
 
 	/** Wire an interactable so it can also be tapped/clicked directly (mobile-first). */
@@ -3401,6 +3812,33 @@ export class WorldScene extends Phaser.Scene {
 		return findFreeTileIn(cx, cy, occupied, taken, this.area, this.dimsOf(this.area));
 	}
 
+	/**
+	 * The spots a sweeping basket clears alongside the one that was clicked: same
+	 * material, within a couple of tiles, ready to gather now.
+	 *
+	 * Only the basket sweeps — the shovel and the watering can gather their own
+	 * materials one spot at a time — and BASKET_SWEEP_TIER on the server is the
+	 * real gate; this just decides which neighbours are worth naming.
+	 */
+	private sweepNeighbours(node: NodeDef): string[] {
+		const s = bridge.shared.state;
+		if (!s) return [];
+		if ((s.player.tools?.basket || 1) < SWEEP_TIER) return [];
+		const res = bridge.shared.data?.resources?.find((r: any) => r.id === node.resourceId);
+		if (res?.tool !== 'basket') return [];
+		const n = node as any;
+		const out: string[] = [];
+		for (const other of this.nodes) {
+			if (out.length >= SWEEP_REACH) break;
+			const o = other as any;
+			if (other.id === node.id || other.resourceId !== node.resourceId) continue;
+			if (Math.abs(o.tx - n.tx) > 2 || Math.abs(o.ty - n.ty) > 2) continue;
+			if (!this.nodeAvailable(other)) continue;
+			out.push(other.id);
+		}
+		return out;
+	}
+
 	private nodeAvailable(node: NodeDef): boolean {
 		const s = bridge.shared.state;
 		if (!s) return true;
@@ -3502,6 +3940,11 @@ export class WorldScene extends Phaser.Scene {
 						biomeId: this.area,
 						nodeId: node.id,
 						resourceId: node.resourceId,
+						// A sweeping basket takes the whole patch: hand the server the
+						// neighboring spots of the same material that are ready right now.
+						// It ignores them below the sweep tier, so this is safe to always
+						// send.
+						alsoNodeIds: this.sweepNeighbours(node),
 					});
 				else
 					bridge.emit('toast', {
@@ -3735,6 +4178,411 @@ export class WorldScene extends Phaser.Scene {
 		});
 	}
 
+	/**
+	 * Seats, and how far a caretaker drops from the seat's center to sit on it —
+	 * enough that their lap lands on the surface and their boots hang in front of
+	 * it. The caretaker has a seated sprite of their own (sprites/player.ts), so
+	 * this is only ever a question of height.
+	 */
+	/** Anything you can look at yourself in — see the mirror branch in
+	 *  attachPlacementInteraction and MirrorPanel in ui/Settings. The willow hoop
+	 *  is the meadow's (five animals back); the driftwood one is the coast's. */
+	private static readonly MIRRORS = new Set(['willowmirror', 'driftmirror']);
+
+	private static readonly SEATS: Record<string, { dy: number }> = {
+		bench: { dy: -6 },
+		overlookbench: { dy: -11 },
+		stool: { dy: -11 },
+		armchair: { dy: -7 },
+		// every other seat in the game, indoors and out. Each dy is the seating
+		// surface's own height in its sprite, measured the same way as the four
+		// above: the seat's center line, less half the sprite, less the ~7px from
+		// the seated caretaker's origin down to their lap.
+		cushions: { dy: -12 },
+		cushion: { dy: -9 },
+		picnic: { dy: -6 },
+		lowtidebench: { dy: -10 },
+		rockingchair: { dy: -6 },
+		toadstool: { dy: -13 },
+		lilystool: { dy: -12 },
+		mosspouf: { dy: -12 },
+		driftbench: { dy: -12 },
+		// The hammock is a seat now rather than a bed (see SLEEPABLE_OBJECTS in
+		// interactions.ts). It sits lower than anything else here because the sling
+		// dips: the caretaker settles INTO it rather than on top of it.
+		hammock: { dy: -2 },
+	};
+
+	/** Seats you lie in rather than sit on — the prompt and the float line say so.
+	 *  The pose is the same one; a hammock is not worth a second sprite. */
+	private static readonly RECLINERS = new Set(['hammock']);
+
+	/**
+	 * Things that do something when you nudge them, and nothing else.
+	 *
+	 * The pinwheel came first and set the shape of these: press, something moves,
+	 * it settles back exactly where it was. There is no state anywhere — nothing
+	 * is recorded, nothing is unlocked, the save does not change — which is the
+	 * point. A house you can only look at is a diorama; a house where the snow
+	 * globe answers you is somewhere someone lives.
+	 *
+	 * Keyed by SHAPE, so the chimes and the tide chime share a line, and so does
+	 * every future piece drawn with an existing shape. Each entry names its motion
+	 * (see playToy) and the two strings it needs. The keys are held as data rather
+	 * than as literal translate calls, so the i18n linter counts them as dynamic
+	 * and reports them unused; they are spelled out in full all the same, rather
+	 * than assembled from the shape, so a grep for one still lands here.
+	 */
+	private static readonly TOYS: Record<string, { motion: ToyMotion; label: string; float: string }> = {
+		snowglobe: { motion: 'shake', label: 'game.label.toy.snowglobe', float: 'game.float.toy.snowglobe' },
+		windchime: { motion: 'sway', label: 'game.label.toy.windchime', float: 'game.float.toy.windchime' },
+		tidechime: { motion: 'sway', label: 'game.label.toy.tidechime', float: 'game.float.toy.tidechime' },
+		prayerflags: { motion: 'flutter', label: 'game.label.toy.prayerflags', float: 'game.float.toy.prayerflags' },
+		paperbutterflies: {
+			motion: 'flutter',
+			label: 'game.label.toy.paperbutterflies',
+			float: 'game.float.toy.paperbutterflies',
+		},
+		dragonflies: { motion: 'flutter', label: 'game.label.toy.dragonflies', float: 'game.float.toy.dragonflies' },
+		birdflock: { motion: 'flutter', label: 'game.label.toy.birdflock', float: 'game.float.toy.birdflock' },
+		mousedoor: { motion: 'knock', label: 'game.label.toy.mousedoor', float: 'game.float.toy.mousedoor' },
+		frogplaques: { motion: 'knock', label: 'game.label.toy.frogplaques', float: 'game.float.toy.frogplaques' },
+		pebblefountain: {
+			motion: 'ripple',
+			label: 'game.label.toy.pebblefountain',
+			float: 'game.float.toy.pebblefountain',
+		},
+		aquarium: { motion: 'ripple', label: 'game.label.toy.aquarium', float: 'game.float.toy.aquarium' },
+		sandgarden: { motion: 'settle', label: 'game.label.toy.sandgarden', float: 'game.float.toy.sandgarden' },
+		modelboat: { motion: 'sway', label: 'game.label.toy.modelboat', float: 'game.float.toy.modelboat' },
+		gnome: { motion: 'knock', label: 'game.label.toy.gnome', float: 'game.float.toy.gnome' },
+		buddhastatue: { motion: 'knock', label: 'game.label.toy.buddhastatue', float: 'game.float.toy.buddhastatue' },
+		luckytoad: { motion: 'knock', label: 'game.label.toy.luckytoad', float: 'game.float.toy.luckytoad' },
+	};
+
+	/**
+	 * How far the top of each surface sits above its tile's center — where a small
+	 * thing standing on it is drawn. Same idea as SEATS, and the same reason it
+	 * lives with the art rather than in the data: `surface: true` is the RULE (the
+	 * server enforces it), and this is only the look.
+	 */
+	private static readonly SURFACE_LIFT: Record<string, number> = {
+		table: 13,
+		logtable: 12,
+		dresser: 15,
+		bookshelf: 19,
+		mushroomshelf: 8,
+		driftwoodshelf: 9,
+	};
+
+	/** The surface this placement is standing ON, if it is standing on one. */
+	private surfaceUnder(p: { id: string; objectId: string; x: number; y: number }): Placement | undefined {
+		if (!this.objectDef(p.objectId)?.small) return undefined;
+		return this.placementsAt(p.x, p.y).find((o) => o.id !== p.id && this.objectDef(o.objectId)?.surface);
+	}
+
+	/** The caretaker's sprite in one pose or the other, from the saved look. */
+	private playerTexture(pose: 'stand' | 'sit' | 'lie') {
+		return makePlayerTexture(this, bridge.shared.state?.player.appearance, pose);
+	}
+
+	/**
+	 * Take a seat. Interacting again gets you up, and so does any step in any
+	 * direction (handleMovement) — sitting is a pause, never a mode you can be
+	 * stuck in, so it needs no way out of its own.
+	 */
+	private sitOn(shape: string, bx: number, by: number) {
+		if (this.sleeping) return;
+		if (this.sitting) return this.standUp();
+		const seat = WorldScene.SEATS[shape];
+		if (!seat) return;
+		const recline = WorldScene.RECLINERS.has(shape);
+		this.sitting = { x: bx, y: by, recline };
+		this.stillSince = this.time.now;
+		this.armStillness();
+		this.setWalkAudio(false);
+		this.player.setTexture(this.playerTexture(recline ? 'lie' : 'sit'));
+		this.player.setPosition(bx, by + seat.dy);
+		// Sitting sets the walk waddle back to level. Lying tips the whole caretaker
+		// over into the sling — the same move sleeping in a bed makes (sleepAt), a
+		// few degrees short of flat so they still read as facing the sky rather than
+		// as a sprite that fell over.
+		this.player.setAngle(recline ? -72 : 0);
+		this.player.setDepth(by + 6); // in front of the seat's back, on top of its seat
+		this.floatText(bx, by - 26, recline ? t('game.float.lieIn') : t('game.float.sit'), '#f3ead2');
+	}
+
+	/** Back on your feet, standing just in front of the seat. */
+	private standUp() {
+		const seat = this.sitting;
+		if (!seat) return;
+		this.sitting = null;
+		this.endStillness();
+		this.player.setTexture(this.playerTexture('stand'));
+		this.player.setAngle(0); // upright again, whichever way they were lying
+		this.player.setPosition(seat.x, seat.y + 16);
+		this.player.setDepth(this.player.y + 16);
+	}
+
+	// --------------------------------------------------------------- stillness
+
+	/**
+	 * The three Warmth abilities, read off the save and the shipped track table.
+	 *
+	 * Derived rather than stored, exactly as the server derives it (see
+	 * homeAbilitiesOf) — the client is not trusted with any of this, it just has
+	 * to draw the same picture the rules describe. Cheap enough to call per sit
+	 * and per idle-stop; never per frame.
+	 */
+	private hearth(): HearthAbilities {
+		const st = bridge.shared.state;
+		const tracks = bridge.shared.data?.homeTracks;
+		const home = st?.player?.home;
+		if (!home?.styleLocked || !tracks) return {};
+		return {
+			openHearth: hasHomeAbility(home, tracks, 'openHearth'),
+			hearthsong: hasHomeAbility(home, tracks, 'hearthsong'),
+			emberWatch: hasHomeAbility(home, tracks, 'emberWatch'),
+		};
+	}
+
+	/**
+	 * The spot the gathering forms around: the seat you took, or — with Ember
+	 * Watch — wherever you have been standing still long enough to count.
+	 *
+	 * One anchor for both, so "who comes over, how long they take, how close they
+	 * settle" is one set of rules with one input, rather than a second copy of
+	 * the stillness block written for standing up.
+	 */
+	private stillAnchor(): { x: number; y: number } | null {
+		return this.sitting || this.standingStill;
+	}
+
+	/**
+	 * Work out, for the seat just taken, how long each animal in the area takes
+	 * to set off — from where it was standing at that moment, nearest first (see
+	 * worldRules' stillness block). Re-run whenever the animal layer is rebuilt
+	 * mid-sit, because those are fresh sprites with no plans on them, and their
+	 * distances are measured from wherever the new cast happens to be.
+	 */
+	private armStillness() {
+		const seat = this.stillAnchor();
+		if (!seat || !(this.animals as any)?.scene) return;
+		const hearth = this.hearth();
+		const st = bridge.shared.state;
+		const health = st?.biomeStates.find((b) => b.biomeId === this.area)?.health ?? 0;
+		const comfortOf = new Map((st?.discoveries || []).map((disc) => [disc.animalId, disc.comfort ?? 50]));
+		for (const child of this.animals.getChildren()) {
+			const img = child as Phaser.GameObjects.Image;
+			const animal = img.getData('animal');
+			if (!animal) continue; // shadows and glints ride in this layer too
+			const distance = Phaser.Math.Distance.Between(img.x, img.y, seat.x, seat.y);
+			// Five animals all settling on one circle would read as a ring of
+			// furniture. Each keeps its own distance — hashed off the species id, so
+			// it is the same distance every time rather than re-rolled on a rebuild.
+			// Deliberately a narrow band: a cluster around the bench, not a spiral.
+			const spread = 0.9 + ((hashStr(animal.id) % 100) / 100) * 0.3;
+			img.setData('still', {
+				waitMs: approachWaitMs(distance, { comfort: comfortOf.get(animal.id), health, hearth }),
+				radius: Math.round(approachRadius(animal.kind, hearth) * spread),
+			});
+			img.setData('stillGoal', null);
+		}
+	}
+
+	/**
+	 * Ember Watch (Warmth 7): standing in one place, once you have done it for
+	 * long enough, is a seat you did not have to bring with you.
+	 *
+	 * Called from handleMovement on every frame the caretaker is not asking to go
+	 * anywhere, so it is written to do almost nothing on almost all of them: the
+	 * clock is two numbers, and whether the ability is even on is asked ONCE, at
+	 * the moment they stop, rather than sixty times a second while they stand
+	 * there. A house without the ability therefore costs one comparison a frame.
+	 */
+	private noteStandingStill() {
+		if (this.sitting || this.sleeping || this.standingStill) return;
+		const now = this.time.now;
+		if (this.idleSince == null) {
+			this.idleSince = now;
+			this.idleWatch = this.hearth().emberWatch === true;
+			return;
+		}
+		if (!this.idleWatch || now - this.idleSince < EMBER_WATCH_STILL_MS) return;
+		// Stopped long enough to count. From here the rules are the bench's, to
+		// the letter — same anchor, same waits, same crowd, same silence.
+		this.standingStill = { x: this.player.x, y: this.player.y };
+		this.stillSince = now;
+		this.armStillness();
+	}
+
+	/**
+	 * Back on your feet. Whoever came over carries on from wherever they now
+	 * are, rather than snapping back to the spot they were standing on when you
+	 * sat down — which is why wander() keeps its home in a mutable record.
+	 */
+	private endStillness() {
+		this.stillSince = null;
+		this.standingStill = null;
+		this.idleSince = null;
+		for (const img of this.approaching) {
+			if (!img.active) continue; // cleared by a rebuild; its data manager is gone
+			// Anyone who dozed off beside the hammock wakes up as you get out of it,
+			// here rather than on their next hop: a nap that carried on for three
+			// seconds after you stood up would read as a stuck animation.
+			this.wakeAnimal(img);
+			const home = img.getData('home') as { x: number; y: number } | undefined;
+			if (home) {
+				home.x = img.x;
+				home.y = img.y;
+			}
+			img.setData('stillGoal', null);
+		}
+		this.approaching.clear();
+	}
+
+	/**
+	 * Where this animal is heading while the caretaker sits still — or null if it
+	 * has not made up its mind yet, or the crowd is already full. Nothing is
+	 * ranked: the wait is shortest for whoever was nearest when you sat down, so
+	 * the crowd fills itself in the order you would expect to see.
+	 */
+	private stillGoalFor(
+		img: Phaser.GameObjects.Image,
+		rng: () => number,
+		swim: { aquatic: boolean; ocean: boolean },
+	): { x: number; y: number } | null {
+		const seat = this.stillAnchor();
+		if (!seat || this.stillSince == null) return null;
+		const still = img.getData('still') as { waitMs: number; radius: number } | undefined;
+		if (!still) return null;
+		if (this.time.now - this.stillSince < still.waitMs) return null;
+		// Where it would go, worked out BEFORE it claims a place in the crowd: a
+		// fish with no water near the bench was taking a slot and then not coming.
+		let goal: { x: number; y: number } | null | undefined;
+		if (swim.aquatic || swim.ocean) {
+			// Swimmers come as near as the water lets them and no nearer, which is
+			// what makes a bench by the pond a different bench from one on the ridge.
+			const w = swim.ocean
+				? this.oceanTarget(rng, seat.x, seat.y, still.radius * 3)
+				: this.fishTarget(seat.x, seat.y, still.radius * 3, rng);
+			goal = w && Phaser.Math.Distance.Between(w.x, w.y, seat.x, seat.y) <= APPROACH_WATER_REACH ? w : null;
+		} else {
+			goal = img.getData('stillGoal') as { x: number; y: number } | null | undefined;
+			// Re-rolled on arrival rather than dropped: an animal that got here
+			// shuffles around the same ring instead of leaving the moment it lands.
+			if (!goal || hasArrived(img.x, img.y, seat.x, seat.y, still.radius))
+				goal = approachPoint(seat.x, seat.y, img.x, img.y, still.radius, rng);
+		}
+		if (!goal) return null;
+		if (!this.approaching.has(img)) {
+			for (const other of this.approaching) if (!other.active) this.approaching.delete(other);
+			if (this.approaching.size >= approachMaxFor(this.hearth())) return null;
+			this.approaching.add(img);
+		}
+		if (!swim.aquatic && !swim.ocean) img.setData('stillGoal', goal);
+		return goal;
+	}
+
+	/**
+	 * Each leg lands here: has it got near enough to read as company yet?
+	 *
+	 * Arriving says nothing and writes nothing down. A line of text over the
+	 * animal's head was tried and cut — it narrated a thing you were already
+	 * looking at, and turned a quiet moment into a notification.
+	 */
+	private stillArrived(img: Phaser.GameObjects.Image): boolean {
+		const seat = this.stillAnchor();
+		const still = img.getData('still') as { radius: number } | undefined;
+		if (!seat || !still) return false;
+		return hasArrived(img.x, img.y, seat.x, seat.y, still.radius);
+	}
+
+	/**
+	 * Is this animal asleep beside the hammock right now — and if it has just
+	 * dropped off, or just been disturbed, make it so.
+	 *
+	 * Only lying down does this. Sitting on a bench draws a gathering that stays
+	 * awake and mills about, which is the right picture for a bench; a hammock in
+	 * the afternoon is a different one, and the animals that come over settle all
+	 * the way down with you. It is the payoff for the piece of furniture being
+	 * what it is, in the same spirit as the gathering itself: nothing recorded,
+	 * nothing unlocked, just what happens if you lie there.
+	 *
+	 * Called at the top of every wander leg, so a dozing animal simply never takes
+	 * one — that is what keeps it beside you rather than drifting off mid-nap.
+	 */
+	private dozingNow(img: Phaser.GameObjects.Image): boolean {
+		const settled = !!this.sitting?.recline && this.approaching.has(img) && this.stillArrived(img);
+		if (!settled) {
+			if (img.getData('doze')) this.wakeAnimal(img);
+			return false;
+		}
+		if (!img.getData('doze')) this.startDozing(img);
+		return true;
+	}
+
+	/** Curl up: slow breathing, and the odd `z`. Both are held on the sprite so
+	 *  waking can undo exactly what this did. */
+	private startDozing(img: Phaser.GameObjects.Image) {
+		const baseY = img.scaleY;
+		img.setData('doze', { baseY });
+		if (getPrefs().reduceMotion) return; // still asleep — just not breathing at you
+		const breath = this.tweens.add({
+			targets: img,
+			scaleY: { from: baseY, to: baseY * 1.06 },
+			duration: 1500,
+			yoyo: true,
+			repeat: -1,
+			ease: 'Sine.easeInOut',
+		});
+		// Sparse on purpose. One `z` every few seconds from a few animals is a
+		// clearing full of sleeping creatures; one a second from each is a cartoon.
+		const zzz = this.time.addEvent({
+			delay: 2600 + Math.random() * 2400,
+			loop: true,
+			callback: () => {
+				// The animal layer is rebuilt out from under these (refreshDynamic), and
+				// a looping timer holding a destroyed sprite would tick for the rest of
+				// the session. It retires itself the first time it finds one gone.
+				if (!img.active) return zzz.remove();
+				if (!img.getData('doze')) return;
+				const z = this.add
+					.text(img.x + 6, img.y - 10, 'z', {
+						fontFamily: 'Quicksand, sans-serif',
+						fontSize: '11px',
+						color: '#dfe9ff',
+						fontStyle: 'bold',
+						resolution: 4, // stays crisp under camera zoom
+					})
+					.setOrigin(0.5)
+					.setDepth(img.depth + 1);
+				this.tweens.add({
+					targets: z,
+					y: z.y - 16,
+					x: z.x + 8,
+					alpha: 0,
+					duration: 1500,
+					ease: 'Sine.easeOut',
+					onComplete: () => z.destroy(),
+				});
+			},
+		});
+		img.setData('doze', { baseY, breath, zzz });
+	}
+
+	/** Undo startDozing, whatever of it actually ran. Safe on an animal that was
+	 *  never asleep, and on one whose sprite is on its way out. */
+	private wakeAnimal(img: Phaser.GameObjects.Image) {
+		const doze = img.getData('doze') as
+			{ baseY: number; breath?: Phaser.Tweens.Tween; zzz?: Phaser.Time.TimerEvent } | undefined;
+		if (!doze) return;
+		img.setData('doze', null);
+		doze.breath?.remove();
+		doze.zzz?.remove();
+		if (img.active) img.setScale(img.scaleX, doze.baseY);
+	}
+
 	/** Climb into the bed/bag, dim the room, snooze ~3s, then refresh the preserve. */
 	private sleepAt(bx: number, by: number) {
 		if (this.sleeping) return;
@@ -3840,7 +4688,7 @@ export class WorldScene extends Phaser.Scene {
 	 * later, so holding the shovel down churned GameObjects exactly the way rapid
 	 * gathering did before fxSprite().
 	 *
-	 * The colour is per-action (brown for digging, blue for watering) so it has to
+	 * The color is per-action (brown for digging, blue for watering) so it has to
 	 * be re-applied on every acquire, and the tween drives the object's alpha to 0
 	 * while the FILL alpha stays 0.9 — both need resetting or a recycled speck
 	 * comes back invisible.
@@ -3990,6 +4838,14 @@ export class WorldScene extends Phaser.Scene {
 			p.lastHarvestAt || 0,
 			growing ? 1 : 0,
 			ready,
+			this.pathConn(p), // 0 for anything that isn't a path
+			this.runConn(p), // …and for anything that isn't a run of lights
+			this.surfaceUnder(p)?.objectId || '', // what it is standing on, if anything
+			// Lights only: the halo is OWNED by the placement (attachLightGlow), so
+			// striking a match has to rebuild the one piece rather than wait for
+			// something else to repaint the area. Everything that isn't a light
+			// reports the same value forever and never rebuilds for this.
+			isLit(p) ? 1 : 0,
 		].join('|');
 	}
 
@@ -4011,6 +4867,22 @@ export class WorldScene extends Phaser.Scene {
 	 */
 	private buildPlacement(p: any): PlacementEntry {
 		const def = this.objectDef(p.objectId)!;
+		// A path is the ground rather than a thing standing on it, and the three
+		// places below treat it that way: no cast shadow, an edge-aware tile so a
+		// run of them is one surface, and none of the per-item flip/lean/size/shade
+		// that makes a hedgerow look natural and made a walkway look like spilled
+		// pills. See sprites/objects/paths.ts.
+		const flat = PATH_SHAPES.has(def.shape || '');
+		// A run of lights is one line the player drew, so like a path it gets
+		// edge-aware art — and must skip the per-item flip/lean/size jitter below,
+		// which would leave every cord meeting its neighbour at a different height.
+		const run = RUN_SHAPES.has(def.shape || '');
+		// Hung on a wall rather than standing on the floor. Three things follow from
+		// that and nothing else does: no cast shadow (it isn't on the ground), no
+		// per-item flip/lean/size jitter (a crooked picture reads as a bug, not as
+		// character), and a small nudge off the wall face toward the room so it sits
+		// ON the wall rather than half-buried in the dark ring behind it.
+		const wall = def.mount === 'wall' && this.isIndoors;
 		const objs: Phaser.GameObjects.GameObject[] = [];
 		const its: Interactable[] = [];
 		let growth: { at: number; matures: boolean } | undefined;
@@ -4021,25 +4893,70 @@ export class WorldScene extends Phaser.Scene {
 			objs.push(o);
 			return o;
 		};
-		const x = p.x * TILE + 16;
-		const y = p.y * TILE + 16;
+		const room = wall ? this.roomSpec() : null;
+		// Nudge toward the room it faces: a side wall inward, a back wall down a
+		// little. Worked out from where the floor actually is rather than from the
+		// bounding box, so a piece on the nook's own wall leans the right way.
+		const wallDX = room ? (isFloorTile(room, p.x + 1, p.y) ? 5 : isFloorTile(room, p.x - 1, p.y) ? -5 : 0) : 0;
+		const wallDY = room && isFloorTile(room, p.x, p.y + 1) ? 3 : 0;
+		// standing on a table rather than on the floor: lifted onto the top, and
+		// sorted in front of the thing carrying it rather than by its own row
+		const carriedBy = this.surfaceUnder(p);
+		const lift = carriedBy ? (WorldScene.SURFACE_LIFT[this.objectDef(carriedBy.objectId)?.shape || ''] ?? 12) : 0;
+		const x = p.x * TILE + 16 + wallDX;
+		const y = p.y * TILE + 16 + wallDY - lift;
 		const tall = ['tree', 'deadwood', 'perch', 'platform', 'willow', 'oak', 'pine'].includes(def.shape || '');
-		own(
-			this.img(x, y + (tall ? 22 : 10), 'shadow')
-				.setDepth(3)
-				.setScale((tall ? 1.0 : 1.2) * INV_TEX_SCALE, 0.9 * INV_TEX_SCALE),
-		);
-
 		// freshly planted things start as a sprout and grow in
 		const growMs = (def.growSeconds || 0) * 1000;
 		const age = p.plantedAt ? Date.now() - p.plantedAt : Infinity;
 		const stillGrowing = growMs > 0 && age < growMs;
+		// A seedling casts nothing. Two leaves of sprout sitting on a grown plant's
+		// shadow read as the plant already being there — and as the sprout scales up
+		// under a shadow that doesn't, as something hovering. The shadow arrives with
+		// the plant, on the rebuild that swaps the sprout for the real sprite.
+		//
+		// Size and offset are left to applyScale() below, which is the one place that
+		// knows how big this item is drawing right now (growth, maturity, jitter).
+		const shadow = flat || wall || stillGrowing ? null : own(this.img(x, y, 'shadow').setDepth(3));
 		// fall back to the generic kit sprite if this object's shape texture is
 		// missing (e.g. data with a newer shape than the loaded client), so a
 		// placed item never renders as a blank/black missing-texture square
-		const shapeKey = `obj-${def.shape || 'kit'}`;
-		const objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
-		const img = own(this.img(x, y, stillGrowing ? 'sprout' : objKey).setDepth(y));
+		const shapeKey = flat
+			? ensurePathTile(this, def.shape!, this.pathConn(p))
+			: run
+				? ensureRunTile(this, def.shape!, this.runConn(p))
+				: `obj-${def.shape || 'kit'}`;
+		let objKey = this.textures.exists(shapeKey) ? shapeKey : 'obj-kit';
+		// A light that has been put out is drawn as a DIFFERENT SPRITE, not as the
+		// lit one dimmed: the hearth has dark logs and ash where the flame was, the
+		// lighthouse throws no beam, the lantern's pane is grey glass. Every
+		// lightable shape draws an `-out` texture of itself alongside its lit one
+		// (sprites/canvas.ts: lightable), for the same reason `-picked` exists — the
+		// state of a thing should be legible in the thing, from across the room,
+		// rather than only in the halo, which is invisible for two thirds of a day
+		// anyway and never shows indoors.
+		if (def.light && !isLit(p) && this.textures.exists(`${objKey}${OUT}`)) objKey = `${objKey}${OUT}`;
+		// A plant that has been picked stands stripped until its yield is back:
+		// bare stems, empty seed heads, an emptied bowl. Every harvestable shape
+		// draws a `-picked` texture of itself (sprites/canvas.ts: pickable), so
+		// harvesting is something you can SEE in the world afterwards rather than
+		// only in the glint that stopped.
+		const regrow = this.regrowState(p, def, stillGrowing);
+		const pickedKey = `${objKey}${PICKED}`;
+		const stripped = !!regrow && this.textures.exists(pickedKey);
+		// Paths sit at a fixed low depth, just above terrain: they are underfoot, so
+		// they must never sort in front of the caretaker walking along them the way
+		// a y-sorted object does.
+		const img = own(
+			this.img(x, y, stillGrowing ? 'sprout' : stripped ? pickedKey : objKey).setDepth(
+				flat ? 1.7 : carriedBy ? p.y * TILE + 16 + 4 : y,
+			),
+		);
+		// A hung item is part of the wall: it draws over the wall ring and its trim
+		// (depths 0.1–0.14) but stays behind anyone standing in front of it, which
+		// the y-sort already gives us — the caretaker's own row is always the higher
+		// number. The one thing y-sorting can't do is keep a picture off the floor,
+		// so wall items never take part in the jitter below.
 		// Recorded on the entry, not scheduled: armGrowthTimer() sets one timer for
 		// the soonest across the whole field, and a surviving entry replays this
 		// without being rebuilt.
@@ -4063,7 +4980,8 @@ export class WorldScene extends Phaser.Scene {
 		// id, so they are decided ONCE, here. The draw ORDER matters — it is what
 		// makes a given item look the same every session — so it is unchanged.
 		let sizeJitter = 1;
-		if (isFixture) {
+		let tint = 0xffffff;
+		if (flat || run || isFixture || wall || carriedBy) {
 			if (rot) img.setRotation(rot);
 		} else {
 			const vr = mulberry32(hashStr(p.id));
@@ -4072,8 +4990,14 @@ export class WorldScene extends Phaser.Scene {
 			sizeJitter = 0.9 + vr() * 0.2; // 0.9–1.1 size
 			const shade = 0.82 + vr() * 0.18; // 0.82–1.0 brightness
 			const v = Math.round(255 * shade);
-			img.setTint((v << 16) | (v << 8) | v);
+			tint = (v << 16) | (v << 8) | v;
 		}
+		// paint-tool recolor: a per-item color override wins over the default tint
+		if (p.color) tint = Phaser.Display.Color.HexStringToColor(p.color).color;
+		if (tint !== 0xffffff) img.setTint(tint);
+		// The plant coming back, fading in over the stripped one it is standing on.
+		// Built from the same flip/lean/tint, so the two read as one plant.
+		const regrown = stripped ? this.attachRegrowth(build, objKey, tint, regrow!) : null;
 		// The only thing that keeps changing once the sprite exists. Read from the
 		// clock rather than the age captured at build time, so a survivor's growth
 		// stays smooth across repaints instead of freezing at its build moment.
@@ -4082,16 +5006,76 @@ export class WorldScene extends Phaser.Scene {
 			const growScale = stillGrowing && growMs > 0 ? 1 + (Math.min(liveAge, growMs) / growMs) * 0.6 : 1;
 			const placedAge = Date.now() - (p.placedAt || 0);
 			const matureScale = matMs > 0 && !stillGrowing && p.placedAt ? 0.72 + 0.28 * Math.min(1, placedAge / matMs) : 1;
-			img.setScale(growScale * matureScale * sizeJitter * INV_TEX_SCALE);
+			const size = growScale * matureScale * sizeJitter;
+			const scale = size * INV_TEX_SCALE;
+			img.setScale(scale);
+			regrown?.setScale(scale);
+			// The shadow is where the sprite meets the ground, so it tracks the size the
+			// sprite is actually drawing at — and the offset scales with it, because the
+			// sprite grows about its center: a young plant left on a full-size offset
+			// stands a shadow's width below itself.
+			shadow?.setPosition(x, y + (tall ? 22 : 10) * size);
+			shadow?.setScale((tall ? 1.0 : 1.2) * size * INV_TEX_SCALE, 0.9 * size * INV_TEX_SCALE);
 		};
 		applyScale();
-		// paint-tool recolor: a per-item color override wins over the default tint
-		if (p.color) img.setTint(Phaser.Display.Color.HexStringToColor(p.color).color);
-		this.attachCampfireGlow(build);
+		this.attachPlacementGlow(build);
 		const defName = content('habitatObject', p.objectId, 'name', def.name);
 		this.attachPlacementClick(build, isFixture, defName);
 		this.attachFixtureActions(build, defName);
 		return { key: this.placementKey(p), objs, its, applyScale, growth };
+	}
+
+	/**
+	 * A plant standing stripped while its yield grows back: when it was picked and
+	 * when it will be standing full again — or null while it is standing WITH its
+	 * yield on it, which covers both a plant nobody has picked yet and one whose
+	 * regrow timer has already run out.
+	 *
+	 * A clock, and only a clock. The weather gate on a rain basin decides whether
+	 * you may take the water, not whether the bowl looks full — folding the sky in
+	 * here would empty a full basin on screen the moment a shower passed.
+	 */
+	private regrowState(p: any, def: HabitatObjectDef, stillGrowing: boolean): { from: number; readyAt: number } | null {
+		if (!def.yield || stillGrowing || !p.lastHarvestAt) return null;
+		const readyAt = harvestReadyAt(def, {
+			plantedAt: p.plantedAt,
+			placedAt: p.placedAt,
+			lastHarvestAt: p.lastHarvestAt,
+		});
+		if (readyAt == null || readyAt <= p.lastHarvestAt || Date.now() >= readyAt) return null;
+		return { from: p.lastHarvestAt, readyAt };
+	}
+
+	/**
+	 * The plant coming back: its standing sprite fading in over the stripped one
+	 * across what is left of the regrow window.
+	 *
+	 * One tween, not per-frame work — the yield fills back in in front of you if
+	 * you stand and watch, and someone who walks away and comes back finds it as
+	 * far along as the clock says. The stripped sprite underneath is what makes
+	 * that safe: every picked draw stays inside the standing one's pixels (see
+	 * pickable in sprites/canvas.ts), so the fade covers it completely rather
+	 * than leaving cut stems showing through a plant that is whole again.
+	 */
+	private attachRegrowth(
+		build: PlacementBuild,
+		objKey: string,
+		tint: number,
+		regrow: { from: number; readyAt: number },
+	): Phaser.GameObjects.Image {
+		const { x, y, img, own } = build;
+		const now = Date.now();
+		const back = own(this.img(x, y, objKey).setDepth(img.depth));
+		back.setFlipX(img.flipX).setRotation(img.rotation);
+		if (tint !== 0xffffff) back.setTint(tint);
+		back.setAlpha(Phaser.Math.Clamp((now - regrow.from) / (regrow.readyAt - regrow.from), 0, 1));
+		this.tweens.add({
+			targets: back,
+			alpha: 1,
+			duration: Math.max(1, regrow.readyAt - now),
+			ease: 'Sine.easeIn',
+		});
+		return back;
 	}
 
 	/** A soft golden glint over anything ready to pick, and — when one will become
@@ -4147,20 +5131,29 @@ export class WorldScene extends Phaser.Scene {
 					}),
 					action: () => bridge.emit('harvest-placement', { placementId: p.id }),
 				});
-			} else if (readyAt != null) {
+			} else if (readyAt != null && readyAt > Date.now()) {
 				// Becoming harvestable only adds a glint — no habitat change, so no recalc.
+				// Only ever a FUTURE reading: a rain basin that filled long ago and is
+				// waiting on the sky has a readyAt in the past, and reporting that would
+				// arm a zero-delay timer that repaints the biome again the moment it
+				// fires, forever. The 5s weather poll is what repaints that one.
 				return { at: readyAt + 200, matures: false };
 			}
 		}
 		return undefined;
 	}
 
-	private attachCampfireGlow(build: PlacementBuild) {
+	/** The light a placement gives off: a campfire's fire, a lantern's dull warm
+	 *  pool. Both are additive halos owned by the placement. */
+	private attachPlacementGlow(build: PlacementBuild) {
 		const { p, def, x, y, tall, img, its, own } = build;
+		this.attachLightGlow(build);
 		// placed campfires glow like the base-camp fire: a warm, steady additive
 		// halo (wide wash + bright core — indoors too, cozy in a tent). At night
-		// the light mask also carves the dark away here.
-		if (p.objectId === 'campfire') {
+		// the light mask also carves the dark away here. A campfire that has been
+		// put out is just a ring of stones and a pile of wood: no wash, no core,
+		// and firesHere() leaves it out of the night lighting and the crackle.
+		if (p.objectId === 'campfire' && isLit(p)) {
 			const glow = own(
 				this.img(x, y, 'glow')
 					.setTint(0xffb84f)
@@ -4177,6 +5170,41 @@ export class WorldScene extends Phaser.Scene {
 			) as Phaser.GameObjects.Image;
 			core.setBlendMode(Phaser.BlendModes.ADD);
 		}
+	}
+
+	/**
+	 * The halo a lantern carries after dark.
+	 *
+	 * Dull on purpose: a lantern is not a campfire. It sits at a fifth of the
+	 * fire's alpha and a third of its reach — enough that a lit path reads as lit
+	 * and you can see your feet under it, not enough to turn night into evening.
+	 * The alpha is 0 until updateNightLights() decides it is actually dark, so the
+	 * lanterns simply look like lanterns all day.
+	 */
+	private attachLightGlow(build: PlacementBuild) {
+		const { p, def, x, y, own } = build;
+		// Two sources, on purpose. LIT_SHAPES is what the sprite layer knows about
+		// (the shapes it draws with a flame in them); `light` is what the DATA says
+		// is a light, which is the wider set the toggle acts on — the tide-glass
+		// lantern and the sunstone bowl carry their comfort as water and curio, and
+		// neither should have to be recategorised in a room to be lightable.
+		if (!def.light && !LIT_SHAPES.has(def.shape || '')) return;
+		if (!isLit(p)) return; // put out: no halo to fade in, nothing in the mask
+		const glow = own(
+			this.img(x, y - 2, 'glow')
+				.setTint(0xffca6a)
+				.setDepth(y - 1)
+				.setAlpha(0)
+				.setScale(0.75 * INV_TEX_SCALE),
+		) as Phaser.GameObjects.Image;
+		glow.setBlendMode(Phaser.BlendModes.ADD);
+		// Indoors there is no night to come: the interior holds its own light all
+		// day (see the room glow in drawHome), and updateNightLights bails before it
+		// ever reaches the lantern list. So an indoor lamp carries a small steady
+		// pool of its own instead, set once here — otherwise lighting the floor lamp
+		// in your front room would be a keypress that changed nothing on screen.
+		if (this.isIndoors) glow.setAlpha(0.16);
+		else this.lampGlows.push(glow);
 	}
 
 	private attachPlacementClick(build: PlacementBuild, isFixture: boolean, defName: string) {
@@ -4287,6 +5315,91 @@ export class WorldScene extends Phaser.Scene {
 				img,
 				{ collect: its },
 			);
+		} else if (p.objectId === 'home-bookshelf') {
+			// The four short books on the shelf (ui/stories.ts). KEY-ONLY, like the
+			// mirror and the seats: the bookshelf is also a SURFACE that holds an
+			// ornament, and a click on it has to keep meaning move / rotate / pick up
+			// — a shelf you could never rearrange would be a poor trade for a menu
+			// the interact key already opens.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readBooks'),
+					action: () => bridge.emit('open-stories'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (WorldScene.MIRRORS.has(def.shape || '')) {
+			// A mirror opens the appearance editor and nothing else — see MirrorPanel
+			// in ui/Settings.
+			//
+			// KEY-ONLY, for the same reason seats and beds are: a registered click
+			// action sets hasPrimaryAction, which is exactly what suppresses the
+			// `placement-clicked` menu (move / rotate / pick up) further down. A
+			// clickable mirror would be a mirror you could never rehang.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.useMirror'),
+					action: () => bridge.emit('open-mirror'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'home-findsboard') {
+			// The pin board you hang in the house: it opens the Board of Finds, a
+			// read-only look at every animal that has come back so far, assembled
+			// from the discoveries already in the snapshot.
+			//
+			// KEY-ONLY for the same reason the mirror is — it is a thing on a wall,
+			// and a click on wall decor has to keep meaning "rehang it".
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readFindsBoard'),
+					action: () => bridge.emit('open-finds'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'home-telescope') {
+			// The eyepiece: cloud types while it is light, constellations once it is
+			// dark (ui/Telescope.tsx picks, off the same day clock the HUD reads).
+			//
+			// KEY-ONLY, like the bookshelf and the mirror. A telescope is furniture
+			// you stand up somewhere and then move when the view is wrong, and a
+			// registered click action is exactly what would take that menu away.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.useTelescope'),
+					action: () => bridge.emit('open-telescope'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'home-tarotdeck') {
+			// The deck on the table: the guide to what tarot is, and a reading you
+			// lay out yourself (ui/Tarot.tsx). Nothing about it is saved.
+			//
+			// KEY-ONLY, like the telescope and the bookshelf. A deck is a small thing
+			// you set down somewhere and then move when the light is wrong, and a
+			// registered click action is exactly what would take that menu away.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readTarot'),
+					action: () => bridge.emit('open-tarot'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
 		} else if (isSleepable(p.objectId)) {
 			// Sleep is deliberately KEY-ONLY. Clicking a bed falls through to the
 			// placement menu below (move / rotate / pick up), which is what you
@@ -4301,6 +5414,67 @@ export class WorldScene extends Phaser.Scene {
 				img,
 				{ keyOnly: true, collect: its },
 			);
+		} else if (WorldScene.SEATS[def.shape || '']) {
+			// Sitting is KEY-ONLY for the same reason sleeping is: a click on a piece
+			// of furniture almost always means move it or pick it up, and that menu
+			// is what a click should still get you.
+			const recline = WorldScene.RECLINERS.has(def.shape || '');
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: recline ? t('game.label.lieIn') : t('game.label.sit'),
+					action: () => this.sitOn(def.shape || '', x, y),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (p.objectId === 'pinwheel') {
+			this.attachPinwheel(build);
+		} else if (def.light && !RUN_SHAPES.has(def.shape || '')) {
+			// Strike a match, or put it out.
+			//
+			// Runs are left out, and it is the run that is the reason: string lights
+			// and the meadow's lantern row are placed tile by tile, so a six-tile swag
+			// is six placements and a toggle here would be six presses to darken one
+			// cord — or, if this fired for the whole run, six saves for one keypress.
+			// They keep burning until that is worth doing properly.
+			//
+			// KEY-ONLY, like every other action on a piece of furniture: a click on a
+			// lantern still means move it, turn it or pick it up.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					// `p` is current, not stale: `lit` is part of placementKey, so striking
+					// a match rebuilds this placement — closure and all — before the next
+					// frame draws the prompt. Nothing here has to go looking for the row.
+					label: isLit(p) ? t('game.label.putOut', { name: defName }) : t('game.label.lightUp', { name: defName }),
+					action: () => {
+						this.floatText(x, y - 24, isLit(p) ? t('game.float.putOut') : t('game.float.lightUp'), '#ffca6a');
+						bridge.emit('toggle-light', { placementId: p.id, lit: !isLit(p) });
+					},
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (def.shape === 'signpost') {
+			// Every waymarker on the trail reads the same: it opens the areas panel,
+			// which already knows which way the trail runs and how each stretch of it
+			// is coming along. One handler, four signs — and it stays one when a fifth
+			// biome's marker is added, because the branch is on the SHAPE.
+			this.registerInteractable(
+				{
+					x,
+					y,
+					label: t('game.label.readWaymarker'),
+					action: () => bridge.emit('open-biomes'),
+				},
+				img,
+				{ keyOnly: true, collect: its },
+			);
+		} else if (WorldScene.TOYS[def.shape || '']) {
+			this.attachToy(build, WorldScene.TOYS[def.shape || '']);
 		} else if (p.objectId === 'bed') {
 			this.registerInteractable(
 				{
@@ -4319,17 +5493,249 @@ export class WorldScene extends Phaser.Scene {
 		}
 	}
 
-	private drawAnimals() {
+	/**
+	 * The pinwheel you can give a spin.
+	 *
+	 * Its sprite is swapped for the POST alone and the blades laid on the hub as
+	 * their own image, because a texture with the pole in it cannot be turned —
+	 * rotating that would swing the whole pinwheel over like a felled sign. The
+	 * blades take the placement's flip, lean, size and paint colour off the sprite
+	 * they are standing on rather than re-deriving them, so the two halves are one
+	 * object however the per-item jitter came out.
+	 *
+	 * The hub is worked out THROUGH the lean rather than assumed to be straight up
+	 * the middle: a pinwheel placed on a quarter-turn lies its pole over, and
+	 * blades pinned to a fixed offset would float off the end of it.
+	 *
+	 * KEY-ONLY, like seats, beds and mirrors: a click on a piece of scenery almost
+	 * always means move it or pick it up, and registering a click action here is
+	 * exactly what would suppress that menu (see attachPlacementClick).
+	 */
+	private attachPinwheel(build: PlacementBuild) {
+		const { x, y, img, its, own } = build;
+		ensurePinwheelParts(this);
+		img.setTexture(PINWHEEL_POST);
+		// Sprites draw at INV_TEX_SCALE times the placement's own size jitter, so
+		// TEX_SCALE takes us back to the logical pixels the hub offset is measured in.
+		const lean = img.rotation;
+		const dy = PINWHEEL_HUB_DY * img.scaleX * TEX_SCALE;
+		const blades = own(
+			this.img(x - dy * Math.sin(lean), y + dy * Math.cos(lean), PINWHEEL_BLADES).setDepth(img.depth + 0.05),
+		);
+		blades.setScale(img.scaleX, img.scaleY).setRotation(lean).setFlipX(img.flipX);
+		if (img.isTinted) blades.setTint(img.tintTopLeft);
+		// Where a spin winds down. Kept on the sprite because a second press arrives
+		// long after this ran, with the blades wherever the last one left them.
+		blades.setData('rest', lean);
+		this.registerInteractable(
+			{
+				x,
+				y,
+				label: t('game.label.spinPinwheel'),
+				action: () => this.spinPinwheel(blades),
+			},
+			img,
+			{ keyOnly: true, collect: its },
+		);
+	}
+
+	/** How many turns one nudge is worth, and how long it takes to coast down. */
+	private static readonly PINWHEEL_TURNS = 3;
+	private static readonly PINWHEEL_SPIN_MS = 1500;
+
+	/**
+	 * One nudge: the blades whip round and coast to a stop.
+	 *
+	 * The tween drives a plain counter rather than the sprite's own `rotation`,
+	 * for two reasons. It lets the spin be aimed — the wind-down is measured
+	 * forward to the rest pose and then given whole turns on top, so however many
+	 * times you press, and wherever the last spin had got to, it always finishes
+	 * standing the way it was built instead of a few degrees off. And a counter
+	 * tween is invisible to `killTweensOf(sprite)`, which is what destroyPlacement
+	 * uses — hence the `active` guards, which are what keep a spin interrupted by a
+	 * rebuild or a pick-up from writing to a destroyed image.
+	 */
+	private spinPinwheel(blades: Phaser.GameObjects.Image) {
+		if (!blades.active) return;
+		this.floatText(blades.x, blades.y - 20, t('game.float.spin'), '#f3ead2');
+		if (getPrefs().reduceMotion) return;
+		(blades.getData('spin') as Phaser.Tweens.Tween | null)?.remove();
+		const rest = (blades.getData('rest') as number) || 0;
+		const from = blades.rotation;
+		const delta = pinwheelSpin(from, rest, WorldScene.PINWHEEL_TURNS);
+		const at = { v: 0 };
+		const spin = this.tweens.add({
+			targets: at,
+			v: 1,
+			duration: WorldScene.PINWHEEL_SPIN_MS,
+			ease: 'Cubic.easeOut',
+			onUpdate: () => {
+				if (blades.active) blades.setRotation(from + delta * at.v);
+			},
+			onComplete: () => {
+				if (!blades.active) return;
+				blades.setRotation(rest);
+				blades.setData('spin', null);
+			},
+		});
+		blades.setData('spin', spin);
+	}
+
+	/** How long each motion runs, ms. Short enough that a second press feels like
+	 *  a second press rather than an interruption. */
+	private static readonly TOY_MS: Record<ToyMotion, number> = {
+		shake: 700,
+		sway: 1600,
+		flutter: 900,
+		knock: 420,
+		ripple: 800,
+		settle: 700,
+	};
+
+	/**
+	 * Wire one toy: a nudge, a line of float text, and nothing written anywhere.
+	 *
+	 * KEY-ONLY, like the pinwheel, the seats, the beds and the mirror — a click on
+	 * a piece of scenery means move it or pick it up, and registering a click
+	 * action here is exactly what would take that menu away (see
+	 * attachPlacementClick).
+	 */
+	private attachToy(build: PlacementBuild, toy: { motion: ToyMotion; label: string; float: string }) {
+		const { x, y, img, its } = build;
+		this.registerInteractable(
+			{
+				x,
+				y,
+				label: t(toy.label),
+				action: () => this.playToy(img, toy),
+			},
+			img,
+			{ keyOnly: true, collect: its },
+		);
+	}
+
+	/**
+	 * Play one toy's motion.
+	 *
+	 * Rest is read off the sprite HERE rather than remembered from when it was
+	 * built, because the sprite is still growing and settling between presses —
+	 * applyScale() moves it as a plant matures, and a remembered pose would snap a
+	 * half-grown thing to the size it was when the scene loaded.
+	 *
+	 * The tween drives a plain counter and the sprite follows it, exactly as
+	 * spinPinwheel does, for the same two reasons: it always lands back on the
+	 * rest pose however many times you press, and a counter tween is invisible to
+	 * `killTweensOf(sprite)` in destroyPlacement — hence the `active` guards,
+	 * which are what stop a press interrupted by a rebuild from writing to a
+	 * destroyed image.
+	 */
+	private playToy(img: Phaser.GameObjects.Image, toy: { motion: ToyMotion; float: string }) {
+		if (!img.active) return;
+		this.floatText(img.x, img.y - 22, t(toy.float), '#f3ead2');
+		if (getPrefs().reduceMotion) return;
+		// A press mid-motion starts over from rest rather than compounding: two
+		// overlapping offsets on one sprite read as a glitch, not as enthusiasm.
+		const running = img.getData('toy') as Phaser.Tweens.Tween | null;
+		const held = img.getData('toyRest') as ToyRest | null;
+		if (running) {
+			running.remove();
+			if (held) this.restToy(img, held);
+		}
+		const rest: ToyRest = {
+			x: img.x,
+			y: img.y,
+			rot: img.rotation,
+			sx: img.scaleX,
+			sy: img.scaleY,
+			alpha: img.alpha,
+		};
+		img.setData('toyRest', rest);
+		const at = { v: 0 };
+		const tween = this.tweens.add({
+			targets: at,
+			v: 1,
+			duration: WorldScene.TOY_MS[toy.motion],
+			ease: 'Linear',
+			onUpdate: () => {
+				if (img.active) this.drawToyFrame(img, toy.motion, rest, at.v);
+			},
+			onComplete: () => {
+				if (!img.active) return;
+				this.restToy(img, rest);
+				img.setData('toy', null);
+				img.setData('toyRest', null);
+			},
+		});
+		img.setData('toy', tween);
+	}
+
+	/** Put a sprite back exactly as the placement built it. */
+	private restToy(img: Phaser.GameObjects.Image, rest: ToyRest) {
+		img.setPosition(rest.x, rest.y);
+		img.setRotation(rest.rot);
+		img.setScale(rest.sx, rest.sy);
+		img.setAlpha(rest.alpha);
+	}
+
+	/**
+	 * One frame of a toy's motion: `k` runs 0 → 1 and everything damps toward rest
+	 * as it goes, so the last frame is the rest pose whatever the motion did in
+	 * between. Nothing here reads the clock — the tween owns the timing — which is
+	 * what makes the whole thing reduce-motion-skippable and safe to interrupt.
+	 */
+	private drawToyFrame(img: Phaser.GameObjects.Image, motion: ToyMotion, rest: ToyRest, k: number) {
+		const damp = 1 - k;
+		switch (motion) {
+			case 'shake':
+				img.setPosition(rest.x + Math.sin(k * Math.PI * 10) * 5 * damp, rest.y);
+				break;
+			case 'sway':
+				img.setRotation(rest.rot + Math.sin(k * Math.PI * 4) * 0.22 * damp);
+				break;
+			case 'flutter': {
+				// up off its hook and a shiver on the way back down
+				const lift = Math.sin(k * Math.PI) * 6;
+				const beat = 1 + Math.sin(k * Math.PI * 8) * 0.05 * damp;
+				img.setPosition(rest.x, rest.y - lift);
+				img.setScale(rest.sx * beat, rest.sy * beat);
+				img.setRotation(rest.rot + Math.sin(k * Math.PI * 6) * 0.08 * damp);
+				break;
+			}
+			case 'knock':
+				img.setPosition(rest.x, rest.y + Math.sin(k * Math.PI * 4) * 3 * damp);
+				break;
+			case 'ripple': {
+				// squash and stretch about the same area, so it reads as water moving
+				// rather than as the whole bowl growing
+				const q = Math.sin(k * Math.PI * 3) * 0.06 * damp;
+				img.setScale(rest.sx * (1 + q), rest.sy * (1 - q));
+				break;
+			}
+			case 'settle':
+				img.setAlpha(rest.alpha * (1 - 0.45 * Math.sin(k * Math.PI)));
+				break;
+		}
+	}
+
+	/**
+	 * Paint the animal layer. Returns false when it could not paint at all —
+	 * the save or the animal definitions had not arrived yet — so the caller
+	 * knows not to record this cast as drawn. See refreshDynamic.
+	 */
+	private drawAnimals(): boolean {
 		const s = bridge.shared.state;
 		const d = bridge.shared.data;
-		if (!s || !d) return;
+		if (!animalsReady(d, s) || !s || !d) return false;
 		const rng = mulberry32(hashStr(`${this.area}-animals-${s.discoveries.length}`));
 		const here = s.discoveries.filter((disc) => disc.biomeId === this.area);
 		const placementsHere = s.placements.filter((p) => p.area === this.area);
 
 		let shown = 0;
 		for (const disc of here) {
-			if (shown >= 14) break;
+			// Bounded so a runaway discovery list can't flood the layer. Discoveries
+			// arrive in the order they were earned, so anything dropped here is the
+			// work you did most recently — the cap has to clear a full biome roster.
+			if (shown >= ANIMAL_DRAW_CAP) break;
 			const animal = d.animals.find((a) => a.id === disc.animalId);
 			if (!animal) continue;
 			// low comfort = rarely seen (but never gone)
@@ -4413,6 +5819,10 @@ export class WorldScene extends Phaser.Scene {
 				this.decorateAnimal(img, animal, tint, rng, swimmer, !disc.timesObserved);
 			}
 		}
+		// A rebuild mid-sit (an arrival, a comfort shift, a gear toggle) hands us a
+		// whole new cast; they need their plans worked out or the seat goes quiet.
+		if (this.stillAnchor()) this.armStillness();
+		return true;
 	}
 
 	private decorateAnimal(
@@ -4424,6 +5834,10 @@ export class WorldScene extends Phaser.Scene {
 		unseen = false,
 	) {
 		if (tint) img.setTint(tint);
+		// Kept on the sprite because sitting down asks questions of an animal long
+		// after it was drawn: what it needs nearby, how shy its kind is, what to
+		// call it when it arrives.
+		img.setData('animal', animal);
 		// proportional size per species (bear ≫ chipmunk ≫ salamander), with a
 		// touch of per-animal jitter so individuals still vary
 		const scale = animalScale(animal.id, animal.kind) * INV_TEX_SCALE;
@@ -4668,21 +6082,56 @@ export class WorldScene extends Phaser.Scene {
 		const speed = ocean ? 22 : kind === 'insect' ? 26 : kind === 'bird' ? 42 : 18;
 		const aquatic = kind === 'fish' || kind === 'aquatic';
 		const flying = kind === 'bird' || kind === 'insect';
+		// Home is a record rather than two constants because it MOVES: an animal
+		// that crossed the clearing to sit with you keeps its new spot when you
+		// get up (endStillness), instead of walking all the way back to pick up
+		// where it left off.
+		const home = { x: homeX, y: homeY };
+		img.setData('home', home);
 		const hop = () => {
 			if (!img.active) return;
+			// Asleep beside the hammock: no leg at all. Check back in a while rather
+			// than every frame — a sleeping animal is the cheapest thing on screen.
+			if (this.dozingNow(img)) {
+				this.time.delayedCall(1600 + rng() * 2200, hop);
+				return;
+			}
 			const eastEdge = this.area === 'coastal' ? (this.landRight + 1.2) * TILE : this.worldW - TILE;
 			let tx: number, ty: number;
 			// An amphibious animal picks a side each time it moves, so it hauls out
 			// onto the shore and slips back into the water over and over.
 			const goSea = amphibious ? rng() < 0.55 : ocean;
-			if (goSea) {
+			// While the caretaker sits still, an animal with a reason to be near
+			// that seat spends its legs closing the distance instead of picking
+			// somewhere at random. Everything else about the leg — the gait, the
+			// speed, the depth sort — is the ordinary wander.
+			const goal = this.stillGoalFor(img, rng, { aquatic, ocean: goSea });
+			if (goal) {
+				if (aquatic || goSea) {
+					// a swimmer's goal is already a water tile; part of the way there
+					// would be dry land
+					tx = goal.x;
+					ty = goal.y;
+				} else {
+					const leg = approachLeg(img.x, img.y, goal.x, goal.y, rng);
+					tx = leg.x;
+					ty = leg.y;
+					// it still won't step into the water to reach you
+					if (!flying && this.isWaterPx(tx, ty)) {
+						tx = img.x;
+						ty = img.y;
+					}
+				}
+				tx = Phaser.Math.Clamp(tx, TILE, eastEdge);
+				ty = Phaser.Math.Clamp(ty, (this.playTop + 1) * TILE, this.worldH - TILE);
+			} else if (goSea) {
 				// marine swimmers drift around the open ocean band, near their spot
-				const w = this.oceanTarget(rng, homeX, homeY, roam);
+				const w = this.oceanTarget(rng, home.x, home.y, roam);
 				tx = w.x;
 				ty = w.y;
 			} else if (aquatic) {
 				// fish drift only between open-water tiles near them
-				const w = this.fishTarget(homeX, homeY, roam, rng);
+				const w = this.fishTarget(home.x, home.y, roam, rng);
 				if (!w) {
 					this.time.delayedCall(1200 + rng() * 2000, hop);
 					return;
@@ -4693,8 +6142,8 @@ export class WorldScene extends Phaser.Scene {
 				// walkers re-roll any target that lands on open water; fliers go anywhere
 				let attempts = 0;
 				do {
-					tx = Phaser.Math.Clamp(homeX + (rng() - 0.5) * roam * 2, TILE, eastEdge);
-					ty = Phaser.Math.Clamp(homeY + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
+					tx = Phaser.Math.Clamp(home.x + (rng() - 0.5) * roam * 2, TILE, eastEdge);
+					ty = Phaser.Math.Clamp(home.y + (rng() - 0.5) * roam * 1.4, (this.playTop + 1) * TILE, this.worldH - TILE);
 				} while (!flying && this.isWaterPx(tx, ty) && ++attempts < 12);
 				if (!flying && this.isWaterPx(tx, ty)) {
 					tx = img.x;
@@ -4739,7 +6188,14 @@ export class WorldScene extends Phaser.Scene {
 								});
 							});
 						}
-						this.time.delayedCall(800 + rng() * 3500, hop);
+						// Pacing says what the animal is doing as plainly as the path
+						// does: short pauses while it is closing on the seat (that reads
+						// as deliberate), the ordinary unhurried ones once it is there
+						// or when it never set off at all.
+						const closing = this.approaching.has(img);
+						const arrived = closing && this.stillArrived(img);
+						const pause = arrived ? 1600 + rng() * 2600 : closing ? 260 + rng() * 700 : 800 + rng() * 3500;
+						this.time.delayedCall(pause, hop);
 					}
 				},
 			});
@@ -4842,17 +6298,87 @@ export class WorldScene extends Phaser.Scene {
 	 * whole answer — the server never stacks two placements on the same tile.
 	 */
 	private placementAt(tx: number, ty: number): Placement | undefined {
+		return this.placementsAt(tx, ty)[0];
+	}
+
+	/**
+	 * Everything standing on a tile, topmost first.
+	 *
+	 * A tile used to hold at most one thing, and this was a Map to a single
+	 * placement. The tabletop rule (canStackOn) allows exactly one exception — a
+	 * small item on a surface — so the bucket is a list now, ordered so the thing
+	 * ON TOP comes first: that is what a click on the tile means, and what
+	 * placementAt()'s callers (paths, runs of lights) were already reading as
+	 * "the placement here".
+	 */
+	private placementsAt(tx: number, ty: number): Placement[] {
 		const placements = bridge.shared.state?.placements;
 		if (!this.placementByTile || this.placementByTileSrc !== placements) {
-			const map = new Map<string, Placement>();
+			const map = new Map<string, Placement[]>();
 			for (const p of placements || []) {
 				const key = `${p.area}:${p.x},${p.y}`;
-				if (!map.has(key)) map.set(key, p); // first wins, matching the old .some() scan order
+				const bucket = map.get(key);
+				if (bucket) bucket.push(p);
+				else map.set(key, [p]);
+			}
+			for (const bucket of map.values()) {
+				if (bucket.length > 1)
+					bucket.sort(
+						(a, b) => (this.objectDef(b.objectId)?.small ? 1 : 0) - (this.objectDef(a.objectId)?.small ? 1 : 0),
+					);
 			}
 			this.placementByTile = map;
 			this.placementByTileSrc = placements;
 		}
-		return this.placementByTile.get(`${this.area}:${tx},${ty}`);
+		return this.placementByTile.get(`${this.area}:${tx},${ty}`) || [];
+	}
+
+	/**
+	 * How a path placement joins the ones around it.
+	 *
+	 * Placing a path has to change the art of its NEIGHBOURS as well as its own,
+	 * which is why this is folded into placementKey(): the tile that just gained a
+	 * neighbour fails its diff and is rebuilt in the same pass. The four lookups
+	 * go through placementAt(), already memoised against the identity of the
+	 * placements array, so this stays four map hits per path per repaint.
+	 *
+	 * Materials connect to each OTHER on purpose — a gravel path that runs into a
+	 * plank one is still one walkway, and the junction reads better squared off
+	 * than as two rounded ends that happen to touch.
+	 */
+	private pathConn(p: { objectId: string; x: number; y: number }): Conn {
+		const isPath = (objectId?: string) => !!objectId && PATH_SHAPES.has(this.objectDef(objectId)?.shape || '');
+		if (!isPath(p.objectId)) return 0;
+		const at = (x: number, y: number) => isPath(this.placementAt(x, y)?.objectId);
+		return connOf(at(p.x, p.y - 1), at(p.x + 1, p.y), at(p.x, p.y + 1), at(p.x - 1, p.y));
+	}
+
+	/**
+	 * How a run of lights joins the ones beside it.
+	 *
+	 * String lights and the meadow lantern row are hung along a line, so unlike a
+	 * path they connect on ONE axis: the run's own. A quarter-turned placement
+	 * runs north–south, and joins its neighbours there — but only to lights of the
+	 * same shape turned the same way, since a low cord and an overhead wire meeting
+	 * end to end is two runs crossing, not one. The mask that comes back is always
+	 * in the sprite's own frame (W = behind me along the run, E = ahead), so one
+	 * set of art covers both directions and the placement's rotation does the rest.
+	 *
+	 * Like pathConn this rides in placementKey(), so hanging one light repaints the
+	 * neighbour it just joined.
+	 */
+	private runConn(p: { objectId: string; x: number; y: number; rotation?: number }): Conn {
+		const shape = this.objectDef(p.objectId)?.shape || '';
+		if (!RUN_SHAPES.has(shape)) return 0;
+		const turned = (((p.rotation || 0) % 180) + 180) % 180 !== 0;
+		const joins = (x: number, y: number) => {
+			const n = this.placementAt(x, y);
+			if (!n || n.objectId !== p.objectId) return false;
+			return (((((n as any).rotation || 0) % 180) + 180) % 180 !== 0) === turned;
+		};
+		return turned
+			? connOf(false, joins(p.x, p.y + 1), false, joins(p.x, p.y - 1))
+			: connOf(false, joins(p.x + 1, p.y), false, joins(p.x - 1, p.y));
 	}
 
 	/**
@@ -4874,6 +6400,8 @@ export class WorldScene extends Phaser.Scene {
 			activeObjectId: null,
 			activeDef: undefined,
 			occupantIdAt: (tx: number, ty: number) => this.placementAt(tx, ty)?.id,
+			occupantDefsAt: (tx: number, ty: number) =>
+				this.placementsAt(tx, ty).map((pl) => this.objectDef(pl.objectId) as any),
 			isWater: (tx: number, ty: number) => this.waterTiles.has(`${tx},${ty}`),
 		});
 		const activeId = this.activeObjectId();
@@ -4892,6 +6420,19 @@ export class WorldScene extends Phaser.Scene {
 		return canPlaceOn(tx, ty, this.placeContext(), forTerraform, ignoreId);
 	}
 
+	/**
+	 * The tile a click at (tx, ty) actually puts the held piece on.
+	 *
+	 * The same tile for everything except a wall item, which slides along the wall
+	 * past a window or another picture to the nearest free spot. The ghost is drawn
+	 * here and the request is sent for here, so what you see is where it lands —
+	 * and the server resolves it again through the same function, so a stale client
+	 * cannot talk it into an illegal tile.
+	 */
+	private placeTarget(tx: number, ty: number, ignoreId?: string): { x: number; y: number } {
+		return hangSpotFor(tx, ty, this.placeContext(), ignoreId) || { x: tx, y: ty };
+	}
+
 	// --------------------------------------------------------------- update
 
 	update(_time: number, delta: number) {
@@ -4908,6 +6449,7 @@ export class WorldScene extends Phaser.Scene {
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
+		this.updateFireAudio(); // ...and can be heard before they can be seen
 	}
 
 	/**
@@ -4935,6 +6477,44 @@ export class WorldScene extends Phaser.Scene {
 		if (this.walkAudioActive === active) return;
 		this.walkAudioActive = active;
 		bridge.emit('audio-walk', { active });
+	}
+
+	// Where the crackle starts and stops (world px). Inside the near radius you
+	// are standing at the fire; past the far one it is out of earshot. The far
+	// radius is deliberately tighter than FIRE_MASK, the ring of light a fire
+	// throws after dark: you should see a campfire from further away than you can
+	// hear it, and a fire audible from off-screen sounds like a bug.
+	private static readonly FIRE_AUDIO_NEAR = TILE * 1.5;
+	private static readonly FIRE_AUDIO_FAR = TILE * 6;
+
+	private setFireAudio(level: number) {
+		if (level === this.fireAudioLevel) return;
+		this.fireAudioLevel = level;
+		bridge.emit('audio-fire', { level });
+	}
+
+	/**
+	 * How near the caretaker is to the nearest fire, as a 0..1 the mixer fades on.
+	 *
+	 * Sent as a level rather than an on/off so the sound arrives with you instead
+	 * of appearing at a threshold — and quantised to twentieths before it is
+	 * compared, so walking past a campfire sends a couple of dozen messages rather
+	 * than one per frame for as long as you are in range.
+	 */
+	private updateFireAudio() {
+		const fires = this.firesHere();
+		let level = 0;
+		if (fires.length) {
+			let nearest = Infinity;
+			for (const f of fires) {
+				const d = Phaser.Math.Distance.Between(this.player.x, this.player.y, f.x, f.y);
+				if (d < nearest) nearest = d;
+			}
+			const near = WorldScene.FIRE_AUDIO_NEAR;
+			const far = WorldScene.FIRE_AUDIO_FAR;
+			level = nearest <= near ? 1 : nearest >= far ? 0 : 1 - (nearest - near) / (far - near);
+		}
+		this.setFireAudio(Math.round(level * 20) / 20);
 	}
 
 	/** The compact interact key to show in-world — prefer a real key over the wide
@@ -5001,6 +6581,25 @@ export class WorldScene extends Phaser.Scene {
 			vx = joy.x;
 			vy = joy.y;
 		}
+		// A panel is open: the world behind a modal does not walk. Clicks are
+		// already swallowed for exactly this reason (installPointer), and keys were
+		// not — which only became obvious with the telescope, whose own controls
+		// are the arrow keys, but was always true of every panel. Zeroed rather
+		// than returned early so the stop runs through the standing-still path
+		// below: walk audio off, the waddle settles upright, stillness noted.
+		if (bridge.shared.uiBlocking) {
+			vx = 0;
+			vy = 0;
+		}
+		// Sitting ends the moment you ask to go somewhere, and the step you asked
+		// for happens on this same frame — so leaving a bench is just walking.
+		if (this.sitting) {
+			if (vx === 0 && vy === 0) {
+				this.setWalkAudio(false);
+				return;
+			}
+			this.standUp();
+		}
 		if (vx === 0 && vy === 0) {
 			this.setWalkAudio(false);
 			// settle back upright when standing still. Snap to 0 once it is visually
@@ -5008,13 +6607,23 @@ export class WorldScene extends Phaser.Scene {
 			// player transform on every frame the player stood still, forever.
 			const rot = this.player.rotation;
 			if (rot !== 0) this.player.setRotation(Math.abs(rot) < 1e-3 ? 0 : rot * 0.8);
+			this.noteStandingStill();
 			return;
 		}
+		// Walking again ends whatever had gathered, exactly as getting off a bench
+		// does — one line, and only on the frame it actually changes something.
+		if (this.idleSince != null || this.standingStill) this.endStillness();
 		this.walkT += dt * 11;
 		this.player.setRotation(Math.sin(this.walkT) * 0.075); // cozy waddle
 		const len = Math.hypot(vx, vy);
-		// Hiking boots (when owned and switched on) give a gentle speed bump.
-		const speed = this.hasBoots() ? 160 * 1.2 : 160;
+		// Hiking boots (when owned and switched on) give a gentle speed bump, and
+		// a WELL RESTED caretaker — one who slept in a home cozy enough to earn it
+		// — walks quicker until noon on top of that (server/cozy.ts). Multiplied,
+		// not replaced: the two are separate things you did to go faster.
+		// Three separate things you did to go faster, multiplied rather than
+		// ranked: the boots you crafted, the night you slept in a room you made
+		// comfortable, and (Comfort 7) the house that keeps you on your feet.
+		const speed = 160 * (this.hasBoots() ? 1.2 : 1) * this.restedBoost() * this.briskStep();
 		let nx = this.player.x + (vx / len) * speed * dt;
 		let ny = this.player.y + (vy / len) * speed * dt;
 
@@ -5027,14 +6636,15 @@ export class WorldScene extends Phaser.Scene {
 		// Shore the ocean band along the east edge is always impassable.
 		const blocked = (px: number, py: number) => {
 			// indoors: the walls (anything off the floor) block movement — but the
-			// door threshold (one tile below the floor, centred) is walkable so you
+			// door threshold (one tile below the floor, centered) is walkable so you
 			// can step right up to the door before leaving.
 			if (this.isIndoors) {
 				const r = this.roomSpec();
 				const tx = Math.floor(px / TILE),
 					ty = Math.floor((py + 8) / TILE);
-				if (tx === r.doorX && ty === r.y1 + 1) return false;
-				return tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1;
+				// walkable = any room's floor, a doorway between two rooms, or the
+				// threshold just outside the exit
+				return !isWalkable(r, tx, ty);
 			}
 			if (this.area === 'coastal' && Math.floor(px / TILE) >= this.landRight) return true;
 			// the camp building (tent/house) is solid — walk around it, not through it
@@ -5081,8 +6691,10 @@ export class WorldScene extends Phaser.Scene {
 		const pointer = this.input.activePointer;
 		const tx = Math.floor(pointer.worldX / TILE);
 		const ty = Math.floor(pointer.worldY / TILE);
-		this.ghost.setPosition(tx * TILE + 16, ty * TILE + 16);
-		const ok = this.canPlaceAt(tx, ty, false, this.movingPlacementId || undefined);
+		const ignore = this.movingPlacementId || undefined;
+		const spot = this.placeTarget(tx, ty, ignore);
+		this.ghost.setPosition(spot.x * TILE + 16, spot.y * TILE + 16);
+		const ok = this.canPlaceAt(tx, ty, false, ignore);
 		// setTexture re-resolves the texture, the frame and the display origin. The
 		// answer changes only when the pointer crosses between a legal and an
 		// illegal tile, so compare the key first.
@@ -5133,12 +6745,8 @@ export class WorldScene extends Phaser.Scene {
 		const fx = focus ? focus.x : Infinity;
 		const fy = focus ? focus.y : Infinity;
 		const flabel = focus ? focus.label : null;
-		if (
-			fx !== this.lastFocusX ||
-			fy !== this.lastFocusY ||
-			flabel !== this.lastFocusLabel ||
-			focusSource !== this.lastFocusSource
-		) {
+		const targetChanged = fx !== this.lastFocusX || fy !== this.lastFocusY || flabel !== this.lastFocusLabel;
+		if (targetChanged || focusSource !== this.lastFocusSource) {
 			this.lastFocusX = fx;
 			this.lastFocusY = fy;
 			this.lastFocusLabel = flabel;
@@ -5150,7 +6758,10 @@ export class WorldScene extends Phaser.Scene {
 					label: focus.label,
 					source: focusSource,
 				});
-				if (focusSource === 'near') bridge.emit('audio-sfx', { id: 'hover' });
+				if (this.hasFocusHistory && targetChanged && focusSource === 'near') {
+					bridge.emit('audio-sfx', { id: 'hover' });
+				}
+				this.hasFocusHistory = true;
 			} else {
 				bridge.emit('interactable-hover-clear');
 			}
@@ -5172,8 +6783,15 @@ export class WorldScene extends Phaser.Scene {
 			}
 		}
 
-		// pulsing highlight on whatever you can interact with right now
-		if (focus && getPrefs().interactHint !== false) {
+		// Pulsing highlight on whatever you can interact with right now — but never
+		// while the caretaker is settled. Sitting draws them at the seat's own
+		// position, so the ring the seat put on the ground ends up centred on the
+		// person sitting in it, with the key badge floating over their head: the
+		// game pointing at you to tell you that you are there. The key still works
+		// (that is how you get up again) and the bottom bar still says so; it is
+		// only the ring and badge that go. Sleeping is the same picture for the
+		// same reason.
+		if (focus && !this.sitting && !this.sleeping && getPrefs().interactHint !== false) {
 			if (!this.highlight.visible) {
 				this.highlight.setVisible(true);
 				this.syncRingPulse(); // the pulse only ticks while the ring is on screen

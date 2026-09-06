@@ -223,18 +223,29 @@ describe('the starter chain', () => {
 	it('counts a harvest from the plant it was taken from', async () => {
 		await skipTo('start-harvest');
 		expect(starters(await board())[0].progress).toBe(0);
-		// A placement carries the stamp forever, so the goal cannot regress.
-		await w.db.Placement.put({
-			id: `${pid}:pl_flower`,
+		// Harvested through the endpoint, not by writing the stamp on a row: the
+		// goal reads the player's standing tallies now (see bumpStanding), and those
+		// are kept by the action. A row put straight into the store is a world no
+		// action ever happened in — which is a fine way to set up a fixture and no
+		// way at all to test the thing that counts the action.
+		const plant = {
+			id: `${pid}:meadow:pl_flower`,
 			worldId: pid,
 			playerId: pid,
 			objectId: 'wildflower-patch',
 			area: 'meadow',
 			x: 5,
 			y: 5,
+			placedAt: Date.now() - 600_000,
 			plantedAt: Date.now() - 600_000,
-			lastHarvestAt: Date.now(),
-		});
+		};
+		await w.db.Placement.put(plant);
+		await w.post('HarvestPlacement', { playerId: pid, placementId: plant.id });
+		expect(starters(await board())[0].progress).toBe(1);
+		// Picking it again is the same one harvested plant, and the goal does not
+		// run past its own target.
+		await w.db.Placement.patch(plant.id, { lastHarvestAt: Date.now() - 120_000 });
+		await w.post('HarvestPlacement', { playerId: pid, placementId: plant.id });
 		expect(starters(await board())[0].progress).toBe(1);
 	});
 

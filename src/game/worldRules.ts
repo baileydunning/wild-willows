@@ -22,6 +22,7 @@
  * calls in here for the decision.
  */
 import { blocksDoorway } from './interactions';
+import { type HomeLayout, isFloorTile, isOpening, isWallTile, nearestHangSpot } from '../homePlan';
 import type { BiomeDef } from '../types';
 
 // ----------------------------------------------------------------- constants
@@ -49,8 +50,59 @@ export const CAMP_BLOCK = { x0: 19.5, y0: 3.2, x1: 23.9, y1: 5.9 };
 export const AREA_ORDER = ['meadow', 'forest', 'wetland', 'desert', 'alpine', 'coastal'];
 export const SPAWN_DEFAULT = { x: 24, y: 11 };
 
+/**
+ * Can the animal layer be painted yet? BOTH halves have to be in hand: the save
+ * (which discoveries have returned) and the definitions (what each species is).
+ * On a fresh login the scene routinely boots before one or both land, and the
+ * two arrive independently — so this is asked on every repaint, not just once.
+ */
+export function animalsReady(
+	data: { animals?: unknown[] } | null | undefined,
+	state: unknown | null | undefined,
+): boolean {
+	return !!state && !!data && Array.isArray(data.animals) && data.animals.length > 0;
+}
+
+/**
+ * How many animal sprites one area may draw at once. Every species a biome can
+ * hold has returned when this is reached, so the cap is a safety bound on the
+ * layer, not a density knob: a fully restored area is supposed to look full.
+ * Keep it at or above the largest per-biome animal roster in data/animals-*.json.
+ */
+export const ANIMAL_DRAW_CAP = 30;
+
 /** How long a shaped tile ignores a second command (see shouldSwallowRepeat). */
 export const TERRAFORM_REPEAT_MS = 700;
+
+/**
+ * Basket tier at which one gather clears a whole patch, and how many extra spots
+ * the client offers up with the one that was clicked. Mirrors BASKET_SWEEP_TIER
+ * and MAX_SWEEP_NODES on the server, which remains the authority — these only
+ * decide whether it is worth naming the neighbours at all.
+ */
+export const SWEEP_TIER = 7;
+export const SWEEP_REACH = 4;
+
+/**
+ * Brush sizes — how much ground one shaping action covers. A CHOICE, never a
+ * consequence of the tier: a better tool adds sizes to the picker and changes
+ * nothing else, and the default is always 1x1. Mirrors brushSizesFor on the
+ * server, which remains the authority and refuses anything the tier has not
+ * earned.
+ */
+export const BRUSH_SIZES = [1, 3, 9];
+/** Watering-can tier that can fill straight from open water you shaped. */
+export const DIP_TIER = 6;
+export const BRUSH_3X3_TIER = 5;
+export const BRUSH_9X9_TIER = 7;
+
+/** The brush sizes a tool of this tier offers, smallest first. */
+export function brushSizesFor(tier: number): number[] {
+	const out = [1];
+	if (tier >= BRUSH_3X3_TIER) out.push(3);
+	if (tier >= BRUSH_9X9_TIER) out.push(9);
+	return out;
+}
 
 /** Player-chosen zoom: up to two steps out and two steps in from "perfect". */
 export const ZOOM_STEP = 1.25;
@@ -202,22 +254,43 @@ export function findFreeTile(
 
 // ------------------------------------------------------------------ placement
 
-/** The interior rectangle (tile coords) plus its doorway. */
-export interface RoomRect {
-	x0: number;
-	y0: number;
-	x1: number;
-	y1: number;
-	doorX: number;
-	doorY: number;
-}
+/** The interior the placement rules read: the laid-out floor plan (rooms,
+ *  doorways, exit) from src/homePlan.ts, which the server decides from too. */
+export type RoomRect = HomeLayout;
 
 /** The bits of a habitat-object def that decide whether it can go somewhere. */
 export interface PlaceableDef {
 	homeMin?: number;
 	placement?: string;
+	/** 'wall' hangs on the wall ring instead of standing on the floor. */
+	mount?: string;
+	/** Furniture you put things on — a table, a dresser, a shelf top. */
+	surface?: boolean;
+	/** Small enough to stand on one of those. */
+	small?: boolean;
 	bridge?: boolean;
 }
+
+/**
+ * True if `def` may be set down on a tile already holding `standing`.
+ *
+ * Mirrors canStackOn() in server/home.ts, which is the copy that counts: a small
+ * thing goes onto a surface, and that is the only time two things share a tile.
+ */
+export function canStackOn(def: PlaceableDef | undefined, standing: (PlaceableDef | undefined)[]): boolean {
+	if (!def?.small) return false;
+	return standing.length === 1 && !!standing[0]?.surface;
+}
+
+/**
+ * True if (tx, ty) is a hangable wall tile.
+ *
+ * The rule itself lives in src/homePlan.ts and the server decides with the same
+ * function, so the placement ghost turns green over exactly the walls the server
+ * will accept. Re-exported here because everything else the placement code needs
+ * is in this file.
+ */
+export { isWallTile };
 
 export interface PlaceContext {
 	area: string;
@@ -232,7 +305,33 @@ export interface PlaceContext {
 	activeDef?: PlaceableDef;
 	/** Id of the placement standing on a tile of THIS area, if any. */
 	occupantIdAt: (tx: number, ty: number) => string | undefined;
+	/** The defs of everything already on a tile — what the tabletop rule reads.
+	 *  Optional so a caller that never places small things need not supply it. */
+	occupantDefsAt?: (tx: number, ty: number) => (PlaceableDef | undefined)[];
 	isWater: (tx: number, ty: number) => boolean;
+}
+
+/**
+ * The tile a wall item aimed at (tx, ty) would actually hang on, or null.
+ *
+ * Reads nearestHangSpot — the same function the server lands it with — so the
+ * ghost can be drawn on the tile the piece ends up on rather than on the one the
+ * pointer happens to be over. Returns null when the aim is off the wall entirely
+ * or every wall tile is spoken for, which is exactly when the ghost turns red.
+ */
+export function hangSpotFor(
+	tx: number,
+	ty: number,
+	ctx: PlaceContext,
+	ignoreId?: string,
+): { x: number; y: number } | null {
+	const r = ctx.room;
+	if (!r || !ctx.indoors || ctx.activeDef?.mount !== 'wall') return null;
+	if (!isWallTile(r, tx, ty)) return null;
+	return nearestHangSpot(r, tx, ty, (x, y) => {
+		const id = ctx.occupantIdAt(x, y);
+		return id !== undefined && id !== ignoreId;
+	});
 }
 
 export function canPlaceAt(
@@ -242,13 +341,32 @@ export function canPlaceAt(
 	forTerraform = false,
 	ignoreId?: string,
 ): boolean {
-	// Indoors: you can only decorate on the floor (inside the walls).
+	// Indoors: floor items go on the floor, wall items go on the wall ring.
 	if (ctx.indoors) {
 		const r = ctx.room;
 		if (!r) return false;
-		if (tx < r.x0 || tx > r.x1 || ty < r.y0 || ty > r.y1) return false;
+		// A wall item hangs on a wall run; anything else stands on the floor of one
+		// of the rooms. A doorway between two rooms is a hole rather than either,
+		// so nothing goes there and the way through is always clear. Mirrors
+		// interiorSpotFor() on the server.
+		const wallItem = !!ctx.activeObjectId && ctx.activeDef?.mount === 'wall';
+		if (wallItem) {
+			// Aimed at the wall is enough: hangSpotFor slides it past a window or a
+			// picture to the nearest free tile, so the only "no" left is a wall with
+			// no free tile on it at all.
+			if (!hangSpotFor(tx, ty, ctx, ignoreId)) return false;
+		} else if (!isFloorTile(r, tx, ty) || isOpening(r, tx, ty)) return false;
 		const onTile = ctx.occupantIdAt(tx, ty);
-		if (onTile !== undefined && onTile !== ignoreId) return false;
+		// ...unless what is already there is a surface and this is small enough to
+		// stand on it (canStackOn — the tabletop rule). A wall item has already
+		// been slid clear of whatever is there, so this is not its question.
+		if (
+			!wallItem &&
+			onTile !== undefined &&
+			onTile !== ignoreId &&
+			!canStackOn(ctx.activeDef, ctx.occupantDefsAt?.(tx, ty) || [])
+		)
+			return false;
 		// Items that need a bigger home can't be placed in a small one yet.
 		const homeMin = ctx.activeObjectId ? ctx.activeDef?.homeMin || 0 : 0;
 		if (homeMin > ctx.homeSpace) return false;
@@ -275,7 +393,8 @@ export function canPlaceAt(
 	)
 		return false; // tent + campfire tiles (rows derived from the camp so they track it)
 	const occupant = ctx.occupantIdAt(tx, ty);
-	if (occupant !== undefined && occupant !== ignoreId) return false;
+	if (occupant !== undefined && occupant !== ignoreId && !canStackOn(ctx.activeDef, ctx.occupantDefsAt?.(tx, ty) || []))
+		return false;
 	// note: resource nodes never block building — if you build on a regen spot,
 	// the node relocates itself (see computeNodeLayout)
 	// water tiles only accept bridges (terraform clicks are exempt — the can/shovel work on water)
@@ -651,4 +770,192 @@ export function fishTarget(
 
 export function nextUserZoom(current: number, factor: number): number {
 	return clamp(current * factor, USER_ZOOM_MIN, USER_ZOOM_MAX);
+}
+
+// ----------------------------------------------------------------- stillness
+
+/**
+ * Sitting still, and what it is worth.
+ *
+ * A seat used to be a pose and nothing else. It is now the one thing in the
+ * game that pays you for doing nothing: stay on the bench and the wildlife
+ * already living here works its way over to you.
+ *
+ * WHO comes, and in what order, is one thing only — how far each animal was
+ * from the bench when you sat down. The nearest notices almost at once; the far
+ * side of the area takes its time getting there. So a sit reads as word getting
+ * round, near to far, rather than as a draw roll nobody can see.
+ *
+ * Nothing GATES it. Not what you planted, not the biome's health, not how
+ * settled an animal is — those last two only change how long something dithers
+ * before it sets off. An earlier cut of this scored each animal on how much of
+ * its own habitat you had parked beside, which was a fine idea on paper and in
+ * play was a bench that looked broken: you sat, and most of the meadow ignored
+ * you for reasons the game never showed you.
+ *
+ * Nothing about any of it is recorded anywhere. The company IS the reward, so
+ * there is no counter to farm and the numbers can be generous.
+ */
+
+/** How soon the animal already at your elbow gets up and comes over. */
+export const APPROACH_FIRST_MS = 2_500;
+
+/** How long one on the far side of the area takes to decide. */
+export const APPROACH_FAR_MS = 14_000;
+
+/** The distance that counts as "the far side of the area" for that wait. */
+export const APPROACH_SPAN = 18 * TILE;
+
+/** How near the seat a patch of water has to be for a swimmer to come over. */
+export const APPROACH_WATER_REACH = 8 * TILE;
+
+/**
+ * How many animals may be on their way over at once, out of the ANIMAL_DRAW_CAP
+ * an area can show. A handful — five settled right around the bench is company;
+ * twenty is a swarm, which is both a worse picture and a busier one than this
+ * moment is meant to be. The rest of the area carries on with its own business,
+ * which is most of what makes the five read as having chosen to come over.
+ */
+export const APPROACH_MAX = 5;
+
+// --------------------------------------------- what the hearth changes
+// The three Warmth abilities (src/homeAbilities.ts) all land here, because this
+// is where "who comes over" is decided. None of them changes the RULE — near
+// first, nothing gated, nothing recorded — they widen it:
+//
+//   Open Hearth (Warmth 5)  they set off sooner, and from further out
+//   Hearthsong  (Warmth 6)  more of them come, and they settle closer in
+//   Ember Watch (Warmth 7)  no seat needed: stand still anywhere and they come
+//
+// A hearth you keep banked all winter is the reason animals in the world learn
+// that a person sitting still is not a person hunting, so the house is a
+// sensible thing for this to be bought with.
+
+/** What Open Hearth takes off the wait, and how much further the span reaches. */
+const OPEN_HEARTH_HASTE = 0.6; // 40% off the dithering
+const OPEN_HEARTH_SPAN = 1.5; // "the far side of the area" is half again as far
+
+/** Crowd sizes the two later Warmth abilities buy. */
+export const APPROACH_MAX_HEARTHSONG = 8;
+export const APPROACH_MAX_EMBERWATCH = 10;
+
+/** How much closer Hearthsong lets them settle — a ring you are inside of,
+ *  rather than one you are watching from the middle of. */
+const HEARTHSONG_CLOSER = 0.82;
+
+/** How long you have to stand still, with Ember Watch, before the area decides
+ *  you have stopped. Long enough that crossing a biome on foot never trips it,
+ *  short enough that stopping to look at something is enough. */
+export const EMBER_WATCH_STILL_MS = 3_000;
+
+/** The abilities the stillness rules care about, in the shape the scene has
+ *  them. Everything here takes this rather than a player row: worldRules is
+ *  pure, and the scene reads the set once and passes it down. */
+export interface HearthAbilities {
+	openHearth?: boolean;
+	hearthsong?: boolean;
+	emberWatch?: boolean;
+}
+
+/** How many animals may be on their way over at once, for this house. */
+export function approachMaxFor(h: HearthAbilities = {}): number {
+	if (h.emberWatch) return APPROACH_MAX_EMBERWATCH;
+	if (h.hearthsong) return APPROACH_MAX_HEARTHSONG;
+	return APPROACH_MAX;
+}
+
+/**
+ * How close each kind is willing to get, 0 (fearless) → 1 (keeps its distance).
+ * Bugs come to your boots; a fox stops at the edge of the clearing and looks.
+ */
+const SHYNESS: Record<string, number> = {
+	mammal: 1,
+	bird: 0.8,
+	fish: 0.9,
+	reptile: 0.75,
+	amphibian: 0.55,
+	invertebrate: 0.45,
+	insect: 0.3,
+};
+
+/**
+ * How long this one waits before setting off, from how far it has to come.
+ *
+ * `comfort` (the Discovery's, 0–100) and `health` (the biome's) stretch that
+ * wait by up to a quarter and no more: a newcomer to a struggling preserve is
+ * warier about crossing open ground than a settled one in a thriving meadow,
+ * but it still comes. Neither can return Infinity — there is no "never" here,
+ * which is the whole difference between this and the version before it.
+ */
+export function approachWaitMs(
+	distance: number,
+	opts: { comfort?: number; health?: number; hearth?: HearthAbilities } = {},
+): number {
+	// Open Hearth stretches what counts as the far side of the area — so an
+	// animal that used to be too far away to have an opinion now simply takes the
+	// long-wait figure — and then takes nearly half off every wait on top.
+	const span = APPROACH_SPAN * (opts.hearth?.openHearth ? OPEN_HEARTH_SPAN : 1);
+	const far = clamp(distance / span, 0, 1);
+	const base = APPROACH_FIRST_MS + far * (APPROACH_FAR_MS - APPROACH_FIRST_MS);
+	const comfort = clamp((opts.comfort ?? 50) / 100, 0, 1);
+	const health = clamp((opts.health ?? 50) / 100, 0, 1);
+	const haste = opts.hearth?.openHearth ? OPEN_HEARTH_HASTE : 1;
+	return Math.round(base * (1.25 - 0.15 * comfort - 0.1 * health) * haste);
+}
+
+/**
+ * How close it settles, in pixels from the seat — one to two tiles, so the
+ * gathering is around the bench rather than loosely in the same clearing.
+ * Shyness alone decides where in that band a species lands, and the floor is
+ * wide enough that nothing ever ends up in the caretaker's lap.
+ */
+export function approachRadius(kind: string, hearth: HearthAbilities = {}): number {
+	const shy = SHYNESS[kind] ?? 0.7;
+	// Hearthsong pulls the whole ring in. The floor comes down with it, but not
+	// to nothing — the caretaker never ends up wearing a marmot.
+	const close = hearth.hearthsong ? HEARTHSONG_CLOSER : 1;
+	return Math.round(Math.max(26, (26 + shy * 30) * close));
+}
+
+/** Has this animal arrived — i.e. is it near enough to read as company? */
+export function hasArrived(x: number, y: number, seatX: number, seatY: number, radius: number): boolean {
+	return dist(x, y, seatX, seatY) <= radius * 1.25;
+}
+
+/**
+ * Where an animal means to end up: on the circle of `radius` around the seat,
+ * on the side it is already coming from, so it never walks THROUGH the
+ * caretaker to reach a spot behind them. Squashed vertically because the world
+ * is drawn at a slight lean and a true circle reads as a ring on the floor.
+ */
+export function approachPoint(
+	seatX: number,
+	seatY: number,
+	fromX: number,
+	fromY: number,
+	radius: number,
+	rng: () => number,
+): { x: number; y: number } {
+	const angle = Math.atan2(fromY - seatY, fromX - seatX) + (rng() - 0.5) * 1.6;
+	return { x: seatX + Math.cos(angle) * radius, y: seatY + Math.sin(angle) * radius * 0.8 };
+}
+
+/**
+ * One leg of the journey over: a fraction of what's left, off the straight line
+ * by a few degrees. Closing the whole distance in a single tween looks like a
+ * summons; three or four short legs look like an animal that happens to keep
+ * ending up nearer you.
+ */
+export function approachLeg(
+	fromX: number,
+	fromY: number,
+	toX: number,
+	toY: number,
+	rng: () => number,
+): { x: number; y: number } {
+	const d = dist(fromX, fromY, toX, toY);
+	if (d <= 8) return { x: toX, y: toY };
+	const step = Math.min(d, d * (0.4 + rng() * 0.35));
+	const angle = Math.atan2(toY - fromY, toX - fromX) + (rng() - 0.5) * 0.7;
+	return { x: fromX + Math.cos(angle) * step, y: fromY + Math.sin(angle) * step };
 }

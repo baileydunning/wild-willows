@@ -40,6 +40,31 @@ export const TOOLS: SpriteSet = {
 		g.fillStyle(C('#4a3a24'), 1).fillRect(14, 13, 2, 4); // strap
 		g.fillStyle(C('#c9a45a'), 1).fillRect(13.4, 14.5, 3.2, 2.2); // buckle
 	}),
+	// … → Relay Pack (desert) → Frame Pack (alpine) → Harvest Pack (coastal)
+	basket5: def(30, 30, (g) => {
+		g.lineStyle(2, C('#4a3a24'), 1).lineBetween(9, 9, 7, 26).lineBetween(21, 9, 23, 26); // straps
+		g.fillStyle(C('#7a5f3a'), 1).fillRoundedRect(6, 7, 18, 20, 4); // pack body
+		g.fillStyle(C('#c98a4e'), 1).fillRoundedRect(2, 14, 7, 10, 2); // relay satchel, slung aside
+		g.lineStyle(1.6, C('#8a6330'), 1).lineBetween(9, 16, 13, 13); // sling to the main pack
+		g.fillStyle(C('#8a6b42'), 1).fillRoundedRect(6, 6, 18, 9, 4); // top flap
+		g.fillStyle(C('#e0b070'), 1).fillRect(13.4, 14.5, 3.2, 2.2); // buckle
+	}),
+	basket6: def(30, 30, (g) => {
+		g.fillStyle(C('#8f958a'), 1).fillRect(6, 4, 2.2, 24).fillRect(21.8, 4, 2.2, 24); // rigid outer frame
+		g.fillStyle(C('#8f958a'), 1).fillRect(6, 4, 18, 2.2).fillRect(6, 26, 18, 2.2); // frame rails
+		g.fillStyle(C('#6b5334'), 1).fillRoundedRect(8, 7, 14, 19, 3); // pack slung in the frame
+		g.fillStyle(C('#5a4630'), 1).fillRoundedRect(10, 18, 10, 7, 2); // front pocket
+		g.lineStyle(1.8, C('#dfe6ee'), 1).lineBetween(8, 12, 22, 12); // quartz-pinned crossbar
+		g.fillStyle(C('#a6ad93'), 1).fillCircle(15, 12, 1.8); // pin
+	}),
+	basket7: def(30, 30, (g) => {
+		g.lineStyle(2, C('#6b5334'), 1).lineBetween(9, 8, 7, 27).lineBetween(21, 8, 23, 27); // straps
+		g.fillStyle(C('#7f8f6a'), 1).fillRoundedRect(4, 8, 22, 19, 4); // wide-mouthed body
+		g.fillStyle(C('#e8d9a8'), 1).fillRoundedRect(4, 6, 22, 5, 2.5); // broad open mouth
+		g.fillStyle(C('#6f8a5a'), 1).fillRoundedRect(2, 15, 5, 9, 2).fillRoundedRect(23, 15, 5, 9, 2); // side pockets
+		g.fillStyle(C('#9fc7bd'), 1).fillCircle(15, 18, 2.6); // sea-glass clasp
+		g.fillStyle(C('#5f7a4a'), 1).fillRect(4, 21, 22, 1.6); // load band
+	}),
 	// Basic Shovel → Restoration Shovel → Tempered Spade → Earthshaper's Spade
 	shovel1: def(26, 36, (g) => {
 		g.fillStyle(C('#9a8156'), 1).fillRect(11, 2, 3, 22); // handle
@@ -70,6 +95,35 @@ export const TOOLS: SpriteSet = {
 		g.fillStyle(C('#c9a45a'), 1).fillRect(5, 21, 15, 1.6); // gold trim
 		g.fillStyle(C('#6f7d88'), 1).fillRect(12, 22, 1.4, 11); // center rib
 		g.fillStyle(C('#cdd6dc'), 1).fillTriangle(7, 23, 11, 23, 9, 30); // sheen
+	}),
+	// … → Broad Spade (desert) → Survey Spade (alpine) → Salvage Spade (coastal)
+	shovel5: def(26, 36, (g) => {
+		g.lineStyle(2.4, C('#7a6544'), 1).strokeEllipse(12.5, 4, 10, 6); // D-grip
+		g.fillStyle(C('#9a8156'), 1).fillRect(11, 5, 3, 14); // handle
+		g.fillStyle(C('#c98a4e'), 1).fillRect(8.5, 18, 8, 2.6); // collar
+		g.fillStyle(C('#a8b0b8'), 1).fillRoundedRect(2, 20, 21, 13, 2); // broad blade, wall to wall
+		g.fillStyle(C('#e08a3c'), 1).fillRect(2, 20, 21, 1.6); // desert-fired edge
+		g.fillStyle(C('#6f7d88'), 1).fillRect(7, 21, 1.2, 11).fillRect(17, 21, 1.2, 11); // ribs
+		g.fillStyle(C('#cdd6dc'), 1).fillRect(10, 24, 5, 5); // sheen
+	}),
+	shovel6: def(26, 36, (g) => {
+		g.lineStyle(2.4, C('#7a6544'), 1).strokeEllipse(12.5, 4, 9, 6); // D-grip
+		g.fillStyle(C('#9a8156'), 1).fillRect(11, 5, 3, 14); // handle
+		g.fillStyle(C('#dfe6ee'), 1).fillRect(9.5, 18, 6, 2.6); // quartz collar
+		g.fillStyle(C('#2f3038'), 1).fillRoundedRect(5, 20, 15, 14, 2); // obsidian blade
+		g.fillStyle(C('#a6ad93'), 1);
+		for (let i = 0; i < 4; i++) g.fillRect(6, 23 + i * 2.6, 4 + i, 1); // depth graduations
+		g.lineStyle(1.4, C('#dfe6ee'), 1).lineBetween(17, 21, 17, 33); // sight line
+		g.fillStyle(0xffffff, 0.35).fillTriangle(7, 21, 11, 21, 9, 26); // sheen
+	}),
+	shovel7: def(26, 36, (g) => {
+		g.lineStyle(2.4, C('#7a6544'), 1).strokeEllipse(12.5, 4, 9, 6); // D-grip
+		g.fillStyle(C('#9a8156'), 1).fillRect(11, 5, 3, 14); // handle
+		g.fillStyle(C('#9fc7bd'), 1).fillRect(9.5, 18, 6, 2.6); // sea-glass collar
+		g.fillStyle(C('#8f9aa4'), 1).fillRoundedRect(4, 20, 17, 13, 3); // deep scoop
+		g.fillStyle(C('#6f7d88'), 1).fillRoundedRect(4, 20, 17, 3, 2); // lip that holds what it lifts
+		g.fillStyle(C('#e8d9a8'), 1).fillEllipse(12.5, 28, 9, 6); // salvaged fill
+		g.fillStyle(C('#9fc7bd'), 1).fillCircle(10, 27, 1.6).fillCircle(15, 29, 1.4); // sea glass in the load
 	}),
 	// Tin Watering Can → Rainwater Canteen → Spring-fed Ewer → Cloudcatcher Urn
 	wateringcan1: def(32, 28, (g) => {
@@ -105,5 +159,32 @@ export const TOOLS: SpriteSet = {
 		g.fillStyle(C('#8fd0e8'), 1).fillRect(10, 16, 12, 8); // clean water
 		g.fillStyle(0xffffff, 0.85).fillCircle(13, 13, 2.4).fillCircle(17, 12.6, 3).fillCircle(20, 14, 2); // cloud
 		g.fillStyle(C('#c9a45a'), 1).fillCircle(3.5, 19, 2.6); // gold rose
+	}),
+	// … → Long-spout Can (desert) → Dipping Pail (alpine) → Channel Urn (coastal)
+	wateringcan5: def(32, 28, (g) => {
+		g.lineStyle(2.4, C('#a8763c'), 1).strokeEllipse(21, 9, 10, 10); // handle
+		g.fillStyle(C('#c98a4e'), 1).fillRoundedRect(11, 9, 14, 16, 4); // fired-clay body
+		g.fillStyle(C('#e0b070'), 1).fillRect(11, 9, 14, 2); // rim
+		g.fillStyle(C('#8fd0e8'), 1).fillRect(12, 16, 12, 8); // water
+		g.fillStyle(C('#b07a52'), 1).fillRect(1, 15, 11, 3.4); // long bar spout
+		g.fillStyle(C('#8fd0e8'), 1);
+		for (let i = 0; i < 4; i++) g.fillCircle(2.5 + i * 2.6, 20, 0.9); // a row of pour holes
+	}),
+	wateringcan6: def(32, 28, (g) => {
+		g.lineStyle(2.2, C('#8f958a'), 1).strokeEllipse(16, 7, 16, 9); // swing bail
+		g.fillStyle(C('#a6ad93'), 1).fillTriangle(6, 24, 26, 24, 24, 11); // tapered pail
+		g.fillStyle(C('#8f958a'), 1).fillRect(7, 11, 18, 2.2); // rim
+		g.fillStyle(C('#bfe0ea'), 1).fillRect(8, 15, 16, 8); // snowmelt
+		g.fillStyle(0xffffff, 0.8).fillCircle(12, 16, 1.6).fillCircle(18, 17, 1.2); // floating ice
+		g.fillStyle(C('#dfe6ee'), 1).fillRect(8, 22, 16, 1.6); // waterline
+	}),
+	wateringcan7: def(32, 28, (g) => {
+		g.lineStyle(2.6, C('#9fc7bd'), 1).strokeEllipse(21, 8, 11, 10); // handle
+		g.fillStyle(C('#6f9fc8'), 1).fillRoundedRect(9, 8, 16, 17, 5); // urn body
+		g.fillStyle(C('#e8d9a8'), 1).fillRect(9, 8, 16, 2); // shore-sand rim
+		g.fillStyle(C('#8fd0e8'), 1).fillRect(10, 15, 14, 9); // water
+		g.fillStyle(C('#5f8fb8'), 1).fillTriangle(0, 14, 9, 10, 9, 17); // wide channel lip
+		g.fillStyle(C('#8fd0e8'), 1).fillRect(0, 16, 9, 2.4); // the pour, running on
+		g.fillStyle(C('#9fc7bd'), 1).fillCircle(17, 12, 2); // sea-glass inlay
 	}),
 };

@@ -1,8 +1,60 @@
 // Objects that belong to more than one biome, or to none in particular.
 
+import Phaser from 'phaser';
 import { bridge } from '../../bridge';
-import { C, def } from '../canvas';
-import type { SpriteSet } from '../canvas';
+import { C, def, lightable, pickable, tex } from '../canvas';
+import type { G, SpriteSet } from '../canvas';
+
+// ------------------------------------------------------------- the pinwheel
+//
+// The one object drawn in two halves. Everywhere a pinwheel is a PICTURE - the
+// crafting menu, the journal, the placement ghost - it is the whole `pinwheel`
+// sprite below. Out in the world it is the post, plus its blades as their own
+// image sitting on the hub, because that is the only way the blades can turn:
+// spinning a texture that includes the pole would swing the whole pinwheel over
+// like a felled sign. Both halves come from the two draws here, so the picture
+// and the thing standing in the grass cannot drift apart.
+
+/** The pole the blades turn on. Authored in the full sprite's 26x42 box. */
+const pinwheelPost = (g: G) => {
+	g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
+};
+
+/** The blade fan and its hub pin, drawn about (cx, cy) so one draw serves both
+ *  the full sprite (hub at 13,10) and the standalone blades texture (centred). */
+const pinwheelBlades = (g: G, cx: number, cy: number) => {
+	// colour, then the two rim corners - the third corner is always the hub
+	const blades: [string, number, number, number, number][] = [
+		['#e86a8a', 9, -4, 9, 4],
+		['#7fb4d8', 4, -9, -4, -6],
+		['#f4d35e', -9, -4, -9, 4],
+		['#9bd17a', -4, 6, 4, 9],
+	];
+	for (const [c, bx, by, dx, dy] of blades)
+		g.fillStyle(C(c), 1).fillTriangle(cx, cy, cx + bx, cy + by, cx + dx, cy + dy);
+	g.fillStyle(C('#6b5238'), 1).fillCircle(cx, cy, 2);
+};
+
+/** World-only texture keys. Deliberately NOT under the `obj-` prefix the menus
+ *  snapshot for icons - a bare pole is not something to offer in a menu. */
+export const PINWHEEL_POST = 'pinwheel-post';
+export const PINWHEEL_BLADES = 'pinwheel-blades';
+
+/** Logical pixels from the full sprite's centre (13, 21) up to the hub (13, 10)
+ *  the blades turn on. The hub is horizontally centred, so a flip never moves
+ *  it - only the placement's own lean does, and WorldScene rotates this by it. */
+export const PINWHEEL_HUB_DY = -11;
+
+/** Half the blades texture. The square has to hold the fan at every angle it
+ *  turns through, so it is sized off the furthest blade tip (~9.9px) with room. */
+const BLADES_HALF = 12;
+
+/** Rasterize the two world-only halves. Lazy, like the path and run tiles: only
+ *  a world with a pinwheel standing in it ever needs them. */
+export function ensurePinwheelParts(scene: Phaser.Scene): void {
+	tex(scene, PINWHEEL_POST, 26, 42, pinwheelPost);
+	tex(scene, PINWHEEL_BLADES, BLADES_HALF * 2, BLADES_HALF * 2, (g) => pinwheelBlades(g, BLADES_HALF, BLADES_HALF));
+}
 
 export const SHARED: SpriteSet = {
 	patch: def(36, 30, (g) => {
@@ -74,49 +126,6 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#a3814f'), 1).fillRect(2, 6, 5, 18).fillRect(29, 6, 5, 18);
 		g.fillRect(0, 9, 36, 4).fillRect(0, 17, 36, 4);
 	}),
-	path: def(34, 26, (g) => {
-		g.fillStyle(C('#c9b98a'), 1).fillRoundedRect(1, 4, 32, 18, 8);
-		g.fillStyle(C('#b5a578'), 1).fillCircle(10, 13, 3).fillCircle(22, 11, 3).fillCircle(17, 17, 2.4);
-	}),
-	gravel: def(34, 26, (g) => {
-		g.fillStyle(C('#bdb6a4'), 1).fillRoundedRect(1, 4, 32, 18, 8);
-		g.fillStyle(C('#9a948a'), 1);
-		const dots = [
-			[7, 9],
-			[13, 14],
-			[19, 10],
-			[25, 15],
-			[10, 18],
-			[22, 18],
-			[16, 8],
-			[28, 9],
-		];
-		for (const [x, y] of dots) g.fillCircle(x, y, 1.8);
-		g.fillStyle(C('#cfcabd'), 1).fillCircle(11, 11, 1.2).fillCircle(20, 16, 1.2).fillCircle(26, 11, 1.2);
-	}),
-	planks: def(34, 26, (g) => {
-		g.fillStyle(C('#8c6a42'), 1).fillRoundedRect(1, 4, 32, 18, 3);
-		g.fillStyle(C('#a3814f'), 1);
-		for (let i = 0; i < 3; i++) g.fillRoundedRect(3, 6 + i * 5.6, 28, 4.4, 1.5); // boards
-		g.lineStyle(1, C('#7c5a3c'), 1).lineBetween(11, 5, 11, 21).lineBetween(23, 5, 23, 21); // seams
-	}),
-	flagstone: def(34, 26, (g) => {
-		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(1, 4, 32, 18, 5);
-		g.fillStyle(C('#a8a8a2'), 1);
-		g.fillTriangle(3, 6, 15, 5, 9, 20).fillTriangle(15, 5, 17, 21, 5, 20); // irregular slabs
-		g.fillStyle(C('#9a9a94'), 1).fillTriangle(17, 5, 31, 7, 21, 20).fillTriangle(31, 7, 31, 20, 21, 20);
-		g.lineStyle(1.2, C('#6e6e68'), 0.8).lineBetween(16, 5, 19, 21); // grout
-	}),
-	mossy: def(34, 26, (g) => {
-		g.fillStyle(C('#8e8e8a'), 1).fillRoundedRect(1, 4, 32, 18, 5);
-		g.fillStyle(C('#a8a8a2'), 1).fillCircle(10, 12, 5).fillCircle(23, 13, 5.4).fillCircle(17, 9, 4);
-		g.fillStyle(C('#5d8a4a'), 0.85)
-			.fillCircle(7, 16, 2.6)
-			.fillCircle(15, 17, 3)
-			.fillCircle(26, 17, 2.6)
-			.fillCircle(20, 7, 2.2);
-		g.fillStyle(C('#74a85e'), 0.9).fillCircle(13, 14, 1.6).fillCircle(24, 10, 1.6);
-	}),
 	chest: def(32, 28, (g) => {
 		g.fillStyle(C('#8a6a44'), 1).fillRoundedRect(2, 8, 28, 18, 3);
 		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(2, 4, 28, 9, 3);
@@ -167,46 +176,84 @@ export const SHARED: SpriteSet = {
 			.fillCircle(6, 32, 2.4)
 			.fillCircle(30, 32, 2.4);
 	}),
-	poppies: def(34, 30, (g) => {
+	...pickable('poppies', 34, 30, (g, picked) => {
 		['#d9534f', '#e86a5a', '#c9443f'].forEach((c, i) => {
 			const x = 7 + i * 10;
+			const y = 9 + (i % 2) * 4;
 			g.lineStyle(2, C('#5f9e44'), 1).lineBetween(x, 12 + (i % 2) * 4, x, 26);
-			g.fillStyle(C(c), 1).fillCircle(x, 9 + (i % 2) * 4, 4.4);
-			g.fillStyle(0x2e2018, 1).fillCircle(x, 9 + (i % 2) * 4, 1.6);
+			if (picked) {
+				// petals gone, the ribbed seed capsule left standing on the stem
+				g.fillStyle(C('#8aa06a'), 1).fillEllipse(x, y, 4, 4.4);
+				g.fillStyle(C('#6f8a52'), 1).fillEllipse(x, y - 1.4, 3.4, 1.2);
+				return;
+			}
+			g.fillStyle(C(c), 1).fillCircle(x, y, 4.4);
+			g.fillStyle(0x2e2018, 1).fillCircle(x, y, 1.6);
 		});
 	}),
-	lupines: def(32, 34, (g) => {
+	...pickable('lupines', 32, 34, (g, picked) => {
 		['#7d6b9e', '#9d86d9', '#6a5a8e'].forEach((c, i) => {
 			const x = 6 + i * 10;
 			g.lineStyle(2, C('#5f9e44'), 1).lineBetween(x, 14, x, 30);
-			g.fillStyle(C(c), 1);
-			for (let b = 0; b < 5; b++) g.fillCircle(x + (b % 2 === 0 ? -1.6 : 1.6), 6 + b * 2.6 + (i % 2) * 3, 2.2);
+			// picked, the spike is a row of small green pods where the flowers were
+			g.fillStyle(C(picked ? '#7f9a5a' : c), 1);
+			for (let b = 0; b < 5; b++)
+				g.fillCircle(x + (b % 2 === 0 ? -1.6 : 1.6), 6 + b * 2.6 + (i % 2) * 3, picked ? 1.3 : 2.2);
 		});
 	}),
-	willow: def(52, 62, (g) => {
+	...pickable('willow', 52, 62, (g, picked) => {
 		g.fillStyle(C('#7c5a3c'), 1).fillRect(23, 38, 7, 24);
 		g.fillStyle(C('#6b9152'), 1).fillEllipse(26, 22, 42, 30);
 		g.fillStyle(C('#7fa860'), 1).fillEllipse(22, 16, 22, 14);
 		g.lineStyle(2.4, C('#8aba6a'), 1);
 		for (let i = 0; i < 6; i++) {
 			const x = 8 + i * 7.4;
-			g.lineBetween(x, 28, x - 2, 48 + (i % 3) * 4);
+			const drop = 20 + (i % 3) * 4;
+			// cut for branches: every other withe is gone, and the ones left are the
+			// same withe cut short — the SAME line, stopped part way, so the full
+			// sprite covers it exactly when the tree fills back in
+			if (picked && i % 2 === 1) continue;
+			const t = picked ? 0.42 : 1;
+			g.lineBetween(x, 28, x - 2 * t, 28 + drop * t);
 		}
 	}),
-	oak: def(50, 58, (g) => {
+	...pickable('oak', 50, 58, (g, picked) => {
 		g.fillStyle(C('#6e553c'), 1).fillRect(22, 34, 8, 24);
 		g.fillRect(17, 38, 6, 4).fillRect(29, 40, 7, 4);
 		g.fillStyle(C('#4a6b3a'), 1).fillCircle(25, 20, 17).fillCircle(12, 28, 10).fillCircle(38, 28, 10);
 		g.fillStyle(C('#5d8a4a'), 1).fillCircle(20, 14, 8);
-		g.fillStyle(C('#a07a3e'), 1).fillCircle(33, 26, 2).fillCircle(15, 22, 2);
+		if (picked) return; // the acorns have been gathered off it
+		g.fillStyle(C('#a07a3e'), 1)
+			.fillCircle(33, 26, 2.4)
+			.fillCircle(15, 22, 2.4)
+			.fillCircle(20, 30, 2.4)
+			.fillCircle(31, 33, 2.2)
+			.fillCircle(25, 24, 2.4)
+			.fillCircle(12, 27, 2.2)
+			.fillCircle(37, 30, 2.2);
+		g.fillStyle(C('#c49a56'), 1)
+			.fillCircle(33, 24.8, 1)
+			.fillCircle(15, 20.8, 1)
+			.fillCircle(25, 22.8, 1)
+			.fillCircle(20, 28.8, 1);
 	}),
-	pine: def(40, 60, (g) => {
+	...pickable('pine', 40, 60, (g, picked) => {
 		g.fillStyle(C('#6e553c'), 1).fillRect(17, 46, 6, 14);
 		g.fillStyle(C('#3a5a44'), 1);
 		g.fillTriangle(20, 2, 4, 26, 36, 26);
 		g.fillTriangle(20, 14, 2, 42, 38, 42);
 		g.fillTriangle(20, 28, 0, 52, 40, 52);
 		g.fillStyle(C('#4d7257'), 1).fillTriangle(20, 6, 10, 22, 30, 22);
+		if (picked) return; // cones taken off the boughs
+		g.fillStyle(C('#6b4a2e'), 1)
+			.fillEllipse(13, 23, 5, 8)
+			.fillEllipse(27, 24, 4.5, 7)
+			.fillEllipse(27, 38, 5, 8)
+			.fillEllipse(11, 47, 5, 8);
+		g.fillStyle(C('#8a6440'), 1)
+			.fillEllipse(12.2, 21.6, 2, 3)
+			.fillEllipse(26.2, 36.6, 2, 3)
+			.fillEllipse(10.2, 45.6, 2, 3);
 	}),
 	kit: def(30, 26, (g) => {
 		g.fillStyle(C('#4f4030'), 0.4).fillEllipse(17, 25, 28, 4); // shadow
@@ -259,10 +306,10 @@ export const SHARED: SpriteSet = {
 		boot(6, '#8a5a34', '#e3c75f'); // front boot
 	}),
 	// --- decorative structures ---
-	lantern: def(22, 44, (g) => {
+	...lightable('lantern', 22, 44, (g, lit) => {
 		g.fillStyle(C('#6b5238'), 1).fillRect(9, 30, 4, 12); // post
 		g.fillStyle(C('#7c5a3c'), 1).fillRoundedRect(4, 8, 14, 22, 4); // housing
-		g.fillStyle(C('#ffd680'), 1).fillRoundedRect(7, 12, 8, 14, 2); // warm glass
+		g.fillStyle(C(lit ? '#ffd680' : '#8e8878'), 1).fillRoundedRect(7, 12, 8, 14, 2); // glass, warm or grey
 		g.fillStyle(C('#5d4128'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
 	}),
 	bench: def(40, 30, (g) => {
@@ -293,7 +340,7 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#e3c75f'), 1).fillCircle(12, 9, 2).fillCircle(23, 9, 2); // flowers
 	}),
 	// --- decorative camp comforts (purely for fun) ---
-	campfire: def(38, 30, (g) => {
+	...lightable('campfire', 38, 30, (g, lit) => {
 		g.fillStyle(C('#8e8e8a'), 1);
 		for (const [x, y] of [
 			[7, 24],
@@ -304,30 +351,25 @@ export const SHARED: SpriteSet = {
 			[27, 20],
 		] as const)
 			g.fillCircle(x, y, 3.6);
-		g.fillStyle(C('#7a5a3a'), 1).fillRect(10, 19, 18, 4).fillRect(15, 16, 4, 8);
-		g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
-		g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
+		// Burning wood is warm brown; a dead fire is charred, and that reads from
+		// across the meadow where a dimmed flame would not.
+		g.fillStyle(C(lit ? '#7a5a3a' : '#4e4038'), 1)
+			.fillRect(10, 19, 18, 4)
+			.fillRect(15, 16, 4, 8);
+		if (lit) {
+			g.fillStyle(C('#e8954f'), 1).fillTriangle(19, 4, 12, 22, 26, 22);
+			g.fillStyle(C('#f4d35e'), 1).fillTriangle(19, 11, 15, 22, 23, 22);
+		} else {
+			g.fillStyle(C('#9a948c'), 0.9).fillEllipse(19, 22, 15, 4); // cold ash
+		}
 	}),
-	lanternstring: def(50, 30, (g) => {
-		g.lineStyle(1.5, C('#6b5238'), 1).lineBetween(2, 4, 48, 4);
-		const cols = ['#e8954f', '#e3c75f', '#d77bb1', '#7fb4d8', '#9bd17a'];
-		cols.forEach((c, i) => {
-			const x = 6 + i * 9.5;
-			g.lineStyle(1, C('#6b5238'), 1).lineBetween(x, 4, x, 9);
-			g.fillStyle(C(c), 1).fillRoundedRect(x - 3, 9, 6, 9, 3);
-			g.fillStyle(0xffffff, 0.4).fillCircle(x - 1, 12, 1.2);
-		});
-	}),
+	// String lights (and the meadow's lantern row) live in ./lights — they are
+	// drawn edge-aware so a row of them reads as one run.
+	// Post and blades, composed from the same two draws the world spins - see the
+	// pinwheel note at the top of this file.
 	pinwheel: def(26, 42, (g) => {
-		g.fillStyle(C('#8c6a42'), 1).fillRect(12, 16, 3, 26);
-		const blades: [string, number, number, number, number, number, number][] = [
-			['#e86a8a', 13, 10, 22, 6, 22, 14],
-			['#7fb4d8', 13, 10, 17, 1, 9, 4],
-			['#f4d35e', 13, 10, 4, 6, 4, 14],
-			['#9bd17a', 13, 10, 9, 16, 17, 19],
-		];
-		for (const [c, ax, ay, bx, by, cx, cy] of blades) g.fillStyle(C(c), 1).fillTriangle(ax, ay, bx, by, cx, cy);
-		g.fillStyle(C('#6b5238'), 1).fillCircle(13, 10, 2);
+		pinwheelPost(g);
+		pinwheelBlades(g, 13, 10);
 	}),
 	birdhouse: def(26, 42, (g) => {
 		g.fillStyle(C('#6b5238'), 1).fillRect(11, 22, 4, 20);
@@ -477,23 +519,30 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(0xffffff, 0.9).fillCircle(14, 7, 1.2);
 	}),
 	// Rain Basin — a carved stone bowl brimming with collected rainwater.
-	rainbasin: def(34, 30, (g) => {
+	...pickable('rainbasin', 34, 30, (g, picked) => {
 		g.fillStyle(C('#7d7a72'), 1).fillEllipse(17, 24, 28, 9); // stone base shadow
 		g.fillStyle(C('#9a978d'), 1).fillRoundedRect(4, 12, 26, 12, 5); // bowl body
 		g.fillStyle(C('#84817a'), 1).fillEllipse(17, 12, 26, 9); // rim
+		if (picked) {
+			// emptied: dark damp stone in the bowl, and no sky in it
+			g.fillStyle(C('#6e6b64'), 1).fillEllipse(17, 12, 20, 6);
+			g.fillStyle(C('#5f5c56'), 1).fillEllipse(17, 12.6, 14, 3.4);
+			return;
+		}
 		g.fillStyle(C('#6fa8d6'), 1).fillEllipse(17, 12, 20, 6); // water
 		g.fillStyle(C('#bfe0f4'), 0.8).fillEllipse(13, 11, 7, 2); // sky glint
 		g.lineStyle(1, C('#bfe0f4'), 0.5).strokeEllipse(17, 12, 13, 4); // ripple
 		g.fillStyle(C('#cdecff'), 0.9).fillCircle(21, 6, 1).fillCircle(15, 4, 1); // falling drops
 	}),
 	// Dewlit Lantern — a glass globe of glowing morning dew on a slim post.
-	dewlantern: def(24, 38, (g) => {
+	...lightable('dewlantern', 24, 38, (g, lit) => {
 		g.fillStyle(C('#6e5a3a'), 1).fillRect(11, 20, 2, 16); // post
 		g.fillStyle(C('#5a4a30'), 1).fillEllipse(12, 36, 12, 4); // foot
-		g.fillStyle(C('#a8d2c0'), 0.35).fillCircle(12, 13, 11); // soft glow halo
-		g.fillStyle(C('#cdeee0'), 0.95).fillCircle(12, 13, 7); // dew globe
-		g.fillStyle(C('#7fc4a8'), 0.9).fillCircle(12, 15, 4); // dew pool inside
-		g.fillStyle(0xffffff, 0.9).fillCircle(9, 10, 1.6); // highlight
+		if (lit) g.fillStyle(C('#a8d2c0'), 0.35).fillCircle(12, 13, 11); // soft glow halo
+		g.fillStyle(C(lit ? '#cdeee0' : '#a8b4ae'), 0.95).fillCircle(12, 13, 7); // dew globe
+		g.fillStyle(C(lit ? '#7fc4a8' : '#6e8a80'), 0.9).fillCircle(12, 15, 4); // dew pool inside
+		// The glass still catches the room, dark or not — that is glass, not light.
+		g.fillStyle(0xffffff, lit ? 0.9 : 0.5).fillCircle(9, 10, 1.6); // highlight
 		g.fillStyle(C('#6e5a3a'), 1).fillRect(7, 4, 10, 2); // top cap
 	}),
 	// Sunstone Cairn — a stack of warm, sun-baked stones with an inner glow.
@@ -524,17 +573,20 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(0xffffff, 0.6).fillCircle(9, 6, 1); // frost sparkle
 	}),
 	// Stormglass Lantern — a shard of lightning-fused glass throwing cold light.
-	stormglasslantern: def(26, 38, (g) => {
+	...lightable('stormglasslantern', 26, 38, (g, lit) => {
 		g.fillStyle(C('#3a2f4a'), 1).fillRect(12, 22, 2, 14); // post
 		g.fillStyle(C('#2c2438'), 1).fillEllipse(13, 36, 12, 4); // foot
-		g.fillStyle(C('#7b8fd6'), 0.3).fillCircle(13, 13, 12); // electric halo
-		g.fillStyle(C('#5566a3'), 1).fillTriangle(13, 3, 6, 22, 20, 22); // glass shard
-		g.fillStyle(C('#8fa0e0'), 0.9).fillTriangle(13, 7, 9, 20, 17, 20); // inner glass
-		g.lineStyle(1.5, C('#dfe6ff'), 0.95)
-			.lineBetween(13, 8, 10, 15)
-			.lineBetween(10, 15, 15, 16)
-			.lineBetween(15, 16, 12, 21); // lightning
-		g.fillStyle(0xffffff, 0.8).fillCircle(11, 11, 1.2); // glint
+		if (lit) g.fillStyle(C('#7b8fd6'), 0.3).fillCircle(13, 13, 12); // electric halo
+		g.fillStyle(C(lit ? '#5566a3' : '#3d4670'), 1).fillTriangle(13, 3, 6, 22, 20, 22); // glass shard
+		g.fillStyle(C(lit ? '#8fa0e0' : '#5a6490'), 0.9).fillTriangle(13, 7, 9, 20, 17, 20); // inner glass
+		// The bolt inside is the charge. Discharged, the shard is plain dark glass.
+		if (lit) {
+			g.lineStyle(1.5, C('#dfe6ff'), 0.95)
+				.lineBetween(13, 8, 10, 15)
+				.lineBetween(10, 15, 15, 16)
+				.lineBetween(15, 16, 12, 21); // lightning
+			g.fillStyle(0xffffff, 0.8).fillCircle(11, 11, 1.2); // glint
+		}
 	}),
 	// untidy, deliberately nothing like the tight woven cup of `nest`.
 	oldsticknest: def(36, 28, (g) => {
@@ -736,7 +788,7 @@ export const SHARED: SpriteSet = {
 		g.fillStyle(C('#150f0a'), 0.85).fillEllipse(15, 16, 7, 5).fillEllipse(27, 17, 6, 4); // gaps to disappear into
 	}),
 	// what set it apart from the plain shrub.
-	berrybush: def(38, 32, (g) => {
+	...pickable('berrybush', 38, 32, (g, picked) => {
 		g.fillStyle(C('#3f6b34'), 1).fillCircle(12, 20, 12).fillCircle(25, 18, 12).fillCircle(19, 12, 10); // the thicket
 		g.fillStyle(C('#4f8440'), 1).fillCircle(11, 15, 8).fillCircle(26, 14, 7);
 		g.lineStyle(1.4, C('#7a5a3a'), 1); // arching canes
@@ -750,8 +802,7 @@ export const SHARED: SpriteSet = {
 			[19, 18],
 		] as [number, number][])
 			g.lineBetween(x, y, x + 1.8, y - 1.8).lineBetween(x, y, x - 1.8, y - 1.6);
-		g.fillStyle(C('#5d3a5f'), 1); // heavy fruit
-		for (const [x, y] of [
+		const fruit: [number, number][] = [
 			[8, 19],
 			[16, 22],
 			[23, 20],
@@ -759,8 +810,15 @@ export const SHARED: SpriteSet = {
 			[13, 11],
 			[26, 9],
 			[20, 15],
-		] as [number, number][])
-			g.fillCircle(x, y, 2.4);
+		];
+		if (picked) {
+			// stripped: hard green nubs on the canes where the fruit hung
+			g.fillStyle(C('#5f7f42'), 1);
+			for (const [x, y] of fruit) g.fillCircle(x, y, 1.2);
+			return;
+		}
+		g.fillStyle(C('#5d3a5f'), 1); // heavy fruit
+		for (const [x, y] of fruit) g.fillCircle(x, y, 2.4);
 		g.fillStyle(C('#7d5680'), 1).fillCircle(7.2, 18.2, 1).fillCircle(22.2, 19.2, 1).fillCircle(25.2, 8.2, 0.9);
 		g.fillStyle(0xfff3c4, 0.9).fillCircle(31, 11, 1.4).fillCircle(15, 7, 1.3); // a few late flowers
 	}),

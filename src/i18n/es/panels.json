@@ -8,7 +8,8 @@
 		"usedInCrafting": "Se usa en fabricación",
 		"placeIn": "Colocar en:",
 		"allAreas": "Todas las áreas",
-		"camp": "Campamento"
+		"camp": "Campamento",
+		"campWall": "Paredes del campamento"
 	},
 	"inventory": {
 		"title": "Cesta de recolección — {carried}/{capacity}",
@@ -86,6 +87,8 @@
 		"nothingToCraft": "Todavía no hay nada que fabricar para esta área — restáurala más o elige otro lugar.",
 		"onceTag": "única vez",
 		"onceTitle": "Solo se puede fabricar una vez",
+		"craftedTag": "fabricados ×{n}",
+		"craftedTitle": "Has fabricado {n} de esto hasta ahora.",
 		"matTitle": "{inBasket} en la cesta, {inChests} en cofres vinculados",
 		"requiresTool": "Requiere una herramienta mejorada — mira el panel de Herramientas.",
 		"crafted": "Fabricado ✓",
@@ -158,6 +161,7 @@
 		"upgrades": "Mejoras",
 		"level": "· nivel {level}/{max}",
 		"maxedOut": "Al máximo.",
+		"roomCount": "{count} habitaciones",
 		"upgrade": "Mejorar",
 		"perkActive": "· ventaja de la casa",
 		"perkName": {
@@ -268,6 +272,8 @@
 		"waterRiver": "Forma un canal de {tiles}+ casillas de largo",
 		"objectReq": "{qty}× {name}",
 		"animalReq": "{name} ya regresó",
+		"reqNowPct": "ahora {value}%",
+		"reqHave": "{have}/{need}",
 		"condCheck": "{cond} — consulta el panel del clima (N)",
 		"openEntry": "Abrir {name}",
 		"notDiscovered": "Aún sin descubrir",
@@ -344,9 +350,36 @@
 			"other": "{correct} de {count} acertados hasta ahora."
 		}
 	},
+	"finds": {
+		"title": "Tablero de hallazgos",
+		"empty": "Todavía no hay nada clavado. Restaura algo de hábitat y los animales empezarán a aparecer: cada uno que llegue tendrá su nota en este tablero.",
+		"count": {
+			"one": "{count} de {total} especies ha vuelto.",
+			"other": "{count} de {total} especies han vuelto."
+		},
+		"newest": "Último hallazgo",
+		"cameBack": "Volvió el {date}",
+		"openNote": "Leer la nota sobre {name}",
+		"backToBoard": "Volver al tablero",
+		"signTitle": "Qué buscar",
+		"seen": {
+			"one": "visto una vez",
+			"other": "visto {count} veces"
+		}
+	},
+	"stories": {
+		"title": "Estantería",
+		"intro": "Cuatro textos breves sobre cómo funciona realmente la reserva.",
+		"back": "Volver al estante",
+		"prev": "Página anterior",
+		"next": "Página siguiente",
+		"page": "{n} de {total}"
+	},
 	"achievements": {
-		"title": "Logros",
+		"title": "Progreso",
 		"summary": "· {earned}/{total} · {points} pts",
+		"viewAchievements": "Logros",
+		"viewCompletion": "Completado",
 		"tabAll": "Todos",
 		"tabPreserve": "Reserva",
 		"reqTitle": "Cómo conseguirlo",
@@ -380,6 +413,32 @@
 			"journals": "Redacta la guía de campo de cada zona y la edición ampliada de cada una."
 		},
 		"progress": "Progreso: {value}"
+	},
+	"completion": {
+		"headline": "Reserva completada",
+		"headlineTracks": "{done} de {total} apartados completados",
+		"points": "{points} puntos conseguidos",
+		"areaStats": "{back}/{total} animales · {health}% de salud",
+		"areaLocked": "Aún sin abrir",
+		"group": {
+			"preserve": "La reserva",
+			"making": "Creación",
+			"kit": "Equipo y guías",
+			"honors": "Hogar y honores",
+			"byArea": "Por zona"
+		},
+		"row": {
+			"animals": "Animales acogidos",
+			"areas": "Zonas abiertas",
+			"restored": "Zonas restauradas",
+			"recipes": "Recetas fabricadas",
+			"habitat": "Hábitat colocado",
+			"plants": "Especies plantadas",
+			"tools": "Herramientas al máximo",
+			"guides": "Guías de campo",
+			"home": "Mejoras del hogar",
+			"achievements": "Logros"
+		}
 	},
 	"tutorial": {
 		"gettingStarted": "Primeros pasos",
@@ -580,7 +639,7 @@
 			"crafting": "Abrir la fabricación — funciona en cualquier lugar",
 			"basket": "Abrir tu cesta",
 			"journal": "Abrir el diario de campo",
-			"achievements": "Abrir los logros",
+			"achievements": "Abrir progreso",
 			"tasks": "Esconder / mostrar el tablero de objetivos",
 			"goals": "Abre el creador de objetivos — diseña tu propia lista de tareas",
 			"feed": "Abrir el registro de actividad (últimos 100 eventos)",
@@ -748,5 +807,75 @@
 		"weather": "Clima y estaciones: cómo cambian las condiciones por la reserva y moldean la tierra; algunos materiales y animales solo aparecen con el clima adecuado.",
 		"settings": "Ajustes: sonido, accesibilidad, tu personaje y opciones de partida.",
 		"demoNear": "Un animal más y completarás la demo: ¡ya casi estás!"
+	},
+	"telescope": {
+		"_readme": "El Telescopio de Observación (ui/Telescope.tsx). Nubes de día, constelaciones de noche — lo que es cada cosa vive en narrative.sky.*; esto es la interfaz del panel.",
+		"title": "Telescopio",
+		"modeDay": "Observar nubes",
+		"modeNight": "Observar estrellas",
+		"today": "Hoy: {weather}",
+		"tonight": "Esta noche: el cielo de {season}",
+		"overhead": "Ahí arriba ahora",
+		"inView": "A la vista",
+		"emptyView": "Cielo vacío: sigue barriendo.",
+		"aimHint": "No hay nada en la mira. Barre el cielo con las flechas.",
+		"hint": "Las flechas mueven el telescopio, o arrastra la vista. Apunta a algo para leerlo.",
+		"eyepieceLabel": "La vista por el ocular",
+		"allYear": "Gira alrededor del polo todo el año: nunca se pone.",
+		"bestIn": "Se ve mejor en {seasons}.",
+		"levels": {
+			"high": "Nube alta: por encima de los 6.000 m, y hecha solo de hielo.",
+			"mid": "Nube media: entre 2.000 y 6.000 m.",
+			"low": "Nube baja: por debajo de los 2.000 m.",
+			"towering": "Nube de desarrollo: base baja y plana, y una cima que puede subir hasta lo más alto del cielo."
+		},
+		"seasons": {
+			"spring": "primavera",
+			"summer": "verano",
+			"autumn": "otoño",
+			"winter": "invierno"
+		},
+		"cloudedOut": "{weather}: esta noche el cielo está tapado",
+		"optic": "No es una nube: es algo que hace la luz al atravesarla.",
+		"body": "En nuestro propio sistema solar, lo bastante cerca para verse como un disco.",
+		"notToday": "Hoy no está en el cielo: este viene con {weather}.",
+		"notTonight": "Esta noche no está arriba: {when}",
+		"lidOn": "Y esta noche las nubes tapan todo esto.",
+		"seasonsAny": "no sigue calendario; míralo cuando esté arriba.",
+		"or": " o ",
+		"zodiacLine": "Zodiaco: {when}."
+	},
+	"tarot": {
+		"title": "Tarot",
+		"backToTable": "Volver a la mesa",
+		"lede": "Setenta y ocho cartas para pensar con ellas. Lee sobre qué son, o baraja y siéntate a una tirada.",
+		"learnTitle": "Qué es el tarot",
+		"learnBlurb": "Cómo se compone una baraja, cómo funciona una lectura, y qué significan los palos, los números y las figuras.",
+		"readingTitle": "Sentarse a una lectura",
+		"readingBlurb": "Elige una tirada, baraja y ve dando la vuelta a las cartas de una en una.",
+		"disclaimer": "Las cartas no saben nada. Son un estímulo para pensar, y la lectura la haces tú.",
+		"guideNav": "Páginas de la guía",
+		"contents": "Contenido",
+		"prev": "Página anterior",
+		"next": "Página siguiente",
+		"pageOf": "Página {n} de {total}",
+		"chooseSpread": "Tirada",
+		"reversals": "Invertidas",
+		"reversalsHint": "Deja que las cartas caigan del revés, con su significado de sombra. Desactivado mientras aprendes la baraja.",
+		"shuffle": "Barajar y repartir",
+		"reshuffle": "Barajar de nuevo",
+		"upright": "Del derecho",
+		"reversed": "Invertida",
+		"cardLabel": "{seat}: {card}, {way}",
+		"faceDownLabel": "{seat}, boca abajo. Dale la vuelta.",
+		"turnNext": "Ahora dale la vuelta a la carta de {seat}.",
+		"allTurned": "Las tres descubiertas. Pasa el ratón o el foco por una carta para releerla.",
+		"notYetLabel": "{seat}. Todavía no: las cartas se descubren de izquierda a derecha.",
+		"light": "Luz",
+		"shadow": "Sombra",
+		"beforeTurn": "Fija primero tu pregunta, una sobre la que puedas actuar. Luego dale la vuelta a la carta de {seat}.",
+		"turnHint": "Dale la vuelta a una carta para leerla aquí. Van de izquierda a derecha.",
+		"majorLabel": "Arcanos Mayores",
+		"wholeCard": "Qué quiere decir eso"
 	}
 }

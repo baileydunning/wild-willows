@@ -27,9 +27,9 @@ describe('the counts on the page are the counts in the data', () => {
 	it.each([
 		['animals', ANIMALS.length, 150],
 		['biomes', BIOMES.length, 6],
-		['habitatObjects', records('habitat-objects.json').length, 385],
-		['recipes', records('recipes.json').length, 355],
-		['resources', records('resources.json').length, 38],
+		['habitatObjects', records('habitat-objects.json').length, 438],
+		['recipes', records('recipes.json').length, 408],
+		['resources', records('resources.json').length, 37],
 		['achievements', records('achievements.json').length, 50],
 		['tools', records('tools.json').length, 9],
 	])('%s: the page says %i and the data has %i', (_key, actual, onPage) => {

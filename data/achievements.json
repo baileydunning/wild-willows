@@ -698,11 +698,27 @@
       }
     },
     {
+      "id": "perfectly-equipped",
+      "name": "Perfectly Equipped",
+      "biome": "preserve",
+      "category": "mastery",
+      "order": 41,
+      "points": 50,
+      "hidden": false,
+      "icon": "ach-toolbelt",
+      "flavor": "Basket, shovel and can carried as far as they go. The land answers a little faster now.",
+      "hint": "Carry your basket, shovel, and watering can all the way to tier 7.",
+      "req": {
+        "t": "tools",
+        "n": 7
+      }
+    },
+    {
       "id": "naturalist",
       "name": "Naturalist",
       "biome": "preserve",
       "category": "mastery",
-      "order": 41,
+      "order": 42,
       "points": 30,
       "hidden": false,
       "icon": "ach-open-book",
@@ -717,7 +733,7 @@
       "name": "Recipe Collector",
       "biome": "preserve",
       "category": "mastery",
-      "order": 42,
+      "order": 43,
       "points": 30,
       "hidden": false,
       "icon": "ach-recipe-stack",
@@ -733,7 +749,7 @@
       "name": "Open Road",
       "biome": "preserve",
       "category": "preserve",
-      "order": 43,
+      "order": 44,
       "points": 20,
       "hidden": false,
       "icon": "ach-trail-gate",
@@ -749,7 +765,7 @@
       "name": "Welcoming Committee",
       "biome": "preserve",
       "category": "preserve",
-      "order": 44,
+      "order": 45,
       "points": 30,
       "hidden": false,
       "icon": "ach-paws-fifty",
@@ -758,22 +774,6 @@
       "req": {
         "t": "total",
         "n": 50
-      }
-    },
-    {
-      "id": "full-house",
-      "name": "Full House",
-      "biome": "preserve",
-      "category": "preserve",
-      "order": 45,
-      "points": 50,
-      "hidden": false,
-      "icon": "ach-preserve-map",
-      "flavor": "A hundred kinds of neighbor. The preserve isn't recovering anymore — it's thriving.",
-      "hint": "Fill the preserve with neighbors.",
-      "req": {
-        "t": "total",
-        "n": 100
       }
     },
     {

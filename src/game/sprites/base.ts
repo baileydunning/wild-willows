@@ -3,6 +3,7 @@
 
 import Phaser from 'phaser';
 import { C, tex } from './canvas';
+import { makeWaterDetailTextures } from './tiles';
 
 export function makeBaseTextures(scene: Phaser.Scene) {
 	// ground tile (white — tinted per biome/health at runtime)
@@ -11,8 +12,15 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(0xe9e9e9, 1);
 		for (let i = 0; i < 6; i++) g.fillRect((i * 13) % 30, (i * 7 + 4) % 30, 2, 2);
 	});
+	// Soft contact shadow. One flat ellipse reads as a sticker slid under the
+	// sprite — a hard rim at full strength right where the ground should be
+	// showing through. Stacking six faint ellipses instead gives a blurred
+	// falloff (alphas compound to ~0.22 in the middle, nothing at the rim), so
+	// the sprite looks like it is standing on the ground rather than pasted
+	// over a decal. Same texture size and centre, so every caller's scale and
+	// offset still land where they did.
 	tex(scene, 'shadow', 36, 14, (g) => {
-		g.fillStyle(0x1a2012, 0.22).fillEllipse(18, 7, 34, 11);
+		for (let i = 0; i < 6; i++) g.fillStyle(0x1a2012, 0.042).fillEllipse(18, 7, 34 - i * 5, 11 - i * 1.6);
 	});
 	// ground doodads (scattered by biome health)
 	tex(scene, 'tuft', 14, 12, (g) => {
@@ -140,18 +148,24 @@ export function makeBaseTextures(scene: Phaser.Scene) {
 		g.fillStyle(C('#f3d98a'), 1).fillRect(14, 33, 8, 8).fillRect(44, 33, 8, 8); // warm-lit windows
 		g.fillStyle(C('#6f6a62'), 1).fillRect(47, 8, 8, 16); // chimney
 	});
+	// A survey spade's mark: a small scuff of loose earth over a buried cache.
+	// Deliberately quiet — it should read as a hint on the ground, not a waypoint.
+	tex(scene, 'cache-mark', 30, 30, (g) => {
+		g.fillStyle(C('#c9a45a'), 0.5).fillEllipse(15, 17, 16, 9);
+		g.fillStyle(C('#8a6a48'), 0.85).fillEllipse(15, 16, 9, 5);
+		g.lineStyle(1.6, C('#f0dca6'), 0.9);
+		g.lineBetween(11, 11, 19, 11).lineBetween(15, 8, 15, 14);
+	});
 	tex(scene, 'tilled', 30, 30, (g) => {
 		g.fillStyle(C('#8a6a48'), 1).fillRoundedRect(1, 1, 28, 28, 7);
 		g.lineStyle(2.5, C('#6e5238'), 0.9);
 		g.lineBetween(5, 8, 25, 8).lineBetween(5, 15, 25, 15).lineBetween(5, 22, 25, 22);
 	});
-	tex(scene, 'terrain-water', 32, 32, (g) => {
-		g.fillStyle(C('#4a7ba8'), 1).fillRoundedRect(0, 0, 32, 32, 5);
-		g.fillStyle(C('#5d96c8'), 1).fillRoundedRect(2, 2, 28, 28, 5);
-		g.lineStyle(2, C('#8fc0e0'), 0.8);
-		g.lineBetween(6, 11, 14, 11).lineBetween(16, 20, 25, 20).lineBetween(8, 26, 15, 26);
-		g.fillStyle(0xffffff, 0.5).fillCircle(23, 8, 1.6);
-	});
+	// Open water is edge-aware — sixteen shapes, one per neighbour combination —
+	// so a dug channel reads as one body of water rather than a row of puddles.
+	// Those shapes are rasterized on demand (ensureWaterTile); only the ripples
+	// scattered over the surface are registered here.
+	makeWaterDetailTextures(scene);
 	tex(scene, 'watered', 30, 30, (g) => {
 		g.fillStyle(C('#6a4f34'), 1).fillRoundedRect(1, 1, 28, 28, 7);
 		g.lineStyle(2.5, C('#54402a'), 0.9);

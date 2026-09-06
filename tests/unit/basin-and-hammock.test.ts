@@ -5,9 +5,9 @@ import { dirname, join } from 'node:path';
 import { harvestReadyAt, harvestWeatherOk, type HabitatObjectDef } from '../../src/types';
 import { SLEEPABLE_OBJECTS, isSleepable } from '../../src/game/interactions';
 
-// The client's half of two things the server now allows: a crafted structure that
+// The client's half of two things the server decides: a crafted structure that
 // yields (the rain basin, which fills with rain rather than growing), and the
-// hammock as somewhere you can actually sleep.
+// hammock as somewhere you LIE — a seat, not a bed.
 //
 // Both matter to the UI, not just the endpoint. If harvestReadyAt still refused
 // anything unplanted, the basin would never glint and the placement menu would
@@ -66,8 +66,12 @@ describe('the rain basin', () => {
 });
 
 describe('the hammock', () => {
-	it('is something you can sleep on', () => {
-		expect(isSleepable('hammock')).toBe(true);
+	it('is something you LIE IN, not something you sleep on', () => {
+		// The distinction is the whole point of the piece. Sleeping is the action
+		// that skips the clock to the next dawn; lying in a hammock leaves the day
+		// exactly where it was and just puts you in it for a while.
+		expect(isSleepable('hammock')).toBe(false);
+		expect(SLEEPABLE_OBJECTS.has('hammock')).toBe(false);
 		expect(SLEEPABLE_OBJECTS.has('home-bed')).toBe(true);
 		expect(SLEEPABLE_OBJECTS.has('home-sleeping-bag')).toBe(true);
 	});

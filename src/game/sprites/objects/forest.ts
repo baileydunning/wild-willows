@@ -1,6 +1,6 @@
 // Old Hollow Forest.
 
-import { C, def } from '../canvas';
+import { C, def, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const FOREST: SpriteSet = {
@@ -65,14 +65,26 @@ export const FOREST: SpriteSet = {
 		g.fillStyle(C('#5d4128'), 1).fillEllipse(15, 9, 5, 2.4);
 		g.fillStyle(C('#5d8a4a'), 0.8).fillEllipse(8, 22, 9, 4);
 	}),
-	mushrooms: def(32, 24, (g) => {
+	...pickable('mushrooms', 32, 24, (g, picked) => {
 		g.fillStyle(C('#e6dccd'), 1).fillRect(9, 12, 3, 9).fillRect(18, 14, 3, 8).fillRect(24, 16, 2, 6);
+		if (picked) {
+			// caps cut off; the ring is a row of pale stems with fresh cut ends
+			g.fillStyle(C('#cfc3b0'), 1).fillRect(9, 12, 3, 2).fillRect(18, 14, 3, 2).fillRect(24, 16, 2, 1.6);
+			return;
+		}
 		g.fillStyle(C('#c0392b'), 1).fillEllipse(10, 12, 14, 9).fillEllipse(19, 14, 11, 7).fillEllipse(25, 16, 7, 5);
 		g.fillStyle(0xffffff, 0.85).fillCircle(7, 11, 1.4).fillCircle(13, 13, 1.2).fillCircle(20, 14, 1.2);
 	}),
-	birch: def(34, 42, (g) => {
+	...pickable('birch', 34, 42, (g, picked) => {
 		g.fillStyle(C('#e8e6df'), 1).fillRect(15, 18, 5, 24); // white trunk
 		g.fillStyle(0x2e2e2e, 1).fillRect(15, 24, 5, 1.6).fillRect(15, 31, 5, 1.6);
+		// a panel of bark peeled off the trunk, tan wood showing through — drawn
+		// over the lenticels, because the strip took them with it
+		if (picked) {
+			g.fillStyle(C('#c9a877'), 1).fillRect(15.4, 23, 4.2, 16);
+			g.fillStyle(C('#b08f60'), 1).fillRect(15.4, 23, 1.4, 16);
+			g.fillStyle(C('#dcc79c'), 1).fillRect(18.4, 23, 1.2, 16);
+		}
 		g.fillStyle(C('#7bbf5a'), 1).fillCircle(17, 12, 11).fillCircle(9, 18, 6).fillCircle(25, 18, 6);
 	}),
 	// Fern Spring: a mossy seep, not open water — a dark trickle under arching fronds.
@@ -601,7 +613,7 @@ export const FOREST: SpriteSet = {
 		for (let i = 0; i < 7; i++) g.fillEllipse(6 + i * 5.4, 12 + (i % 3) * 3, 4, 2.2);
 	}),
 	// larder at once.
-	grapetangle: def(38, 40, (g) => {
+	...pickable('grapetangle', 38, 40, (g, picked) => {
 		g.fillStyle(C('#5f7a44'), 1).fillEllipse(19, 37, 32, 7); // ground
 		g.fillStyle(C('#6b5b45'), 1).fillTriangle(10, 38, 17, 38, 27, 2).fillTriangle(10, 38, 27, 2, 21, 2); // leaning trunk
 		g.fillStyle(C('#7f6d54'), 1).fillTriangle(12, 37, 15, 37, 24, 3).fillTriangle(12, 37, 24, 3, 22, 3);
@@ -617,6 +629,7 @@ export const FOREST: SpriteSet = {
 		] as [number, number, number][])
 			g.fillCircle(x, y, r);
 		g.fillStyle(C('#6d9147'), 1).fillCircle(6, 28, 3.4).fillCircle(25, 22, 3.2).fillCircle(29, 10, 3);
+		if (picked) return; // the bunches have been cut off the vine
 		g.fillStyle(C('#4a3a5f'), 1); // hanging bunches
 		for (const [x, y] of [
 			[13, 32],

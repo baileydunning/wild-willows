@@ -5,9 +5,10 @@ import { customGoalsUnlocked, guideToolId, hasGuide, hasExpandedGuide } from '..
 import { animalSpriteDataUri } from '../game/sprites';
 import { t, content } from '../i18n';
 import { useI18n } from '../i18n/react';
-import { Icon } from './icons';
+import { Icon, ObjectIcon } from './icons';
 import { journalNav, type JournalLoc } from './journalNav';
 import { effort } from './journalSort';
+import { placedCount, waterShape } from '../recipes';
 import { guessFor, guessOptions, guessTally, recordGuess, signatureObject, useFieldGuesses } from '../fieldGuess';
 
 /** A habitat object's display name, localized, falling back to its id. */
@@ -279,6 +280,94 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 		);
 	}
 	const tally = guessTally();
+
+	/* THE HABITAT LIST IS A CHECKLIST.
+	 *
+	 * Every line is something this animal needs, so every line can say whether you
+	 * have it yet — and the ones that count say how far along they are. The reads
+	 * go through placedCount/waterShape rather than the snapshot's own rows: the
+	 * journal is usually open somewhere other than the biome being read about, and
+	 * the snapshot only carries the current area's placements and terrain.
+	 *
+	 * Same boxes as the task steps, so a ticked box means the same thing wherever
+	 * the player meets one. */
+	const bs = state?.biomeStates.find((b) => b.biomeId === animal.biome);
+	const health = bs?.health ?? 0;
+	const balance = bs?.balance ?? 0;
+	const water = state ? waterShape(state, animal.biome) : { tiles: 0, lake: 0, river: 0 };
+	const pct = (value: number) => t('panels.journal.reqNowPct', { value: Math.round(value) });
+	const outOf = (have: number, need: number) => t('panels.journal.reqHave', { have, need });
+	const steps: { key: string; text: string; done: boolean; tail?: string }[] = [];
+	if (req.minHealth) {
+		const done = health >= req.minHealth;
+		steps.push({
+			key: 'health',
+			text: t('panels.journal.minHealth', { value: req.minHealth }),
+			done,
+			tail: done ? undefined : pct(health),
+		});
+	}
+	if (req.minBalance) {
+		const done = balance >= req.minBalance;
+		steps.push({
+			key: 'balance',
+			text: t('panels.journal.minBalance', { value: req.minBalance }),
+			done,
+			tail: done ? undefined : pct(balance),
+		});
+	}
+	/* Open water you have to dig. Only the shapes the player can actually
+	   terraform are listed: coastal `ocean`/`deep` are part of the map from
+	   the start, so printing them would read as a chore that isn't one. */
+	if (req.water?.lake) {
+		steps.push({
+			key: 'lake',
+			text: t('panels.journal.waterLake', { tiles: req.water.lake }),
+			done: water.lake >= req.water.lake,
+			tail: water.lake >= req.water.lake ? undefined : outOf(water.lake, req.water.lake),
+		});
+	}
+	if (req.water?.river) {
+		steps.push({
+			key: 'river',
+			text: t('panels.journal.waterRiver', { tiles: req.water.river }),
+			done: water.river >= req.water.river,
+			tail: water.river >= req.water.river ? undefined : outOf(water.river, req.water.river),
+		});
+	}
+	if (req.water?.tiles && !req.water?.lake && !req.water?.river) {
+		steps.push({
+			key: 'water',
+			text: t('panels.journal.waterTiles', { tiles: req.water.tiles }),
+			done: water.tiles >= req.water.tiles,
+			tail: water.tiles >= req.water.tiles ? undefined : outOf(water.tiles, req.water.tiles),
+		});
+	}
+	for (const [id, qty] of Object.entries(req.objects || {})) {
+		const o = data?.habitatObjects.find((oo) => oo.id === id);
+		const have = state ? placedCount(state, animal.biome, id) : 0;
+		const done = have >= qty;
+		steps.push({
+			key: `object-${id}`,
+			text: t('panels.journal.objectReq', { qty, name: o ? content('habitatObject', o.id, 'name', o.name) : id }),
+			done,
+			// One of a thing is a yes-or-no: the box already says it.
+			tail: done || qty <= 1 ? undefined : outOf(have, qty),
+		});
+	}
+	for (const id of req.animals || []) {
+		const a = data?.animals.find((aa) => aa.id === id);
+		steps.push({
+			key: `animal-${id}`,
+			// Don't leak the name of an animal the player hasn't discovered yet —
+			// show its kind instead (e.g. "another bird needs to return first").
+			text:
+				a && !seen.has(id)
+					? t('panels.journal.animalReqUnknown', { kind: content('animal', a.id, 'kind', a.kind) })
+					: t('panels.journal.animalReq', { name: a ? content('animal', a.id, 'name', a.name) : id }),
+			done: seen.has(id),
+		});
+	}
 	return (
 		<div className="small req-details">
 			<div className="muted">{t('panels.journal.hint', { hint })}</div>
@@ -293,49 +382,26 @@ function RequirementHints({ animal, full }: { animal: AnimalDef; full: boolean }
 					</span>
 				</p>
 			) : null}
-			<ul>
-				{req.minHealth ? <li>{t('panels.journal.minHealth', { value: req.minHealth })}</li> : null}
-				{req.minBalance ? <li>{t('panels.journal.minBalance', { value: req.minBalance })}</li> : null}
-				{/* Open water you have to dig. Only the shapes the player can actually
-				    terraform are listed: coastal `ocean`/`deep` are part of the map from
-				    the start, so printing them would read as a chore that isn't one. */}
-				{req.water?.lake ? <li>{t('panels.journal.waterLake', { tiles: req.water.lake })}</li> : null}
-				{req.water?.river ? <li>{t('panels.journal.waterRiver', { tiles: req.water.river })}</li> : null}
-				{req.water?.tiles && !req.water?.lake && !req.water?.river ? (
-					<li>{t('panels.journal.waterTiles', { tiles: req.water.tiles })}</li>
-				) : null}
-				{Object.entries(req.objects || {}).map(([id, q]) => {
-					const o = data?.habitatObjects.find((oo) => oo.id === id);
-					return (
-						<li key={id}>
-							{t('panels.journal.objectReq', { qty: q, name: o ? content('habitatObject', o.id, 'name', o.name) : id })}
-						</li>
-					);
-				})}
-				{(req.animals || []).map((id) => {
-					const a = data?.animals.find((aa) => aa.id === id);
-					// Don't leak the name of an animal the player hasn't discovered yet —
-					// show its kind instead (e.g. "another bird needs to return first").
-					if (a && !seen.has(id)) {
-						return (
-							<li key={id}>
-								{t('panels.journal.animalReqUnknown', { kind: content('animal', a.id, 'kind', a.kind) })}
-							</li>
-						);
-					}
-					return (
-						<li key={id}>
-							{t('panels.journal.animalReq', { name: a ? content('animal', a.id, 'name', a.name) : id })}
-						</li>
-					);
-				})}
-				{condLine ? (
-					<li>
-						<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} />{' '}
-						{weatherGated ? t('panels.journal.condCheck', { cond: condLine }) : condLine}
+			<ul className="req-checklist">
+				{steps.map((step) => (
+					<li key={step.key} className={`tasks-step ${step.done ? 'done' : ''}`}>
+						<span className="tasks-step-box">{step.done && <Icon name="check" size={10} />}</span>
+						<span>
+							{step.text}
+							{step.tail ? <span className="req-step-tail"> {step.tail}</span> : null}
+						</span>
 					</li>
-				) : null}
+				))}
 			</ul>
+			{/* When to look, rather than what to gather: a weather window is not
+			    something you can have in hand, so it sits under the checklist instead
+			    of pretending to be a box you can tick. */}
+			{condLine ? (
+				<p className="req-when">
+					<Icon name={weatherGated ? 'cloud' : 'sun'} size={11} />{' '}
+					{weatherGated ? t('panels.journal.condCheck', { cond: condLine }) : condLine}
+				</p>
+			) : null}
 		</div>
 	);
 }
@@ -1241,6 +1307,229 @@ export function AnimalCard() {
 							<button className="link" onClick={backToJournal}>
 								{t('panels.journal.backToJournal')}
 							</button>
+						</>
+					)}
+				</div>
+			</div>
+		</div>
+	);
+}
+
+/* ============================================================ Board of Finds
+ *
+ * The pin board you hang in the house (`home-findsboard`), opened by walking up
+ * to it and pressing the interact key — see attachFixtureActions in WorldScene.
+ *
+ * It is a VIEW, not a record. Everything on it is derived at render time from
+ * the discoveries already in the snapshot, so hanging the board (or taking it
+ * down, or never crafting one at all) changes nothing about the save: there is
+ * no sighting log, no counter, and nothing new to keep in sync.
+ *
+ * It is also NOT a second door into the journal. The journal is the reference
+ * work — role, food web, requirements, sources. The board answers two questions
+ * the journal can't: who turned up last, and what would I actually find of them
+ * out there. That second one is `fieldSign` in data/animals-*.json: tracks,
+ * scat, cocoons, calls, chewed stems. Researched per species, and deliberately
+ * about none of the things the journal already prints.
+ */
+
+/** One find, newest first: the discovery row and the animal it is about. */
+interface Find {
+	disc: Discovery;
+	animal: AnimalDef;
+}
+
+/** The day an animal first turned up. Short form on the board (there is one on
+ *  every card and the year is noise); long form on the note itself. */
+const findDate = (disc: Discovery, long = false) =>
+	new Date(disc.firstObservedAt).toLocaleDateString(undefined, long ? undefined : { month: 'short', day: 'numeric' });
+
+/** A pinned card. The newest find is the same card drawn as a wide banner. */
+function FindNote({
+	find,
+	where,
+	onOpen,
+	hero = false,
+}: {
+	find: Find;
+	/** The area it came back to, already localized. */
+	where: string;
+	onOpen: () => void;
+	hero?: boolean;
+}) {
+	const { t, content } = useI18n();
+	const { animal, disc } = find;
+	const name = content('animal', animal.id, 'name', animal.name);
+	return (
+		<button
+			className={hero ? 'finds-note finds-hero' : 'finds-note'}
+			onClick={onOpen}
+			title={t('panels.finds.openNote', { name })}
+			aria-label={t('panels.finds.openNote', { name })}
+		>
+			<span className="finds-pin" aria-hidden="true" />
+			<img className="finds-thumb" src={animalSpriteDataUri(animal.id, animal.kind)} alt="" />
+			<span className="finds-note-text">
+				{hero && <span className="finds-tag">{t('panels.finds.newest')}</span>}
+				<span className="finds-name">{name}</span>
+				<span className="finds-where">{where}</span>
+				{hero && animal.fieldSign && (
+					<span className="finds-teaser">{content('animal', animal.id, 'fieldSign', animal.fieldSign)}</span>
+				)}
+				<span className="finds-foot">
+					<span className={`comfort comfort-${comfortLabel(disc.comfort)}`}>{comfortText(disc.comfort)}</span>
+					<span className="finds-date">
+						{findDate(disc)}
+						{hero && <> · {t('panels.finds.seen', { count: disc.timesObserved })}</>}
+					</span>
+				</span>
+			</span>
+		</button>
+	);
+}
+
+/**
+ * One note taken down off the board and read.
+ *
+ * The field sign is the whole point of opening it, so it gets the room: what to
+ * look for, and where the line was checked. Everything else on this card is the
+ * same handful of facts the pinned version carried.
+ */
+function FindNoteDetail({ find, where, onBack }: { find: Find; where: string; onBack: () => void }) {
+	const { t, content } = useI18n();
+	const { animal, disc } = find;
+	const src = animal.fieldSignSource;
+	return (
+		<div className="finds-detail">
+			<span className="finds-pin" aria-hidden="true" />
+			<img className="finds-thumb finds-thumb-lg" src={animalSpriteDataUri(animal.id, animal.kind)} alt="" />
+			<h3 className="finds-detail-name">{content('animal', animal.id, 'name', animal.name)}</h3>
+			<p className="finds-detail-meta">
+				{where} · {t('panels.finds.cameBack', { date: findDate(disc, true) })} ·{' '}
+				{t('panels.finds.seen', { count: disc.timesObserved })}
+			</p>
+			<span className={`comfort comfort-${comfortLabel(disc.comfort)}`}>{comfortText(disc.comfort)}</span>
+			{animal.fieldSign && (
+				<div className="finds-fieldnote">
+					<h4>{t('panels.finds.signTitle')}</h4>
+					<p>{content('animal', animal.id, 'fieldSign', animal.fieldSign)}</p>
+					{src && (
+						<a className="finds-source" href={src.url} target="_blank" rel="noopener noreferrer">
+							{src.name}
+						</a>
+					)}
+				</div>
+			)}
+			<button className="link" onClick={onBack}>
+				{t('panels.finds.backToBoard')}
+			</button>
+		</div>
+	);
+}
+
+export function FindsBoardPanel() {
+	const { data, state, setPanel } = useGame();
+	const { t, content } = useI18n();
+	// Which note is being read, if any. Panel-local: taking a note down and
+	// pinning it back up is not something the save should hear about.
+	const [openId, setOpenId] = useState<string | null>(null);
+	if (!data || !state) return null;
+
+	const byId = new Map(data.animals.map((a) => [a.id, a]));
+	// Newest first — the whole point of the board. Ties (a batch that arrived on
+	// the same action) fall back to the name so the order is at least stable
+	// across renders rather than however the rows happen to come back.
+	const finds: Find[] = state.discoveries
+		.map((disc) => ({ disc, animal: byId.get(disc.animalId) }))
+		.filter((f): f is Find => !!f.animal)
+		.sort(
+			(x, y) =>
+				y.disc.firstObservedAt - x.disc.firstObservedAt ||
+				content('animal', x.animal.id, 'name', x.animal.name).localeCompare(
+					content('animal', y.animal.id, 'name', y.animal.name),
+				),
+		);
+	const [newest, ...earlier] = finds;
+
+	// One chip per area the player has unlocked, in trail order. An area with
+	// nothing back yet still gets a chip: 0/25 is a place to go, and hiding it
+	// would make the board quietly shrink the preserve.
+	const unlocked = new Set(state.biomeStates.filter((b) => b.unlocked).map((b) => b.biomeId));
+	const tallies = [...data.biomes]
+		.filter((b) => unlocked.has(b.id))
+		.sort((a, b) => a.order - b.order)
+		.map((b) => {
+			const all = data.animals.filter((a) => a.biome === b.id);
+			return {
+				id: b.id,
+				name: content('biome', b.id, 'name', b.name),
+				back: all.filter((a) => finds.some((f) => f.animal.id === a.id)).length,
+				total: all.length,
+			};
+		});
+
+	// Where it came back — the discovery's own area, which is the animal's home
+	// biome in every case the game can produce today, but the row is the record.
+	const areaName = (f: Find) => {
+		const b = data.biomes.find((bb) => bb.id === (f.disc.biomeId || f.animal.biome));
+		return b ? content('biome', b.id, 'name', b.name) : f.animal.biome;
+	};
+
+	const close = () => setPanel(null);
+	const reading = finds.find((f) => f.animal.id === openId) || null;
+
+	return (
+		<div className="panel-backdrop" onClick={close}>
+			<div className="panel panel-wide" onClick={(e) => e.stopPropagation()}>
+				<div className="panel-head">
+					<h2>
+						<ObjectIcon shape="findsboard" size={20} color="#b98f5a" /> {t('panels.finds.title')}
+					</h2>
+					<div className="panel-head-actions">
+						{reading && (
+							<button className="icon-btn" onClick={() => setOpenId(null)} aria-label={t('panels.finds.backToBoard')}>
+								<Icon name="back" />
+							</button>
+						)}
+						<button className="icon-btn" onClick={close} aria-label={t('panels.common.close')}>
+							<Icon name="close" />
+						</button>
+					</div>
+				</div>
+				<div className="panel-body finds-body">
+					{reading ? (
+						<FindNoteDetail find={reading} where={areaName(reading)} onBack={() => setOpenId(null)} />
+					) : !finds.length ? (
+						<p className="muted small overview-empty">
+							<Icon name="pin" size={14} /> {t('panels.finds.empty')}
+						</p>
+					) : (
+						<>
+							<div className="finds-summary">
+								<p className="finds-count">
+									{t('panels.finds.count', { count: finds.length, total: data.animals.length })}
+								</p>
+								<div className="finds-tallies">
+									{tallies.map((b) => (
+										<span key={b.id} className="finds-tally">
+											{b.name}{' '}
+											<b>
+												{b.back}/{b.total}
+											</b>
+										</span>
+									))}
+								</div>
+							</div>
+							<div className="finds-board">
+								<FindNote find={newest} where={areaName(newest)} hero onOpen={() => setOpenId(newest.animal.id)} />
+								{earlier.length > 0 && (
+									<div className="finds-grid">
+										{earlier.map((f) => (
+											<FindNote key={f.animal.id} find={f} where={areaName(f)} onOpen={() => setOpenId(f.animal.id)} />
+										))}
+									</div>
+								)}
+							</div>
 						</>
 					)}
 				</div>

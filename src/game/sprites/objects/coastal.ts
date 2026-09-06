@@ -1,6 +1,6 @@
 // Pelican Shore.
 
-import { C, def } from '../canvas';
+import { C, def, lightable, pickable } from '../canvas';
 import type { SpriteSet } from '../canvas';
 
 export const COASTAL: SpriteSet = {
@@ -24,29 +24,18 @@ export const COASTAL: SpriteSet = {
 		g.fillEllipse(8, 18, 10, 22).fillEllipse(18, 20, 10, 18).fillEllipse(28, 17, 10, 22);
 		g.fillStyle(C('#8a9a4e'), 1).fillCircle(12, 10, 2.4).fillCircle(24, 12, 2.4);
 	}),
-	coralgarden: def(42, 32, (g) => {
-		g.fillStyle(C('#cdbfa0'), 1).fillEllipse(21, 26, 40, 12); // sandy bed
-		g.fillStyle(C('#5d96c8'), 0.55).fillEllipse(21, 24, 36, 9); // shallow water film
-		const branch = (x: number, h: number, c: string) => {
-			g.fillStyle(C(c), 1).fillRoundedRect(x - 2, 26 - h, 4, h, 2);
-			g.fillCircle(x, 26 - h, 3);
-		};
-		branch(10, 14, '#e58b6f');
-		branch(17, 20, '#f2a98f');
-		branch(24, 16, '#e0876f');
-		branch(31, 12, '#e8a07a');
-		branch(20, 11, '#d96e8a');
-		g.fillStyle(C('#6f9a52'), 1).fillEllipse(6, 22, 5, 12).fillEllipse(36, 21, 5, 12); // kelp fronds
-		g.fillStyle(0xffffff, 0.4).fillCircle(15, 19, 1.2).fillCircle(27, 17, 1.2);
-	}),
-	seaglasslantern: def(22, 44, (g) => {
+	...lightable('seaglasslantern', 22, 44, (g, lit) => {
 		g.fillStyle(C('#7c5a3c'), 1).fillRect(9, 30, 4, 12); // driftwood post
 		g.fillStyle(C('#b0a088'), 1).fillRoundedRect(4, 8, 14, 22, 3); // weathered frame
-		g.fillStyle(C('#8fc6c2'), 1).fillRoundedRect(6, 11, 5, 7, 1); // sea-glass panes
-		g.fillStyle(C('#a9d8d0'), 1).fillRoundedRect(11, 11, 5, 7, 1);
-		g.fillStyle(C('#bcd8e6'), 1).fillRoundedRect(6, 19, 5, 7, 1);
-		g.fillStyle(C('#9fd0cc'), 1).fillRoundedRect(11, 19, 5, 7, 1);
-		g.fillStyle(0xffffff, 0.55).fillCircle(8, 13, 1.2);
+		// Four panes of beach glass. Lit from behind they are sea-bright; unlit
+		// they are the same four pieces of glass in shadow.
+		const pane = (x: number, y: number, on: string, off: string) =>
+			g.fillStyle(C(lit ? on : off), 1).fillRoundedRect(x, y, 5, 7, 1);
+		pane(6, 11, '#8fc6c2', '#5f7f7d');
+		pane(11, 11, '#a9d8d0', '#6f8c88');
+		pane(6, 19, '#bcd8e6', '#7a8c96');
+		pane(11, 19, '#9fd0cc', '#688884');
+		if (lit) g.fillStyle(0xffffff, 0.55).fillCircle(8, 13, 1.2);
 		g.fillStyle(C('#9a7448'), 1).fillRoundedRect(3, 4, 16, 5, 2); // cap
 	}),
 	tidechime: def(28, 40, (g) => {
@@ -70,18 +59,6 @@ export const COASTAL: SpriteSet = {
 		g.lineBetween(15, 7, 5, 19).lineBetween(15, 7, 15, 20).lineBetween(15, 7, 25, 19);
 		g.fillStyle(C('#f2ece0'), 1).fillCircle(11, 17, 3).fillCircle(19, 17, 3).fillCircle(15, 14, 3.4); // pearls
 		g.fillStyle(0xffffff, 0.85).fillCircle(10, 15, 1.1).fillCircle(18, 15, 1.1).fillCircle(14, 12, 1.2);
-	}),
-	seaglasspath: def(34, 26, (g) => {
-		g.fillStyle(C('#dcc890'), 1).fillRoundedRect(1, 4, 32, 18, 8); // sand
-		const bits: [number, number, string][] = [
-			[8, 9, '#8fc6c2'],
-			[15, 13, '#a9d8d0'],
-			[22, 9, '#bcd8e6'],
-			[27, 15, '#9fd0cc'],
-			[12, 17, '#8fc6c2'],
-			[20, 7, '#a9d8d0'],
-		];
-		for (const [x, y, c] of bits) g.fillStyle(C(c), 0.95).fillRoundedRect(x - 2, y - 2, 4.5, 4.5, 1);
 	}),
 	driftpile: def(40, 24, (g) => {
 		const cols = ['#c8b89a', '#b8a888', '#d8cab0'];
@@ -134,10 +111,15 @@ export const COASTAL: SpriteSet = {
 		] as const)
 			g.lineBetween(x - 3, y, x + 3, y);
 	}),
-	thrift: def(32, 26, (g) => {
+	...pickable('thrift', 32, 26, (g, picked) => {
 		g.fillStyle(C('#7a9a6a'), 1).fillEllipse(16, 21, 28, 9);
 		g.lineStyle(1.5, C('#5a8a4a'), 1);
 		for (const x of [9, 16, 23]) g.lineBetween(x, 21, x, 9);
+		if (picked) {
+			// the pink heads picked off their wiry stalks
+			g.fillStyle(C('#6f8a4a'), 1).fillCircle(9, 8.6, 1.4).fillCircle(16, 7.6, 1.5).fillCircle(23, 9.4, 1.3);
+			return;
+		}
 		g.fillStyle(C('#e57aa8'), 1).fillCircle(9, 8, 3.2).fillCircle(16, 7, 3.4).fillCircle(23, 9, 3);
 	}),
 	coastalshrub: def(34, 28, (g) => {

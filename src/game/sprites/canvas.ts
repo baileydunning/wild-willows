@@ -72,6 +72,50 @@ export type SpriteSet = Record<string, SpriteDef>;
 
 export const def = (w: number, h: number, draw: (g: G) => void): SpriteDef => ({ w, h, draw });
 
+/** Suffix of the picked-variant texture key. */
+export const PICKED = '-picked';
+
+/**
+ * A plant you can harvest without uprooting it: ONE draw, TWO textures.
+ *
+ * `<key>` is the plant standing with its yield on it, `<key>-picked` the same
+ * plant with the yield taken — cut stems, bare seed heads, an emptied bowl.
+ * WorldScene shows the picked texture while the yield regrows and fades the
+ * standing one back in on top of it (see attachRegrowth there), which is the
+ * one constraint on the picked draw: everything it paints must sit INSIDE the
+ * standing sprite's own pixels, or it will still be showing once the plant is
+ * back. Buds go where the blooms were, cut ends inside the stems.
+ *
+ * They share a draw rather than being written twice so the two can't drift:
+ * every edit to the plant lands on both states at once.
+ */
+export const pickable = (key: string, w: number, h: number, draw: (g: G, picked: boolean) => void): SpriteSet => ({
+	[key]: def(w, h, (g) => draw(g, false)),
+	[`${key}${PICKED}`]: def(w, h, (g) => draw(g, true)),
+});
+
+/** Suffix of the put-out variant's texture key. */
+export const OUT = '-out';
+
+/**
+ * A light you can put out: ONE draw, TWO textures.
+ *
+ * `<key>` is the thing burning and `<key>-out` the same thing cold. The draw
+ * gets a `lit` flag and is expected to BUILD A DIFFERENT PICTURE with it, not
+ * merely to skip a highlight: the flame goes and dark logs are left in the
+ * grate, the warm pane goes grey, the halo is not drawn at all. That is the
+ * whole point of doing it here rather than tinting the sprite in the world —
+ * a dimmed flame is still a flame, and a fire that is out has no flame in it.
+ *
+ * Everything OUTSIDE the flame — the stone surround, the post, the frame — is
+ * drawn by the same commands in both states, so the two can never drift into
+ * different objects; only the burning part is written twice.
+ */
+export const lightable = (key: string, w: number, h: number, draw: (g: G, lit: boolean) => void): SpriteSet => ({
+	[key]: def(w, h, (g) => draw(g, true)),
+	[`${key}${OUT}`]: def(w, h, (g) => draw(g, false)),
+});
+
 /**
  * Rasterize every sprite in `sets` under one key prefix.
  *

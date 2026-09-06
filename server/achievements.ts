@@ -94,7 +94,11 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 	'master-builder': (c) => (c.counts.objectsPlaced || 0) >= 150,
 	'master-gardener': (c) => (c.counts.plantsPlanted || 0) >= 75,
 	landscaper: (c) => (c.counts.terraformActions || 0) >= 150,
+	// Kept at 4 deliberately: it was earned at the top of the old ladder and stays
+	// a mid-game marker now that the ladder runs to 7. `perfectly-equipped` is the
+	// badge for carrying all three the rest of the way.
 	'fully-equipped': (c) => c.tool('basket') >= 4 && c.tool('shovel') >= 4 && c.tool('watering-can') >= 4,
+	'perfectly-equipped': (c) => c.tool('basket') >= 7 && c.tool('shovel') >= 7 && c.tool('watering-can') >= 7,
 	// Every area's guide, written all the way up to its expanded edition. "Every
 	// guide filled in, every animal's secrets unlocked" is what the badge already
 	// promised; before the split it was one ladder for the whole preserve, and now
@@ -104,7 +108,6 @@ const ACHIEVEMENT_TRIGGERS: Record<string, (c: AchCtx) => boolean> = {
 
 	'open-road': (c) => c.unlockedCount >= 2,
 	'welcoming-committee': (c) => c.totalReturned >= 50,
-	'full-house': (c) => c.totalReturned >= 100,
 	'field-notes': (c) => (c.counts.animalsObserved || 0) >= 100,
 	'steady-hand': (c) => c.unlockedCount >= 3 && c.unlockedHealthy(50),
 	'three-restored': (c) => c.biomesAtHealth(80) >= 3,
@@ -124,7 +127,16 @@ export async function earnedAchievementIds(playerId: string, player?: any): Prom
 /** Derived achievements view for one player's Metrics. */
 export async function achievementMetrics(playerId: string) {
 	const d = await defs();
-	const rows = await byPlayer(db().PlayerAchievement, playerId);
+	const allRows = await byPlayer(db().PlayerAchievement, playerId);
+	/* Count only rows whose achievement still EXISTS. A retired badge (full-house
+	 * was one, dropped at 50) leaves its PlayerAchievement rows behind on every
+	 * save that earned it — nothing deletes them, and nothing should, since a
+	 * retired badge may come back. Counting them raw is how a long-time player
+	 * ends up reported at 51/50 and 102% complete, which then poisons the
+	 * completion histogram in MetricsSummary. `points` and `byCategory` already
+	 * iterate the definitions, so they were never wrong; `earned` and
+	 * `completion` counted rows. */
+	const rows = allRows.filter((r: any) => d.achievement.has(r.achievementId));
 	const total = d.achievements.length || 1;
 	const earnedById = new Map(rows.map((r: any) => [r.achievementId, r]));
 	const points = d.achievements.reduce((sum: number, a: any) => sum + (earnedById.has(a.id) ? a.points || 0 : 0), 0);

@@ -9,13 +9,31 @@
 import { t as tr } from '../src/i18n/server';
 import { dayPhaseAt, nextPhaseAt, phasesSeen, seasonAt, weatherSnapshot, weatherTypeAt } from './weather';
 
-import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db } from './core';
+import { BASE_HEALTH, FIRST_ANIMAL_ID, GameError, NODE_REGEN_SECONDS, clamp, db, hash32, seededRng } from './core';
 import { safeGet } from './store';
 import { KEY_REV, placementKey } from './keys';
+import { EMPTY_COZY, storedCozy } from './cozy';
 import { REPAIR_REV, byArea, byWorld, defs, findBiomeState, findInWorld, worldOf } from './worlds';
-import { CAPACITY_BY_BASKET, DEFAULT_HOME, START_INVENTORY, START_TOOLS, homeCarryBonus, homeOf } from './home';
+import {
+	BASKET_FRAME_TIER,
+	BURIED_CACHE_DENSITY,
+	CAPACITY_BY_BASKET,
+	DEFAULT_HOME,
+	START_INVENTORY,
+	START_TOOLS,
+	homeCarryBonus,
+	homeHas,
+	homeOf,
+} from './home';
 import { STARTER_CHEST, getPlayer, hashPasscode, patchPlayer, readPlayerRow, sanitizePlayer } from './player';
-import { WEATHER_BIOME_IDS, bumpMetrics, encodeMetrics, freshMetrics, weatherTimeFromPlay } from './metrics';
+import {
+	WEATHER_BIOME_IDS,
+	bumpMetrics,
+	encodeMetrics,
+	freshMetrics,
+	freshStanding,
+	weatherTimeFromPlay,
+} from './metrics';
 import { dailyTasksBlock, goalLimitFor } from './tasks';
 import { earnedAchievementIds } from './achievements';
 
@@ -151,6 +169,28 @@ export async function createPlayerRecords(
 	const d = await defs();
 	const now = Date.now();
 	const { salt, hash } = hashPasscode(passcode);
+
+	// What a brand-new save has standing in the world. Built BEFORE the player
+	// row so the row's tallies can be stamped from this list itself rather than
+	// from a second copy of it that could drift the day another seeded placement
+	// is added here.
+	const wid = playerId; // your own private solo world (world of one)
+	const chestPlacementId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
+	const placements = [
+		{
+			id: chestPlacementId,
+			worldId: wid,
+			playerId,
+			objectId: 'small-chest',
+			area: 'meadow',
+			x: STARTER_CHEST.x,
+			y: STARTER_CHEST.y,
+			placedAt: now,
+		},
+	];
+	const standingPlaced: Record<string, number> = {};
+	for (const p of placements) standingPlaced[p.objectId] = (standingPlaced[p.objectId] || 0) + 1;
+
 	const player = {
 		id: playerId,
 		name,
@@ -196,12 +236,31 @@ export async function createPlayerRecords(
 		// per new save to learn there was no work — and the write budget is what
 		// caps how many people can play at once. Only pre-0.3 saves lack it.
 		repairRev: REPAIR_REV,
+		// Nothing is growing yet, and saying so is what keeps the first heartbeat
+		// from reading every placement in the world to find that out. 0 and absent
+		// are different answers here (see nextMaturityFrom): absent means nobody has
+		// looked, and a save born from here on has — right now, with one camp chest
+		// in the ground and nothing in it that grows.
+		nextMaturityAt: 0,
+		// Born with its standing tallies filled in, for the same reason and at the
+		// same cost as the markers above: the goal board reads these instead of
+		// counting placements, and a save that has none makes the next repair pass
+		// scan every placement in the world to work them out (see bumpStanding).
+		standing: freshStanding(standingPlaced),
+		// And born with the reading its empty camp already earns — zero. Same rule
+		// as every marker above: a save that arrives WITHOUT this makes the next
+		// repair pass read the whole home interior to learn there is nothing in it,
+		// and then spend a Player write saying so (backfillCoziness in worlds.ts,
+		// which LoginPlayer forces on every login). Absent and zero are different
+		// answers here too — absent means nobody has looked — so a save born now
+		// says so itself, and the backfill goes back to being what it is for: a
+		// house decorated before coziness existed.
+		homeCozy: storedCozy(EMPTY_COZY),
 	};
 	await t.Player.put(player);
 
 	// A new player begins in their own private solo world (id === playerId), so
 	// every seeded row is stamped with that worldId from the start.
-	const wid = playerId;
 	const biomeStates = d.biomes.map((b: any) => ({
 		id: `${wid}:${b.id}`,
 		worldId: wid,
@@ -214,19 +273,6 @@ export async function createPlayerRecords(
 	}));
 	for (const bs of biomeStates) await t.BiomeState.put(bs);
 
-	const chestPlacementId = placementKey(wid, 'meadow', `pl_${playerId}_starter-chest`);
-	const placements = [
-		{
-			id: chestPlacementId,
-			worldId: wid,
-			playerId,
-			objectId: 'small-chest',
-			area: 'meadow',
-			x: STARTER_CHEST.x,
-			y: STARTER_CHEST.y,
-			placedAt: now,
-		},
-	];
 	for (const p of placements) await t.Placement.put(p);
 
 	const chest = {
@@ -282,8 +328,73 @@ export async function freshSnapshot(created: any) {
 
 export function inventoryCapacity(player: any): number {
 	const tier = player.tools?.basket || 1;
+	// Above the top defined tier, hold the largest basket rather than falling back
+	// to the tier-1 number — a missing table entry used to turn an upgrade into a
+	// silent downgrade to 200.
+	const table = CAPACITY_BY_BASKET[tier] ?? Math.max(...Object.values(CAPACITY_BY_BASKET));
 	// home upgrades add a flat carry bonus on top of the basket tier (functional perk)
-	return (CAPACITY_BY_BASKET[tier] || 200) + homeCarryBonus(player);
+	return table + homeCarryBonus(player);
+}
+
+/**
+ * What one unit of a resource costs against basket capacity.
+ *
+ * Bulk earth and stone carry `weight: 2` in data/resources.json and fill the
+ * basket twice as fast as a handful of seeds — which is what makes what you
+ * carry a decision rather than a number. A basket at BASKET_FRAME_TIER or above
+ * has a stiff enough frame to carry the heavy things as if they were light, so
+ * that upgrade is felt as "I can finally haul rock" rather than as a bigger
+ * integer. Anything without a weight is 1, so existing data needs no migration.
+ */
+export function itemWeight(resourceId: string, d: any, player: any): number {
+	const w = d?.resource?.get(resourceId)?.weight || 1;
+	if (w <= 1) return 1;
+	// Two ways to earn it, and they are the same trick from opposite ends: a
+	// tier-6 basket has a frame stiff enough, and a house at Comfort 5 has
+	// Packed Well — you have finally worked out how to load the thing. Either
+	// one is enough; owning both is not worth twice as much.
+	if ((player.tools?.basket || 1) >= BASKET_FRAME_TIER) return 1;
+	return homeHas(player, 'lightLoad') ? 1 : w;
+}
+
+/** How full the basket is, in capacity units rather than in item count. */
+export function carriedWeight(inventory: Record<string, number> | undefined, d: any, player: any): number {
+	let total = 0;
+	for (const [id, qty] of Object.entries(inventory || {})) total += (qty || 0) * itemWeight(id, d, player);
+	return total;
+}
+
+/**
+ * Is there something buried under this tile?
+ *
+ * Deterministic from the world, area and coordinates, so the answer is stable
+ * for everyone in a world and needs no stored rows. Below SHOVEL_SURVEY_TIER
+ * nothing reads this and digging keeps its old DIG_FIND_CHANCE roll; a survey
+ * spade both SHOWS where the caches lie (they ride along in the snapshot) and
+ * makes digging one a certainty, which turns the find from a slot machine into
+ * something you can read off the ground and go get.
+ */
+export function buriedCacheAt(wid: string, biomeId: string, x: number, y: number): boolean {
+	return seededRng(hash32(`cache:${wid}:${biomeId}:${x}:${y}`))() < BURIED_CACHE_DENSITY;
+}
+
+/** Every buried cache in one area, for the snapshot a survey spade earns. */
+export function buriedCachesIn(wid: string, biomeId: string, grid: { cols: number; rows: number }) {
+	const out: { x: number; y: number }[] = [];
+	for (let x = 1; x <= grid.cols - 2; x++)
+		for (let y = 1; y <= grid.rows - 2; y++) if (buriedCacheAt(wid, biomeId, x, y)) out.push({ x, y });
+	return out;
+}
+
+/** How many more units of one resource will fit in the basket right now. */
+export function roomFor(
+	resourceId: string,
+	inventory: Record<string, number> | undefined,
+	d: any,
+	player: any,
+): number {
+	const free = inventoryCapacity(player) - carriedWeight(inventory, d, player);
+	return Math.max(0, Math.floor(free / itemWeight(resourceId, d, player)));
 }
 
 // ----------------------------------------------- biome health & animal logic
@@ -419,7 +530,18 @@ export function maturedBetween(def: any, p: any, a: number, b: number): boolean 
 // never does the real work of restoring the land — it just rewards patience.
 const MATURE_POINTS_CAP = 8;
 
-/** Raw restoration points from everything placed/shaped in a biome. */
+/**
+ * Raw restoration points from everything placed/shaped in a biome.
+ *
+ * A thing is worth points because it is HABITAT — something an animal can live
+ * in, eat from, drink at or shelter under. Everything the caretaker builds for
+ * their own sake is worth zero: benches, lanterns, gazebos, signposts… and
+ * paths and bridges, which exist so boots stay off the new growth rather than
+ * to grow anything. A trail across a bare meadow is not restoration, and a
+ * biome should not be able to walk itself back to health on stepping stones.
+ * (The wetland boardwalks are the exception that proves it: they keep feet out
+ * of the marsh itself, which is why they still carry points.)
+ */
 function computeHealthPoints(d: any, placements: any[], openWaterTiles = 0, now = Date.now()): number {
 	let points = 0;
 	let maturePoints = 0;
@@ -526,6 +648,96 @@ export function analyzeWater(terrain: any[], playerOnly = false) {
 		river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
 	}
 	return { tiles: cells.size, lake, river };
+}
+
+// ------------------------------------------- the terrain half of the numbers
+//
+// Everything recalcBiome derives from an area's TerrainTile rows: how many beds
+// are watered, how many tiles of open water the PLAYER shaped, and the geometry
+// of the water (see analyzeWater). Kept on the biome's own row, because none of
+// it moves on its own — terrain changes only when the player shapes it — so the
+// area scan that re-derived these numbers on every place, plant and dig was
+// reading a few hundred rows to arrive back at the answer already sitting on the
+// row it was about to write.
+//
+// The definitions are deliberately not part of this. A tile's type is its own
+// fact, read from nothing in data/*.json, so a game update cannot leave a stored
+// number disagreeing with the code that reads it. The placement half of the
+// recalc is not like that — placementCounts and the maturity bonus both read the
+// defs AND the wall clock — which is why it still scans every time.
+//
+// `rev` is how a change to what these numbers MEAN retires the stored copies:
+// bump it, and every row falls back to one scan exactly as a row written before
+// the field existed does.
+const TERRAIN_COUNTS_REV = 1;
+
+type WaterShape = { tiles: number; lake: number; river: number };
+type TerrainCounts = { rev: number; watered: number; openWater: number; water: WaterShape };
+
+/**
+ * One tile a request changed: the type it had and the type it now has, `null`
+ * for "did not exist" / "no longer exists".
+ *
+ * A caller that changes terrain and hands these down lets the recalc adjust the
+ * stored numbers instead of re-reading the area to recount them. It is not a
+ * shortcut past the write, for the same reason `addPlacements` is not: the fold
+ * is what makes the pre-action numbers and a post-action rescan equivalent.
+ */
+export type TerrainChange = { from: string | null; to: string | null };
+
+function terrainCountsFrom(terrain: any[]): TerrainCounts {
+	return {
+		rev: TERRAIN_COUNTS_REV,
+		watered: terrain.filter((tt) => tt.type === 'watered').length,
+		// Pre-seeded starting water (the wetland's channels) is not the player's
+		// work and does not count toward health — only water they shaped does.
+		openWater: terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length,
+		water: analyzeWater(terrain),
+	};
+}
+
+const isShape = (w: any): boolean =>
+	!!w && Number.isFinite(w.tiles) && Number.isFinite(w.lake) && Number.isFinite(w.river);
+
+/**
+ * The stored terrain numbers, when this code can stand behind them — otherwise
+ * null, and the caller scans.
+ *
+ * Absent and zero are different answers here, exactly as they are for
+ * `nextMaturityAt`: a row that has never had these written (every save from
+ * before the field, and every row an admin tool or a repair pass reset) has no
+ * `terrainCounts` at all, and must be rescanned rather than read as an empty
+ * biome. A stale count here is not a slow game, it is a wrong one — it would
+ * hold an animal back from a habitat that is actually there.
+ */
+function usableTerrainCounts(prior: any, opts: any): { counts: TerrainCounts; playerWater: WaterShape } | null {
+	if (opts.terrain) return null; // the caller already read the rows — use those
+	const c = prior?.terrainCounts;
+	const pw = prior?.playerWater;
+	if (!c || c.rev !== TERRAIN_COUNTS_REV) return null;
+	if (!Number.isFinite(c.watered) || !Number.isFinite(c.openWater) || !isShape(c.water) || !isShape(pw)) return null;
+	// Every tile this request changed has to be described, or the fold has
+	// nothing to apply and would quietly carry the pre-action numbers forward. A
+	// caller that adds a delta and forgets the change beside it takes the scan.
+	const changed = (opts.addTerrain?.length || 0) + (opts.removeTerrainIds?.length || 0);
+	const described: TerrainChange[] = opts.terrainChanges || [];
+	if (changed !== described.length) return null;
+	// Open water is the one thing a tally cannot follow. `lake` and `river` are
+	// connectivity across the whole area, not counts — one new tile can join two
+	// ponds into a lake — so any change that makes or drains water takes the scan.
+	if (described.some((ch) => ch.from === 'water' || ch.to === 'water')) return null;
+	return { counts: c, playerWater: pw };
+}
+
+/** Apply a request's own terrain changes to the numbers it read from the row. */
+function foldTerrainCounts(c: TerrainCounts, changes: TerrainChange[]): TerrainCounts {
+	if (!changes.length) return c;
+	let watered = c.watered;
+	for (const ch of changes) {
+		if (ch.from === 'watered') watered--;
+		if (ch.to === 'watered') watered++;
+	}
+	return { ...c, watered: Math.max(0, watered) };
 }
 
 /** The live weather/season/day-phase context an animal's `conditions` are tested against. */
@@ -681,6 +893,25 @@ export async function recalcBiome(
 		 * mechanism this function already relies on for placements.
 		 */
 		terrain?: any[];
+		/**
+		 * What this request did to the area's tiles, one entry per row in
+		 * `addTerrain` / `removeTerrainIds` (see TerrainChange).
+		 *
+		 * Passing these is what lets the terrain numbers come off the biome row
+		 * instead of out of a fresh scan of the area. A caller that changes terrain
+		 * without describing the change still gets the right answer — it just pays
+		 * for the scan, which is what every caller paid before.
+		 */
+		terrainChanges?: TerrainChange[];
+		/**
+		 * Ignore the stored terrain numbers and re-derive them from the rows.
+		 *
+		 * For the paths that write terrain WITHOUT describing what they wrote: the
+		 * save repair that un-floods a gate, the admin tools that wipe or reseed an
+		 * area, the welcome-back beat that is the one moment a save gets looked at
+		 * end to end. Rare, and none of them is on a per-action path.
+		 */
+		fresh?: boolean;
 	} = {},
 ) {
 	const t = db();
@@ -702,36 +933,61 @@ export async function recalcBiome(
 		placements.push(ap);
 	}
 	const counts = placementCounts(placements, d);
+	// The same list tallied WITHOUT that growth gate: what is STANDING in this
+	// area, per object. The goal board's habitat steps show exactly this ("2 of 3
+	// thistle stands") and used to get it by filtering every placement in the
+	// world on every state read. It costs nothing here — this function is holding
+	// the authoritative list either way — and unlike `counts` above it depends on
+	// neither the clock nor the definitions, so it cannot drift out from under a
+	// reader between recalcs. Deliberately NOT the gated count: a step that
+	// un-ticked itself while a seedling grew would be a different game.
+	const objectCounts: Record<string, number> = {};
+	for (const p of placements) objectCounts[p.objectId] = (objectCounts[p.objectId] || 0) + 1;
 
-	// terraformed ground: each watered bed adds +1 health (capped) — tending the
-	// soil itself matters, not just the objects on it
-	let terrain = opts.terrain ?? (await byArea(t.TerrainTile, wid, biomeId));
-	if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
-	for (const at of opts.addTerrain || []) {
-		if (at.area !== biomeId) continue;
-		// replace stale same-id rows so type changes (tilled -> watered -> water)
-		// count immediately within the request that made them
-		terrain = terrain.filter((tt) => tt.id !== at.id);
-		terrain.push(at);
+	// Terraformed ground. Read the biome's own row first: what the recalc wants
+	// from an area's tiles is four numbers, they are already on the row, and they
+	// only move when the player shapes something. An action that touched no tile
+	// at all — placing an object, removing one, a heartbeat noticing a tree
+	// finish — was scanning every tile in the area to arrive back at them.
+	//
+	// The row is read here rather than at the bottom where it used to be; it is
+	// the same row the patch below writes, request-cached either way.
+	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
+	const stored = opts.fresh ? null : usableTerrainCounts(prior, opts);
+	let terrainCounts: TerrainCounts;
+	// The player-shaped water, kept on the row because the achievement sweep needs
+	// exactly this and had no way to get it without re-scanning the biome's
+	// terrain on every action anywhere in the world (see the water() note in
+	// achievements.ts).
+	let playerWater: WaterShape;
+	if (stored) {
+		terrainCounts = foldTerrainCounts(stored.counts, opts.terrainChanges || []);
+		// Only open water moves `playerWater`, and a change that touches water
+		// never reaches here — usableTerrainCounts sends it to the scan.
+		playerWater = stored.playerWater;
+	} else {
+		let terrain = opts.terrain ?? (await byArea(t.TerrainTile, wid, biomeId));
+		if (opts.removeTerrainIds?.length) terrain = terrain.filter((tt) => !opts.removeTerrainIds!.includes(tt.id));
+		for (const at of opts.addTerrain || []) {
+			if (at.area !== biomeId) continue;
+			// replace stale same-id rows so type changes (tilled -> watered -> water)
+			// count immediately within the request that made them
+			terrain = terrain.filter((tt) => tt.id !== at.id);
+			terrain.push(at);
+		}
+		terrainCounts = terrainCountsFrom(terrain);
+		playerWater = analyzeWater(terrain, true);
 	}
 	// Watered beds nudge health only a LITTLE — a few beds, half a point each — so
 	// you can't spam dig+water your way to enough health to pull animals back. Real
 	// recovery comes from placed/planted habitat; a bare bed is just a step toward
 	// planting. (Capped low on purpose.)
-	const wateredTiles = Math.min(3, terrain.filter((tt) => tt.type === 'watered').length) * 0.5;
+	const wateredTiles = Math.min(3, terrainCounts.watered) * 0.5;
 	// Pre-seeded starting water (the wetland's channels) doesn't count toward
 	// health — only water the player shapes does — so a biome begins damaged.
-	const openWaterTiles = terrain.filter((tt) => tt.type === 'water' && !tt.seeded).length;
+	const openWaterTiles = terrainCounts.openWater;
 	// rivers and lakes shaped with the watering can feed water-dwelling animals
-	const water = analyzeWater(terrain);
-	// The same analysis with the seeded starting channels excluded — what the
-	// PLAYER shaped. Stored on the row below rather than recomputed, because the
-	// achievement sweep needs exactly this and had no way to get it without
-	// re-scanning the biome's terrain on every action anywhere in the world (see
-	// the water() note in achievements.ts). It is derived from the authoritative
-	// `terrain` list this function is already holding, so persisting it costs
-	// nothing here and removes a whole-area scan from every action there.
-	const playerWater = analyzeWater(terrain, true);
+	const water = terrainCounts.water;
 
 	// tended soil beds are worth 1 restoration point each, on the same slow curve
 	const now = Date.now();
@@ -813,15 +1069,16 @@ export async function recalcBiome(
 	}
 
 	const returnedCount = returnedHere();
-	const prior = await findBiomeState(t.BiomeState, wid, biomeId);
 	const bsId = prior?.id ?? `${wid}:${biomeId}`;
-	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater });
+	await t.BiomeState.patch(bsId, { health, balance, returnedCount, playerWater, terrainCounts, objectCounts });
 	const biomeState = {
 		...(prior || { id: bsId, worldId: wid, playerId, biomeId, unlocked: biomeId === 'meadow' }),
 		health,
 		balance,
 		returnedCount,
 		playerWater,
+		terrainCounts,
+		objectCounts,
 	};
 
 	// Feed the daily task board: positive health gains and newly returned

@@ -68,7 +68,17 @@ export function TasksWidget() {
 	}, []);
 
 	if (!data || !state) return null;
-	const tasks = state.dailyTasks?.tasks || [];
+	// Indoors, the pinned "unlock <biome>" milestone drops off the board.
+	//
+	// Every step it lists — restore a biome, craft the kit, walk to the gate — is
+	// out in the preserve, so inside the house or a trail tent it is a signpost
+	// pointing at a door you are standing behind. It is not claimable and cannot
+	// move while you are in here, and it was the only thing on the board often
+	// enough that the collapsed pill read "0/1" at a player who had come indoors
+	// to decorate. It comes back the moment you step outside.
+	const area = state.player.area || 'meadow';
+	const indoors = area === 'home' || area.startsWith('tent-');
+	const tasks = (state.dailyTasks?.tasks || []).filter((task) => !(indoors && task.kind === 'unlock'));
 	const open = tasks.filter((task) => !task.claimed);
 	if (!open.length) return null; // all claimed (or no board) — out of the way until tomorrow
 

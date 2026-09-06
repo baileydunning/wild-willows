@@ -3,17 +3,24 @@ import { useGame } from '../state';
 import type { AchievementDef } from '../types';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
+import { AchievementGlyph } from './achievementArt';
+import { CompletionView, completionGroups, overallCompletion } from './Completion';
 
 /**
  * The Achievements menu (K). Its own panel — a running scoreboard for the whole
- * preserve. A shared star badge frames each achievement's own unique glyph:
- * gold when earned, hollow when still locked. Earned ones float to the top of
+ * preserve. Each achievement shows the preserve's own art — the same sprite the
+ * world draws (see achievementArt) — in a round badge: in colour with a gold
+ * star sealed to it when earned, drained to grey while still locked. Earned ones float to the top of
  * the list (most-recently unlocked first, since the snapshot is earned-ordered).
  */
+/** The menu's two halves: the achievement list, and the completion tracker. */
+type View = 'achievements' | 'completion';
+
 export function AchievementsPanel() {
 	const { data, state, setPanel } = useGame();
 	const { t, content } = useI18n();
 	const [tab, setTab] = useState<string>('all');
+	const [view, setView] = useState<View>('achievements');
 	if (!data || !state) return null;
 
 	// Turn an achievement's structured criteria into an exact, plain-language
@@ -169,11 +176,17 @@ export function AchievementsPanel() {
 	const earnedSet = new Set(earnedIds);
 	const earnedRank = new Map(earnedIds.map((id, i) => [id, i])); // 0 = most recent
 
+	// The percentage on the switch is the tracker's own headline, computed from the
+	// same rows — one source, so the two can never disagree by a point.
+	const completionPct = Math.round(overallCompletion(completionGroups(data, state, t)) * 100);
+
 	const totalEarned = earnedSet.size;
 	const total = all.length;
 	const points = all.reduce((sum, a) => sum + (earnedSet.has(a.id) ? a.points : 0), 0);
 
-	// Tabs: All, Preserve (getting-started + cross-biome), then each biome in order.
+	// Tabs: All, Preserve (getting-started + cross-biome), then each biome in
+	// order. One scrolling row rather than a wrapping block, so the strip is a
+	// fixed height however many areas the preserve grows to.
 	const biomes = [...data.biomes].sort((a, b) => a.order - b.order);
 	const tabs: { id: string; label: string }[] = [
 		{ id: 'all', label: t('panels.achievements.tabAll') },
@@ -184,12 +197,28 @@ export function AchievementsPanel() {
 	const inTab = (a: AchievementDef) =>
 		tab === 'all' ? true : tab === 'preserve' ? a.biome === 'preserve' : a.biome === tab;
 
+	// How far along a locked achievement is, 0..1 — the same numbers the card
+	// shows. Anything not measurable client-side (the lake) sorts as untouched
+	// rather than as finished.
+	const nearness = (a: AchievementDef) => {
+		const p = a.req ? reqProgress(a.req) : null;
+		if (!p || p.target <= 0) return 0;
+		return Math.min(1, Math.max(0, p.cur / p.target));
+	};
+
 	const shown = all.filter(inTab).sort((a, b) => {
 		const ea = earnedSet.has(a.id),
 			eb = earnedSet.has(b.id);
 		if (ea !== eb) return ea ? -1 : 1; // earned first
 		if (ea && eb) return earnedRank.get(a.id)! - earnedRank.get(b.id)!; // newest first
-		return a.order - b.order; // locked: stable by order
+		// Locked: closest to done first. Sorting these by authoring order put the
+		// ones needing a biome you haven't opened above the one sitting at 9/10 —
+		// so the list opened on things you cannot do yet. Nearness answers the
+		// question a player actually has here, which is "what's next?".
+		const na = nearness(a),
+			nb = nearness(b);
+		if (na !== nb) return nb - na;
+		return a.order - b.order; // untouched: stable by authoring order
 	});
 
 	const tabCount = (id: string) => {
@@ -203,59 +232,96 @@ export function AchievementsPanel() {
 				<div className="panel-head">
 					<h2>
 						<Icon name="star" size={20} /> {t('panels.achievements.title')}{' '}
-						<span className="muted small">
-							{t('panels.achievements.summary', { earned: totalEarned, total, points })}
-						</span>
+						{/* The points total belongs to the achievement half; the switch below
+						    already carries each view's own count, so this is the one number
+						    that would otherwise have nowhere to live. */}
+						{view === 'achievements' && (
+							<span className="muted small">
+								{t('panels.achievements.summary', { earned: totalEarned, total, points })}
+							</span>
+						)}
 					</h2>
 					<button className="icon-btn" onClick={() => setPanel(null)} aria-label={t('panels.common.close')}>
 						<Icon name="close" />
 					</button>
 				</div>
-				<div className="ach-progress">
-					<div className="ach-progress-fill" style={{ width: `${Math.round((totalEarned / (total || 1)) * 100)}%` }} />
+				{/* The switch carries each side's headline number, so the tracker is
+				    visible as a thing that exists — and as a figure worth a look — from
+				    the achievement list, without the two sharing the panel. */}
+				<div className="ach-views">
+					<button
+						className={view === 'achievements' ? 'on' : ''}
+						onClick={() => setView('achievements')}
+						aria-pressed={view === 'achievements'}
+					>
+						<Icon name="star" size={16} />
+						{t('panels.achievements.viewAchievements')}
+						<span className="muted small">
+							{totalEarned}/{total}
+						</span>
+					</button>
+					<button
+						className={view === 'completion' ? 'on' : ''}
+						onClick={() => setView('completion')}
+						aria-pressed={view === 'completion'}
+					>
+						<Icon name="target" size={16} />
+						{t('panels.achievements.viewCompletion')}
+						<span className="muted small">{completionPct}%</span>
+					</button>
 				</div>
-				<div className="tabs">
-					{tabs.map((tt) => (
-						<button key={tt.id} className={tab === tt.id ? 'on' : ''} onClick={() => setTab(tt.id)}>
-							{tt.label} <span className="muted small">{tabCount(tt.id)}</span>
-						</button>
-					))}
-				</div>
-				<div className="panel-body">
-					<div className="ach-grid">
-						{shown.map((a) => {
-							const earned = earnedSet.has(a.id);
-							return (
-								<div key={a.id} className={`ach-card ${earned ? 'earned' : 'locked'}`}>
-									<div className="ach-badge">
-										<Icon name="star" size={44} className="ach-star" />
-										<span className="ach-glyph">
-											<Icon name={a.icon} size={20} />
-										</span>
-									</div>
-									<div className="grow">
-										<div className="ach-name">
-											{content('achievement', a.id, 'name', a.name)}
-											{earned && <span className="ach-pts">+{a.points}</span>}
-										</div>
-										{earned ? (
-											<div className="small ach-flavor">{content('achievement', a.id, 'flavor', a.flavor)}</div>
-										) : a.req ? (
-											// Exact requirement + live progress, inline so it's always visible
-											// (a hover tooltip clipped against the scrolling panel's edges).
-											<div className="ach-req-inline small">
-												<span className="ach-req-text">{reqText(a.req)}</span>
-												{progressText(a.req) && <span className="ach-req-progress">{progressText(a.req)}</span>}
-											</div>
-										) : (
-											<div className="muted small">{content('achievement', a.id, 'hint', a.hint)}</div>
-										)}
-									</div>
-								</div>
-							);
-						})}
+				{view === 'completion' ? (
+					<div className="panel-body">
+						<CompletionView />
 					</div>
-				</div>
+				) : (
+					<>
+						<div className="tabs tabs-scroll">
+							{tabs.map((tt) => (
+								<button key={tt.id} className={tab === tt.id ? 'on' : ''} onClick={() => setTab(tt.id)}>
+									{tt.label} <span className="muted small">{tabCount(tt.id)}</span>
+								</button>
+							))}
+						</div>
+						<div className="panel-body">
+							<div className="ach-grid">
+								{shown.map((a) => {
+									const earned = earnedSet.has(a.id);
+									return (
+										<div key={a.id} className={`ach-card ${earned ? 'earned' : 'locked'}`}>
+											{/* The picture leads; the star is the little gold seal an earned
+											    one gets, rather than a frame competing with the art inside it. */}
+											<div className="ach-badge">
+												<span className="ach-glyph">
+													<AchievementGlyph icon={a.icon} size={38} />
+												</span>
+												{earned && <Icon name="star" size={15} className="ach-star" />}
+											</div>
+											<div className="grow">
+												<div className="ach-name">
+													{content('achievement', a.id, 'name', a.name)}
+													{earned && <span className="ach-pts">+{a.points}</span>}
+												</div>
+												{earned ? (
+													<div className="small ach-flavor">{content('achievement', a.id, 'flavor', a.flavor)}</div>
+												) : a.req ? (
+													// Exact requirement + live progress, inline so it's always visible
+													// (a hover tooltip clipped against the scrolling panel's edges).
+													<div className="ach-req-inline small">
+														<span className="ach-req-text">{reqText(a.req)}</span>
+														{progressText(a.req) && <span className="ach-req-progress">{progressText(a.req)}</span>}
+													</div>
+												) : (
+													<div className="muted small">{content('achievement', a.id, 'hint', a.hint)}</div>
+												)}
+											</div>
+										</div>
+									);
+								})}
+							</div>
+						</div>
+					</>
+				)}
 			</div>
 		</div>
 	);

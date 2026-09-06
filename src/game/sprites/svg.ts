@@ -5,6 +5,7 @@
 // sprite definition draws both, and the journal can never drift from the world.
 
 import { hexOf } from './canvas';
+import type { G, SpriteDef } from './canvas';
 
 export class SvgGraphics {
 	parts: string[] = [];
@@ -85,9 +86,33 @@ export class SvgGraphics {
 		);
 		return this;
 	}
+	strokeRect(x: number, y: number, w: number, h: number) {
+		this.parts.push(
+			`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="none" stroke="${this.stroke}" stroke-opacity="${this.strokeA}" stroke-width="${this.sw}"/>`,
+		);
+		return this;
+	}
+	fillPoints(points: { x: number; y: number }[]) {
+		const pts = points.map((p) => `${p.x},${p.y}`).join(' ');
+		this.parts.push(`<polygon points="${pts}" fill="${this.fill}" fill-opacity="${this.fillA}"/>`);
+		return this;
+	}
 	toSvg(w: number, h: number) {
 		return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${this.parts.join('')}</svg>`;
 	}
+}
+
+/**
+ * Any sprite definition — object, tool, guide, emblem — rendered to an SVG data
+ * URI for the DOM. Same draw commands the world rasterizes into a texture, so a
+ * picture in a menu can never drift from the thing it stands for. `tint` fills
+ * in for white in trait-built sprites; `override` paints the whole thing one
+ * colour (the journal's not-yet-discovered silhouette).
+ */
+export function spriteDataUri(s: SpriteDef, opts: { tint?: string | null; override?: string | null } = {}): string {
+	const g = new SvgGraphics(opts.tint ?? null, opts.override ?? null);
+	s.draw(g as unknown as G);
+	return 'data:image/svg+xml;base64,' + btoa(g.toSvg(s.w, s.h));
 }
 
 /**

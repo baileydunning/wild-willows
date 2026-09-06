@@ -193,6 +193,13 @@ button.on {
 	color: var(--on-accent);
 	border-color: var(--green);
 }
+/* A selected filter carries its own count in a `.muted` span, and muted means
+   --ink-soft — which is a low-contrast grey sitting on a saturated green fill.
+   Anything muted inside a selected button reads against the fill instead. */
+button.on .muted {
+	color: var(--on-accent);
+	opacity: 0.78;
+}
 button.link {
 	background: none;
 	border: none;
@@ -1143,14 +1150,301 @@ input {
 	flex-wrap: wrap;
 	gap: 4px;
 }
+/* Four of these sit on one row and were what forced the whole card wide — so
+   they are the smallest thing on it, and they wrap rather than stretch it. */
 .hud-home-track {
-	font-size: calc(10.5px * var(--ui-scale));
+	font-size: calc(9.5px * var(--ui-scale));
 	color: var(--ink-soft);
 	background: var(--tint-leaf);
-	border: 1px solid rgba(122, 168, 90, 0.3);
+	border: 1px solid rgba(122, 168, 90, 0.28);
 	border-radius: 999px;
-	padding: 1px 7px;
+	padding: 0.5px 6px;
 	white-space: nowrap;
+}
+/* A track at its last level reads as finished rather than as one more number —
+   by weight and depth, not by a second colour. */
+.hud-home-track.maxed {
+	color: var(--green-deep);
+	background: var(--tint-leaf-strong);
+	border-color: rgba(122, 168, 90, 0.55);
+	font-weight: 700;
+}
+
+/* ---- coziness meter (Your Home card) ----
+   ONE COLOUR FAMILY, on purpose. The rungs differ by how much of the bar is
+   filled and what it is called — not by hue. A meter that turns amber at the
+   top reads as a warning on a card that is otherwise entirely green, and the
+   room getting cozier is not a warning. The only thing that shifts is depth:
+   pale leaf at the bottom, deep forest at Beloved. */
+/* A <button>, so the hover detail is reachable by keyboard — reset to look like
+   the panel of information it is rather than like a control. */
+.hud-cozy {
+	--cozy-accent: var(--green-2);
+	position: relative;
+	margin-top: 5px;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+	width: 100%;
+	padding: 0;
+	border: 0;
+	background: none;
+	font: inherit;
+	text-align: left;
+	cursor: help;
+}
+.hud-cozy:focus-visible,
+.hud-buff:focus-visible {
+	outline: 2px solid var(--green);
+	outline-offset: 2px;
+}
+.hud-cozy.tier-bare {
+	--cozy-accent: #b8b3a0;
+}
+.hud-cozy.tier-snug,
+.hud-cozy.tier-cozy {
+	--cozy-accent: var(--green);
+}
+.hud-cozy.tier-beloved {
+	--cozy-accent: var(--green-deep);
+}
+.hud-cozy-head {
+	display: flex;
+	align-items: baseline;
+	gap: 6px;
+	font-size: calc(11px * var(--ui-scale));
+	color: var(--cozy-accent);
+}
+.hud-cozy-head b {
+	font-family: var(--font-display);
+	letter-spacing: 0.2px;
+}
+.hud-cozy-count {
+	margin-left: auto;
+	font-size: calc(10px * var(--ui-scale));
+	color: var(--ink-soft);
+	font-weight: 600;
+}
+.hud-cozy-track {
+	position: relative;
+	height: 6px;
+	border-radius: 999px;
+	background: var(--track);
+	overflow: hidden;
+}
+.hud-cozy-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: var(--cozy-accent);
+	transition: width 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+/* The rungs above you, marked on the track — the next one is a place you can
+   see rather than a number you have to be told. Notched OUT of the bar (the
+   card's own surface colour) rather than drawn on top in a third colour. */
+.hud-cozy-notch {
+	position: absolute;
+	top: 0;
+	width: 2px;
+	height: 100%;
+	background: var(--surface-float-solid);
+	transform: translateX(-50%);
+}
+
+/* ---- buff chips ----
+   Terse on the card ("Green Thumb 37%") with the detail one hover away, rather
+   than crammed on or hidden in a native title. Focusable, so it isn't
+   mouse-only. */
+.hud-home-buffs {
+	margin-top: 5px;
+	display: flex;
+	flex-wrap: wrap;
+	gap: 4px;
+}
+.hud-buff {
+	position: relative;
+	font-family: inherit;
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	font-size: calc(10.5px * var(--ui-scale));
+	border-radius: 999px;
+	padding: 1.5px 8px;
+	white-space: nowrap;
+	background: var(--tint-leaf);
+	border: 1px solid rgba(122, 168, 90, 0.3);
+	color: var(--green-deep);
+	font-weight: 600;
+	cursor: help;
+	outline: none;
+}
+.hud-buff b {
+	font-weight: 800;
+}
+.hud-buff:hover,
+.hud-buff:focus-visible {
+	background: var(--tint-leaf-strong);
+	border-color: var(--green);
+}
+/* The rested chip is the one thing on the card that is temporary, so it is the
+   one thing allowed a different colour — otherwise there is no way to tell a
+   buff that expires at noon from one you own outright. */
+.hud-buff-rested {
+	background: var(--tint-gold);
+	border-color: rgba(201, 145, 63, 0.4);
+	/* The one literal in this block; --gold is tuned to sit ON a dark surface,
+	   not under dark ink, so the dark theme repoints this below. */
+	color: #8a5f1d;
+}
+.hud-buff-rested:hover,
+.hud-buff-rested:focus-visible {
+	background: rgba(201, 145, 63, 0.2);
+	border-color: rgba(201, 145, 63, 0.65);
+}
+
+/* The hover card itself. Shared by the buff chips and the coziness meter. */
+.hud-buff-pop {
+	position: absolute;
+	top: calc(100% + 6px);
+	left: 0;
+	z-index: 40;
+	width: max-content;
+	max-width: 250px;
+	display: none;
+	flex-direction: column;
+	gap: 3px;
+	padding: 8px 10px;
+	border-radius: 12px;
+	background: var(--surface-float-solid);
+	border: 1.5px solid var(--line);
+	box-shadow: 0 6px 20px rgba(33, 41, 25, 0.28);
+	font-size: calc(11px * var(--ui-scale));
+	font-weight: 500;
+	line-height: 1.45;
+	color: var(--ink);
+	white-space: normal;
+	text-align: left;
+	pointer-events: none;
+}
+.hud-buff-pop b {
+	font-weight: 700;
+	color: var(--green-deep);
+}
+.hud-buff-pop .pop-rule {
+	margin-top: 3px;
+	padding-top: 4px;
+	border-top: 1px solid var(--line);
+	color: var(--ink-soft);
+}
+.hud-buff:hover .hud-buff-pop,
+.hud-buff:focus-visible .hud-buff-pop,
+.hud-cozy:hover .hud-buff-pop,
+.hud-cozy:focus-visible .hud-buff-pop {
+	display: flex;
+}
+.hud-cozy-pop {
+	top: calc(100% + 4px);
+}
+
+/* Why these two need a z-index of their own.
+ *
+ * The meter and the chips are <button>s so the hover card is reachable by
+ * keyboard — and the global `button:hover` lift applies a transform to them. A
+ * transform makes an element a STACKING CONTEXT, which traps the card's
+ * `z-index: 40` inside the button it belongs to. The button itself is then just
+ * another `z-index: auto` positioned element, and the chips come after the meter
+ * in the DOM, so a chip painted straight THROUGH an opaque hover card: two lines
+ * of text on top of each other. Raising the whole host while it is showing its
+ * card puts it — and the card trapped inside it — above its siblings.
+ *
+ * The meter also cancels the lift and the hover fill. It is a button for reach,
+ * not because it is a control, and a panel of information that jumps a pixel and
+ * changes color under the pointer reads as something you were meant to click. */
+.hud-cozy:hover,
+.hud-cozy:focus-within,
+.hud-buff:hover,
+.hud-buff:focus-within {
+	z-index: 41;
+}
+.hud-cozy:hover:not(:disabled) {
+	transform: none;
+	background: none;
+}
+
+/* With room beside the HUD column, the coziness card opens to the RIGHT of it
+ * rather than dropping over the buff chips and the task list underneath. It is
+ * the tallest card on the screen and it lands on exactly the two numbers you
+ * would be reading it against. Below that width there is nowhere to put it, so
+ * it drops as before — covering, now, rather than tangling. The meter is the
+ * full width of the card, so `100%` is the card's own right edge. */
+@media (min-width: 901px) {
+	.hud-cozy-pop {
+		top: 0;
+		left: calc(100% + 10px);
+	}
+}
+
+/* Reaching a rung flashes the meter itself rather than firing a toast — the
+   moment happens the instant the lamp lands, and the reward should be on the
+   thing you were already looking at. */
+.hud-cozy.cozy-flash .hud-cozy-head {
+	animation: cozy-pop 1.6s ease-out;
+}
+.hud-cozy.cozy-flash .hud-cozy-track {
+	animation: cozy-glow 1.6s ease-out;
+}
+@keyframes cozy-pop {
+	0% {
+		transform: scale(1);
+	}
+	22% {
+		transform: scale(1.1);
+	}
+	45% {
+		transform: scale(1);
+	}
+}
+@keyframes cozy-glow {
+	0%,
+	100% {
+		box-shadow: 0 0 0 0 transparent;
+	}
+	30% {
+		box-shadow: 0 0 0 3px color-mix(in srgb, var(--cozy-accent) 40%, transparent);
+	}
+}
+@media (prefers-reduced-motion: reduce) {
+	.hud-cozy-fill {
+		transition: none;
+	}
+	.hud-cozy.cozy-flash .hud-cozy-head,
+	.hud-cozy.cozy-flash .hud-cozy-track {
+		animation: none;
+	}
+}
+
+/* Floor-plan sketches on the Space track: the plan you live in, and the one the
+   next upgrade buys. Space stopped meaning "the same room, wider", so the menu
+   has to show the shape and not just quote a level number. */
+.home-plans {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 14px;
+	margin: 6px 0 2px;
+}
+.home-plans figure {
+	margin: 0;
+	display: flex;
+	align-items: center;
+	gap: 8px;
+}
+.home-plans figcaption {
+	display: flex;
+	flex-direction: column;
+	line-height: 1.35;
+}
+.home-plan {
+	display: block;
+	border-radius: 3px;
 }
 
 .hud-weather {
@@ -1557,28 +1851,13 @@ input {
 }
 
 /* ---- Achievements panel ---- */
-.ach-progress {
-	height: 6px;
-	margin: 8px 20px 0;
-	border-radius: 999px;
-	background: var(--paper-2);
-	overflow: hidden;
-}
-.ach-progress-fill {
-	height: 100%;
-	background: var(--gold);
-	border-radius: 999px;
-	transition: width 0.4s ease;
-}
+/* Sized off the column it sits in rather than the viewport: the list shares the
+   panel with the completion rail now, so a viewport-width media query would have
+   kept two columns in a space only wide enough for one. */
 .ach-grid {
 	display: grid;
-	grid-template-columns: 1fr 1fr;
+	grid-template-columns: repeat(auto-fill, minmax(258px, 1fr));
 	gap: 9px;
-}
-@media (max-width: 620px) {
-	.ach-grid {
-		grid-template-columns: 1fr;
-	}
 }
 .ach-card {
 	position: relative;
@@ -1601,29 +1880,38 @@ input {
 	border-color: rgba(201, 145, 63, 0.55);
 	background: linear-gradient(180deg, rgba(201, 145, 63, 0.1), var(--paper));
 }
-/* "Locked" look WITHOUT opacity on the card — opacity would also fade the
-   requirement tooltip (a child can't be more opaque than its parent). Mute the
-   badge and title instead; the tooltip stays crisp and fully opaque. */
-.ach-card.locked .ach-badge {
-	opacity: 0.7;
-}
-.ach-card.locked .ach-name {
-	color: var(--ink-soft);
-}
+/* The achievement's own picture, in a round badge: a game sprite (see
+   ui/achievementArt), not a line glyph. */
 .ach-badge {
 	position: relative;
 	flex: none;
-	width: 46px;
-	height: 46px;
+	width: 52px;
+	height: 52px;
 	display: grid;
 	place-items: center;
+	border-radius: 50%;
+	background: rgba(132, 130, 110, 0.09);
+	box-shadow: inset 0 0 0 1.5px var(--line);
 }
+.ach-card.earned .ach-badge {
+	background: rgba(201, 145, 63, 0.16);
+	box-shadow: inset 0 0 0 1.5px rgba(201, 145, 63, 0.55);
+}
+/* "Locked" look WITHOUT opacity on the CARD — that would fade the requirement
+   tooltip too (a child can't be more opaque than its parent). Mute the badge and
+   the title instead, and let the picture drain to grey below, so earning one
+   reads as colour arriving. */
+.ach-card.locked .ach-badge {
+	opacity: 0.85;
+}
+/* The gold seal an earned badge gets, tucked on its rim. */
 .ach-badge .ach-star {
-	color: var(--line);
-}
-.ach-card.earned .ach-badge .ach-star {
+	position: absolute;
+	right: -2px;
+	bottom: -1px;
 	color: var(--gold);
-	fill: rgba(201, 145, 63, 0.22);
+	fill: var(--gold);
+	filter: drop-shadow(0 0 1.5px var(--paper)) drop-shadow(0 0 1.5px var(--paper));
 }
 .ach-glyph {
 	position: absolute;
@@ -1634,6 +1922,21 @@ input {
 }
 .ach-card.earned .ach-glyph {
 	color: var(--green-deep);
+}
+/* The badge's picture is a game sprite, not a line glyph: every aspect ratio the
+   world draws, contained in the badge. A hair of shadow lifts a pale sprite
+   (shell, snowbank) off the gold wash behind it. */
+.ach-glyph .ach-art {
+	display: block;
+	max-width: 38px;
+	max-height: 38px;
+	filter: drop-shadow(0 1px 0.5px rgba(58, 46, 32, 0.25));
+}
+.ach-card.locked .ach-glyph .ach-art {
+	filter: grayscale(1) opacity(0.85);
+}
+.ach-card.locked .ach-name {
+	color: var(--ink-soft);
 }
 .ach-name {
 	font-weight: 700;
@@ -1667,6 +1970,186 @@ input {
 .ach-req-progress {
 	font-weight: 700;
 	color: var(--green-deep, #4a7a3a);
+}
+
+/* ---- Achievements: the two views ----
+   The menu holds two different questions — "what did I do?" and "what is left?"
+   — and they do not belong on screen at once. A switch sits above the filter row
+   with each view's own headline number on it, so the tracker advertises itself
+   from the achievement side instead of hiding behind a tab at the end of a row
+   of eight.
+
+   It is built from the SAME pill as the filters below it and shares their left
+   and right insets, so the two rows line up edge to edge and read as one stack
+   of controls. (It used to be a segmented control in a padded tray: the tray was
+   flush with the panel but every button inside it started 3px further in, so
+   nothing below it lined up with anything above it.) The switch stays the louder
+   of the two by taking the full width in halves. */
+.ach-views {
+	display: flex;
+	gap: 8px;
+	padding: 12px 20px 0;
+}
+.ach-views button {
+	flex: 1;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 7px;
+	padding: 9px 14px;
+	border-radius: 13px;
+	font-weight: 700;
+	font-size: calc(13px * var(--ui-scale));
+}
+
+/* ---- Completion tracker (Achievements ▸ Completion) ----
+   A column of countable tracks. Everything is drawn from theme tokens so the
+   dark palette needs no counterpart rules: the dial's ring, the bar troughs and
+   the "finished" gold all resolve through :root. */
+.comp {
+	display: flex;
+	flex-direction: column;
+	gap: 12px;
+}
+.comp-headline {
+	display: flex;
+	align-items: center;
+	gap: 18px;
+	padding: 16px 18px;
+	border: 1px solid var(--line);
+	border-radius: 14px;
+	background: linear-gradient(180deg, var(--tint-leaf), var(--paper));
+}
+/* The ring is one conic gradient masked by a disc of panel paper — no SVG, no
+   second element, and it reads correctly at any --ui-scale. */
+.comp-dial {
+	--comp-pct: 0%;
+	position: relative;
+	flex: none;
+	width: 82px;
+	height: 82px;
+	border-radius: 50%;
+	display: grid;
+	place-items: center;
+	background: conic-gradient(var(--green) var(--comp-pct), var(--track) 0);
+	transition: background 0.4s ease;
+}
+.comp-dial::before {
+	content: '';
+	position: absolute;
+	inset: 9px;
+	border-radius: 50%;
+	background: var(--paper);
+}
+.comp-dial-num {
+	position: relative;
+	font-weight: 700;
+	font-size: calc(19px * var(--ui-scale));
+	color: var(--green-deep);
+}
+.comp-headline-title {
+	font-weight: 700;
+	font-size: calc(16px * var(--ui-scale));
+}
+/* Each group is its own card: five calm blocks rather than one long list of
+   bars, which is what made the first pass read as crowded. */
+.comp-group {
+	display: flex;
+	flex-direction: column;
+	gap: 13px;
+	padding: 13px 15px 15px;
+	border: 1px solid var(--line);
+	border-radius: 13px;
+	background: var(--cream);
+}
+/* Scoped to .comp so it outranks `.panel-body h3`, whose 16px top margin would
+   double up on the flex gap that already separates the groups. */
+.comp .comp-group-title {
+	margin: 0;
+	font-size: calc(12px * var(--ui-scale));
+	letter-spacing: 0.06em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+	display: block;
+}
+.comp-row {
+	display: flex;
+	align-items: flex-start;
+	gap: 10px;
+}
+.comp-row-icon {
+	flex: none;
+	width: 24px;
+	display: grid;
+	place-items: center;
+	color: var(--ink-soft);
+	padding-top: 1px;
+}
+/* A finished track is the SAME green, filled — completion is not a different
+   kind of progress, so it does not get a different colour. What changes is the
+   check in place of the track icon and the count going solid instead of muted.
+   (Gold belongs to earned achievements; borrowing it here read as an unrelated
+   second meaning halfway down the same bar.) */
+.comp-row.done .comp-row-icon {
+	color: var(--green);
+}
+.comp-row-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	min-width: 0;
+}
+.comp-row-label {
+	font-weight: 600;
+	font-size: calc(13.5px * var(--ui-scale));
+}
+.comp-row-count {
+	flex: none;
+	font-weight: 700;
+	font-size: calc(12px * var(--ui-scale));
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
+}
+.comp-row.done .comp-row-count {
+	color: var(--green);
+}
+.comp-bar {
+	height: 6px;
+	margin-top: 5px;
+	border-radius: 999px;
+	background: var(--track);
+	overflow: hidden;
+}
+.comp-bar-fill {
+	height: 100%;
+	border-radius: 999px;
+	background: var(--green);
+	transition: width 0.4s ease;
+}
+/* Per-area lines: a thin ledger under the tracks, not a second card grid. */
+.comp-area {
+	display: flex;
+	align-items: center;
+	gap: 9px;
+	padding: 7px 0;
+	border-bottom: 1px solid var(--line);
+}
+.comp-area:last-child {
+	border-bottom: 0;
+}
+.comp-area.locked .comp-area-name,
+.comp-area.locked .comp-row-icon {
+	color: var(--ink-soft);
+}
+.comp-area-name {
+	font-weight: 600;
+	font-size: calc(13px * var(--ui-scale));
+}
+.comp-area-stats {
+	margin-left: auto;
+	font-variant-numeric: tabular-nums;
+	color: var(--ink-soft);
 }
 
 /* ---- biome lore + coexistence notes ---- */
@@ -1754,6 +2237,33 @@ input {
 .home-perk-card {
 	background: var(--paper-2);
 	border-color: var(--green-deep);
+}
+
+/* What the house can DO — the named abilities the late upgrade levels switch on
+   (src/homeAbilities.ts). A quiet list under the perk card: they are things you
+   already have, so they read rather than shout. The copy on a track row
+   (.home-ability-next) is the same line about a level you have NOT bought yet,
+   which is why it sits inset against the price below it. */
+.home-abilities {
+	display: flex;
+	flex-direction: column;
+	gap: 4px;
+	margin: 8px 0 2px;
+}
+.home-ability {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	font-size: 0.86em;
+	line-height: 1.35;
+	color: var(--violet);
+}
+.home-ability svg {
+	flex: none;
+	margin-top: 2px;
+}
+.home-ability-next {
+	margin: 4px 0 2px;
 }
 
 /* ---- Feed panel (F) ---- */
@@ -2686,6 +3196,12 @@ input {
 	padding: 12px 20px 14px;
 	-webkit-overflow-scrolling: touch;
 	scroll-snap-type: x proximity;
+	/* Snapping measures from the SCROLLPORT edge, not the padding box: with a row
+	   that overflows, the first tab snapped its own left edge to the row's border
+	   edge, which scrolled the 20px of padding-left away and left the row sitting
+	   flush against the panel while everything above and below it was inset. This
+	   inset tells the snap where the content really starts. */
+	scroll-padding: 0 20px;
 	border-bottom: 1.5px solid var(--line);
 	scrollbar-width: none;
 	-ms-overflow-style: none;
@@ -2804,6 +3320,52 @@ input {
 .req-details ul {
 	margin: 3px 0 0 18px;
 	padding: 0;
+}
+
+/* The expanded guide's habitat list, as a checklist: every line is something the
+   animal needs, and a ticked box is something you already have out there. It
+   borrows the task-step boxes rather than inventing a second kind of checkbox,
+   so a tick means the same thing here as it does on the task list.
+
+   Unticked lines keep normal ink — this is the entry's main content, not a
+   sub-note, and .tasks-step's muted grey would push the work still to do into
+   the background. */
+.req-checklist {
+	list-style: none;
+	margin: 4px 0 0;
+	padding: 0;
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+.req-checklist .tasks-step {
+	font-size: inherit;
+	color: var(--ink);
+	align-items: flex-start;
+	white-space: normal;
+}
+.req-checklist .tasks-step.done {
+	color: var(--green-2, #6aa253);
+}
+.req-checklist .tasks-step-box {
+	margin-top: 2px;
+}
+/* How far along a countable line is — "now 18%", "2/3". Only printed while the
+   line is still open, so it never competes with a tick. */
+.req-step-tail {
+	color: var(--ink-soft);
+}
+/* When to look, rather than what to gather. */
+.req-when {
+	margin: 5px 0 0;
+	color: var(--ink-soft);
+	display: flex;
+	align-items: flex-start;
+	gap: 5px;
+}
+.req-when svg {
+	flex-shrink: 0;
+	margin-top: 2px;
 }
 
 /* "Before you look" — the one prediction the expanded guide asks for before it
@@ -3277,6 +3839,265 @@ input {
 	color: var(--green);
 }
 
+/* ---- Board of Finds: the pin board hung in the house ----
+   Cards pinned to a board, not rows in a table. The board ground is a shade
+   DARKER than the panel (--paper-2 under --cream cards) — on the panel's own
+   colour the cards vanished into it and the whole thing read as a list with too
+   much air. Everything here comes from the theme variables, so dark mode and the
+   contrast modes are already handled. */
+.finds-body {
+	display: flex;
+	flex-direction: column;
+	gap: 11px;
+}
+.finds-summary {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+}
+.finds-count {
+	margin: 0;
+	font-size: calc(13.5px * var(--ui-scale));
+	font-weight: 700;
+}
+.finds-tallies {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+.finds-tally {
+	background: var(--tint-leaf);
+	border-radius: 999px;
+	padding: 2px 9px;
+	font-size: calc(11px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+.finds-tally b {
+	color: var(--ink);
+}
+/* the board itself */
+.finds-board {
+	display: flex;
+	flex-direction: column;
+	gap: 9px;
+	background: var(--paper-2);
+	border: 1.5px solid var(--line);
+	border-radius: 14px;
+	padding: 10px;
+}
+.finds-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fill, minmax(126px, 1fr));
+	gap: 8px;
+}
+.finds-note {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+	text-align: center;
+	color: var(--ink);
+	background: var(--cream);
+	border: 1.5px solid var(--line);
+	border-radius: 4px 4px 10px 10px;
+	padding: 14px 7px 8px;
+	cursor: pointer;
+	box-shadow: 0 1px 2px rgba(43, 51, 33, 0.09);
+	transition:
+		border-color 0.12s,
+		box-shadow 0.12s,
+		transform 0.06s;
+}
+.finds-note:hover {
+	border-color: var(--green);
+	box-shadow: 0 3px 8px rgba(43, 51, 33, 0.14);
+	transform: translateY(-1px);
+}
+/* the tack holding the card to the board */
+.finds-pin {
+	position: absolute;
+	top: 5px;
+	left: 50%;
+	transform: translateX(-50%);
+	width: 9px;
+	height: 9px;
+	border-radius: 50%;
+	background: radial-gradient(circle at 33% 30%, #e79aa2, var(--rose) 62%);
+	box-shadow: 0 1px 2px rgba(43, 51, 33, 0.4);
+}
+.finds-thumb {
+	width: 58px;
+	height: 58px;
+	object-fit: contain;
+	flex: none;
+}
+/* Stretches so the badge row lands on the same line on every card in a row —
+   a two-line species name must not push its own footer out of alignment. */
+.finds-note-text {
+	display: flex;
+	flex: 1;
+	flex-direction: column;
+	align-items: center;
+	gap: 2px;
+	min-width: 0;
+}
+.finds-name {
+	font-weight: 700;
+	font-size: calc(12.5px * var(--ui-scale));
+	line-height: 1.2;
+}
+.finds-where {
+	font-weight: 400;
+	font-size: calc(10.5px * var(--ui-scale));
+	color: var(--ink-soft);
+	line-height: 1.3;
+}
+.finds-foot {
+	display: flex;
+	flex-wrap: wrap;
+	align-items: center;
+	justify-content: center;
+	gap: 4px 7px;
+	margin-top: auto;
+	padding-top: 6px;
+}
+.finds-note .comfort {
+	margin-left: 0;
+	font-size: calc(10px * var(--ui-scale));
+	padding: 1px 7px;
+}
+.finds-date {
+	font-weight: 400;
+	font-size: calc(10px * var(--ui-scale));
+	color: var(--stamp-ink);
+}
+/* the newest arrival: the same card laid out wide, with the opening of its field
+   sign, so the headline slot carries something to read instead of empty cream */
+.finds-hero {
+	flex-direction: row;
+	align-items: center;
+	gap: 14px;
+	text-align: left;
+	padding: 12px 16px 12px 14px;
+	background: linear-gradient(var(--cream-lift), var(--cream));
+	border-color: var(--panel-edge);
+	border-radius: 4px 4px 12px 12px;
+}
+.finds-hero .finds-pin {
+	top: 7px;
+	left: 11px;
+	transform: none;
+}
+.finds-hero .finds-thumb {
+	width: 84px;
+	height: 84px;
+}
+.finds-hero .finds-note-text {
+	align-items: flex-start;
+	gap: 1px;
+}
+.finds-hero .finds-name {
+	font-size: calc(16px * var(--ui-scale));
+}
+.finds-hero .finds-where {
+	font-size: calc(12px * var(--ui-scale));
+}
+.finds-hero .finds-foot {
+	flex-wrap: nowrap;
+	justify-content: flex-start;
+	margin-top: 6px;
+	padding-top: 0;
+}
+.finds-hero .finds-date {
+	font-size: calc(11px * var(--ui-scale));
+}
+/* the little "latest find" label, in place of a section heading */
+.finds-tag {
+	font-size: calc(9.5px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--gold);
+}
+.finds-teaser {
+	display: -webkit-box;
+	font-weight: 400;
+	-webkit-line-clamp: 2;
+	-webkit-box-orient: vertical;
+	overflow: hidden;
+	margin-top: 5px;
+	max-width: 62ch;
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1.45;
+	color: var(--ink-soft);
+}
+
+/* one note taken down off the board and read */
+.finds-detail {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 5px;
+	text-align: center;
+	background: linear-gradient(var(--cream-lift), var(--cream));
+	border: 1.5px solid var(--panel-edge);
+	border-radius: 4px 4px 14px 14px;
+	padding: 22px 20px 16px;
+}
+.finds-thumb-lg {
+	width: 104px;
+	height: 104px;
+}
+/* beats `.panel-body h3`, which is the uppercase section-heading style */
+.finds-detail .finds-detail-name {
+	display: block;
+	margin: 2px 0 0;
+	font-size: calc(17px * var(--ui-scale));
+	color: var(--ink);
+	text-transform: none;
+	letter-spacing: normal;
+}
+.finds-detail-meta {
+	margin: 0;
+	font-size: calc(11.5px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+.finds-detail .comfort {
+	margin-left: 0;
+}
+/* the field sign — what you would actually find of them out there */
+.finds-fieldnote {
+	align-self: stretch;
+	max-width: 54ch;
+	margin: 12px auto 2px;
+	text-align: left;
+	background: var(--tint-gold);
+	border-left: 3px solid var(--gold);
+	border-radius: 4px 10px 10px 4px;
+	padding: 11px 14px 12px;
+}
+.finds-fieldnote h4 {
+	margin: 0 0 5px;
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+.finds-fieldnote p {
+	margin: 0;
+	font-size: calc(13.5px * var(--ui-scale));
+	line-height: 1.55;
+}
+.finds-source {
+	display: inline-block;
+	margin-top: 8px;
+	font-size: calc(10.5px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+
 /* ---- richer info card ---- */
 .card-hero {
 	text-align: center;
@@ -3626,8 +4447,76 @@ kbd {
 	border-color: var(--ink);
 	box-shadow: 0 0 0 2px var(--gold);
 }
+/* The eyedropper that opens the rest of the spectrum. Same chip as the character
+   creator's (.swatch-pick), shrunk to sit level with the 22px swatches it shares
+   a shelf with rather than towering over them. */
+.paint-pick {
+	width: 22px;
+	height: 22px;
+	margin-left: 3px;
+}
 .tool-tier.paint-dot {
 	border: 1.5px solid rgba(255, 255, 255, 0.85);
+}
+/* Brush-size picker — rises above the toolbelt when a shaping tool is held and
+   its tier offers more than one size. Shares the paint palette's floating shelf
+   so the two read as the same kind of thing. */
+.brush-sizes {
+	position: absolute;
+	left: 50%;
+	transform: translateX(-50%);
+	bottom: 132px;
+	z-index: 12;
+	display: flex;
+	align-items: stretch;
+	gap: 6px;
+	padding: 7px 9px;
+	max-width: 86vw;
+	background: var(--surface-float-97);
+	border: 1.5px solid var(--line);
+	border-radius: 14px;
+	box-shadow: 0 4px 16px rgba(33, 41, 25, 0.25);
+}
+.brush-size {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 3px;
+	min-width: 46px;
+	padding: 5px 8px 4px;
+	border: 1.5px solid var(--line);
+	border-radius: 10px;
+	background: var(--field);
+	color: var(--ink);
+	font: inherit;
+	font-size: 0.72rem;
+	cursor: pointer;
+}
+.brush-size:hover {
+	border-color: var(--ink);
+}
+.brush-size.on {
+	border-color: var(--ink);
+	box-shadow: 0 0 0 2px var(--gold);
+}
+/* A tiny plan view of what the brush covers: one, nine or eighty-one squares. */
+.brush-grid {
+	display: grid;
+	gap: 1px;
+	width: 22px;
+	height: 22px;
+}
+.brush-grid i {
+	background: var(--ink);
+	opacity: 0.55;
+	border-radius: 1px;
+}
+.brush-size.on .brush-grid i {
+	opacity: 1;
+}
+.brush-label {
+	font-variant-numeric: tabular-nums;
+	letter-spacing: 0.02em;
 }
 .tool-slot {
 	position: relative;
@@ -4341,6 +5230,25 @@ kbd {
 	vertical-align: middle;
 }
 
+/* A tally beside a name: how many you have crafted (Crafting), how many are
+   growing here (Plant menu). Deliberately NOT the gold of the ONCE tag: gold
+   means "there is only ever one of these", and a tally is the opposite kind of
+   fact. */
+.crafted-tag,
+.planted-tag {
+	display: inline-block;
+	margin-left: 6px;
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+	text-transform: uppercase;
+	letter-spacing: 0.3px;
+	color: var(--green);
+	background: var(--tint-leaf);
+	border-radius: 999px;
+	padding: 1px 7px;
+	vertical-align: middle;
+}
+
 /* ================= keyboard gate (computer-only) ================= */
 .kb-gate {
 	position: fixed;
@@ -4511,6 +5419,23 @@ kbd {
 }
 .hud-left-col .hud-top-left {
 	position: static;
+}
+/* The column is sized for the longest thing it ever has to hold on one line: a
+   biome goal like "10 animals back in Old Hollow Forest". Indoors there is no
+   goal line — the card is a house name, a meter and two rows of small chips —
+   so stretching it to that width left a third of the card empty. Inside, it
+   sizes to its own content instead, capped at the column width so it can still
+   never be the thing that widens the corner of the screen. */
+.hud-left-col .hud-top-left.hud-card-home {
+	/* Never wider than the column (which is itself clamped on small screens), and
+	   inside that, only as wide as this card needs. Measured against the two rows
+	   that set it: the buff chips fit on one line at this width (all three of
+	   them, with the rested chip showing), and the track chips take three and a
+	   wrap rather than being strung out across empty card. Scaled by --ui-scale so
+	   it keeps those proportions when the player sizes text up. */
+	width: min(100%, calc(288px * var(--ui-scale)));
+	min-width: 0;
+	align-self: flex-start;
 }
 .tasks-widget {
 	background: var(--surface-float);
@@ -5090,6 +6015,20 @@ kbd {
 
 /* The floating bubbles over the world need an edge now that the world behind
    them can be as dark as they are. */
+/* The tier ramp is depth: paler leaf at the bottom, deeper forest at the top.
+   Depth inverts at night — a deeper green on a dark card is a DIMMER one — so
+   the ramp runs the other way here, and the top rung is the brightest. */
+[data-theme='dark'] .hud-cozy.tier-homey {
+	--cozy-accent: var(--green);
+}
+[data-theme='dark'] .hud-cozy.tier-snug,
+[data-theme='dark'] .hud-cozy.tier-cozy,
+[data-theme='dark'] .hud-cozy.tier-beloved {
+	--cozy-accent: var(--green-2);
+}
+[data-theme='dark'] .hud-buff-rested {
+	color: var(--gold);
+}
 [data-theme='dark'] .hud-bottom,
 [data-theme='dark'] .activity-entry,
 [data-theme='dark'] .log-toggle {
@@ -5159,6 +6098,7 @@ kbd {
 	color: #d6bb85; /*  7.90 */
 }
 [data-theme='dark'] .home-perk,
+[data-theme='dark'] .home-ability,
 [data-theme='dark'] .unlock-req,
 [data-theme='dark'] .bd-unlock .bd-goal-label {
 	color: var(--violet);
@@ -6233,4 +7173,1115 @@ a.demo-nudge-store.primary:hover {
 .bd-addgoal:disabled {
 	opacity: 0.5;
 	cursor: default;
+}
+
+/* ---- Bookshelf stories (ui/Panels StoriesPanel, ui/storyArt) ----
+   The shelf of covers, and the picture at the head of each page. Everything is
+   drawn from theme tokens, so the dark theme and the high-contrast pass both
+   come for free. */
+.story-shelf {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	margin: 8px 0 4px;
+}
+.story-spine {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	width: 100%;
+	text-align: left;
+	padding: 8px 10px;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: var(--cream);
+	color: var(--ink);
+	cursor: pointer;
+}
+.story-spine:hover {
+	border-color: var(--panel-edge);
+	background: var(--cream-lift);
+}
+.story-spine > svg {
+	flex: none;
+	margin-left: auto;
+	color: var(--ink-soft);
+}
+.story-cover {
+	flex: none;
+	display: block;
+	filter: drop-shadow(0 1px 0.5px rgba(58, 46, 32, 0.25));
+}
+.story-spine-text {
+	display: flex;
+	flex-direction: column;
+	gap: 1px;
+	min-width: 0;
+}
+.story-spine-title {
+	font-weight: 700;
+}
+.story-head {
+	display: flex;
+	align-items: baseline;
+	justify-content: space-between;
+	gap: 10px;
+	margin-bottom: 4px;
+}
+.story-back {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+}
+.story-chapter {
+	margin: 10px 0 4px;
+}
+
+/* The page's picture. A row of the world's own sprites joined by + or →,
+   scrolling sideways rather than squeezing — four figures at the largest text
+   scale is wider than a panel, and a squashed beaver reads as another animal. */
+.story-plate {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 4px;
+	overflow-x: auto;
+	padding: 10px 4px 8px;
+	margin: 2px 0 0;
+	border: 1px solid var(--line);
+	border-radius: 12px;
+	background: var(--tint-leaf);
+}
+.story-fig {
+	display: flex;
+	flex: none;
+	flex-direction: column;
+	align-items: center;
+	gap: 4px;
+	margin: 0;
+	max-width: 96px;
+}
+.story-fig-art {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+}
+/* Fill the box rather than draw at natural size: sprites are authored at their
+   world size, so a rabbit (22px) next to a bunchgrass (38px) would otherwise
+   render half as tall as the plant it is standing next to. `contain` keeps every
+   sprite's own proportions while making them all the same weight in the row. */
+.story-fig-art img {
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+	object-position: bottom;
+}
+.story-fig figcaption {
+	font-size: calc(11px * var(--ui-scale));
+	line-height: 1.25;
+	text-align: center;
+	color: var(--ink-soft);
+}
+.story-join {
+	flex: none;
+	display: flex;
+	align-items: center;
+	align-self: center;
+	color: var(--gold);
+}
+.story-text p {
+	margin: 0 0 10px;
+	line-height: 1.55;
+}
+
+/* Turning the page. Buttons only — see the note on StoriesPanel. */
+.story-pager {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 12px;
+	margin-top: 2px;
+	padding-top: 8px;
+	border-top: 1px solid var(--line);
+}
+.story-pager .muted {
+	font-variant-numeric: tabular-nums;
+}
+
+/* ---- the Stargazing Telescope (ui/Telescope.tsx) --------------------------
+   A round eyepiece you sweep with the arrow keys, and the card that reads out
+   whatever is in the crosshairs. The barrel is drawn in CSS rather than as art
+   so the view inside it can be a plain SVG that pans. */
+/* The panel is a FIXED size. Every entry is a different length — a two-line
+   cloud, a constellation with a zodiac date under it — and a panel that resized
+   itself to each one flickered as you swept the sky. So the frame is sized once,
+   for the longest entry there is, and the shorter ones leave space rather than
+   shrinking it. Same reason the chip strip scrolls sideways instead of wrapping
+   onto a second row. */
+.panel.scope-panel {
+	width: 780px;
+}
+.scope-conditions {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	flex-wrap: wrap;
+	margin-bottom: 10px;
+}
+.scope-mode {
+	font-weight: 700;
+}
+.scope-stage {
+	display: flex;
+	align-items: flex-start;
+	gap: 16px;
+	flex-wrap: wrap;
+	/* Sized to the tallest card THIS LANGUAGE has — measured at the column's real
+	   width, across every entry, in both of the shapes a card can actually take
+	   (the "up there now" badge and the "not in today's sky" line never appear
+	   together). No taller: a fixed frame with a lot of empty space under the
+	   text reads as a bug of a different kind. English is the default; Spanish
+	   runs about 8% longer and gets its own height below rather than making
+	   every English card carry the slack. */
+	min-height: 318px;
+}
+.scope-eye {
+	position: relative;
+	flex: none;
+	width: 296px;
+	max-width: 100%;
+	aspect-ratio: 1;
+	border-radius: 50%;
+	overflow: hidden;
+	border: 7px solid #6d5a3c;
+	box-shadow:
+		inset 0 0 0 3px #c9a96b,
+		0 6px 18px rgba(43, 51, 33, 0.35);
+	background: #141d33;
+	cursor: grab;
+	/* the drag pans the sky; the browser must not also scroll the panel */
+	touch-action: none;
+	user-select: none;
+}
+.scope-eye:active {
+	cursor: grabbing;
+}
+.scope-eye.day {
+	background: #8ec2e8;
+}
+.scope-eye svg {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+/* The darkening at the edge of the field, the way a real eyepiece vignettes. */
+.scope-glass {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+	background: radial-gradient(
+		circle at 50% 50%,
+		rgba(10, 14, 24, 0) 54%,
+		rgba(10, 14, 24, 0.5) 86%,
+		rgba(10, 14, 24, 0.8) 100%
+	);
+}
+.scope-cross {
+	position: absolute;
+	inset: 0;
+	pointer-events: none;
+}
+.scope-cross::before {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 54px;
+	height: 54px;
+	transform: translate(-50%, -50%);
+	border: 1.5px solid rgba(255, 255, 255, 0.32);
+	border-radius: 50%;
+	transition: border-color 140ms ease;
+}
+.scope-cross::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 128px;
+	height: 128px;
+	transform: translate(-50%, -50%);
+	background:
+		linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)) center / 1.5px 100% no-repeat,
+		linear-gradient(rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.26)) center / 100% 1.5px no-repeat;
+	mask: radial-gradient(circle at 50% 50%, transparent 0 30px, #000 31px);
+	-webkit-mask: radial-gradient(circle at 50% 50%, transparent 0 30px, #000 31px);
+}
+/* Something is in the crosshairs — the reticle warms up rather than shouting. */
+.scope-cross.on::before {
+	border-color: rgba(255, 233, 168, 0.85);
+}
+.scope-read {
+	flex: 1 1 280px;
+	min-width: 240px;
+	/* the tallest card there is; anything longer scrolls rather than growing */
+	height: 318px;
+	overflow-y: auto;
+}
+.scope-read-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+/* Specific enough to beat `.panel-body h3`, which is styled as a section label
+   (uppercase, small, muted) — this is a title, not a section label. */
+.scope-body .scope-name {
+	margin: 0;
+	font-size: calc(17px * var(--ui-scale));
+	color: var(--ink);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.scope-badge {
+	display: inline-flex;
+	align-items: center;
+	gap: 4px;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--tint-leaf-strong);
+	border: 1px solid var(--good-line);
+	color: var(--good-ink);
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+}
+.scope-byline {
+	margin: 2px 0 6px;
+	font-style: italic;
+}
+.scope-text {
+	margin: 0 0 8px;
+	line-height: 1.45;
+}
+/* The one line of "and this is what it tells you", under the paragraph. */
+.scope-note {
+	display: flex;
+	align-items: flex-start;
+	gap: 6px;
+	margin: 0 0 6px;
+	padding: 6px 9px;
+	border-radius: 10px;
+	background: var(--tint-gold);
+	line-height: 1.4;
+	border: 1px solid var(--line);
+	font-size: calc(12.5px * var(--ui-scale));
+}
+.scope-note > svg {
+	flex: none;
+	margin-top: 2px;
+	color: var(--gold);
+}
+.scope-where {
+	margin: 0;
+}
+/* "not in today's sky", and the zodiac's own dates — quieter than the note, and
+   only there when they have something to say. */
+.scope-notnow,
+.scope-zodiac {
+	margin: 4px 0 0;
+	font-style: italic;
+	line-height: 1.4;
+}
+.scope-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 140px;
+	text-align: center;
+	color: var(--ink-soft);
+}
+.scope-empty p {
+	margin: 0;
+	max-width: 24ch;
+}
+/* Everything the eyepiece can currently see — a way to reach a thing without
+   hunting for it, and the only way in on a touchscreen. */
+.scope-strip {
+	display: flex;
+	align-items: center;
+	flex-wrap: nowrap;
+	gap: 6px;
+	margin-top: 12px;
+	padding-top: 10px;
+	border-top: 1px solid var(--line);
+	/* one row, always — it scrolls sideways when the eyepiece holds a crowd */
+	height: 48px;
+	overflow-x: auto;
+	overflow-y: hidden;
+}
+.scope-chip,
+.scope-strip-label {
+	flex: none;
+	white-space: nowrap;
+}
+.scope-strip-label {
+	margin-right: 2px;
+}
+.scope-chip {
+	padding: 3px 10px;
+	border-radius: 999px;
+	border: 1px solid var(--line);
+	background: var(--cream);
+	color: var(--ink);
+	font-size: calc(12px * var(--ui-scale));
+	cursor: pointer;
+}
+.scope-chip:hover {
+	background: var(--cream-lift);
+	border-color: var(--panel-edge);
+}
+.scope-chip.on {
+	background: var(--tint-leaf-strong);
+	border-color: var(--green-2);
+	font-weight: 700;
+}
+.scope-hint {
+	margin: 8px 0 0;
+}
+.scope-empty {
+	/* fills the fixed card rather than collapsing it */
+	height: 100%;
+}
+/* Spanish, measured the same way (src/i18n/index.ts puts the locale on <html>).
+   A language whose prose runs longer gets a taller frame, rather than every
+   other language paying for it. */
+:root[lang='es'] .scope-stage {
+	min-height: 338px;
+}
+:root[lang='es'] .scope-read {
+	height: 338px;
+}
+
+/* On a narrow screen the eyepiece and the card stack, and holding either to a
+   fixed height would make a very tall panel — let them size to their content. */
+/* Once the panel is too narrow to hold the eyepiece and the card side by side
+   they stack, and holding either to a fixed height would make a very tall
+   panel — so below the width where that happens, both size to their content.
+   The breakpoint is above the panel's own width on purpose: the wrap happens
+   as soon as the panel starts shrinking, not at some tidier round number. */
+@media (max-width: 860px) {
+	/* the per-language selectors are listed too: they are more specific than a
+	   bare `.scope-read`, so without them Spanish would keep its fixed height
+	   here and the stacked panel would be taller than the screen */
+	.scope-stage,
+	.scope-read,
+	:root[lang='es'] .scope-stage,
+	:root[lang='es'] .scope-read {
+		min-height: 0;
+		height: auto;
+	}
+	.scope-eye {
+		width: 280px;
+	}
+}
+
+/* ------------------------------------------------------------------ tarot
+   The deck on the table (ui/Tarot.tsx). Two very different screens share one
+   panel: an illustrated primer you read like a short book, and a table you deal
+   cards onto. The panel is WIDER than the telescope's because the Celtic Cross
+   is four cards across with a crossing card over the middle, and a spread that
+   has to scroll sideways stops being a spread you can read at a glance.
+
+   The cards themselves are drawn in SVG at 100x168 and sized here by width
+   alone: `aspect-ratio` keeps the shape, so one number changes the size of every
+   card on the table and nothing has to agree with anything. */
+/* Three screens, three widths. The landing is a picture and two doors and looks
+   abandoned in a wide frame; the guide is a book, sized for a comfortable
+   measure beside its contents rail; only the table needs the full width, because
+   the Celtic Cross is four cards across with a fifth laid over the middle. */
+.panel.tarot-panel {
+	width: 860px;
+}
+.panel.tarot-panel.at-landing {
+	width: 520px;
+}
+.panel.tarot-panel.at-guide {
+	width: 800px;
+}
+/* The heading and its back button, as one group on the left of the bar. */
+.tarot-head-left {
+	display: flex;
+	align-items: center;
+	gap: 10px;
+	min-width: 0;
+}
+
+.tarot-face,
+.tarot-back {
+	display: block;
+	width: 100%;
+	height: auto;
+}
+
+/* --- the landing screen --- */
+.tarot-landing {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	text-align: center;
+	gap: 14px;
+	padding: 6px 0 2px;
+}
+/* Three cards fanned, purely as a picture: two backs and the Star face up, so
+   the screen says what this is before a word of it is read. */
+.tarot-landing-deck {
+	position: relative;
+	width: 190px;
+	height: 150px;
+}
+.tarot-landing-card {
+	position: absolute;
+	top: 0;
+	width: 86px;
+	filter: drop-shadow(0 4px 10px rgba(43, 51, 33, 0.3));
+}
+.tarot-landing-card-a {
+	left: 6px;
+	transform: rotate(-13deg);
+}
+.tarot-landing-card-b {
+	left: 52px;
+	transform: rotate(-2deg);
+}
+.tarot-landing-card-c {
+	left: 98px;
+	transform: rotate(11deg);
+}
+.tarot-lede {
+	margin: 0;
+	max-width: 46ch;
+	line-height: 1.55;
+}
+.tarot-doors {
+	display: flex;
+	align-items: stretch;
+	gap: 12px;
+	flex-wrap: wrap;
+	justify-content: center;
+	width: 100%;
+}
+.tarot-door {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	/* Two across in the narrow landing frame, stacking only when there is
+	   genuinely no room for them side by side. */
+	flex: 1 1 0;
+	min-width: 186px;
+	padding: 16px 14px;
+	border-radius: 14px;
+	border: 1px solid var(--line);
+	background: var(--cream);
+	color: var(--ink);
+	text-align: center;
+	cursor: pointer;
+}
+.tarot-door:hover {
+	background: var(--cream-lift);
+	border-color: var(--panel-edge);
+}
+.tarot-door > svg {
+	color: var(--green);
+}
+.tarot-door span {
+	line-height: 1.45;
+}
+.tarot-disclaimer {
+	margin: 2px 0 0;
+	max-width: 52ch;
+	font-style: italic;
+}
+
+/* --- the guide, laid out as a book --- */
+.tarot-guide {
+	display: grid;
+	grid-template-columns: 196px minmax(0, 1fr);
+	gap: 20px;
+	align-items: start;
+}
+/* The contents down the side. Ten chapters is too many to read as a strip of
+   tabs, and a numbered list is what a book of this shape actually has. */
+.tarot-contents {
+	position: sticky;
+	top: 0;
+	border-right: 1px solid var(--line);
+	padding-right: 14px;
+}
+.tarot-contents-head {
+	display: block;
+	margin-bottom: 8px;
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+.tarot-contents ol {
+	list-style: none;
+	margin: 0;
+	padding: 0;
+}
+.tarot-chapter {
+	display: flex;
+	align-items: baseline;
+	gap: 8px;
+	width: 100%;
+	padding: 5px 8px;
+	border: none;
+	border-radius: 8px;
+	background: none;
+	color: var(--ink);
+	text-align: left;
+	line-height: 1.35;
+	font-size: calc(12.5px * var(--ui-scale));
+	cursor: pointer;
+}
+.tarot-chapter:hover {
+	background: var(--tint-gold);
+}
+/* `button.on` further up paints any selected button white on green, which is
+   right for a filter chip and wrong for a line in a table of contents. */
+.tarot-chapter.on {
+	background: var(--tint-leaf-strong);
+	border-color: transparent;
+	color: var(--ink);
+	font-weight: 700;
+	box-shadow: inset 3px 0 0 var(--green-2);
+}
+.tarot-chapter-n {
+	flex: none;
+	width: 1.5em;
+	font-family: var(--font-display);
+	color: var(--ink-soft);
+	font-size: calc(11px * var(--ui-scale));
+}
+.tarot-chapter.on .tarot-chapter-n {
+	color: var(--green-deep);
+}
+.tarot-chapter-name {
+	min-width: 0;
+}
+
+/* The plate at the head of each chapter: real cards from the deck, because a
+   book about a deck should show the deck rather than a decorative rule. */
+.tarot-plate {
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	gap: 10px;
+	margin: 0 0 16px;
+	padding: 16px 12px;
+	border-radius: 12px;
+	background: var(--tint-gold);
+	border: 1px solid var(--line);
+}
+.tarot-plate-card {
+	display: block;
+	width: 62px;
+	filter: drop-shadow(0 3px 7px rgba(43, 51, 33, 0.24));
+}
+/* The opening plate fans, the way a deck sits on a table. */
+.tarot-plate-what-it-is {
+	gap: 0;
+}
+.tarot-plate-what-it-is .tarot-plate-card:first-child {
+	transform: rotate(-9deg) translateX(10px);
+}
+.tarot-plate-what-it-is .tarot-plate-card:last-child {
+	transform: rotate(9deg) translateX(-10px);
+}
+.tarot-plate-intention .tarot-plate-card {
+	width: 78px;
+}
+/* One card both ways up, which is the whole chapter in a picture. */
+.tarot-plate-reversals {
+	gap: 22px;
+}
+.tarot-plate-majors {
+	gap: 26px;
+}
+.tarot-plate-svg {
+	width: 100%;
+	max-width: 340px;
+	height: auto;
+}
+.tarot-plate-diagram {
+	padding: 22px 12px;
+}
+/* Specific enough to beat `.panel-body h3`, which is a section label — this is
+   a chapter heading. */
+.tarot-body .tarot-page-title {
+	margin: 0 0 10px;
+	font-size: calc(18px * var(--ui-scale));
+	color: var(--ink);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.tarot-para {
+	margin: 0 0 10px;
+	line-height: 1.6;
+	max-width: 68ch;
+}
+.tarot-keywords {
+	margin: 0 0 6px;
+	color: var(--green-deep);
+	font-weight: 700;
+	font-size: calc(12.5px * var(--ui-scale));
+}
+.tarot-blocks {
+	display: flex;
+	flex-direction: column;
+	gap: 14px;
+	margin-top: 6px;
+}
+.tarot-block {
+	display: flex;
+	gap: 12px;
+	padding: 12px 14px;
+	border-radius: 12px;
+	background: var(--tint-gold);
+	border: 1px solid var(--line);
+}
+.tarot-block > svg {
+	flex: none;
+	margin-top: 2px;
+}
+.tarot-block h4,
+.tarot-number h4 {
+	margin: 0 0 4px;
+	font-family: var(--font-display);
+	font-size: calc(14px * var(--ui-scale));
+}
+.tarot-block p:last-child,
+.tarot-number p:last-child {
+	margin-bottom: 0;
+}
+.tarot-numbers {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 12px;
+	margin-top: 6px;
+}
+.tarot-number {
+	display: flex;
+	gap: 10px;
+}
+.tarot-number-mark {
+	flex: none;
+	width: 30px;
+	height: 30px;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: var(--disc-1);
+	border: 1px solid var(--disc-line);
+	font-family: var(--font-display);
+	font-size: calc(15px * var(--ui-scale));
+	color: var(--green-deep);
+}
+.tarot-pager {
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	gap: 10px;
+	margin-top: 14px;
+	padding-top: 10px;
+	border-top: 1px solid var(--line);
+}
+
+/* --- the reading --- */
+.tarot-setup {
+	display: flex;
+	align-items: flex-end;
+	gap: 10px;
+	flex-wrap: wrap;
+}
+.tarot-field {
+	display: flex;
+	flex-direction: column;
+	gap: 3px;
+}
+/* Matched to the app's other dropdowns (craft filters, the accessibility rows)
+   so this is not a bare browser select sitting among storybook controls. */
+.tarot-field select {
+	font-family: var(--font-body);
+	font-weight: 600;
+	font-size: calc(13px * var(--ui-scale));
+	color: var(--ink);
+	background: var(--cream);
+	border: 1.5px solid var(--line);
+	border-radius: 10px;
+	padding: 6px 10px;
+	cursor: pointer;
+}
+.tarot-field select:hover {
+	border-color: var(--panel-edge);
+}
+.tarot-spread-blurb {
+	margin: 8px 0 12px;
+	max-width: 72ch;
+}
+.tarot-block-tag {
+	font-weight: 500;
+	font-size: calc(11px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+/* One row of three, centered. Every spread is the same shape now (see the note
+   on SPREADS in ui/arcana.ts), so there is no grid and no per-spread geometry:
+   three seats, side by side, at a size that never has to shrink. */
+.tarot-table {
+	display: flex;
+	justify-content: center;
+	align-items: flex-start;
+	gap: 18px;
+	margin: 4px 0 10px;
+}
+.tarot-seat {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	gap: 6px;
+	width: 132px;
+}
+.tarot-card {
+	position: relative;
+	display: block;
+	width: 100%;
+	padding: 0;
+	border: none;
+	border-radius: 7px;
+	background: none;
+	cursor: pointer;
+	aspect-ratio: 100 / 168;
+	filter: drop-shadow(0 3px 7px rgba(43, 51, 33, 0.26));
+	transition:
+		transform 140ms ease,
+		filter 140ms ease;
+}
+.tarot-card:hover,
+.tarot-card:focus-visible {
+	transform: translateY(-4px);
+	filter: drop-shadow(0 7px 14px rgba(43, 51, 33, 0.34));
+	/* lift it over its neighbors so the tip below is not clipped by them */
+	z-index: 3;
+}
+.tarot-seat.on .tarot-card {
+	outline: 2px solid var(--green-2);
+	outline-offset: 2px;
+	border-radius: 7px;
+}
+/* The one card you may turn. It is the only face-down card that reacts, so it
+   says so, quietly: a soft ring rather than a hard outline, because this is a
+   hint about where to start and not a warning.
+   Deliberately NOT an animation: the card already lifts on hover, and a looping
+   transform on the same property fights that, so the affordance is a standing
+   mark instead of a movement. */
+.tarot-seat.next .tarot-card {
+	outline: 1.5px solid rgba(201, 145, 63, 0.55);
+	outline-offset: 3px;
+	border-radius: 7px;
+	filter: drop-shadow(0 3px 10px rgba(201, 145, 63, 0.28));
+}
+.tarot-seat.next .tarot-card:hover,
+.tarot-seat.next .tarot-card:focus-visible {
+	outline-color: var(--gold);
+}
+/* Cards further along the row. Plainly there, plainly not yet: the base
+   `button:disabled` rule already fades and un-points them, and this stops the
+   hover lift from suggesting otherwise. */
+.tarot-seat.waiting .tarot-card {
+	filter: drop-shadow(0 2px 4px rgba(43, 51, 33, 0.18));
+}
+.tarot-seat.waiting .tarot-card:hover {
+	transform: none;
+}
+.tarot-seat-name {
+	font-size: calc(11px * var(--ui-scale));
+	color: var(--ink-soft);
+	text-align: center;
+	line-height: 1.3;
+}
+
+/* The hover tip: the quick-glance version of what the reading pane below says
+   in full, so the pane is always the accessible copy and this is a convenience.
+   Same shape as `.meter-hint-tip` — hidden by visibility rather than display so
+   it can fade, and pointer-events off so it never eats the click. */
+.tarot-tip {
+	position: absolute;
+	left: 50%;
+	/* Below, always: the table is a single row near the top of the panel, so
+	   above the card is off the top of the frame. */
+	top: calc(100% + 8px);
+	transform: translateX(-50%);
+	z-index: 60;
+	width: 268px;
+	padding: 9px 11px;
+	border-radius: 10px;
+	background: var(--surface-float-solid);
+	border: 1px solid var(--panel-edge);
+	box-shadow: var(--shadow);
+	color: var(--ink);
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1.45;
+	text-align: left;
+	opacity: 0;
+	visibility: hidden;
+	pointer-events: none;
+	transition:
+		opacity 120ms ease,
+		visibility 120ms ease;
+}
+.tarot-card:hover .tarot-tip,
+.tarot-card:focus-visible .tarot-tip {
+	opacity: 1;
+	visibility: visible;
+}
+.tarot-tip strong {
+	font-family: var(--font-display);
+	font-size: calc(13px * var(--ui-scale));
+}
+/* The card's two faces, both of them, with the one it actually landed on picked
+   out. The reading below the table says what it means in that seat; this says what
+   the card itself is. */
+.tarot-tip-side {
+	display: block;
+	margin-top: 6px;
+	padding-left: 8px;
+	border-left: 2px solid var(--line);
+	font-weight: 500;
+	color: var(--ink-soft);
+}
+.tarot-tip-side em {
+	display: block;
+	font-style: normal;
+	font-weight: 700;
+	font-size: calc(10px * var(--ui-scale));
+	letter-spacing: 0.07em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+.tarot-tip-side.on {
+	border-left-color: var(--green-2);
+	color: var(--ink);
+}
+.tarot-tip-side.on em {
+	color: var(--green-deep);
+}
+.tarot-tip-keys,
+.tarot-tip-body {
+	display: block;
+	margin-top: 4px;
+}
+.tarot-tip-keys {
+	color: var(--green-deep);
+	font-weight: 700;
+}
+
+/* The one line under the table: whose turn it is, or that they are all up. */
+.tarot-actions {
+	margin: 0 0 10px;
+	text-align: center;
+}
+
+/* The reading pane. Fixed height for the same reason the telescope's card is:
+   every card is a different length, and a pane that resized itself to each one
+   made the whole panel jump every time you moved between cards. */
+.tarot-read {
+	min-height: 268px;
+	padding: 12px 14px;
+	border-radius: 12px;
+	background: var(--tint-gold);
+	border: 1px solid var(--line);
+}
+.tarot-read-head {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	flex-wrap: wrap;
+}
+.tarot-body .tarot-read-name {
+	margin: 0;
+	font-size: calc(17px * var(--ui-scale));
+	color: var(--ink);
+	text-transform: none;
+	letter-spacing: 0;
+}
+.tarot-way {
+	display: inline-flex;
+	align-items: center;
+	padding: 2px 8px;
+	border-radius: 999px;
+	background: var(--tint-leaf-strong);
+	border: 1px solid var(--good-line);
+	color: var(--good-ink);
+	font-size: calc(10.5px * var(--ui-scale));
+	font-weight: 700;
+}
+.tarot-way.rev {
+	background: var(--bad-bg);
+	border-color: var(--bad-line);
+	color: var(--bad-ink);
+}
+.tarot-byline {
+	margin: 3px 0 7px;
+	font-style: italic;
+}
+/* The card in its seat: the one sentence the whole pane is built around, so it
+   is the largest thing in it after the name. */
+.tarot-seat-line {
+	display: flex;
+	align-items: baseline;
+	gap: 7px;
+	margin: 0 0 10px;
+	font-size: calc(14.5px * var(--ui-scale));
+	line-height: 1.45;
+	color: var(--ink);
+}
+.tarot-seat-line > svg {
+	color: var(--gold);
+	flex: none;
+}
+/* The card's anatomy, above its reading: suit, then number, then the whole.
+   Compact rows, because this is the frame around the reading rather than the
+   reading itself. */
+.tarot-parts {
+	display: grid;
+	grid-template-columns: repeat(2, minmax(0, 1fr));
+	gap: 8px 16px;
+	margin: 0 0 10px;
+	padding: 9px 11px;
+	border-radius: 10px;
+	background: var(--cream);
+	border: 1px solid var(--line);
+}
+.tarot-part {
+	display: flex;
+	align-items: flex-start;
+	gap: 9px;
+	min-width: 0;
+}
+.tarot-part > svg {
+	flex: none;
+	margin-top: 1px;
+}
+.tarot-part h4 {
+	margin: 0 0 2px;
+	font-family: var(--font-display);
+	font-size: calc(12.5px * var(--ui-scale));
+}
+.tarot-part p {
+	margin: 0;
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1.45;
+	color: var(--ink-soft);
+}
+/* The number, in the same disc the guide numbers its stages with. */
+.tarot-part-mark {
+	flex: none;
+	width: 30px;
+	height: 30px;
+	display: grid;
+	place-items: center;
+	border-radius: 50%;
+	background: var(--disc-1);
+	border: 1px solid var(--disc-line);
+	font-family: var(--font-display);
+	font-size: calc(14px * var(--ui-scale));
+	color: var(--green-deep);
+}
+/* A Major has no suit, so its row runs the full width and its numeral is the
+   place it holds in the Fool's Journey rather than a stage in a suit. */
+.tarot-part-mark.major {
+	width: auto;
+	min-width: 30px;
+	padding: 0 7px;
+	border-radius: 15px;
+	background: var(--tint-gold);
+	border-color: var(--line);
+	color: var(--gold);
+	font-size: calc(12px * var(--ui-scale));
+	letter-spacing: 0.04em;
+}
+/* A Major has one row rather than two, so it takes the whole width. Set as a
+   class by ui/Tarot.tsx rather than with :has(), which would make this rule
+   depend on a selector the Electron build has no reason to guarantee. */
+.tarot-parts.solo {
+	grid-template-columns: minmax(0, 1fr);
+}
+.tarot-whole {
+	margin: 0;
+	line-height: 1.55;
+}
+.tarot-whole-label {
+	display: block;
+	margin-bottom: 3px;
+	font-size: calc(10px * var(--ui-scale));
+	font-weight: 700;
+	letter-spacing: 0.09em;
+	text-transform: uppercase;
+	color: var(--ink-soft);
+}
+
+.tarot-read-empty {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	justify-content: center;
+	gap: 8px;
+	min-height: 150px;
+	text-align: center;
+	color: var(--ink-soft);
+}
+.tarot-read-empty p {
+	margin: 0;
+	max-width: 30ch;
+}
+
+/* Narrow screens: the ten-card spread is the only layout that cannot simply
+   shrink, so the cards get smaller and the guide's number grid goes to one
+   column rather than either of them scrolling sideways. */
+@media (max-width: 880px) {
+	/* The contents rail folds above the page rather than squeezing the measure. */
+	.tarot-guide {
+		grid-template-columns: minmax(0, 1fr);
+		gap: 12px;
+	}
+	.tarot-contents {
+		position: static;
+		border-right: none;
+		border-bottom: 1px solid var(--line);
+		padding-right: 0;
+		padding-bottom: 8px;
+	}
+	.tarot-contents ol {
+		display: flex;
+		flex-wrap: wrap;
+		gap: 2px;
+	}
+	.tarot-seat {
+		width: 96px;
+	}
+	.tarot-table {
+		gap: 10px;
+	}
+	.tarot-numbers,
+	.tarot-parts {
+		grid-template-columns: minmax(0, 1fr);
+	}
+	.tarot-door {
+		width: 100%;
+	}
 }

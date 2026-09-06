@@ -216,14 +216,34 @@ for (const area of AREAS) {
 	}
 }
 
+// Those 720 placements went straight into the store, so the player row's standing
+// tallies (what is placed / planted, see bumpStanding) still describe the one
+// camp chest a new save is born with. Bring them up to date the way the rows
+// would have: this session is measuring what ordinary play costs on a big save,
+// and a save whose tallies are missing pays a one-time repair scan that would sit
+// in the middle of the ledger pretending to be the price of a heartbeat. That
+// repair has its own tests (standing-tallies.test.ts) — this has the steady state.
+{
+	const pr = holder.db.Player._rows.get(PID);
+	const placed = {};
+	for (const p of holder.db.Placement._rows.values()) placed[p.objectId] = (placed[p.objectId] || 0) + 1;
+	holder.db.Player._rows.set(PID, { ...pr, standing: { ...pr.standing, placed, planted: {}, harvested: 0 } });
+}
+
 stats.rows = 0;
 stats.byTable = {};
 const timings = [];
+// Refusals are counted, not swallowed. An action that throws still costs its
+// reads and still gets timed, so a phase whose posts are all being turned away —
+// a full basket, a bed that isn't there — measures as cheap and correct while
+// testing nothing at all. The tally is printed at the end.
+const refused = {};
 async function act(label, fn) {
 	clock += 1500;
 	globalThis.__EP = label;
 	const t = process.hrtime.bigint();
-	await fn().catch((e) => ({ err: e.message }));
+	const r = await fn().catch((e) => ({ err: e.message }));
+	if (r && r.err) (refused[label] ||= new Map()).set(r.err, ((refused[label] || new Map()).get(r.err) || 0) + 1);
 	timings.push([label, Number(process.hrtime.bigint() - t) / 1e6]);
 }
 
@@ -321,6 +341,18 @@ const VOLATILE = new Set([
 	'playerWater',
 	// Same: new derived bookkeeping, checked explicitly below rather than diffed.
 	'nextMaturityAt',
+	// And the player row's standing tallies — same reasoning, and the check above
+	// re-derives them from the placements rather than diffing them.
+	'standing',
+	// Same for the per-biome, per-object counts the habitat steps read.
+	'objectCounts',
+	// And the same again: BiomeState.terrainCounts is a cached copy of what the
+	// recalc used to re-derive from the area's tiles on every action. Comparing it
+	// across the change that introduces it would only report "new field"; what it
+	// is FOR is compared — biome health carries the watered beds and the open
+	// water, the animals carry the water shapes, and the check below re-derives it
+	// from the raw rows and refuses any row where the two disagree.
+	'terrainCounts',
 ]);
 const canon = (v) => {
 	if (Array.isArray(v)) return v.map(canon);
@@ -373,12 +405,199 @@ const growth = { armed: 0, quiet: 0, woke: 0 };
 	growth.woke = rows() - before;
 }
 
+// A plant that is still growing in is not habitat yet — and a count kept on a
+// row has to know that on its own.
+//
+// placementCounts() refuses a seedling until its `growSeconds` have passed, so
+// the number an animal's requirements are tested against moves with nothing but
+// the passage of time. Nothing else in this session exercises that: every seeded
+// placement is back-dated past every threshold, so a count frozen at the moment
+// it was computed would look right all the way through the run above.
+//
+// The garden spider is that question in a form the fingerprint can see. It needs
+// web anchor stems AND a wildflower patch, plus the grasshopper and the ladybug,
+// which are both already home by now. So: set the stems down, plant the flowers,
+// and act once while the seedling is still a sprout — the spider must NOT be
+// home. Then cross the 45-second threshold and act again — it must be. Counted
+// too eagerly it arrives early; counted once and cached it never arrives at all.
+const sprout = { early: '', grown: '' };
+{
+	const pr = holder.db.Player._rows.get(PID);
+	holder.db.Player._rows.set(PID, {
+		...pr,
+		craftedItems: { ...(pr.craftedItems || {}), 'orb-web-anchor-stems': 2 },
+		inventory: { ...(pr.inventory || {}), seeds: (pr.inventory?.seeds || 0) + 20 },
+	});
+	const home = () => [...holder.db.Discovery._rows.values()].some((x) => x.animalId === 'garden-spider');
+	await act('PlaceObject', () =>
+		post('PlaceObject', { playerId: PID, area: 'meadow', objectId: 'orb-web-anchor-stems', x: 6, y: 9 }),
+	);
+	await act('Terraform', () => post('Terraform', { playerId: PID, area: 'meadow', x: 7, y: 9, action: 'dig' }));
+	await act('Terraform', () => post('Terraform', { playerId: PID, area: 'meadow', x: 7, y: 9, action: 'water' }));
+	await act('Plant', () => post('Plant', { playerId: PID, area: 'meadow', x: 7, y: 9, plantId: 'wildflower-patch' }));
+	// an action that recalculates the meadow while the seedling is still a sprout
+	await act('Terraform', () => post('Terraform', { playerId: PID, area: 'meadow', x: 8, y: 9, action: 'dig' }));
+	sprout.early = home() ? 'HOME ALREADY' : 'not yet';
+	clock += 60_000; // past wildflower-patch's 45s grow threshold
+	await act('Terraform', () => post('Terraform', { playerId: PID, area: 'meadow', x: 9, y: 9, action: 'dig' }));
+	sprout.grown = home() ? 'home' : 'MISSING';
+}
+
+// The goal board's tallies, moved and then moved back.
+//
+// What is standing, what is planted and whether anything has been harvested are
+// counters on the player row now, kept by the four endpoints that can change
+// them. A counter that only ever goes up is the easy half; this exercises the
+// half that has to come back down, and the one action (harvest) that leaves no
+// trace anywhere else.
+const tally = { place: '', planted: '', harvest: '', ok: false };
+{
+	const standing = () => holder.db.Player._rows.get(PID)?.standing;
+	const placedNow = (id) => standing()?.placed?.[id] ?? -1;
+	const rowAt = (x, y) =>
+		[...holder.db.Placement._rows.values()].find((p) => p.area === 'meadow' && p.x === x && p.y === y);
+
+	const before = placedNow('clover-patch');
+	await act('PlaceObject', () =>
+		post('PlaceObject', { playerId: PID, area: 'meadow', objectId: 'clover-patch', x: 22, y: 9 }),
+	);
+	const up = placedNow('clover-patch');
+	await act('RemoveObject', () => post('RemoveObject', { playerId: PID, placementId: rowAt(22, 9)?.id }));
+	const back = placedNow('clover-patch');
+	tally.place = `${before} -> ${up} -> ${back}`;
+
+	// The wildflower patch the sprout phase planted: grown by now, so harvestable.
+	// Make room first — this save is carrying four thousand of each kind of water
+	// for the terraforming above, and a full basket refuses the harvest before it
+	// reaches the tally at all (which is what the refusals line is for).
+	const planted = standing()?.planted?.['wildflower-patch'] ?? -1;
+	tally.planted = String(planted);
+	{
+		const pr = holder.db.Player._rows.get(PID);
+		holder.db.Player._rows.set(PID, { ...pr, inventory: { ...pr.inventory, water: 4, 'clean-water': 4 } });
+	}
+	const h0 = standing()?.harvested ?? -1;
+	await act('HarvestPlacement', () => post('HarvestPlacement', { playerId: PID, placementId: rowAt(7, 9)?.id }));
+	const h1 = standing()?.harvested ?? -1;
+	tally.harvest = `${h0} -> ${h1}`;
+	tally.ok = before >= 0 && up === before + 1 && back === before && planted === 1 && h1 === h0 + 1;
+}
+
+// The stored terrain numbers, re-derived here from the rows they summarize.
+//
+// This is the check the fingerprint cannot make. A number kept on the biome row
+// is still a number once it has gone stale, and everything downstream of it —
+// health, an animal's water requirement, the Lakemaker trigger — stays perfectly
+// self-consistent while being wrong about the land. So take each area's tiles as
+// they finally stand, count them again here, and refuse any row that disagrees.
+const drift = [];
+{
+	// analyzeWater, rewritten rather than imported: a summary that agrees with the
+	// code that produced it has proved nothing.
+	const shape = (rows) => {
+		const cells = new Set(rows.map((tt) => `${tt.x},${tt.y}`));
+		const seen = new Set();
+		let lake = 0,
+			river = 0;
+		for (const key of cells) {
+			if (seen.has(key)) continue;
+			const stack = [key];
+			seen.add(key);
+			let size = 0,
+				minx = Infinity,
+				maxx = -Infinity,
+				miny = Infinity,
+				maxy = -Infinity;
+			while (stack.length) {
+				const [x, y] = stack.pop().split(',').map(Number);
+				size++;
+				minx = Math.min(minx, x);
+				maxx = Math.max(maxx, x);
+				miny = Math.min(miny, y);
+				maxy = Math.max(maxy, y);
+				for (const [dx, dy] of [
+					[1, 0],
+					[-1, 0],
+					[0, 1],
+					[0, -1],
+				]) {
+					const nk = `${x + dx},${y + dy}`;
+					if (cells.has(nk) && !seen.has(nk)) {
+						seen.add(nk);
+						stack.push(nk);
+					}
+				}
+			}
+			lake = Math.max(lake, size);
+			river = Math.max(river, Math.max(maxx - minx + 1, maxy - miny + 1));
+		}
+		return { tiles: cells.size, lake, river };
+	};
+	// The player's own tallies, against the same rows.
+	{
+		const placed = {};
+		const planted = {};
+		for (const p of holder.db.Placement._rows.values()) {
+			placed[p.objectId] = (placed[p.objectId] || 0) + 1;
+			if (typeof p.plantedAt === 'number') planted[p.objectId] = (planted[p.objectId] || 0) + 1;
+		}
+		const st = holder.db.Player._rows.get(PID)?.standing;
+		if (!st) drift.push('player: no standing tallies at all');
+		else {
+			if (JSON.stringify(st.placed) !== JSON.stringify(placed))
+				drift.push(`placed: row ${JSON.stringify(st.placed)} vs placements ${JSON.stringify(placed)}`);
+			if (JSON.stringify(st.planted) !== JSON.stringify(planted))
+				drift.push(`planted: row ${JSON.stringify(st.planted)} vs placements ${JSON.stringify(planted)}`);
+		}
+	}
+	for (const b of holder.db.BiomeState._rows.values()) {
+		const tiles = [...holder.db.TerrainTile._rows.values()].filter((tt) => tt.area === b.biomeId);
+		const c = b.terrainCounts;
+		if (!c) {
+			drift.push(`${b.biomeId}: nothing stored for ${tiles.length} tile(s)`);
+			continue;
+		}
+		const want = {
+			watered: tiles.filter((tt) => tt.type === 'watered').length,
+			openWater: tiles.filter((tt) => tt.type === 'water' && !tt.seeded).length,
+			water: shape(tiles.filter((tt) => tt.type === 'water')),
+			playerWater: shape(tiles.filter((tt) => tt.type === 'water' && !tt.seeded)),
+		};
+		const got = { watered: c.watered, openWater: c.openWater, water: c.water, playerWater: b.playerWater };
+		if (JSON.stringify(want) !== JSON.stringify(got))
+			drift.push(`${b.biomeId}: row ${JSON.stringify(got)} vs tiles ${JSON.stringify(want)}`);
+		// …and what the goal board's habitat steps read, against the placements.
+		const here = {};
+		for (const pl of holder.db.Placement._rows.values())
+			if (pl.area === b.biomeId) here[pl.objectId] = (here[pl.objectId] || 0) + 1;
+		if (JSON.stringify(b.objectCounts || {}) !== JSON.stringify(here))
+			drift.push(
+				`${b.biomeId} objects: row ${JSON.stringify(b.objectCounts || {})} vs placements ${JSON.stringify(here)}`,
+			);
+	}
+}
+
 // The goal board is COMPUTED per snapshot, not stored, so no table row carries
 // it and the fingerprint above would miss a change that only moved a goal's
 // progress. That is exactly the failure mode of scoping a read the goal board
 // depends on, so fold the final board into the comparison: every task's id,
 // target and progress, for the board the player would actually be looking at.
+// Attributed to GameState rather than to whichever action ran last: the reads
+// are a snapshot's, and `act` is what normally sets the label.
+globalThis.__EP = 'GameState';
 const finalBoard = await new mod.GameState(PID).get();
+// What the snapshot actually hands the client. Everything that reads placements
+// across areas — the goal board, the recipe gates, the tutorial's flags, the
+// completion tracker — reads a stored count now, so the payload carries the area
+// on screen and the home interior, and nothing else. The goals line below is the
+// half of this that would catch a reader left behind: it is computed from the
+// same narrowed list.
+const payload = {
+	areas: [...new Set((finalBoard?.placements || []).map((p) => p.area))].sort(),
+	sent: (finalBoard?.placements || []).length,
+	held: holder.db.Placement._rows.size,
+};
+
 const goals = (finalBoard?.dailyTasks?.tasks || []).map((x) => ({
 	id: x.id,
 	target: x.target,
@@ -433,6 +652,29 @@ for (const [l, xs] of Object.entries(byLabel))
 		`  expect      wetland lake=9 tiles=9  ->  ${wetland?.lake === 9 && wetland?.tiles === 9 ? 'OK' : 'MISMATCH'}`,
 	);
 }
+console.log(
+	`sprout gate   spider while the patch grows: ${sprout.early}  ·  past the threshold: ${sprout.grown}  ->  ` +
+		`${sprout.early === 'not yet' && sprout.grown === 'home' ? 'OK' : 'MISMATCH'}`,
+);
+console.log(
+	`terrain rows  ${drift.length ? 'DRIFTED — ' + drift.join(' · ') : 'stored counts match the tiles in every biome'}`,
+);
+console.log(
+	`tallies       clover placed ${tally.place}  ·  wildflower planted ${tally.planted}  ·  harvests ${tally.harvest}  ->  ` +
+		`${tally.ok ? 'OK' : 'MISMATCH'}`,
+);
+{
+	const lines = Object.entries(refused).map(
+		([l, m]) => `${l}: ` + [...m.entries()].map(([msg, n]) => `${n}x ${msg}`).join(', '),
+	);
+	console.log(
+		`refused       ${lines.length ? lines.join(' · ') : 'nothing — every action in this session did real work'}`,
+	);
+}
+console.log(
+	`snapshot      ${payload.sent} of ${payload.held} placements, areas: ${payload.areas.join(' + ') || '(none)'}  ->  ` +
+		`${payload.sent < payload.held && payload.areas.every((a) => a === 'meadow' || a === 'home') ? 'OK' : 'MISMATCH'}`,
+);
 console.log(`goals         ${goals.map((g) => `${g.id} ${g.progress}/${g.target}`).join(' · ') || '(none)'}`);
 console.log(`animals home  ${state.Discovery.length}  (${state.Discovery.map((x) => x.animalId).join(', ')})`);
 console.log(`biome health  ${state.BiomeState.map((b) => `${b.biomeId}:${b.health}`).join(' ')}`);

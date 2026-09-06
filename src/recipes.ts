@@ -4,6 +4,26 @@
 
 import type { GameData, GameState, RecipeDef, HabitatObjectDef } from './types';
 
+/**
+ * How many of an object are standing in an area.
+ *
+ * The same arrangement as `waterShape` below, for the same reason: this is asked
+ * about a RECIPE's biome, not the one on screen, and the snapshot carries only
+ * the current area's placements. `objectCounts` is written per biome by
+ * recalcBiome from that area's own rows, so it answers for a biome the player is
+ * nowhere near — which is what keeps a wetland recipe reading unlocked while you
+ * stand in the meadow.
+ *
+ * The local count stays as the fallback, for a biome whose row predates the
+ * field, and it is exact whenever that area's placements are present — which is
+ * always true for the area on screen.
+ */
+export function placedCount(state: GameState, biomeId: string, objectId: string): number {
+	const stored = state.biomeStates?.find((b) => b.biomeId === biomeId)?.objectCounts;
+	if (stored) return stored[objectId] || 0;
+	return (state.placements || []).filter((p) => p.area === biomeId && p.objectId === objectId).length;
+}
+
 /** Animal ids that have returned in a given biome. */
 function returnedInBiome(data: GameData, state: GameState, biomeId: string): Set<string> {
 	const animalBiome = new Map(data.animals.map((a) => [a.id, a.biome]));
@@ -127,9 +147,7 @@ export function recipeUnlocked(recipe: RecipeDef, data: GameData, state: GameSta
 	if (typeof u.craftedDistinct === 'number' && Object.keys(player.craftedEver || {}).length < u.craftedDistinct)
 		return false;
 	if (u.requiresPlaced) {
-		const n = (state.placements || []).filter(
-			(p) => p.area === recipe.unlockBiome && p.objectId === u.requiresPlaced!.objectId,
-		).length;
+		const n = placedCount(state, recipe.unlockBiome, u.requiresPlaced.objectId);
 		if (n < u.requiresPlaced.count) return false;
 	}
 	if (u.requiresWater) {
@@ -239,9 +257,7 @@ export function unlockDistance(recipe: RecipeDef, data: GameData, state: GameSta
 	if (typeof u.craftedDistinct === 'number')
 		d += 2 * Math.max(0, u.craftedDistinct - Object.keys(player.craftedEver || {}).length);
 	if (u.requiresPlaced) {
-		const n = (state.placements || []).filter(
-			(p) => p.area === recipe.unlockBiome && p.objectId === u.requiresPlaced!.objectId,
-		).length;
+		const n = placedCount(state, recipe.unlockBiome, u.requiresPlaced.objectId);
 		d += 6 * Math.max(0, u.requiresPlaced.count - n);
 	}
 	if (u.requiresWater) {

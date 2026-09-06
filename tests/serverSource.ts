@@ -33,6 +33,9 @@ export const LAYERS = [
 	'store',
 	'keys',
 	'worlds',
+	// Pure scoring for the home's coziness — no imports at all, and read by both
+	// the server and the HUD, so it sits just above the module that consumes it.
+	'cozy',
 	'home',
 	'player',
 	'metrics',
@@ -40,6 +43,9 @@ export const LAYERS = [
 	'tasks',
 	'rate-limit',
 	'achievements',
+	// Reads defs + the world's rows and measures them with src/completion.ts, so
+	// it sits after everything it reads and before the endpoints that report it.
+	'completion',
 	'endpoints-game',
 	'endpoints-metrics',
 	'endpoints-admin',

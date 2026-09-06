@@ -10,7 +10,7 @@ import { SEASONS, WEATHER_TYPES, nextPhaseAt } from './weather';
 
 import { BASE_HEALTH, GameError, db, hash32, seededRng } from './core';
 import { byPlayer, placementKey } from './keys';
-import { byArea, byWorld, defs, findBiomeState, worldOf } from './worlds';
+import { byArea, byWorld, defs, findBiomeState, recomputeStanding, worldOf } from './worlds';
 import {
 	DEFAULT_HOME,
 	HOME_STYLES,
@@ -20,10 +20,20 @@ import {
 	doorTileOf,
 	homeOf,
 	homeRoom,
+	isFloorTile,
+	roomAt,
+	roomsOf,
 } from './home';
-import { STARTER_CHEST, patchPlayer, requirePlayer, slugId } from './player';
+import { STARTER_CHEST, isDevSave, patchPlayer, requirePlayer } from './player';
 import { readMetrics, round1, weatherTimeFromPlay } from './metrics';
-import { ALPINE_MTN_ROWS, areaGrid, recalcBiome, seedStartingTerrain, whyReturnedText } from './biome';
+import {
+	ALPINE_MTN_ROWS,
+	areaGrid,
+	nextMaturityFrom,
+	recalcBiome,
+	seedStartingTerrain,
+	whyReturnedText,
+} from './biome';
 import { snapshot } from './tasks';
 import { bodyOf } from './rate-limit';
 import { DashboardEndpoint, PublicEndpoint, nodeBuffer } from './endpoints-game';
@@ -940,27 +950,6 @@ export function metricsListRow(r: any) {
  * 'populate-biome' (build a fully-restored showcase biome for screenshots/video),
  * 'set-weather' (force weather/season for filming; value {type?,season?} or clear).
  */
-/**
- * The only save DevTools will act on, as a name slug.
- *
- * Restored as a REAL gate. A constant with this name existed here before and was
- * never referenced — the comment beside it said dev tools were restricted to one
- * save while the handler checked nothing, so every action below (including
- * `restart-game`, which deletes a save's entire world, and `populate-biome`,
- * which is ~250 writes in one request) was reachable by anyone who knew a player
- * id. CreatePlayer is public, so "knowing a player id" meant one POST, and
- * workers/play.js proxies DevTools straight from the public site.
- *
- * Matched on the slug of the save's NAME rather than its id, because ids carry a
- * random suffix (`bailey-test-k3f9a2`) so there is no fixed id to compare, and
- * because slugId normalizes the ways the name gets typed — `bailey_test`,
- * `Bailey_Test`, `bailey test` and `bailey-test` all reduce to the same thing.
- * The match is EXACT, not a prefix: `bailey_testing` is a different save and does
- * not qualify. Several saves can share the name, which is the intended way to
- * have more than one test world.
- */
-const DEV_PLAYER_SLUG = 'bailey-test';
-
 export class DevTools extends PublicEndpoint {
 	static rateTier = 'dev'; // developer tools
 	async post(data: any) {
@@ -968,10 +957,16 @@ export class DevTools extends PublicEndpoint {
 		const t = db();
 		const d = await defs();
 		const { player } = await requirePlayer(playerId);
-		// The gate. Checked after requirePlayer so an unknown id still reads as 404
-		// rather than telling a caller which ids exist, and BEFORE the switch so no
-		// action can write anything on a save that isn't a test save.
-		if (slugId(String(player?.name || '')) !== DEV_PLAYER_SLUG)
+		// The gate (isDevSave / DEV_PLAYER_SLUG in server/player.ts). Checked after
+		// requirePlayer so an unknown id still reads as 404 rather than telling a
+		// caller which ids exist, and BEFORE the switch so no action can write
+		// anything on a save that isn't a test save.
+		//
+		// The refusal does not say what WOULD qualify. A player who never sees the
+		// panel (the client hides it unless `player.devTools` is set) should not be
+		// handed the name that opens it by the one message that can still reach
+		// them — a scripted caller included.
+		if (!isDevSave(player))
 			throw new GameError(tr('server.err.devToolsRestricted'), 403, 'server.err.devToolsRestricted');
 		const log: string[] = [];
 
@@ -1003,7 +998,7 @@ export class DevTools extends PublicEndpoint {
 					await t.TerrainTile.delete(tt.id);
 				}
 				await seedStartingTerrain(playerId, playerId, ar);
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Reseeded starting terrain for ${ar}`);
 				break;
 			}
@@ -1014,7 +1009,7 @@ export class DevTools extends PublicEndpoint {
 					await t.TerrainTile.delete(tt.id);
 					n++;
 				}
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Cleared ${n} terrain tiles in ${ar}`);
 				break;
 			}
@@ -1215,7 +1210,7 @@ export class DevTools extends PublicEndpoint {
 				}
 				await t.BiomeState.patch(`${playerId}:${ar}`, { health: BASE_HEALTH, balance: 0, returnedCount: 0 });
 				await seedStartingTerrain(playerId, playerId, ar);
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(
 					`Reset ${ar} to its damaged state — removed ${placementsRemoved} object${placementsRemoved === 1 ? '' : 's'} and sent ${animalsRemoved} animal${animalsRemoved === 1 ? '' : 's'} away (chests kept)`,
 				);
@@ -1262,7 +1257,7 @@ export class DevTools extends PublicEndpoint {
 					});
 					added++;
 				}
-				await recalcBiome(playerId, playerId, ar, { player });
+				await recalcBiome(playerId, playerId, ar, { player, fresh: true });
 				log.push(`Welcomed ${added} animal${added === 1 ? '' : 's'} to ${ar} (${here.length} total)`);
 				break;
 			}
@@ -1294,7 +1289,7 @@ export class DevTools extends PublicEndpoint {
 				// recalcBiome recomputes comfort from the (probably bare) habitat, which
 				// would drop this animal to "rarely seen" and skip drawing it. Run it for
 				// returnedCount/unlocks, then force comfort high so the spawn is visible.
-				await recalcBiome(playerId, playerId, animal.biome, { player });
+				await recalcBiome(playerId, playerId, animal.biome, { player, fresh: true });
 				await t.Discovery.patch(discId, { comfort: 85 });
 				log.push(`Spawned ${animal.name} in ${animal.biome} — comfort 85, biome unlocked`);
 				break;
@@ -1369,12 +1364,15 @@ export class DevTools extends PublicEndpoint {
 					// just beds: a screenshot wants to see the way out, and it keeps the
 					// authoritative blocksDoorway rule satisfied for free.
 					const openFloor = (x: number, y: number) =>
-						x >= r.x0 &&
-						x <= r.x1 &&
-						y >= r.y0 &&
-						y <= r.y1 &&
+						isFloorTile(r, x, y) &&
 						!(Math.abs(x - door.x) <= 1 && Math.abs(y - door.y) <= 1) &&
 						!taken.has(`${x},${y}`);
+					/** Every floor tile of the plan, in reading order — the sweep that
+					 *  guarantees a piece is not silently dropped walks these, because
+					 *  from Space 3 the plan is rooms and not one rectangle. */
+					const allFloor: { x: number; y: number }[] = [];
+					for (const room of roomsOf(r))
+						for (let y = room.y0; y <= room.y1; y++) for (let x = room.x0; x <= room.x1; x++) allFloor.push({ x, y });
 					const rows: any[] = [];
 					const put = (def: any, x: number, y: number): boolean => {
 						if (!openFloor(x, y)) return false;
@@ -1393,8 +1391,12 @@ export class DevTools extends PublicEndpoint {
 						rows.push(row);
 						return true;
 					};
-					/** Tiles touching a wall — where anything hung or shelved belongs. */
-					const againstWall = (x: number, y: number) => x === r.x0 || x === r.x1 || y === r.y0 || y === r.y1;
+					/** Tiles touching a wall of their own room — where anything hung or
+					 *  shelved belongs. Per room, so the nook gets its own edges. */
+					const againstWall = (x: number, y: number) => {
+						const room = roomAt(r, x, y);
+						return !!room && (x === room.x0 || x === room.x1 || y === room.y0 || y === room.y1);
+					};
 					const WALL_HUNG = /painting|wallclock|shelf|chandelier|string-lights|telescope|dresser|bookshelf/;
 					const FLOOR_SPREAD = /rug|reedmat|blanket|cushions|hammock/;
 					const putSomewhere = (def: any): boolean => {
@@ -1407,13 +1409,12 @@ export class DevTools extends PublicEndpoint {
 						// a sweep so a full floor can't silently drop a piece
 						for (const test of wants ? [wants, null] : [null]) {
 							for (let tries = 0; tries < 80; tries++) {
-								const x = ri(r.x0, r.x1),
-									y = ri(r.y0, r.y1);
-								if (test && !test(x, y)) continue;
-								if (put(def, x, y)) return true;
+								const spot = allFloor[ri(0, allFloor.length - 1)];
+								if (test && !test(spot.x, spot.y)) continue;
+								if (put(def, spot.x, spot.y)) return true;
 							}
 						}
-						for (let y = r.y0; y <= r.y1; y++) for (let x = r.x0; x <= r.x1; x++) if (put(def, x, y)) return true;
+						for (const spot of allFloor) if (put(def, spot.x, spot.y)) return true;
 						return false;
 					};
 					const missing: string[] = [];
@@ -1736,7 +1737,7 @@ export class DevTools extends PublicEndpoint {
 						whyReturned: whyReturnedText(animal, d),
 					});
 				}
-				await recalcBiome(wid, playerId, ar, { player });
+				await recalcBiome(wid, playerId, ar, { player, fresh: true });
 				// recalc recomputes comfort/health from the habitat; force the picture-perfect
 				// state so every animal is drawn (comfort high) and the meters read full.
 				const bs = await findBiomeState(t.BiomeState, wid, ar);
@@ -1789,6 +1790,20 @@ export class DevTools extends PublicEndpoint {
 				throw new GameError(tr('server.err.unknownDevAction', { action }), 400, 'server.err.unknownDevAction');
 		}
 
+		// The dev tools rewrite placements directly — wiping an area, reseeding it,
+		// furnishing a house — rather than through the endpoints that keep the goal
+		// board's tallies in step with them. Rather than remember which of a dozen
+		// actions moved a placement, recompute from the rows on the way out: this is
+		// a developer path on one test save, and one scan is cheaper than a tally
+		// that silently disagrees with the world it describes.
+		await recomputeStanding(worldOf(player), playerId);
+		// …and the growth marker beside them, for the same reason: populate plants
+		// things, and every heartbeat trusts this number until the moment it names.
+		// The placement scan is the one recomputeStanding just did — the request
+		// cache serves it — so this costs a write and no reads.
+		await patchPlayer(playerId, {
+			nextMaturityAt: nextMaturityFrom(d, await byWorld(t.Placement, worldOf(player)), Date.now()),
+		});
 		return { ok: true, log, state: await snapshot(playerId) };
 	}
 }
