@@ -54,9 +54,13 @@ describe('the rain basin', () => {
 		// The gate is opt-in per object: an oak drops acorns whatever the sky is
 		// doing, and an unplanted seedling is still not a harvest.
 		const oak = objectOf('oak-tree');
+		// One clock reading for both sides. Calling Date.now() twice across the
+		// assertion straddles a millisecond tick every so often, which failed CI
+		// with an off-by-one that had nothing to do with the code under test.
+		const now = Date.now();
 		expect(harvestWeatherOk(oak, 'clear')).toBe(true);
-		expect(harvestReadyAt(oak, { placedAt: Date.now() - HOUR })).toBeNull();
-		expect(harvestReadyAt(oak, { plantedAt: Date.now() })).toBe(Date.now() + (oak.growSeconds || 0) * 1000);
+		expect(harvestReadyAt(oak, { placedAt: now - HOUR })).toBeNull();
+		expect(harvestReadyAt(oak, { plantedAt: now })).toBe(now + (oak.growSeconds || 0) * 1000);
 	});
 
 	it('is the only thing that fills with weather, so nothing else changed', () => {
