@@ -46,7 +46,17 @@ concurrency:
 jobs:
   build:
     name: Build, sign & upload (.pkg)
-    runs-on: macos-latest
+    # PINNED, not macos-latest. `macos-latest` became macos-26 (Tahoe) in June
+    # 2026, and electron-builder's keychain setup does not survive it: it creates
+    # the temp signing keychain with a random password (macCodeSign.js), then
+    # calls `security set-key-partition-list -k <p12 password>` on it. `-k` wants
+    # the KEYCHAIN password, not the .p12 one. Through macOS 15 the keychain was
+    # already unlocked so security never checked; macOS 26 checks, and every
+    # signed build dies with "SecKeychainUnlock: The user name or passphrase you
+    # entered is not correct". Still unfixed as of electron-builder 26.16.0.
+    # Unpin once that lands upstream, or once we import the certs ourselves and
+    # stop letting electron-builder build the keychain at all.
+    runs-on: macos-15
     steps:
       - uses: actions/checkout@v4
 

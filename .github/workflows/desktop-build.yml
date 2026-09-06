@@ -69,7 +69,9 @@ jobs:
         include:
           - os: windows-latest
             artifact: wild-willows-windows
-          - os: macos-latest
+          # PINNED, not macos-latest — see the note in mas-build.yml.
+          # macos-26 breaks electron-builder's signing keychain setup.
+          - os: macos-15
             artifact: wild-willows-macos
           - os: ubuntu-latest
             artifact: wild-willows-linux
@@ -104,7 +106,7 @@ jobs:
       # signing cert (WIN_CSC_LINK) and fails on an empty value. The version is
       # taken from the tag (v0.1.1 → 0.1.1), so package.json is never bumped.
       - name: Package desktop app (macOS, signed)
-        if: matrix.os == 'macos-latest'
+        if: matrix.os == 'macos-15'
         shell: bash
         run: |
           EXTRA=""
@@ -120,7 +122,7 @@ jobs:
 
       # Windows + Linux: unsigned (no signing env at all).
       - name: Package desktop app (Windows / Linux)
-        if: matrix.os != 'macos-latest'
+        if: matrix.os != 'macos-15'
         shell: bash
         run: |
           EXTRA=""
