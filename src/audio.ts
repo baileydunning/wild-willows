@@ -884,15 +884,33 @@ const CUE_PRIORITY: Partial<Record<SfxId, number>> = {
 };
 const CUE_FADE_OUT_MS = 180;
 let activeCue: { priority: number; el: HTMLAudioElement } | null = null;
-let cueFadeRaf: number | null = null;
+/**
+ * The fade in progress FOR EACH ELEMENT, not one fade for the whole channel.
+ *
+ * Ceremonies can arrive faster than a fade takes: sunrise, then an upgrade, then
+ * an achievement, all inside 180ms. With a single shared handle the achievement
+ * cancelled the sunrise fade on its way to fading the upgrade — and sunrise was
+ * no longer `activeCue`, so nothing was left to stop it. It kept playing
+ * underneath the cue that had taken the floor from it, which is the exact mush
+ * this channel exists to prevent. Keyed by element, each loser takes itself
+ * down on its own schedule.
+ */
+const cueFades = new Map<HTMLAudioElement, number>();
+
+/** Drop any fade this element has in flight (it is stopping or starting anew). */
+function cancelCueFade(el: HTMLAudioElement) {
+	const raf = cueFades.get(el);
+	if (raf === undefined) return;
+	cueFades.delete(el);
+	if (typeof window !== 'undefined') window.cancelAnimationFrame(raf);
+}
 
 /** Take a losing cue down over a beat instead of cutting it mid-word. */
 function fadeOutCue(el: HTMLAudioElement) {
-	if (cueFadeRaf !== null && typeof window !== 'undefined') {
-		window.cancelAnimationFrame(cueFadeRaf);
-		cueFadeRaf = null;
-	}
+	// Only this element's own fade is restarted — never anyone else's.
+	cancelCueFade(el);
 	const stop = () => {
+		cueFades.delete(el);
 		el.pause();
 		try {
 			el.currentTime = 0;
@@ -910,13 +928,12 @@ function fadeOutCue(el: HTMLAudioElement) {
 		const progress = clamp01((t - start) / CUE_FADE_OUT_MS);
 		el.volume = from * (1 - progress);
 		if (progress < 1) {
-			cueFadeRaf = window.requestAnimationFrame(tick);
+			cueFades.set(el, window.requestAnimationFrame(tick));
 			return;
 		}
 		stop();
-		cueFadeRaf = null;
 	};
-	cueFadeRaf = window.requestAnimationFrame(tick);
+	cueFades.set(el, window.requestAnimationFrame(tick));
 }
 
 /**
@@ -975,6 +992,10 @@ function playSfx(id: SfxId) {
 	const priority = CUE_PRIORITY[id];
 	if (priority !== undefined && !takeCueFloor(priority, el)) return;
 	if (cooldown) lastSfxAt.set(id, startedAt);
+	// This element may be mid-fade from a moment ago (the same sound losing the
+	// floor and being asked for again). Call off that fade, or it goes on running
+	// against the copy now starting and pauses it a frame later.
+	cancelCueFade(el);
 	const gain = sfxGain[id] ?? 1;
 	el.volume = clamp01(effectiveSfxVolume() * gain);
 	try {

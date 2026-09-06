@@ -2124,8 +2124,40 @@ export class MoveObject extends PublicEndpoint {
 		const here = await byArea(t.Placement, wid, placement.area);
 		const d = await defs();
 		const movingDef = d.object.get(placement.objectId);
+		// Indoors, the same surface and doorway rules as PlaceObject — otherwise a
+		// painting could simply be MOVED onto the floorboards, and a bed into the
+		// spot it isn't allowed to be placed in.
+		//
+		// This runs BEFORE the destination tile is checked for occupancy, in the order
+		// PlaceObject does it, and the order is the whole behavior: a wall item aimed
+		// at a tile something is already hanging on SLIDES along the wall to the
+		// nearest free one. Asking "is that tile taken?" about the tile the player
+		// pointed at refuses the move outright — so hanging a second picture there
+		// worked while MOVING one there did not. The question only means anything
+		// about the tile the interior rules resolved.
+		const movingTent = tentBiomeOf(placement.area);
+		const movingRoom = placement.area === 'home' ? homeRoom(player) : movingTent ? tentRoom() : null;
+		if (movingRoom) {
+			// A wall item slides to the nearest free spot on the wall, exactly as it
+			// does when first placed — and the tile it is leaving is free for it.
+			const spot = interiorSpotFor(movingDef, movingRoom, tx, ty, (px, py) =>
+				here.some((p) => p.id !== placementId && p.x === px && p.y === py),
+			);
+			if (typeof spot === 'string')
+				throw new GameError(tr(spot, { name: movingDef?.name || placement.objectId }), 400, spot);
+			tx = spot.x;
+			ty = spot.y;
+			if (blocksDoorway(placement.objectId, movingRoom, tx, ty)) {
+				throw new GameError(
+					tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }),
+					400,
+					'server.err.bedBlocksDoor',
+				);
+			}
+		}
 		// Same tabletop exception as PlaceObject: a small thing may be moved ONTO a
-		// surface, and anything else wants an empty tile.
+		// surface, and anything else wants an empty tile. Asked of (tx, ty) as the
+		// interior rules resolved it above, not as the player aimed it.
 		const onTile = here.filter((p) => p.id !== placementId && p.x === tx && p.y === ty);
 		if (
 			onTile.length &&
@@ -2152,29 +2184,6 @@ export class MoveObject extends PublicEndpoint {
 					409,
 					'server.err.clearSurfaceFirst',
 				);
-		}
-		// Indoors, the same surface and doorway rules as PlaceObject — otherwise a
-		// painting could simply be MOVED onto the floorboards, and a bed into the
-		// spot it isn't allowed to be placed in.
-		const movingTent = tentBiomeOf(placement.area);
-		const movingRoom = placement.area === 'home' ? homeRoom(player) : movingTent ? tentRoom() : null;
-		if (movingRoom) {
-			// A wall item slides to the nearest free spot on the wall, exactly as it
-			// does when first placed — and the tile it is leaving is free for it.
-			const spot = interiorSpotFor(movingDef, movingRoom, tx, ty, (px, py) =>
-				here.some((p) => p.id !== placementId && p.x === px && p.y === py),
-			);
-			if (typeof spot === 'string')
-				throw new GameError(tr(spot, { name: movingDef?.name || placement.objectId }), 400, spot);
-			tx = spot.x;
-			ty = spot.y;
-			if (blocksDoorway(placement.objectId, movingRoom, tx, ty)) {
-				throw new GameError(
-					tr('server.err.bedBlocksDoor', { name: movingDef?.name || placement.objectId }),
-					400,
-					'server.err.bedBlocksDoor',
-				);
-			}
 		}
 		const tileHere = await findTerrainAt(t.TerrainTile, wid, placement.area, tx, ty);
 		if (tileHere) {
@@ -2459,6 +2468,23 @@ export class UpgradeHome extends PublicEndpoint {
 			// rules no longer allow, so both re-place what they displaced. Comfort and
 			// Furnishings touch neither.
 			if (track === 'space' || track === 'light') await reflowInterior(wid, playerId, await defs());
+			// Furnishings is the track that can change the READING itself. Its multiplier
+			// is applied on the way out (cozyOf), so those levels pay off the moment they
+			// are bought — but Curator's Eye is not a multiplier: it changes how the RAW
+			// score is COMPUTED, and the raw is the number the save caches. Left alone,
+			// the HUD (which recomputes from the placements it holds) would climb at once
+			// while carry, perk and rested speed went on quoting the pre-Curator number
+			// until the player happened to move a chair. Same ability, two answers. So
+			// the cache is rewritten HERE, against the upgraded home, on the levels where
+			// what the room is worth actually changes shape.
+			const optsBefore = homeCozyOpts(player);
+			const optsAfter = homeCozyOpts({ ...player, home: updated });
+			if (optsBefore.curator !== optsAfter.curator || optsBefore.showcase !== optsAfter.showcase) {
+				await saveCoziness(playerId, await byArea(t.Placement, wid, 'home'), await defs(), {
+					...player,
+					home: updated,
+				});
+			}
 			const chests = await byWorld(t.Chest, wid);
 			await awardAchievements(playerId);
 			await bumpMetrics(player, { homeUpgrades: 1 });

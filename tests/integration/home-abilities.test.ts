@@ -212,3 +212,128 @@ describe('Standing Order — a basket that never turns you away (Comfort 6)', ()
 		).rejects.toThrow();
 	});
 });
+
+describe("Curator's Eye — an arranged room pays sooner (Furnishings 6)", () => {
+	// The other two abilities in this file change what an ACTION costs or where a
+	// crop goes. This one changes a NUMBER the save is carrying: the coziness
+	// cache holds the RAW reading, and Curator's Eye is the one thing that alters
+	// how the raw is computed rather than what a multiplier does to it. So buying
+	// it has to rewrite the cache then and there — otherwise the meter on the HUD
+	// (which recomputes from the placements it is holding) climbs immediately
+	// while the carry, the perk and the rested speed the server hands out go on
+	// quoting the old room until the player happens to move a chair.
+
+	// Twelve different pieces covering eight of the nine comforts: a room that is
+	// arranged rather than merely full, which is exactly what the ability is for.
+	const ROOM = [
+		'home-rug',
+		'home-table',
+		'home-bed',
+		'home-armchair',
+		'home-lamp',
+		'home-potplant',
+		'home-tideglass',
+		'home-clayurn',
+		'home-stool',
+		'home-cushions',
+		'home-bookshelf',
+		'home-reedmat',
+	];
+	// Mirrors homeRoom(): the 8×6 interior of a Space-2 house, centred in 30×20.
+	const X0 = Math.floor((30 - 8) / 2);
+	const Y0 = Math.floor((20 - 6) / 2);
+
+	/** A furnished house sitting one level below Curator's Eye. */
+	const furnishedAtFive = async () => {
+		await holder.db.Player.patch(pid, {
+			home: { style: 'cabin', space: 2, comfort: 1, decor: 5, light: 1, styleLocked: true },
+			craftedItems: Object.fromEntries(ROOM.map((id) => [id, 1])),
+			devUnlockAll: true,
+		});
+		for (const [i, id] of ROOM.entries()) {
+			const res = await post('PlaceObject', {
+				playerId: pid,
+				objectId: id,
+				area: 'home',
+				x: X0 + (i % 8),
+				y: Y0 + Math.floor(i / 8),
+			});
+			expect(res.ok, id).toBe(true);
+		}
+	};
+
+	/** Buy the next Furnishings level. Its own gates are not what this is about. */
+	const buyFurnishings = async () => {
+		for (const [key, row] of holder.db.BiomeState._rows) {
+			holder.db.BiomeState._rows.set(key, { ...row, unlocked: true, health: 90 });
+		}
+		await holder.db.Player.patch(pid, {
+			inventory: { 'quartz-crystal': 20, 'alpine-flowers': 20, 'juniper-berries': 20 },
+		});
+		return post('UpgradeHome', { playerId: pid, track: 'decor' });
+	};
+
+	/** What the room reads as from the placements themselves — the same recompute
+	 *  the HUD's meter does, so it is what the player is being shown. */
+	const asShown = async (boost = 0) => {
+		const { readCoziness } = await import('../../server/cozy');
+		const { homeCozyOpts } = await import('../../server/home');
+		const { defs } = await import('../../server/worlds');
+		const d = await defs();
+		const player = await holder.db.Player.get(pid);
+		const rows = [...holder.db.Placement._rows.values()].filter((p: any) => p.area === 'home');
+		return readCoziness(rows, (id: string) => d.object.get(id), boost, homeCozyOpts(player));
+	};
+
+	/** The buffs the server is actually handing out, cache and all. */
+	const asServed = async () => {
+		const { homeCozy } = await import('../../server/home');
+		return homeCozy(await holder.db.Player.get(pid));
+	};
+
+	it('rewrites the cached reading the moment the ability is bought', async () => {
+		await furnishedAtFive();
+		const cachedBefore = (await holder.db.Player.get(pid)).homeCozy.score;
+		await buyFurnishings();
+		const cachedAfter = (await holder.db.Player.get(pid)).homeCozy.score;
+		expect(cachedAfter).toBeGreaterThan(cachedBefore);
+		expect(cachedAfter).toBe((await asShown()).score);
+	});
+
+	it('hands out the buff the meter is showing, without waiting for a chair to move', async () => {
+		await furnishedAtFive();
+		await buyFurnishings();
+		const { homeCozyBoost } = await import('../../server/home');
+		const shown = await asShown(homeCozyBoost(await holder.db.Player.get(pid)));
+		const served = await asServed();
+		expect(served.score).toBe(shown.score);
+		expect(served.tierId).toBe(shown.tierId);
+		expect(served.carry).toBe(shown.carry);
+	});
+
+	it('lifts this room a whole tier — the ability is worth what it costs', async () => {
+		await furnishedAtFive();
+		const before = await asServed();
+		await buyFurnishings();
+		const after = await asServed();
+		expect(after.carry).toBeGreaterThan(before.carry);
+	});
+
+	it('leaves the cache exactly where the next place/remove would put it', async () => {
+		await furnishedAtFive();
+		await buyFurnishings();
+		const afterUpgrade = (await holder.db.Player.get(pid)).homeCozy;
+		// Moving furniture is the path that used to be the only fix. Putting one
+		// more thing down and taking it away again must land on the same number.
+		await holder.db.Player.patch(pid, { craftedItems: { 'home-stool': 1 } });
+		const placed = await post('PlaceObject', {
+			playerId: pid,
+			objectId: 'home-stool',
+			area: 'home',
+			x: X0 + 5,
+			y: Y0 + 1,
+		});
+		await post('RemoveObject', { playerId: pid, placementId: placed.placement?.id ?? placed.placementId });
+		expect((await holder.db.Player.get(pid)).homeCozy).toEqual(afterUpgrade);
+	});
+});

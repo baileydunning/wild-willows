@@ -817,6 +817,72 @@ describe('audio — one ceremony at a time', () => {
 		bridge.emit('audio-sfx', { id: 'dig' });
 		expect(bySrc('dig.ogg')[0].play).toHaveBeenCalledTimes(1);
 	});
+
+	/* runFades above resolves each fade the instant it starts, which is exactly
+	 * what hides the interesting case: cues can arrive FASTER than a fade takes.
+	 * This pump queues the frames instead, so a losing cue can be preempted while
+	 * its own fade is still in flight. */
+	const framePump = () => {
+		const queued = new Map<number, FrameRequestCallback>();
+		let nextId = 1;
+		window.requestAnimationFrame = (cb: FrameRequestCallback) => {
+			queued.set(nextId, cb);
+			return nextId++;
+		};
+		window.cancelAnimationFrame = (id: number) => {
+			queued.delete(id);
+		};
+		/** Run every frame that is waiting, well past the end of any fade. */
+		return () => {
+			const due = [...queued.values()];
+			queued.clear();
+			const t = (typeof performance !== 'undefined' ? performance.now() : Date.now()) + 10_000;
+			for (const cb of due) cb(t);
+		};
+	};
+
+	it('leaves nothing playing underneath when ceremonies arrive faster than a fade', () => {
+		// Dawn, then an upgrade, then a badge — all inside the 180ms fade. Each one
+		// outranks the last, so the floor changes hands twice while the first cue is
+		// still fading. The fade state is per element for exactly this: one shared
+		// handle meant the badge cancelled the dawn chorus's fade on its way to
+		// fading the upgrade, and the dawn chorus — no longer the active cue, so
+		// nobody's business to stop — went on playing under the winner.
+		bind();
+		primeAndClear();
+		const runFrames = framePump();
+
+		bridge.emit('audio-sfx', { id: 'sunriseBirds' });
+		const [dawn] = bySrc('SunriseBirds.mp3');
+		expect(dawn.paused).toBe(false);
+
+		bridge.emit('audio-sfx', { id: 'upgrade' });
+		bridge.emit('audio-sfx', { id: 'achievement' });
+		runFrames();
+
+		expect(bySrc('Reward1.mp3')[0].paused).toBe(false); // the winner is speaking
+		expect(bySrc('Upgrade1.mp3')[0].paused).toBe(true); // it took the floor cleanly
+		expect(dawn.paused, 'the dawn chorus was left playing underneath').toBe(true);
+		expect(dawn.volume).toBe(0);
+	});
+
+	it('calls off a pending fade when the same cue is asked for again', () => {
+		// The dawn chorus loses the floor and is asked for again a moment later.
+		// Its fade must not go on running against the copy now starting.
+		bind();
+		primeAndClear();
+		const runFrames = framePump();
+
+		bridge.emit('audio-sfx', { id: 'sunriseBirds' });
+		bridge.emit('audio-sfx', { id: 'areaUnlocked' }); // outranks it; dawn starts fading
+		bySrc('BiomeUnlocked.mp3')[0].pause(); // ...and the fanfare finishes
+		bridge.emit('audio-sfx', { id: 'sunriseBirds' }); // dawn is asked for again
+		runFrames();
+
+		const [dawn] = bySrc('SunriseBirds.mp3');
+		expect(dawn.paused).toBe(false);
+		expect(dawn.volume).toBeGreaterThan(0);
+	});
 });
 
 describe('audio — the campfire crackle', () => {

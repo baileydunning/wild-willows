@@ -270,11 +270,11 @@ export function cozyOf(player: any, boost = 0, opts: CozyOpts = {}): CozyReading
 	// Tier effects are re-derived from the score rather than trusted as stored,
 	// so retuning COZY_TIERS retunes every existing save without a migration.
 	//
-	// NOTE the stored raw predates Curator's Eye, which changes how the raw score
-	// is computed — so a save whose cache was written before the ability was
-	// bought reads a little low until the next place/remove rewrites it. That is
-	// one action, and the meter on the HUD (which recomputes from the placements
-	// it holds, with the same opts) is right immediately either way.
+	// The stored raw is written WITH whatever Curator's Eye state the save had at
+	// the time — the ability changes how the raw score is computed, so it cannot
+	// be applied on the way out the way the multiplier is. Buying it rewrites the
+	// cache on the spot (see UpgradeHome), which is what keeps this in step with
+	// the meter on the HUD, since that recomputes from the placements it holds.
 	const raw = c.score;
 	const score = Math.min(100, Math.round(raw * (1 + Math.max(0, boost))));
 	const tier = cozyTierAt(score, raw, opts);

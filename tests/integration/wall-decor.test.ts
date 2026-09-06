@@ -155,6 +155,33 @@ describe('moving is held to the same rule as placing', () => {
 		const id = idOf(await place('home-armchair', HOME.x0 + 2, HOME.y0 + 2));
 		await expect(move(id, HOME.x0, HOME.y0 - 1)).rejects.toThrow(/floor/i);
 	});
+
+	// The rule above cuts both ways: the wall SLIDE is part of placing, so it has
+	// to be part of moving too. Aiming a second picture at an occupied tile hangs
+	// it further along; dragging an already-hung one to that same tile used to be
+	// refused outright, because the move asked "is that tile taken?" about the
+	// tile the player pointed at rather than the tile the wall rules resolve to.
+	// Same wall, same gesture, two different answers.
+	it('slides a picture MOVED onto an occupied tile along the wall, exactly as placing does', async () => {
+		const taken = idOf(await place('home-painting', HOME.x0 + 2, HOME.y0 - 1));
+		const mover = idOf(await place('home-strawwreath', HOME.x1 + 1, HOME.y0 + 2));
+		expect((await move(mover, HOME.x0 + 2, HOME.y0 - 1)).ok).toBe(true);
+		const a = holder.db.Placement._rows.get(taken);
+		const b = holder.db.Placement._rows.get(mover);
+		// the one already hanging did not budge, and the mover found its own tile
+		expect({ x: a.x, y: a.y }).toEqual({ x: HOME.x0 + 2, y: HOME.y0 - 1 });
+		expect(`${b.x},${b.y}`).not.toBe(`${a.x},${a.y}`);
+		expect(canHangAt(layoutOf({ inner: { w: 8, h: 6 } }, GRID_W, GRID_H, 1), b.x, b.y), `landed at ${b.x},${b.y}`).toBe(
+			true,
+		);
+	});
+
+	it('still refuses to move one thing on top of another on the FLOOR', async () => {
+		const sitting = idOf(await place('home-armchair', HOME.x0 + 2, HOME.y0 + 2));
+		const other = idOf(await place('home-sleeping-bag', HOME.x0 + 4, HOME.y0 + 2));
+		await expect(move(other, HOME.x0 + 2, HOME.y0 + 2)).rejects.toThrow();
+		expect(holder.db.Placement._rows.get(sitting)).toMatchObject({ x: HOME.x0 + 2, y: HOME.y0 + 2 });
+	});
 });
 
 describe('a trail tent has walls too', () => {
