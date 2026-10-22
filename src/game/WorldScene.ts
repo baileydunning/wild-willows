@@ -144,6 +144,13 @@ const VIEW_H = 20;
 // (handleMovement clamps at the true edge).
 const SURROUND_X = 26; // tiles of surround left/right (≥ half the widest view)
 const SURROUND_Y = 18; // tiles of surround above/below (≥ half the tallest view)
+/** How far (tiles) the worn trail runs out past a gate, into the next biome's teaser. */
+const TRAIL_LEN = 6.6;
+/** Teaser strength past a gate: how far the ground shifts toward the next
+ *  biome's color, and how much of its growth mixes in, at full weight. Kept
+ *  low so it reads as a hint (desert's reeds and scree looked odd stronger). */
+const TEASER_GROUND = 0.35;
+const TEASER_GROWTH = 0.35;
 
 const C = (hex: string) => Phaser.Display.Color.HexStringToColor(hex).color;
 
@@ -696,6 +703,12 @@ export class WorldScene extends Phaser.Scene {
 	}
 	private biomeDef(id = this.area): BiomeDef | undefined {
 		return bridge.shared.data?.biomes.find((b) => b.id === id);
+	}
+	/** The biome one step west (-1) or east (1) along the trail, by `order`. */
+	private neighborArea(dir: -1 | 1): string | undefined {
+		const order = this.biomeDef()?.order;
+		if (!order) return undefined;
+		return bridge.shared.data?.biomes.find((b) => b.order === order + dir)?.id;
 	}
 	/**
 	 * id -> habitat-object def, for the O(1) lookups objectDef() hands out.
@@ -1573,19 +1586,21 @@ export class WorldScene extends Phaser.Scene {
 		// A clearly worn dirt trail heading OUT through the opening, from the
 		// world edge off toward the next biome — the way onward is obvious. It
 		// stays entirely outside the world, clear of the gate (which sits 1.2
-		// tiles inside the edge).
+		// tiles inside the edge), and runs on into the neighbouring biome's
+		// teaser (see drawSurround), fading out as it goes.
 		const trail = (edgeTx: number, outward: 1 | -1) => {
 			const py = gy * TILE; // gate row
 			const g = this.add.graphics().setDepth(0.5); // above ground, below objects
-			for (let i = 0.2; i <= 3.8; i += 0.34) {
+			const fade = (i: number) => (i <= 3.8 ? 1 : Math.max(0, 1 - (i - 3.8) / (TRAIL_LEN - 3.8)));
+			for (let i = 0.2; i <= TRAIL_LEN; i += 0.34) {
 				const px = (edgeTx + i * outward) * TILE;
 				const wob = Math.sin(i * 1.7) * 4;
-				g.fillStyle(C('#b59a6d'), 0.95).fillEllipse(px, py + wob, TILE * 1.15, TILE * 0.78);
+				g.fillStyle(C('#b59a6d'), 0.95 * fade(i)).fillEllipse(px, py + wob, TILE * 1.15, TILE * 0.78);
 			}
-			for (let i = 0.4; i <= 3.6; i += 0.5) {
+			for (let i = 0.4; i <= TRAIL_LEN - 0.4; i += 0.5) {
 				const px = (edgeTx + i * outward) * TILE;
 				const wob = Math.sin(i * 1.7) * 4;
-				g.fillStyle(C('#9c7f55'), 0.65).fillEllipse(px, py + wob, TILE * 0.6, TILE * 0.3);
+				g.fillStyle(C('#9c7f55'), 0.65 * fade(i)).fillEllipse(px, py + wob, TILE * 0.6, TILE * 0.3);
 			}
 		};
 
@@ -1627,9 +1642,27 @@ export class WorldScene extends Phaser.Scene {
 		// keep the outward gate trails (drawEdgeGrass) clear of growth
 		const gy = this.dimsOf(this.area).gateY;
 		const { westGate, eastGate } = gateEdges(bridge.shared.data?.biomes, this.area);
+		const trailReach = TRAIL_LEN + 0.7;
 		const onTrail = (tx: number, ty: number) =>
 			Math.abs(ty + 0.5 - gy) < 1.6 &&
-			((westGate && tx < 0 && tx >= -4.5) || (eastGate && tx >= this.landRight && tx < this.landRight + 4.5));
+			((westGate && tx < 0 && tx >= -trailReach) ||
+				(eastGate && tx >= this.landRight && tx < this.landRight + trailReach));
+		// Past each gate the land starts turning into the biome the trail leads to:
+		// a fan around the trail where the ground shifts toward that biome's color
+		// and its growth (trees, reeds, scrub, scree...) takes over, stronger the
+		// further out you look. Areas blend into each other instead of stopping.
+		const westArea = westGate ? this.neighborArea(-1) : undefined;
+		const eastArea = eastGate ? this.neighborArea(1) : undefined;
+		const teaser = (tx: number, ty: number): { area: string; w: number } | undefined => {
+			const d = tx < 0 ? -tx : tx - this.landRight + 1; // tiles out past the edge
+			const area = tx < 0 ? westArea : tx >= this.landRight ? eastArea : undefined;
+			if (!area || d < 1) return undefined;
+			const half = 2.5 + d * 0.45; // the fan widens with distance
+			const lat = Math.abs(ty + 0.5 - gy) / half;
+			if (lat >= 1) return undefined;
+			const w = Phaser.Math.Clamp((d - 0.5) / 8, 0, 1) * (1 - lat * lat);
+			return w > 0.04 ? { area, w } : undefined;
+		};
 		for (let ty = -SURROUND_Y; ty < this.rows + SURROUND_Y; ty++) {
 			for (let tx = -SURROUND_X; tx < this.cols + SURROUND_X; tx++) {
 				// the playable region is already drawn
@@ -1640,8 +1673,13 @@ export class WorldScene extends Phaser.Scene {
 				if (this.area === 'coastal' && tx >= this.landRight) continue;
 				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
 				(img as any).shade = 0.92 + rng() * 0.08; // same as the playable field
+				const tz = teaser(tx, ty);
+				if (tz) (img as any).blend = { area: tz.area, amt: tz.w * TEASER_GROUND }; // see tintGround
 				this.groundTiles.push(img);
-				if (!onTrail(tx, ty)) this.surroundDeco(tx, ty, rng);
+				if (onTrail(tx, ty)) continue;
+				// the neighbour's growth wears its own colors, not this biome's health
+				if (tz && rng() < tz.w * TEASER_GROWTH) this.surroundDeco(tx, ty, rng, tz.area, false);
+				else this.surroundDeco(tx, ty, rng);
 			}
 		}
 	}
@@ -1652,8 +1690,12 @@ export class WorldScene extends Phaser.Scene {
 	 * meadow, unbroken woods past the forest, dense reeds around the wetland,
 	 * dry scrub and rock beyond the desert, scree and snow in the alpine, dune
 	 * grass along the coast.
+	 *
+	 * `area` defaults to this biome; drawSurround passes the neighbouring one for
+	 * the teaser past each gate, with `living` off so that growth keeps its own
+	 * colors instead of withering or greening with this biome's health.
 	 */
-	private surroundDeco(tx: number, ty: number, rng: () => number) {
+	private surroundDeco(tx: number, ty: number, rng: () => number, area = this.area, living = true) {
 		const jx = () => tx * TILE + 16 + (rng() - 0.5) * 14;
 		const jy = () => ty * TILE + 16 + (rng() - 0.5) * 12;
 		const sprite = (key: string, scale: number, tint?: number, alpha = 0.97, living = false) => {
@@ -1670,12 +1712,12 @@ export class WorldScene extends Phaser.Scene {
 		};
 		const grass = (prefix = 'tallgrass', scale = 0.8 + rng() * 0.35) => {
 			const r = rng();
-			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale, undefined, 0.97, true);
+			sprite(r < 0.35 ? prefix : r < 0.65 ? `${prefix}2` : `${prefix}3`, scale, undefined, 0.97, living);
 		};
 		const roll = rng();
-		switch (this.area) {
+		switch (area) {
 			case 'forest': // deep unbroken woods with a grassy understory
-				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5, undefined, 0.97, true).setAngle(0);
+				if (roll < 0.42) sprite('wildtree', 1 + rng() * 0.5, undefined, 0.97, living).setAngle(0);
 				else if (roll < 0.85) grass();
 				break;
 			case 'wetland': // dense marsh reeds
@@ -2048,13 +2090,21 @@ export class WorldScene extends Phaser.Scene {
 		// The tint is a pure function of (area, health, season). refreshDynamic runs
 		// on every world change — including terraforming, which moves none of those —
 		// so bail before touching ~10k sprites when the result would be identical.
-		const sig = `${this.area}|${health}|${bridge.shared.state?.weather?.season ?? ''}`;
+		// neighbours' health feeds the teaser tiles past the gates
+		const healthOf = (id: string) => bridge.shared.state?.biomeStates.find((b) => b.biomeId === id)?.health ?? 5;
+		const neighbors = [this.neighborArea(-1), this.neighborArea(1)].filter(Boolean) as string[];
+		const sig = `${this.area}|${health}|${neighbors.map(healthOf).join(',')}|${bridge.shared.state?.weather?.season ?? ''}`;
 		if (sig === this.tintSig) return;
 		this.tintSig = sig;
-		const from = Phaser.Display.Color.HexStringToColor(biome?.palette.damaged || '#b9a37c');
-		const to = Phaser.Display.Color.HexStringToColor(biome?.palette.healthy || '#8fbf6f');
+		const healthMix = (def: BiomeDef | undefined, h: number) => {
+			const from = Phaser.Display.Color.HexStringToColor(def?.palette.damaged || '#b9a37c');
+			const to = Phaser.Display.Color.HexStringToColor(def?.palette.healthy || '#8fbf6f');
+			const k = Phaser.Math.Clamp(h / 100, 0, 1);
+			return Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, Math.round(k * 100));
+		};
 		const t = Phaser.Math.Clamp(health / 100, 0, 1);
-		const mix = Phaser.Display.Color.Interpolate.ColorWithColor(from, to, 100, Math.round(t * 100));
+		const mix = healthMix(biome, health);
+		const neighborMix = new Map(neighbors.map((id) => [id, healthMix(this.biomeDef(id), healthOf(id))]));
 		// Lerp the health color toward the season's tint so spring greens, autumn
 		// ambers and winter pales read at a glance. Amount is per-season (winter
 		// shifts most). seasonStyle falls back safely if the snapshot is absent.
@@ -2072,8 +2122,19 @@ export class WorldScene extends Phaser.Scene {
 		}
 		for (const img of this.groundTiles) {
 			const s = (img as any).shade ?? 1;
-			const color = Phaser.Display.Color.GetColor(baseR * s, baseG * s, baseB * s);
-			img.setTint(color);
+			let r = baseR,
+				g = baseG,
+				b = baseB;
+			const blend = (img as any).blend as { area: string; amt: number } | undefined;
+			const n = blend && neighborMix.get(blend.area);
+			if (n) {
+				// same season pull as this biome, so the seam doesn't jump
+				r = mix.r + (n.r - mix.r) * blend!.amt + (baseR - mix.r);
+				g = mix.g + (n.g - mix.g) * blend!.amt + (baseG - mix.g);
+				b = mix.b + (n.b - mix.b) * blend!.amt + (baseB - mix.b);
+			}
+			const clamp = (v: number) => Phaser.Math.Clamp(v * s, 0, 255);
+			img.setTint(Phaser.Display.Color.GetColor(clamp(r), clamp(g), clamp(b)));
 		}
 		// Surround/edge vegetation withers to a dry brown when the biome is sick and
 		// greens back up as it heals — a multiplicative tint from "dead" toward white
