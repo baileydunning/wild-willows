@@ -465,7 +465,7 @@
 			"title": "Bienvenida, cuidadora",
 			"text": "Bienvenida, cuidadora, me alegra tenerte aquí. Esta pradera quedó desnuda y su fauna se marchó, pero con una mano amable puede volver a la vida. Empecemos con un paseo: muévete con WASD o las flechas.",
 			"touch": "Bienvenida, cuidadora, me alegra tenerte aquí. Esta pradera quedó desnuda y su fauna se marchó, pero con una mano amable puede volver a la vida. Empecemos con un paseo: muévete con el joystick de la esquina.",
-			"pad": "Bienvenida, cuidadora, me alegra tenerte aquí. Esta pradera quedó desnuda y su fauna se marchó, pero con una mano amable puede volver a la vida. Empecemos con un paseo: muévete con el {stick}."
+			"pad": "Bienvenida, cuidadora, me alegra tenerte aquí. Esta pradera quedó desnuda y su fauna se marchó, pero con una mano amable puede volver a la vida. Recorre estos consejos con la cruceta: {down} para el siguiente, {up} para volver. Empecemos con un paseo: muévete con el {stick}."
 		},
 		"coreLoop": {
 			"title": "Cómo sanas la tierra",

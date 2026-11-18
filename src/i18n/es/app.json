@@ -195,7 +195,7 @@
 		"importing": "Importando…",
 		"importDone": "Se importó {name}; elígela abajo para jugar.",
 		"errImport": "Ese archivo de partida falta, fue editado o está dañado — no se pudo importar.",
-		"quit": "Salir del juego"
+		"quit": "Salir"
 	},
 	"hud": {
 		"yourHome": "Tu hogar",
@@ -578,7 +578,9 @@
 		"space": "Espacio",
 		"backspace": "Borrar",
 		"done": "Listo",
-		"newline": "Nueva línea"
+		"newline": "Nueva línea",
+		"symbols": "Símbolos",
+		"letters": "Letras"
 	},
 	"menuTabs": {
 		"label": "Menús"

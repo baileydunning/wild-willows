@@ -8,7 +8,7 @@ import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
 import { DEMO } from '../demo';
 import { hasKey } from '../i18n';
-import { padVars, usePadState } from '../gamepad/glyphs';
+import { padCap, padVars, usePadState } from '../gamepad/glyphs';
 
 interface StepDef {
 	icon: string;
@@ -554,31 +554,37 @@ export function Tutorial() {
 						<div className="tutorial-nav">
 							<button
 								className="tutorial-skip"
+								data-pad-prev=""
 								onClick={() => goTo(step - 1)}
 								disabled={step === 0}
 								title={t('panels.tutorial.prevStep')}
 								aria-label={t('panels.tutorial.prevStep')}
 							>
+								{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('UP')}</kbd>}
 								<Icon name="back" size={14} /> {t('panels.tutorial.back')}
 							</button>
 							{isLast ? (
 								<button
 									className="tutorial-btn"
+									data-pad-next=""
 									onClick={() => {
 										clearTutorialPos();
 										goTo(DONE_STEP);
 									}}
 								>
 									<Icon name="check" size={15} /> {t('panels.tutorial.finish')}
+									{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('DOWN')}</kbd>}
 								</button>
 							) : (
 								<button
 									className="tutorial-btn"
+									data-pad-next=""
 									onClick={() => goTo(step + 1)}
 									title={t('panels.tutorial.nextStep')}
 									aria-label={t('panels.tutorial.nextStep')}
 								>
 									{t('panels.tutorial.next')} <Icon name="forward" size={15} />
+									{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('DOWN')}</kbd>}
 								</button>
 							)}
 						</div>

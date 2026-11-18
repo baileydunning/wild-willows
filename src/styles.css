@@ -8287,13 +8287,14 @@ a.demo-nudge-store.primary:hover {
 }
 
 /* ================= controller ================= */
-/* The focus ring the controller moves between controls (src/gamepad/nav.ts).
-   Gold rather than the green the panels are drawn in, so it reads on every
-   card, and a solid outline so it survives the colorblind filters. */
+/* The focus ring the controller moves between controls (src/gamepad/nav.ts):
+   a light leaf green with a soft glow, a shade brighter than the panel greens
+   so it still reads on them, and a solid outline so it survives the
+   colorblind filters. */
 [data-pad-focus] {
-	outline: 3px solid var(--gold) !important;
+	outline: 3px solid var(--green-2) !important;
 	outline-offset: 2px !important;
-	box-shadow: 0 0 0 6px rgba(201, 145, 63, 0.28) !important;
+	box-shadow: 0 0 0 6px rgba(124, 181, 100, 0.3) !important;
 }
 /* No keyboard-letter badges on a controller: those buttons show a pad cap
    (or nothing) instead. */
@@ -8303,7 +8304,7 @@ a.demo-nudge-store.primary:hover {
 /* The HUD in menu mode: ring the menu so it is clear the stick is now driving
    it, not the caretaker. */
 .pad-hud-mode .hud-top-right {
-	box-shadow: 0 0 0 3px var(--gold);
+	box-shadow: 0 0 0 3px var(--green-2);
 	border-radius: 14px;
 }
 kbd.pad-cap {
@@ -8647,4 +8648,17 @@ kbd.pad-cap {
 	height: 22px;
 	border-radius: 50%;
 	box-shadow: 0 0 0 1.5px var(--kbd-line);
+}
+/* The d-pad arrow on the tutorial card's Back / Next buttons, on a controller. */
+.tutorial-pad-cap {
+	min-width: 20px;
+	margin: 0 2px;
+	padding: 0 4px;
+	font-size: calc(11px * var(--ui-scale));
+}
+
+/* The mouse pointer hides after a few seconds without movement (src/gamepad/pad.ts). */
+html.mouse-idle,
+html.mouse-idle * {
+	cursor: none !important;
 }

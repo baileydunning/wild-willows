@@ -114,6 +114,8 @@ export function padVars(words: (key: string) => string): Record<string, string> 
 		view: padCap('VIEW'),
 		menu: padCap('MENU'),
 		ls: padCap('LS'),
+		up: padCap('UP'),
+		down: padCap('DOWN'),
 		rs: padCap('RS'),
 		stick: words('panels.help.pad.cap.leftStick').toLowerCase(),
 		rstick: words('panels.help.pad.cap.rightStick').toLowerCase(),

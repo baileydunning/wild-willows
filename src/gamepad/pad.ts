@@ -151,6 +151,9 @@ if (typeof window !== 'undefined') {
 		(e) => {
 			if (!e.isTrusted) return;
 			// Ignore sub-pixel jitter and the single move a window focus can produce.
+			// Not on a Steam Deck: its trackpads and screen taps arrive as mouse
+			// events, and they shouldn't swap every prompt over to keyboard keys.
+			if (family === 'deck') return;
 			if (lastX >= 0 && Math.abs(e.clientX - lastX) + Math.abs(e.clientY - lastY) > 6) setInputMode('kbm');
 			lastX = e.clientX;
 			lastY = e.clientY;
@@ -162,12 +165,27 @@ if (typeof window !== 'undefined') {
 		(e) => {
 			// A mouse or pen click. NOT a touch: tapping a Steam Deck's screen
 			// mid-game shouldn't swap every prompt over to keyboard keys.
+			if (family === 'deck') return; // see mousemove above
 			if (e.isTrusted && (e.pointerType === 'mouse' || e.pointerType === 'pen')) setInputMode('kbm');
 		},
 		true,
 	);
 	// Browsers only announce a pad once one of its buttons is pressed, so this
 	// IS the player reaching for it.
+	// Hide the mouse pointer once it has sat still for a few seconds (a Deck's
+	// trackpad, or a laptop mouse left alone while playing on keys or a pad).
+	// Any real movement brings it straight back.
+	let idleTimer = 0;
+	const IDLE_MS = 3000;
+	const wake = (e: Event) => {
+		if (!e.isTrusted) return;
+		document.documentElement.classList.remove('mouse-idle');
+		window.clearTimeout(idleTimer);
+		idleTimer = window.setTimeout(() => document.documentElement.classList.add('mouse-idle'), IDLE_MS);
+	};
+	window.addEventListener('mousemove', wake, { passive: true, capture: true });
+	window.addEventListener('mousedown', wake, { passive: true, capture: true });
+
 	window.addEventListener('gamepadconnected', (e: any) => {
 		everSeen = true;
 		setFamily(familyFromId(e.gamepad?.id || ''));

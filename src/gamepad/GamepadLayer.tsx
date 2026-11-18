@@ -258,6 +258,7 @@ export function GamepadLayer() {
 					if (f.pressed.has(BTN.X)) keyboardActions.backspace();
 					if (f.pressed.has(BTN.Y)) keyboardActions.space();
 					if (f.pressed.has(BTN.LB)) keyboardActions.shift();
+					if (f.pressed.has(BTN.RB)) keyboardActions.symbols();
 					if (f.pressed.has(BTN.B) || f.pressed.has(BTN.MENU)) closeKeyboard();
 					if (f.pressed.has(BTN.A)) {
 						const cur = ringed();
@@ -333,6 +334,9 @@ export function GamepadLayer() {
 			// board, the tutorial card's buttons, the menu bar.
 			if (f.pressed.has(BTN.LS)) enterHud();
 			if (f.pressed.has(BTN.RS)) bridge.emit('pad-aim-reset');
+			// D-pad ↓/↑ press the tutorial card's Next / Back while it's showing.
+			if (f.pressed.has(BTN.DOWN)) document.querySelector<HTMLElement>('[data-pad-next]:not(:disabled)')?.click();
+			if (f.pressed.has(BTN.UP)) document.querySelector<HTMLElement>('[data-pad-prev]:not(:disabled)')?.click();
 			// The triggers zoom: R2 in, L2 out.
 			if (f.pressed.has(BTN.RT)) bridge.emit('pad-zoom', 1);
 			if (f.pressed.has(BTN.LT)) bridge.emit('pad-zoom', -1);

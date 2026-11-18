@@ -195,7 +195,7 @@
 		"importing": "Importing…",
 		"importDone": "Imported {name} — pick it below to play.",
 		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported.",
-		"quit": "Quit game"
+		"quit": "Quit"
 	},
 	"hud": {
 		"yourHome": "Your Home",
@@ -578,7 +578,9 @@
 		"space": "Space",
 		"backspace": "Delete",
 		"done": "Done",
-		"newline": "New line"
+		"newline": "New line",
+		"symbols": "Symbols",
+		"letters": "Letters"
 	},
 	"menuTabs": {
 		"label": "Menus"

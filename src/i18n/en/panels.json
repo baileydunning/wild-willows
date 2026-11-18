@@ -466,7 +466,7 @@
 			"title": "Welcome, caretaker",
 			"text": "Welcome, caretaker — it's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk — move with WASD or the arrow keys.",
 			"touch": "Welcome, caretaker — it's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk — move with the joystick in the corner.",
-			"pad": "Welcome, caretaker. It's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Let's begin with a walk: move with the {stick}."
+			"pad": "Welcome, caretaker. It's good to have you. This meadow was stripped bare and its wildlife drifted away, but with a gentle hand it can come back to life. Step through these tips with the d-pad: {down} for the next one, {up} to go back. Let's begin with a walk: move with the {stick}."
 		},
 		"coreLoop": {
 			"title": "How you heal the land",

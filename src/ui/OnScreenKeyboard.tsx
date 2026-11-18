@@ -31,6 +31,11 @@ const current = () => target;
 
 /** Open the keyboard for a text field. */
 export function openKeyboard(el: Field) {
+	// Keep Steam's own keyboard (and Chromium's) out of the way: a focused text
+	// field is what summons them. This keyboard writes into the field without
+	// needing focus, so the field gives it up while this one is open.
+	el.setAttribute('inputmode', 'none');
+	if (document.activeElement === el) el.blur();
 	target = el;
 	openId++;
 	emit();
@@ -49,17 +54,28 @@ export function closeKeyboard() {
 
 // Controller shortcuts, wired up by GamepadLayer while the keyboard is the
 // surface in front: X deletes, Y is a space, L1 is shift, Menu is done.
-const actions = { backspace: () => {}, space: () => {}, shift: () => {} };
+const actions = { backspace: () => {}, space: () => {}, shift: () => {}, symbols: () => {} };
 export const keyboardActions = {
 	backspace: () => actions.backspace(),
 	space: () => actions.space(),
 	shift: () => actions.shift(),
+	symbols: () => actions.symbols(),
 };
 
 const ROWS_EN = ['1234567890', 'qwertyuiop', 'asdfghjkl', 'zxcvbnm'];
 const ROWS_ES = ['1234567890', 'qwertyuiop', 'asdfghjklñ', 'zxcvbnm'];
 // Kept small and useful: what turns up in names, notes and searches.
 const EXTRAS = ["'", '-', '.', ',', '!', '?'];
+// The symbols page: every symbol on a US keyboard, so a name or a note can
+// hold anything a laptop could type. Spanish adds its accents and inverted marks.
+const SYMBOL_ROWS: string[][] = [
+	['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'],
+	['!', '@', '#', '$', '%', '^', '&', '*', '(', ')'],
+	['-', '_', '=', '+', '[', ']', '{', '}', '\\', '|'],
+	[';', ':', "'", '"', ',', '.', '<', '>', '/', '?'],
+];
+const SYMBOL_EXTRAS = ['`', '~'];
+const SYMBOL_ES = ['á', 'é', 'í', 'ó', 'ú', 'ü', '¿', '¡'];
 
 function isNumeric(el: Field) {
 	return el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'number';
@@ -78,6 +94,7 @@ function KeyboardCard({ field }: { field: Field }) {
 	// A name starts capitalized.
 	const [shift, setShift] = useState(() => field.value.length === 0 && !isNumeric(field));
 	const [pressed, setPressed] = useState<string | null>(null);
+	const [symbols, setSymbols] = useState(false);
 	const pressTimer = useRef<number>(0);
 
 	// A real keyboard (or the field vanishing, e.g. its screen closed) ends it.
@@ -119,7 +136,7 @@ function KeyboardCard({ field }: { field: Field }) {
 	};
 	const type = (ch: string) => {
 		flash(ch);
-		write(text + (shift ? ch.toUpperCase() : ch));
+		write(text + (shift && !symbols ? ch.toUpperCase() : ch));
 		if (shift) setShift(false);
 	};
 	const backspace = () => {
@@ -136,9 +153,17 @@ function KeyboardCard({ field }: { field: Field }) {
 		actions.backspace = backspace;
 		actions.space = space;
 		actions.shift = () => setShift((v) => !v);
+		actions.symbols = () => setSymbols((v) => !v);
 	});
 
-	const rows = numeric ? ['123', '456', '789', '0'] : locale.startsWith('es') ? ROWS_ES : ROWS_EN;
+	const es = locale.startsWith('es');
+	const rows: string[][] = numeric
+		? [['1', '2', '3'], ['4', '5', '6'], ['7', '8', '9'], ['0']]
+		: symbols
+			? es
+				? [...SYMBOL_ROWS, SYMBOL_ES]
+				: SYMBOL_ROWS
+			: (es ? ROWS_ES : ROWS_EN).map((r) => Array.from(r));
 	const key = (ch: string, i: number, row: number) => (
 		<button
 			key={ch}
@@ -148,7 +173,7 @@ function KeyboardCard({ field }: { field: Field }) {
 			data-pad-default={(numeric ? row === 0 && i === 0 : row === 1 && i === 0) ? '' : undefined}
 			onClick={() => type(ch)}
 		>
-			{shift && !numeric ? ch.toUpperCase() : ch}
+			{shift && !numeric && !symbols ? ch.toUpperCase() : ch}
 		</button>
 	);
 	const shown = password ? '•'.repeat(text.length) : text;
@@ -178,13 +203,13 @@ function KeyboardCard({ field }: { field: Field }) {
 				</div>
 				<div className="osk-rows">
 					{rows.map((r, ri) => (
-						<div className="osk-row" key={r}>
-							{Array.from(r).map((ch, i) => key(ch, i, ri))}
-							{!numeric && ri === 3 && EXTRAS.slice(0, 3).map((ch, i) => key(ch, i + 10, ri))}
+						<div className="osk-row" key={r.join('')}>
+							{r.map((ch, i) => key(ch, i, ri))}
+							{!numeric && !symbols && ri === 3 && EXTRAS.slice(0, 3).map((ch, i) => key(ch, i + 10, ri))}
 						</div>
 					))}
 					<div className="osk-row osk-row-bottom">
-						{!numeric && (
+						{!numeric && !symbols && (
 							<button
 								type="button"
 								className={`osk-key osk-wide osk-mod ${shift ? 'on' : ''}`}
@@ -195,7 +220,18 @@ function KeyboardCard({ field }: { field: Field }) {
 								⇧
 							</button>
 						)}
-						{!numeric && EXTRAS.slice(3).map((ch, i) => key(ch, i, 4))}
+						{!numeric && (
+							<button
+								type="button"
+								className={`osk-key osk-wide osk-mod ${symbols ? 'on' : ''}`}
+								aria-pressed={symbols}
+								aria-label={symbols ? t('app.keyboard.letters') : t('app.keyboard.symbols')}
+								onClick={() => setSymbols((v) => !v)}
+							>
+								{symbols ? 'ABC' : '#+='}
+							</button>
+						)}
+						{!numeric && (symbols ? SYMBOL_EXTRAS : EXTRAS.slice(3)).map((ch, i) => key(ch, i, 5))}
 						{!numeric && (
 							<button
 								type="button"
@@ -243,6 +279,11 @@ function KeyboardCard({ field }: { field: Field }) {
 								<kbd className="pad-cap">{padCap('LB')}</kbd> {t('app.keyboard.shift')}
 							</span>
 						)}
+						{!numeric && (
+							<span>
+								<kbd className="pad-cap">{padCap('RB')}</kbd> {t('app.keyboard.symbols')}
+							</span>
+						)}
 						<span>
 							<kbd className="pad-cap">{padCap('MENU')}</kbd> {t('app.keyboard.done')}
 						</span>
@@ -253,22 +294,39 @@ function KeyboardCard({ field }: { field: Field }) {
 	);
 }
 
-/* On a Steam Deck, tapping a text field on the touchscreen opens the keyboard
- * too — there is no physical one to type with. */
+/* On a Steam Deck any click on a text field opens the keyboard too: there is
+ * no physical one, and in Game Mode Steam turns screen taps and trackpad
+ * clicks into ordinary mouse clicks, so this can't wait for a touch event. */
+const TEXT_TYPES = ['text', 'search', 'email', 'password', 'number', 'tel', 'url', ''];
+function textFieldOf(el: HTMLElement | null): Field | null {
+	if (!el) return null;
+	if (el.tagName === 'TEXTAREA') return el as HTMLTextAreaElement;
+	if (el.tagName === 'INPUT')
+		return TEXT_TYPES.includes((el as HTMLInputElement).type) ? (el as HTMLInputElement) : null;
+	// a click on the field's label or its icon, as on the caretaker name box
+	const inLabel = el.closest('label')?.querySelector<HTMLInputElement>('input, textarea');
+	return inLabel && !el.closest('button') ? textFieldOf(inLabel) : null;
+}
 if (typeof window !== 'undefined') {
+	// Mark a field "no virtual keyboard" the moment it takes focus, before a click
+	// finishes, so neither Steam's keyboard nor Chromium's gets there first.
 	window.addEventListener(
-		'pointerup',
+		'focusin',
 		(e) => {
-			if (!e.isTrusted || e.pointerType !== 'touch' || getPadFamily() !== 'deck') return;
+			if (getPadFamily() !== 'deck') return;
 			const el = e.target as HTMLElement | null;
-			if (!el || el.closest('.osk')) return;
-			const tag = el.tagName;
-			const type = tag === 'INPUT' ? (el as HTMLInputElement).type : '';
-			if (
-				tag === 'TEXTAREA' ||
-				(tag === 'INPUT' && ['text', 'search', 'email', 'password', 'number', ''].includes(type))
-			)
-				openKeyboard(el as Field);
+			if (el && textFieldOf(el) === el) el.setAttribute('inputmode', 'none');
+		},
+		true,
+	);
+	window.addEventListener(
+		'click',
+		(e) => {
+			if (!e.isTrusted || getPadFamily() !== 'deck') return;
+			const t = e.target as HTMLElement | null;
+			if (!t || t.closest('.osk')) return;
+			const field = textFieldOf(t);
+			if (field && !field.disabled && !field.readOnly) openKeyboard(field);
 		},
 		true,
 	);
