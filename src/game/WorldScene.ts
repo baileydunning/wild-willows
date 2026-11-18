@@ -1554,7 +1554,12 @@ export class WorldScene extends Phaser.Scene {
 		// are the mountain range, drawn separately below.
 		for (let ty = this.playTop; ty < this.rows; ty++) {
 			for (let tx = 0; tx < this.landRight; tx++) {
-				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				// Drawn a pixel oversize so neighbours overlap a hair: at a fractional
+				// camera zoom and scroll, edge-to-edge tiles let the dark backdrop
+				// show through as thin lines while the camera moves.
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile')
+					.setDepth(0)
+					.setDisplaySize(TILE + 1, TILE + 1);
 				(img as any).shade = 0.92 + rng() * 0.08;
 				this.groundTiles.push(img);
 			}
@@ -1693,7 +1698,9 @@ export class WorldScene extends Phaser.Scene {
 				if (this.mtnRows > 0 && ty < this.playTop) continue;
 				// the coastal ocean (and its surround) is painted by drawCoastBand
 				if (this.area === 'coastal' && tx >= this.landRight) continue;
-				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile')
+					.setDepth(0)
+					.setDisplaySize(TILE + 1, TILE + 1); // overlap, as in drawGround
 				(img as any).shade = 0.92 + rng() * 0.08; // same as the playable field
 				this.groundTiles.push(img);
 				if (!onTrail(tx, ty)) this.surroundDeco(tx, ty, rng);
@@ -3134,7 +3141,9 @@ export class WorldScene extends Phaser.Scene {
 		const x = tile.x * TILE + 16;
 		const y = tile.y * TILE + 16;
 		if (tile.type === 'water') {
-			const img = this.img(x, y, ensureWaterTile(this, conn)).setDepth(1.6);
+			const img = this.img(x, y, ensureWaterTile(this, conn))
+				.setDepth(1.6)
+				.setDisplaySize(TILE + 1, TILE + 1);
 			this.terrain.add(img);
 			// The old surface breathed by fading each tile between alpha 1 and 0.86 on
 			// its own staggered timer. That left every tile of a pond a slightly
@@ -6853,7 +6862,12 @@ export class WorldScene extends Phaser.Scene {
 		const busy = this.placementObjectId || this.movingPlacementId;
 		// E/Space interactions stay available while terraforming — only clicks shape
 		// the ground, so holding the shovel/can no longer locks you out of chests and beds
-		const near = busy ? null : this.nearestInteractable();
+		//
+		// On a controller A does nearly everything, so the tool decides what it
+		// means: holding the shovel, the can or the paint (or an object to place),
+		// A works the marked tile, and things nearby don't light up for it.
+		const padTool = getInputMode() === 'pad' && (!!terraforming || this.activeTool === 'paint');
+		const near = busy || padTool ? null : this.nearestInteractable();
 		// Prefer the thing you're standing beside; otherwise light up whatever the
 		// pointer is hovering, so it's clear what a click would act on.
 		const hovered = this.hoveredIt && this.hoveredIt.available && !this.hoveredIt.available() ? null : this.hoveredIt;
@@ -6953,7 +6967,7 @@ export class WorldScene extends Phaser.Scene {
 
 		const onPad = getInputMode() === 'pad';
 		const verb = this.isTouch && !onPad ? t('game.prompt.tap') : this.interactHintKey();
-		const clickVerb = onPad ? padCap('RT') : this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
+		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
 		const rotHint = onPad
 			? this.activeRotatable()
 				? t('game.prompt.rotateHintPad', { key: `${padCap('LEFT')}${padCap('RIGHT')}` })
@@ -6974,8 +6988,13 @@ export class WorldScene extends Phaser.Scene {
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
-		const padAnimal = onPad && !near && !busy && !this.sitting ? this.padNearbyAnimal() : null;
+		const padAnimal = onPad && !near && !busy && !padTool && !this.sitting ? this.padNearbyAnimal() : null;
 		const padAnimalDef = padAnimal?.getData('animal');
+		// Nothing to walk up to: A opens whatever stands on the marked tile.
+		const aimTile = onPad ? this.padAimTile() : null;
+		const padItem =
+			aimTile && !near && !padAnimal && !busy && !padTool ? this.placementsAt(aimTile.x, aimTile.y)[0] : undefined;
+		const padItemDef = padItem ? bridge.shared.data?.habitatObjects.find((o) => o.id === padItem.objectId) : undefined;
 		const nearMain = near
 			? t('game.prompt.near', { verb, label: near.label })
 			: padAnimalDef
@@ -6983,17 +7002,38 @@ export class WorldScene extends Phaser.Scene {
 						verb,
 						name: content('animal', padAnimalDef.id, 'name', padAnimalDef.name || padAnimalDef.id),
 					})
-				: '';
+				: padItem
+					? t('game.prompt.near', {
+							verb,
+							label: content('habitatObject', padItem.objectId, 'name', padItemDef?.name || padItem.objectId),
+						})
+					: '';
+		const padToolPrompt = padTool
+			? t(
+					terraforming === 'dig'
+						? 'game.prompt.padDig'
+						: terraforming === 'water'
+							? 'game.prompt.padWater'
+							: 'game.prompt.padPaint',
+					{ verb },
+				)
+			: '';
 		// Selecting the shovel or watering can used to prepend an explanation of the
 		// tool ("Shovel — click ground to dig a bed…"). The toolbelt already names the
 		// selected tool and its tooltip explains it, so the bar restated it on every
 		// frame the tool was held — and pushed the actual interaction prompt to the far
 		// end of a long line. This bar is only for what the interact key will do.
 		const prompt = this.movingPlacementId
-			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + cancelHint
+			? (onPad ? t('game.prompt.padMove', { verb }) : t('game.prompt.moveTile', { verb: clickVerb })) +
+				rotHint +
+				cancelHint
 			: this.placementObjectId
-				? t('game.prompt.placeTile', { verb: clickVerb }) + rotHint + stopHint
-				: nearMain;
+				? (onPad ? t('game.prompt.padPlace', { verb }) : t('game.prompt.placeTile', { verb: clickVerb })) +
+					rotHint +
+					stopHint
+				: padTool
+					? padToolPrompt
+					: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
@@ -7003,11 +7043,15 @@ export class WorldScene extends Phaser.Scene {
 		for (const key of this.moveKeys.interact) {
 			if (Phaser.Input.Keyboard.JustDown(key)) interactPressed = true;
 		}
-		if (near && interactPressed) {
-			near.action();
-		} else if (padAnimal && interactPressed) {
+		if (!interactPressed) return;
+		// A on a controller with a tool or an object in hand, or aimed at a placed
+		// item: the controller layer clicks the marked tile, the same path a mouse
+		// click takes (place, dig, water, paint, open the item's menu).
+		if (onPad && (busy || padTool)) bridge.emit('pad-aim-click');
+		else if (near) near.action();
+		else if (padAnimal)
 			padAnimal.emit('pointerdown'); // the same handler a click runs
-		}
+		else if (padItem) bridge.emit('pad-aim-click');
 	}
 
 	private syncPosition(dt: number) {

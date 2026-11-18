@@ -8306,18 +8306,6 @@ a.demo-nudge-store.primary:hover {
 	box-shadow: 0 0 0 3px var(--gold);
 	border-radius: 14px;
 }
-.toolbelt-pad-cap {
-	align-self: center;
-	min-width: 26px;
-	padding: 2px 6px;
-	font-size: calc(11px * var(--ui-scale));
-	font-weight: 800;
-	text-align: center;
-	color: var(--green-deep);
-	background: var(--paper);
-	border: 1.5px solid var(--green-deep);
-	border-radius: 7px;
-}
 kbd.pad-cap {
 	min-width: 26px;
 	text-align: center;
@@ -8606,4 +8594,57 @@ kbd.pad-cap {
 }
 .menu-tabs-cap {
 	margin: 0 2px;
+}
+
+/* ================= color picker (src/ui/ColorPicker.tsx) ================= */
+.cp-backdrop {
+	position: fixed;
+	z-index: 9200;
+}
+.cp-card {
+	width: auto;
+	max-width: 96vw;
+}
+.cp-body {
+	padding-top: 6px;
+}
+.cp-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.cp-row {
+	display: flex;
+	gap: 6px;
+}
+.cp-swatch {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: 2px solid var(--paper);
+	box-shadow: 0 0 0 1.5px var(--kbd-line);
+	cursor: pointer;
+	transition: transform 0.08s;
+}
+.cp-swatch:hover,
+.cp-swatch[data-pad-focus] {
+	transform: scale(1.15);
+}
+.cp-swatch.cp-current {
+	box-shadow: 0 0 0 2.5px var(--green-deep);
+}
+.cp-now {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+	font-size: calc(13px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink-soft);
+}
+.cp-now-chip {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1.5px var(--kbd-line);
 }

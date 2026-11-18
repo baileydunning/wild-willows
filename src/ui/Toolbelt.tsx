@@ -4,7 +4,7 @@ import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
-import { padCap, usePadState } from '../gamepad/glyphs';
+import { usePadState } from '../gamepad/glyphs';
 import { TUTORIAL_TOOLBELT_STEP, useTutorialReveal } from './Tutorial';
 import { brushSizesFor } from '../game/worldRules';
 
@@ -164,12 +164,6 @@ export function Toolbelt() {
 				</div>
 			)}
 			<div className="toolbelt">
-				{/* Bumpers step through the tools; their caps bracket the belt. */}
-				{onPad && (
-					<span className="toolbelt-pad-cap" aria-hidden="true">
-						{padCap('LB')}
-					</span>
-				)}
 				{TOOL_META.map((meta) => {
 					const def = data.tools.find((tool) => tool.id === meta.id);
 					const tier = state.player.tools?.[meta.id] || 1;
@@ -209,9 +203,11 @@ export function Toolbelt() {
 							{/* Decorative: the number repeats aria-keyshortcuts, and left in the
 							    tree it's what a mouse-tracking screen reader reads instead of the
 							    tool name. The tier pip is pure decoration. */}
-							<span className="tool-key" aria-hidden="true">
-								{keyForTool(meta.id)}
-							</span>
+							{!onPad && (
+								<span className="tool-key" aria-hidden="true">
+									{keyForTool(meta.id)}
+								</span>
+							)}
 							{tier > 1 && (
 								<span className="tool-tier" aria-hidden="true">
 									<Icon name="sparkle" size={10} />
@@ -230,16 +226,13 @@ export function Toolbelt() {
 						onClick={() => setSelectedTool('paint')}
 					>
 						<Icon name="paint" size={22} />
-						<span className="tool-key" aria-hidden="true">
-							{keyForTool('paint')}
-						</span>
+						{!onPad && (
+							<span className="tool-key" aria-hidden="true">
+								{keyForTool('paint')}
+							</span>
+						)}
 						<span className="tool-tier paint-dot" style={{ background: paintColor }} aria-hidden="true" />
 					</button>
-				)}
-				{onPad && (
-					<span className="toolbelt-pad-cap" aria-hidden="true">
-						{padCap('RB')}
-					</span>
 				)}
 			</div>
 		</div>

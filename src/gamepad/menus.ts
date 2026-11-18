@@ -1,6 +1,6 @@
-// The game's menus, in the order the HUD lists them. On a controller, Menu
-// opens them and L1/R1 move between them like the tabs of a pause menu
-// (GamepadLayer + MenuTabs). How to Play is a modal rather than a panel, so it
+// The game's menus, in the order the HUD lists them. On a controller, Y, X and
+// Menu open the journal, crafting and goals, and L1/R1 move between all of
+// them like the tabs of a pause menu (GamepadLayer + MenuTabs). How to Play is a modal rather than a panel, so it
 // is handled by name.
 
 export type MenuId =
@@ -49,10 +49,7 @@ export function currentMenu(g: MenuGame): MenuId | null {
 	return MENU_CYCLE.some((m) => m.id === g.panel) ? (g.panel as MenuId) : null;
 }
 
-let lastMenu: MenuId = 'journal';
-
 export function openMenu(g: MenuGame, id: MenuId) {
-	lastMenu = id;
 	if (id === 'help') {
 		g.setPanel(null);
 		g.setHelpOpen(true);
@@ -60,11 +57,6 @@ export function openMenu(g: MenuGame, id: MenuId) {
 	}
 	if (g.helpOpen) g.setHelpOpen(false);
 	g.setPanel(id);
-}
-
-/** Menu button: reopen wherever the player last was. */
-export function openLastMenu(g: MenuGame) {
-	openMenu(g, lastMenu);
 }
 
 /** L1/R1: the previous or next menu, wrapping. Returns false when no cycle

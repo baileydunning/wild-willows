@@ -132,6 +132,11 @@
 		"rotateHintPad": " · {key} to rotate",
 		"padCancel": " · {key} to cancel",
 		"padStopPlacing": " · {key} to stop placing",
-		"padAnimal": "{verb} — Meet the {name}"
+		"padAnimal": "{verb} — Meet the {name}",
+		"padDig": "{verb} — Dig here",
+		"padWater": "{verb} — Water here",
+		"padPaint": "{verb} — Paint",
+		"padPlace": "{verb} — Place it here",
+		"padMove": "{verb} — Move it here"
 	}
 }

@@ -102,7 +102,8 @@ export function HelpModal() {
 						))}
 					</div>
 					{/* With a controller in hand its map comes first; the keyboard list
-					    still follows for anyone who switches back. */}
+					    still follows for anyone who switches back (not on a Steam Deck, which
+					    has no keyboard). */}
 					{pad.seen && (
 						<>
 							<div className="help-section-label">
@@ -111,21 +112,25 @@ export function HelpModal() {
 							<PadControls />
 						</>
 					)}
-					<div className="help-section-label">
-						<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
-					</div>
-					<div className="key-list">
-						{keys.map((k) => (
-							<div className="key-row" key={k.does}>
-								<span className="kbds">
-									{shortcutKeys(k).map((key) => (
-										<kbd key={key}>{key}</kbd>
-									))}
-								</span>
-								<span>{t(k.does)}</span>
+					{pad.family !== 'deck' && (
+						<>
+							<div className="help-section-label">
+								<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
 							</div>
-						))}
-					</div>
+							<div className="key-list">
+								{keys.map((k) => (
+									<div className="key-row" key={k.does}>
+										<span className="kbds">
+											{shortcutKeys(k).map((key) => (
+												<kbd key={key}>{key}</kbd>
+											))}
+										</span>
+										<span>{t(k.does)}</span>
+									</div>
+								))}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

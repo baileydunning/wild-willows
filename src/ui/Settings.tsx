@@ -755,7 +755,7 @@ export function KeybindingControls() {
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout, exportDemo } = useGame();
 	const { t, locale } = useI18n();
-	const padSeen = usePadState().seen;
+	const pad = usePadState();
 	const [appearance, setAppearance] = useState<Appearance>({
 		...APPEARANCE_DEFAULTS,
 		...(state?.player.appearance || {}),
@@ -955,17 +955,23 @@ export function SettingsPanel() {
 					</h3>
 					<AccessibilityControls />
 
-					<h3>
-						<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
-					</h3>
-					<KeybindingControls />
-
-					{padSeen && (
+					{/* The controller map first when one is in use; a Steam Deck has no
+					    keyboard to rebind, so it doesn't get the key editor at all. */}
+					{pad.seen && (
 						<>
 							<h3>
 								<Icon name="gamepad" size={15} /> {t('app.settings.padTitle')}
 							</h3>
 							<PadControls />
+						</>
+					)}
+
+					{pad.family !== 'deck' && (
+						<>
+							<h3>
+								<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
+							</h3>
+							<KeybindingControls />
 						</>
 					)}
 

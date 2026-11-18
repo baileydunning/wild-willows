@@ -194,7 +194,8 @@
 		"importSave": "Import Save",
 		"importing": "Importing…",
 		"importDone": "Imported {name} — pick it below to play.",
-		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported."
+		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported.",
+		"quit": "Quit game"
 	},
 	"hud": {
 		"yourHome": "Your Home",
@@ -268,7 +269,7 @@
 		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes.",
 		"demoGoal": "Demo · {returned}/{total} animals home",
 		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo.",
-		"placingHintPad": "· {rt} on a tile"
+		"placingHintPad": "· {a} on the marked tile"
 	},
 	"toolbelt": {
 		"how": {
@@ -581,5 +582,9 @@
 	},
 	"menuTabs": {
 		"label": "Menus"
+	},
+	"colorPicker": {
+		"title": "Pick a color",
+		"current": "Current color"
 	}
 }

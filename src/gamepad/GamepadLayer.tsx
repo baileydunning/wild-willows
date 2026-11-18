@@ -2,26 +2,25 @@
 //
 // Two modes, picked fresh every frame:
 //
-//  WORLD (no panel or popup open): the left stick walks, A interacts, R2 uses
-//  the tool in hand on the aim tile beside the caretaker (the right stick moves
-//  that tile), the bumpers change tools, the face buttons open the most-used
-//  panels and Menu opens the menus.
+//  WORLD (no panel or popup open): the left stick walks and A does nearly
+//  everything: interacts with what is beside you, or with a tool or an object
+//  in hand, works the tile marked in front of you (the right stick moves the
+//  mark). L1/R1 change tools, L2/R2 zoom, Y opens the journal, X crafting,
+//  Menu the goals.
 //
 //  MENUS (a panel, popup, dialog or the title screen is up, or the HUD is in
 //  focus mode): the d-pad / left stick move a focus ring between controls, A
 //  presses, B backs out, L1/R1 move between menus, L2/R2 switch tabs inside
 //  one and the right stick scrolls.
 //
-// Panel shortcuts and the Escape chain are reached by dispatching the SAME key
-// the player has bound (keybindings.ts) — App's keyboard handler does the rest,
-// so the controller can never drift from what the keyboard does.
+// B closes things by dispatching Escape, so it runs App's one close chain and
+// can never disagree with the keyboard about what closes first.
 
 import { useEffect, useRef } from 'react';
 import { bridge } from '../game/bridge';
-import { keysFor } from '../keybindings';
 import { useGame } from '../state';
 import { clickAtCursor, cursorShown, moveCursorTo, showCursor } from './cursor';
-import { closeMenu, currentMenu, openLastMenu, stepMenu } from './menus';
+import { closeMenu, currentMenu, openMenu, stepMenu } from './menus';
 import {
 	activeSurface,
 	adjustControl,
@@ -55,19 +54,6 @@ function keyEventInit(key: string): KeyboardEventInit {
 function pressKey(key: string) {
 	window.dispatchEvent(new KeyboardEvent('keydown', keyEventInit(key)));
 	window.dispatchEvent(new KeyboardEvent('keyup', keyEventInit(key)));
-}
-
-/** The first key bound to an action, as a KeyboardEvent.key. */
-function boundKey(actionId: string): string | null {
-	const tok = keysFor(actionId)[0];
-	if (!tok) return null;
-	if (tok === 'space') return ' ';
-	if (tok.startsWith('arrow')) return 'Arrow' + tok.slice(5, 6).toUpperCase() + tok.slice(6);
-	return tok;
-}
-function pressAction(actionId: string) {
-	const k = boundKey(actionId);
-	if (k) pressKey(k);
 }
 
 /** Write the stick into the shared vector in place: Phaser reads it every
@@ -303,11 +289,11 @@ export function GamepadLayer() {
 					else if (inMenu) closeMenu(menus());
 					else if (inGame) pressKey('Escape');
 				}
-				// Face-button shortcuts still jump straight between game panels.
-				if (inGame && !surface.classList.contains('ui-layer')) {
-					if (f.pressed.has(BTN.X)) pressAction('crafting');
-					if (f.pressed.has(BTN.Y)) pressAction('basket');
-					if (f.pressed.has(BTN.VIEW)) pressAction('preserve');
+				// Face-button shortcuts still jump straight between the game's menus.
+				if (inMenu) {
+					if (f.pressed.has(BTN.X)) openMenu(menus(), 'crafting');
+					if (f.pressed.has(BTN.Y)) openMenu(menus(), 'journal');
+					if (f.pressed.has(BTN.VIEW)) openMenu(menus(), 'biomes');
 				}
 				return;
 			}
@@ -336,23 +322,20 @@ export function GamepadLayer() {
 				if (placing) bridge.emit('pad-cancel');
 				else pressKey('Escape');
 			}
-			if (f.pressed.has(BTN.X)) pressAction('crafting');
-			if (f.pressed.has(BTN.Y)) pressAction('basket');
-			if (f.pressed.has(BTN.VIEW)) pressAction('preserve');
-			if (f.pressed.has(BTN.MENU)) openLastMenu(menus());
+			// X crafting, Y journal, ☰ goals, View the map; L1/R1 reach the rest.
+			if (f.pressed.has(BTN.X)) openMenu(menus(), 'crafting');
+			if (f.pressed.has(BTN.Y)) openMenu(menus(), 'journal');
+			if (f.pressed.has(BTN.MENU)) openMenu(menus(), 'goals');
+			if (f.pressed.has(BTN.VIEW)) openMenu(menus(), 'biomes');
 			if (f.pressed.has(BTN.LB)) cycleTool(-1);
 			if (f.pressed.has(BTN.RB)) cycleTool(1);
 			// L3 puts the focus ring on the HUD itself: the goals board, the task
 			// board, the tutorial card's buttons, the menu bar.
 			if (f.pressed.has(BTN.LS)) enterHud();
 			if (f.pressed.has(BTN.RS)) bridge.emit('pad-aim-reset');
-			if (f.pressed.has(BTN.RT) || f.pressed.has(BTN.LT)) {
-				if (!cursorShown()) showCursor(true, false);
-				aimCursor();
-				clickAtCursor(f.pressed.has(BTN.LT));
-			}
-			if (f.pressed.has(BTN.UP)) bridge.emit('pad-zoom', 1);
-			if (f.pressed.has(BTN.DOWN)) bridge.emit('pad-zoom', -1);
+			// The triggers zoom: R2 in, L2 out.
+			if (f.pressed.has(BTN.RT)) bridge.emit('pad-zoom', 1);
+			if (f.pressed.has(BTN.LT)) bridge.emit('pad-zoom', -1);
 			for (const [btn, sign] of [
 				[BTN.LEFT, -1],
 				[BTN.RIGHT, 1],
@@ -365,6 +348,14 @@ export function GamepadLayer() {
 		};
 		raf = requestAnimationFrame(frame);
 
+		// A, when the scene says it means "use this tile" (a tool or an object in
+		// hand, or a placed item on the marked tile): click there, like a mouse.
+		const offAimClick = bridge.on('pad-aim-click', () => {
+			if (!cursorShown()) showCursor(true, false);
+			aimCursor();
+			clickAtCursor(false);
+		});
+
 		// Switching back to keyboard/mouse drops the ring and the virtual pointer.
 		const unsub = subscribePad(() => {
 			if (getInputMode() === 'kbm') {
@@ -375,6 +366,7 @@ export function GamepadLayer() {
 		});
 		return () => {
 			cancelAnimationFrame(raf);
+			offAimClick();
 			releaseSweep();
 			unsub();
 			showCursor(false);

@@ -37,6 +37,7 @@ import { ConfirmHost, confirmAsync } from './ui/ConfirmDialog';
 import { GamepadLayer } from './gamepad/GamepadLayer';
 import { OnScreenKeyboard } from './ui/OnScreenKeyboard';
 import { MenuTabs } from './ui/MenuTabs';
+import { ColorPicker } from './ui/ColorPicker';
 
 /* ---------------------------------------------------------------- lazy panels
  *
@@ -1001,6 +1002,7 @@ export default function App() {
 				<Root />
 				<ConfirmHost />
 				<OnScreenKeyboard />
+				<ColorPicker />
 				<GamepadLayer />
 			</GameProvider>
 		</KeyboardGate>

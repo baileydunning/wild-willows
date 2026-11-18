@@ -30,6 +30,9 @@ import {
 } from './Settings';
 import { randomName } from './names';
 
+// The desktop app's quit (electron/preload.js); undefined in a browser.
+const desktopQuit: (() => void) | undefined = (globalThis as any).wildWillowsDesktop?.quit;
+
 type Mode = 'menu' | 'new' | 'load';
 
 const genToken = () => {
@@ -498,6 +501,13 @@ export function WelcomeScreen() {
 								<button className="big-btn subtle" onClick={() => setSettingsOpen(true)}>
 									<Icon name="gear" /> <span>{t('app.settings.title')}</span>
 								</button>
+								{/* The desktop app only: a browser tab closes itself, and on a Steam
+								    Deck there is no window frame to close the game with. */}
+								{desktopQuit && (
+									<button className="big-btn subtle" onClick={desktopQuit}>
+										<Icon name="logout" /> <span>{t('app.welcome.quit')}</span>
+									</button>
+								)}
 							</div>
 							{!data && !dataError && <p className="muted small">{t('app.welcome.reaching')}</p>}
 						</div>

@@ -114,13 +114,6 @@ function runCallbacks() {
 	safe(() => client.runCallbacks?.(), 'runCallbacks');
 }
 
-/** True when Steam says this is a Steam Deck. */
-function isSteamDeck() {
-	if (process.env.SteamDeck === '1') return true;
-	if (!isEnabled()) return false;
-	return !!safe(() => client.utils.isSteamRunningOnSteamDeck(), 'isSteamRunningOnSteamDeck');
-}
-
 function shutdown() {
 	if (!isEnabled()) return;
 	store();
@@ -135,6 +128,5 @@ module.exports = {
 	unlockAchievement,
 	store,
 	runCallbacks,
-	isSteamDeck,
 	shutdown,
 };

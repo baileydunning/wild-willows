@@ -477,13 +477,13 @@
 			"title": "Check your basket",
 			"text": "Press B (or the basket button, top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom (or number keys 1, 2, 3) switches between your basket, shovel, and watering can.",
 			"touch": "Tap the basket button (top-right) to see what you’re carrying. Your basket holds a limited amount — when it fills up you’ll stash the extra in a chest. The toolbelt along the bottom switches between your basket, shovel, and watering can.",
-			"pad": "Press {y} to see what you're carrying. Your basket holds a limited amount; when it fills up you'll stash the extra in a chest. {lb} and {rb} switch between your basket, shovel, and watering can on the toolbelt along the bottom."
+			"pad": "Press {x} to open crafting, then {lb} to step over to your basket and see what you're carrying. Your basket holds a limited amount; when it fills up you'll stash the extra in a chest. Out in the meadow, {lb} and {rb} switch between your basket, shovel, and watering can."
 		},
 		"gather": {
 			"title": "Gather materials",
 			"text": "With your basket selected (press 1), walk up to a glowing spot and press E to gather. Grab some seeds and plant fiber.",
 			"touch": "With your basket selected, walk up to a glowing spot and tap to gather. Grab some seeds and plant fiber.",
-			"pad": "With your basket selected, walk up to a glowing spot and press {a} to gather. Grab some seeds and plant fiber."
+			"pad": "With your basket in hand, walk up to a glowing spot and press {a} to gather. Grab some seeds and plant fiber."
 		},
 		"chest": {
 			"title": "Use your camp chest",
@@ -495,30 +495,31 @@
 			"title": "Heal the soil",
 			"text": "Now the land. Press 2 for the shovel and dig a bare tile, then 3 for the watering can and water it.",
 			"touch": "Now the land. Tap the shovel and dig a bare tile, then tap the watering can and water it.",
-			"pad": "Now the land. Press {rb} for the shovel. The tile in front of you is marked; press {rt} to dig it (the {rstick} moves the mark). Then switch to the watering can and press {rt} on the bed to water it."
+			"pad": "Now the land. Press {rb} for the shovel. The tile in front of you is marked; press {a} to dig it (the {rstick} moves the mark). Then press {rb} again for the watering can and press {a} on the bed to water it."
 		},
 		"plant": {
 			"title": "Plant something living",
 			"text": "Walk up to your watered bed and press E to plant a flower, grass, or tree. It grows into real habitat.",
 			"touch": "Walk up to your watered bed and tap to plant a flower, grass, or tree. It grows into real habitat.",
-			"pad": "Walk up to your watered bed and press {a} to plant a flower, grass, or tree. It grows into real habitat."
+			"pad": "Switch back to your basket with {lb}, walk up to your watered bed and press {a} to plant a flower, grass, or tree. It grows into real habitat."
 		},
 		"water": {
 			"title": "Shape water",
 			"text": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water. Keep in mind some ponds for habitats are crafted.",
-			"touch": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water. Keep in mind some ponds for habitats are crafted."
+			"touch": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake — many animals need water. Keep in mind some ponds for habitats are crafted.",
+			"pad": "Water a bed again to flood it. Flood a few tiles together to make a pond, river, or lake. Many animals need water. Keep in mind some ponds for habitats are crafted."
 		},
 		"journal": {
 			"title": "Open your field journal",
 			"text": "Press J to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for.",
 			"touch": "Tap the journal button to open your field journal — it lists every animal that can return to each area and who’s back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal’s full page, and the expanded edition after it spells out exactly what they’re waiting for.",
-			"pad": "Press {menu} to open the menus, then {lb} and {rb} to reach your field journal. It lists every animal that can return to each area and who's back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal's full page, and the expanded edition after it spells out exactly what they're waiting for."
+			"pad": "Press {y} to open your field journal. It lists every animal that can return to each area and who's back so far. Each area has a guide of its own, written up in the Tools panel: the field guide opens each animal's full page, and the expanded edition after it spells out exactly what they're waiting for."
 		},
 		"tools": {
 			"title": "Tools & upgrades",
 			"text": "Press T to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go.",
 			"touch": "Tap the tools button to open Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can — higher tiers gather more and shape more. The field guide for wherever you’re standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"pad": "Press {menu} to open the menus, then {lb} and {rb} to reach Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can; higher tiers gather more and shape more. The field guide for wherever you're standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"pad": "Open any menu and press {lb} or {rb} until you reach Tools & Upgrades. Spend materials to upgrade your basket, shovel and watering can; higher tiers gather more and shape more. The field guide for wherever you're standing is on the same page. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"map": {
 			"title": "Open the Preserve map",
@@ -530,13 +531,13 @@
 			"title": "Weather & seasons",
 			"text": "Press N to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the whole preserve and explains, in real ecology, how today’s weather and season shape the area you’re standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts.",
 			"touch": "Tap the weather button (the cloud, top-right) to open the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons — the guide shows what’s happening across the preserve and explains how today’s weather and season shape the area you’re in. Watch the skies: unusual weather can leave rare materials to gather while it lasts.",
-			"pad": "Press {menu} to open the menus, then {lb} and {rb} to reach the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons. The guide shows what's happening across the whole preserve and explains, in real ecology, how today's weather and season shape the area you're standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts."
+			"pad": "Open any menu and press {lb} or {rb} until you reach the Weather & Seasons guide. Each area has its own weather that shifts on its own and slowly drifts through the seasons. The guide shows what's happening across the whole preserve and explains, in real ecology, how today's weather and season shape the area you're standing in. Watch the skies, too: unusual weather can leave rare materials to gather while it lasts."
 		},
 		"tips": {
 			"title": "Good things to know",
 			"text": "Misplaced something? Shift+click any placed object to pick it back up. Esc closes menus or cancels placing. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.",
 			"touch": "Misplaced something? Press and hold a placed object to pick it back up. New areas open through trail gates at the edge of the map. The gear button holds Settings (change your character, lock or delete your save), and the ? button reopens this guide anytime.",
-			"pad": "Misplaced something? Stand next to it so it's marked and press {lt} to pick it back up. {b} closes menus or cancels placing. New areas open through trail gates at the edge of the map. Settings (change your character, lock or delete your save) and this guide are in the menus: press {menu}, then {lb} and {rb}."
+			"pad": "Misplaced something? With your basket in hand, stand next to it so it's marked and press {a}: its menu can move it or pick it back up. {b} closes menus or cancels placing. {lt} and {rt} zoom out and in. New areas open through trail gates at the edge of the map. Settings and this guide are in the menus too: open one and press {lb} or {rb}."
 		},
 		"crafting": {
 			"title": "Open crafting",
@@ -546,13 +547,14 @@
 		},
 		"craftGrass": {
 			"title": "Craft a Grass Patch",
-			"text": "Find Grass Patch in the list and press Craft. It lights up once you're carrying enough seeds and fiber."
+			"text": "Find Grass Patch in the list and press Craft. It lights up once you're carrying enough seeds and fiber.",
+			"pad": "Find Grass Patch in the list and press {a} on Craft. It lights up once you're carrying enough seeds and fiber."
 		},
 		"placeGrass": {
 			"title": "Place it on the land",
 			"text": "Press “Ready to place” at the top of the crafting menu, then click open ground. Watch the meadow's health tick up.",
 			"touch": "Tap “Ready to place” at the top of the crafting menu, then tap open ground. Watch the meadow's health tick up.",
-			"pad": "Select “Ready to place” at the top of the crafting menu. The patch follows the marked tile in front of you; walk where you want it and press {rt}. Watch the meadow's health tick up."
+			"pad": "Select “Ready to place” at the top of the crafting menu. The patch follows the marked tile in front of you; walk where you want it and press {a}. Watch the meadow's health tick up."
 		},
 		"proximity": {
 			"title": "Build little neighborhoods",
@@ -569,12 +571,13 @@
 			"title": "Your first star",
 			"text": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (press K) — recent unlocks rise to the top. Next, a quick tour of your other menus →",
 			"touch": "That’s the whole loop — and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don’t come easy. Find them all in the new Achievements menu (the star button) — recent unlocks rise to the top. Next, a quick tour of your other menus →",
-			"pad": "That's the whole loop, and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don't come easy. Find them all in Achievements: press {menu}, then {lb} and {rb}. Recent unlocks rise to the top. Next, a quick tour of your other menus →"
+			"pad": "That's the whole loop, and welcoming the grasshopper just earned your first achievement, ★ First Friend. There are 50 stars to discover across the preserve: for restoring each biome, bringing back top predators, mastering your tools, and welcoming wildlife preserve-wide. They don't come easy. Find them all in Achievements: press {y} for the journal, then {rb}. Recent unlocks rise to the top. Next, a quick tour of your other menus →"
 		},
 		"goals": {
 			"title": "Your goals",
 			"text": "The board on the left, under the meadow's health, is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
-			"touch": "The board on the left, under the meadow's health, is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
+			"touch": "The board on the left, under the meadow's health, is your goal list. There are ten starter goals to work through, three on the board at a time — finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way.",
+			"pad": "Your goal list sits on the left, under the meadow's health; press {menu} to open it. There are ten starter goals to work through, three on the board at a time. Finish one to claim its reward and the next takes its place. When all ten are done, you set your own goals and play the preserve your way."
 		},
 		"home": {
 			"title": "Make yourself at home",
@@ -587,25 +590,25 @@
 			"title": "Your menus, up top",
 			"text": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it.",
 			"touch": "Up top on the right are your menus, grouped by purpose: Learn (journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Each one explains itself the first time you open it.",
-			"pad": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). Press {menu} to open them, {lb} and {rb} to move from one to the next, and {b} to close. Each one explains itself the first time you open it."
+			"pad": "Up top on the right are your menus, grouped by purpose: Learn (field journal, achievements, feed), Build (basket, crafting, tools, goals), World (map, weather), and System (Settings, Help). {y} opens the journal, {x} crafting and {menu} your goals; once one is open, {lb} and {rb} move from menu to menu, and {b} closes. Each one explains itself the first time you open it."
 		},
 		"toolbelt": {
 			"title": "Your toolbelt",
 			"text": "Your toolbelt sits at the bottom: 1 basket to gather, 2 shovel to shape soil, 3 watering can for water. Press T to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go.",
 			"touch": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. Tap the tools button to open Tools & Upgrades — spend materials to level each one up, and to write up the field guide for the area you’re standing in. Some upgrades open up as a biome gets healthier, so check back as you go.",
-			"pad": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. {lb} and {rb} switch between them. Tools & Upgrades, in the menus under {menu}, is where you spend materials to level each one up and to write up the field guide for the area you're standing in. Some upgrades open up as a biome gets healthier, so check back as you go."
+			"pad": "Your toolbelt sits at the bottom: basket to gather, shovel to shape soil, watering can for water. {lb} and {rb} switch between them, and {a} uses the one in your hand. Tools & Upgrades, one of the menus, is where you spend materials to level each one up and to write up the field guide for the area you're standing in. Some upgrades open up as a biome gets healthier, so check back as you go."
 		},
 		"navigate": {
 			"title": "Find your way around",
 			"text": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Press H anytime for help.",
 			"touch": "Get your bearings. Top-left tracks this meadow — health, balance, animals home, plus the current weather and season. Tap the ? button anytime for help.",
-			"pad": "Get your bearings. Top-left tracks this meadow: health, balance, animals home, plus the current weather and season. Help is always in the menus under {menu}."
+			"pad": "Get your bearings. Top-left tracks this meadow: health, balance, animals home, plus the current weather and season. How to Play is always one of the menus: open any and press {lb}."
 		},
 		"moreAnimals": {
 			"title": "Bring the meadow home",
 			"text": "Food, water, and shelter placed close together bring more animals back. Check your journal (J) for what each one needs. The meadow's in good hands!",
 			"touch": "Food, water, and shelter placed close together bring more animals back. Check your journal for what each one needs. The meadow's in good hands!",
-			"pad": "Food, water, and shelter placed close together bring more animals back. Check your journal, in the menus under {menu}, for what each one needs. The meadow's in good hands!"
+			"pad": "Food, water, and shelter placed close together bring more animals back. Check your journal with {y} for what each one needs. The meadow's in good hands!"
 		}
 	},
 	"help": {
@@ -701,27 +704,25 @@
 				"dpad": "D-pad"
 			},
 			"move": "Walk",
-			"interact": "Use what is next to you, or meet a nearby animal",
+			"interact": "Use what is next to you, or work the marked tile with the tool in your hand: dig, water, paint, place. On a placed item, opens its menu (move, pick up)",
 			"back": "Close, or stop placing",
 			"pointer": "Move the marked tile around you",
-			"use": "Use your tool on the marked tile: place, dig, water, paint, or open an item",
-			"pickUp": "Pick up the item on the marked tile",
 			"recenter": "Put the marked tile back in front of you",
 			"tools": "Previous / next tool",
 			"adjust": "Rotate what you are placing, or change brush size or paint color",
-			"zoom": "Zoom in / out",
+			"zoom": "Zoom out / in",
 			"crafting": "Crafting",
-			"basket": "Basket",
 			"preserve": "Preserve map",
 			"tasks": "Select things on the HUD: goals, task board, tutorial",
-			"menu": "Open the menus",
 			"navigate": "Move between buttons",
 			"select": "Select",
 			"close": "Back / close",
 			"tabs": "Switch tabs inside a menu",
 			"scroll": "Scroll",
 			"slider": "Change a slider or dropdown",
-			"menuCycle": "Previous / next menu"
+			"menuCycle": "Previous / next menu",
+			"journal": "Field journal",
+			"goals": "Your goals"
 		}
 	},
 	"tasks": {

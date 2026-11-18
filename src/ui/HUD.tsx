@@ -19,8 +19,7 @@ import {
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
-import { padCap, padVars, usePadState } from '../gamepad/glyphs';
-import type { BtnName } from '../gamepad/pad';
+import { padVars, usePadState } from '../gamepad/glyphs';
 import { TasksWidget } from './TasksWidget';
 import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
 import { liveTime } from '../weather';
@@ -224,11 +223,10 @@ export function HUD() {
 	// mouse announces "J" — the thing under the pointer — instead of the button's
 	// name. aria-hidden takes it out of the tree without hiding it from sight.
 	// (Reported by an NVDA player: hovering the menu read only the letter.)
-	// With a controller in hand the three panels that have a face button show that
-	// button instead; the rest are reached through the Menu button, so no badge.
-	const PAD_PANEL: Record<string, BtnName> = { crafting: 'X', inventory: 'Y', biomes: 'VIEW' };
+	// No key badges at all on a controller: the menus are reached with Y, X,
+	// Menu and then L1/R1, and the tab bar over an open menu shows where you are.
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
-		const shownKey = onPad ? (PAD_PANEL[id] ? padCap(PAD_PANEL[id]) : undefined) : (keyForPanel(id) ?? keyHint);
+		const shownKey = onPad ? undefined : (keyForPanel(id) ?? keyHint);
 		return (
 			<button
 				className={`icon-btn ${panel === id ? 'on' : ''}`}
@@ -433,11 +431,6 @@ export function HUD() {
 					aria-expanded={navOpen}
 				>
 					<Icon name={navOpen ? 'forward' : 'back'} />
-					{onPad && (
-						<span className="nav-key" aria-hidden="true">
-							{padCap('MENU')}
-						</span>
-					)}
 				</button>
 				{/* Save failures are NOT surfaced here. The top bar is navigation, and a
 				    transient chip appearing and disappearing in the middle of it was

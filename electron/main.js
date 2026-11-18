@@ -15,9 +15,18 @@ const fs = require('node:fs');
 const steam = require('./steam');
 const { createSaveStore } = require('./saves');
 const metricsSync = require('./metrics-sync');
+const { isSteamDeck } = require('./deck');
 
 // Desktop app can allow autoplay so opening music starts without a click.
 app.commandLine.appendSwitch('autoplay-policy', 'no-user-gesture-required');
+
+// On a Steam Deck, draw the page at exactly the screen's 1280x800. Left to
+// itself Chromium picks up a fractional display scale there, so the whole UI
+// laid out for a ~850px-wide window: the HUD came out oversized, the feed was
+// hidden by the small-screen rule, the native color picker opened off to the
+// side, and the game canvas was resampled, which drew thin lines between the
+// ground tiles while the camera moved.
+if (isSteamDeck()) app.commandLine.appendSwitch('force-device-scale-factor', '1');
 
 // Single instance only — two copies would fight over the same save files.
 // NOT in the Mac App Store build: the App Sandbox blocks Electron's singleton
@@ -72,6 +81,8 @@ function registerSaveIpc() {
 		saves().writeSlot(slotId, contents);
 	});
 	ipcMain.handle('saves:remove', async (_e, slotId) => saves().removeSlot(slotId));
+	// The title screen's Quit button (there is no window frame on a Deck).
+	ipcMain.on('app:quit', () => app.quit());
 }
 
 // --- navigation lockdown (defense in depth) ---
@@ -166,7 +177,7 @@ function createWindow() {
 		// On a Steam Deck the game owns the whole 1280x800 screen; gamescope
 		// would stretch a window anyway, but a real fullscreen window skips the
 		// frame and scales nothing.
-		fullscreen: steam.isSteamDeck(),
+		fullscreen: isSteamDeck(),
 		backgroundColor: '#1f2a1d',
 		show: false,
 		title: 'Wild Willows',
@@ -174,6 +185,9 @@ function createWindow() {
 			contextIsolation: true,
 			nodeIntegration: false,
 			preload: path.join(__dirname, 'preload.js'),
+			// The preload is sandboxed and can't read the environment or the disk
+			// itself, so main says whether this is a Deck.
+			additionalArguments: isSteamDeck() ? ['--ww-steam-deck'] : [],
 		},
 	});
 
