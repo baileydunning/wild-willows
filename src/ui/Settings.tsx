@@ -30,6 +30,9 @@ import {
 } from '../keybindings';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
+import { PadControls } from './PadControls';
+import { confirmAsync } from './ConfirmDialog';
+import { usePadState } from '../gamepad/glyphs';
 
 /**
  * One roll of the dice — a fully random appearance from the available options.
@@ -752,6 +755,7 @@ export function KeybindingControls() {
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout, exportDemo } = useGame();
 	const { t, locale } = useI18n();
+	const padSeen = usePadState().seen;
 	const [appearance, setAppearance] = useState<Appearance>({
 		...APPEARANCE_DEFAULTS,
 		...(state?.player.appearance || {}),
@@ -887,7 +891,7 @@ export function SettingsPanel() {
 	};
 
 	const deleteSave = async () => {
-		if (!window.confirm(t('app.confirm.deleteSave', { name: player.name }))) return;
+		if (!(await confirmAsync(t('app.confirm.deleteSave', { name: player.name })))) return;
 		setDeleting(true);
 		setError(null);
 		try {
@@ -955,6 +959,15 @@ export function SettingsPanel() {
 						<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
 					</h3>
 					<KeybindingControls />
+
+					{padSeen && (
+						<>
+							<h3>
+								<Icon name="gamepad" size={15} /> {t('app.settings.padTitle')}
+							</h3>
+							<PadControls />
+						</>
+					)}
 
 					{(isSolo || DEMO) && (
 						<>

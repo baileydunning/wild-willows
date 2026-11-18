@@ -19,6 +19,8 @@ import {
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
+import { padCap, padVars, usePadState } from '../gamepad/glyphs';
+import type { BtnName } from '../gamepad/pad';
 import { TasksWidget } from './TasksWidget';
 import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
 import { liveTime } from '../weather';
@@ -138,6 +140,7 @@ export function HUD() {
 	const { t, content } = useI18n();
 	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
+	const onPad = usePadState().mode === 'pad';
 	// The top-right menu can be tucked away so it's out of the scene — and it
 	// STARTS that way for a new caretaker, unfolding when the tutorial reaches the
 	// step that explains it. Six buttons appearing before anything has said what
@@ -221,8 +224,11 @@ export function HUD() {
 	// mouse announces "J" — the thing under the pointer — instead of the button's
 	// name. aria-hidden takes it out of the tree without hiding it from sight.
 	// (Reported by an NVDA player: hovering the menu read only the letter.)
+	// With a controller in hand the three panels that have a face button show that
+	// button instead; the rest are reached through the Menu button, so no badge.
+	const PAD_PANEL: Record<string, BtnName> = { crafting: 'X', inventory: 'Y', biomes: 'VIEW' };
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
-		const shownKey = keyForPanel(id) ?? keyHint;
+		const shownKey = onPad ? (PAD_PANEL[id] ? padCap(PAD_PANEL[id]) : undefined) : (keyForPanel(id) ?? keyHint);
 		return (
 			<button
 				className={`icon-btn ${panel === id ? 'on' : ''}`}
@@ -427,6 +433,11 @@ export function HUD() {
 					aria-expanded={navOpen}
 				>
 					<Icon name={navOpen ? 'forward' : 'back'} />
+					{onPad && (
+						<span className="nav-key" aria-hidden="true">
+							{padCap('MENU')}
+						</span>
+					)}
 				</button>
 				{/* Save failures are NOT surfaced here. The top bar is navigation, and a
 				    transient chip appearing and disappearing in the middle of it was
@@ -474,9 +485,11 @@ export function HUD() {
 									aria-keyshortcuts="O"
 								>
 									<Icon name="gear" />
-									<span className="nav-key" aria-hidden="true">
-										O
-									</span>
+									{!onPad && (
+										<span className="nav-key" aria-hidden="true">
+											O
+										</span>
+									)}
 								</button>
 								<button
 									className={`icon-btn ${helpOpen ? 'on' : ''}`}
@@ -487,9 +500,11 @@ export function HUD() {
 									aria-keyshortcuts="H"
 								>
 									<Icon name="help" />
-									<span className="nav-key" aria-hidden="true">
-										H
-									</span>
+									{!onPad && (
+										<span className="nav-key" aria-hidden="true">
+											H
+										</span>
+									)}
 								</button>
 								<button
 									className="icon-btn subtle"
@@ -519,7 +534,7 @@ export function HUD() {
 									data.habitatObjects.find((o) => o.id === placementObjectId)?.name || '',
 								)}
 							</b>{' '}
-							{t('app.hud.placingHint')}
+							{onPad ? t('app.hud.placingHintPad', padVars(t)) : t('app.hud.placingHint')}
 							<button className="link" onClick={cancelPlacement}>
 								{t('app.hud.stopPlacing')}
 							</button>

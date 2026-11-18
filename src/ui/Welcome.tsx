@@ -19,6 +19,7 @@ import { DEMO } from '../demo';
 import { APP_VERSION } from '../platform';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
+import { confirmAsync } from './ConfirmDialog';
 import {
 	AppearanceRows,
 	AccessibilityControls,
@@ -608,7 +609,7 @@ export function WelcomeScreen() {
 											title={t('app.welcome.deleteSave', { name: s.name })}
 											disabled={busy}
 											onClick={async () => {
-												if (!window.confirm(t('app.confirm.deleteSlot', { name: s.name }))) return;
+												if (!(await confirmAsync(t('app.confirm.deleteSlot', { name: s.name })))) return;
 												await deleteSoloSave(s.slotId);
 												refreshSlots();
 											}}

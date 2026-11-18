@@ -114,6 +114,59 @@ function runCallbacks() {
 	safe(() => client.runCallbacks?.(), 'runCallbacks');
 }
 
+/**
+ * Bring up Steam's on-screen keyboard for a text field (Steam Deck in Game Mode,
+ * Big Picture on a TV). Tries the floating keyboard first — it types straight
+ * into the focused field, so nothing comes back — and falls back to the older
+ * full-screen one, which returns the finished text for the renderer to write
+ * in. Resolves { mode: 'none' } outside Steam or when neither could be shown.
+ *
+ * Both resolve through Steam callbacks, which metrics-sync only pumps once a
+ * minute, so callbacks are pumped quickly here until the call settles.
+ */
+async function textInput(opts) {
+	if (!isEnabled() || !client.utils) return { mode: 'none' };
+	const o = opts || {};
+	const pump = setInterval(runCallbacks, 50);
+	try {
+		// FloatingGamepadTextInputMode: 0 single line, 1 multiple lines, 3 numeric
+		const floatMode = o.multiline ? 1 : o.numeric ? 3 : 0;
+		const shown = await safe(() =>
+			client.utils.showFloatingGamepadTextInput(
+				floatMode,
+				Math.max(0, o.x | 0),
+				Math.max(0, o.y | 0),
+				Math.max(1, o.width | 0),
+				Math.max(1, o.height | 0),
+			),
+		);
+		if (shown) return { mode: 'floating' };
+		// GamepadTextInputMode 0 = normal; GamepadTextInputLineMode 0 single / 1 multi
+		const text = await safe(() =>
+			client.utils.showGamepadTextInput(
+				0,
+				o.multiline ? 1 : 0,
+				String(o.label || '').slice(0, 120),
+				Math.min(1024, Math.max(1, o.max | 0 || 200)),
+				String(o.value || ''),
+			),
+		);
+		return typeof text === 'string' ? { mode: 'modal', text } : { mode: 'none' };
+	} catch (err) {
+		logger().log(`[steam] text input failed: ${err && err.message}`);
+		return { mode: 'none' };
+	} finally {
+		clearInterval(pump);
+	}
+}
+
+/** True when Steam says this is a Steam Deck. */
+function isSteamDeck() {
+	if (process.env.SteamDeck === '1') return true;
+	if (!isEnabled()) return false;
+	return !!safe(() => client.utils.isSteamRunningOnSteamDeck(), 'isSteamRunningOnSteamDeck');
+}
+
 function shutdown() {
 	if (!isEnabled()) return;
 	store();
@@ -121,4 +174,14 @@ function shutdown() {
 	enabled = false;
 }
 
-module.exports = { init, isEnabled, setStat, unlockAchievement, store, runCallbacks, shutdown };
+module.exports = {
+	init,
+	isEnabled,
+	setStat,
+	unlockAchievement,
+	store,
+	runCallbacks,
+	textInput,
+	isSteamDeck,
+	shutdown,
+};

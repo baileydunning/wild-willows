@@ -5,6 +5,8 @@ import { visibleShortcuts, shortcutKeys } from '../shortcuts';
 import { usePrefs } from '../prefs';
 import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
+import { PadControls } from './PadControls';
+import { usePadState } from '../gamepad/glyphs';
 
 // Step copy lives in the panels.help.loop.* catalog keys.
 const STEPS: Array<{ icon: string; key: string }> = [
@@ -31,6 +33,7 @@ export function HelpModal() {
 	const { helpOpen, setHelpOpen, setTutorialStep, state } = useGame();
 	const { t } = useI18n();
 	usePrefs(); // reflect live key bindings
+	const pad = usePadState();
 	if (!helpOpen) return null;
 	// In solo play there's no People/invite system, so drop those keys entirely.
 	const keys = visibleShortcuts();
@@ -98,6 +101,16 @@ export function HelpModal() {
 							</div>
 						))}
 					</div>
+					{/* With a controller in hand its map comes first; the keyboard list
+					    still follows for anyone who switches back. */}
+					{pad.seen && (
+						<>
+							<div className="help-section-label">
+								<Icon name="gamepad" size={15} /> {t('panels.help.padLabel')}
+							</div>
+							<PadControls />
+						</>
+					)}
 					<div className="help-section-label">
 						<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
 					</div>

@@ -68,7 +68,8 @@
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
 		"goalAffordable": "You can already make that — no need to set it as a goal.",
 		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board.",
-		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest."
+		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest.",
+		"bedReadyPad": "Bed ready. Walk up and press {a} to plant."
 	},
 	"feed": {
 		"demoNudgeIdle": "The preserve waited quietly while you were away.",
@@ -266,7 +267,8 @@
 		"stopPlacing": "stop placing",
 		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes.",
 		"demoGoal": "Demo · {returned}/{total} animals home",
-		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo."
+		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo.",
+		"placingHintPad": "· {rt} on a tile"
 	},
 	"toolbelt": {
 		"how": {
@@ -509,7 +511,8 @@
 		"graphicsQualityHint": {
 			"high": "Full resolution, particles, and weather effects. Best on a capable computer.",
 			"low": "Lighter rendering for older or slower computers — fewer particles, a thinner weather effect, and a lower-resolution canvas. Try this if the game feels slow."
-		}
+		},
+		"padTitle": "Controller"
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",
@@ -518,7 +521,8 @@
 		"body2": " or the ",
 		"arrowKeys": "arrow keys",
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
-		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
+		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin.",
+		"pad": "A controller works too. Press any button on it."
 	},
 	"goalsUnlocked": {
 		"title": "Now the goals are yours",
@@ -562,5 +566,9 @@
 		"blurb": "Change your caretaker's look. Your name stays the same.",
 		"save": "Looks good",
 		"cancel": "Never mind"
+	},
+	"confirmDialog": {
+		"ok": "OK",
+		"cancel": "Cancel"
 	}
 }

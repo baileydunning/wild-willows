@@ -74,6 +74,10 @@ function registerSaveIpc() {
 	ipcMain.handle('saves:remove', async (_e, slotId) => saves().removeSlot(slotId));
 }
 
+function registerSteamIpc() {
+	ipcMain.handle('steam:textInput', async (_e, opts) => steam.textInput(opts));
+}
+
 // --- navigation lockdown (defense in depth) ---
 //
 // This window only ever shows the BUNDLED web build loaded over file://. It has
@@ -163,6 +167,10 @@ function createWindow() {
 		height: 800,
 		minWidth: 960,
 		minHeight: 600,
+		// On a Steam Deck the game owns the whole 1280x800 screen; gamescope
+		// would stretch a window anyway, but a real fullscreen window skips the
+		// frame and scales nothing.
+		fullscreen: steam.isSteamDeck(),
 		backgroundColor: '#1f2a1d',
 		show: false,
 		title: 'Wild Willows',
@@ -218,6 +226,7 @@ async function boot() {
 	steam.init(app); // no-op when not launched through Steam
 	metricsSync.start(); // listens for renderer metrics → Steam (no-op without Steam)
 	registerSaveIpc();
+	registerSteamIpc();
 	createWindow();
 	try {
 		await mainWindow.loadFile(webIndexPath());

@@ -8285,3 +8285,101 @@ a.demo-nudge-store.primary:hover {
 		width: 100%;
 	}
 }
+
+/* ================= controller ================= */
+/* The focus ring the controller moves between controls (src/gamepad/nav.ts).
+   Gold rather than the green the panels are drawn in, so it reads on every
+   card, and a solid outline so it survives the colorblind filters. */
+.gp-focus {
+	outline: 3px solid var(--gold) !important;
+	outline-offset: 2px !important;
+	box-shadow: 0 0 0 6px rgba(201, 145, 63, 0.28) !important;
+}
+/* No keyboard-letter badges on a controller: those buttons show a pad cap
+   (or nothing) instead. */
+.pad-active .tool-key {
+	display: none;
+}
+/* The HUD in menu mode: ring the menu so it is clear the stick is now driving
+   it, not the caretaker. */
+.pad-hud-mode .hud-top-right {
+	box-shadow: 0 0 0 3px var(--gold);
+	border-radius: 14px;
+}
+.toolbelt-pad-cap {
+	align-self: center;
+	min-width: 26px;
+	padding: 2px 6px;
+	font-size: calc(11px * var(--ui-scale));
+	font-weight: 800;
+	text-align: center;
+	color: var(--green-deep);
+	background: var(--paper);
+	border: 1.5px solid var(--green-deep);
+	border-radius: 7px;
+}
+kbd.pad-cap {
+	min-width: 26px;
+	text-align: center;
+}
+.pad-controls-sub {
+	margin: 10px 0 4px;
+	font-size: calc(12px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink-soft);
+}
+
+/* The controller's pointer (src/gamepad/cursor.ts). pointer-events: none so
+   elementFromPoint and every click land on what is underneath it. */
+.pad-cursor {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 22px;
+	height: 22px;
+	margin: -11px 0 0 -11px;
+	border-radius: 50%;
+	border: 2.5px solid var(--cream);
+	box-shadow:
+		0 0 0 2px var(--green-deep),
+		0 2px 6px rgba(0, 0, 0, 0.35);
+	pointer-events: none;
+	z-index: 10000;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.pad-cursor::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 4px;
+	height: 4px;
+	margin: -2px 0 0 -2px;
+	border-radius: 50%;
+	background: var(--cream);
+}
+.pad-cursor.on {
+	opacity: 1;
+}
+.pad-active .game-screen canvas {
+	cursor: none;
+}
+
+/* In-game confirm (src/ui/ConfirmDialog.tsx), standing in for window.confirm. */
+.confirm-backdrop {
+	position: fixed;
+	z-index: 9000;
+}
+.confirm-card {
+	width: min(420px, 92vw);
+}
+.confirm-msg {
+	margin: 4px 0 18px;
+	line-height: 1.45;
+}
+.confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}

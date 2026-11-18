@@ -53,6 +53,8 @@ import {
 import { t, content, getLocale, isSimpleText } from '../i18n';
 import { getPrefs, renderScale, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
+import { getInputMode, subscribePad } from '../gamepad/pad';
+import { padCap } from '../gamepad/glyphs';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { BRISK_STEP_SPEED, cozyOptsFor, hasHomeAbility } from '../homeAbilities';
 import { isTypingTarget } from '../typing';
@@ -351,6 +353,9 @@ export class WorldScene extends Phaser.Scene {
 	private fireCacheSrc: unknown = null;
 	private fireCacheArea = '';
 	private hintKeyCache = ''; // '' = needs recompute
+	// A controller's A press, queued by the 'pad-interact' bridge event and spent
+	// by the next handleInteraction() — the same frame-edge a JustDown key gives.
+	private padInteract = false;
 	// id -> habitat-object def (see objectDefs). Keyed by the data array's identity
 	// AND the active wording, because the one synthetic def carries a localized name.
 	private objectDefMap: Map<string, HabitatObjectDef> | null = null;
@@ -763,6 +768,7 @@ export class WorldScene extends Phaser.Scene {
 		this.installLayers();
 		this.installPlayer(data);
 		this.installKeyboard();
+		this.installPad();
 		this.installFocusGuards();
 		const applyRingMotion = this.installHighlight();
 		this.installLiveSettings(applyRingMotion);
@@ -913,17 +919,51 @@ export class WorldScene extends Phaser.Scene {
 				(this.placementObjectId || this.movingPlacementId)
 			) {
 				e.preventDefault();
-				if (!this.activeRotatable()) {
-					bridge.emit('toast', {
-						text: t('game.toast.noRotate'),
-						kind: 'info',
-					});
-					return;
-				}
-				this.placeRotation = (this.placeRotation + 90) % 360;
-				const preview = this.ghost && ((this.ghost as any).preview as Phaser.GameObjects.Image | undefined);
-				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
+				this.rotateHeld(1);
 			}
+		});
+	}
+
+	/** Turn the object being placed or moved a quarter-turn (dir 1 = clockwise).
+	 *  Shared by the \\ key and the controller's d-pad. */
+	private rotateHeld(dir: 1 | -1) {
+		if (!this.placementObjectId && !this.movingPlacementId) return;
+		if (!this.activeRotatable()) {
+			bridge.emit('toast', {
+				text: t('game.toast.noRotate'),
+				kind: 'info',
+			});
+			return;
+		}
+		this.placeRotation = (this.placeRotation + (dir === 1 ? 90 : 270)) % 360;
+		const preview = this.ghost && ((this.ghost as any).preview as Phaser.GameObjects.Image | undefined);
+		preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
+	}
+
+	/** Controller events from src/gamepad/GamepadLayer.tsx. */
+	private installPad() {
+		this.unsubs.push(
+			bridge.on('pad-interact', () => {
+				this.padInteract = true;
+			}),
+			bridge.on('pad-cancel', () => {
+				if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
+			}),
+			bridge.on('pad-rotate', (dir: number) => this.rotateHeld(dir < 0 ? -1 : 1)),
+			bridge.on('pad-zoom', (dir: number) => {
+				if (bridge.shared.uiBlocking) return;
+				this.nudgeZoom(dir > 0 ? ZOOM_STEP : 1 / ZOOM_STEP);
+			}),
+			// Prompts and the in-world key badge switch between key caps and pad caps.
+			subscribePad(() => {
+				this.hintKeyCache = '';
+				this.lastPrompt = '\u0000'; // force the bar to rebuild with the new caps
+				if (this.interactBadge && !this.isTouch) this.interactBadge.setText(this.interactHintKey());
+			}),
+		);
+		this.unsubs.push(() => {
+			bridge.shared.placing = false;
+			bridge.shared.playerScreen = null;
 		});
 	}
 
@@ -6446,6 +6486,7 @@ export class WorldScene extends Phaser.Scene {
 		}
 		this.handleGhost();
 		this.handleInteraction();
+		this.publishForPad();
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
@@ -6523,6 +6564,7 @@ export class WorldScene extends Phaser.Scene {
 		// Read every frame by the prompt builder. Bindings only change on rebind,
 		// which already calls through rebindMoveKeys() — so cache and invalidate
 		// there rather than re-deriving the label 60 times a second.
+		if (!this.hintKeyCache && getInputMode() === 'pad') this.hintKeyCache = padCap('A');
 		if (!this.hintKeyCache) {
 			const toks = getBindings().interact;
 			this.hintKeyCache = keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
@@ -6575,6 +6617,12 @@ export class WorldScene extends Phaser.Scene {
 		if (held(mk.right)) vx += 1;
 		if (held(mk.up)) vy -= 1;
 		if (held(mk.down)) vy += 1;
+		// controller left stick
+		const pad = bridge.shared.pad;
+		if (vx === 0 && vy === 0 && (pad.x !== 0 || pad.y !== 0)) {
+			vx = pad.x;
+			vy = pad.y;
+		}
 		// virtual joystick (mobile)
 		const joy = bridge.shared.joy;
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
@@ -6684,6 +6732,24 @@ export class WorldScene extends Phaser.Scene {
 		const depth = ny + 16;
 		if (this.player.depth !== depth) this.player.setDepth(depth);
 		this.setWalkAudio(moved);
+	}
+
+	/** What the controller layer needs from the world each frame: whether an
+	 *  object is in hand, and where the caretaker is on the canvas. */
+	private publishForPad() {
+		bridge.shared.placing = !!(this.placementObjectId || this.movingPlacementId);
+		const cam = this.cameras.main;
+		const wv = cam.worldView;
+		const ps = bridge.shared.playerScreen;
+		const x = (this.player.x - wv.x) * cam.zoom;
+		const y = (this.player.y - wv.y) * cam.zoom;
+		const left = this.player.flipX;
+		if (!ps) bridge.shared.playerScreen = { x, y, facingLeft: left };
+		else {
+			ps.x = x;
+			ps.y = y;
+			ps.facingLeft = left;
+		}
 	}
 
 	private handleGhost() {
@@ -6818,9 +6884,26 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setVisible(false);
 		}
 
-		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
-		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
-		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
+		const onPad = getInputMode() === 'pad';
+		const verb = this.isTouch && !onPad ? t('game.prompt.tap') : this.interactHintKey();
+		const clickVerb = onPad ? padCap('RT') : this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
+		const rotHint = onPad
+			? this.activeRotatable()
+				? t('game.prompt.rotateHintPad', { key: `${padCap('LEFT')}${padCap('RIGHT')}` })
+				: ''
+			: !this.isTouch && this.activeRotatable()
+				? t('game.prompt.rotateHint')
+				: '';
+		const cancelHint = onPad
+			? t('game.prompt.padCancel', { key: padCap('B') })
+			: this.isTouch
+				? ''
+				: t('game.prompt.escCancel');
+		const stopHint = onPad
+			? t('game.prompt.padStopPlacing', { key: padCap('B') })
+			: this.isTouch
+				? ''
+				: t('game.prompt.escStopPlacing');
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
@@ -6831,17 +6914,16 @@ export class WorldScene extends Phaser.Scene {
 		// frame the tool was held — and pushed the actual interaction prompt to the far
 		// end of a long line. This bar is only for what the interact key will do.
 		const prompt = this.movingPlacementId
-			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
+			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + cancelHint
 			: this.placementObjectId
-				? t('game.prompt.placeTile', { verb: clickVerb }) +
-					rotHint +
-					(this.isTouch ? '' : t('game.prompt.escStopPlacing'))
+				? t('game.prompt.placeTile', { verb: clickVerb }) + rotHint + stopHint
 				: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
 		}
-		let interactPressed = false;
+		let interactPressed = this.padInteract;
+		this.padInteract = false;
 		for (const key of this.moveKeys.interact) {
 			if (Phaser.Input.Keyboard.JustDown(key)) interactPressed = true;
 		}

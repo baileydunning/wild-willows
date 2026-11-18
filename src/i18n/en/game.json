@@ -128,6 +128,9 @@
 		"escStopPlacing": " · Esc to stop placing",
 		"moveTile": "{verb} a tile to move it there",
 		"placeTile": "{verb} a tile to place",
-		"near": "{verb} — {label}"
+		"near": "{verb} — {label}",
+		"rotateHintPad": " · {key} to rotate",
+		"padCancel": " · {key} to cancel",
+		"padStopPlacing": " · {key} to stop placing"
 	}
 }

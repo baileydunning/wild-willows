@@ -43,6 +43,9 @@ contextBridge.exposeInMainWorld('wildWillowsDesktop', {
 	isDesktop: true,
 	platform: process.platform,
 	version: process.versions.electron,
+	// Steam sets SteamDeck=1 in the environment of anything it launches on a
+	// Deck. Used for controller glyphs (L1/R1, ☰) and to skip the keyboard gate.
+	isSteamDeck: process.env.SteamDeck === '1',
 	// Storefront this copy came from (mas | steam | itch | direct | …), or null
 	// when only the build stamp knows. See detectChannel() in src/platform.ts.
 	channel: detectDesktopChannel(),
@@ -75,5 +78,8 @@ contextBridge.exposeInMainWorld('wildWillowsDesktop', {
 	// onto Steam (electron/metrics-sync.js). No-op outside Steam.
 	steam: {
 		reportMetrics: (player) => ipcRenderer.send('steam:metrics', player),
+		// Steam's on-screen keyboard for a text field. Resolves
+		// { mode: 'floating' | 'modal' | 'none', text? } — see electron/steam.js.
+		textInput: (opts) => ipcRenderer.invoke('steam:textInput', opts),
 	},
 });

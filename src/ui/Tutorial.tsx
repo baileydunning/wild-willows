@@ -7,6 +7,8 @@ import { useDraggable } from './useDraggable';
 import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
 import { DEMO } from '../demo';
+import { hasKey } from '../i18n';
+import { padVars, usePadState } from '../gamepad/glyphs';
 
 interface StepDef {
 	icon: string;
@@ -304,6 +306,15 @@ export function Tutorial() {
 	const stepShownAt = useRef<number>(Date.now());
 	const [celebrating, setCelebrating] = useState(false);
 	const touch = isTouchDevice();
+	const onPad = usePadState().mode === 'pad';
+	// Copy for the input in hand: controller wording (with that pad's button caps)
+	// when one is being used, touch wording on a touchscreen, keys otherwise.
+	const stepText = (def: StepDef): string =>
+		onPad && hasKey(`${def.key}.pad`)
+			? t(`${def.key}.pad`, padVars(t))
+			: touch && def.hasTouch
+				? t(`${def.key}.touch`)
+				: t(`${def.key}.text`);
 	// The card can be dragged anywhere by its header; the spot is remembered.
 	const { ref: dragRef, handleProps, style: dragStyle } = useDraggable('wild-willows:tutorial-cardpos');
 	// Collapse to just the header bar to get it out of the way; state is remembered.
@@ -388,7 +399,8 @@ export function Tutorial() {
 		};
 		window.addEventListener('keydown', onKey);
 		const joyPoll = window.setInterval(() => {
-			if (Math.abs(bridge.shared.joy.x) > 0.3 || Math.abs(bridge.shared.joy.y) > 0.3) {
+			const { joy, pad } = bridge.shared;
+			if (Math.abs(joy.x) > 0.3 || Math.abs(joy.y) > 0.3 || Math.abs(pad.x) > 0.3 || Math.abs(pad.y) > 0.3) {
 				setFlags((f) => (f.moved ? f : { ...f, moved: true }));
 			}
 		}, 400);
@@ -451,7 +463,7 @@ export function Tutorial() {
 			// Hold the card up until the player has had time to read it. If the
 			// goal was met before that, wait out the remainder first; otherwise
 			// celebrate and move on right away.
-			const text = touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`);
+			const text = stepText(def);
 			const remaining = readMs(text, step) - (Date.now() - stepShownAt.current);
 			if (remaining <= 0) {
 				celebrateThenAdvance();
@@ -518,9 +530,7 @@ export function Tutorial() {
 							<div className="tutorial-title">
 								{celebrating ? t('panels.tutorial.niceWork') : t(`${def.key}.title`)}
 							</div>
-							<div className="tutorial-text">
-								{touch && def.hasTouch ? t(`${def.key}.touch`) : t(`${def.key}.text`)}
-							</div>
+							<div className="tutorial-text">{stepText(def)}</div>
 							{DEMO && def.key === 'panels.tutorial.welcome' && !celebrating && (
 								<div className="tutorial-demo-note">
 									<Icon name="sparkle" size={13} /> {t('panels.tutorial.demoNote')}
