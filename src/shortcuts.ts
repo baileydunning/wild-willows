@@ -94,7 +94,7 @@ export const PAD_SHORTCUTS: PadShortcut[] = [
 	{ caps: ['DPAD_LR'], does: 'panels.help.pad.adjust' },
 	{ caps: ['Y'], does: 'panels.help.pad.journal' },
 	{ caps: ['X'], does: 'panels.help.pad.crafting' },
-	{ caps: ['MENU'], does: 'panels.help.pad.goals' },
+	{ caps: ['MENU'], does: 'panels.help.pad.toolsMenu' },
 	{ caps: ['VIEW'], does: 'panels.help.pad.preserve' },
 	{ caps: ['LS'], does: 'panels.help.pad.tasks' },
 	{ caps: ['DPAD', 'LSTICK'], does: 'panels.help.pad.navigate', menus: true },

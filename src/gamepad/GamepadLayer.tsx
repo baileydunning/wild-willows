@@ -6,7 +6,7 @@
 //  everything: interacts with what is beside you, or with a tool or an object
 //  in hand, works the tile marked in front of you (the right stick moves the
 //  mark). L1/R1 change tools, L2/R2 zoom, Y opens the journal, X crafting,
-//  Menu the goals.
+//  Menu Tools & Upgrades.
 //
 //  MENUS (a panel, popup, dialog or the title screen is up, or the HUD is in
 //  focus mode): the d-pad / left stick move a focus ring between controls, A
@@ -26,7 +26,6 @@ import {
 	adjustControl,
 	clearRing,
 	closeSurface,
-	cycleSelect,
 	cycleTabs,
 	ensureRing,
 	inHudMode,
@@ -40,6 +39,7 @@ import {
 } from './nav';
 import { BTN, getInputMode, pollPads, subscribePad } from './pad';
 import { closeKeyboard, keyboardActions, openKeyboard } from '../ui/OnScreenKeyboard';
+import { openSelectPicker } from '../ui/SelectPicker';
 
 function keyEventInit(key: string): KeyboardEventInit {
 	let code = '';
@@ -70,7 +70,7 @@ function activate(el: HTMLElement) {
 		return;
 	}
 	if (el.tagName === 'SELECT') {
-		cycleSelect(el as HTMLSelectElement, 1);
+		openSelectPicker(el as HTMLSelectElement); // A opens the list; nothing changes until you pick
 		return;
 	}
 	if (el.tagName === 'INPUT' && (el as HTMLInputElement).type === 'range') return; // ← → adjusts
@@ -323,10 +323,10 @@ export function GamepadLayer() {
 				if (placing) bridge.emit('pad-cancel');
 				else pressKey('Escape');
 			}
-			// X crafting, Y journal, ☰ goals, View the map; L1/R1 reach the rest.
+			// X crafting, Y journal, ☰ Tools & Upgrades, View the map; L1/R1 reach the rest.
 			if (f.pressed.has(BTN.X)) openMenu(menus(), 'crafting');
 			if (f.pressed.has(BTN.Y)) openMenu(menus(), 'journal');
-			if (f.pressed.has(BTN.MENU)) openMenu(menus(), 'goals');
+			if (f.pressed.has(BTN.MENU)) openMenu(menus(), 'tools');
 			if (f.pressed.has(BTN.VIEW)) openMenu(menus(), 'biomes');
 			if (f.pressed.has(BTN.LB)) cycleTool(-1);
 			if (f.pressed.has(BTN.RB)) cycleTool(1);

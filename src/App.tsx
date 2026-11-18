@@ -38,6 +38,7 @@ import { GamepadLayer } from './gamepad/GamepadLayer';
 import { OnScreenKeyboard } from './ui/OnScreenKeyboard';
 import { MenuTabs } from './ui/MenuTabs';
 import { ColorPicker } from './ui/ColorPicker';
+import { SelectPicker } from './ui/SelectPicker';
 
 /* ---------------------------------------------------------------- lazy panels
  *
@@ -1003,6 +1004,7 @@ export default function App() {
 				<ConfirmHost />
 				<OnScreenKeyboard />
 				<ColorPicker />
+				<SelectPicker />
 				<GamepadLayer />
 			</GameProvider>
 		</KeyboardGate>

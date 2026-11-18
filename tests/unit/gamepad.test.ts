@@ -109,6 +109,19 @@ describe('focus ring navigation', () => {
 		expect(ringed()).toBe(go);
 	});
 
+	it('goes down to the next row instead of skipping to something in line further down', () => {
+		// Settings: a theme button on the left, a column of toggles on the right,
+		// and a dropdown much further down that happens to line up with the button.
+		root.innerHTML = '<button id="dark">Dark</button><button id="sw">toggle</button><button id="sel">Off</button>';
+		const [dark, sw, sel] = ['dark', 'sw', 'sel'].map((id) => document.getElementById(id)!);
+		place(dark, 684, 316, 76, 28);
+		place(sw, 807, 377, 46, 26);
+		place(sel, 724, 652, 129, 30);
+		setRing(dark, false);
+		moveRing(root, 'down');
+		expect(ringed()).toBe(sw);
+	});
+
 	it('moves a slider with left/right instead of leaving it', () => {
 		root.innerHTML = '<input type="range" min="0" max="100" step="1" value="50" />';
 		const r = root.querySelector('input')!;

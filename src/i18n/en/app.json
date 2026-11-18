@@ -588,5 +588,8 @@
 	"colorPicker": {
 		"title": "Pick a color",
 		"current": "Current color"
+	},
+	"selectPicker": {
+		"title": "Choose one"
 	}
 }

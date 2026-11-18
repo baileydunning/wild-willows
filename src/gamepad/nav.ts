@@ -26,6 +26,15 @@ const FOCUSABLE = [
 // "on"), which would strip a class off the very control the player is on.
 const RING = 'data-pad-focus';
 let ringEl: HTMLElement | null = null;
+// Where the ring is DRAWN, usually the same element. A custom toggle or color
+// swatch is a real input made invisible (opacity 0) over its styled track, and
+// an outline on it would be invisible too, so the ring is drawn on the control
+// the player can see while focus and A stay on the input.
+let ringShownOn: HTMLElement | null = null;
+function ringHost(el: HTMLElement): HTMLElement {
+	if (el.tagName !== 'INPUT' || getComputedStyle(el).opacity !== '0') return el;
+	return (el.closest('.switch, label') as HTMLElement | null) || el.parentElement || el;
+}
 // Where the ring last was, so a control React re-renders out from under it
 // (pressing a swatch, a list re-sorting) hands the ring to whatever now sits
 // in that spot instead of throwing it back to the top of the panel.
@@ -110,16 +119,18 @@ export function preferRing(el: HTMLElement) {
 }
 
 export function clearRing() {
-	ringEl?.removeAttribute(RING);
+	ringShownOn?.removeAttribute(RING);
+	ringShownOn = null;
 	ringEl = null;
 	lastCenter = null;
 }
 
 export function setRing(el: HTMLElement, scroll = true) {
 	if (ringEl !== el) {
-		ringEl?.removeAttribute(RING);
+		ringShownOn?.removeAttribute(RING);
 		ringEl = el;
-		el.setAttribute(RING, '');
+		ringShownOn = ringHost(el);
+		ringShownOn.setAttribute(RING, '');
 	}
 	if (!isFormControl(el)) {
 		try {
@@ -251,16 +262,16 @@ export function moveRing(surface: HTMLElement, dir: Dir): boolean {
 	}
 	const cr = cur.getBoundingClientRect();
 	const cc = center(cr);
-	let best: HTMLElement | null = null;
-	let bestScore = Infinity;
+	const vertical = dir === 'up' || dir === 'down';
+	const cands: Array<{ el: HTMLElement; primary: number; ortho: number; overlap: boolean }> = [];
 	for (const el of all) {
 		if (el === cur || cur.contains(el) || el.contains(cur)) continue;
 		const r = el.getBoundingClientRect();
 		const c = center(r);
 		let primary: number;
-		let ortho: number;
 		let overlap: boolean;
-		if (dir === 'right' || dir === 'left') {
+		let ortho: number;
+		if (!vertical) {
 			primary = dir === 'right' ? r.left - cr.right : cr.left - r.right;
 			if ((dir === 'right' ? c.x - cc.x : cc.x - c.x) <= 1) continue;
 			overlap = r.top < cr.bottom && r.bottom > cr.top;
@@ -271,13 +282,35 @@ export function moveRing(surface: HTMLElement, dir: Dir): boolean {
 			overlap = r.left < cr.right && r.right > cr.left;
 			ortho = overlap ? 0 : Math.abs(c.x - cc.x);
 		}
-		// Something in the same row (or column) wins over a nearer diagonal: right
-		// from a footer button should reach the button beside it, not hop up into
-		// the grid above. Off-line candidates still count when nothing is in line.
-		const score = Math.max(0, primary) + (overlap ? 0 : 250 + ortho * 4);
-		if (score < bestScore) {
-			bestScore = score;
-			best = el;
+		cands.push({ el, primary: Math.max(0, primary), ortho, overlap });
+	}
+	if (!cands.length) return false;
+	let best: HTMLElement | null = null;
+	if (vertical) {
+		// Up/down go to the NEXT ROW, then to whatever in it sits closest
+		// sideways. Preferring things directly in line skipped rows: down from a
+		// button on the left of Settings jumped past every toggle on the right to
+		// the next dropdown that happened to line up with it.
+		const nearest = Math.min(...cands.map((c) => c.primary));
+		let bestOrtho = Infinity;
+		for (const c of cands) {
+			if (c.primary > nearest + 24) continue;
+			if (c.ortho < bestOrtho) {
+				bestOrtho = c.ortho;
+				best = c.el;
+			}
+		}
+	} else {
+		// Left/right stay in the row: right from a footer button reaches the
+		// button beside it, not a nearer chip diagonally above. Off-line
+		// candidates still count when nothing is in line.
+		let bestScore = Infinity;
+		for (const c of cands) {
+			const score = c.primary + (c.overlap ? 0 : 250 + c.ortho * 4);
+			if (score < bestScore) {
+				bestScore = score;
+				best = c.el;
+			}
 		}
 	}
 	if (!best) return false;
@@ -306,7 +339,8 @@ export function setFieldValue(el: HTMLInputElement | HTMLTextAreaElement | HTMLS
 	el.dispatchEvent(new Event('change', { bubbles: true }));
 }
 
-/** Left/right on a slider or dropdown changes its value instead of moving focus.
+/** Left/right on a slider changes its value instead of moving focus. (A
+ *  dropdown opens with A instead: src/ui/SelectPicker.tsx.)
  *  Returns true when the press was used that way. */
 export function adjustControl(el: HTMLElement, dir: Dir): boolean {
 	if (dir !== 'left' && dir !== 'right') return false;
@@ -322,19 +356,7 @@ export function adjustControl(el: HTMLElement, dir: Dir): boolean {
 		setFieldValue(r, String(next));
 		return true;
 	}
-	if (el.tagName === 'SELECT') {
-		cycleSelect(el as HTMLSelectElement, sign);
-		return true;
-	}
 	return false;
-}
-
-export function cycleSelect(sel: HTMLSelectElement, sign: number) {
-	const opts = Array.from(sel.options).filter((o) => !o.disabled);
-	if (!opts.length) return;
-	const i = opts.findIndex((o) => o.value === sel.value);
-	const next = opts[(i + sign + opts.length) % opts.length];
-	setFieldValue(sel, next.value);
 }
 
 /** Scroll the panel under the ring (or the surface's main scroller). */

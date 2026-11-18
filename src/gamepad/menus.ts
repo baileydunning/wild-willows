@@ -1,5 +1,5 @@
 // The game's menus, in the order the HUD lists them. On a controller, Y, X and
-// Menu open the journal, crafting and goals, and L1/R1 move between all of
+// Menu open the journal, crafting and Tools & Upgrades, and L1/R1 move between all of
 // them like the tabs of a pause menu (GamepadLayer + MenuTabs). How to Play is a modal rather than a panel, so it
 // is handled by name.
 
