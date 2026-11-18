@@ -121,4 +121,12 @@ function shutdown() {
 	enabled = false;
 }
 
-module.exports = { init, isEnabled, setStat, unlockAchievement, store, runCallbacks, shutdown };
+module.exports = {
+	init,
+	isEnabled,
+	setStat,
+	unlockAchievement,
+	store,
+	runCallbacks,
+	shutdown,
+};

@@ -3,6 +3,7 @@
 // so the two can never drift apart. `does` is an i18n key (panels.help.keys.*);
 // the literal key caps stay as-is and aren't translated.
 import { getBindings, keyLabel } from './keybindings';
+import type { BtnName } from './gamepad/pad';
 
 export interface Shortcut {
 	keys: string[];
@@ -67,3 +68,40 @@ export function shortcutKeys(s: Shortcut): string[] {
 	for (const id of ids) for (const tok of b[id] || []) out.push(keyLabel(tok));
 	return out;
 }
+
+// ------------------------------------------------------------------ controller
+// The controller map, shown in How to Play and Settings when a pad is in use.
+// `caps` are button names from src/gamepad/pad.ts (printed with the glyphs of
+// the pad actually connected) or one of the stick/d-pad words below, which ARE
+// translated. Must match what src/gamepad/GamepadLayer.tsx does.
+
+export type PadCapToken = BtnName | 'LSTICK' | 'RSTICK' | 'DPAD' | 'DPAD_UD' | 'DPAD_LR';
+
+export interface PadShortcut {
+	caps: PadCapToken[];
+	does: string; // panels.help.pad.*
+	menus?: boolean; // applies inside panels and menus rather than in the world
+}
+
+export const PAD_SHORTCUTS: PadShortcut[] = [
+	{ caps: ['LSTICK'], does: 'panels.help.pad.move' },
+	{ caps: ['A'], does: 'panels.help.pad.interact' },
+	{ caps: ['B'], does: 'panels.help.pad.back' },
+	{ caps: ['RSTICK'], does: 'panels.help.pad.pointer' },
+	{ caps: ['RS'], does: 'panels.help.pad.recenter' },
+	{ caps: ['LB', 'RB'], does: 'panels.help.pad.tools' },
+	{ caps: ['LT', 'RT'], does: 'panels.help.pad.zoom' },
+	{ caps: ['DPAD_LR'], does: 'panels.help.pad.adjust' },
+	{ caps: ['Y'], does: 'panels.help.pad.journal' },
+	{ caps: ['X'], does: 'panels.help.pad.crafting' },
+	{ caps: ['MENU'], does: 'panels.help.pad.toolsMenu' },
+	{ caps: ['VIEW'], does: 'panels.help.pad.preserve' },
+	{ caps: ['LS'], does: 'panels.help.pad.tasks' },
+	{ caps: ['DPAD', 'LSTICK'], does: 'panels.help.pad.navigate', menus: true },
+	{ caps: ['A'], does: 'panels.help.pad.select', menus: true },
+	{ caps: ['B'], does: 'panels.help.pad.close', menus: true },
+	{ caps: ['LB', 'RB'], does: 'panels.help.pad.menuCycle', menus: true },
+	{ caps: ['LT', 'RT'], does: 'panels.help.pad.tabs', menus: true },
+	{ caps: ['RSTICK'], does: 'panels.help.pad.scroll', menus: true },
+	{ caps: ['DPAD_LR'], does: 'panels.help.pad.slider', menus: true },
+];

@@ -19,15 +19,21 @@ import { DEMO } from '../demo';
 import { APP_VERSION } from '../platform';
 import type { Appearance } from '../types';
 import { CharacterPreview, Icon } from './icons';
+import { confirmAsync } from './ConfirmDialog';
+import { padVars, usePadState } from '../gamepad/glyphs';
 import {
 	AppearanceRows,
 	AccessibilityControls,
 	GraphicsQualityControl,
+	FrameRateControl,
 	SoundControls,
 	randomizeAppearance,
 	randomStartingAppearance,
 } from './Settings';
 import { randomName } from './names';
+
+// The desktop app's quit (electron/preload.js); undefined in a browser.
+const desktopQuit: (() => void) | undefined = (globalThis as any).wildWillowsDesktop?.quit;
 
 type Mode = 'menu' | 'new' | 'load';
 
@@ -270,6 +276,7 @@ function Scenery() {
 export function WelcomeScreen() {
 	const { data, dataError, demoBackend, startNew, startLogin, continueLast, startNewSolo, loadSoloSlot } = useGame();
 	const { t, locale } = useI18n();
+	const onPad = usePadState().mode === 'pad';
 	const [mode, setMode] = useState<Mode>('menu');
 	const [settingsOpen, setSettingsOpen] = useState(false);
 	// The title screen gets its own short, welcoming intro — not the dense
@@ -497,6 +504,13 @@ export function WelcomeScreen() {
 								<button className="big-btn subtle" onClick={() => setSettingsOpen(true)}>
 									<Icon name="gear" /> <span>{t('app.settings.title')}</span>
 								</button>
+								{/* The desktop app only: a browser tab closes itself, and on a Steam
+								    Deck there is no window frame to close the game with. */}
+								{desktopQuit && (
+									<button className="big-btn subtle" onClick={desktopQuit}>
+										<Icon name="logout" /> <span>{t('app.welcome.quit')}</span>
+									</button>
+								)}
 							</div>
 							{!data && !dataError && <p className="muted small">{t('app.welcome.reaching')}</p>}
 						</div>
@@ -608,7 +622,7 @@ export function WelcomeScreen() {
 											title={t('app.welcome.deleteSave', { name: s.name })}
 											disabled={busy}
 											onClick={async () => {
-												if (!window.confirm(t('app.confirm.deleteSlot', { name: s.name }))) return;
+												if (!(await confirmAsync(t('app.confirm.deleteSlot', { name: s.name })))) return;
 												await deleteSoloSave(s.slotId);
 												refreshSlots();
 											}}
@@ -744,7 +758,9 @@ export function WelcomeScreen() {
 									</span>
 									<div>
 										<b>{t('app.welcome.intro.welcomeTitle')}</b>
-										<p>{t('app.welcome.intro.welcomeText')}</p>
+										<p>
+											{onPad ? t('app.welcome.intro.welcomeTextPad', padVars(t)) : t('app.welcome.intro.welcomeText')}
+										</p>
 									</div>
 								</div>
 								<div className="welcome-intro-step">
@@ -816,6 +832,7 @@ export function WelcomeScreen() {
 								<Icon name="monitor" size={15} /> {t('app.settings.graphics')}
 							</h3>
 							<GraphicsQualityControl />
+							<FrameRateControl />
 							<h3>
 								<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 							</h3>

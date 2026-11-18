@@ -128,6 +128,15 @@
 		"escStopPlacing": " · Esc para dejar de colocar",
 		"moveTile": "{verb} en una casilla para moverlo allí",
 		"placeTile": "{verb} en una casilla para colocarlo",
-		"near": "{verb} — {label}"
+		"near": "{verb} — {label}",
+		"rotateHintPad": " · {key} para girar",
+		"padCancel": " · {key} para cancelar",
+		"padStopPlacing": " · {key} para dejar de colocar",
+		"padAnimal": "{verb} — Conocer: {name}",
+		"padDig": "{verb} — Cavar aquí",
+		"padWater": "{verb} — Regar aquí",
+		"padPaint": "{verb} — Pintar",
+		"padPlace": "{verb} — Colocarlo aquí",
+		"padMove": "{verb} — Moverlo aquí"
 	}
 }

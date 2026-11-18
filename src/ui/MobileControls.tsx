@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { bridge } from '../game/bridge';
+import { getPadFamily } from '../gamepad/pad';
 
 export function isTouchDevice() {
 	return typeof window !== 'undefined' && window.matchMedia('(pointer: coarse)').matches;
@@ -29,7 +30,8 @@ export function MobileControls() {
 		};
 	}, []);
 
-	if (!isTouchDevice()) return null;
+	// A Steam Deck has a touchscreen, but it also has sticks: no on-screen one.
+	if (!isTouchDevice() || getPadFamily() === 'deck') return null;
 
 	// Measured once per gesture instead of once per pointermove.
 	//

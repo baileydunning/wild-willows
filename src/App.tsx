@@ -33,6 +33,12 @@ import { MirrorPanel, SettingsPanel } from './ui/Settings';
 import { ActivityLog, FeedPanel, Toolbelt } from './ui/Toolbelt';
 import { Tutorial } from './ui/Tutorial';
 import { CoachTips, dismissCoachTip } from './ui/CoachTips';
+import { ConfirmHost, confirmAsync } from './ui/ConfirmDialog';
+import { GamepadLayer } from './gamepad/GamepadLayer';
+import { OnScreenKeyboard } from './ui/OnScreenKeyboard';
+import { MenuTabs } from './ui/MenuTabs';
+import { ColorPicker } from './ui/ColorPicker';
+import { SelectPicker } from './ui/SelectPicker';
 
 /* ---------------------------------------------------------------- lazy panels
  *
@@ -471,8 +477,8 @@ function GameScreen() {
 			bridge.on('plant-matured', (area: any) => game.recalcArea(area)),
 			bridge.on('toast', (p: any) => notify(p.text, p.kind || 'info')),
 			bridge.on('placement-exited', () => cancelPlacement()),
-			bridge.on('remove-placement', (p: any) => {
-				if (window.confirm(t('app.confirm.pickUpPlacement', { name: p.name }))) {
+			bridge.on('remove-placement', async (p: any) => {
+				if (await confirmAsync(t('app.confirm.pickUpPlacement', { name: p.name }))) {
 					game.removePlacement(p.placementId);
 				}
 			}),
@@ -485,14 +491,14 @@ function GameScreen() {
 			bridge.on('player-moved', (p: any) => {
 				api.syncPlayer(p.x, p.y).catch(() => undefined); // quiet background save
 			}),
-			bridge.on('terraform-at', (p: any) => {
+			bridge.on('terraform-at', async (p: any) => {
 				// flooding the tile you're standing on is blocked outright
 				if (p.block) {
 					notify(p.block, 'info');
 					return;
 				}
 				// destructive actions on a watered bed (clear / flood) confirm first
-				if (p.confirm && !window.confirm(p.confirm)) return;
+				if (p.confirm && !(await confirmAsync(p.confirm))) return;
 				// p.expect carries the tile this click was aimed at, so the server can
 				// refuse it if the ground has changed since (see api.terraform).
 				game.terraform(p.area, p.x, p.y, p.action, p.expect);
@@ -500,8 +506,8 @@ function GameScreen() {
 			bridge.on('placement-clicked', (p: any) => setClickedPlacement(p)),
 			bridge.on('harvest-placement', (p: any) => game.harvest(p.placementId)),
 			bridge.on('bed-clicked', (p: any) => setClickedBed(p)),
-			bridge.on('dig-up', (p: any) => {
-				if (window.confirm(t('app.confirm.digUpPlacement', { name: p.name }))) {
+			bridge.on('dig-up', async (p: any) => {
+				if (await confirmAsync(t('app.confirm.digUpPlacement', { name: p.name }))) {
 					game.removePlacement(p.placementId);
 				}
 			}),
@@ -979,6 +985,7 @@ function Root() {
 		<>
 			{state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
+			{state && data && <MenuTabs />}
 			<GoalsUnlocked />
 			{/* The soft prompt renders first so the hard-stop popup, if both were ever
 			    somehow up at once, is the one on top. */}
@@ -994,6 +1001,11 @@ export default function App() {
 			<ColorblindFilters />
 			<GameProvider>
 				<Root />
+				<ConfirmHost />
+				<OnScreenKeyboard />
+				<ColorPicker />
+				<SelectPicker />
+				<GamepadLayer />
 			</GameProvider>
 		</KeyboardGate>
 	);

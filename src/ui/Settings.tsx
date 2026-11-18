@@ -13,6 +13,7 @@ import {
 	useResolvedTheme,
 	FONT_CHOICES,
 	GRAPHICS_QUALITIES,
+	FRAME_CAPS,
 	type TextScale,
 	type ColorblindMode,
 	type FontChoice,
@@ -30,6 +31,9 @@ import {
 } from '../keybindings';
 import type { Appearance, AppearanceOptions } from '../types';
 import { CharacterPreview, Icon } from './icons';
+import { PadControls } from './PadControls';
+import { confirmAsync } from './ConfirmDialog';
+import { usePadState } from '../gamepad/glyphs';
 
 /**
  * One roll of the dice — a fully random appearance from the available options.
@@ -463,6 +467,34 @@ export function GraphicsQualityControl() {
 	);
 }
 
+/** Frame-rate cap: as fast as the display, or 60 / 40 / 30 to save battery. */
+export function FrameRateControl() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	return (
+		<div className="a11y-row theme-row">
+			<span className="a11y-label">
+				<b>{t('app.settings.frameRate')}</b>
+				<span className="muted small">{t('app.settings.frameRateHint')}</span>
+			</span>
+			<div className="theme-picker" role="radiogroup" aria-label={t('app.settings.frameRate')}>
+				{FRAME_CAPS.map((cap) => (
+					<button
+						key={cap}
+						type="button"
+						role="radio"
+						aria-checked={prefs.frameCap === cap}
+						className={`theme-chip ${prefs.frameCap === cap ? 'on' : ''}`}
+						onClick={() => setPrefs({ frameCap: cap })}
+					>
+						<span>{cap === 0 ? t('app.settings.frameRateMax') : cap}</span>
+					</button>
+				))}
+			</div>
+		</div>
+	);
+}
+
 /** Accessibility controls (reduce motion, colorblind/high-contrast, text size).
  *  Shared by the in-game Settings panel and the title-screen Accessibility modal. */
 export function AccessibilityControls() {
@@ -752,6 +784,7 @@ export function KeybindingControls() {
 export function SettingsPanel() {
 	const { state, setPanel, notify, refresh, logout, exportDemo } = useGame();
 	const { t, locale } = useI18n();
+	const pad = usePadState();
 	const [appearance, setAppearance] = useState<Appearance>({
 		...APPEARANCE_DEFAULTS,
 		...(state?.player.appearance || {}),
@@ -887,7 +920,7 @@ export function SettingsPanel() {
 	};
 
 	const deleteSave = async () => {
-		if (!window.confirm(t('app.confirm.deleteSave', { name: player.name }))) return;
+		if (!(await confirmAsync(t('app.confirm.deleteSave', { name: player.name })))) return;
 		setDeleting(true);
 		setError(null);
 		try {
@@ -945,16 +978,32 @@ export function SettingsPanel() {
 						<Icon name="monitor" size={15} /> {t('app.settings.graphics')}
 					</h3>
 					<GraphicsQualityControl />
+					<FrameRateControl />
 
 					<h3>
 						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}
 					</h3>
 					<AccessibilityControls />
 
-					<h3>
-						<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
-					</h3>
-					<KeybindingControls />
+					{/* The controller map first when one is in use; a Steam Deck has no
+					    keyboard to rebind, so it doesn't get the key editor at all. */}
+					{pad.seen && (
+						<>
+							<h3>
+								<Icon name="gamepad" size={15} /> {t('app.settings.padTitle')}
+							</h3>
+							<PadControls />
+						</>
+					)}
+
+					{pad.family !== 'deck' && (
+						<>
+							<h3>
+								<Icon name="sliders" size={15} /> {t('app.settings.keybinds.title')}
+							</h3>
+							<KeybindingControls />
+						</>
+					)}
 
 					{(isSolo || DEMO) && (
 						<>

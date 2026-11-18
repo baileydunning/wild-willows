@@ -70,7 +70,14 @@
 	   for Spanish everywhere would leave English padded out with empty card, so
 	   English gets the tighter column and any language that needs more says so
 	   below (see the :lang rule). */
-	--hud-left-w: 324px;
+	--hud-left-w: calc(324px * var(--panel-grow));
+
+	/* Panels and cards widen with the text size the player picks (Settings →
+	   Text size), so large text gets room instead of wrapping into a tall,
+	   crowded column. Never narrower than normal: small text keeps the usual
+	   widths. Every width that uses this still stops at its max-width (a share
+	   of the screen), so nothing grows off the edge. */
+	--panel-grow: max(1, var(--ui-scale, 1));
 
 	/* Tells the browser which way to render the controls it draws itself: select
 	   popups, scrollbars, range tracks, the native colour picker. Without it those
@@ -100,7 +107,7 @@
    <html> is kept in step with the chosen language in src/i18n/index.ts, so the
    column resizes the moment the player switches. */
 :root:lang(es) {
-	--hud-left-w: 372px;
+	--hud-left-w: calc(372px * var(--panel-grow));
 }
 
 * {
@@ -615,8 +622,11 @@ input {
 }
 .menu-links .big-btn {
 	flex: 0 1 auto;
-	padding-top: 6px;
-	padding-bottom: 6px;
+	padding: 6px 14px;
+	gap: 8px;
+	/* A label never breaks onto two lines: with Quit added in the desktop app the
+	   row holds three links, and "How to Play" used to fold in half to fit. */
+	white-space: nowrap;
 }
 /* Keep the How to Play / Language / Accessibility links tucked close together. */
 .menu-links + .menu-links {
@@ -625,7 +635,7 @@ input {
 
 /* Language modal (title screen). */
 .lang-panel {
-	width: 320px;
+	width: calc(320px * var(--panel-grow));
 }
 .lang-panel .lang-options {
 	display: flex;
@@ -688,7 +698,7 @@ input {
 .welcome-card {
 	position: relative;
 	z-index: 2;
-	width: 560px;
+	width: calc(560px * var(--panel-grow));
 	max-width: 94vw;
 	max-height: 92vh;
 	min-height: 0;
@@ -773,7 +783,7 @@ input {
    so those wrap onto 2-3 lines instead of 5, which is what used to push the
    Back / Begin buttons past the card's max-height and clip them. */
 .welcome-card-wide {
-	width: 860px;
+	width: calc(860px * var(--panel-grow));
 	padding-left: 28px;
 	padding-right: 28px;
 }
@@ -2360,7 +2370,7 @@ input {
 	background: var(--paper);
 	border-radius: 20px;
 	border: 2.5px solid var(--panel-edge);
-	width: 470px;
+	width: calc(470px * var(--panel-grow));
 	max-width: 94vw;
 	max-height: 88vh;
 	display: flex;
@@ -2368,7 +2378,7 @@ input {
 	box-shadow: var(--shadow);
 }
 .panel-wide {
-	width: 680px;
+	width: calc(680px * var(--panel-grow));
 }
 .panel-head {
 	display: flex;
@@ -4669,7 +4679,7 @@ kbd {
 	z-index: 40;
 	display: flex;
 	flex-direction: column;
-	width: 400px;
+	width: calc(400px * var(--panel-grow));
 	max-width: calc(100vw - 24px);
 	background: var(--surface-float-solid);
 	border: 2.5px solid var(--green-deep);
@@ -6723,7 +6733,7 @@ kbd {
 	z-index: 90;
 }
 .demo-done-card {
-	width: 440px;
+	width: calc(440px * var(--panel-grow));
 	max-width: 92vw;
 	padding: 26px 26px 24px;
 	align-items: center;
@@ -6930,7 +6940,7 @@ a.demo-nudge-store.primary:hover {
 	z-index: 88;
 }
 .goals-unlocked-card {
-	width: 480px;
+	width: calc(480px * var(--panel-grow));
 	max-width: 92vw;
 	padding: 26px 26px 24px;
 	align-items: center;
@@ -7319,7 +7329,7 @@ a.demo-nudge-store.primary:hover {
    shrinking it. Same reason the chip strip scrolls sideways instead of wrapping
    onto a second row. */
 .panel.scope-panel {
-	width: 780px;
+	width: calc(780px * var(--panel-grow));
 }
 .scope-conditions {
 	display: flex;
@@ -7602,7 +7612,7 @@ a.demo-nudge-store.primary:hover {
    measure beside its contents rail; only the table needs the full width, because
    the Celtic Cross is four cards across with a fifth laid over the middle. */
 .panel.tarot-panel {
-	width: 860px;
+	width: calc(860px * var(--panel-grow));
 }
 .panel.tarot-panel.at-landing {
 	width: 520px;
@@ -8284,4 +8294,527 @@ a.demo-nudge-store.primary:hover {
 	.tarot-door {
 		width: 100%;
 	}
+}
+
+/* ================= controller ================= */
+/* The focus ring the controller moves between controls (src/gamepad/nav.ts):
+   a light leaf green with a soft glow, a shade brighter than the panel greens
+   so it still reads on them, and a solid outline so it survives the
+   colorblind filters. */
+[data-pad-focus] {
+	outline: 2px solid var(--green-2) !important;
+	outline-offset: 2px !important;
+	box-shadow: 0 0 0 4px rgba(124, 181, 100, 0.16) !important;
+}
+/* No keyboard-letter badges on a controller: those buttons show a pad cap
+   (or nothing) instead. */
+.pad-active .tool-key {
+	display: none;
+}
+/* The HUD in menu mode: ring the menu so it is clear the stick is now driving
+   it, not the caretaker. */
+.pad-hud-mode .hud-top-right {
+	box-shadow: 0 0 0 2px var(--green-2);
+	border-radius: 14px;
+}
+kbd.pad-cap {
+	min-width: 26px;
+	text-align: center;
+}
+.pad-controls-sub {
+	margin: 10px 0 4px;
+	font-size: calc(12px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink-soft);
+}
+
+/* The controller's pointer (src/gamepad/cursor.ts). pointer-events: none so
+   elementFromPoint and every click land on what is underneath it. */
+.pad-cursor {
+	position: fixed;
+	left: 0;
+	top: 0;
+	width: 22px;
+	height: 22px;
+	margin: -11px 0 0 -11px;
+	border-radius: 50%;
+	border: 2.5px solid var(--cream);
+	box-shadow:
+		0 0 0 2px var(--green-deep),
+		0 2px 6px rgba(0, 0, 0, 0.35);
+	pointer-events: none;
+	z-index: 10000;
+	opacity: 0;
+	transition: opacity 0.15s;
+}
+.pad-cursor::after {
+	content: '';
+	position: absolute;
+	left: 50%;
+	top: 50%;
+	width: 4px;
+	height: 4px;
+	margin: -2px 0 0 -2px;
+	border-radius: 50%;
+	background: var(--cream);
+}
+.pad-cursor.on {
+	opacity: 1;
+}
+
+/* In-game confirm (src/ui/ConfirmDialog.tsx), standing in for window.confirm. */
+.confirm-backdrop {
+	position: fixed;
+	z-index: 9000;
+}
+.confirm-card {
+	width: min(calc(420px * var(--panel-grow)), 92vw);
+}
+.confirm-msg {
+	margin: 4px 0 18px;
+	line-height: 1.45;
+}
+.confirm-actions {
+	display: flex;
+	justify-content: flex-end;
+	gap: 10px;
+}
+
+/* ================= on-screen keyboard (src/ui/OnScreenKeyboard.tsx) ================= */
+/* A storybook card that rises from the bottom edge: paper, the thick panel
+   edge, and keys pressed like the hat and style chips on the character
+   screen. Docked low so the field being typed into stays in sight above it. */
+.osk-backdrop {
+	position: fixed;
+	inset: 0;
+	z-index: 9500;
+	display: flex;
+	align-items: flex-end;
+	justify-content: center;
+	background: linear-gradient(to top, var(--backdrop), transparent 70%);
+}
+.osk {
+	width: min(760px, 96vw);
+	margin-bottom: 14px;
+	padding: 14px 16px 12px;
+	background: var(--paper);
+	border: 3px solid var(--panel-edge);
+	border-radius: 22px;
+	box-shadow: var(--shadow);
+	font-family: var(--font-body);
+	animation: osk-rise 0.22s ease-out;
+}
+@keyframes osk-rise {
+	from {
+		transform: translateY(40px);
+		opacity: 0;
+	}
+}
+.osk-head {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	margin-bottom: 8px;
+	padding: 0 4px;
+}
+.osk-label {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	font-family: var(--font-display);
+	font-size: calc(16px * var(--ui-scale));
+	color: var(--green-deep);
+}
+.osk-count {
+	font-size: calc(12px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink-soft);
+}
+/* The text so far, in a little field of its own, with a blinking caret. */
+.osk-preview {
+	display: flex;
+	align-items: center;
+	min-height: 42px;
+	margin-bottom: 12px;
+	padding: 6px 14px;
+	background: var(--field);
+	border: 2px solid var(--green);
+	border-radius: 12px;
+	font-size: calc(19px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink);
+	overflow: hidden;
+	white-space: pre;
+}
+.osk-preview.osk-empty .osk-text {
+	color: var(--ink-soft);
+	font-weight: 500;
+	order: 2;
+	margin-left: 2px;
+}
+.osk-caret {
+	width: 2px;
+	height: 1.15em;
+	margin-left: 2px;
+	background: var(--green);
+	border-radius: 1px;
+	animation: osk-blink 1.05s steps(1) infinite;
+}
+@keyframes osk-blink {
+	50% {
+		opacity: 0;
+	}
+}
+.osk-rows {
+	display: flex;
+	flex-direction: column;
+	gap: 7px;
+}
+.osk-row {
+	display: flex;
+	justify-content: center;
+	gap: 6px;
+}
+.osk-key {
+	flex: 0 0 auto;
+	min-width: 52px;
+	height: 46px;
+	padding: 0 10px;
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	gap: 6px;
+	font: inherit;
+	font-size: calc(17px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink);
+	background: var(--cream-lift);
+	border: 1.5px solid var(--kbd-line);
+	border-radius: 12px;
+	box-shadow: 0 3px 0 var(--kbd-line);
+	cursor: pointer;
+	transition:
+		transform 0.08s,
+		box-shadow 0.08s,
+		background 0.12s;
+}
+.osk-key:hover {
+	background: var(--paper-2);
+}
+/* Pressed: the key sinks onto its shadow, the same whether it was clicked,
+   tapped or typed with a face button. */
+.osk-key:active,
+.osk-key.osk-pressed {
+	transform: translateY(3px);
+	box-shadow: 0 0 0 var(--kbd-line);
+	background: var(--paper-2);
+}
+.osk-key[data-pad-focus] {
+	background: var(--cream);
+}
+.osk-mod {
+	color: var(--green-deep);
+	background: var(--paper-2);
+}
+.osk-mod.on {
+	color: var(--cream);
+	background: var(--green);
+	border-color: var(--green-deep);
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+.osk-wide {
+	min-width: 72px;
+}
+.osk-space {
+	flex: 1 1 auto;
+	max-width: 260px;
+	font-size: calc(14px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+.osk-done {
+	min-width: 104px;
+	color: var(--cream);
+	background: var(--green);
+	border-color: var(--green-deep);
+	box-shadow: 0 3px 0 var(--green-deep);
+}
+.osk-done:hover,
+.osk-done:active,
+.osk-done[data-pad-focus] {
+	background: var(--green-deep);
+}
+.osk-hints {
+	display: flex;
+	justify-content: center;
+	flex-wrap: wrap;
+	gap: 6px 18px;
+	margin-top: 12px;
+	font-size: calc(12px * var(--ui-scale));
+	color: var(--ink-soft);
+}
+.osk-hints kbd {
+	margin-right: 3px;
+}
+
+/* ================= controller menu tabs (src/ui/MenuTabs.tsx) ================= */
+/* Over an open menu on a controller: every menu as an icon, the current one
+   named, with the L1/R1 caps either side. Sits in the gap below the panel,
+   clear of the tip banners that drop in from the top. */
+.menu-tabs {
+	position: fixed;
+	bottom: 6px;
+	left: 50%;
+	transform: translateX(-50%);
+	z-index: 80;
+	display: flex;
+	align-items: center;
+	gap: 4px;
+	padding: 4px 8px;
+	background: var(--paper);
+	border: 2px solid var(--panel-edge);
+	border-radius: 999px;
+	box-shadow: 0 4px 14px rgba(33, 41, 25, 0.25);
+}
+.menu-tab {
+	display: inline-flex;
+	align-items: center;
+	gap: 6px;
+	height: 30px;
+	min-width: 30px;
+	padding: 0 7px;
+	justify-content: center;
+	border: none;
+	border-radius: 999px;
+	background: transparent;
+	color: var(--ink-soft);
+	font: inherit;
+	font-size: calc(13px * var(--ui-scale));
+	font-weight: 700;
+	cursor: pointer;
+}
+.menu-tab:hover {
+	color: var(--green-deep);
+}
+.menu-tab.on {
+	padding: 0 12px 0 9px;
+	color: var(--cream);
+	background: var(--green);
+}
+.menu-tabs-cap {
+	margin: 0 2px;
+}
+
+/* ================= color picker (src/ui/ColorPicker.tsx) ================= */
+.cp-backdrop {
+	position: fixed;
+	z-index: 9200;
+}
+.cp-card {
+	width: auto;
+	max-width: 96vw;
+}
+.cp-body {
+	padding-top: 6px;
+}
+.cp-grid {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+}
+.cp-row {
+	display: flex;
+	gap: 6px;
+}
+.cp-swatch {
+	width: 34px;
+	height: 34px;
+	border-radius: 50%;
+	border: 2px solid var(--paper);
+	box-shadow: 0 0 0 1.5px var(--kbd-line);
+	cursor: pointer;
+	transition: transform 0.08s;
+}
+.cp-swatch:hover,
+.cp-swatch[data-pad-focus] {
+	transform: scale(1.08);
+}
+.cp-swatch.cp-current {
+	box-shadow: 0 0 0 2.5px var(--green-deep);
+}
+.cp-now {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-top: 12px;
+	font-size: calc(13px * var(--ui-scale));
+	font-weight: 700;
+	color: var(--ink-soft);
+}
+.cp-now-chip {
+	width: 22px;
+	height: 22px;
+	border-radius: 50%;
+	box-shadow: 0 0 0 1.5px var(--kbd-line);
+}
+/* The d-pad arrow on the tutorial card's Back / Next buttons, on a controller. */
+.tutorial-pad-cap {
+	min-width: 20px;
+	margin: 0 2px;
+	padding: 0 4px;
+	font-size: calc(11px * var(--ui-scale));
+}
+
+/* The mouse pointer hides after a few seconds without movement (src/gamepad/pad.ts). */
+html.mouse-idle,
+html.mouse-idle * {
+	cursor: none !important;
+}
+/* The ring on a toggle follows the pill shape rather than a box around it. */
+.switch[data-pad-focus],
+label[data-pad-focus] {
+	border-radius: 999px;
+}
+
+/* ================= dropdown list (src/ui/SelectPicker.tsx) ================= */
+.sp-backdrop {
+	position: fixed;
+	z-index: 9200;
+}
+.sp-card {
+	width: min(calc(380px * var(--panel-grow)), 92vw);
+}
+.sp-body {
+	display: flex;
+	flex-direction: column;
+	gap: 6px;
+	max-height: 60vh;
+}
+.sp-option {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 10px;
+	padding: 10px 14px;
+	font: inherit;
+	font-size: calc(15px * var(--ui-scale));
+	font-weight: 600;
+	color: var(--ink);
+	background: var(--cream-lift);
+	border: 1.5px solid var(--line);
+	border-radius: 12px;
+	text-align: left;
+	cursor: pointer;
+}
+.sp-option:hover {
+	background: var(--paper-2);
+}
+/* The current choice reads like a selected chip elsewhere: green with light text. */
+.sp-option.on,
+.sp-option.on:hover {
+	color: var(--on-accent, var(--cream));
+	background: var(--green);
+	border-color: var(--green-deep);
+}
+
+/* ================= controller button glyphs (src/ui/PadCap.tsx) ================= */
+/* Drawn to look like the buttons on the pad: dark buttons with light labels. */
+kbd.pad-cap.pad-cap-face,
+kbd.pad-cap.pad-cap-system {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: calc(24px * var(--ui-scale));
+	height: calc(24px * var(--ui-scale));
+	padding: 0;
+	border-radius: 999px;
+	border: none;
+	background: #2e3329;
+	color: #f4f1e8;
+	font-size: calc(12.5px * var(--ui-scale));
+	font-weight: 800;
+	line-height: 1;
+	box-shadow:
+		inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+		0 1px 2px rgba(0, 0, 0, 0.25);
+}
+/* View / Menu: a small pill, wide enough for a word on Xbox ("Menu") or a
+   symbol on a Deck (☰). */
+kbd.pad-cap.pad-cap-system {
+	padding: 0 calc(7px * var(--ui-scale));
+	font-size: calc(11px * var(--ui-scale));
+}
+/* Xbox and PlayStation colour their face buttons; a Deck and a Switch don't. */
+kbd.pad-cap-face[data-family='xbox'][data-btn='A'] {
+	color: #7bd35a;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='B'] {
+	color: #f2685d;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='X'] {
+	color: #5fa4f0;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='Y'] {
+	color: #f2c84b;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='A'] {
+	color: #8db6f2;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='B'] {
+	color: #f2685d;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='X'] {
+	color: #e290d2;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='Y'] {
+	color: #5cc7ab;
+}
+/* Bumpers and triggers: a shoulder tab, rounded on top. */
+kbd.pad-cap.pad-cap-shoulder {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: calc(32px * var(--ui-scale));
+	height: calc(22px * var(--ui-scale));
+	padding: 0 calc(7px * var(--ui-scale));
+	border: none;
+	border-radius: calc(11px * var(--ui-scale)) calc(11px * var(--ui-scale)) calc(5px * var(--ui-scale))
+		calc(5px * var(--ui-scale));
+	background: #2e3329;
+	color: #f4f1e8;
+	font-weight: 800;
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1;
+	box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+/* Stick clicks: a ring. */
+kbd.pad-cap.pad-cap-stick {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(26px * var(--ui-scale));
+	height: calc(26px * var(--ui-scale));
+	padding: 0;
+	border-radius: 50%;
+	border: 2.5px solid #2e3329;
+	background: var(--field);
+	color: #2e3329;
+	font-weight: 800;
+	font-size: calc(10.5px * var(--ui-scale));
+	line-height: 1;
+}
+/* D-pad arrows: a small cross-key square. */
+kbd.pad-cap.pad-cap-dpad {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(22px * var(--ui-scale));
+	height: calc(22px * var(--ui-scale));
+	font-size: calc(12px * var(--ui-scale));
+	line-height: 1;
+	padding: 0;
+	border-radius: 0.3em;
+	border: none;
+	background: #2e3329;
+	color: #f4f1e8;
+	font-weight: 800;
 }

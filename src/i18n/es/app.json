@@ -68,7 +68,8 @@
 		"perkThrift": "¡Ahorro del hogar! Recuperaste {items}.",
 		"goalAffordable": "Ya puedes fabricar eso — no hace falta fijarlo como objetivo.",
 		"goalUnlockKit": "Ese kit es parte de desbloquear un bioma — ya está en tu tablero.",
-		"basketOverflow": "Tu cesta estaba llena, así que el resto de {name} fue a tu cofre más cercano."
+		"basketOverflow": "Tu cesta estaba llena, así que el resto de {name} fue a tu cofre más cercano.",
+		"bedReadyPad": "Bancal listo. Acércate y pulsa {a} para plantar."
 	},
 	"feed": {
 		"demoNudgeIdle": "La reserva esperó en silencio mientras no estabas.",
@@ -170,7 +171,8 @@
 			"unlockTitle": "Desbloquea biomas",
 			"unlockText": "Restaura por completo un bioma y se abrirá el sendero al siguiente — todo un lugar nuevo por recuperar.",
 			"reassure": "¿Primera vez? Cuando empieces, una guía amable te acompañará en tus primeros pasos — no hay nada que memorizar.",
-			"gotIt": "Entendido"
+			"gotIt": "Entendido",
+			"welcomeTextPad": "A medida que la tierra sana, los animales encuentran el camino a casa. Acércate a uno y pulsa {a} para conocerlo."
 		},
 		"language": "Idioma",
 		"demoSaveUnreachable": "No pudimos conectar con el servidor, así que tu reserva guardada no está disponible ahora. Está a salvo — inténtalo de nuevo en un momento.",
@@ -193,7 +195,8 @@
 		"importSave": "Importar partida",
 		"importing": "Importando…",
 		"importDone": "Se importó {name}; elígela abajo para jugar.",
-		"errImport": "Ese archivo de partida falta, fue editado o está dañado — no se pudo importar."
+		"errImport": "Ese archivo de partida falta, fue editado o está dañado — no se pudo importar.",
+		"quit": "Salir"
 	},
 	"hud": {
 		"yourHome": "Tu hogar",
@@ -266,7 +269,8 @@
 		"stopPlacing": "dejar de colocar",
 		"dayTimerTitle": "El reloj de la reserva — un día completo pasa en unos 24 minutos.",
 		"demoGoal": "Demo · {returned}/{total} animales en casa",
-		"demoGoalTitle": "Da la bienvenida a los animales a la pradera para completar la demo gratuita."
+		"demoGoalTitle": "Da la bienvenida a los animales a la pradera para completar la demo gratuita.",
+		"placingHintPad": "· {a} sobre la casilla marcada"
 	},
 	"toolbelt": {
 		"how": {
@@ -509,7 +513,11 @@
 		"graphicsQualityHint": {
 			"high": "Resolución completa, partículas y efectos de clima. Ideal para una computadora potente.",
 			"low": "Renderizado más ligero para computadoras más lentas o antiguas: menos partículas, un efecto de clima más sutil y un lienzo de menor resolución. Prueba esto si el juego se siente lento."
-		}
+		},
+		"padTitle": "Mando",
+		"frameRate": "Fotogramas por segundo",
+		"frameRateHint": "Un límite más bajo ahorra batería y calienta menos. En una Steam Deck, 40 es un buen equilibrio.",
+		"frameRateMax": "Máx."
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",
@@ -518,7 +526,8 @@
 		"body2": " o las ",
 		"arrowKeys": "teclas de flecha",
 		"body3": ", y sacas tu cesta, tus herramientas y tu diario con teclas de acceso rápido — así que no funciona por sí solo en un teléfono o una tableta.",
-		"hint": "Abre Wild Willows en una computadora, o conecta un teclado y presiona cualquier tecla para comenzar."
+		"hint": "Abre Wild Willows en una computadora, o conecta un teclado y presiona cualquier tecla para comenzar.",
+		"pad": "También puedes usar un mando. Pulsa cualquier botón."
 	},
 	"goalsUnlocked": {
 		"title": "Ahora los objetivos son tuyos",
@@ -562,5 +571,42 @@
 		"blurb": "Cambia el aspecto de tu cuidador. Tu nombre no cambia.",
 		"save": "Me gusta",
 		"cancel": "Déjalo"
+	},
+	"confirmDialog": {
+		"ok": "Aceptar",
+		"cancel": "Cancelar"
+	},
+	"keyboard": {
+		"title": "Teclado",
+		"shift": "Mayús",
+		"space": "Espacio",
+		"backspace": "Borrar",
+		"done": "Listo",
+		"newline": "Nueva línea",
+		"symbols": "Símbolos",
+		"letters": "Letras"
+	},
+	"menuTabs": {
+		"label": "Menús"
+	},
+	"colorPicker": {
+		"title": "Elige un color",
+		"current": "Color actual"
+	},
+	"selectPicker": {
+		"title": "Elige una opción"
+	},
+	"padHints": {
+		"gather": "Con la cesta en la mano, camina sobre un punto brillante del suelo y pulsa {a}.",
+		"craftFirst": "Abre la fabricación ({x}), elige algo que puedas permitirte y pulsa {a} sobre Fabricar.",
+		"plant": "Cava un lecho con la pala, riégalo con la regadera y luego pulsa {a} sobre él con la cesta para elegir qué sembrar.",
+		"harvest": "Dale tiempo a tus plántulas para madurar, luego pulsa {a} sobre una planta crecida y recoge su cosecha. Vuelve a crecer, así que un prado plantado sigue dando.",
+		"rest": "Abre la fabricación ({x}) y haz un saco de dormir con 4 de fibra, entra en tu tienda, colócalo y pulsa {a} sobre él para dormir. Una noche de descanso renueva todos los puntos de recolección de la reserva.",
+		"buildTen": "Abre la fabricación ({x}). Cada pieza de hábitat que hagas y coloques cuenta, y se abren más recetas a medida que la pradera se recupera.",
+		"stream": "Cava tres lechos seguidos con la pala y riega cada uno dos veces con la regadera. La segunda pasada inunda el lecho y lo vuelve agua abierta. Los tramos encadenados forman un arroyo que necesitan los animales de agua.",
+		"goalCraft": "Abre la fabricación ({x}) y créalo. Su tarjeta indica los materiales que necesita.",
+		"goalBuild": "Fabrícalo ({x}) y luego colócalo en el bioma desde la barra 'listo para colocar'.",
+		"goalGrow": "Cava un bancal con la pala, riégalo con la regadera y luego plántalo desde el menú del bancal ({a}).",
+		"bedJustWatered": "Ese bancal acaba de regarse. Vuelve a pulsar {a} sobre él con la regadera si quieres inundarlo y convertirlo en agua abierta."
 	}
 }

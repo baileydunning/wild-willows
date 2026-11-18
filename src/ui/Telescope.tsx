@@ -25,6 +25,7 @@ import { content, t as tr } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { liveDayPhase, liveSeason, liveWeatherType, seasonStyle, weatherType } from '../weather';
 import { Icon } from './icons';
+import { padVars, usePadState } from '../gamepad/glyphs';
 import {
 	CLOUDS,
 	FIELDS,
@@ -48,6 +49,7 @@ const PAN_STEP = 52;
 export function TelescopePanel() {
 	const { data, state, setPanel } = useGame();
 	const { t } = useI18n();
+	const onPad = usePadState().mode === 'pad';
 
 	const snap = state?.weather;
 	const area = state?.player.area || 'meadow';
@@ -227,7 +229,13 @@ export function TelescopePanel() {
 
 	return (
 		<div className="panel-backdrop" onClick={close}>
-			<div className="panel panel-wide scope-panel" onClick={(e) => e.stopPropagation()}>
+			<div
+				className="panel panel-wide scope-panel"
+				// The controller's left stick sweeps the sky (as arrow keys) instead of
+				// moving the focus ring; the d-pad still reaches the buttons.
+				data-pad-sweep=""
+				onClick={(e) => e.stopPropagation()}
+			>
 				<div className="panel-head">
 					<h2>
 						<Icon name={mode === 'day' ? 'cloud' : 'star'} size={20} /> {t('panels.telescope.title')}
@@ -330,7 +338,9 @@ export function TelescopePanel() {
 							) : (
 								<div className="scope-empty">
 									<Icon name="target" size={18} />
-									<p className="muted small">{t('panels.telescope.aimHint')}</p>
+									<p className="muted small">
+										{onPad ? t('panels.telescope.aimHintPad', padVars(t)) : t('panels.telescope.aimHint')}
+									</p>
 								</div>
 							)}
 						</div>

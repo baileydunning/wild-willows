@@ -15,6 +15,16 @@ class Bridge {
 		data: GameData | null;
 		state: GameState | null;
 		joy: { x: number; y: number };
+		// Left-stick vector from a controller (src/gamepad/GamepadLayer.tsx),
+		// already past the deadzone. Zeroed whenever a menu has the controller.
+		pad: { x: number; y: number };
+		// True while the world is placing or moving an object — the controller's B
+		// cancels that instead of running the Escape chain.
+		placing: boolean;
+		// Where the caretaker is on the canvas, in canvas (game) pixels, so the
+		// controller's pointer can be put back beside them.
+		// aimX/aimY: the controller's aim tile, same coordinates.
+		playerScreen: { x: number; y: number; facingLeft: boolean; aimX: number; aimY: number } | null;
 		// True while a React panel/card/help overlay is open. The world ignores
 		// pointer clicks in this state so you can't move or place "through" a modal.
 		uiBlocking: boolean;
@@ -30,6 +40,9 @@ class Bridge {
 		data: null,
 		state: null,
 		joy: { x: 0, y: 0 },
+		pad: { x: 0, y: 0 },
+		placing: false,
+		playerScreen: null,
 		uiBlocking: false,
 		resourceIcons: {},
 		objectIcons: {},
@@ -61,4 +74,6 @@ class Bridge {
 //  Phaser -> React: 'collect-node', 'open-chest', 'open-crafting', 'open-journal',
 //                   'open-mirror', 'open-finds', 'open-telescope', 'open-tarot', 'open-biomes', 'animal-clicked', 'request-area', 'place-at', 'toast', 'prompt',
 //                   'placement-exited', 'remove-placement', 'toggle-light'
+//  Controller -> Phaser: 'pad-interact', 'pad-cancel', 'pad-rotate' (±1), 'pad-zoom' (±1),
+//                        'pad-aim' ({x,y} tile step), 'pad-aim-reset'
 export const bridge = new Bridge();

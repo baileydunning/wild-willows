@@ -43,6 +43,12 @@ contextBridge.exposeInMainWorld('wildWillowsDesktop', {
 	isDesktop: true,
 	platform: process.platform,
 	version: process.versions.electron,
+	// Decided in main (electron/deck.js) and passed in as an argument, since the
+	// sandboxed preload can't look itself. Used for controller labels (L1/R1),
+	// the on-screen keyboard on touch, and to skip the keyboard gate.
+	isSteamDeck: process.argv.includes('--ww-steam-deck'),
+	// Close the game (the title screen's Quit button).
+	quit: () => ipcRenderer.send('app:quit'),
 	// Storefront this copy came from (mas | steam | itch | direct | …), or null
 	// when only the build stamp knows. See detectChannel() in src/platform.ts.
 	channel: detectDesktopChannel(),

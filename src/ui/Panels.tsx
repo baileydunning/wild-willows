@@ -25,6 +25,7 @@ import { content } from '../i18n';
 import { useI18n } from '../i18n/react';
 import { Meter } from './HUD';
 import { Icon, ObjectIcon, ResourceIcon } from './icons';
+import { confirmAsync } from './ConfirmDialog';
 import { BIOME_LORE, loreStage } from './lore';
 import { stories, story, type StoryId } from './stories';
 import { StoryCover, StoryPlate } from './storyArt';
@@ -158,7 +159,9 @@ export function InventoryPanel() {
 	);
 
 	const toss = (kind: 'material' | 'crafted', id: string, qty: number, name: string) => {
-		if (window.confirm(t('panels.inventory.confirmDiscard', { qty, name }))) discard(kind, id, qty, name);
+		void confirmAsync(t('panels.inventory.confirmDiscard', { qty, name })).then((ok) => {
+			if (ok) discard(kind, id, qty, name);
+		});
 	};
 
 	return (

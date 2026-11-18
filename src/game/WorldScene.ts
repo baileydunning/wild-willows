@@ -53,6 +53,8 @@ import {
 import { t, content, getLocale, isSimpleText } from '../i18n';
 import { getPrefs, renderScale, subscribe as subscribePrefs } from '../prefs';
 import { getBindings, keyCodeFor, keyLabel } from '../keybindings';
+import { getInputMode, subscribePad } from '../gamepad/pad';
+import { padCap } from '../gamepad/glyphs';
 import { gearOn, subscribe as subscribeGear } from '../gear';
 import { BRISK_STEP_SPEED, cozyOptsFor, hasHomeAbility } from '../homeAbilities';
 import { isTypingTarget } from '../typing';
@@ -351,6 +353,15 @@ export class WorldScene extends Phaser.Scene {
 	private fireCacheSrc: unknown = null;
 	private fireCacheArea = '';
 	private hintKeyCache = ''; // '' = needs recompute
+	// A controller's A press, queued by the 'pad-interact' bridge event and spent
+	// by the next handleInteraction() — the same frame-edge a JustDown key gives.
+	private padInteract = false;
+	// Controller aiming. A controller has no pointer to wave around, so world
+	// actions land on a TILE beside the caretaker: the one they face, nudged up
+	// to AIM_REACH tiles with the right stick. Walking snaps it back in front.
+	private padFacing = { x: 0, y: 1 };
+	private padAim = { x: 0, y: 1 };
+	private static readonly AIM_REACH = 3;
 	// id -> habitat-object def (see objectDefs). Keyed by the data array's identity
 	// AND the active wording, because the one synthetic def carries a localized name.
 	private objectDefMap: Map<string, HabitatObjectDef> | null = null;
@@ -763,6 +774,7 @@ export class WorldScene extends Phaser.Scene {
 		this.installLayers();
 		this.installPlayer(data);
 		this.installKeyboard();
+		this.installPad();
 		this.installFocusGuards();
 		const applyRingMotion = this.installHighlight();
 		this.installLiveSettings(applyRingMotion);
@@ -913,17 +925,60 @@ export class WorldScene extends Phaser.Scene {
 				(this.placementObjectId || this.movingPlacementId)
 			) {
 				e.preventDefault();
-				if (!this.activeRotatable()) {
-					bridge.emit('toast', {
-						text: t('game.toast.noRotate'),
-						kind: 'info',
-					});
-					return;
-				}
-				this.placeRotation = (this.placeRotation + 90) % 360;
-				const preview = this.ghost && ((this.ghost as any).preview as Phaser.GameObjects.Image | undefined);
-				preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
+				this.rotateHeld(1);
 			}
+		});
+	}
+
+	/** Turn the object being placed or moved a quarter-turn (dir 1 = clockwise).
+	 *  Shared by the \\ key and the controller's d-pad. */
+	private rotateHeld(dir: 1 | -1) {
+		if (!this.placementObjectId && !this.movingPlacementId) return;
+		if (!this.activeRotatable()) {
+			bridge.emit('toast', {
+				text: t('game.toast.noRotate'),
+				kind: 'info',
+			});
+			return;
+		}
+		this.placeRotation = (this.placeRotation + (dir === 1 ? 90 : 270)) % 360;
+		const preview = this.ghost && ((this.ghost as any).preview as Phaser.GameObjects.Image | undefined);
+		preview?.setRotation(Phaser.Math.DegToRad(this.placeRotation));
+	}
+
+	/** Controller events from src/gamepad/GamepadLayer.tsx. */
+	private installPad() {
+		this.unsubs.push(
+			bridge.on('pad-interact', () => {
+				this.padInteract = true;
+			}),
+			bridge.on('pad-cancel', () => {
+				if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
+			}),
+			bridge.on('pad-rotate', (dir: number) => this.rotateHeld(dir < 0 ? -1 : 1)),
+			bridge.on('pad-aim', (d: { x: number; y: number }) => {
+				const r = WorldScene.AIM_REACH;
+				this.padAim.x = Phaser.Math.Clamp(this.padAim.x + d.x, -r, r);
+				this.padAim.y = Phaser.Math.Clamp(this.padAim.y + d.y, -r, r);
+			}),
+			bridge.on('pad-aim-reset', () => {
+				this.padAim.x = this.padFacing.x;
+				this.padAim.y = this.padFacing.y;
+			}),
+			bridge.on('pad-zoom', (dir: number) => {
+				if (bridge.shared.uiBlocking) return;
+				this.nudgeZoom(dir > 0 ? ZOOM_STEP : 1 / ZOOM_STEP);
+			}),
+			// Prompts and the in-world key badge switch between key caps and pad caps.
+			subscribePad(() => {
+				this.hintKeyCache = '';
+				this.lastPrompt = '\u0000'; // force the bar to rebuild with the new caps
+				if (this.interactBadge && !this.isTouch) this.interactBadge.setText(this.interactHintKey());
+			}),
+		);
+		this.unsubs.push(() => {
+			bridge.shared.placing = false;
+			bridge.shared.playerScreen = null;
 		});
 	}
 
@@ -1499,7 +1554,12 @@ export class WorldScene extends Phaser.Scene {
 		// are the mountain range, drawn separately below.
 		for (let ty = this.playTop; ty < this.rows; ty++) {
 			for (let tx = 0; tx < this.landRight; tx++) {
-				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				// Drawn a pixel oversize so neighbours overlap a hair: at a fractional
+				// camera zoom and scroll, edge-to-edge tiles let the dark backdrop
+				// show through as thin lines while the camera moves.
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile')
+					.setDepth(0)
+					.setDisplaySize(TILE + 1, TILE + 1);
 				(img as any).shade = 0.92 + rng() * 0.08;
 				this.groundTiles.push(img);
 			}
@@ -1638,7 +1698,9 @@ export class WorldScene extends Phaser.Scene {
 				if (this.mtnRows > 0 && ty < this.playTop) continue;
 				// the coastal ocean (and its surround) is painted by drawCoastBand
 				if (this.area === 'coastal' && tx >= this.landRight) continue;
-				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile').setDepth(0);
+				const img = this.img(tx * TILE + 16, ty * TILE + 16, 'tile')
+					.setDepth(0)
+					.setDisplaySize(TILE + 1, TILE + 1); // overlap, as in drawGround
 				(img as any).shade = 0.92 + rng() * 0.08; // same as the playable field
 				this.groundTiles.push(img);
 				if (!onTrail(tx, ty)) this.surroundDeco(tx, ty, rng);
@@ -3079,7 +3141,9 @@ export class WorldScene extends Phaser.Scene {
 		const x = tile.x * TILE + 16;
 		const y = tile.y * TILE + 16;
 		if (tile.type === 'water') {
-			const img = this.img(x, y, ensureWaterTile(this, conn)).setDepth(1.6);
+			const img = this.img(x, y, ensureWaterTile(this, conn))
+				.setDepth(1.6)
+				.setDisplaySize(TILE + 1, TILE + 1);
 			this.terrain.add(img);
 			// The old surface breathed by fading each tile between alpha 1 and 0.86 on
 			// its own staggered timer. That left every tile of a pond a slightly
@@ -6446,6 +6510,7 @@ export class WorldScene extends Phaser.Scene {
 		}
 		this.handleGhost();
 		this.handleInteraction();
+		this.publishForPad();
 		this.syncPosition(dt);
 		this.positionSkyOverlay(); // keep the sunset glow hugging the top of the view
 		this.updateNightLights(); // lamplight follows the player, fires burn bright after dark
@@ -6523,6 +6588,7 @@ export class WorldScene extends Phaser.Scene {
 		// Read every frame by the prompt builder. Bindings only change on rebind,
 		// which already calls through rebindMoveKeys() — so cache and invalidate
 		// there rather than re-deriving the label 60 times a second.
+		if (!this.hintKeyCache && getInputMode() === 'pad') this.hintKeyCache = padCap('A');
 		if (!this.hintKeyCache) {
 			const toks = getBindings().interact;
 			this.hintKeyCache = keyLabel(toks.find((tk) => tk !== 'space') || toks[0] || 'e');
@@ -6575,6 +6641,12 @@ export class WorldScene extends Phaser.Scene {
 		if (held(mk.right)) vx += 1;
 		if (held(mk.up)) vy -= 1;
 		if (held(mk.down)) vy += 1;
+		// controller left stick
+		const pad = bridge.shared.pad;
+		if (vx === 0 && vy === 0 && (pad.x !== 0 || pad.y !== 0)) {
+			vx = pad.x;
+			vy = pad.y;
+		}
 		// virtual joystick (mobile)
 		const joy = bridge.shared.joy;
 		if (vx === 0 && vy === 0 && (Math.abs(joy.x) > 0.15 || Math.abs(joy.y) > 0.15)) {
@@ -6613,6 +6685,17 @@ export class WorldScene extends Phaser.Scene {
 		// Walking again ends whatever had gathered, exactly as getting off a bench
 		// does — one line, and only on the frame it actually changes something.
 		if (this.idleSince != null || this.standingStill) this.endStillness();
+		// The controller's aim tile faces where you walk, and walking takes back
+		// any nudge the right stick gave it.
+		if (Math.abs(vx) >= Math.abs(vy)) {
+			this.padFacing.x = Math.sign(vx);
+			this.padFacing.y = 0;
+		} else {
+			this.padFacing.x = 0;
+			this.padFacing.y = Math.sign(vy);
+		}
+		this.padAim.x = this.padFacing.x;
+		this.padAim.y = this.padFacing.y;
 		this.walkT += dt * 11;
 		this.player.setRotation(Math.sin(this.walkT) * 0.075); // cozy waddle
 		const len = Math.hypot(vx, vy);
@@ -6686,6 +6769,55 @@ export class WorldScene extends Phaser.Scene {
 		this.setWalkAudio(moved);
 	}
 
+	/** What the controller layer needs from the world each frame: whether an
+	 *  object is in hand, and where the caretaker is on the canvas. */
+	private publishForPad() {
+		bridge.shared.placing = !!(this.placementObjectId || this.movingPlacementId);
+		const cam = this.cameras.main;
+		const wv = cam.worldView;
+		const ps = bridge.shared.playerScreen;
+		const x = (this.player.x - wv.x) * cam.zoom;
+		const y = (this.player.y - wv.y) * cam.zoom;
+		const left = this.player.flipX;
+		const aim = this.padAimTile();
+		const ax = (aim.x * TILE + TILE / 2 - wv.x) * cam.zoom;
+		const ay = (aim.y * TILE + TILE / 2 - wv.y) * cam.zoom;
+		if (!ps) bridge.shared.playerScreen = { x, y, facingLeft: left, aimX: ax, aimY: ay };
+		else {
+			ps.x = x;
+			ps.y = y;
+			ps.facingLeft = left;
+			ps.aimX = ax;
+			ps.aimY = ay;
+		}
+	}
+
+	/** The tile a controller's actions land on (see padAim). */
+	private padAimTile() {
+		return {
+			x: Math.floor(this.player.x / TILE) + this.padAim.x,
+			y: Math.floor((this.player.y + 8) / TILE) + this.padAim.y,
+		};
+	}
+
+	/** The nearest animal close enough to meet with A, when nothing else is in
+	 *  reach. With a mouse you click an animal; a controller walks up to it. */
+	private padNearbyAnimal(): Phaser.GameObjects.Image | null {
+		if (!(this.animals as any)?.scene) return null;
+		let best: Phaser.GameObjects.Image | null = null;
+		let bestD = TILE * 2.5;
+		for (const child of this.animals.getChildren()) {
+			const img = child as Phaser.GameObjects.Image;
+			if (!img.getData('animal') || !img.visible || img.listenerCount('pointerdown') === 0) continue;
+			const d = Phaser.Math.Distance.Between(img.x, img.y, this.player.x, this.player.y);
+			if (d < bestD) {
+				bestD = d;
+				best = img;
+			}
+		}
+		return best;
+	}
+
 	private handleGhost() {
 		if (!this.ghost || (!this.placementObjectId && !this.movingPlacementId)) return;
 		const pointer = this.input.activePointer;
@@ -6730,7 +6862,12 @@ export class WorldScene extends Phaser.Scene {
 		const busy = this.placementObjectId || this.movingPlacementId;
 		// E/Space interactions stay available while terraforming — only clicks shape
 		// the ground, so holding the shovel/can no longer locks you out of chests and beds
-		const near = busy ? null : this.nearestInteractable();
+		//
+		// On a controller A does nearly everything, so the tool decides what it
+		// means: holding the shovel, the can or the paint (or an object to place),
+		// A works the marked tile, and things nearby don't light up for it.
+		const padTool = getInputMode() === 'pad' && (!!terraforming || this.activeTool === 'paint');
+		const near = busy || padTool ? null : this.nearestInteractable();
 		// Prefer the thing you're standing beside; otherwise light up whatever the
 		// pointer is hovering, so it's clear what a click would act on.
 		const hovered = this.hoveredIt && this.hoveredIt.available && !this.hoveredIt.available() ? null : this.hoveredIt;
@@ -6814,40 +6951,107 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setPosition(tx * TILE + 16, ty * TILE + 16);
 			const cursorKey = ok ? 'ghost-ok' : 'ghost-bad';
 			if (this.tileCursor.texture.key !== cursorKey) this.tileCursor.setTexture(cursorKey);
+		} else if (getInputMode() === 'pad' && !busy) {
+			// On a controller, mark the aim tile whenever there is something on it
+			// to act on, so R2 never fires at a spot you can't see.
+			const aim = this.padAimTile();
+			const has = this.placementsAt(aim.x, aim.y).length > 0;
+			if (has !== this.tileCursor.visible) this.tileCursor.setVisible(has);
+			if (has) {
+				this.tileCursor.setPosition(aim.x * TILE + 16, aim.y * TILE + 16);
+				if (this.tileCursor.texture.key !== 'ghost-ok') this.tileCursor.setTexture('ghost-ok');
+			}
 		} else if (this.tileCursor.visible) {
 			this.tileCursor.setVisible(false);
 		}
 
-		const verb = this.isTouch ? t('game.prompt.tap') : this.interactHintKey();
+		const onPad = getInputMode() === 'pad';
+		const verb = this.isTouch && !onPad ? t('game.prompt.tap') : this.interactHintKey();
 		const clickVerb = this.isTouch ? t('game.prompt.tap') : t('game.prompt.click');
-		const rotHint = !this.isTouch && this.activeRotatable() ? t('game.prompt.rotateHint') : '';
+		const rotHint = onPad
+			? this.activeRotatable()
+				? t('game.prompt.rotateHintPad', { key: `${padCap('LEFT')}${padCap('RIGHT')}` })
+				: ''
+			: !this.isTouch && this.activeRotatable()
+				? t('game.prompt.rotateHint')
+				: '';
+		const cancelHint = onPad
+			? t('game.prompt.padCancel', { key: padCap('B') })
+			: this.isTouch
+				? ''
+				: t('game.prompt.escCancel');
+		const stopHint = onPad
+			? t('game.prompt.padStopPlacing', { key: padCap('B') })
+			: this.isTouch
+				? ''
+				: t('game.prompt.escStopPlacing');
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
-		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
+		const padAnimal = onPad && !near && !busy && !padTool && !this.sitting ? this.padNearbyAnimal() : null;
+		const padAnimalDef = padAnimal?.getData('animal');
+		// Nothing to walk up to: A opens whatever stands on the marked tile.
+		const aimTile = onPad ? this.padAimTile() : null;
+		const padItem =
+			aimTile && !near && !padAnimal && !busy && !padTool ? this.placementsAt(aimTile.x, aimTile.y)[0] : undefined;
+		const padItemDef = padItem ? bridge.shared.data?.habitatObjects.find((o) => o.id === padItem.objectId) : undefined;
+		const nearMain = near
+			? t('game.prompt.near', { verb, label: near.label })
+			: padAnimalDef
+				? t('game.prompt.padAnimal', {
+						verb,
+						name: content('animal', padAnimalDef.id, 'name', padAnimalDef.name || padAnimalDef.id),
+					})
+				: padItem
+					? t('game.prompt.near', {
+							verb,
+							label: content('habitatObject', padItem.objectId, 'name', padItemDef?.name || padItem.objectId),
+						})
+					: '';
+		const padToolPrompt = padTool
+			? t(
+					terraforming === 'dig'
+						? 'game.prompt.padDig'
+						: terraforming === 'water'
+							? 'game.prompt.padWater'
+							: 'game.prompt.padPaint',
+					{ verb },
+				)
+			: '';
 		// Selecting the shovel or watering can used to prepend an explanation of the
 		// tool ("Shovel — click ground to dig a bed…"). The toolbelt already names the
 		// selected tool and its tooltip explains it, so the bar restated it on every
 		// frame the tool was held — and pushed the actual interaction prompt to the far
 		// end of a long line. This bar is only for what the interact key will do.
 		const prompt = this.movingPlacementId
-			? t('game.prompt.moveTile', { verb: clickVerb }) + rotHint + (this.isTouch ? '' : t('game.prompt.escCancel'))
+			? (onPad ? t('game.prompt.padMove', { verb }) : t('game.prompt.moveTile', { verb: clickVerb })) +
+				rotHint +
+				cancelHint
 			: this.placementObjectId
-				? t('game.prompt.placeTile', { verb: clickVerb }) +
+				? (onPad ? t('game.prompt.padPlace', { verb }) : t('game.prompt.placeTile', { verb: clickVerb })) +
 					rotHint +
-					(this.isTouch ? '' : t('game.prompt.escStopPlacing'))
-				: nearMain;
+					stopHint
+				: padTool
+					? padToolPrompt
+					: nearMain;
 		if (prompt !== this.lastPrompt) {
 			this.lastPrompt = prompt;
 			bridge.emit('prompt', prompt);
 		}
-		let interactPressed = false;
+		let interactPressed = this.padInteract;
+		this.padInteract = false;
 		for (const key of this.moveKeys.interact) {
 			if (Phaser.Input.Keyboard.JustDown(key)) interactPressed = true;
 		}
-		if (near && interactPressed) {
-			near.action();
-		}
+		if (!interactPressed) return;
+		// A on a controller with a tool or an object in hand, or aimed at a placed
+		// item: the controller layer clicks the marked tile, the same path a mouse
+		// click takes (place, dig, water, paint, open the item's menu).
+		if (onPad && (busy || padTool)) bridge.emit('pad-aim-click');
+		else if (near) near.action();
+		else if (padAnimal)
+			padAnimal.emit('pointerdown'); // the same handler a click runs
+		else if (padItem) bridge.emit('pad-aim-click');
 	}
 
 	private syncPosition(dt: number) {

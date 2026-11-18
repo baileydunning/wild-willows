@@ -4,6 +4,7 @@ import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
+import { usePadState } from '../gamepad/glyphs';
 import { TUTORIAL_TOOLBELT_STEP, useTutorialReveal } from './Tutorial';
 import { brushSizesFor } from '../game/worldRules';
 
@@ -66,6 +67,7 @@ export function Toolbelt() {
 	// presets — null until the picker has been used at all.
 	const [customPaint, setCustomPaint] = useState<string | null>(null);
 	usePrefs(); // reflect custom tool-select keys
+	const onPad = usePadState().mode === 'pad';
 	// The toolbelt stays off screen until the tutorial step that hands it over, so
 	// a new caretaker's first minute is a meadow and a card telling them to walk —
 	// not a row of implements they have no use for yet. Latched, so stepping back
@@ -201,9 +203,11 @@ export function Toolbelt() {
 							{/* Decorative: the number repeats aria-keyshortcuts, and left in the
 							    tree it's what a mouse-tracking screen reader reads instead of the
 							    tool name. The tier pip is pure decoration. */}
-							<span className="tool-key" aria-hidden="true">
-								{keyForTool(meta.id)}
-							</span>
+							{!onPad && (
+								<span className="tool-key" aria-hidden="true">
+									{keyForTool(meta.id)}
+								</span>
+							)}
 							{tier > 1 && (
 								<span className="tool-tier" aria-hidden="true">
 									<Icon name="sparkle" size={10} />
@@ -222,9 +226,11 @@ export function Toolbelt() {
 						onClick={() => setSelectedTool('paint')}
 					>
 						<Icon name="paint" size={22} />
-						<span className="tool-key" aria-hidden="true">
-							{keyForTool('paint')}
-						</span>
+						{!onPad && (
+							<span className="tool-key" aria-hidden="true">
+								{keyForTool('paint')}
+							</span>
+						)}
 						<span className="tool-tier paint-dot" style={{ background: paintColor }} aria-hidden="true" />
 					</button>
 				)}

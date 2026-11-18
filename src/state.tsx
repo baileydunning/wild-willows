@@ -44,6 +44,8 @@ import { narrativeBeats, nextFeedFact, healthMilestoneLine, HEALTH_THRESHOLDS } 
 import { weatherForArea, weatherFeedLine, seasonFeedLine, liveCalendar } from './weather';
 import type { Appearance, GameData, GameState, PanelId } from './types';
 import { notePanelOpen, resetPanelOpens, settlePanelOpens, snapshotPanelOpens } from './menuMetrics';
+import { getInputMode } from './gamepad/pad';
+import { padVars } from './gamepad/glyphs';
 
 export type SaveStatus = 'idle' | 'saving' | 'saved' | 'error';
 
@@ -1378,7 +1380,7 @@ export function GameProvider({ children }: { children: React.ReactNode }) {
 							bridge.emit('audio-sfx', { id: 'water' });
 						} else {
 							pushLog('drop', t('app.log.watered'));
-							toast(t('app.toast.bedReady'));
+							toast(getInputMode() === 'pad' ? t('app.toast.bedReadyPad', padVars(t)) : t('app.toast.bedReady'));
 							bridge.emit('audio-sfx', { id: 'waterground' });
 						}
 					} else pushLog('shovel', t('app.log.clearedBed'));

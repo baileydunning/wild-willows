@@ -75,7 +75,13 @@ export interface Prefs {
 	 *  on first launch (see detectDefaultGraphicsQuality), then stays whatever the
 	 *  player last chose. */
 	graphicsQuality: GraphicsQuality;
+	/** Frame-rate cap: 0 = as fast as the display goes, else 30 / 40 / 60. A cap
+	 *  saves battery; 40 is the usual balance on a Steam Deck. */
+	frameCap: FrameCap;
 }
+
+export type FrameCap = 0 | 30 | 40 | 60;
+export const FRAME_CAPS: FrameCap[] = [0, 60, 40, 30];
 
 /** The zoom factor applied to the UI overlays for each text-size step. */
 export const TEXT_SCALE_VALUES: Record<TextScale, number> = { sm: 0.85, md: 1, lg: 1.25, xl: 1.5 };
@@ -98,6 +104,7 @@ const DEFAULTS: Prefs = {
 	interactHint: true,
 	simpleText: false,
 	graphicsQuality: 'high',
+	frameCap: 0,
 };
 
 /**
@@ -237,6 +244,7 @@ export function normalizePrefs(raw: any, fallbackReduce = false, fallbackQuality
 		interactHint: typeof o.interactHint === 'boolean' ? o.interactHint : DEFAULTS.interactHint,
 		simpleText: typeof o.simpleText === 'boolean' ? o.simpleText : DEFAULTS.simpleText,
 		graphicsQuality: GRAPHICS_QUALITIES.includes(o.graphicsQuality) ? o.graphicsQuality : fallbackQuality,
+		frameCap: FRAME_CAPS.includes(o.frameCap) ? o.frameCap : DEFAULTS.frameCap,
 	};
 }
 

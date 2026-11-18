@@ -19,6 +19,8 @@ import {
 import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
+import { padVars, usePadState } from '../gamepad/glyphs';
+import { padHint } from '../gamepad/padHints';
 import { TasksWidget } from './TasksWidget';
 import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
 import { liveTime } from '../weather';
@@ -138,6 +140,7 @@ export function HUD() {
 	const { t, content } = useI18n();
 	usePrefs(); // re-render nav key caps when bindings change
 	const [prompt, setPrompt] = useState('');
+	const onPad = usePadState().mode === 'pad';
 	// The top-right menu can be tucked away so it's out of the scene — and it
 	// STARTS that way for a new caretaker, unfolding when the tutorial reaches the
 	// step that explains it. Six buttons appearing before anything has said what
@@ -221,8 +224,10 @@ export function HUD() {
 	// mouse announces "J" — the thing under the pointer — instead of the button's
 	// name. aria-hidden takes it out of the tree without hiding it from sight.
 	// (Reported by an NVDA player: hovering the menu read only the letter.)
+	// No key badges at all on a controller: the menus are reached with Y, X,
+	// Menu and then L1/R1, and the tab bar over an open menu shows where you are.
 	const navBtn = (id: any, icon: string, label: string, keyHint?: string) => {
-		const shownKey = keyForPanel(id) ?? keyHint;
+		const shownKey = onPad ? undefined : (keyForPanel(id) ?? keyHint);
 		return (
 			<button
 				className={`icon-btn ${panel === id ? 'on' : ''}`}
@@ -474,9 +479,11 @@ export function HUD() {
 									aria-keyshortcuts="O"
 								>
 									<Icon name="gear" />
-									<span className="nav-key" aria-hidden="true">
-										O
-									</span>
+									{!onPad && (
+										<span className="nav-key" aria-hidden="true">
+											O
+										</span>
+									)}
 								</button>
 								<button
 									className={`icon-btn ${helpOpen ? 'on' : ''}`}
@@ -487,9 +494,11 @@ export function HUD() {
 									aria-keyshortcuts="H"
 								>
 									<Icon name="help" />
-									<span className="nav-key" aria-hidden="true">
-										H
-									</span>
+									{!onPad && (
+										<span className="nav-key" aria-hidden="true">
+											H
+										</span>
+									)}
 								</button>
 								<button
 									className="icon-btn subtle"
@@ -519,7 +528,7 @@ export function HUD() {
 									data.habitatObjects.find((o) => o.id === placementObjectId)?.name || '',
 								)}
 							</b>{' '}
-							{t('app.hud.placingHint')}
+							{onPad ? t('app.hud.placingHintPad', padVars(t)) : t('app.hud.placingHint')}
 							<button className="link" onClick={cancelPlacement}>
 								{t('app.hud.stopPlacing')}
 							</button>
@@ -676,7 +685,7 @@ export function Toasts() {
 			{toasts.map((toast) => (
 				<div key={toast.id} className={`toast toast-${toast.kind}`}>
 					<Icon name={iconFor[toast.kind] || 'leaf'} size={17} />
-					<span>{toast.text}</span>
+					<span>{padHint(toast.text, t)}</span>
 					<button
 						className="toast-close"
 						onClick={() => dismissToast(toast.id)}

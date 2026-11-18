@@ -68,7 +68,8 @@
 		"perkThrift": "Hearthkeeper's thrift! Got back {items}.",
 		"goalAffordable": "You can already make that — no need to set it as a goal.",
 		"goalUnlockKit": "That kit is part of unlocking a biome — it's already on your board.",
-		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest."
+		"basketOverflow": "Your basket was full, so the rest of the {name} went to your nearest chest.",
+		"bedReadyPad": "Bed ready. Walk up and press {a} to plant."
 	},
 	"feed": {
 		"demoNudgeIdle": "The preserve waited quietly while you were away.",
@@ -170,7 +171,8 @@
 			"unlockTitle": "Unlock biomes",
 			"unlockText": "Fully restore a biome and the trail to the next one opens — a whole new place to bring back.",
 			"reassure": "New here? When you start, a friendly guide walks you through your first steps — there’s nothing to memorize.",
-			"gotIt": "Got it"
+			"gotIt": "Got it",
+			"welcomeTextPad": "As the land heals, animals find their way home. Walk up to one and press {a} to meet it."
 		},
 		"language": "Language",
 		"demoSaveUnreachable": "We couldn't reach the server, so your saved preserve isn't available right now. It's safe — try again in a moment.",
@@ -193,7 +195,8 @@
 		"importSave": "Import Save",
 		"importing": "Importing…",
 		"importDone": "Imported {name} — pick it below to play.",
-		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported."
+		"errImport": "That save file is missing, edited, or damaged — it couldn’t be imported.",
+		"quit": "Quit"
 	},
 	"hud": {
 		"yourHome": "Your Home",
@@ -266,7 +269,8 @@
 		"stopPlacing": "stop placing",
 		"dayTimerTitle": "The preserve clock — a full day passes in about 24 minutes.",
 		"demoGoal": "Demo · {returned}/{total} animals home",
-		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo."
+		"demoGoalTitle": "Welcome animals back to the meadow to complete the free demo.",
+		"placingHintPad": "· {a} on the marked tile"
 	},
 	"toolbelt": {
 		"how": {
@@ -509,7 +513,11 @@
 		"graphicsQualityHint": {
 			"high": "Full resolution, particles, and weather effects. Best on a capable computer.",
 			"low": "Lighter rendering for older or slower computers — fewer particles, a thinner weather effect, and a lower-resolution canvas. Try this if the game feels slow."
-		}
+		},
+		"padTitle": "Controller",
+		"frameRate": "Frame rate",
+		"frameRateHint": "A lower cap saves battery and runs cooler. On a Steam Deck, 40 is a good balance.",
+		"frameRateMax": "Max"
 	},
 	"kbGate": {
 		"title": "Wild Willows needs a keyboard",
@@ -518,7 +526,8 @@
 		"body2": " or the ",
 		"arrowKeys": "arrow keys",
 		"body3": ", and reach for your basket, tools, and journal with shortcut keys — so it doesn’t work on a phone or tablet on its own.",
-		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin."
+		"hint": "Open Wild Willows on a computer, or connect a keyboard and press any key to begin.",
+		"pad": "A controller works too. Press any button on it."
 	},
 	"goalsUnlocked": {
 		"title": "Now the goals are yours",
@@ -562,5 +571,42 @@
 		"blurb": "Change your caretaker's look. Your name stays the same.",
 		"save": "Looks good",
 		"cancel": "Never mind"
+	},
+	"confirmDialog": {
+		"ok": "OK",
+		"cancel": "Cancel"
+	},
+	"keyboard": {
+		"title": "Keyboard",
+		"shift": "Shift",
+		"space": "Space",
+		"backspace": "Delete",
+		"done": "Done",
+		"newline": "New line",
+		"symbols": "Symbols",
+		"letters": "Letters"
+	},
+	"menuTabs": {
+		"label": "Menus"
+	},
+	"colorPicker": {
+		"title": "Pick a color",
+		"current": "Current color"
+	},
+	"selectPicker": {
+		"title": "Choose one"
+	},
+	"padHints": {
+		"gather": "Hold your basket, walk onto a glowing spot on the ground, and press {a}.",
+		"craftFirst": "Open crafting ({x}), pick something you can afford, and press {a} on Craft.",
+		"plant": "Dig a bed with the shovel, water it with the can, then press {a} on it with your basket to choose what to sow.",
+		"harvest": "Give your seedlings time to mature, then press {a} on a grown plant and pick its harvest. It regrows, so a planted meadow keeps paying.",
+		"rest": "Open crafting ({x}) and make a sleeping bag from 4 fiber, step inside your tent and put it down, then press {a} on it to sleep. A night's rest refreshes every gathering spot in the preserve.",
+		"buildTen": "Open crafting ({x}). Every habitat piece you make and put down counts, and more recipes open as the meadow recovers.",
+		"stream": "Dig three beds in a row with the shovel, then water each one twice with the can. The second pass floods a bed into open water. Chained tiles make a stream that water-loving animals need.",
+		"goalCraft": "Open crafting ({x}) and make it. Its card lists the materials it needs.",
+		"goalBuild": "Craft it ({x}), then place it out in the biome from the 'ready to place' bar.",
+		"goalGrow": "Dig a bed with the shovel, water it with the can, then plant it from the bed's menu ({a}).",
+		"bedJustWatered": "That bed just finished watering. Press {a} on it again with the can if you want to flood it into open water."
 	}
 }

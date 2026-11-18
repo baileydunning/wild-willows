@@ -5,6 +5,9 @@ import { visibleShortcuts, shortcutKeys } from '../shortcuts';
 import { usePrefs } from '../prefs';
 import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
+import { PadControls } from './PadControls';
+import { padVars, usePadState } from '../gamepad/glyphs';
+import { hasKey } from '../i18n';
 
 // Step copy lives in the panels.help.loop.* catalog keys.
 const STEPS: Array<{ icon: string; key: string }> = [
@@ -31,6 +34,10 @@ export function HelpModal() {
 	const { helpOpen, setHelpOpen, setTutorialStep, state } = useGame();
 	const { t } = useI18n();
 	usePrefs(); // reflect live key bindings
+	const pad = usePadState();
+	// Controller wording where a tip names a key, keyboard wording otherwise.
+	const helpText = (key: string) =>
+		pad.mode === 'pad' && hasKey(`${key}.pad`) ? t(`${key}.pad`, padVars(t)) : t(`${key}.text`);
 	if (!helpOpen) return null;
 	// In solo play there's no People/invite system, so drop those keys entirely.
 	const keys = visibleShortcuts();
@@ -77,7 +84,7 @@ export function HelpModal() {
 								</div>
 								<div>
 									<b>{t(`panels.help.loop.${s.key}.title`)}</b>
-									<p>{t(`panels.help.loop.${s.key}.text`)}</p>
+									<p>{helpText(`panels.help.loop.${s.key}`)}</p>
 								</div>
 							</div>
 						))}
@@ -93,26 +100,41 @@ export function HelpModal() {
 								</div>
 								<div>
 									<b>{t(`panels.help.more.${s.key}.title`)}</b>
-									<p>{t(`panels.help.more.${s.key}.text`)}</p>
+									<p>{helpText(`panels.help.more.${s.key}`)}</p>
 								</div>
 							</div>
 						))}
 					</div>
-					<div className="help-section-label">
-						<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
-					</div>
-					<div className="key-list">
-						{keys.map((k) => (
-							<div className="key-row" key={k.does}>
-								<span className="kbds">
-									{shortcutKeys(k).map((key) => (
-										<kbd key={key}>{key}</kbd>
-									))}
-								</span>
-								<span>{t(k.does)}</span>
+					{/* With a controller in hand its map comes first; the keyboard list
+					    still follows for anyone who switches back (not on a Steam Deck, which
+					    has no keyboard). */}
+					{pad.seen && (
+						<>
+							<div className="help-section-label">
+								<Icon name="gamepad" size={15} /> {t('panels.help.padLabel')}
 							</div>
-						))}
-					</div>
+							<PadControls />
+						</>
+					)}
+					{pad.family !== 'deck' && (
+						<>
+							<div className="help-section-label">
+								<Icon name="keyboard" size={15} /> {t('panels.help.keysLabel')}
+							</div>
+							<div className="key-list">
+								{keys.map((k) => (
+									<div className="key-row" key={k.does}>
+										<span className="kbds">
+											{shortcutKeys(k).map((key) => (
+												<kbd key={key}>{key}</kbd>
+											))}
+										</span>
+										<span>{t(k.does)}</span>
+									</div>
+								))}
+							</div>
+						</>
+					)}
 				</div>
 			</div>
 		</div>

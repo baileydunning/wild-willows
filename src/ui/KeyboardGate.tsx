@@ -3,11 +3,12 @@ import { useI18n } from '../i18n/react';
 import { reportKeyboardGate } from '../solo/appOpen';
 
 /**
- * Wild Willows is a keyboard game (WASD / arrows to roam, letter keys for
- * panels, number keys for tools), so it only runs where a keyboard is
- * available. We treat any device with a fine pointer (mouse, trackpad, or
- * stylus) as a computer, and otherwise block until a real key is pressed —
- * which also lets tablets with an attached keyboard through.
+ * Wild Willows is played with a keyboard or a controller (WASD / arrows or a
+ * stick to roam, letter keys or face buttons for panels), so it only runs where
+ * one of those is available. We treat any device with a fine pointer (mouse,
+ * trackpad, or stylus) as a computer, and otherwise block until a real key or a
+ * controller button is pressed — which lets tablets with an attached keyboard,
+ * and a Steam Deck with its touchscreen as the only pointer, through.
  */
 
 function hasFinePointer(): boolean {
@@ -18,7 +19,9 @@ function hasFinePointer(): boolean {
 export function KeyboardGate({ children }: { children: ReactNode }) {
 	const { t } = useI18n();
 	const [finePointer, setFinePointer] = useState(hasFinePointer);
-	const [keyboardSeen, setKeyboardSeen] = useState(false);
+	// The desktop app is never on a phone; the only "no keyboard" desktop is a
+	// Steam Deck, which has its controls built in.
+	const [keyboardSeen, setKeyboardSeen] = useState(() => !!(globalThis as any).wildWillowsDesktop?.isDesktop);
 	const blocked = !finePointer && !keyboardSeen;
 	const reported = useRef({ blocked: false, gotIn: false });
 
@@ -55,9 +58,15 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 			setKeyboardSeen(true);
 		};
 		window.addEventListener('keydown', onKey);
+		// A controller counts the same as a keyboard. Browsers only expose a pad
+		// after one of its buttons is pressed, so 'gamepadconnected' firing IS
+		// that press.
+		const onPad = () => setKeyboardSeen(true);
+		window.addEventListener('gamepadconnected', onPad);
 		return () => {
 			mql.removeEventListener?.('change', onChange);
 			window.removeEventListener('keydown', onKey);
+			window.removeEventListener('gamepadconnected', onPad);
 		};
 	}, []);
 
@@ -81,6 +90,7 @@ export function KeyboardGate({ children }: { children: ReactNode }) {
 					{t('app.kbGate.body3')}
 				</p>
 				<p className="kb-gate-hint">{t('app.kbGate.hint')}</p>
+				<p className="kb-gate-hint">{t('app.kbGate.pad')}</p>
 			</div>
 		</div>
 	);

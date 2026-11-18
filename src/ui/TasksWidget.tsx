@@ -3,6 +3,8 @@ import { useGame } from '../state';
 import { isTypingTarget } from '../typing';
 import { useI18n } from '../i18n/react';
 import { Icon } from './icons';
+import { padHint } from '../gamepad/padHints';
+import { usePadState } from '../gamepad/glyphs';
 import { TUTORIAL_GOALS_STEP, tutorialReached } from './Tutorial';
 
 /**
@@ -25,6 +27,7 @@ function storedCollapsed(): boolean {
 export function TasksWidget() {
 	const { data, state, claimTask, setPanel } = useGame();
 	const { t, content } = useI18n();
+	usePadState(); // hints reword themselves for a controller
 	// A new caretaker's board starts folded away and opens on the tutorial's last
 	// step, which is the one that explains it — a list of ten goals on screen
 	// before anything has said what goals are reads as clutter, and clutter gets
@@ -147,11 +150,11 @@ export function TasksWidget() {
 										className="tasks-hint"
 										tabIndex={0}
 										role="note"
-										aria-label={task.hint || hoverSteps.map((s) => s.text).join(', ')}
+										aria-label={padHint(task.hint || '', t) || hoverSteps.map((s) => s.text).join(', ')}
 									>
 										<Icon name="help" size={12} />
 										<span className="tasks-hint-tip" role="tooltip">
-											{task.hint && <span className="tasks-hint-line">{task.hint}</span>}
+											{task.hint && <span className="tasks-hint-line">{padHint(task.hint, t)}</span>}
 											{hoverSteps.map((s, i) => (
 												<span key={i} className={`tasks-step ${s.done ? 'done' : ''}`}>
 													<span className="tasks-step-box">{s.done && <Icon name="check" size={10} />}</span> {s.text}
