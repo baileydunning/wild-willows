@@ -74,10 +74,6 @@ function registerSaveIpc() {
 	ipcMain.handle('saves:remove', async (_e, slotId) => saves().removeSlot(slotId));
 }
 
-function registerSteamIpc() {
-	ipcMain.handle('steam:textInput', async (_e, opts) => steam.textInput(opts));
-}
-
 // --- navigation lockdown (defense in depth) ---
 //
 // This window only ever shows the BUNDLED web build loaded over file://. It has
@@ -226,7 +222,6 @@ async function boot() {
 	steam.init(app); // no-op when not launched through Steam
 	metricsSync.start(); // listens for renderer metrics → Steam (no-op without Steam)
 	registerSaveIpc();
-	registerSteamIpc();
 	createWindow();
 	try {
 		await mainWindow.loadFile(webIndexPath());

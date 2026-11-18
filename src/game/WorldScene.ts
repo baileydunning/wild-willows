@@ -356,6 +356,12 @@ export class WorldScene extends Phaser.Scene {
 	// A controller's A press, queued by the 'pad-interact' bridge event and spent
 	// by the next handleInteraction() — the same frame-edge a JustDown key gives.
 	private padInteract = false;
+	// Controller aiming. A controller has no pointer to wave around, so world
+	// actions land on a TILE beside the caretaker: the one they face, nudged up
+	// to AIM_REACH tiles with the right stick. Walking snaps it back in front.
+	private padFacing = { x: 0, y: 1 };
+	private padAim = { x: 0, y: 1 };
+	private static readonly AIM_REACH = 3;
 	// id -> habitat-object def (see objectDefs). Keyed by the data array's identity
 	// AND the active wording, because the one synthetic def carries a localized name.
 	private objectDefMap: Map<string, HabitatObjectDef> | null = null;
@@ -950,6 +956,15 @@ export class WorldScene extends Phaser.Scene {
 				if (this.placementObjectId || this.movingPlacementId) bridge.emit('placement-exited');
 			}),
 			bridge.on('pad-rotate', (dir: number) => this.rotateHeld(dir < 0 ? -1 : 1)),
+			bridge.on('pad-aim', (d: { x: number; y: number }) => {
+				const r = WorldScene.AIM_REACH;
+				this.padAim.x = Phaser.Math.Clamp(this.padAim.x + d.x, -r, r);
+				this.padAim.y = Phaser.Math.Clamp(this.padAim.y + d.y, -r, r);
+			}),
+			bridge.on('pad-aim-reset', () => {
+				this.padAim.x = this.padFacing.x;
+				this.padAim.y = this.padFacing.y;
+			}),
 			bridge.on('pad-zoom', (dir: number) => {
 				if (bridge.shared.uiBlocking) return;
 				this.nudgeZoom(dir > 0 ? ZOOM_STEP : 1 / ZOOM_STEP);
@@ -6661,6 +6676,17 @@ export class WorldScene extends Phaser.Scene {
 		// Walking again ends whatever had gathered, exactly as getting off a bench
 		// does — one line, and only on the frame it actually changes something.
 		if (this.idleSince != null || this.standingStill) this.endStillness();
+		// The controller's aim tile faces where you walk, and walking takes back
+		// any nudge the right stick gave it.
+		if (Math.abs(vx) >= Math.abs(vy)) {
+			this.padFacing.x = Math.sign(vx);
+			this.padFacing.y = 0;
+		} else {
+			this.padFacing.x = 0;
+			this.padFacing.y = Math.sign(vy);
+		}
+		this.padAim.x = this.padFacing.x;
+		this.padAim.y = this.padFacing.y;
 		this.walkT += dt * 11;
 		this.player.setRotation(Math.sin(this.walkT) * 0.075); // cozy waddle
 		const len = Math.hypot(vx, vy);
@@ -6744,12 +6770,43 @@ export class WorldScene extends Phaser.Scene {
 		const x = (this.player.x - wv.x) * cam.zoom;
 		const y = (this.player.y - wv.y) * cam.zoom;
 		const left = this.player.flipX;
-		if (!ps) bridge.shared.playerScreen = { x, y, facingLeft: left };
+		const aim = this.padAimTile();
+		const ax = (aim.x * TILE + TILE / 2 - wv.x) * cam.zoom;
+		const ay = (aim.y * TILE + TILE / 2 - wv.y) * cam.zoom;
+		if (!ps) bridge.shared.playerScreen = { x, y, facingLeft: left, aimX: ax, aimY: ay };
 		else {
 			ps.x = x;
 			ps.y = y;
 			ps.facingLeft = left;
+			ps.aimX = ax;
+			ps.aimY = ay;
 		}
+	}
+
+	/** The tile a controller's actions land on (see padAim). */
+	private padAimTile() {
+		return {
+			x: Math.floor(this.player.x / TILE) + this.padAim.x,
+			y: Math.floor((this.player.y + 8) / TILE) + this.padAim.y,
+		};
+	}
+
+	/** The nearest animal close enough to meet with A, when nothing else is in
+	 *  reach. With a mouse you click an animal; a controller walks up to it. */
+	private padNearbyAnimal(): Phaser.GameObjects.Image | null {
+		if (!(this.animals as any)?.scene) return null;
+		let best: Phaser.GameObjects.Image | null = null;
+		let bestD = TILE * 2.5;
+		for (const child of this.animals.getChildren()) {
+			const img = child as Phaser.GameObjects.Image;
+			if (!img.getData('animal') || !img.visible || img.listenerCount('pointerdown') === 0) continue;
+			const d = Phaser.Math.Distance.Between(img.x, img.y, this.player.x, this.player.y);
+			if (d < bestD) {
+				bestD = d;
+				best = img;
+			}
+		}
+		return best;
 	}
 
 	private handleGhost() {
@@ -6880,6 +6937,16 @@ export class WorldScene extends Phaser.Scene {
 			this.tileCursor.setPosition(tx * TILE + 16, ty * TILE + 16);
 			const cursorKey = ok ? 'ghost-ok' : 'ghost-bad';
 			if (this.tileCursor.texture.key !== cursorKey) this.tileCursor.setTexture(cursorKey);
+		} else if (getInputMode() === 'pad' && !busy) {
+			// On a controller, mark the aim tile whenever there is something on it
+			// to act on, so R2 never fires at a spot you can't see.
+			const aim = this.padAimTile();
+			const has = this.placementsAt(aim.x, aim.y).length > 0;
+			if (has !== this.tileCursor.visible) this.tileCursor.setVisible(has);
+			if (has) {
+				this.tileCursor.setPosition(aim.x * TILE + 16, aim.y * TILE + 16);
+				if (this.tileCursor.texture.key !== 'ghost-ok') this.tileCursor.setTexture('ghost-ok');
+			}
 		} else if (this.tileCursor.visible) {
 			this.tileCursor.setVisible(false);
 		}
@@ -6907,7 +6974,16 @@ export class WorldScene extends Phaser.Scene {
 		// A locked gate's detailed "what's still needed" text goes to the corner feed
 		// (see gate-info below), not this narrow bar — here it just shows its short
 		// "read the trail sign" label like any other interactable.
-		const nearMain = near ? t('game.prompt.near', { verb, label: near.label }) : '';
+		const padAnimal = onPad && !near && !busy && !this.sitting ? this.padNearbyAnimal() : null;
+		const padAnimalDef = padAnimal?.getData('animal');
+		const nearMain = near
+			? t('game.prompt.near', { verb, label: near.label })
+			: padAnimalDef
+				? t('game.prompt.padAnimal', {
+						verb,
+						name: content('animal', padAnimalDef.id, 'name', padAnimalDef.name || padAnimalDef.id),
+					})
+				: '';
 		// Selecting the shovel or watering can used to prepend an explanation of the
 		// tool ("Shovel — click ground to dig a bed…"). The toolbelt already names the
 		// selected tool and its tooltip explains it, so the bar restated it on every
@@ -6929,6 +7005,8 @@ export class WorldScene extends Phaser.Scene {
 		}
 		if (near && interactPressed) {
 			near.action();
+		} else if (padAnimal && interactPressed) {
+			padAnimal.emit('pointerdown'); // the same handler a click runs
 		}
 	}
 

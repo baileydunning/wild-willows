@@ -78,8 +78,5 @@ contextBridge.exposeInMainWorld('wildWillowsDesktop', {
 	// onto Steam (electron/metrics-sync.js). No-op outside Steam.
 	steam: {
 		reportMetrics: (player) => ipcRenderer.send('steam:metrics', player),
-		// Steam's on-screen keyboard for a text field. Resolves
-		// { mode: 'floating' | 'modal' | 'none', text? } — see electron/steam.js.
-		textInput: (opts) => ipcRenderer.invoke('steam:textInput', opts),
 	},
 });

@@ -154,3 +154,36 @@ describe('controller map', () => {
 		}
 	});
 });
+
+describe('L1/R1 menu cycle', () => {
+	function game(panel: string | null, helpOpen = false) {
+		const g = {
+			panel,
+			helpOpen,
+			setPanel: (p: string | null) => (g.panel = p),
+			setHelpOpen: (v: boolean) => (g.helpOpen = v),
+		};
+		return g;
+	}
+
+	it('walks the HUD order and wraps through How to Play', async () => {
+		const { stepMenu, currentMenu } = await import('../../src/gamepad/menus');
+		const g = game('journal');
+		stepMenu(g, 1);
+		expect(g.panel).toBe('achievements');
+		stepMenu(g, -1);
+		stepMenu(g, -1);
+		expect(currentMenu(g)).toBe('help'); // journal ← help wraps around
+		expect(g.panel).toBe(null);
+		stepMenu(g, 1);
+		expect(g.helpOpen).toBe(false);
+		expect(g.panel).toBe('journal');
+	});
+
+	it('leaves popups that are not menus alone', async () => {
+		const { stepMenu } = await import('../../src/gamepad/menus');
+		const g = game('chest');
+		expect(stepMenu(g, 1)).toBe(false);
+		expect(g.panel).toBe('chest');
+	});
+});

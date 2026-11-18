@@ -494,7 +494,7 @@
 			"title": "Sana el suelo",
 			"text": "Ahora la tierra. Pulsa 2 para la pala y cava una casilla desnuda, luego 3 para la regadera y riégala.",
 			"touch": "Ahora la tierra. Toca la pala y cava una casilla desnuda, luego toca la regadera y riégala.",
-			"pad": "Ahora la tierra. Pulsa {rb} para la pala, apunta a una casilla desnuda con el {rstick} y pulsa {rt} para cavar. Luego cambia a la regadera y pulsa {rt} sobre el lecho para regarlo."
+			"pad": "Ahora la tierra. Pulsa {rb} para la pala. La casilla delante de ti queda marcada; pulsa {rt} para cavarla (el {rstick} mueve la marca). Luego cambia a la regadera y pulsa {rt} sobre el lecho para regarlo."
 		},
 		"plant": {
 			"title": "Planta algo vivo",
@@ -511,13 +511,13 @@
 			"title": "Abre tu diario de campo",
 			"text": "Presiona J para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno.",
 			"touch": "Toca el botón del diario para abrir tu diario de campo — enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno.",
-			"pad": "Pulsa {menu} para abrir el menú del juego y entra en tu diario de campo. Enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno."
+			"pad": "Pulsa {menu} para abrir los menús y luego {lb} y {rb} para llegar a tu diario de campo. Enumera todos los animales que pueden regresar a cada área y quiénes han vuelto hasta ahora. Cada área tiene su propia guía, que se redacta en el panel de Herramientas: la guía de campo abre la ficha completa de cada animal, y la edición ampliada que viene después detalla exactamente qué está esperando cada uno."
 		},
 		"tools": {
 			"title": "Herramientas y mejoras",
 			"text": "Presiona T para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
 			"touch": "Toca el botón de herramientas para abrir Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera — los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando.",
-			"pad": "Pulsa {menu} para abrir el menú del juego y entra en Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera; los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
+			"pad": "Pulsa {menu} para abrir los menús y luego {lb} y {rb} para llegar a Herramientas y mejoras. Invierte materiales para mejorar tu cesta, pala y regadera; los niveles más altos recolectan y moldean más. La guía de campo del lugar donde estés aparece en la misma página. Algunas mejoras se abren a medida que un bioma se vuelve más saludable, así que vuelve a revisarlas de vez en cuando."
 		},
 		"map": {
 			"title": "Abre el mapa de la Reserva",
@@ -529,13 +529,13 @@
 			"title": "Clima y estaciones",
 			"text": "Presiona N para abrir la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones — la guía muestra qué está pasando en toda la reserva y explica, con ecología real, cómo el clima y la estación de hoy moldean el área donde estás. Mira también el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure.",
 			"touch": "Toca el botón del clima (la nube, arriba a la derecha) para abrir la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones — la guía muestra qué está pasando en toda la reserva y explica cómo el clima y la estación de hoy moldean el área donde estás. Mira el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure.",
-			"pad": "Pulsa {menu} para abrir el menú del juego y entra en la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones. La guía muestra qué está pasando en toda la reserva y explica, con ecología real, cómo el clima y la estación de hoy moldean el área donde estás. Mira también el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure."
+			"pad": "Pulsa {menu} para abrir los menús y luego {lb} y {rb} para llegar a la guía de Clima y estaciones. Cada área tiene su propio clima, que cambia por sí solo y avanza lentamente por las estaciones. La guía muestra qué está pasando en toda la reserva y explica, con ecología real, cómo el clima y la estación de hoy moldean el área donde estás. Mira también el cielo: un clima inusual puede dejar materiales raros para recolectar mientras dure."
 		},
 		"tips": {
 			"title": "Cosas útiles que saber",
 			"text": "¿Colocaste algo mal? Haz Shift+clic sobre cualquier objeto colocado para recogerlo de nuevo. Esc cierra los menús o cancela la colocación. Las áreas nuevas se abren por las puertas del sendero en el borde del mapa. El botón del engranaje guarda los Ajustes (cambiar tu personaje, bloquear o borrar tu partida), y el botón ? vuelve a abrir esta guía cuando quieras.",
 			"touch": "¿Colocaste algo mal? Mantén presionado un objeto colocado para recogerlo de nuevo. Las áreas nuevas se abren por las puertas del sendero en el borde del mapa. El botón del engranaje guarda los Ajustes (cambiar tu personaje, bloquear o borrar tu partida), y el botón ? vuelve a abrir esta guía cuando quieras.",
-			"pad": "¿Colocaste algo mal? Apunta a cualquier objeto colocado y pulsa {lt} para recogerlo de nuevo. {b} cierra los menús o cancela la colocación. Las áreas nuevas se abren por las puertas del sendero en el borde del mapa. Los Ajustes (cambiar tu personaje, bloquear o borrar tu partida) y esta guía están en el menú del juego, con {menu}."
+			"pad": "¿Colocaste algo mal? Ponte a su lado para que quede marcado y pulsa {lt} para recogerlo de nuevo. {b} cierra los menús o cancela la colocación. Las áreas nuevas se abren por las puertas del sendero en el borde del mapa. Los Ajustes (cambiar tu personaje, bloquear o borrar tu partida) y esta guía están en los menús: pulsa {menu} y luego {lb} y {rb}."
 		},
 		"crafting": {
 			"title": "Abre la fabricación",
@@ -551,7 +551,7 @@
 			"title": "Colócala en la tierra",
 			"text": "Pulsa «Listo para colocar», en la parte superior del menú de Fabricación, y haz clic en suelo despejado. Mira subir la salud de la pradera.",
 			"touch": "Toca «Listo para colocar», en la parte superior del menú de Fabricación, y toca suelo despejado. Mira subir la salud de la pradera.",
-			"pad": "Elige «Listo para colocar», en la parte superior del menú de Fabricación, apunta a suelo despejado con el {rstick} y pulsa {rt}. Mira subir la salud de la pradera."
+			"pad": "Elige «Listo para colocar», en la parte superior del menú de Fabricación. La mata sigue a la casilla marcada delante de ti; camina hasta donde la quieras y pulsa {rt}. Mira subir la salud de la pradera."
 		},
 		"proximity": {
 			"title": "Crea pequeños vecindarios",
@@ -562,13 +562,13 @@
 			"title": "Da la bienvenida a tu primer vecino",
 			"text": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Haz clic en él para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo.",
 			"touch": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Tócalo para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo.",
-			"pad": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Apunta hacia él y pulsa {rt} para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo."
+			"pad": "Un saltamontes vuelve al 8 % de salud con una mata colocada. Acércate y pulsa {a} para anotarlo en tu diario: ¡ese es todo el ciclo! Además ganas tu primer logro, ★ Primer Amigo."
 		},
 		"star": {
 			"title": "Tu primera estrella",
 			"text": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (presiona K) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →",
 			"touch": "Ese es todo el ciclo — y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros (el botón de la estrella) — los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →",
-			"pad": "Ese es todo el ciclo, y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en el nuevo menú de Logros, dentro del menú del juego ({menu}). Los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
+			"pad": "Ese es todo el ciclo, y darle la bienvenida al saltamontes acaba de ganarte tu primer logro, ★ Primer Amigo. Hay 50 estrellas por descubrir en la reserva: por restaurar cada bioma, traer de vuelta a los grandes depredadores, dominar tus herramientas y recibir fauna por toda la reserva. No llegan fácil. Encuéntralas todas en Logros: pulsa {menu} y luego {lb} y {rb}. Los desbloqueos recientes suben al principio. Ahora, un recorrido rápido por tus otros menús →"
 		},
 		"goals": {
 			"title": "Tus objetivos",
@@ -586,25 +586,25 @@
 			"title": "Tus menús, arriba",
 			"text": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres.",
 			"touch": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Cada uno se explica solo la primera vez que lo abres.",
-			"pad": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Pulsa {menu} para recorrerlos con la cruceta, y {b} para salir. Cada uno se explica solo la primera vez que lo abres."
+			"pad": "Arriba a la derecha están tus menús, agrupados por función: Aprender (diario de campo, logros, novedades), Construir (cesta, fabricación, herramientas, objetivos), Mundo (mapa, clima) y Sistema (Ajustes, Ayuda). Pulsa {menu} para abrirlos, {lb} y {rb} para pasar de uno a otro, y {b} para cerrar. Cada uno se explica solo la primera vez que lo abres."
 		},
 		"toolbelt": {
 			"title": "Tu cinturón de herramientas",
 			"text": "Tu cinturón está abajo: 1 cesta para recolectar, 2 pala para moldear la tierra, 3 regadera para el agua. Pulsa T para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
 			"touch": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. Toca el botón de herramientas para abrir Herramientas y mejoras — invierte materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando.",
-			"pad": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. {lb} y {rb} cambian entre ellas. En Herramientas y mejoras, dentro del menú del juego ({menu}), inviertes materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
+			"pad": "Tu cinturón está abajo: cesta para recolectar, pala para moldear la tierra, regadera para el agua. {lb} y {rb} cambian entre ellas. En Herramientas y mejoras, dentro de los menús ({menu}), inviertes materiales para subir de nivel cada una y para redactar la guía de campo del área donde estés. Algunas mejoras se desbloquean cuando un bioma mejora su salud, así que vuelve de vez en cuando."
 		},
 		"navigate": {
 			"title": "Orientarte en la pantalla",
 			"text": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Pulsa H para ayuda.",
 			"touch": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. Toca el botón ? para ayuda.",
-			"pad": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. La ayuda está siempre en el menú del juego ({menu})."
+			"pad": "Ubícate. Arriba a la izquierda ves la salud, el equilibrio y los animales de la pradera, además del clima y la estación actuales. La ayuda está siempre en los menús ({menu})."
 		},
 		"moreAnimals": {
 			"title": "Devuelve la vida a la pradera",
 			"text": "Comida, agua y refugio juntos traen más animales. Consulta tu diario (J) para saber qué necesita cada uno. ¡La pradera está en buenas manos!",
 			"touch": "Comida, agua y refugio juntos traen más animales. Consulta tu diario para saber qué necesita cada uno. ¡La pradera está en buenas manos!",
-			"pad": "Comida, agua y refugio juntos traen más animales. Consulta tu diario, en el menú del juego ({menu}), para saber qué necesita cada uno. ¡La pradera está en buenas manos!"
+			"pad": "Comida, agua y refugio juntos traen más animales. Consulta tu diario, en los menús ({menu}), para saber qué necesita cada uno. ¡La pradera está en buenas manos!"
 		}
 	},
 	"help": {
@@ -700,26 +700,27 @@
 				"dpad": "Cruceta"
 			},
 			"move": "Caminar",
-			"interact": "Usar lo que tienes al lado",
+			"interact": "Usar lo que tienes al lado, o conocer a un animal cercano",
 			"back": "Cerrar, o dejar de colocar",
-			"pointer": "Mover el puntero",
-			"use": "Hacer clic en el puntero: colocar, cavar, regar, pintar o abrir un objeto",
-			"pickUp": "Recoger el objeto bajo el puntero",
-			"recenter": "Traer el puntero a tu lado",
+			"pointer": "Mover la casilla marcada a tu alrededor",
+			"use": "Usar tu herramienta en la casilla marcada: colocar, cavar, regar, pintar o abrir un objeto",
+			"pickUp": "Recoger el objeto de la casilla marcada",
+			"recenter": "Volver a poner la casilla marcada delante de ti",
 			"tools": "Herramienta anterior / siguiente",
 			"adjust": "Girar lo que colocas, o cambiar el tamaño del pincel o el color",
 			"zoom": "Acercar / alejar",
 			"crafting": "Fabricación",
 			"basket": "Cesta",
 			"preserve": "Mapa de la reserva",
-			"tasks": "Mostrar u ocultar el tablero de tareas",
-			"menu": "Menú del juego: todos los paneles, ajustes y ayuda",
+			"tasks": "Elegir cosas del HUD: metas, tablero de tareas, tutorial",
+			"menu": "Abrir los menús",
 			"navigate": "Moverse entre botones",
 			"select": "Seleccionar",
 			"close": "Atrás / cerrar",
-			"tabs": "Cambiar de pestaña",
+			"tabs": "Cambiar de pestaña dentro de un menú",
 			"scroll": "Desplazar",
-			"slider": "Cambiar un control deslizante o una lista"
+			"slider": "Cambiar un control deslizante o una lista",
+			"menuCycle": "Menú anterior / siguiente"
 		}
 	},
 	"tasks": {

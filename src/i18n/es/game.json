@@ -131,6 +131,7 @@
 		"near": "{verb} — {label}",
 		"rotateHintPad": " · {key} para girar",
 		"padCancel": " · {key} para cancelar",
-		"padStopPlacing": " · {key} para dejar de colocar"
+		"padStopPlacing": " · {key} para dejar de colocar",
+		"padAnimal": "{verb} — Conocer: {name}"
 	}
 }

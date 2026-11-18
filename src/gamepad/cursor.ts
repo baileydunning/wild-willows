@@ -1,17 +1,19 @@
-// A virtual mouse pointer for the controller.
+// An invisible mouse pointer for the controller.
 //
 // The world is built for pointing: placing an object, digging a bed, watering,
-// painting, clicking an animal or a placed item all happen "at the pointer"
-// (WorldScene reads activePointer). Rather than fork every one of those paths,
-// the right stick drives an on-screen cursor and the triggers click with it —
-// by dispatching the same mouse events a real mouse would, to whatever element
-// is under the cursor. Phaser's MouseManager and React both take them as-is, so
-// the controller reaches exactly what the mouse reaches, Shift-click included.
+// painting, clicking a placed item all happen "at the pointer" (WorldScene reads
+// activePointer). On a controller the player never sees a pointer — they aim at
+// a tile beside the caretaker — but rather than fork every one of those paths,
+// this pointer is parked on the aim tile and the triggers click with it, by
+// dispatching the same mouse events a real mouse would. Phaser's MouseManager
+// takes them as-is, so the controller reaches exactly what the mouse reaches,
+// Shift-click included. The dot can still be drawn, for debugging.
 
 let el: HTMLDivElement | null = null;
 let x = -1;
 let y = -1;
-let shown = false;
+let shown = false; // dispatching pointer events
+let drawn = false; // and visible on screen
 
 function ensureEl(): HTMLDivElement {
 	if (el && el.isConnected) return el;
@@ -25,7 +27,7 @@ function ensureEl(): HTMLDivElement {
 function paint() {
 	const c = ensureEl();
 	c.style.transform = `translate(${x}px, ${y}px)`;
-	c.classList.toggle('on', shown);
+	c.classList.toggle('on', shown && drawn);
 }
 
 export function cursorPos() {
@@ -35,8 +37,13 @@ export function cursorShown() {
 	return shown;
 }
 
-export function showCursor(on: boolean) {
-	if (on === shown) return;
+export function showCursor(on: boolean, visible = false) {
+	if (on === shown && visible === drawn) return;
+	drawn = visible;
+	if (on === shown) {
+		paint();
+		return;
+	}
 	shown = on;
 	if (on && x < 0) {
 		x = innerWidth / 2;
@@ -89,19 +96,13 @@ function hover() {
 
 /** Put the cursor at a screen position (clamped to the window). */
 export function moveCursorTo(nx: number, ny: number) {
-	x = Math.min(innerWidth - 2, Math.max(1, nx));
-	y = Math.min(innerHeight - 2, Math.max(1, ny));
+	const cx = Math.min(innerWidth - 2, Math.max(1, nx));
+	const cy = Math.min(innerHeight - 2, Math.max(1, ny));
+	if (Math.abs(cx - x) < 0.5 && Math.abs(cy - y) < 0.5) return; // parked: nothing to tell anyone
+	x = cx;
+	y = cy;
 	paint();
 	if (shown) hover();
-}
-
-/** Nudge the cursor by a stick vector for one frame. Squared response curve:
- *  a light push crawls tile by tile, a full push crosses the screen in ~1.5s. */
-export function driveCursor(sx: number, sy: number, dt: number) {
-	const mag = Math.hypot(sx, sy);
-	if (!mag) return;
-	const speed = 120 + 900 * mag * mag; // px/s
-	moveCursorTo(x + (sx / mag) * speed * mag * dt, y + (sy / mag) * speed * mag * dt);
 }
 
 /** Click at the cursor. `shift` makes it a Shift-click (pick up in the world). */

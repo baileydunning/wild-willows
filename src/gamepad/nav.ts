@@ -21,7 +21,10 @@ const FOCUSABLE = [
 	'[tabindex]:not([tabindex="-1"])',
 ].join(',');
 
-const RING = 'gp-focus';
+// The ring is a data attribute, not a class: React rewrites `className` whenever
+// a control's own classes change (a key flashing "pressed", a toggle turning
+// "on"), which would strip a class off the very control the player is on.
+const RING = 'data-pad-focus';
 let ringEl: HTMLElement | null = null;
 // Where the ring last was, so a control React re-renders out from under it
 // (pressing a swatch, a list re-sorting) hands the ring to whatever now sits
@@ -30,7 +33,7 @@ let lastCenter: { x: number; y: number; surface: HTMLElement; kind: string } | n
 
 /** Tag plus first class: enough to tell "the same chip, re-rendered" from a
  *  different screen that happens to put a control in the same place. */
-const kindOf = (el: Element) => `${el.tagName}.${Array.from(el.classList).find((c) => c !== 'gp-focus') || ''}`;
+const kindOf = (el: Element) => `${el.tagName}.${el.classList[0] || ''}`;
 
 /** Whether the HUD "menu mode" (Menu button) is scoping navigation to the HUD. */
 let hudMode = false;
@@ -98,17 +101,25 @@ export function ringed(): HTMLElement | null {
 	return ringEl;
 }
 
+// A control that should get the ring the next time one is placed (the text
+// field the on-screen keyboard just typed into). Survives clearRing, because
+// closing the keyboard changes the surface and clears the ring on the way.
+let pending: HTMLElement | null = null;
+export function preferRing(el: HTMLElement) {
+	pending = el;
+}
+
 export function clearRing() {
-	ringEl?.classList.remove(RING);
+	ringEl?.removeAttribute(RING);
 	ringEl = null;
 	lastCenter = null;
 }
 
 export function setRing(el: HTMLElement, scroll = true) {
 	if (ringEl !== el) {
-		ringEl?.classList.remove(RING);
+		ringEl?.removeAttribute(RING);
 		ringEl = el;
-		el.classList.add(RING);
+		el.setAttribute(RING, '');
 	}
 	if (!isFormControl(el)) {
 		try {
@@ -150,7 +161,10 @@ export function initialFocus(surface: HTMLElement): HTMLElement | null {
 		const nav = all.find((el) => el.closest('.nav-group-btns'));
 		if (nav) return nav;
 	}
-	const preferred = all.find((el) => el.hasAttribute('data-pad-default'));
+	const preferred =
+		all.find((el) => el.hasAttribute('data-pad-default')) ||
+		// a screen's main action, like Continue or New Game on the title screen
+		(!surface.querySelector('.panel-body') ? all.find((el) => el.classList.contains('primary')) : undefined);
 	if (preferred) return preferred;
 	const selectedTab = all.find((el) => el.getAttribute('aria-selected') === 'true');
 	const body = all.find((el) => el.closest('.panel-body') && inView(el) && !el.closest('.tabs'));
@@ -165,6 +179,14 @@ export function initialFocus(surface: HTMLElement): HTMLElement | null {
 export function ensureRing(surface: HTMLElement): HTMLElement | null {
 	const cur = ringed();
 	if (cur && surface.contains(cur) && visible(cur)) return cur;
+	if (pending) {
+		const p = pending;
+		pending = null;
+		if (p.isConnected && surface.contains(p) && visible(p)) {
+			setRing(p);
+			return p;
+		}
+	}
 	if (lastCenter && lastCenter.surface === surface) {
 		const { x, y } = lastCenter;
 		let near: HTMLElement | null = null;
@@ -185,7 +207,23 @@ export function ensureRing(surface: HTMLElement): HTMLElement | null {
 	}
 	const first = initialFocus(surface);
 	if (first) setRing(first);
+	autoPlaced = true;
 	return first;
+}
+
+// True while the ring sits where ensureRing put it and the player hasn't moved
+// it yet. A screen that is still loading (the title screen's buttons are
+// disabled until the game data arrives) first gets the ring on whatever is
+// pressable; once its real first choice appears, the ring moves there.
+let autoPlaced = false;
+export function refreshAutoRing(surface: HTMLElement) {
+	if (!autoPlaced) return;
+	const cur = ringed();
+	const best = initialFocus(surface);
+	if (best && best !== cur) {
+		setRing(best);
+		autoPlaced = true;
+	}
 }
 
 function center(r: DOMRect) {
@@ -244,6 +282,7 @@ export function moveRing(surface: HTMLElement, dir: Dir): boolean {
 	}
 	if (!best) return false;
 	setRing(best);
+	autoPlaced = false;
 	return true;
 }
 

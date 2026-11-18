@@ -23,7 +23,8 @@ class Bridge {
 		placing: boolean;
 		// Where the caretaker is on the canvas, in canvas (game) pixels, so the
 		// controller's pointer can be put back beside them.
-		playerScreen: { x: number; y: number; facingLeft: boolean } | null;
+		// aimX/aimY: the controller's aim tile, same coordinates.
+		playerScreen: { x: number; y: number; facingLeft: boolean; aimX: number; aimY: number } | null;
 		// True while a React panel/card/help overlay is open. The world ignores
 		// pointer clicks in this state so you can't move or place "through" a modal.
 		uiBlocking: boolean;
@@ -73,5 +74,6 @@ class Bridge {
 //  Phaser -> React: 'collect-node', 'open-chest', 'open-crafting', 'open-journal',
 //                   'open-mirror', 'open-finds', 'open-telescope', 'open-tarot', 'open-biomes', 'animal-clicked', 'request-area', 'place-at', 'toast', 'prompt',
 //                   'placement-exited', 'remove-placement', 'toggle-light'
-//  Controller -> Phaser: 'pad-interact', 'pad-cancel', 'pad-rotate' (±1), 'pad-zoom' (±1)
+//  Controller -> Phaser: 'pad-interact', 'pad-cancel', 'pad-rotate' (±1), 'pad-zoom' (±1),
+//                        'pad-aim' ({x,y} tile step), 'pad-aim-reset'
 export const bridge = new Bridge();

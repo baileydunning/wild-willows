@@ -570,5 +570,16 @@
 	"confirmDialog": {
 		"ok": "OK",
 		"cancel": "Cancel"
+	},
+	"keyboard": {
+		"title": "Keyboard",
+		"shift": "Shift",
+		"space": "Space",
+		"backspace": "Delete",
+		"done": "Done",
+		"newline": "New line"
+	},
+	"menuTabs": {
+		"label": "Menus"
 	}
 }

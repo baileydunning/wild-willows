@@ -90,7 +90,9 @@ export function familyFromId(id: string): PadFamily {
 
 type Listener = () => void;
 const listeners = new Set<Listener>();
-let mode: InputMode = 'kbm';
+// A Steam Deck starts on its controls: the selection ring shows on the title
+// screen before anything is pressed.
+let mode: InputMode = isSteamDeckHost() ? 'pad' : 'kbm';
 let family: PadFamily = isSteamDeckHost() ? 'deck' : 'xbox';
 let everSeen = false;
 
@@ -158,15 +160,21 @@ if (typeof window !== 'undefined') {
 	window.addEventListener(
 		'pointerdown',
 		(e) => {
-			if (e.isTrusted && e.pointerType !== '') setInputMode('kbm');
+			// A mouse or pen click. NOT a touch: tapping a Steam Deck's screen
+			// mid-game shouldn't swap every prompt over to keyboard keys.
+			if (e.isTrusted && (e.pointerType === 'mouse' || e.pointerType === 'pen')) setInputMode('kbm');
 		},
 		true,
 	);
+	// Browsers only announce a pad once one of its buttons is pressed, so this
+	// IS the player reaching for it.
 	window.addEventListener('gamepadconnected', (e: any) => {
 		everSeen = true;
 		setFamily(familyFromId(e.gamepad?.id || ''));
+		setInputMode('pad');
 		emit();
 	});
+	if (mode === 'pad') document.body?.classList.add('pad-active');
 }
 
 // --------------------------------------------------------------------- poll

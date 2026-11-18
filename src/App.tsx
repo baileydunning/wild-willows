@@ -35,6 +35,8 @@ import { Tutorial } from './ui/Tutorial';
 import { CoachTips, dismissCoachTip } from './ui/CoachTips';
 import { ConfirmHost, confirmAsync } from './ui/ConfirmDialog';
 import { GamepadLayer } from './gamepad/GamepadLayer';
+import { OnScreenKeyboard } from './ui/OnScreenKeyboard';
+import { MenuTabs } from './ui/MenuTabs';
 
 /* ---------------------------------------------------------------- lazy panels
  *
@@ -981,6 +983,7 @@ function Root() {
 		<>
 			{state && data ? <GameScreen /> : <WelcomeScreen />}
 			<HelpModal />
+			{state && data && <MenuTabs />}
 			<GoalsUnlocked />
 			{/* The soft prompt renders first so the hard-stop popup, if both were ever
 			    somehow up at once, is the one on top. */}
@@ -997,6 +1000,7 @@ export default function App() {
 			<GameProvider>
 				<Root />
 				<ConfirmHost />
+				<OnScreenKeyboard />
 				<GamepadLayer />
 			</GameProvider>
 		</KeyboardGate>
