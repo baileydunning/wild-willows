@@ -12,10 +12,11 @@
 
 import { useEffect, useRef, useState, useSyncExternalStore } from 'react';
 import { useI18n } from '../i18n/react';
-import { padCap, usePadState } from '../gamepad/glyphs';
+import { usePadState } from '../gamepad/glyphs';
 import { preferRing, setFieldValue } from '../gamepad/nav';
 import { getPadFamily } from '../gamepad/pad';
 import { Icon } from './icons';
+import { PadCap } from './PadCap';
 
 type Field = HTMLInputElement | HTMLTextAreaElement;
 
@@ -267,25 +268,25 @@ function KeyboardCard({ field }: { field: Field }) {
 				{onPad && (
 					<div className="osk-hints" aria-hidden="true">
 						<span>
-							<kbd className="pad-cap">{padCap('X')}</kbd> {t('app.keyboard.backspace')}
+							<PadCap btn="X" /> {t('app.keyboard.backspace')}
 						</span>
 						{!numeric && (
 							<span>
-								<kbd className="pad-cap">{padCap('Y')}</kbd> {t('app.keyboard.space')}
+								<PadCap btn="Y" /> {t('app.keyboard.space')}
 							</span>
 						)}
 						{!numeric && (
 							<span>
-								<kbd className="pad-cap">{padCap('LB')}</kbd> {t('app.keyboard.shift')}
+								<PadCap btn="LB" /> {t('app.keyboard.shift')}
 							</span>
 						)}
 						{!numeric && (
 							<span>
-								<kbd className="pad-cap">{padCap('RB')}</kbd> {t('app.keyboard.symbols')}
+								<PadCap btn="RB" /> {t('app.keyboard.symbols')}
 							</span>
 						)}
 						<span>
-							<kbd className="pad-cap">{padCap('MENU')}</kbd> {t('app.keyboard.done')}
+							<PadCap btn="MENU" /> {t('app.keyboard.done')}
 						</span>
 					</div>
 				)}

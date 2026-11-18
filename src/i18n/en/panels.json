@@ -629,7 +629,8 @@
 			},
 			"craft": {
 				"title": "Craft",
-				"text": "Press C to turn materials into habitat. New recipes unlock as a biome recovers."
+				"text": "Press C to turn materials into habitat. New recipes unlock as a biome recovers.",
+				"pad": "Press {x} to turn materials into habitat. New recipes unlock as a biome recovers."
 			},
 			"rebuild": {
 				"title": "Rebuild",
@@ -637,7 +638,8 @@
 			},
 			"welcome": {
 				"title": "Welcome them back",
-				"text": "When the habitat fits, the animal returns on its own. Click it to observe it."
+				"text": "When the habitat fits, the animal returns on its own. Click it to observe it.",
+				"pad": "When the habitat fits, the animal returns on its own. Walk up to it and press {a} to observe it."
 			},
 			"record": {
 				"title": "Record & grow",
@@ -680,7 +682,8 @@
 		"more": {
 			"animals": {
 				"title": "Bringing more animals",
-				"text": "Each needs food, water, and shelter placed close together. The journal (J) lists what each animal needs."
+				"text": "Each needs food, water, and shelter placed close together. The journal (J) lists what each animal needs.",
+				"pad": "Each needs food, water, and shelter placed close together. The journal ({y}) lists what each animal needs."
 			},
 			"home": {
 				"title": "Your home",
@@ -688,11 +691,13 @@
 			},
 			"tools": {
 				"title": "Tools & upgrades",
-				"text": "Press T to spend materials on a bigger basket, stronger tools, and new field guides."
+				"text": "Press T to spend materials on a bigger basket, stronger tools, and new field guides.",
+				"pad": "Press {menu} to spend materials on a bigger basket, stronger tools, and new field guides."
 			},
 			"land": {
 				"title": "Heal the land",
-				"text": "Dig a bed (2), water it (3), then plant — or water it again to flood a pond, river, or lake."
+				"text": "Dig a bed (2), water it (3), then plant — or water it again to flood a pond, river, or lake.",
+				"pad": "Dig a bed with the shovel, water it with the can, then plant. Or water it again to flood a pond, river, or lake."
 			}
 		},
 		"padLabel": "Controller",

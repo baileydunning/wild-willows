@@ -65,7 +65,8 @@ const AUDIO_FIELDS = ['musicEnabled', 'sfxEnabled', 'musicVolume', 'sfxVolume'];
 // belongs in a hardware section of the dashboard rather than inflating the
 // accessibility numbers — the same line the font picker and dark mode sit on. It
 // stays out of the a11y chain until that section exists.
-const NOT_AGGREGATED = ['keybinds', 'graphicsQuality'];
+// frameCap is a battery and performance choice, like graphicsQuality: not assistive.
+const NOT_AGGREGATED = ['keybinds', 'graphicsQuality', 'frameCap'];
 
 describe('accessibility metrics reach the dashboard', () => {
 	const prefsFields = topLevelKeys(blockAfter(PREFS, 'export interface Prefs'));

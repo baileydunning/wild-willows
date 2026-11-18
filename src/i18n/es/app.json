@@ -171,7 +171,8 @@
 			"unlockTitle": "Desbloquea biomas",
 			"unlockText": "Restaura por completo un bioma y se abrirá el sendero al siguiente — todo un lugar nuevo por recuperar.",
 			"reassure": "¿Primera vez? Cuando empieces, una guía amable te acompañará en tus primeros pasos — no hay nada que memorizar.",
-			"gotIt": "Entendido"
+			"gotIt": "Entendido",
+			"welcomeTextPad": "A medida que la tierra sana, los animales encuentran el camino a casa. Acércate a uno y pulsa {a} para conocerlo."
 		},
 		"language": "Idioma",
 		"demoSaveUnreachable": "No pudimos conectar con el servidor, así que tu reserva guardada no está disponible ahora. Está a salvo — inténtalo de nuevo en un momento.",
@@ -513,7 +514,10 @@
 			"high": "Resolución completa, partículas y efectos de clima. Ideal para una computadora potente.",
 			"low": "Renderizado más ligero para computadoras más lentas o antiguas: menos partículas, un efecto de clima más sutil y un lienzo de menor resolución. Prueba esto si el juego se siente lento."
 		},
-		"padTitle": "Mando"
+		"padTitle": "Mando",
+		"frameRate": "Fotogramas por segundo",
+		"frameRateHint": "Un límite más bajo ahorra batería y calienta menos. En una Steam Deck, 40 es un buen equilibrio.",
+		"frameRateMax": "Máx."
 	},
 	"kbGate": {
 		"title": "Wild Willows necesita un teclado",
@@ -591,5 +595,18 @@
 	},
 	"selectPicker": {
 		"title": "Elige una opción"
+	},
+	"padHints": {
+		"gather": "Con la cesta en la mano, camina sobre un punto brillante del suelo y pulsa {a}.",
+		"craftFirst": "Abre la fabricación ({x}), elige algo que puedas permitirte y pulsa {a} sobre Fabricar.",
+		"plant": "Cava un lecho con la pala, riégalo con la regadera y luego pulsa {a} sobre él con la cesta para elegir qué sembrar.",
+		"harvest": "Dale tiempo a tus plántulas para madurar, luego pulsa {a} sobre una planta crecida y recoge su cosecha. Vuelve a crecer, así que un prado plantado sigue dando.",
+		"rest": "Abre la fabricación ({x}) y haz un saco de dormir con 4 de fibra, entra en tu tienda, colócalo y pulsa {a} sobre él para dormir. Una noche de descanso renueva todos los puntos de recolección de la reserva.",
+		"buildTen": "Abre la fabricación ({x}). Cada pieza de hábitat que hagas y coloques cuenta, y se abren más recetas a medida que la pradera se recupera.",
+		"stream": "Cava tres lechos seguidos con la pala y riega cada uno dos veces con la regadera. La segunda pasada inunda el lecho y lo vuelve agua abierta. Los tramos encadenados forman un arroyo que necesitan los animales de agua.",
+		"goalCraft": "Abre la fabricación ({x}) y créalo. Su tarjeta indica los materiales que necesita.",
+		"goalBuild": "Fabrícalo ({x}) y luego colócalo en el bioma desde la barra 'listo para colocar'.",
+		"goalGrow": "Cava un bancal con la pala, riégalo con la regadera y luego plántalo desde el menú del bancal ({a}).",
+		"bedJustWatered": "Ese bancal acaba de regarse. Vuelve a pulsar {a} sobre él con la regadera si quieres inundarlo y convertirlo en agua abierta."
 	}
 }

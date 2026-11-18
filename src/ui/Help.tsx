@@ -6,7 +6,8 @@ import { usePrefs } from '../prefs';
 import { savedTutorialPos } from './Tutorial';
 import { Icon } from './icons';
 import { PadControls } from './PadControls';
-import { usePadState } from '../gamepad/glyphs';
+import { padVars, usePadState } from '../gamepad/glyphs';
+import { hasKey } from '../i18n';
 
 // Step copy lives in the panels.help.loop.* catalog keys.
 const STEPS: Array<{ icon: string; key: string }> = [
@@ -34,6 +35,9 @@ export function HelpModal() {
 	const { t } = useI18n();
 	usePrefs(); // reflect live key bindings
 	const pad = usePadState();
+	// Controller wording where a tip names a key, keyboard wording otherwise.
+	const helpText = (key: string) =>
+		pad.mode === 'pad' && hasKey(`${key}.pad`) ? t(`${key}.pad`, padVars(t)) : t(`${key}.text`);
 	if (!helpOpen) return null;
 	// In solo play there's no People/invite system, so drop those keys entirely.
 	const keys = visibleShortcuts();
@@ -80,7 +84,7 @@ export function HelpModal() {
 								</div>
 								<div>
 									<b>{t(`panels.help.loop.${s.key}.title`)}</b>
-									<p>{t(`panels.help.loop.${s.key}.text`)}</p>
+									<p>{helpText(`panels.help.loop.${s.key}`)}</p>
 								</div>
 							</div>
 						))}
@@ -96,7 +100,7 @@ export function HelpModal() {
 								</div>
 								<div>
 									<b>{t(`panels.help.more.${s.key}.title`)}</b>
-									<p>{t(`panels.help.more.${s.key}.text`)}</p>
+									<p>{helpText(`panels.help.more.${s.key}`)}</p>
 								</div>
 							</div>
 						))}

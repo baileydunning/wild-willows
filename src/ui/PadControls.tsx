@@ -2,6 +2,7 @@ import { padCap, usePadState } from '../gamepad/glyphs';
 import type { BtnName } from '../gamepad/pad';
 import { useI18n } from '../i18n/react';
 import { PAD_SHORTCUTS, type PadCapToken } from '../shortcuts';
+import { PadCap } from './PadCap';
 
 const WORDS: Partial<Record<PadCapToken, string>> = {
 	LSTICK: 'panels.help.pad.cap.leftStick',
@@ -18,17 +19,21 @@ export function PadControls() {
 		if (word) return t(word);
 		if (c === 'DPAD_UD') return `${t('panels.help.pad.cap.dpad')} ${padCap('UP')}${padCap('DOWN')}`;
 		if (c === 'DPAD_LR') return `${t('panels.help.pad.cap.dpad')} ${padCap('LEFT')}${padCap('RIGHT')}`;
-		return padCap(c as BtnName);
+		return '';
 	};
 	const rows = (menus: boolean) =>
 		PAD_SHORTCUTS.filter((s) => !!s.menus === menus).map((s) => (
 			<div className="key-row" key={`${s.does}-${menus}`}>
 				<span className="kbds">
-					{s.caps.map((c) => (
-						<kbd key={c} className="pad-cap">
-							{cap(c)}
-						</kbd>
-					))}
+					{s.caps.map((c) =>
+						WORDS[c] || c === 'DPAD_UD' || c === 'DPAD_LR' ? (
+							<kbd key={c} className="pad-cap pad-cap-word">
+								{cap(c)}
+							</kbd>
+						) : (
+							<PadCap key={c} btn={c as BtnName} />
+						),
+					)}
 				</span>
 				<span>{t(s.does)}</span>
 			</div>

@@ -20,6 +20,7 @@ import { Icon } from './icons';
 import { BIND_ACTIONS, getBindings, keyLabel } from '../keybindings';
 import { usePrefs } from '../prefs';
 import { padVars, usePadState } from '../gamepad/glyphs';
+import { padHint } from '../gamepad/padHints';
 import { TasksWidget } from './TasksWidget';
 import { TUTORIAL_MENUS_STEP, tutorialReached } from './Tutorial';
 import { liveTime } from '../weather';
@@ -684,7 +685,7 @@ export function Toasts() {
 			{toasts.map((toast) => (
 				<div key={toast.id} className={`toast toast-${toast.kind}`}>
 					<Icon name={iconFor[toast.kind] || 'leaf'} size={17} />
-					<span>{toast.text}</span>
+					<span>{padHint(toast.text, t)}</span>
 					<button
 						className="toast-close"
 						onClick={() => dismissToast(toast.id)}

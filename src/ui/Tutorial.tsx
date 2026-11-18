@@ -8,7 +8,8 @@ import { Icon } from './icons';
 import { isTouchDevice } from './MobileControls';
 import { DEMO } from '../demo';
 import { hasKey } from '../i18n';
-import { padCap, padVars, usePadState } from '../gamepad/glyphs';
+import { padVars, usePadState } from '../gamepad/glyphs';
+import { PadCap } from './PadCap';
 
 interface StepDef {
 	icon: string;
@@ -560,7 +561,7 @@ export function Tutorial() {
 								title={t('panels.tutorial.prevStep')}
 								aria-label={t('panels.tutorial.prevStep')}
 							>
-								{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('UP')}</kbd>}
+								{onPad && <PadCap btn="UP" className="tutorial-pad-cap" />}
 								<Icon name="back" size={14} /> {t('panels.tutorial.back')}
 							</button>
 							{isLast ? (
@@ -573,7 +574,7 @@ export function Tutorial() {
 									}}
 								>
 									<Icon name="check" size={15} /> {t('panels.tutorial.finish')}
-									{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('DOWN')}</kbd>}
+									{onPad && <PadCap btn="DOWN" className="tutorial-pad-cap" />}
 								</button>
 							) : (
 								<button
@@ -584,7 +585,7 @@ export function Tutorial() {
 									aria-label={t('panels.tutorial.nextStep')}
 								>
 									{t('panels.tutorial.next')} <Icon name="forward" size={15} />
-									{onPad && <kbd className="pad-cap tutorial-pad-cap">{padCap('DOWN')}</kbd>}
+									{onPad && <PadCap btn="DOWN" className="tutorial-pad-cap" />}
 								</button>
 							)}
 						</div>

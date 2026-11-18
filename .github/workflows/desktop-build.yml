@@ -154,6 +154,20 @@ jobs:
           include-hidden-files: true
           path: dist/win-unpacked
 
+      # Steam takes a plain folder for a depot, not an AppImage: Steam's Linux
+      # runtime launches the binary directly and handles updates itself, while an
+      # AppImage needs FUSE and re-mounts itself on every launch. electron-builder
+      # leaves the unpacked app it built the AppImage from in dist/linux-unpacked,
+      # so this just publishes that folder for upload to the Steam depot.
+      - name: Upload Linux folder for Steam
+        if: matrix.os == 'ubuntu-latest'
+        uses: actions/upload-artifact@v4
+        with:
+          name: wild-willows-linux-steam
+          if-no-files-found: error
+          retention-days: 14
+          path: dist/linux-unpacked
+
       - name: Upload installers/archives (macOS / Linux)
         if: matrix.os != 'windows-latest'
         uses: actions/upload-artifact@v4

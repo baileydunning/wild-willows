@@ -13,6 +13,7 @@ import {
 	useResolvedTheme,
 	FONT_CHOICES,
 	GRAPHICS_QUALITIES,
+	FRAME_CAPS,
 	type TextScale,
 	type ColorblindMode,
 	type FontChoice,
@@ -459,6 +460,34 @@ export function GraphicsQualityControl() {
 					>
 						<Icon name={id === 'high' ? 'sparkle' : 'leaf'} size={15} />
 						<span>{t(`app.settings.graphicsQuality${id[0].toUpperCase()}${id.slice(1)}`)}</span>
+					</button>
+				))}
+			</div>
+		</div>
+	);
+}
+
+/** Frame-rate cap: as fast as the display, or 60 / 40 / 30 to save battery. */
+export function FrameRateControl() {
+	const { t } = useI18n();
+	const prefs = usePrefs();
+	return (
+		<div className="a11y-row theme-row">
+			<span className="a11y-label">
+				<b>{t('app.settings.frameRate')}</b>
+				<span className="muted small">{t('app.settings.frameRateHint')}</span>
+			</span>
+			<div className="theme-picker" role="radiogroup" aria-label={t('app.settings.frameRate')}>
+				{FRAME_CAPS.map((cap) => (
+					<button
+						key={cap}
+						type="button"
+						role="radio"
+						aria-checked={prefs.frameCap === cap}
+						className={`theme-chip ${prefs.frameCap === cap ? 'on' : ''}`}
+						onClick={() => setPrefs({ frameCap: cap })}
+					>
+						<span>{cap === 0 ? t('app.settings.frameRateMax') : cap}</span>
 					</button>
 				))}
 			</div>
@@ -949,6 +978,7 @@ export function SettingsPanel() {
 						<Icon name="monitor" size={15} /> {t('app.settings.graphics')}
 					</h3>
 					<GraphicsQualityControl />
+					<FrameRateControl />
 
 					<h3>
 						<Icon name="sliders" size={15} /> {t('app.settings.accessibility')}

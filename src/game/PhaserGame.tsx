@@ -115,7 +115,19 @@ export function PhaserGame() {
 		// Switching Graphics Quality in Settings takes effect immediately, without a
 		// reload — re-run the same resize path used for a window/monitor change.
 		let lastQuality = getPrefs().graphicsQuality;
+		// Frame-rate cap (Settings → Graphics), applied live to Phaser's loop. The
+		// TimeStep reads these three fields every frame, so setting them is all a
+		// change needs; 0 means no cap.
+		const applyFrameCap = (cap: number) => {
+			const loop: any = game.current?.loop;
+			if (!loop) return;
+			loop.fpsLimit = cap;
+			loop.hasFpsLimit = cap > 0;
+			loop._limitRate = cap > 0 ? 1000 / cap : 0;
+		};
+		applyFrameCap(getPrefs().frameCap);
 		const unsubPrefs = subscribePrefs((p) => {
+			applyFrameCap(p.frameCap);
 			if (p.graphicsQuality === lastQuality) return;
 			lastQuality = p.graphicsQuality;
 			applySize();

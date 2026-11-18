@@ -1,6 +1,7 @@
 import { useGame } from '../state';
 import { useI18n } from '../i18n/react';
-import { padCap, usePadState } from '../gamepad/glyphs';
+import { usePadState } from '../gamepad/glyphs';
+import { PadCap } from './PadCap';
 import { MENU_CYCLE, currentMenu, menuName, openMenu } from '../gamepad/menus';
 import { Icon } from './icons';
 
@@ -17,9 +18,7 @@ export function MenuTabs() {
 	if (pad.mode !== 'pad' || !cur) return null;
 	return (
 		<nav className="menu-tabs" aria-label={t('app.menuTabs.label')}>
-			<kbd className="pad-cap menu-tabs-cap" aria-hidden="true">
-				{padCap('LB')}
-			</kbd>
+			<PadCap btn="LB" className="menu-tabs-cap" />
 			{MENU_CYCLE.map((m) => {
 				const name = menuName(t(m.label));
 				const on = m.id === cur;
@@ -39,9 +38,7 @@ export function MenuTabs() {
 					</button>
 				);
 			})}
-			<kbd className="pad-cap menu-tabs-cap" aria-hidden="true">
-				{padCap('RB')}
-			</kbd>
+			<PadCap btn="RB" className="menu-tabs-cap" />
 		</nav>
 	);
 }

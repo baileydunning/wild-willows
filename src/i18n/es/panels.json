@@ -628,7 +628,8 @@
 			},
 			"craft": {
 				"title": "Fabrica",
-				"text": "Pulsa C para convertir materiales en hábitat. Se desbloquean recetas al recuperarse un bioma."
+				"text": "Pulsa C para convertir materiales en hábitat. Se desbloquean recetas al recuperarse un bioma.",
+				"pad": "Pulsa {x} para convertir materiales en hábitat. Se desbloquean recetas nuevas a medida que un bioma se recupera."
 			},
 			"rebuild": {
 				"title": "Reconstruye",
@@ -636,7 +637,8 @@
 			},
 			"welcome": {
 				"title": "Dales la bienvenida",
-				"text": "Cuando el hábitat encaja, el animal vuelve solo. Haz clic para observarlo."
+				"text": "Cuando el hábitat encaja, el animal vuelve solo. Haz clic para observarlo.",
+				"pad": "Cuando el hábitat encaja, el animal vuelve por sí solo. Acércate y pulsa {a} para observarlo."
 			},
 			"record": {
 				"title": "Registra y crece",
@@ -679,7 +681,8 @@
 		"more": {
 			"animals": {
 				"title": "Traer más animales",
-				"text": "Cada uno necesita comida, agua y refugio juntos. El diario (J) indica qué necesita cada animal."
+				"text": "Cada uno necesita comida, agua y refugio juntos. El diario (J) indica qué necesita cada animal.",
+				"pad": "Cada uno necesita comida, agua y refugio colocados cerca. El diario ({y}) indica lo que necesita cada animal."
 			},
 			"home": {
 				"title": "Tu hogar",
@@ -687,11 +690,13 @@
 			},
 			"tools": {
 				"title": "Herramientas y mejoras",
-				"text": "Pulsa T para gastar materiales en una cesta más grande, herramientas más fuertes y nuevas guías de campo."
+				"text": "Pulsa T para gastar materiales en una cesta más grande, herramientas más fuertes y nuevas guías de campo.",
+				"pad": "Pulsa {menu} para invertir materiales en una cesta más grande, mejores herramientas y nuevas guías de campo."
 			},
 			"land": {
 				"title": "Sana la tierra",
-				"text": "Cava un lecho (2), riégalo (3) y planta; o riégalo otra vez para inundar un estanque, río o lago."
+				"text": "Cava un lecho (2), riégalo (3) y planta; o riégalo otra vez para inundar un estanque, río o lago.",
+				"pad": "Cava un lecho con la pala, riégalo con la regadera y planta. O riégalo otra vez para inundarlo y hacer un estanque, río o lago."
 			}
 		},
 		"padLabel": "Mando",

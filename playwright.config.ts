@@ -22,9 +22,10 @@ export default defineConfig({
 	projects: [
 		{
 			name: 'solo',
-			// solo.spec.ts plus the offline UI regressions (button-hover.spec.ts) —
-			// both run against the same hermetic, backend-free preview.
-			testMatch: /(solo|button-hover|journal-overflow)\.spec\.ts/,
+			// solo.spec.ts plus the offline UI regressions (button-hover.spec.ts) and
+			// controller play (controller.spec.ts) — all against the same hermetic,
+			// backend-free preview.
+			testMatch: /(solo|button-hover|journal-overflow|controller)\.spec\.ts/,
 			use: { ...devices['Desktop Chrome'], baseURL: PREVIEW_URL },
 		},
 		{

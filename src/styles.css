@@ -70,7 +70,14 @@
 	   for Spanish everywhere would leave English padded out with empty card, so
 	   English gets the tighter column and any language that needs more says so
 	   below (see the :lang rule). */
-	--hud-left-w: 324px;
+	--hud-left-w: calc(324px * var(--panel-grow));
+
+	/* Panels and cards widen with the text size the player picks (Settings →
+	   Text size), so large text gets room instead of wrapping into a tall,
+	   crowded column. Never narrower than normal: small text keeps the usual
+	   widths. Every width that uses this still stops at its max-width (a share
+	   of the screen), so nothing grows off the edge. */
+	--panel-grow: max(1, var(--ui-scale, 1));
 
 	/* Tells the browser which way to render the controls it draws itself: select
 	   popups, scrollbars, range tracks, the native colour picker. Without it those
@@ -100,7 +107,7 @@
    <html> is kept in step with the chosen language in src/i18n/index.ts, so the
    column resizes the moment the player switches. */
 :root:lang(es) {
-	--hud-left-w: 372px;
+	--hud-left-w: calc(372px * var(--panel-grow));
 }
 
 * {
@@ -628,7 +635,7 @@ input {
 
 /* Language modal (title screen). */
 .lang-panel {
-	width: 320px;
+	width: calc(320px * var(--panel-grow));
 }
 .lang-panel .lang-options {
 	display: flex;
@@ -691,7 +698,7 @@ input {
 .welcome-card {
 	position: relative;
 	z-index: 2;
-	width: 560px;
+	width: calc(560px * var(--panel-grow));
 	max-width: 94vw;
 	max-height: 92vh;
 	min-height: 0;
@@ -776,7 +783,7 @@ input {
    so those wrap onto 2-3 lines instead of 5, which is what used to push the
    Back / Begin buttons past the card's max-height and clip them. */
 .welcome-card-wide {
-	width: 860px;
+	width: calc(860px * var(--panel-grow));
 	padding-left: 28px;
 	padding-right: 28px;
 }
@@ -2363,7 +2370,7 @@ input {
 	background: var(--paper);
 	border-radius: 20px;
 	border: 2.5px solid var(--panel-edge);
-	width: 470px;
+	width: calc(470px * var(--panel-grow));
 	max-width: 94vw;
 	max-height: 88vh;
 	display: flex;
@@ -2371,7 +2378,7 @@ input {
 	box-shadow: var(--shadow);
 }
 .panel-wide {
-	width: 680px;
+	width: calc(680px * var(--panel-grow));
 }
 .panel-head {
 	display: flex;
@@ -4672,7 +4679,7 @@ kbd {
 	z-index: 40;
 	display: flex;
 	flex-direction: column;
-	width: 400px;
+	width: calc(400px * var(--panel-grow));
 	max-width: calc(100vw - 24px);
 	background: var(--surface-float-solid);
 	border: 2.5px solid var(--green-deep);
@@ -6726,7 +6733,7 @@ kbd {
 	z-index: 90;
 }
 .demo-done-card {
-	width: 440px;
+	width: calc(440px * var(--panel-grow));
 	max-width: 92vw;
 	padding: 26px 26px 24px;
 	align-items: center;
@@ -6933,7 +6940,7 @@ a.demo-nudge-store.primary:hover {
 	z-index: 88;
 }
 .goals-unlocked-card {
-	width: 480px;
+	width: calc(480px * var(--panel-grow));
 	max-width: 92vw;
 	padding: 26px 26px 24px;
 	align-items: center;
@@ -7322,7 +7329,7 @@ a.demo-nudge-store.primary:hover {
    shrinking it. Same reason the chip strip scrolls sideways instead of wrapping
    onto a second row. */
 .panel.scope-panel {
-	width: 780px;
+	width: calc(780px * var(--panel-grow));
 }
 .scope-conditions {
 	display: flex;
@@ -7605,7 +7612,7 @@ a.demo-nudge-store.primary:hover {
    measure beside its contents rail; only the table needs the full width, because
    the Celtic Cross is four cards across with a fifth laid over the middle. */
 .panel.tarot-panel {
-	width: 860px;
+	width: calc(860px * var(--panel-grow));
 }
 .panel.tarot-panel.at-landing {
 	width: 520px;
@@ -8361,7 +8368,7 @@ kbd.pad-cap {
 	z-index: 9000;
 }
 .confirm-card {
-	width: min(420px, 92vw);
+	width: min(calc(420px * var(--panel-grow)), 92vw);
 }
 .confirm-msg {
 	margin: 4px 0 18px;
@@ -8674,7 +8681,7 @@ label[data-pad-focus] {
 	z-index: 9200;
 }
 .sp-card {
-	width: min(380px, 92vw);
+	width: min(calc(380px * var(--panel-grow)), 92vw);
 }
 .sp-body {
 	display: flex;
@@ -8707,4 +8714,107 @@ label[data-pad-focus] {
 	color: var(--on-accent, var(--cream));
 	background: var(--green);
 	border-color: var(--green-deep);
+}
+
+/* ================= controller button glyphs (src/ui/PadCap.tsx) ================= */
+/* Drawn to look like the buttons on the pad: dark buttons with light labels. */
+kbd.pad-cap.pad-cap-face,
+kbd.pad-cap.pad-cap-system {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: calc(24px * var(--ui-scale));
+	height: calc(24px * var(--ui-scale));
+	padding: 0;
+	border-radius: 999px;
+	border: none;
+	background: #2e3329;
+	color: #f4f1e8;
+	font-size: calc(12.5px * var(--ui-scale));
+	font-weight: 800;
+	line-height: 1;
+	box-shadow:
+		inset 0 -2px 0 rgba(0, 0, 0, 0.35),
+		0 1px 2px rgba(0, 0, 0, 0.25);
+}
+/* View / Menu: a small pill, wide enough for a word on Xbox ("Menu") or a
+   symbol on a Deck (☰). */
+kbd.pad-cap.pad-cap-system {
+	padding: 0 calc(7px * var(--ui-scale));
+	font-size: calc(11px * var(--ui-scale));
+}
+/* Xbox and PlayStation colour their face buttons; a Deck and a Switch don't. */
+kbd.pad-cap-face[data-family='xbox'][data-btn='A'] {
+	color: #7bd35a;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='B'] {
+	color: #f2685d;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='X'] {
+	color: #5fa4f0;
+}
+kbd.pad-cap-face[data-family='xbox'][data-btn='Y'] {
+	color: #f2c84b;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='A'] {
+	color: #8db6f2;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='B'] {
+	color: #f2685d;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='X'] {
+	color: #e290d2;
+}
+kbd.pad-cap-face[data-family='playstation'][data-btn='Y'] {
+	color: #5cc7ab;
+}
+/* Bumpers and triggers: a shoulder tab, rounded on top. */
+kbd.pad-cap.pad-cap-shoulder {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	min-width: calc(32px * var(--ui-scale));
+	height: calc(22px * var(--ui-scale));
+	padding: 0 calc(7px * var(--ui-scale));
+	border: none;
+	border-radius: calc(11px * var(--ui-scale)) calc(11px * var(--ui-scale)) calc(5px * var(--ui-scale))
+		calc(5px * var(--ui-scale));
+	background: #2e3329;
+	color: #f4f1e8;
+	font-weight: 800;
+	font-size: calc(11.5px * var(--ui-scale));
+	line-height: 1;
+	box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.35);
+}
+/* Stick clicks: a ring. */
+kbd.pad-cap.pad-cap-stick {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(26px * var(--ui-scale));
+	height: calc(26px * var(--ui-scale));
+	padding: 0;
+	border-radius: 50%;
+	border: 2.5px solid #2e3329;
+	background: var(--field);
+	color: #2e3329;
+	font-weight: 800;
+	font-size: calc(10.5px * var(--ui-scale));
+	line-height: 1;
+}
+/* D-pad arrows: a small cross-key square. */
+kbd.pad-cap.pad-cap-dpad {
+	display: inline-flex;
+	align-items: center;
+	justify-content: center;
+	width: calc(22px * var(--ui-scale));
+	height: calc(22px * var(--ui-scale));
+	font-size: calc(12px * var(--ui-scale));
+	line-height: 1;
+	padding: 0;
+	border-radius: 0.3em;
+	border: none;
+	background: #2e3329;
+	color: #f4f1e8;
+	font-weight: 800;
 }

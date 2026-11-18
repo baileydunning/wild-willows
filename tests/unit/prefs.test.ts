@@ -57,6 +57,7 @@ describe('accessibility prefs', () => {
 			simpleText: false,
 			theme: 'light',
 			graphicsQuality: 'high',
+			frameCap: 0,
 		});
 		expect(normalizePrefs('nonsense')).toEqual({
 			reduceMotion: false,
@@ -73,6 +74,7 @@ describe('accessibility prefs', () => {
 			simpleText: false,
 			theme: 'light',
 			graphicsQuality: 'high',
+			frameCap: 0,
 		});
 		// bad textScale falls back; a valid colorblind mode is preserved
 		expect(normalizePrefs({ textScale: 'huge', colorblindMode: 'blueyellow' })).toEqual({
@@ -90,9 +92,13 @@ describe('accessibility prefs', () => {
 			simpleText: false,
 			theme: 'light',
 			graphicsQuality: 'high',
+			frameCap: 0,
 		});
 		// unknown mode falls back to off
 		expect(normalizePrefs({ colorblindMode: 'nope' }).colorblindMode).toBe('off');
+		// Frame-rate cap: only the offered steps survive; anything else is no cap.
+		expect(normalizePrefs({ frameCap: 40 }).frameCap).toBe(40);
+		expect(normalizePrefs({ frameCap: 25 }).frameCap).toBe(0);
 		// reduceMotion default can be seeded from the OS setting
 		expect(normalizePrefs({}, true).reduceMotion).toBe(true);
 	});
@@ -187,6 +193,7 @@ describe('accessibility prefs', () => {
 			simpleText: false,
 			theme: 'light',
 			graphicsQuality: 'high',
+			frameCap: 0,
 		});
 	});
 
